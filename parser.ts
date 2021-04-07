@@ -9,6 +9,8 @@ import {
     StateVariableDeclaration
 } from "@solidity-parser/parser/dist/ast-types";
 
+import { Analyzer } from "./analyzer";
+
 interface LineColumnPair {
     line: number;
     column: number;
@@ -38,10 +40,12 @@ export class Parser {
         this.ast = parser.parse(this.sourceCode, {
             loc: true,
             range: true,
-            tolerant: true,
+            tolerant: true
         })
 
-        this.parseSourceUnit(<SourceUnit>this.ast);
+        new Analyzer(__dirname + '/../test.sol', this.ast);
+        // this.parseSourceUnit(<SourceUnit>this.ast);
+        // console.log(JSON.stringify(this.ast));
     }
 
     parseSourceUnit = (ast: SourceUnit) => {
