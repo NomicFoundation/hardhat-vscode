@@ -14,20 +14,22 @@ export class Node {
     loc: Location;
 
     type: string;
-    name: string;
+    name?: string;
 
-    parent: Node = null;
+    parent?: Node;
     children: Node[] = [];
 
-    constructor(uri: string, loc: Location, type: string, name: string, parent: Node) {
+    constructor(uri: string, loc: Location, type: string, name?: string, parent?: Node) {
         this.uri = uri;
 
         this.loc = loc;
+        this.loc.start.line = loc.start.line - 1;
+        this.loc.end.line = loc.end.line - 1;
 
         this.type = type;
         this.name = name;
 
-        this.parent = parent ? parent : null;
+        this.parent = parent;
     }
 
     addChild = (child: Node) => {
