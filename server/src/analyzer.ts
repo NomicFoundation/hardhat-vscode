@@ -59,7 +59,7 @@ export class Analyzer {
                 case 'ContractDefinition':
                     this.analyzeContractDefinition(this.analyzerTree, child);
                     break;
-
+ 
                 default:
                     break;
             }
