@@ -9,8 +9,12 @@ import {
     Identifier,
     IndexAccess,
     MemberAccess,
-    ReturnStatement
+    ReturnStatement,
+    StructDefinition,
+    VariableDeclaration,
+    UserDefinedTypeName
 } from "@solidity-parser/parser/dist/ast-types";
+import { combineConsoleFeatures } from "vscode-languageserver";
 
 import {
     Node,
@@ -31,6 +35,8 @@ export class Analyzer {
     constructor(uri: string, ast: AST) {
         this.uri = uri;
         this.ast = ast;
+
+        console.log(JSON.stringify(ast));
 
         this.analyzeSourceUnit(<SourceUnit>ast);
 
@@ -78,6 +84,10 @@ export class Analyzer {
                 case 'FunctionDefinition':
                     this.analyzeFunctionDefinition(node, subNode);
                     break;
+
+                case 'StructDefinition':
+                    this.analyzeStructDefinition(node, subNode);
+                    break;
             
                 default:
                     break;
@@ -100,6 +110,14 @@ export class Analyzer {
     };
 
     analyzeFunctionDefinition = (parent: Node, ast: FunctionDefinition) => {
+        // const newLoc = <Location><unknown>ast.loc;
+
+        // // Find function name location
+        // if (ast.name) {
+        //     newLoc.start.column = newLoc.start.column + "function ".length;
+        //     newLoc.end.line = newLoc.start.line;
+        //     newLoc.end.column = newLoc.start.column + ast.name.length;
+        // }
         const functionDefinitionNode = new Node(this.uri, <Location><unknown>ast.loc, ast.type, ast.name, parent);
 
         for (const parameter of ast.parameters) {
@@ -114,14 +132,33 @@ export class Analyzer {
             functionDefinitionNode.addChild(parameterNode);
         }
 
-        for (const statement of ast.body!.statements) {
-            switch (statement.type) {
-                case "ExpressionStatement":
-                    this.analyzeExpressionStatement(statement)
-                    break;
+        if (ast.body) {
+            for (const statement of ast.body.statements) {
+                switch (statement.type) {
+                    case "ExpressionStatement":
+                        this.analyzeExpressionStatement(statement)
+                        break;
+    
+                    case "ReturnStatement":
+                        this.analyzeReturnStatement(statement)
+                        break;
+    
+                    default:
+                        break;
+                }
+            }
+        }
 
-                case "ReturnStatement":
-                    this.analyzeReturnStatement(statement)
+        parent.addChild(functionDefinitionNode);
+    };
+
+    analyzeStructDefinition = (parent: Node, ast: StructDefinition) => {
+        const structDefinitionNode = new Node(this.uri, <Location><unknown>ast.loc, ast.type, ast.name, parent);
+
+        for (const statement of ast.members) {
+            switch (statement.type) {
+                case "VariableDeclaration":
+                    this.analyzeVariableDeclaration(structDefinitionNode, statement)
                     break;
 
                 default:
@@ -129,7 +166,46 @@ export class Analyzer {
             }
         }
 
-        parent.addChild(functionDefinitionNode);
+        parent.addChild(structDefinitionNode);
+    }
+
+    analyzeVariableDeclaration = (parent: Node, ast: VariableDeclaration) => {
+        const newLoc = <Location><unknown>ast.loc;
+        newLoc.start.line = newLoc.end.line;
+        newLoc.start.column = newLoc.end.column;
+        newLoc.end.column = newLoc.end.column + ast.name.length;
+
+        const variableDeclarationNode = new Node(this.uri, newLoc, ast.type, ast.name, parent);
+
+        switch (ast.typeName.type) {
+            case "UserDefinedTypeName":
+                this.analyzeUserDefinedTypeName(ast.typeName);
+                break;
+
+            default:
+                break;
+        }
+
+        parent.addChild(variableDeclarationNode);
+    };
+
+    analyzeUserDefinedTypeName = (ast: UserDefinedTypeName) => {
+        const statementParent = this.findParent(ast.namePath);
+
+        // Bug in solidity parser does't give the exact location end
+        const newLoc = <Location><unknown>ast.loc;
+        newLoc.end.column = newLoc.start.column + ast.namePath.length;
+
+        const node = new Node(this.uri, newLoc, ast.type, ast.namePath);
+
+        if (statementParent) {
+            node.setParent(statementParent);
+            statementParent.addChild(node);
+
+            return;
+        }
+
+        this.orphanNodes.push(node);
     };
 
     analyzeExpressionStatement = (ast: ExpressionStatement) => {

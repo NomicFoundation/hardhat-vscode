@@ -37,9 +37,9 @@ connection.onInitialize((params) => {
             // hoverProvider: true,
             renameProvider: true,
             definitionProvider: true,
-            // typeDefinitionProvider: true,
+            typeDefinitionProvider: true,
             // implementationProvider: true,
-            // referencesProvider: true
+            referencesProvider: true
         }
     };
     if (hasWorkspaceFolderCapability) {
@@ -259,6 +259,31 @@ connection.onRenameRequest((params) => {
 // ---------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------
 // Go to definition
+function findTypeDefinition(document, position) {
+    const analyze = analyzeAST(document);
+    console.log("Position", position);
+    const node = analyze.findParentByPositionEnd({
+        line: position.line,
+        column: position.character
+    });
+    if (node && (node.type === 'UserDefinedTypeName' || node.type === 'StructDefinition')) {
+        return {
+            uri: node.uri,
+            range: vscode_languageserver_types_1.Range.create(vscode_languageserver_types_1.Position.create(node.loc.start.line, node.loc.start.column), vscode_languageserver_types_1.Position.create(node.loc.end.line, node.loc.end.column))
+        };
+    }
+    return [];
+}
+connection.onTypeDefinition((params) => {
+    console.log('onTypeDefinition', params);
+    const document = documents.get(params.textDocument.uri);
+    if (document) {
+        return findTypeDefinition(document, params.position);
+    }
+});
+// ---------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------
+// Go to definition
 function findDefinition(document, position) {
     const analyze = analyzeAST(document);
     console.log("Position", position);
@@ -279,9 +304,7 @@ connection.onDefinition((params) => {
     console.log('onDefinition', params);
     const document = documents.get(params.textDocument.uri);
     if (document) {
-        const a = findDefinition(document, params.position);
-        console.log(a);
-        return a;
+        return findDefinition(document, params.position);
     }
 });
 // ---------------------------------------------------------------------------------------------------
@@ -299,6 +322,44 @@ connection.onImplementation((params) => {
             range: vscode_languageserver_types_1.Range.create(vscode_languageserver_types_1.Position.create(10, 1), vscode_languageserver_types_1.Position.create(10, 5))
         }
     ];
+});
+// ---------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------
+// Find all references
+function _findReferencesDocumentHighlights(node, list) {
+    list.push(node);
+    for (const child of node.children) {
+        _findReferencesDocumentHighlights(child, list);
+    }
+}
+function findReferencesDocumentHighlights(document, position) {
+    const result = [];
+    const analyze = analyzeAST(document);
+    const node = analyze.findParentByPositionEnd({
+        line: position.line,
+        column: position.character
+    });
+    if (node) {
+        _findReferencesDocumentHighlights(node, result);
+    }
+    return result;
+}
+function onReferences(document, position) {
+    const highlights = findReferencesDocumentHighlights(document, position);
+    const references = highlights.map(h => {
+        return {
+            uri: h.uri,
+            range: vscode_languageserver_types_1.Range.create(vscode_languageserver_types_1.Position.create(h.loc.start.line, h.loc.start.column), vscode_languageserver_types_1.Position.create(h.loc.end.line, h.loc.end.column))
+        };
+    });
+    return references;
+}
+connection.onReferences((params) => {
+    console.log('onReferences');
+    const document = documents.get(params.textDocument.uri);
+    if (document) {
+        return onReferences(document, params.position);
+    }
 });
 // ---------------------------------------------------------------------------------------------------
 // Make the text document manager listen on the connection

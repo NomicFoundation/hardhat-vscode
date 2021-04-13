@@ -82,9 +82,9 @@ connection.onInitialize((params: InitializeParams) => {
 			// hoverProvider: true,
 			renameProvider: true,
 			definitionProvider: true,
-			// typeDefinitionProvider: true,
+			typeDefinitionProvider: true,
 			// implementationProvider: true,
-			// referencesProvider: true
+			referencesProvider: true
 		}
 	};
 
@@ -362,6 +362,42 @@ connection.onRenameRequest((params) => {
 
 // ---------------------------------------------------------------------------------------------------
 // Go to definition
+function findTypeDefinition(document: TextDocument, position: Position): Definition {
+	const analyze = analyzeAST(document);
+
+	console.log("Position", position);
+
+	const node = analyze.findParentByPositionEnd(<CustomPosition>{
+		line: position.line,
+		column: position.character
+	});
+
+	if (node && (node.type === 'UserDefinedTypeName' || node.type === 'StructDefinition')) {
+		return {
+			uri: node.uri,
+			range: Range.create(
+				Position.create(node.loc.start.line, node.loc.start.column),
+				Position.create(node.loc.end.line, node.loc.end.column),
+			)
+		};
+	}
+
+	return [];
+}
+
+connection.onTypeDefinition((params) => {
+	console.log('onTypeDefinition', params);
+	const document = documents.get(params.textDocument.uri);
+	
+	if (document) {
+		return findTypeDefinition(document, params.position);
+	}
+});
+// ---------------------------------------------------------------------------------------------------
+
+
+// ---------------------------------------------------------------------------------------------------
+// Go to definition
 function findDefinition(document: TextDocument, position: Position): Definition {
 	const analyze = analyzeAST(document);
 
@@ -392,9 +428,7 @@ connection.onDefinition((params) => {
 	const document = documents.get(params.textDocument.uri);
 	
 	if (document) {
-		const a = findDefinition(document, params.position);
-		console.log(a);
-		return a;
+		return findDefinition(document, params.position);
 	}
 });
 // ---------------------------------------------------------------------------------------------------
@@ -421,6 +455,61 @@ connection.onImplementation((params) => {
 			)
 		}
 	];
+});
+// ---------------------------------------------------------------------------------------------------
+
+
+// ---------------------------------------------------------------------------------------------------
+// Find all references
+function _findReferencesDocumentHighlights (node: Node, list: Node[]) {
+	list.push(node);
+
+	for (const child of node.children) {
+		_findReferencesDocumentHighlights(child, list);
+	}
+}
+
+function findReferencesDocumentHighlights (document: TextDocument, position: Position): Node[] {
+	const result: Node[] = [];
+
+	const analyze = analyzeAST(document);
+
+	const node = analyze.findParentByPositionEnd(<CustomPosition>{
+		line: position.line,
+		column: position.character
+	});
+
+	if (node) {
+		_findReferencesDocumentHighlights(node, result);
+	}
+
+	return result;
+}
+
+function onReferences(document: TextDocument, position: Position): any {
+	const highlights = findReferencesDocumentHighlights(document, position);
+
+	const references = highlights.map(h => {
+		return {
+			uri: h.uri,
+			range: Range.create(
+				Position.create(h.loc.start.line, h.loc.start.column),
+				Position.create(h.loc.end.line, h.loc.end.column),
+			)
+		};
+	});
+
+	return references;
+}
+
+connection.onReferences((params) => {
+	console.log('onReferences');
+
+	const document = documents.get(params.textDocument.uri);
+	
+	if (document) {
+		return onReferences(document, params.position);
+	}
 });
 // ---------------------------------------------------------------------------------------------------
 
