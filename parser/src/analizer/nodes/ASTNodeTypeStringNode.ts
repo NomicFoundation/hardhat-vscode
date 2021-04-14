@@ -1,8 +1,8 @@
-import { AST, PragmaValue } from "@solidity-parser/parser/dist/ast-types";
+import { AST, ASTNodeTypeString } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class PragmaValueNode implements Node {
+class ASTNodeTypeStringNode implements Node {
     type: string;
 
     uri: string;
@@ -13,13 +13,13 @@ class PragmaValueNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, pragmaValue: PragmaValue) {
-        this.type = pragmaValue.type;
+    constructor (uri: string, aSTNodeTypeString: ASTNodeTypeString) {
+        this.type = aSTNodeTypeString.type;
 
         this.uri = uri;
         // TO-DO: Implement name location for rename
 
-        this.astNode = pragmaValue;
+        this.astNode = aSTNodeTypeString;
     }
 
     addChild(child: Node): void {

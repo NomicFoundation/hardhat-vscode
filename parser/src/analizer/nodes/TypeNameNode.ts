@@ -1,8 +1,8 @@
-import { AST, StorageLocation } from "@solidity-parser/parser/dist/ast-types";
+import { AST, TypeName } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class StorageLocationNode implements Node {
+class TypeNameNode implements Node {
     type: string;
 
     uri: string;
@@ -13,13 +13,13 @@ class StorageLocationNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, storageLocation: StorageLocation) {
-        this.type = storageLocation.type;
+    constructor (uri: string, typeName: TypeName) {
+        this.type = typeName.type;
 
         this.uri = uri;
         // TO-DO: Implement name location for rename
 
-        this.astNode = storageLocation;
+        this.astNode = typeName;
     }
 
     addChild(child: Node): void {
