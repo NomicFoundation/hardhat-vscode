@@ -2,7 +2,7 @@ import { AST, LabelDefinition } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class LabelDefinitionNode implements Node {
+export class LabelDefinitionNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class LabelDefinitionNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, labelDefinition: LabelDefinition) {
+    constructor (labelDefinition: LabelDefinition, uri: string) {
         this.type = labelDefinition.type;
 
         this.uri = uri;

@@ -2,7 +2,7 @@ import { AST, AssemblyFunctionReturns } from "@solidity-parser/parser/dist/ast-t
 
 import { Location, Node } from './Node';
 
-class AssemblyFunctionReturnsNode implements Node {
+export class AssemblyFunctionReturnsNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class AssemblyFunctionReturnsNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, assemblyFunctionReturns: AssemblyFunctionReturns) {
+    constructor (assemblyFunctionReturns: AssemblyFunctionReturns, uri: string) {
         this.type = assemblyFunctionReturns.type;
 
         this.uri = uri;

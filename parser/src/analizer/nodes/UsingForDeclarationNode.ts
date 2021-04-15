@@ -2,7 +2,7 @@ import { AST, UsingForDeclaration } from "@solidity-parser/parser/dist/ast-types
 
 import { Location, Node } from './Node';
 
-class UsingForDeclarationNode implements Node {
+export class UsingForDeclarationNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class UsingForDeclarationNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, usingForDeclaration: UsingForDeclaration) {
+    constructor (usingForDeclaration: UsingForDeclaration, uri: string) {
         this.type = usingForDeclaration.type;
 
         this.uri = uri;

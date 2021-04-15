@@ -2,7 +2,7 @@ import { AST, NumberLiteral } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class NumberLiteralNode implements Node {
+export class NumberLiteralNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class NumberLiteralNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, numberLiteral: NumberLiteral) {
+    constructor (numberLiteral: NumberLiteral, uri: string) {
         this.type = numberLiteral.type;
 
         this.uri = uri;

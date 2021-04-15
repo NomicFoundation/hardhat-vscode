@@ -2,7 +2,7 @@ import { AST, BooleanLiteral } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class BooleanLiteralNode implements Node {
+export class BooleanLiteralNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class BooleanLiteralNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, booleanLiteral: BooleanLiteral) {
+    constructor (booleanLiteral: BooleanLiteral, uri: string) {
         this.type = booleanLiteral.type;
 
         this.uri = uri;

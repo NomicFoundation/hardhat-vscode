@@ -2,7 +2,7 @@ import { AST, InheritanceSpecifier } from "@solidity-parser/parser/dist/ast-type
 
 import { Location, Node } from './Node';
 
-class InheritanceSpecifierNode implements Node {
+export class InheritanceSpecifierNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class InheritanceSpecifierNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, inheritanceSpecifier: InheritanceSpecifier) {
+    constructor (inheritanceSpecifier: InheritanceSpecifier, uri: string) {
         this.type = inheritanceSpecifier.type;
 
         this.uri = uri;

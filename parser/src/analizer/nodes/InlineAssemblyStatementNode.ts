@@ -2,7 +2,7 @@ import { AST, InlineAssemblyStatement } from "@solidity-parser/parser/dist/ast-t
 
 import { Location, Node } from './Node';
 
-class InlineAssemblyStatementNode implements Node {
+export class InlineAssemblyStatementNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class InlineAssemblyStatementNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, inlineAssemblyStatement: InlineAssemblyStatement) {
+    constructor (inlineAssemblyStatement: InlineAssemblyStatement, uri: string) {
         this.type = inlineAssemblyStatement.type;
 
         this.uri = uri;

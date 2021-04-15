@@ -2,7 +2,7 @@ import { AST, UnaryOperation } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class UnaryOperationNode implements Node {
+export class UnaryOperationNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class UnaryOperationNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, unaryOperation: UnaryOperation) {
+    constructor (unaryOperation: UnaryOperation, uri: string) {
         this.type = unaryOperation.type;
 
         this.uri = uri;

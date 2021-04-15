@@ -2,7 +2,7 @@ import { AST, ForStatement } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class ForStatementNode implements Node {
+export class ForStatementNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class ForStatementNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, forStatement: ForStatement) {
+    constructor (forStatement: ForStatement, uri: string) {
         this.type = forStatement.type;
 
         this.uri = uri;

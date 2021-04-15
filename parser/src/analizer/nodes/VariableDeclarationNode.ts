@@ -2,7 +2,7 @@ import { AST, VariableDeclaration } from "@solidity-parser/parser/dist/ast-types
 
 import { Location, Node } from './Node';
 
-class VariableDeclarationNode implements Node {
+export class VariableDeclarationNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class VariableDeclarationNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, variableDeclaration: VariableDeclaration) {
+    constructor (variableDeclaration: VariableDeclaration, uri: string) {
         this.type = variableDeclaration.type;
 
         this.uri = uri;

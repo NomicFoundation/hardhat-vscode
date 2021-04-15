@@ -2,7 +2,7 @@ import { AST, FunctionDefinition } from "@solidity-parser/parser/dist/ast-types"
 
 import { Location, Node } from './Node';
 
-class FunctionDefinitionNode implements Node {
+export class FunctionDefinitionNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class FunctionDefinitionNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, functionDefinition: FunctionDefinition) {
+    constructor (functionDefinition: FunctionDefinition, uri: string) {
         this.type = functionDefinition.type;
 
         this.uri = uri;

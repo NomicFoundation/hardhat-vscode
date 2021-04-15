@@ -2,7 +2,7 @@ import { AST, EventDefinition } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class EventDefinitionNode implements Node {
+export class EventDefinitionNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class EventDefinitionNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, eventDefinition: EventDefinition) {
+    constructor (eventDefinition: EventDefinition, uri: string) {
         this.type = eventDefinition.type;
 
         this.uri = uri;

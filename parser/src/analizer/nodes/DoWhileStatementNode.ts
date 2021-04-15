@@ -2,7 +2,7 @@ import { AST, DoWhileStatement } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class DoWhileStatementNode implements Node {
+export class DoWhileStatementNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class DoWhileStatementNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, doWhileStatement: DoWhileStatement) {
+    constructor (doWhileStatement: DoWhileStatement, uri: string) {
         this.type = doWhileStatement.type;
 
         this.uri = uri;

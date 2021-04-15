@@ -2,7 +2,7 @@ import { AST, EnumValue } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class EnumValueNode implements Node {
+export class EnumValueNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class EnumValueNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, enumValue: EnumValue) {
+    constructor (enumValue: EnumValue, uri: string) {
         this.type = enumValue.type;
 
         this.uri = uri;

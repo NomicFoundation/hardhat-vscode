@@ -2,7 +2,7 @@ import { AST, HexLiteral } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class HexLiteralNode implements Node {
+export class HexLiteralNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class HexLiteralNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, hexLiteral: HexLiteral) {
+    constructor (hexLiteral: HexLiteral, uri: string) {
         this.type = hexLiteral.type;
 
         this.uri = uri;

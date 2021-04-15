@@ -2,7 +2,7 @@ import { AST, StateVariableDeclaration } from "@solidity-parser/parser/dist/ast-
 
 import { Location, Node } from './Node';
 
-class StateVariableDeclarationNode implements Node {
+export class StateVariableDeclarationNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class StateVariableDeclarationNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, stateVariableDeclaration: StateVariableDeclaration) {
+    constructor (stateVariableDeclaration: StateVariableDeclaration, uri: string) {
         this.type = stateVariableDeclaration.type;
 
         this.uri = uri;

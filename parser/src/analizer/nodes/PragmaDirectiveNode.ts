@@ -2,7 +2,7 @@ import { AST, PragmaDirective } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class PragmaDirectiveNode implements Node {
+export class PragmaDirectiveNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class PragmaDirectiveNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, pragmaDirective: PragmaDirective) {
+    constructor (pragmaDirective: PragmaDirective, uri: string) {
         this.type = pragmaDirective.type;
 
         this.uri = uri;

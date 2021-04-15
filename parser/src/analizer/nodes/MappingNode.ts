@@ -2,7 +2,7 @@ import { AST, Mapping } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class MappingNode implements Node {
+export class MappingNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class MappingNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, mapping: Mapping) {
+    constructor (mapping: Mapping, uri: string) {
         this.type = mapping.type;
 
         this.uri = uri;

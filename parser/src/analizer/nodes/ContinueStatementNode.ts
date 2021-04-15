@@ -2,7 +2,7 @@ import { AST, ContinueStatement } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class ContinueStatementNode implements Node {
+export class ContinueStatementNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class ContinueStatementNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, continueStatement: ContinueStatement) {
+    constructor (continueStatement: ContinueStatement, uri: string) {
         this.type = continueStatement.type;
 
         this.uri = uri;

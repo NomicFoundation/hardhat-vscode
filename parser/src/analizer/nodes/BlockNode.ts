@@ -2,7 +2,7 @@ import { AST, Block } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class BlockNode implements Node {
+export class BlockNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class BlockNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, block: Block) {
+    constructor (block: Block, uri: string) {
         this.type = block.type;
 
         this.uri = uri;

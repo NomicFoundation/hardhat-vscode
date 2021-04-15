@@ -2,7 +2,7 @@ import { AST, SubAssembly } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class SubAssemblyNode implements Node {
+export class SubAssemblyNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class SubAssemblyNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, subAssembly: SubAssembly) {
+    constructor (subAssembly: SubAssembly, uri: string) {
         this.type = subAssembly.type;
 
         this.uri = uri;

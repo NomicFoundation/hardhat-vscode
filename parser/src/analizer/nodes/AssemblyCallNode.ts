@@ -2,7 +2,7 @@ import { AST, AssemblyCall } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class AssemblyCallNode implements Node {
+export class AssemblyCallNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class AssemblyCallNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, assemblyCall: AssemblyCall) {
+    constructor (assemblyCall: AssemblyCall, uri: string) {
         this.type = assemblyCall.type;
 
         this.uri = uri;

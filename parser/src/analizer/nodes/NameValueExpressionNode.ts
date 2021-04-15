@@ -2,7 +2,7 @@ import { AST, NameValueExpression } from "@solidity-parser/parser/dist/ast-types
 
 import { Location, Node } from './Node';
 
-class NameValueExpressionNode implements Node {
+export class NameValueExpressionNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class NameValueExpressionNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, nameValueExpression: NameValueExpression) {
+    constructor (nameValueExpression: NameValueExpression, uri: string) {
         this.type = nameValueExpression.type;
 
         this.uri = uri;

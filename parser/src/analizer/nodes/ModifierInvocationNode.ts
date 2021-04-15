@@ -2,7 +2,7 @@ import { AST, ModifierInvocation } from "@solidity-parser/parser/dist/ast-types"
 
 import { Location, Node } from './Node';
 
-class ModifierInvocationNode implements Node {
+export class ModifierInvocationNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class ModifierInvocationNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, modifierInvocation: ModifierInvocation) {
+    constructor (modifierInvocation: ModifierInvocation, uri: string) {
         this.type = modifierInvocation.type;
 
         this.uri = uri;

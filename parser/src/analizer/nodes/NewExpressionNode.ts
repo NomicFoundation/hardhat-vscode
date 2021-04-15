@@ -2,7 +2,7 @@ import { AST, NewExpression } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class NewExpressionNode implements Node {
+export class NewExpressionNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class NewExpressionNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, newExpression: NewExpression) {
+    constructor (newExpression: NewExpression, uri: string) {
         this.type = newExpression.type;
 
         this.uri = uri;

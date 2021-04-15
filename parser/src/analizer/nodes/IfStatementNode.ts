@@ -2,7 +2,7 @@ import { AST, IfStatement } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class IfStatementNode implements Node {
+export class IfStatementNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class IfStatementNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, ifStatement: IfStatement) {
+    constructor (ifStatement: IfStatement, uri: string) {
         this.type = ifStatement.type;
 
         this.uri = uri;

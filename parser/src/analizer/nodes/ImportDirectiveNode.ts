@@ -2,7 +2,7 @@ import { AST, ImportDirective } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class ImportDirectiveNode implements Node {
+export class ImportDirectiveNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class ImportDirectiveNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, importDirective: ImportDirective) {
+    constructor (importDirective: ImportDirective, uri: string) {
         this.type = importDirective.type;
 
         this.uri = uri;

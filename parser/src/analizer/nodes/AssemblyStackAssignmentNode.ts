@@ -2,7 +2,7 @@ import { AST, AssemblyStackAssignment } from "@solidity-parser/parser/dist/ast-t
 
 import { Location, Node } from './Node';
 
-class AssemblyStackAssignmentNode implements Node {
+export class AssemblyStackAssignmentNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class AssemblyStackAssignmentNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, assemblyStackAssignment: AssemblyStackAssignment) {
+    constructor (assemblyStackAssignment: AssemblyStackAssignment, uri: string) {
         this.type = assemblyStackAssignment.type;
 
         this.uri = uri;

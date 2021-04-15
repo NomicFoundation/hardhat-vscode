@@ -2,7 +2,7 @@ import { AST, MemberAccess } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class MemberAccessNode implements Node {
+export class MemberAccessNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class MemberAccessNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, memberAccess: MemberAccess) {
+    constructor (memberAccess: MemberAccess, uri: string) {
         this.type = memberAccess.type;
 
         this.uri = uri;

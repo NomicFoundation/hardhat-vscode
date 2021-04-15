@@ -2,7 +2,7 @@ import { AST, ContractDefinition } from "@solidity-parser/parser/dist/ast-types"
 
 import { Location, Node } from './Node';
 
-class ContractDefinitionNode implements Node {
+export class ContractDefinitionNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class ContractDefinitionNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, contractDefinition: ContractDefinition) {
+    constructor (contractDefinition: ContractDefinition, uri: string) {
         this.type = contractDefinition.type;
 
         this.uri = uri;

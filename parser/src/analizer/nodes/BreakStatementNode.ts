@@ -2,7 +2,7 @@ import { AST, BreakStatement } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class BreakStatementNode implements Node {
+export class BreakStatementNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class BreakStatementNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, breakStatement: BreakStatement) {
+    constructor (breakStatement: BreakStatement, uri: string) {
         this.type = breakStatement.type;
 
         this.uri = uri;

@@ -2,7 +2,7 @@ import { AST, Conditional } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class ConditionalNode implements Node {
+export class ConditionalNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class ConditionalNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, conditional: Conditional) {
+    constructor (conditional: Conditional, uri: string) {
         this.type = conditional.type;
 
         this.uri = uri;

@@ -2,7 +2,7 @@ import { AST, AssemblyFor } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class AssemblyForNode implements Node {
+export class AssemblyForNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class AssemblyForNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, assemblyFor: AssemblyFor) {
+    constructor (assemblyFor: AssemblyFor, uri: string) {
         this.type = assemblyFor.type;
 
         this.uri = uri;

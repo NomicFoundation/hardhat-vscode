@@ -2,7 +2,7 @@ import { AST, DecimalNumber } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class DecimalNumberNode implements Node {
+export class DecimalNumberNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class DecimalNumberNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, decimalNumber: DecimalNumber) {
+    constructor (decimalNumber: DecimalNumber, uri: string) {
         this.type = decimalNumber.type;
 
         this.uri = uri;

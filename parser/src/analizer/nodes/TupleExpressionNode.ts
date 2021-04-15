@@ -2,7 +2,7 @@ import { AST, TupleExpression } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class TupleExpressionNode implements Node {
+export class TupleExpressionNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class TupleExpressionNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, tupleExpression: TupleExpression) {
+    constructor (tupleExpression: TupleExpression, uri: string) {
         this.type = tupleExpression.type;
 
         this.uri = uri;

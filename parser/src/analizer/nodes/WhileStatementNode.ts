@@ -2,7 +2,7 @@ import { AST, WhileStatement } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class WhileStatementNode implements Node {
+export class WhileStatementNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class WhileStatementNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, whileStatement: WhileStatement) {
+    constructor (whileStatement: WhileStatement, uri: string) {
         this.type = whileStatement.type;
 
         this.uri = uri;

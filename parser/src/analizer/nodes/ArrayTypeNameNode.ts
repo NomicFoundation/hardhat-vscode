@@ -2,7 +2,7 @@ import { AST, ArrayTypeName } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class ArrayTypeNameNode implements Node {
+export class ArrayTypeNameNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class ArrayTypeNameNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, arrayTypeName: ArrayTypeName) {
+    constructor (arrayTypeName: ArrayTypeName, uri: string) {
         this.type = arrayTypeName.type;
 
         this.uri = uri;

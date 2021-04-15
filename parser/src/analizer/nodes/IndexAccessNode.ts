@@ -2,7 +2,7 @@ import { AST, IndexAccess } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class IndexAccessNode implements Node {
+export class IndexAccessNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class IndexAccessNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, indexAccess: IndexAccess) {
+    constructor (indexAccess: IndexAccess, uri: string) {
         this.type = indexAccess.type;
 
         this.uri = uri;

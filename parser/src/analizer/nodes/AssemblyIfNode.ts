@@ -2,7 +2,7 @@ import { AST, AssemblyIf } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class AssemblyIfNode implements Node {
+export class AssemblyIfNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class AssemblyIfNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, assemblyIf: AssemblyIf) {
+    constructor (assemblyIf: AssemblyIf, uri: string) {
         this.type = assemblyIf.type;
 
         this.uri = uri;

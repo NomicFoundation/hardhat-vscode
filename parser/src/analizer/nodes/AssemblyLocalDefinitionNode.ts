@@ -2,7 +2,7 @@ import { AST, AssemblyLocalDefinition } from "@solidity-parser/parser/dist/ast-t
 
 import { Location, Node } from './Node';
 
-class AssemblyLocalDefinitionNode implements Node {
+export class AssemblyLocalDefinitionNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class AssemblyLocalDefinitionNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, assemblyLocalDefinition: AssemblyLocalDefinition) {
+    constructor (assemblyLocalDefinition: AssemblyLocalDefinition, uri: string) {
         this.type = assemblyLocalDefinition.type;
 
         this.uri = uri;

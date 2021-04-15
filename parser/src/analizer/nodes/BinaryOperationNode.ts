@@ -2,7 +2,7 @@ import { AST, BinaryOperation } from "@solidity-parser/parser/dist/ast-types";
 
 import { Location, Node } from './Node';
 
-class BinaryOperationNode implements Node {
+export class BinaryOperationNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class BinaryOperationNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, binaryOperation: BinaryOperation) {
+    constructor (binaryOperation: BinaryOperation, uri: string) {
         this.type = binaryOperation.type;
 
         this.uri = uri;

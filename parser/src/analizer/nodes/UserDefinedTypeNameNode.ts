@@ -2,7 +2,7 @@ import { AST, UserDefinedTypeName } from "@solidity-parser/parser/dist/ast-types
 
 import { Location, Node } from './Node';
 
-class UserDefinedTypeNameNode implements Node {
+export class UserDefinedTypeNameNode implements Node {
     type: string;
 
     uri: string;
@@ -13,7 +13,7 @@ class UserDefinedTypeNameNode implements Node {
 
     astNode: AST;
 
-    constructor (uri: string, userDefinedTypeName: UserDefinedTypeName) {
+    constructor (userDefinedTypeName: UserDefinedTypeName, uri: string) {
         this.type = userDefinedTypeName.type;
 
         this.uri = uri;
