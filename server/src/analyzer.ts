@@ -36,7 +36,7 @@ export class Analyzer {
         this.uri = uri;
         this.ast = ast;
 
-        console.log(JSON.stringify(ast));
+        // console.log(JSON.stringify(ast));
 
         this.analyzeSourceUnit(<SourceUnit>ast);
 
@@ -54,12 +54,12 @@ export class Analyzer {
             }
         }
 
-        console.log(JSON.stringify(this.analyzerTree, getCircularReplacer()));
+        // console.log(JSON.stringify(this.analyzerTree, getCircularReplacer()));
     }
 
     analyzeSourceUnit = (ast: SourceUnit) => {
         this.analyzerTree = new Node(this.uri, <Location><unknown>ast.loc, ast.type);
-            
+
         for (const child of ast.children) {
             switch (child.type) {
                 case 'ContractDefinition':
