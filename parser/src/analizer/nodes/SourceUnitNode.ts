@@ -16,7 +16,6 @@ export class SourceUnitNode implements Node {
         this.type = sourceUnit.type;
         this.uri = uri;
         this.astNode = sourceUnit;
-        // TO-DO: Implement name location for rename
     }
 
     addChild(child: Node): void {
@@ -28,6 +27,10 @@ export class SourceUnitNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
-        // TO-DO: Method not implemented
+        parent = this;
+
+        for (const child of this.astNode.children) {
+            find(child, this.uri).accept(find, orphanNodes, parent);
+        }
     }
 }
