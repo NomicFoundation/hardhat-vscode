@@ -1,15 +1,36 @@
 import { AST, InheritanceSpecifier } from "@solidity-parser/parser/dist/ast-types";
 
-import { FinderType } from "../matcher";
-import { Node } from "./Node";
+import { Location, Node } from "./Node";
 
-export class InheritanceSpecifierNode extends Node<InheritanceSpecifier> {
-    constructor(inheritanceSpecifier: InheritanceSpecifier, uri: string) {
-        // TO-DO: Implement name location for rename (maybe have it as part of the abstract class)
-        super(inheritanceSpecifier, uri);
+export class InheritanceSpecifierNode implements Node {
+    type: string;
+
+    uri: string;
+    nameLoc?: Location | undefined;
+
+    parent?: Node | undefined;
+    children: Node[] = [];
+
+    astNode: AST;
+
+    constructor (inheritanceSpecifier: InheritanceSpecifier, uri: string) {
+        this.type = inheritanceSpecifier.type;
+
+        this.uri = uri;
+        // TO-DO: Implement name location for rename
+
+        this.astNode = inheritanceSpecifier;
     }
 
-    accept<K extends AST>(find: FinderType, orphanNodes: Node<K>[], parent?: Node<K>): void {
-        // TO-DO: Implement accept
+    addChild(child: Node): void {
+        this.children.push(child);
+    }
+
+    setParent(parent: Node): void {
+        this.parent = parent;
+    }
+
+    accept(orphanNodes: Node[], parent?: Node): void {
+        // TO-DO: Method not implemented
     }
 }

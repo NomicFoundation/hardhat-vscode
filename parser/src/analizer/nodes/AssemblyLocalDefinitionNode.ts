@@ -1,15 +1,36 @@
 import { AST, AssemblyLocalDefinition } from "@solidity-parser/parser/dist/ast-types";
 
-import { FinderType } from "../matcher";
-import { Node } from "./Node";
+import { Location, Node } from "./Node";
 
-export class AssemblyLocalDefinitionNode extends Node<AssemblyLocalDefinition> {
-    constructor(assemblyLocalDefinition: AssemblyLocalDefinition, uri: string) {
-        // TO-DO: Implement name location for rename (maybe have it as part of the abstract class)
-        super(assemblyLocalDefinition, uri);
+export class AssemblyLocalDefinitionNode implements Node {
+    type: string;
+
+    uri: string;
+    nameLoc?: Location | undefined;
+
+    parent?: Node | undefined;
+    children: Node[] = [];
+
+    astNode: AST;
+
+    constructor (assemblyLocalDefinition: AssemblyLocalDefinition, uri: string) {
+        this.type = assemblyLocalDefinition.type;
+
+        this.uri = uri;
+        // TO-DO: Implement name location for rename
+
+        this.astNode = assemblyLocalDefinition;
     }
 
-    accept<K extends AST>(find: FinderType, orphanNodes: Node<K>[], parent?: Node<K>): void {
-        // TO-DO: Implement accept
+    addChild(child: Node): void {
+        this.children.push(child);
+    }
+
+    setParent(parent: Node): void {
+        this.parent = parent;
+    }
+
+    accept(orphanNodes: Node[], parent?: Node): void {
+        // TO-DO: Method not implemented
     }
 }

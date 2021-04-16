@@ -1,15 +1,36 @@
 import { AST, IndexRangeAccess } from "@solidity-parser/parser/dist/ast-types";
 
-import { FinderType } from "../matcher";
-import { Node } from "./Node";
+import { Location, Node } from "./Node";
 
-export class IndexRangeAccessNode extends Node<IndexRangeAccess> {
-    constructor(indexRangeAccess: IndexRangeAccess, uri: string) {
-        // TO-DO: Implement name location for rename (maybe have it as part of the abstract class)
-        super(indexRangeAccess, uri);
+export class IndexRangeAccessNode implements Node {
+    type: string;
+
+    uri: string;
+    nameLoc?: Location | undefined;
+
+    parent?: Node | undefined;
+    children: Node[] = [];
+
+    astNode: AST;
+
+    constructor (indexRangeAccess: IndexRangeAccess, uri: string) {
+        this.type = indexRangeAccess.type;
+
+        this.uri = uri;
+        // TO-DO: Implement name location for rename
+
+        this.astNode = indexRangeAccess;
     }
 
-    accept<K extends AST>(find: FinderType, orphanNodes: Node<K>[], parent?: Node<K>): void {
-        // TO-DO: Implement accept
+    addChild(child: Node): void {
+        this.children.push(child);
+    }
+
+    setParent(parent: Node): void {
+        this.parent = parent;
+    }
+
+    accept(orphanNodes: Node[], parent?: Node): void {
+        // TO-DO: Method not implemented
     }
 }

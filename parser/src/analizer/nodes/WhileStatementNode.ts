@@ -1,15 +1,36 @@
 import { AST, WhileStatement } from "@solidity-parser/parser/dist/ast-types";
 
-import { FinderType } from "../matcher";
-import { Node } from "./Node";
+import { Location, Node } from "./Node";
 
-export class WhileStatementNode extends Node<WhileStatement> {
-    constructor(whileStatement: WhileStatement, uri: string) {
-        // TO-DO: Implement name location for rename (maybe have it as part of the abstract class)
-        super(whileStatement, uri);
+export class WhileStatementNode implements Node {
+    type: string;
+
+    uri: string;
+    nameLoc?: Location | undefined;
+
+    parent?: Node | undefined;
+    children: Node[] = [];
+
+    astNode: AST;
+
+    constructor (whileStatement: WhileStatement, uri: string) {
+        this.type = whileStatement.type;
+
+        this.uri = uri;
+        // TO-DO: Implement name location for rename
+
+        this.astNode = whileStatement;
     }
 
-    accept<K extends AST>(find: FinderType, orphanNodes: Node<K>[], parent?: Node<K>): void {
-        // TO-DO: Implement accept
+    addChild(child: Node): void {
+        this.children.push(child);
+    }
+
+    setParent(parent: Node): void {
+        this.parent = parent;
+    }
+
+    accept(orphanNodes: Node[], parent?: Node): void {
+        // TO-DO: Method not implemented
     }
 }

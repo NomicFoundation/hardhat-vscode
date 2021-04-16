@@ -1,15 +1,36 @@
 import { AST, LabelDefinition } from "@solidity-parser/parser/dist/ast-types";
 
-import { FinderType } from "../matcher";
-import { Node } from "./Node";
+import { Location, Node } from "./Node";
 
-export class LabelDefinitionNode extends Node<LabelDefinition> {
-    constructor(labelDefinition: LabelDefinition, uri: string) {
-        // TO-DO: Implement name location for rename (maybe have it as part of the abstract class)
-        super(labelDefinition, uri);
+export class LabelDefinitionNode implements Node {
+    type: string;
+
+    uri: string;
+    nameLoc?: Location | undefined;
+
+    parent?: Node | undefined;
+    children: Node[] = [];
+
+    astNode: AST;
+
+    constructor (labelDefinition: LabelDefinition, uri: string) {
+        this.type = labelDefinition.type;
+
+        this.uri = uri;
+        // TO-DO: Implement name location for rename
+
+        this.astNode = labelDefinition;
     }
 
-    accept<K extends AST>(find: FinderType, orphanNodes: Node<K>[], parent?: Node<K>): void {
-        // TO-DO: Implement accept
+    addChild(child: Node): void {
+        this.children.push(child);
+    }
+
+    setParent(parent: Node): void {
+        this.parent = parent;
+    }
+
+    accept(orphanNodes: Node[], parent?: Node): void {
+        // TO-DO: Method not implemented
     }
 }
