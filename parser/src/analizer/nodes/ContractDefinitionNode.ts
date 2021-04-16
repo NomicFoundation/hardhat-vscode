@@ -6,12 +6,13 @@ export class ContractDefinitionNode implements Node {
     type: string;
 
     uri: string;
+
+    name?: string | undefined;
     nameLoc?: Location | undefined;
+    loc?: Location | undefined;
 
     parent?: Node | undefined;
     children: Node[] = [];
-
-    astNode: AST;
 
     constructor (contractDefinition: ContractDefinition, uri: string) {
         this.type = contractDefinition.type;
@@ -19,7 +20,8 @@ export class ContractDefinitionNode implements Node {
         this.uri = uri;
         // TO-DO: Implement name location for rename
 
-        this.astNode = contractDefinition;
+        // this.name = sourceUnit.name;
+        // this.loc = sourceUnit.loc;
     }
 
     addChild(child: Node): void {
@@ -30,7 +32,7 @@ export class ContractDefinitionNode implements Node {
         this.parent = parent;
     }
 
-    accept(orphanNodes: Node[], parent?: Node): void {
+    accept(find: (ast: AST, uri: string) => Node, orphanNodes: Node[], parent?: Node): void {
         // TO-DO: Method not implemented
     }
 }
