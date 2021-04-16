@@ -1,6 +1,6 @@
 import { AST, AssemblyAssignment } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class AssemblyAssignmentNode implements Node {
     type: string;

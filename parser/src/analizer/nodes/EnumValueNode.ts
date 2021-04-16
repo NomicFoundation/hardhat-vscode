@@ -1,6 +1,6 @@
 import { AST, EnumValue } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class EnumValueNode implements Node {
     type: string;

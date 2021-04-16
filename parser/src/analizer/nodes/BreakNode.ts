@@ -1,6 +1,6 @@
 import { AST, Break } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class BreakNode implements Node {
     type: string;
@@ -13,13 +13,13 @@ export class BreakNode implements Node {
 
     astNode: AST;
 
-    constructor (breakType: Break, uri: string) {
-        this.type = breakType.type;
+    constructor (astBreak: Break, uri: string) {
+        this.type = astBreak.type;
 
         this.uri = uri;
         // TO-DO: Implement name location for rename
 
-        this.astNode = breakType;
+        this.astNode = astBreak;
     }
 
     addChild(child: Node): void {

@@ -1,6 +1,6 @@
 import { AST, UserDefinedTypeName } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class UserDefinedTypeNameNode implements Node {
     type: string;

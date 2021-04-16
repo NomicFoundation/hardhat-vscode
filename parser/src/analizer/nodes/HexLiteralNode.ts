@@ -1,6 +1,6 @@
 import { AST, HexLiteral } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class HexLiteralNode implements Node {
     type: string;

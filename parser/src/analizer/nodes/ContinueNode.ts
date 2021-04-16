@@ -1,6 +1,6 @@
 import { AST, Continue } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class ContinueNode implements Node {
     type: string;
@@ -13,13 +13,13 @@ export class ContinueNode implements Node {
 
     astNode: AST;
 
-    constructor (continueType: Continue, uri: string) {
-        this.type = continueType.type;
+    constructor (astContinue: Continue, uri: string) {
+        this.type = astContinue.type;
 
         this.uri = uri;
         // TO-DO: Implement name location for rename
 
-        this.astNode = continueType;
+        this.astNode = astContinue;
     }
 
     addChild(child: Node): void {

@@ -1,6 +1,6 @@
 import { AST, MemberAccess } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class MemberAccessNode implements Node {
     type: string;

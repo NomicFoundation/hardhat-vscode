@@ -1,6 +1,6 @@
 import { AST, LabelDefinition } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class LabelDefinitionNode implements Node {
     type: string;

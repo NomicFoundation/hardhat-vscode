@@ -1,6 +1,6 @@
 import { AST, ElementaryTypeName } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class ElementaryTypeNameNode implements Node {
     type: string;

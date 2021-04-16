@@ -1,6 +1,6 @@
 import { AST, AssemblySwitch } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class AssemblySwitchNode implements Node {
     type: string;

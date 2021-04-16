@@ -1,6 +1,6 @@
 import { AST, AssemblyFor } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class AssemblyForNode implements Node {
     type: string;

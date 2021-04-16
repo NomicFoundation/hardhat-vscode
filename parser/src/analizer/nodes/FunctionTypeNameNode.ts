@@ -1,6 +1,6 @@
 import { AST, FunctionTypeName } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class FunctionTypeNameNode implements Node {
     type: string;

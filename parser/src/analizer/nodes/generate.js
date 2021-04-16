@@ -8,7 +8,7 @@ for (const type of types) {
     fs.writeFileSync(`${__dirname}/${type}Node.ts`,
 `import { AST, ${type} } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class ${type}Node implements Node {
     type: string;

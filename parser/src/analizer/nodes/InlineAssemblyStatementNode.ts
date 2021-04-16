@@ -1,6 +1,6 @@
 import { AST, InlineAssemblyStatement } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class InlineAssemblyStatementNode implements Node {
     type: string;

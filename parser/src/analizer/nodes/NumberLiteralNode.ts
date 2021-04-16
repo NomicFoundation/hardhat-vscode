@@ -1,6 +1,6 @@
 import { AST, NumberLiteral } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class NumberLiteralNode implements Node {
     type: string;

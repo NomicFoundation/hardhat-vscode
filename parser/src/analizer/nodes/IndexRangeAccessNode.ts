@@ -1,6 +1,6 @@
 import { AST, IndexRangeAccess } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class IndexRangeAccessNode implements Node {
     type: string;

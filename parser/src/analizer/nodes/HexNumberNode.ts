@@ -1,6 +1,6 @@
 import { AST, HexNumber } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class HexNumberNode implements Node {
     type: string;

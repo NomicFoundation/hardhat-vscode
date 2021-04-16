@@ -1,6 +1,6 @@
 import { AST, ContinueStatement } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from './Node';
+import { Location, Node } from "./Node";
 
 export class ContinueStatementNode implements Node {
     type: string;
