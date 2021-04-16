@@ -1,27 +1,22 @@
-import { AST, AssemblyCall } from "@solidity-parser/parser/dist/ast-types";
+import { AssemblyCall } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from "./Node";
+import { Location, FinderType, Node } from "./Node";
 
 export class AssemblyCallNode implements Node {
     type: string;
-
     uri: string;
+    astNode: AssemblyCall;
 
-    name?: string | undefined;
     nameLoc?: Location | undefined;
-    loc?: Location | undefined;
 
     parent?: Node | undefined;
     children: Node[] = [];
 
     constructor (assemblyCall: AssemblyCall, uri: string) {
         this.type = assemblyCall.type;
-
         this.uri = uri;
+        this.astNode = assemblyCall;
         // TO-DO: Implement name location for rename
-
-        // this.name = sourceUnit.name;
-        // this.loc = sourceUnit.loc;
     }
 
     addChild(child: Node): void {
@@ -32,7 +27,7 @@ export class AssemblyCallNode implements Node {
         this.parent = parent;
     }
 
-    accept(find: (ast: AST, uri: string) => Node, orphanNodes: Node[], parent?: Node): void {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
         // TO-DO: Method not implemented
     }
 }

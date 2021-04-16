@@ -1,27 +1,22 @@
-import { AST, NumberLiteral } from "@solidity-parser/parser/dist/ast-types";
+import { NumberLiteral } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from "./Node";
+import { Location, FinderType, Node } from "./Node";
 
 export class NumberLiteralNode implements Node {
     type: string;
-
     uri: string;
+    astNode: NumberLiteral;
 
-    name?: string | undefined;
     nameLoc?: Location | undefined;
-    loc?: Location | undefined;
 
     parent?: Node | undefined;
     children: Node[] = [];
 
     constructor (numberLiteral: NumberLiteral, uri: string) {
         this.type = numberLiteral.type;
-
         this.uri = uri;
+        this.astNode = numberLiteral;
         // TO-DO: Implement name location for rename
-
-        // this.name = sourceUnit.name;
-        // this.loc = sourceUnit.loc;
     }
 
     addChild(child: Node): void {
@@ -32,7 +27,7 @@ export class NumberLiteralNode implements Node {
         this.parent = parent;
     }
 
-    accept(find: (ast: AST, uri: string) => Node, orphanNodes: Node[], parent?: Node): void {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
         // TO-DO: Method not implemented
     }
 }

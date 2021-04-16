@@ -10,18 +10,18 @@ export interface Location {
     end: Position;
 }
 
+export type FinderType = (ast: AST, uri: string) => Node;
+
 export interface Component {
-    accept(find: (ast: AST, uri: string) => Node, orphanNodes: Node[], parent?: Node): void;
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node): void;
 }
 
 export interface Node extends Component {
     type: string;
-
     uri: string;
+    astNode: AST;
     
-    name?: string | undefined;
     nameLoc?: Location | undefined;
-    loc?: Location | undefined;
 
     parent?: Node | undefined;
     children: Node[];

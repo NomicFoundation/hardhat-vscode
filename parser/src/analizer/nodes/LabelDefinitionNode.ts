@@ -1,27 +1,22 @@
-import { AST, LabelDefinition } from "@solidity-parser/parser/dist/ast-types";
+import { LabelDefinition } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from "./Node";
+import { Location, FinderType, Node } from "./Node";
 
 export class LabelDefinitionNode implements Node {
     type: string;
-
     uri: string;
+    astNode: LabelDefinition;
 
-    name?: string | undefined;
     nameLoc?: Location | undefined;
-    loc?: Location | undefined;
 
     parent?: Node | undefined;
     children: Node[] = [];
 
     constructor (labelDefinition: LabelDefinition, uri: string) {
         this.type = labelDefinition.type;
-
         this.uri = uri;
+        this.astNode = labelDefinition;
         // TO-DO: Implement name location for rename
-
-        // this.name = sourceUnit.name;
-        // this.loc = sourceUnit.loc;
     }
 
     addChild(child: Node): void {
@@ -32,7 +27,7 @@ export class LabelDefinitionNode implements Node {
         this.parent = parent;
     }
 
-    accept(find: (ast: AST, uri: string) => Node, orphanNodes: Node[], parent?: Node): void {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
         // TO-DO: Method not implemented
     }
 }

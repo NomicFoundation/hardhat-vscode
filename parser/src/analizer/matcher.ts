@@ -68,6 +68,7 @@ import { IndexRangeAccessNode } from "./nodes/IndexRangeAccessNode";
 import { MemberAccessNode } from "./nodes/MemberAccessNode";
 import { HexNumberNode } from "./nodes/HexNumberNode";
 import { DecimalNumberNode } from "./nodes/DecimalNumberNode";
+import { Node } from "./nodes/Node";
 
 type ASTTypes = astTypes.AST["type"];
 type ASTMap<U> = { [K in ASTTypes]: U extends { type: K } ? U : never };
@@ -79,7 +80,7 @@ function matcher<T>(pattern: Pattern<T>): (ast: astTypes.AST, uri: string) => T 
     return (ast, uri) => pattern[ast.type](ast as any, uri as string)
 }
 
-export const find = matcher({
+export const find = matcher<Node>({
 	SourceUnit: (sourceUnit: astTypes.SourceUnit, uri: string) => new SourceUnitNode(sourceUnit, uri),
 	PragmaDirective: (pragmaDirective: astTypes.PragmaDirective, uri: string) => new PragmaDirectiveNode(pragmaDirective, uri),
 	ImportDirective: (importDirective: astTypes.ImportDirective, uri: string) => new ImportDirectiveNode(importDirective, uri),

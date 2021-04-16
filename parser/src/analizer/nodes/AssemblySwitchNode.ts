@@ -1,27 +1,22 @@
-import { AST, AssemblySwitch } from "@solidity-parser/parser/dist/ast-types";
+import { AssemblySwitch } from "@solidity-parser/parser/dist/ast-types";
 
-import { Location, Node } from "./Node";
+import { Location, FinderType, Node } from "./Node";
 
 export class AssemblySwitchNode implements Node {
     type: string;
-
     uri: string;
+    astNode: AssemblySwitch;
 
-    name?: string | undefined;
     nameLoc?: Location | undefined;
-    loc?: Location | undefined;
 
     parent?: Node | undefined;
     children: Node[] = [];
 
     constructor (assemblySwitch: AssemblySwitch, uri: string) {
         this.type = assemblySwitch.type;
-
         this.uri = uri;
+        this.astNode = assemblySwitch;
         // TO-DO: Implement name location for rename
-
-        // this.name = sourceUnit.name;
-        // this.loc = sourceUnit.loc;
     }
 
     addChild(child: Node): void {
@@ -32,7 +27,7 @@ export class AssemblySwitchNode implements Node {
         this.parent = parent;
     }
 
-    accept(find: (ast: AST, uri: string) => Node, orphanNodes: Node[], parent?: Node): void {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
         // TO-DO: Method not implemented
     }
 }
