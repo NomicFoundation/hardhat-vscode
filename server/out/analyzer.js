@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Analyzer = void 0;
 const node_1 = require("./node");
-const utils_1 = require("./utils");
 class Analyzer {
     constructor(uri, ast) {
         this.orphanNodes = [];
@@ -282,7 +281,7 @@ class Analyzer {
         };
         this.uri = uri;
         this.ast = ast;
-        console.log(JSON.stringify(ast));
+        // console.log(JSON.stringify(ast));
         this.analyzeSourceUnit(ast);
         for (const orphanNode of this.orphanNodes) {
             // TO-DO: Implement find parent by scope
@@ -295,7 +294,7 @@ class Analyzer {
                 orphanParent.addChild(orphanNode);
             }
         }
-        console.log(JSON.stringify(this.analyzerTree, utils_1.getCircularReplacer()));
+        // console.log(JSON.stringify(this.analyzerTree, getCircularReplacer()));
     }
 }
 exports.Analyzer = Analyzer;

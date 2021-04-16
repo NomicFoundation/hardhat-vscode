@@ -1,5 +1,6 @@
 import { AST, SourceUnit } from "@solidity-parser/parser/dist/ast-types";
 
+import * as matcher from "../matcher";
 import { Location, Node } from './Node';
 
 export class SourceUnitNode implements Node {

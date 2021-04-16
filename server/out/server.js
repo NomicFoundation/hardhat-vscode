@@ -9,6 +9,7 @@ const vscode_languageserver_types_1 = require("vscode-languageserver-types");
 const vscode_languageserver_textdocument_1 = require("vscode-languageserver-textdocument");
 const parser = require("@solidity-parser/parser");
 const analyzer_1 = require("./analyzer");
+const out_1 = require("../../parser/out");
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 let connection = node_1.createConnection(node_1.ProposedFeatures.all);
@@ -304,6 +305,7 @@ connection.onDefinition((params) => {
     console.log('onDefinition', params);
     const document = documents.get(params.textDocument.uri);
     if (document) {
+        new out_1.Analyzer(document.getText(), params.textDocument.uri);
         return findDefinition(document, params.position);
     }
 });

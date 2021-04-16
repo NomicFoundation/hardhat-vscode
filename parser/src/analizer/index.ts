@@ -6,8 +6,8 @@ import { getCircularReplacer } from "../utils";
 import * as matcher from "./matcher";
 
 export class Analyzer {
-    uri: string;
     document: string;
+    uri: string;
 
     ast: AST;
 
@@ -15,9 +15,9 @@ export class Analyzer {
 
     orphanNodes: Node[] = [];
 
-    constructor(uri: string, document: string) {
-        this.uri = uri;
+    constructor(document: string, uri: string) {
         this.document = document;
+        this.uri = uri;
 
         this.ast = parser.parse(document, {
             loc: true,

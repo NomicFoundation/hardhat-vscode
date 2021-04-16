@@ -40,7 +40,9 @@ import {
 	Node
 } from "./node";
 
-import { Analyzer } from "./analyzer";
+import { Analyzer as TestAnalyzer } from "./analyzer";
+
+import { Analyzer } from "../../parser/out";
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -292,14 +294,14 @@ connection.onHover(params => {
 });
 // ---------------------------------------------------------------------------------------------------
 
-function analyzeAST (document: TextDocument): Analyzer {
+function analyzeAST (document: TextDocument): TestAnalyzer {
 	const ast = parser.parse(document.getText(), {
         loc: true,
         range: true,
         tolerant: true
     })
 
-    const analyzerTree = new Analyzer(document.uri, ast);
+    const analyzerTree = new TestAnalyzer(document.uri, ast);
 
 	return analyzerTree;
 }
@@ -428,6 +430,8 @@ connection.onDefinition((params) => {
 	const document = documents.get(params.textDocument.uri);
 	
 	if (document) {
+		new Analyzer(document.getText(), params.textDocument.uri);
+
 		return findDefinition(document, params.position);
 	}
 });
