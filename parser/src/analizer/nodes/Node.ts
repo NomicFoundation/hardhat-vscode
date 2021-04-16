@@ -11,19 +11,20 @@ export interface Location {
 }
 
 export interface Component {
-    accept(orphanNodes: Node[], parent?: Node): void;
+    accept(find: (ast: AST, uri: string) => Node, orphanNodes: Node[], parent?: Node): void;
 }
 
 export interface Node extends Component {
-    uri: string;
-
     type: string;
-    nameLoc?: Location;
 
-    parent?: Node;
+    uri: string;
+    
+    name?: string | undefined;
+    nameLoc?: Location | undefined;
+    loc?: Location | undefined;
+
+    parent?: Node | undefined;
     children: Node[];
-
-    astNode: AST
 
     addChild(child: Node): void;
     setParent(parent: Node): void;

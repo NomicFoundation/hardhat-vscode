@@ -25,7 +25,7 @@ export class Analyzer {
             tolerant: true
         });
 
-        matcher.find(this.ast, this.uri).accept(matcher.find, this.orphanNodes, this.analyzerTree);
+        matcher.find(this.ast, this.uri).accept(this.orphanNodes, this.analyzerTree);
 
         console.log(JSON.stringify(this.analyzerTree, getCircularReplacer()));
     }
