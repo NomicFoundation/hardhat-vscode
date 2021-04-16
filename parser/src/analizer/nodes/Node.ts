@@ -1,4 +1,5 @@
-import { AST } from "@solidity-parser/parser/dist/ast-types";
+import { AST, BaseASTNode } from "@solidity-parser/parser/dist/ast-types";
+import { FinderType } from "../matcher";
 
 export interface Position {
     line: number;
@@ -11,21 +12,34 @@ export interface Location {
 }
 
 export interface Component {
-    accept(find: (ast: AST, uri: string) => Node, orphanNodes: Node[], parent?: Node): void;
+    accept<T extends AST>(find: FinderType, orphanNodes: Node<T>[], parent?: Node<T>): void;
 }
 
-export interface Node extends Component {
+export abstract class Node<T extends AST> implements Component {
     type: string;
 
     uri: string;
     
-    name?: string | undefined;
     nameLoc?: Location | undefined;
-    loc?: Location | undefined;
 
-    parent?: Node | undefined;
-    children: Node[];
+    astNode: T;
 
-    addChild(child: Node): void;
-    setParent(parent: Node): void;
+    parent?: Node<T> | undefined;
+    children: Node<T>[] =[];
+
+    constructor(astNode: T, uri: string) {
+        this.astNode = astNode;
+        this.type = astNode.type;
+        this.uri = uri;
+    }
+
+    abstract accept<K extends AST>(find: FinderType, orphanNodes: Node<K>[], parent?: Node<K>): void;
+
+    addChild(child: Node<T>): void {
+        this.children.push(child);
+    }
+    setParent(parent: Node<T>): void {
+        this.parent = parent;
+    }
+
 }

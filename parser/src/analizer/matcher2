@@ -74,22 +74,16 @@ type ASTTypes = astTypes.AST["type"];
 type ASTMap<U> = { [K in ASTTypes]: U extends { type: K } ? U : never };
 
 type ASTTypeMap = ASTMap<astTypes.AST>;
-type Pattern = { [K in keyof ASTTypeMap]: FinderType };
-// function matcher<T>(pattern: Pattern<T>): (ast: astTypes.AST, uri: string) => T {
+type Pattern<T> = { [K in keyof ASTTypeMap]: (ast: ASTTypeMap[K], uri: string) => T };
 
-function matcher(pattern: Pattern): FinderType {
-	return (ast, uri) => {
-		return pattern[ast.type](ast, uri);
-	};
-	// return (ast, uri) => pattern[ast.type](ast as any, uri as string)
+function matcher<T>(pattern: Pattern<T>): (ast: astTypes.AST, uri: string) => T {
+    return (ast, uri) => pattern[ast.type](ast as any, uri as string)
 }
 
 export type FinderType = <T extends astTypes.AST>(ast: T, uri: string) => Node<T>;
 
 export const find = matcher({
-	SourceUnit: (sourceUnit: astTypes.AST, uri: string)=>{
-		return new SourceUnitNode(sourceUnit as astTypes.SourceUnit, uri)
-	},
+	SourceUnit: (sourceUnit: astTypes.SourceUnit, uri: string) => new SourceUnitNode(sourceUnit, uri),
 	PragmaDirective: (pragmaDirective: astTypes.PragmaDirective, uri: string) => new PragmaDirectiveNode(pragmaDirective, uri),
 	ImportDirective: (importDirective: astTypes.ImportDirective, uri: string) => new ImportDirectiveNode(importDirective, uri),
 	ContractDefinition: (contractDefinition: astTypes.ContractDefinition, uri: string) => new ContractDefinitionNode(contractDefinition, uri),
