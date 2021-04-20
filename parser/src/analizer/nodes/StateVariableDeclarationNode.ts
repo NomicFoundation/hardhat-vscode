@@ -19,6 +19,10 @@ export class StateVariableDeclarationNode implements Node {
         // TO-DO: Implement name location for rename
     }
 
+    getName(): string | undefined {
+        return undefined;
+    }
+
     addChild(child: Node): void {
         this.children.push(child);
     }

@@ -35,6 +35,10 @@ export class VariableDeclarationNode implements Node {
         this.astNode = variableDeclaration;
     }
 
+    getName(): string | undefined {
+        return undefined;
+    }
+
     addChild(child: Node): void {
         this.children.push(child);
     }

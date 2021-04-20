@@ -18,6 +18,10 @@ export class SourceUnitNode implements Node {
         this.astNode = sourceUnit;
     }
 
+    getName(): string | undefined {
+        return undefined;
+    }
+
     addChild(child: Node): void {
         this.children.push(child);
     }

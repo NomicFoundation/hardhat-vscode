@@ -15,8 +15,19 @@ export class UserDefinedTypeNameNode implements Node {
     constructor (userDefinedTypeName: UserDefinedTypeName, uri: string) {
         this.type = userDefinedTypeName.type;
         this.uri = uri;
+
+        if (userDefinedTypeName.loc) {
+            // Bug in solidity parser doesn't give exact end location
+            userDefinedTypeName.loc.end.column = userDefinedTypeName.loc.end.column + userDefinedTypeName.namePath.length
+
+            this.nameLoc = JSON.parse(JSON.stringify(userDefinedTypeName.loc));
+        }
+
         this.astNode = userDefinedTypeName;
-        // TO-DO: Implement name location for rename
+    }
+
+    getName(): string | undefined {
+        return undefined;
     }
 
     addChild(child: Node): void {
@@ -28,6 +39,6 @@ export class UserDefinedTypeNameNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
-        // TO-DO: Method not implemented
+
     }
 }

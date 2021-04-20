@@ -31,6 +31,10 @@ export class ContractDefinitionNode implements Node {
         }
     }
 
+    getName(): string | undefined {
+        return undefined;
+    }
+
     addChild(child: Node): void {
         this.children.push(child);
     }

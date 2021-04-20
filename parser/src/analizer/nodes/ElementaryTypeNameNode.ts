@@ -18,6 +18,10 @@ export class ElementaryTypeNameNode implements Node {
         this.astNode = elementaryTypeName;
         // TO-DO: Implement name location for rename
     }
+    
+    getName(): string | undefined {
+        return undefined;
+    }
 
     addChild(child: Node): void {
         this.children.push(child);

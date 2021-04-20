@@ -28,4 +28,5 @@ export interface Node extends Component {
 
     addChild(child: Node): void;
     setParent(parent: Node): void;
+    getName(): string | undefined;
 }
