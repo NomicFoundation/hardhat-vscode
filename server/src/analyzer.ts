@@ -36,7 +36,7 @@ export class Analyzer {
         this.uri = uri;
         this.ast = ast;
 
-        // console.log(JSON.stringify(ast));
+        console.log(JSON.stringify(ast));
 
         this.analyzeSourceUnit(<SourceUnit>ast);
 

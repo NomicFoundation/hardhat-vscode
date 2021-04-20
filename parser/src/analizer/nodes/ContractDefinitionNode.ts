@@ -39,13 +39,15 @@ export class ContractDefinitionNode implements Node {
         this.parent = parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent: Node): void {
-        this.setParent(parent);
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
+        if (parent) {
+            this.setParent(parent);
+        }
 
         for (const subNode of this.astNode.subNodes) {
             find(subNode, this.uri).accept(find, orphanNodes, this);
         }
 
-        parent.addChild(this);
+        parent?.addChild(this);
     }
 }

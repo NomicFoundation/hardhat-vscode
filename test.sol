@@ -2,7 +2,7 @@ pragma solidity ^0.4.18;
 
 contract BasicToken {
   struct Answer {
-      bytes32 text; 
+      bytes32 text;
       uint voteCount;
   }
 

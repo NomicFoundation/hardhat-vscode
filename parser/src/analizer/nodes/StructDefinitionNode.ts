@@ -16,7 +16,19 @@ export class StructDefinitionNode implements Node {
         this.type = structDefinition.type;
         this.uri = uri;
         this.astNode = structDefinition;
-        // TO-DO: Implement name location for rename
+
+        if (structDefinition.loc) {
+            this.nameLoc = {
+                start: {
+                    line: structDefinition.loc.start.line,
+                    column: structDefinition.loc.start.column + "struct ".length
+                },
+                end: {
+                    line: structDefinition.loc.start.line,
+                    column: structDefinition.loc.start.column + "struct ".length + structDefinition.name.length
+                }
+            };
+        }
     }
 
     addChild(child: Node): void {
@@ -28,6 +40,14 @@ export class StructDefinitionNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
-        // TO-DO: Method not implemented
+        if (parent) {
+            this.setParent(parent);
+        }
+
+        for (const member of this.astNode.members) {
+            find(member, this.uri).accept(find, orphanNodes, this);
+        }
+
+        parent?.addChild(this);
     }
 }
