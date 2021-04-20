@@ -1,5 +1,6 @@
 import { UserDefinedTypeName } from "@solidity-parser/parser/dist/ast-types";
 
+import { Finder } from "../finder";
 import { Location, FinderType, Node } from "./Node";
 
 export class UserDefinedTypeNameNode implements Node {
@@ -27,7 +28,7 @@ export class UserDefinedTypeNameNode implements Node {
     }
 
     getName(): string | undefined {
-        return undefined;
+        return this.astNode.namePath;
     }
 
     addChild(child: Node): void {
@@ -39,6 +40,17 @@ export class UserDefinedTypeNameNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
+        if (parent) {
+            const definitionParent = Finder.findParent(this, parent);
 
+            if (definitionParent) {
+                this.setParent(definitionParent);
+                definitionParent?.addChild(this);
+
+                return;
+            }
+        }
+
+        orphanNodes.push(this);
     }
 }
