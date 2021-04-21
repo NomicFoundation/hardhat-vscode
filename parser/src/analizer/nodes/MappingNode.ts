@@ -16,7 +16,6 @@ export class MappingNode implements Node {
         this.type = mapping.type;
         this.uri = uri;
         this.astNode = mapping;
-        // TO-DO: Implement name location for rename
     }
 
     getName(): string | undefined {
@@ -32,6 +31,7 @@ export class MappingNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
-        // TO-DO: Method not implemented
+        find(this.astNode.keyType, this.uri).accept(find, orphanNodes, parent);
+        find(this.astNode.valueType, this.uri).accept(find, orphanNodes, parent);
     }
 }
