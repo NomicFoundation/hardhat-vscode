@@ -1,6 +1,6 @@
 import { SourceUnit } from "@solidity-parser/parser/dist/ast-types";
 
-import { Finder } from "../finder";
+import * as finder from "../finder";
 import { Location, FinderType, Node } from "./Node";
 
 export class SourceUnitNode implements Node {
@@ -32,12 +32,10 @@ export class SourceUnitNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
-        parent = this;
-
-        Finder.setRoot(parent);
+        finder.setRoot(this);
 
         for (const child of this.astNode.children) {
-            find(child, this.uri).accept(find, orphanNodes, parent);
+            find(child, this.uri).accept(find, orphanNodes, this);
         }
     }
 }

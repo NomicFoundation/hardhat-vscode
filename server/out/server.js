@@ -8,7 +8,7 @@ const node_1 = require("vscode-languageserver/node");
 const vscode_languageserver_types_1 = require("vscode-languageserver-types");
 const vscode_languageserver_textdocument_1 = require("vscode-languageserver-textdocument");
 const out_1 = require("../../parser/out");
-const finder_1 = require("../../parser/out/analizer/finder");
+const finder = require("../../parser/out/analyzer/finder");
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 let connection = node_1.createConnection(node_1.ProposedFeatures.all);
@@ -219,7 +219,7 @@ function _findDocumentHighlights(node, list) {
     if (node.nameLoc) {
         list.push({
             kind: vscode_languageserver_types_1.DocumentHighlightKind.Write,
-            range: vscode_languageserver_types_1.Range.create(vscode_languageserver_types_1.Position.create(node.nameLoc.start.line, node.nameLoc.start.column), vscode_languageserver_types_1.Position.create(node.nameLoc.end.line, node.nameLoc.end.column))
+            range: vscode_languageserver_types_1.Range.create(vscode_languageserver_types_1.Position.create(node.nameLoc.start.line - 1, node.nameLoc.start.column), vscode_languageserver_types_1.Position.create(node.nameLoc.end.line - 1, node.nameLoc.end.column))
         });
     }
     for (const child of node.children) {
@@ -229,8 +229,8 @@ function _findDocumentHighlights(node, list) {
 function findDocumentHighlights(document, position) {
     const result = [];
     analyzeAST(document);
-    const node = finder_1.Finder.findNodeByPosition({
-        line: position.line,
+    const node = finder.findNodeByPosition({
+        line: position.line + 1,
         column: position.character
     });
     if (node) {

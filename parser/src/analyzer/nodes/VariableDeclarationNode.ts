@@ -16,7 +16,7 @@ export class VariableDeclarationNode implements Node {
         this.type = variableDeclaration.type;
         this.uri = uri;
 
-        if (variableDeclaration.loc) {
+        if (variableDeclaration.loc && variableDeclaration.name) {
             // Bug in solidity parser doesn't give exact end location
             variableDeclaration.loc.end.column = variableDeclaration.loc.end.column + variableDeclaration.name.length
 

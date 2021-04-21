@@ -1,6 +1,6 @@
 import { UserDefinedTypeName } from "@solidity-parser/parser/dist/ast-types";
 
-import { Finder } from "../finder";
+import * as finder from "../finder";
 import { Location, FinderType, Node } from "./Node";
 
 export class UserDefinedTypeNameNode implements Node {
@@ -41,7 +41,7 @@ export class UserDefinedTypeNameNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
         if (parent) {
-            const definitionParent = Finder.findParent(this, parent);
+            const definitionParent = finder.findParent(this, parent);
 
             if (definitionParent) {
                 this.setParent(definitionParent);

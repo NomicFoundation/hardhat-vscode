@@ -1,6 +1,6 @@
 import { Identifier } from "@solidity-parser/parser/dist/ast-types";
 
-import { Finder } from "../finder";
+import * as finder from "../finder";
 import { Location, FinderType, Node } from "./Node";
 
 export class IdentifierNode implements Node {
@@ -28,7 +28,7 @@ export class IdentifierNode implements Node {
     }
 
     getName(): string | undefined {
-        return undefined;
+        return this.astNode.name;
     }
 
     addChild(child: Node): void {
@@ -41,7 +41,7 @@ export class IdentifierNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
         if (parent) {
-            const identifierParent = Finder.findParent(this, parent);
+            const identifierParent = finder.findParent(this, parent);
 
             if (identifierParent) {
                 this.setParent(identifierParent);

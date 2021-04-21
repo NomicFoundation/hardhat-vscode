@@ -32,7 +32,7 @@ export class FunctionDefinitionNode implements Node {
     }
 
     getName(): string | undefined {
-        return undefined;
+        return this.astNode.name;
     }
 
     addChild(child: Node): void {

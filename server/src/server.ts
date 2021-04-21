@@ -33,8 +33,8 @@ import {
 } from 'vscode-languageserver-textdocument';
 
 import { Analyzer } from "../../parser/out";
-import { Finder } from "../../parser/out/analizer/finder";
-import { Node } from "../../parser/out/analizer/nodes/Node";
+import * as finder from "../../parser/out/analyzer/finder";
+import { Node } from "../../parser/out/analyzer/nodes/Node";
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -299,8 +299,8 @@ function _findDocumentHighlights (node: Node, list: DocumentHighlight[]) {
 		list.push({
 			kind: DocumentHighlightKind.Write,
 			range: Range.create(
-				Position.create(node.nameLoc.start.line, node.nameLoc.start.column),
-				Position.create(node.nameLoc.end.line, node.nameLoc.end.column),
+				Position.create(node.nameLoc.start.line - 1, node.nameLoc.start.column),
+				Position.create(node.nameLoc.end.line - 1, node.nameLoc.end.column),
 			)
 		});
 	}
@@ -315,8 +315,8 @@ function findDocumentHighlights (document: TextDocument, position: Position): Do
 
 	analyzeAST(document);
 
-	const node = Finder.findNodeByPosition({
-		line: position.line,
+	const node = finder.findNodeByPosition({
+		line: position.line + 1,
 		column: position.character
 	});
 
