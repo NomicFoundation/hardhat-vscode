@@ -33,5 +33,6 @@ export class MemberAccessNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
         // TO-DO: Method not implemented
+        find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent);
     }
 }
