@@ -16,7 +16,6 @@ export class BlockNode implements Node {
         this.type = block.type;
         this.uri = uri;
         this.astNode = block;
-        // TO-DO: Implement name location for rename
     }
 
     getName(): string | undefined {
@@ -32,6 +31,8 @@ export class BlockNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
-        // TO-DO: Method not implemented
+        for (const statement of this.astNode.statements) {
+            find(statement, this.uri).accept(find, orphanNodes, parent);
+        }
     }
 }
