@@ -16,7 +16,6 @@ export class ReturnStatementNode implements Node {
         this.type = returnStatement.type;
         this.uri = uri;
         this.astNode = returnStatement;
-        // TO-DO: Implement name location for rename
     }
 
     getName(): string | undefined {
@@ -32,6 +31,8 @@ export class ReturnStatementNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
-        // TO-DO: Method not implemented
+        if (this.astNode.expression) {
+            find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent);
+        }
     }
 }
