@@ -16,7 +16,6 @@ export class StateVariableDeclarationNode implements Node {
         this.type = stateVariableDeclaration.type;
         this.uri = uri;
         this.astNode = stateVariableDeclaration;
-        // TO-DO: Implement name location for rename
     }
 
     getName(): string | undefined {
@@ -32,6 +31,12 @@ export class StateVariableDeclarationNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
-        // TO-DO: Method not implemented
+        for (const variable of this.astNode.variables) {
+            find(variable, this.uri).accept(find, orphanNodes, parent);
+        }
+
+        if (this.astNode.initialValue) {
+            find(this.astNode.initialValue, this.uri).accept(find, orphanNodes, parent);
+        }
     }
 }
