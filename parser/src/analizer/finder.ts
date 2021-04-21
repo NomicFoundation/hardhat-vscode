@@ -11,13 +11,14 @@ export namespace Finder {
 
     export function findParent (node: Node, from?: Node): Node | undefined {
         visitedNodes = [];
+        let parent: Node | undefined;
 
         // If from Node doesn't exist start finding from the root of the analyzer tree
         if (!from) {
-            from = analyzerTree;
+            parent = search(node, analyzerTree);
+        } else {
+            parent = search(node, from, true);
         }
-
-        const parent = search(node, from, true);
 
         if (parent && node.getName()) {
             return goUp(parent, "" + node.getName());
