@@ -16,7 +16,6 @@ export class BinaryOperationNode implements Node {
         this.type = binaryOperation.type;
         this.uri = uri;
         this.astNode = binaryOperation;
-        // TO-DO: Implement name location for rename
     }
 
     getName(): string | undefined {
@@ -32,6 +31,7 @@ export class BinaryOperationNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
-        // TO-DO: Method not implemented
+        find(this.astNode.left, this.uri).accept(find, orphanNodes, parent);
+        find(this.astNode.right, this.uri).accept(find, orphanNodes, parent);
     }
 }
