@@ -16,7 +16,19 @@ export class FunctionDefinitionNode implements Node {
         this.type = functionDefinition.type;
         this.uri = uri;
         this.astNode = functionDefinition;
-        // TO-DO: Implement name location for rename
+        
+        if (functionDefinition.loc && functionDefinition.name) {
+            this.nameLoc = {
+                start: {
+                    line: functionDefinition.loc.start.line,
+                    column: functionDefinition.loc.start.column + "function ".length
+                },
+                end: {
+                    line: functionDefinition.loc.start.line,
+                    column: functionDefinition.loc.start.column + "function ".length + functionDefinition.name.length
+                }
+            };
+        }
     }
 
     getName(): string | undefined {
@@ -32,6 +44,24 @@ export class FunctionDefinitionNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
-        // TO-DO: Method not implemented
+        if (parent) {
+            this.setParent(parent);
+        }
+
+        for (const param of this.astNode.parameters) {
+            find(param, this.uri).accept(find, orphanNodes, this);
+        }
+
+        if (this.astNode.returnParameters) {
+            for (const returnParam of this.astNode.returnParameters) {
+                find(returnParam, this.uri).accept(find, orphanNodes, this);
+            }
+        }
+
+        if (this.astNode.body) {
+            find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
+        }
+
+        parent?.addChild(this);
     }
 }
