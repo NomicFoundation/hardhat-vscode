@@ -32,6 +32,7 @@ export class IndexAccessNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
-        // TO-DO: Method not implemented
+        find(this.astNode.base, this.uri).accept(find, orphanNodes, parent);
+        find(this.astNode.index, this.uri).accept(find, orphanNodes, parent);
     }
 }
