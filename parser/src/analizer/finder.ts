@@ -17,7 +17,7 @@ export namespace Finder {
             from = analyzerTree;
         }
 
-        const parent = search(node, from);
+        const parent = search(node, from, true);
 
         if (parent && node.getName()) {
             return goUp(parent, "" + node.getName());
@@ -26,7 +26,7 @@ export namespace Finder {
         return parent;
     }
 
-    function search (node: Node, from?: Node): Node | undefined {
+    function search (node: Node, from?: Node | undefined, bottomUp: boolean = false): Node | undefined {
         if (!from || !node.getName()) {
             return undefined;
         }
@@ -44,14 +44,18 @@ export namespace Finder {
 
         let parent: Node | undefined;
         for (const child of from.children) {
-            parent = search(node, child);
+            if (!bottomUp && child.type === 'FunctionDefinition') {
+                continue;
+            }
+
+            parent = search(node, child, bottomUp);
 
             if (parent) {
                 return parent;
             }
         }
 
-        return search(node, from.parent);
+        return search(node, from.parent, bottomUp);
     }
 
     function goUp (node: Node, name: string): Node {
