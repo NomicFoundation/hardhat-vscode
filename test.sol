@@ -12,7 +12,8 @@ contract BasicToken {
 
   mapping(address => uint256) balances;
 
-  uint256 test;
+  uint256 a1 = 1;
+  uint256 test = a1;
 
   function transfer(address recipient, uint256 value) public {
     balances[msg.sender] -= value;
