@@ -1,4 +1,4 @@
-import { Node } from "./nodes/Node";
+import { Position, Node } from "./nodes/Node";
 
 export namespace Finder {
     let visitedNodes: Node[] = [];
@@ -25,6 +25,17 @@ export namespace Finder {
         }
 
         return parent;
+    }
+
+    export function findNodeByPosition (position: Position): Node | undefined {
+        visitedNodes = [];
+        const node = walk(position, analyzerTree);
+
+        if (node?.getName()) {
+            return goUp(node, "" + node.getName());
+        }
+
+        return node;
     }
 
     function search (node: Node, from?: Node | undefined, bottomUp: boolean = false): Node | undefined {
@@ -57,6 +68,40 @@ export namespace Finder {
         }
 
         return search(node, from.parent, bottomUp);
+    }
+
+    function walk (position: Position, from?: Node): Node | undefined {
+        if (!from) {
+            return undefined;
+        }
+
+        if (visitedNodes.indexOf(from) !== -1) {
+            return undefined;
+        }
+
+        // Add as visited node
+        visitedNodes.push(from);
+
+        if (
+            from.nameLoc &&
+            from.nameLoc.start.line === position.line &&
+            from.nameLoc.end.line === position.line &&
+            from.nameLoc.start.column >= position.column &&
+            from.nameLoc.end.column <= position.column
+        ) {
+            return from;
+        }
+
+        let parent: Node | undefined;
+        for (const child of from.children) {
+            parent = walk(position, child);
+
+            if (parent) {
+                return parent;
+            }
+        }
+
+        return walk(position, from.parent);
     }
 
     function goUp (node: Node, name: string): Node {

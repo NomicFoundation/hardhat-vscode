@@ -7,9 +7,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const node_1 = require("vscode-languageserver/node");
 const vscode_languageserver_types_1 = require("vscode-languageserver-types");
 const vscode_languageserver_textdocument_1 = require("vscode-languageserver-textdocument");
-const parser = require("@solidity-parser/parser");
-const analyzer_1 = require("./analyzer");
 const out_1 = require("../../parser/out");
+const finder_1 = require("../../parser/out/analizer/finder");
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 let connection = node_1.createConnection(node_1.ProposedFeatures.all);
@@ -211,29 +210,26 @@ connection.onHover(params => {
 });
 // ---------------------------------------------------------------------------------------------------
 function analyzeAST(document) {
-    const ast = parser.parse(document.getText(), {
-        loc: true,
-        range: true,
-        tolerant: true
-    });
-    const analyzerTree = new analyzer_1.Analyzer(document.uri, ast);
+    const analyzerTree = new out_1.Analyzer(document.getText(), document.uri);
     return analyzerTree;
 }
 // ---------------------------------------------------------------------------------------------------
 // Add rename example
 function _findDocumentHighlights(node, list) {
-    list.push({
-        kind: vscode_languageserver_types_1.DocumentHighlightKind.Write,
-        range: vscode_languageserver_types_1.Range.create(vscode_languageserver_types_1.Position.create(node.loc.start.line, node.loc.start.column), vscode_languageserver_types_1.Position.create(node.loc.end.line, node.loc.end.column))
-    });
+    if (node.nameLoc) {
+        list.push({
+            kind: vscode_languageserver_types_1.DocumentHighlightKind.Write,
+            range: vscode_languageserver_types_1.Range.create(vscode_languageserver_types_1.Position.create(node.nameLoc.start.line, node.nameLoc.start.column), vscode_languageserver_types_1.Position.create(node.nameLoc.end.line, node.nameLoc.end.column))
+        });
+    }
     for (const child of node.children) {
         _findDocumentHighlights(child, list);
     }
 }
 function findDocumentHighlights(document, position) {
     const result = [];
-    const analyze = analyzeAST(document);
-    const node = analyze.findParentByPositionEnd({
+    analyzeAST(document);
+    const node = finder_1.Finder.findNodeByPosition({
         line: position.line,
         column: position.character
     });
@@ -258,112 +254,127 @@ connection.onRenameRequest((params) => {
     return null;
 });
 // ---------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------
-// Go to definition
-function findTypeDefinition(document, position) {
-    const analyze = analyzeAST(document);
-    console.log("Position", position);
-    const node = analyze.findParentByPositionEnd({
-        line: position.line,
-        column: position.character
-    });
-    if (node && (node.type === 'UserDefinedTypeName' || node.type === 'StructDefinition')) {
-        return {
-            uri: node.uri,
-            range: vscode_languageserver_types_1.Range.create(vscode_languageserver_types_1.Position.create(node.loc.start.line, node.loc.start.column), vscode_languageserver_types_1.Position.create(node.loc.end.line, node.loc.end.column))
-        };
-    }
-    return [];
-}
-connection.onTypeDefinition((params) => {
-    console.log('onTypeDefinition', params);
-    const document = documents.get(params.textDocument.uri);
-    if (document) {
-        return findTypeDefinition(document, params.position);
-    }
-});
-// ---------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------
-// Go to definition
-function findDefinition(document, position) {
-    const analyze = analyzeAST(document);
-    console.log("Position", position);
-    const node = analyze.findParentByPositionEnd({
-        line: position.line,
-        column: position.character
-    });
-    console.log("Naso sam node", node);
-    if (node) {
-        return {
-            uri: node.uri,
-            range: vscode_languageserver_types_1.Range.create(vscode_languageserver_types_1.Position.create(node.loc.start.line, node.loc.start.column), vscode_languageserver_types_1.Position.create(node.loc.end.line, node.loc.end.column))
-        };
-    }
-    return [];
-}
-connection.onDefinition((params) => {
-    console.log('onDefinition', params);
-    const document = documents.get(params.textDocument.uri);
-    if (document) {
-        new out_1.Analyzer(document.getText(), params.textDocument.uri);
-        return findDefinition(document, params.position);
-    }
-});
-// ---------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------
-// Go to implementation
-connection.onImplementation((params) => {
-    console.log('onImplementation');
-    return [
-        {
-            uri: params.textDocument.uri,
-            range: vscode_languageserver_types_1.Range.create(vscode_languageserver_types_1.Position.create(2, 2), vscode_languageserver_types_1.Position.create(3, 3))
-        },
-        {
-            uri: params.textDocument.uri,
-            range: vscode_languageserver_types_1.Range.create(vscode_languageserver_types_1.Position.create(10, 1), vscode_languageserver_types_1.Position.create(10, 5))
-        }
-    ];
-});
-// ---------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------
-// Find all references
-function _findReferencesDocumentHighlights(node, list) {
-    list.push(node);
-    for (const child of node.children) {
-        _findReferencesDocumentHighlights(child, list);
-    }
-}
-function findReferencesDocumentHighlights(document, position) {
-    const result = [];
-    const analyze = analyzeAST(document);
-    const node = analyze.findParentByPositionEnd({
-        line: position.line,
-        column: position.character
-    });
-    if (node) {
-        _findReferencesDocumentHighlights(node, result);
-    }
-    return result;
-}
-function onReferences(document, position) {
-    const highlights = findReferencesDocumentHighlights(document, position);
-    const references = highlights.map(h => {
-        return {
-            uri: h.uri,
-            range: vscode_languageserver_types_1.Range.create(vscode_languageserver_types_1.Position.create(h.loc.start.line, h.loc.start.column), vscode_languageserver_types_1.Position.create(h.loc.end.line, h.loc.end.column))
-        };
-    });
-    return references;
-}
-connection.onReferences((params) => {
-    console.log('onReferences');
-    const document = documents.get(params.textDocument.uri);
-    if (document) {
-        return onReferences(document, params.position);
-    }
-});
-// ---------------------------------------------------------------------------------------------------
+// // ---------------------------------------------------------------------------------------------------
+// // Go to definition
+// function findTypeDefinition(document: TextDocument, position: Position): Definition {
+// 	const analyze = analyzeAST(document);
+// 	console.log("Position", position);
+// 	const node = analyze.findParentByPositionEnd(<CustomPosition>{
+// 		line: position.line,
+// 		column: position.character
+// 	});
+// 	if (node && (node.type === 'UserDefinedTypeName' || node.type === 'StructDefinition')) {
+// 		return {
+// 			uri: node.uri,
+// 			range: Range.create(
+// 				Position.create(node.loc.start.line, node.loc.start.column),
+// 				Position.create(node.loc.end.line, node.loc.end.column),
+// 			)
+// 		};
+// 	}
+// 	return [];
+// }
+// connection.onTypeDefinition((params) => {
+// 	console.log('onTypeDefinition', params);
+// 	const document = documents.get(params.textDocument.uri);
+// 	if (document) {
+// 		return findTypeDefinition(document, params.position);
+// 	}
+// });
+// // ---------------------------------------------------------------------------------------------------
+// // ---------------------------------------------------------------------------------------------------
+// // Go to definition
+// function findDefinition(document: TextDocument, position: Position): Definition {
+// 	const analyze = analyzeAST(document);
+// 	console.log("Position", position);
+// 	const node = analyze.findParentByPositionEnd(<CustomPosition>{
+// 		line: position.line,
+// 		column: position.character
+// 	});
+// 	console.log("Naso sam node", node);
+// 	if (node) {
+// 		return {
+// 			uri: node.uri,
+// 			range: Range.create(
+// 				Position.create(node.loc.start.line, node.loc.start.column),
+// 				Position.create(node.loc.end.line, node.loc.end.column),
+// 			)
+// 		};
+// 	}
+// 	return [];
+// }
+// connection.onDefinition((params) => {
+// 	console.log('onDefinition', params);
+// 	const document = documents.get(params.textDocument.uri);
+// 	if (document) {
+// 		new Analyzer(document.getText(), params.textDocument.uri);
+// 		return findDefinition(document, params.position);
+// 	}
+// });
+// // ---------------------------------------------------------------------------------------------------
+// // ---------------------------------------------------------------------------------------------------
+// // Go to implementation
+// connection.onImplementation((params) => {
+// 	console.log('onImplementation');
+// 	return [
+// 		{
+// 			uri: params.textDocument.uri,
+// 			range: Range.create(
+// 				Position.create(2, 2),
+// 				Position.create(3, 3),
+// 			)
+// 		},
+// 		{
+// 			uri: params.textDocument.uri,
+// 			range: Range.create(
+// 				Position.create(10, 1),
+// 				Position.create(10, 5),
+// 			)
+// 		}
+// 	];
+// });
+// // ---------------------------------------------------------------------------------------------------
+// // ---------------------------------------------------------------------------------------------------
+// // Find all references
+// function _findReferencesDocumentHighlights (node: Node, list: Node[]) {
+// 	list.push(node);
+// 	for (const child of node.children) {
+// 		_findReferencesDocumentHighlights(child, list);
+// 	}
+// }
+// function findReferencesDocumentHighlights (document: TextDocument, position: Position): Node[] {
+// 	const result: Node[] = [];
+// 	const analyze = analyzeAST(document);
+// 	const node = analyze.findParentByPositionEnd(<CustomPosition>{
+// 		line: position.line,
+// 		column: position.character
+// 	});
+// 	if (node) {
+// 		_findReferencesDocumentHighlights(node, result);
+// 	}
+// 	return result;
+// }
+// function onReferences(document: TextDocument, position: Position): any {
+// 	const highlights = findReferencesDocumentHighlights(document, position);
+// 	const references = highlights.map(h => {
+// 		return {
+// 			uri: h.uri,
+// 			range: Range.create(
+// 				Position.create(h.loc.start.line, h.loc.start.column),
+// 				Position.create(h.loc.end.line, h.loc.end.column),
+// 			)
+// 		};
+// 	});
+// 	return references;
+// }
+// connection.onReferences((params) => {
+// 	console.log('onReferences');
+// 	const document = documents.get(params.textDocument.uri);
+// 	if (document) {
+// 		return onReferences(document, params.position);
+// 	}
+// });
+// // ---------------------------------------------------------------------------------------------------
 // Make the text document manager listen on the connection
 // for open, change and close text document events
 documents.listen(connection);
