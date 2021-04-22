@@ -3,11 +3,11 @@ import { Position, Node } from "./nodes/Node";
 let visitedNodes: Node[] = [];
 export let analyzerTree: Node | undefined;
 
-export function setRoot (rootNode: Node) {
+export function setRoot(rootNode: Node) {
     analyzerTree = rootNode;
 }
 
-export function findParent (node: Node, from?: Node): Node | undefined {
+export function findParent(node: Node, from?: Node): Node | undefined {
     visitedNodes = [];
     let parent: Node | undefined;
 
@@ -25,9 +25,9 @@ export function findParent (node: Node, from?: Node): Node | undefined {
     return parent;
 }
 
-export function findNodeByPosition (position: Position): Node | undefined {
+export function findNodeByPosition(position: Position, from?: Node): Node | undefined {
     visitedNodes = [];
-    const node = walk(position, analyzerTree);
+    const node = walk(position, from || analyzerTree);
 
     if (node?.getName()) {
         return goUp(node, "" + node.getName());
@@ -36,7 +36,7 @@ export function findNodeByPosition (position: Position): Node | undefined {
     return node;
 }
 
-function search (node: Node, from?: Node | undefined, bottomUp: boolean = false): Node | undefined {
+function search(node: Node, from?: Node | undefined, bottomUp: boolean = false): Node | undefined {
     if (!from) {
         return undefined;
     }
@@ -68,7 +68,7 @@ function search (node: Node, from?: Node | undefined, bottomUp: boolean = false)
     return search(node, from.parent, bottomUp);
 }
 
-function walk (position: Position, from?: Node): Node | undefined {
+function walk(position: Position, from?: Node): Node | undefined {
     if (!from) {
         return undefined;
     }
@@ -102,7 +102,7 @@ function walk (position: Position, from?: Node): Node | undefined {
     return walk(position, from.parent);
 }
 
-function goUp (node: Node, name: string): Node {
+function goUp(node: Node, name: string): Node {
     if (node.parent?.getName() === name) {
         node = goUp(node.parent, name);
     }

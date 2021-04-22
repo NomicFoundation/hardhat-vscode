@@ -3,38 +3,17 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 import {
-	createConnection,
-	TextDocuments,
-	Diagnostic,
-	DiagnosticSeverity,
-	ProposedFeatures,
-	InitializeParams,
-	DidChangeConfigurationNotification,
-	CompletionItem,
-	CompletionItemKind,
-	TextDocumentPositionParams,
-	TextDocumentSyncKind,
-	InitializeResult
+	createConnection, TextDocuments, Diagnostic, DiagnosticSeverity,
+	ProposedFeatures, InitializeParams, DidChangeConfigurationNotification,
+	CompletionItem, CompletionItemKind, TextDocumentPositionParams,
+	TextDocumentSyncKind, InitializeResult
 } from 'vscode-languageserver/node';
 
-import { 
-	Position,
-	WorkspaceEdit,
-	DocumentHighlight,
-	TextEdit,
-	Range,
-	DocumentHighlightKind,
-	MarkupKind,
-	Definition
-} from 'vscode-languageserver-types';
+import { MarkupKind } from 'vscode-languageserver-types';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
-import {
-	TextDocument
-} from 'vscode-languageserver-textdocument';
-
-import { Analyzer } from "../../parser/out";
-import * as finder from "../../parser/out/analyzer/finder";
-import { Node } from "../../parser/out/analyzer/nodes/Node";
+import { languageServer } from './services';
+import { analyzerTree } from '../../parser/src/analyzer/finder';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -286,66 +265,16 @@ connection.onHover(params => {
 });
 // ---------------------------------------------------------------------------------------------------
 
-function analyzeAST (document: TextDocument): void {
-    const analizer = new Analyzer();
-	
-	analizer.analyzeDocument(document.getText(), document.uri);
-}
-
-// ---------------------------------------------------------------------------------------------------
-// Add rename example
-function _findDocumentHighlights (node: Node, list: DocumentHighlight[]) {
-	if (node.nameLoc) {
-		list.push({
-			kind: DocumentHighlightKind.Write,
-			range: Range.create(
-				Position.create(node.nameLoc.start.line - 1, node.nameLoc.start.column),
-				Position.create(node.nameLoc.end.line - 1, node.nameLoc.end.column),
-			)
-		});
-	}
-
-	for (const child of node.children) {
-		_findDocumentHighlights(child, list);
-	}
-}
-
-function findDocumentHighlights (document: TextDocument, position: Position): DocumentHighlight[] {
-	const result: DocumentHighlight[] = [];
-
-	analyzeAST(document);
-
-	const node = finder.findNodeByPosition({
-		line: position.line + 1,
-		column: position.character
-	});
-
-	if (node) {
-		_findDocumentHighlights(node, result);
-	}
-
-	return result;
-}
-
-function doRename(document: TextDocument, position: Position, newName: string): WorkspaceEdit {
-	const highlights = findDocumentHighlights(document, position);
-
-	const edits = highlights.map(h => TextEdit.replace(h.range, newName));
-
-	return {
-		changes: { [document.uri]: edits }
-	};
-}
-
 connection.onRenameRequest((params) => {
-	console.log('onRenameRequest', params);
 	const document = documents.get(params.textDocument.uri);
 
 	if (document) {
-		return doRename(document, params.position, params.newName);
-	}
+		const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
 
-	return null;
+		if (analyzeTree) {
+			return languageServer.doRename(document, params.position, params.newName, analyzeTree);
+		}
+	}
 });
 // ---------------------------------------------------------------------------------------------------
 

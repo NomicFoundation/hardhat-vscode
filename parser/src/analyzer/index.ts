@@ -15,7 +15,7 @@ export class Analyzer {
 
     orphanNodes: Node[] = [];
 
-    public analyzeDocument(document: string, uri: string): void {
+    public analyzeDocument(document: string, uri: string): Node | undefined {
         try {
             this.document = document;
             this.uri = uri;
@@ -31,6 +31,8 @@ export class Analyzer {
             // TO-DO: Find parent for orphanNodes
 
             console.log(JSON.stringify(this.analyzerTree, getCircularReplacer()));
+
+            return this.analyzerTree;
         } catch (err) {
             console.error(err);
         }
