@@ -245,7 +245,7 @@ connection.onCompletionResolve(
 	}
 );
 
-// ---------------------------------------------------------------------------------------------------
+
 // Add hover example
 connection.onHover(params => {
 	return {
@@ -263,9 +263,9 @@ connection.onHover(params => {
 		}
 	};
 });
-// ---------------------------------------------------------------------------------------------------
 
-connection.onRenameRequest((params) => {
+
+connection.onRenameRequest(params => {
 	const document = documents.get(params.textDocument.uri);
 
 	if (document) {
@@ -276,7 +276,19 @@ connection.onRenameRequest((params) => {
 		}
 	}
 });
-// ---------------------------------------------------------------------------------------------------
+
+
+connection.onReferences(params => {
+	const document = documents.get(params.textDocument.uri);
+	
+	if (document) {
+		const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
+
+		if (analyzeTree) {
+			return languageServer.findReferences(params.position, analyzeTree);
+		}
+	}
+});
 
 
 // // ---------------------------------------------------------------------------------------------------
@@ -378,61 +390,6 @@ connection.onRenameRequest((params) => {
 // 	];
 // });
 // // ---------------------------------------------------------------------------------------------------
-
-
-// // ---------------------------------------------------------------------------------------------------
-// // Find all references
-// function _findReferencesDocumentHighlights (node: Node, list: Node[]) {
-// 	list.push(node);
-
-// 	for (const child of node.children) {
-// 		_findReferencesDocumentHighlights(child, list);
-// 	}
-// }
-
-// function findReferencesDocumentHighlights (document: TextDocument, position: Position): Node[] {
-// 	const result: Node[] = [];
-
-// 	const analyze = analyzeAST(document);
-
-// 	const node = analyze.findParentByPositionEnd(<CustomPosition>{
-// 		line: position.line,
-// 		column: position.character
-// 	});
-
-// 	if (node) {
-// 		_findReferencesDocumentHighlights(node, result);
-// 	}
-
-// 	return result;
-// }
-
-// function onReferences(document: TextDocument, position: Position): any {
-// 	const highlights = findReferencesDocumentHighlights(document, position);
-
-// 	const references = highlights.map(h => {
-// 		return {
-// 			uri: h.uri,
-// 			range: Range.create(
-// 				Position.create(h.loc.start.line, h.loc.start.column),
-// 				Position.create(h.loc.end.line, h.loc.end.column),
-// 			)
-// 		};
-// 	});
-
-// 	return references;
-// }
-
-// connection.onReferences((params) => {
-// 	console.log('onReferences');
-
-// 	const document = documents.get(params.textDocument.uri);
-	
-// 	if (document) {
-// 		return onReferences(document, params.position);
-// 	}
-// });
-// ---------------------------------------------------------------------------------------------------
 
 
 // Make the text document manager listen on the connection

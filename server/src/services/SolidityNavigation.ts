@@ -7,14 +7,30 @@ import {
 } from '../types/languageTypes';
 
 export class SolidityNavigation {
-	public findDefinition(document: TextDocument, position: Position, analyzerTree: Node): Location | undefined {
+	public findDefinition(position: Position, analyzerTree: Node): Location | undefined {
 		// TO-DO: Implement findDefinition
 		return undefined;
 	}
 
-	public findReferences(document: TextDocument, position: Position, analyzerTree: Node): Location[] {
-		// TO-DO: Implement findReferences
-        return [];
+	public findReferences(position: Position, analyzerTree: Node): Location[] {
+		const highlightNodes = this.findHighlightNodes(position, analyzerTree);
+		const references: Location[] = [];
+
+		highlightNodes.forEach(highlightNode => {
+			if (highlightNode.astNode.loc) {
+				// TO-DO: Remove -1 when "@solidity-parser" fix line counting.
+				// Why -1? Because "vs-code" line counting from 0, and "@solidity-parser" from 1.
+				references.push({
+					uri: highlightNode.uri,
+					range: Range.create(
+						Position.create(highlightNode.astNode.loc.start.line - 1, highlightNode.astNode.loc.start.column),
+						Position.create(highlightNode.astNode.loc.end.line - 1, highlightNode.astNode.loc.end.column),
+					)
+				});
+			}
+		});
+
+        return references;
 	}
 
 	public doRename(document: TextDocument, position: Position, newName: string, analyzerTree: Node): WorkspaceEdit {

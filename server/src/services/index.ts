@@ -13,8 +13,8 @@ export interface LanguageService {
     configure(raw?: LanguageSettings): void;
     analyzeDocument(document: string, uri: string): Node | undefined;
 	doHover(document: TextDocument, position: Position, analyzerTree: Node, settings?: HoverSettings): Hover | undefined;
-	findDefinition(document: TextDocument, position: Position, analyzerTree: Node): Location | undefined;
-	findReferences(document: TextDocument, position: Position, analyzerTree: Node): Location[];
+	findDefinition(position: Position, analyzerTree: Node): Location | undefined;
+	findReferences(position: Position, analyzerTree: Node): Location[];
 	doRename(document: TextDocument, position: Position, newName: string, analyzerTree: Node): WorkspaceEdit;
 }
 
