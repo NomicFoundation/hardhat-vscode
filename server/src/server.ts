@@ -286,10 +286,10 @@ connection.onHover(params => {
 });
 // ---------------------------------------------------------------------------------------------------
 
-function analyzeAST (document: TextDocument): Analyzer {
-    const analyzerTree = new Analyzer(document.getText(), document.uri);
-
-	return analyzerTree;
+function analyzeAST (document: TextDocument): Node | undefined {
+    const analizer = new Analyzer();
+	
+	return analizer.analyzeDocument(document.getText(), document.uri);
 }
 
 // ---------------------------------------------------------------------------------------------------
@@ -503,7 +503,7 @@ connection.onRenameRequest((params) => {
 // 		return onReferences(document, params.position);
 // 	}
 // });
-// // ---------------------------------------------------------------------------------------------------
+// ---------------------------------------------------------------------------------------------------
 
 
 // Make the text document manager listen on the connection
