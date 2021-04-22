@@ -11,11 +11,10 @@ import {
 
 export interface LanguageService {
     configure(raw?: LanguageSettings): void;
-    analyzeDocument(document: string, uri: string): void;
+    analyzeDocument(document: string, uri: string): Node | undefined;
 	doHover(document: TextDocument, position: Position, analyzerTree: Node, settings?: HoverSettings): Hover | undefined;
 	findDefinition(document: TextDocument, position: Position, analyzerTree: Node): Location | undefined;
 	findReferences(document: TextDocument, position: Position, analyzerTree: Node): Location[];
-	findDocumentHighlights(document: TextDocument, position: Position, analyzerTree: Node): DocumentHighlight[];
 	doRename(document: TextDocument, position: Position, newName: string, analyzerTree: Node): WorkspaceEdit;
 }
 
@@ -27,16 +26,13 @@ function createFacade(analyzer: Analyzer, navigation: SolidityNavigation, hover:
         analyzeDocument: analyzer.analyzeDocument.bind(analyzer),
 		findDefinition: navigation.findDefinition.bind(navigation),
 		findReferences: navigation.findReferences.bind(navigation),
-		findDocumentHighlights: navigation.findDocumentHighlights.bind(navigation),
 		doRename: navigation.doRename.bind(navigation),
         doHover: hover.doHover.bind(hover)
 	};
 }
 
-export function getLanguageService(): LanguageService {
-	return createFacade(
-		new Analyzer(),
-        new SolidityNavigation(),
-        new SolidityHover()
-	);
-}
+export const languageServer = createFacade(
+    new Analyzer(),
+    new SolidityNavigation(),
+    new SolidityHover()
+);
