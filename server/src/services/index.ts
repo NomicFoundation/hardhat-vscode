@@ -11,7 +11,7 @@ import {
 
 export interface LanguageService {
     configure(raw?: LanguageSettings): void;
-    analyzeDocument(document: string, uri: string): Node | undefined;
+    analyzeDocument(document: string, uri: string): void;
 	doHover(document: TextDocument, position: Position, analyzerTree: Node, settings?: HoverSettings): Hover | undefined;
 	findDefinition(document: TextDocument, position: Position, analyzerTree: Node): Location | undefined;
 	findReferences(document: TextDocument, position: Position, analyzerTree: Node): Location[];

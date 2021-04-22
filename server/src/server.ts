@@ -286,10 +286,10 @@ connection.onHover(params => {
 });
 // ---------------------------------------------------------------------------------------------------
 
-function analyzeAST (document: TextDocument): Node | undefined {
+function analyzeAST (document: TextDocument): void {
     const analizer = new Analyzer();
 	
-	return analizer.analyzeDocument(document.getText(), document.uri);
+	analizer.analyzeDocument(document.getText(), document.uri);
 }
 
 // ---------------------------------------------------------------------------------------------------
