@@ -13,7 +13,7 @@ export interface Location {
 export type FinderType = (ast: AST, uri: string) => Node;
 
 export interface Component {
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): void;
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node;
 }
 
 export interface Node extends Component {

@@ -31,8 +31,10 @@ export class MemberAccessNode implements Node {
         this.parent = parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
         // TO-DO: Method not implemented
         find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent);
+
+        return this;
     }
 }

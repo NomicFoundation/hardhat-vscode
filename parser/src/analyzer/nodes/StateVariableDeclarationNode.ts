@@ -30,7 +30,7 @@ export class StateVariableDeclarationNode implements Node {
         this.parent = parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
         for (const variable of this.astNode.variables) {
             find(variable, this.uri).accept(find, orphanNodes, parent);
         }
@@ -38,5 +38,7 @@ export class StateVariableDeclarationNode implements Node {
         if (this.astNode.initialValue) {
             find(this.astNode.initialValue, this.uri).accept(find, orphanNodes, parent);
         }
+
+        return this;
     }
 }

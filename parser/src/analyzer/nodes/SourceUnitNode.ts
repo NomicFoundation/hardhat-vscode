@@ -31,11 +31,13 @@ export class SourceUnitNode implements Node {
         this.parent = parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
         finder.setRoot(this);
 
         for (const child of this.astNode.children) {
             find(child, this.uri).accept(find, orphanNodes, this);
         }
+
+        return this;
     }
 }

@@ -3,7 +3,6 @@ import { AST } from "@solidity-parser/parser/dist/ast-types";
 
 import { getCircularReplacer } from "../utils";
 import { Node } from "./nodes/Node"
-import * as finder from "./finder";
 import * as matcher from "./matcher";
 
 export class Analyzer {
@@ -27,9 +26,7 @@ export class Analyzer {
                 tolerant: true
             });
 
-            // TO-DO: Make accept func to return Node
-            matcher.find(this.ast, this.uri).accept(matcher.find, this.orphanNodes);
-            this.analyzerTree = finder.analyzerTree;
+            this.analyzerTree = matcher.find(this.ast, this.uri).accept(matcher.find, this.orphanNodes);
 
             // TO-DO: Find parent for orphanNodes
 

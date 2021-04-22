@@ -30,8 +30,10 @@ export class BinaryOperationNode implements Node {
         this.parent = parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
         find(this.astNode.left, this.uri).accept(find, orphanNodes, parent);
         find(this.astNode.right, this.uri).accept(find, orphanNodes, parent);
+
+        return this;
     }
 }

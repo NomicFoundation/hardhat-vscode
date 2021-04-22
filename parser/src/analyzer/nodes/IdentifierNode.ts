@@ -39,7 +39,7 @@ export class IdentifierNode implements Node {
         this.parent = parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
         if (parent) {
             const identifierParent = finder.findParent(this, parent);
 
@@ -47,10 +47,12 @@ export class IdentifierNode implements Node {
                 this.setParent(identifierParent);
                 identifierParent?.addChild(this);
 
-                return;
+                return this;
             }
         }
 
         orphanNodes.push(this);
+
+        return this;
     }
 }

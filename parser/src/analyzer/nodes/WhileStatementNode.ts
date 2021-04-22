@@ -31,7 +31,8 @@ export class WhileStatementNode implements Node {
         this.parent = parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
         // TO-DO: Method not implemented
+        return this;
     }
 }

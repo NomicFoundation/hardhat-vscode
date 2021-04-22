@@ -47,7 +47,7 @@ export class VariableDeclarationNode implements Node {
         this.parent = parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
         if (parent) {
             this.setParent(parent);
         }
@@ -55,5 +55,7 @@ export class VariableDeclarationNode implements Node {
         find(this.astNode.typeName, this.uri).accept(find, orphanNodes, this);
 
         parent?.addChild(this);
+
+        return this;
     }
 }

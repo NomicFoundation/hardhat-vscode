@@ -30,7 +30,9 @@ export class ExpressionStatementNode implements Node {
         this.parent = parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
         find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent);
+
+        return this;
     }
 }

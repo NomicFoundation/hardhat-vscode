@@ -30,9 +30,11 @@ export class ReturnStatementNode implements Node {
         this.parent = parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
         if (this.astNode.expression) {
             find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent);
         }
+
+        return this;
     }
 }

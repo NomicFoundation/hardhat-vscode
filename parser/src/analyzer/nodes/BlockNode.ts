@@ -30,9 +30,11 @@ export class BlockNode implements Node {
         this.parent = parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): void {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
         for (const statement of this.astNode.statements) {
             find(statement, this.uri).accept(find, orphanNodes, parent);
         }
+        
+        return this;
     }
 }
