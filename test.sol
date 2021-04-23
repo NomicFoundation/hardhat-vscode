@@ -23,5 +23,4 @@ contract BasicToken {
   function balanceOf(address account) public constant returns (uint256) {
     return balances[account];
   }
-
 }

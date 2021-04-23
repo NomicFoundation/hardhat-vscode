@@ -1,4 +1,4 @@
-import { Node } from "../../../parser/out/analyzer/nodes/Node";
+import { Location as NodeLocation, Node } from "../../../parser/out/analyzer/nodes/Node";
 import * as finder from "../../../parser/out/analyzer/finder";
 
 import {
@@ -8,29 +8,21 @@ import {
 
 export class SolidityNavigation {
 	public findDefinition(position: Position, analyzerTree: Node): Location | undefined {
-		// TO-DO: Implement findDefinition
+		const definitionNode = this.findNodeByPosition(position, analyzerTree);
+
+		if (definitionNode && definitionNode.astNode.loc) {
+			return {
+				uri: definitionNode.uri,
+				range: this.getRange(definitionNode.astNode.loc)
+			};
+		}
+		
 		return undefined;
 	}
 
 	public findReferences(position: Position, analyzerTree: Node): Location[] {
 		const highlightNodes = this.findHighlightNodes(position, analyzerTree);
-		const references: Location[] = [];
-
-		highlightNodes.forEach(highlightNode => {
-			if (highlightNode.astNode.loc) {
-				// TO-DO: Remove -1 when "@solidity-parser" fix line counting.
-				// Why -1? Because "vs-code" line counting from 0, and "@solidity-parser" from 1.
-				references.push({
-					uri: highlightNode.uri,
-					range: Range.create(
-						Position.create(highlightNode.astNode.loc.start.line - 1, highlightNode.astNode.loc.start.column),
-						Position.create(highlightNode.astNode.loc.end.line - 1, highlightNode.astNode.loc.end.column),
-					)
-				});
-			}
-		});
-
-        return references;
+        return this.getHighlightLocations(highlightNodes);
 	}
 
 	public doRename(document: TextDocument, position: Position, newName: string, analyzerTree: Node): WorkspaceEdit {
@@ -39,12 +31,7 @@ export class SolidityNavigation {
 
 		highlightNodes.forEach(highlightNode => {
 			if (highlightNode.nameLoc) {
-				// TO-DO: Remove -1 when "@solidity-parser" fix line counting.
-				// Why -1? Because "vs-code" line counting from 0, and "@solidity-parser" from 1.
-				const range = Range.create(
-					Position.create(highlightNode.nameLoc.start.line - 1, highlightNode.nameLoc.start.column),
-					Position.create(highlightNode.nameLoc.end.line - 1, highlightNode.nameLoc.end.column),
-				);
+				const range = this.getRange(highlightNode.nameLoc)
 
 				edits.push(TextEdit.replace(range, newName));
 			}
@@ -57,15 +44,25 @@ export class SolidityNavigation {
 		};
 	}
 
+	private getHighlightLocations(highlightNodes: Node[]): Location[] {
+		const locations: Location[] = [];
+
+		highlightNodes.forEach(highlightNode => {
+			if (highlightNode.astNode.loc) {
+				locations.push({
+					uri: highlightNode.uri,
+					range: this.getRange(highlightNode.astNode.loc)
+				});
+			}
+		});
+
+        return locations;
+	}
+
 	private findHighlightNodes(position: Position, analyzerTree: Node): Node[] {
 		const highlights: Node[] = [];
 
-		const node = finder.findNodeByPosition({
-			// TO-DO: Remove +1 when "@solidity-parser" fix line counting.
-			// Why +1? Because "vs-code" line counting from 0, and "@solidity-parser" from 1.
-			line: position.line + 1,
-			column: position.character
-		}, analyzerTree);
+		const node = this.findNodeByPosition(position, analyzerTree);
 
 		const nodeName = node?.getName();
 		if (node && nodeName) {
@@ -73,6 +70,15 @@ export class SolidityNavigation {
 		}
 
         return highlights;
+	}
+
+	private findNodeByPosition(position: Position, analyzerTree: Node): Node | undefined {
+		return finder.findNodeByPosition({
+			// TO-DO: Remove +1 when "@solidity-parser" fix line counting.
+			// Why +1? Because "vs-code" line counting from 0, and "@solidity-parser" from 1.
+			line: position.line + 1,
+			column: position.character
+		}, analyzerTree);
 	}
 
 	private extractHighlightsFromNode(name: string, node: Node, highlights: Node[]) {
@@ -83,5 +89,14 @@ export class SolidityNavigation {
 		for (const child of node.children) {
 			this.extractHighlightsFromNode(name, child, highlights);
 		}
+	}
+
+	private getRange(loc: NodeLocation): Range {
+		// TO-DO: Remove -1 when "@solidity-parser" fix line counting.
+		// Why -1? Because "vs-code" line counting from 0, and "@solidity-parser" from 1.
+		return Range.create(
+			Position.create(loc.start.line - 1, loc.start.column),
+			Position.create(loc.end.line - 1, loc.end.column),
+		);
 	}
 }

@@ -265,18 +265,17 @@ connection.onHover(params => {
 });
 
 
-connection.onRenameRequest(params => {
+connection.onDefinition((params) => {
 	const document = documents.get(params.textDocument.uri);
 
 	if (document) {
 		const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
 
 		if (analyzeTree) {
-			return languageServer.doRename(document, params.position, params.newName, analyzeTree);
+			return languageServer.findDefinition(params.position, analyzeTree);
 		}
 	}
 });
-
 
 connection.onReferences(params => {
 	const document = documents.get(params.textDocument.uri);
@@ -290,6 +289,17 @@ connection.onReferences(params => {
 	}
 });
 
+connection.onRenameRequest(params => {
+	const document = documents.get(params.textDocument.uri);
+
+	if (document) {
+		const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
+
+		if (analyzeTree) {
+			return languageServer.doRename(document, params.position, params.newName, analyzeTree);
+		}
+	}
+});
 
 // // ---------------------------------------------------------------------------------------------------
 // // Go to definition
@@ -322,46 +332,6 @@ connection.onReferences(params => {
 	
 // 	if (document) {
 // 		return findTypeDefinition(document, params.position);
-// 	}
-// });
-// // ---------------------------------------------------------------------------------------------------
-
-
-// // ---------------------------------------------------------------------------------------------------
-// // Go to definition
-// function findDefinition(document: TextDocument, position: Position): Definition {
-// 	const analyze = analyzeAST(document);
-
-// 	console.log("Position", position);
-
-// 	const node = analyze.findParentByPositionEnd(<CustomPosition>{
-// 		line: position.line,
-// 		column: position.character
-// 	});
-
-// 	console.log("Naso sam node", node);
-
-// 	if (node) {
-// 		return {
-// 			uri: node.uri,
-// 			range: Range.create(
-// 				Position.create(node.loc.start.line, node.loc.start.column),
-// 				Position.create(node.loc.end.line, node.loc.end.column),
-// 			)
-// 		};
-// 	}
-	
-// 	return [];
-// }
-
-// connection.onDefinition((params) => {
-// 	console.log('onDefinition', params);
-// 	const document = documents.get(params.textDocument.uri);
-	
-// 	if (document) {
-// 		new Analyzer(document.getText(), params.textDocument.uri);
-
-// 		return findDefinition(document, params.position);
 // 	}
 // });
 // // ---------------------------------------------------------------------------------------------------
