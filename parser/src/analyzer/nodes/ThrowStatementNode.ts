@@ -12,11 +12,17 @@ export class ThrowStatementNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (throwStatement: ThrowStatement, uri: string) {
         this.type = throwStatement.type;
         this.uri = uri;
         this.astNode = throwStatement;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

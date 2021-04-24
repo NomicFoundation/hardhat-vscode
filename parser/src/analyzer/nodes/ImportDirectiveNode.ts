@@ -12,11 +12,17 @@ export class ImportDirectiveNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (importDirective: ImportDirective, uri: string) {
         this.type = importDirective.type;
         this.uri = uri;
         this.astNode = importDirective;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

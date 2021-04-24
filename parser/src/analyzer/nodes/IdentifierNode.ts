@@ -13,6 +13,8 @@ export class IdentifierNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (identifier: Identifier, uri: string) {
         this.type = identifier.type;
         this.uri = uri;
@@ -25,6 +27,10 @@ export class IdentifierNode implements Node {
         }
 
         this.astNode = identifier;
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

@@ -16,8 +16,18 @@ export class SolidityNavigation {
 				range: this.getRange(definitionNode.astNode.loc)
 			};
 		}
-		
+
 		return undefined;
+	}
+
+	public findTypeDefinition(position: Position, analyzerTree: Node): Location[] {
+		const definitionNode = this.findNodeByPosition(position, analyzerTree);
+
+		if (!definitionNode) {
+			return [];
+		}
+
+		return this.getHighlightLocations(definitionNode.getTypeNodes());
 	}
 
 	public findReferences(position: Position, analyzerTree: Node): Location[] {

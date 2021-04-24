@@ -12,10 +12,16 @@ export class MappingNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (mapping: Mapping, uri: string) {
         this.type = mapping.type;
         this.uri = uri;
         this.astNode = mapping;
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

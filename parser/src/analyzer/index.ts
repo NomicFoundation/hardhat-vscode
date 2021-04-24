@@ -30,7 +30,7 @@ export class Analyzer {
 
             // TO-DO: Find parent for orphanNodes
 
-            console.log(JSON.stringify(this.analyzerTree, getCircularReplacer()));
+            // console.log(JSON.stringify(this.analyzerTree, getCircularReplacer()));
 
             return this.analyzerTree;
         } catch (err) {

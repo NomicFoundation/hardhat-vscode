@@ -12,11 +12,17 @@ export class NumberLiteralNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (numberLiteral: NumberLiteral, uri: string) {
         this.type = numberLiteral.type;
         this.uri = uri;
         this.astNode = numberLiteral;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

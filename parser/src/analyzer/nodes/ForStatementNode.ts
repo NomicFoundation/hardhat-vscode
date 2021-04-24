@@ -12,11 +12,17 @@ export class ForStatementNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (forStatement: ForStatement, uri: string) {
         this.type = forStatement.type;
         this.uri = uri;
         this.astNode = forStatement;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

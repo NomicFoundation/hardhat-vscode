@@ -12,11 +12,17 @@ export class HexNumberNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (hexNumber: HexNumber, uri: string) {
         this.type = hexNumber.type;
         this.uri = uri;
         this.astNode = hexNumber;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

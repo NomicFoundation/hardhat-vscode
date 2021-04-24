@@ -12,11 +12,17 @@ export class EnumValueNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (enumValue: EnumValue, uri: string) {
         this.type = enumValue.type;
         this.uri = uri;
         this.astNode = enumValue;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

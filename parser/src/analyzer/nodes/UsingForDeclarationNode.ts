@@ -12,11 +12,17 @@ export class UsingForDeclarationNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (usingForDeclaration: UsingForDeclaration, uri: string) {
         this.type = usingForDeclaration.type;
         this.uri = uri;
         this.astNode = usingForDeclaration;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

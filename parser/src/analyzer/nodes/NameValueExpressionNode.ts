@@ -12,11 +12,17 @@ export class NameValueExpressionNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (nameValueExpression: NameValueExpression, uri: string) {
         this.type = nameValueExpression.type;
         this.uri = uri;
         this.astNode = nameValueExpression;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

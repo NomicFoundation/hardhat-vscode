@@ -12,11 +12,17 @@ export class WhileStatementNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (whileStatement: WhileStatement, uri: string) {
         this.type = whileStatement.type;
         this.uri = uri;
         this.astNode = whileStatement;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

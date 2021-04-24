@@ -12,11 +12,17 @@ export class PragmaDirectiveNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (pragmaDirective: PragmaDirective, uri: string) {
         this.type = pragmaDirective.type;
         this.uri = uri;
         this.astNode = pragmaDirective;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

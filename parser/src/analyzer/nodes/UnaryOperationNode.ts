@@ -12,11 +12,17 @@ export class UnaryOperationNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (unaryOperation: UnaryOperation, uri: string) {
         this.type = unaryOperation.type;
         this.uri = uri;
         this.astNode = unaryOperation;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

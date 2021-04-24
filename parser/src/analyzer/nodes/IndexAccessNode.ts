@@ -12,11 +12,17 @@ export class IndexAccessNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (indexAccess: IndexAccess, uri: string) {
         this.type = indexAccess.type;
         this.uri = uri;
         this.astNode = indexAccess;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

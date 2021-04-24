@@ -12,11 +12,17 @@ export class VariableDeclarationStatementNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (variableDeclarationStatement: VariableDeclarationStatement, uri: string) {
         this.type = variableDeclarationStatement.type;
         this.uri = uri;
         this.astNode = variableDeclarationStatement;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

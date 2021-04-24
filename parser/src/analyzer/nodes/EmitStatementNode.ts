@@ -12,11 +12,17 @@ export class EmitStatementNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (emitStatement: EmitStatement, uri: string) {
         this.type = emitStatement.type;
         this.uri = uri;
         this.astNode = emitStatement;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

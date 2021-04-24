@@ -12,11 +12,17 @@ export class SubAssemblyNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (subAssembly: SubAssembly, uri: string) {
         this.type = subAssembly.type;
         this.uri = uri;
         this.astNode = subAssembly;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

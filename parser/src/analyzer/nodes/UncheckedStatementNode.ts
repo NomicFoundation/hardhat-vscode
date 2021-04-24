@@ -12,11 +12,17 @@ export class UncheckedStatementNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (uncheckedStatement: UncheckedStatement, uri: string) {
         this.type = uncheckedStatement.type;
         this.uri = uri;
         this.astNode = uncheckedStatement;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

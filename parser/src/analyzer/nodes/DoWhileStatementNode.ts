@@ -12,11 +12,17 @@ export class DoWhileStatementNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (doWhileStatement: DoWhileStatement, uri: string) {
         this.type = doWhileStatement.type;
         this.uri = uri;
         this.astNode = doWhileStatement;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

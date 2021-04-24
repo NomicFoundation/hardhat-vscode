@@ -12,11 +12,17 @@ export class InlineAssemblyStatementNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (inlineAssemblyStatement: InlineAssemblyStatement, uri: string) {
         this.type = inlineAssemblyStatement.type;
         this.uri = uri;
         this.astNode = inlineAssemblyStatement;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

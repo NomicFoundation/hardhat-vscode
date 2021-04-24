@@ -12,11 +12,17 @@ export class AssemblyStackAssignmentNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (assemblyStackAssignment: AssemblyStackAssignment, uri: string) {
         this.type = assemblyStackAssignment.type;
         this.uri = uri;
         this.astNode = assemblyStackAssignment;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

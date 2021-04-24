@@ -12,10 +12,16 @@ export class ExpressionStatementNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (expressionStatement: ExpressionStatement, uri: string) {
         this.type = expressionStatement.type;
         this.uri = uri;
         this.astNode = expressionStatement;
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

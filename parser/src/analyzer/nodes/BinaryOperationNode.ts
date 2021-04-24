@@ -12,10 +12,16 @@ export class BinaryOperationNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (binaryOperation: BinaryOperation, uri: string) {
         this.type = binaryOperation.type;
         this.uri = uri;
         this.astNode = binaryOperation;
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

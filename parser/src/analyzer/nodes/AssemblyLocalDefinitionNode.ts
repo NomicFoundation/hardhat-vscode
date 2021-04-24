@@ -12,11 +12,17 @@ export class AssemblyLocalDefinitionNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (assemblyLocalDefinition: AssemblyLocalDefinition, uri: string) {
         this.type = assemblyLocalDefinition.type;
         this.uri = uri;
         this.astNode = assemblyLocalDefinition;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

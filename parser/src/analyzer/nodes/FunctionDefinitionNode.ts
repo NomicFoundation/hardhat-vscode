@@ -12,6 +12,8 @@ export class FunctionDefinitionNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (functionDefinition: FunctionDefinition, uri: string) {
         this.type = functionDefinition.type;
         this.uri = uri;
@@ -29,6 +31,16 @@ export class FunctionDefinitionNode implements Node {
                 }
             };
         }
+    }
+
+    getTypeNodes(): Node[] {
+        let nodes: Node[] = [];
+
+        this.typeNodes.forEach(typeNode => {
+            nodes = nodes.concat(typeNode.getTypeNodes());
+        });
+
+        return nodes;
     }
 
     getName(): string | undefined {
@@ -54,7 +66,11 @@ export class FunctionDefinitionNode implements Node {
 
         if (this.astNode.returnParameters) {
             for (const returnParam of this.astNode.returnParameters) {
-                find(returnParam, this.uri).accept(find, orphanNodes, this);
+                const typeNode = find(returnParam, this.uri).accept(find, orphanNodes, this);
+
+                if (typeNode) {
+                    this.typeNodes.push(typeNode);
+                }
             }
         }
 

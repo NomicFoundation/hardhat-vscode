@@ -53,10 +53,10 @@ connection.onInitialize((params: InitializeParams) => {
 				resolveProvider: true
 			},
 			// hoverProvider: true,
-			renameProvider: true,
+			// implementationProvider: true,
 			definitionProvider: true,
 			typeDefinitionProvider: true,
-			// implementationProvider: true,
+			renameProvider: true,
 			referencesProvider: true
 		}
 	};
@@ -265,7 +265,8 @@ connection.onHover(params => {
 });
 
 
-connection.onDefinition((params) => {
+connection.onDefinition(params => {
+	console.log("onDefinition");
 	const document = documents.get(params.textDocument.uri);
 
 	if (document) {
@@ -277,7 +278,21 @@ connection.onDefinition((params) => {
 	}
 });
 
+connection.onTypeDefinition(params => {
+	console.log("onTypeDefinition");
+	const document = documents.get(params.textDocument.uri);
+
+	if (document) {
+		const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
+
+		if (analyzeTree) {
+			return languageServer.findTypeDefinition(params.position, analyzeTree);
+		}
+	}
+});
+
 connection.onReferences(params => {
+	console.log("onReferences");
 	const document = documents.get(params.textDocument.uri);
 	
 	if (document) {
@@ -290,6 +305,7 @@ connection.onReferences(params => {
 });
 
 connection.onRenameRequest(params => {
+	console.log("onRenameRequest");
 	const document = documents.get(params.textDocument.uri);
 
 	if (document) {
@@ -300,67 +316,6 @@ connection.onRenameRequest(params => {
 		}
 	}
 });
-
-// // ---------------------------------------------------------------------------------------------------
-// // Go to definition
-// function findTypeDefinition(document: TextDocument, position: Position): Definition {
-// 	const analyze = analyzeAST(document);
-
-// 	console.log("Position", position);
-
-// 	const node = analyze.findParentByPositionEnd(<CustomPosition>{
-// 		line: position.line,
-// 		column: position.character
-// 	});
-
-// 	if (node && (node.type === 'UserDefinedTypeName' || node.type === 'StructDefinition')) {
-// 		return {
-// 			uri: node.uri,
-// 			range: Range.create(
-// 				Position.create(node.loc.start.line, node.loc.start.column),
-// 				Position.create(node.loc.end.line, node.loc.end.column),
-// 			)
-// 		};
-// 	}
-
-// 	return [];
-// }
-
-// connection.onTypeDefinition((params) => {
-// 	console.log('onTypeDefinition', params);
-// 	const document = documents.get(params.textDocument.uri);
-	
-// 	if (document) {
-// 		return findTypeDefinition(document, params.position);
-// 	}
-// });
-// // ---------------------------------------------------------------------------------------------------
-
-
-// // ---------------------------------------------------------------------------------------------------
-// // Go to implementation
-// connection.onImplementation((params) => {
-// 	console.log('onImplementation');
-
-// 	return [
-// 		{
-// 			uri: params.textDocument.uri,
-// 			range: Range.create(
-// 				Position.create(2, 2),
-// 				Position.create(3, 3),
-// 			)
-// 		},
-// 		{
-// 			uri: params.textDocument.uri,
-// 			range: Range.create(
-// 				Position.create(10, 1),
-// 				Position.create(10, 5),
-// 			)
-// 		}
-// 	];
-// });
-// // ---------------------------------------------------------------------------------------------------
-
 
 // Make the text document manager listen on the connection
 // for open, change and close text document events

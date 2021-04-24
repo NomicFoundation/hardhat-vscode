@@ -12,11 +12,17 @@ export class NewExpressionNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (newExpression: NewExpression, uri: string) {
         this.type = newExpression.type;
         this.uri = uri;
         this.astNode = newExpression;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

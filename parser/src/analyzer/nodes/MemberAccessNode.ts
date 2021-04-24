@@ -12,11 +12,17 @@ export class MemberAccessNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (memberAccess: MemberAccess, uri: string) {
         this.type = memberAccess.type;
         this.uri = uri;
         this.astNode = memberAccess;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

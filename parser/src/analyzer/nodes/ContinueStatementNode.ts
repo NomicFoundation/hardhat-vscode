@@ -12,11 +12,17 @@ export class ContinueStatementNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (continueStatement: ContinueStatement, uri: string) {
         this.type = continueStatement.type;
         this.uri = uri;
         this.astNode = continueStatement;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

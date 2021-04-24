@@ -12,11 +12,17 @@ export class BreakNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (astBreak: Break, uri: string) {
         this.type = astBreak.type;
         this.uri = uri;
         this.astNode = astBreak;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

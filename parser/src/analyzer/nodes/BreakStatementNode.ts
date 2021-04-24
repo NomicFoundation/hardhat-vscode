@@ -12,11 +12,17 @@ export class BreakStatementNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (breakStatement: BreakStatement, uri: string) {
         this.type = breakStatement.type;
         this.uri = uri;
         this.astNode = breakStatement;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

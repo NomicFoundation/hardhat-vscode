@@ -13,10 +13,16 @@ export class SourceUnitNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (sourceUnit: SourceUnit, uri: string) {
         this.type = sourceUnit.type;
         this.uri = uri;
         this.astNode = sourceUnit;
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

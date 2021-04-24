@@ -12,11 +12,17 @@ export class ModifierInvocationNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (modifierInvocation: ModifierInvocation, uri: string) {
         this.type = modifierInvocation.type;
         this.uri = uri;
         this.astNode = modifierInvocation;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

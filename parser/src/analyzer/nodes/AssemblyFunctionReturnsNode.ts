@@ -12,11 +12,17 @@ export class AssemblyFunctionReturnsNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (assemblyFunctionReturns: AssemblyFunctionReturns, uri: string) {
         this.type = assemblyFunctionReturns.type;
         this.uri = uri;
         this.astNode = assemblyFunctionReturns;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

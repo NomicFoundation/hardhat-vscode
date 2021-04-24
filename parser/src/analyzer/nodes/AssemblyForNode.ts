@@ -12,11 +12,17 @@ export class AssemblyForNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (assemblyFor: AssemblyFor, uri: string) {
         this.type = assemblyFor.type;
         this.uri = uri;
         this.astNode = assemblyFor;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

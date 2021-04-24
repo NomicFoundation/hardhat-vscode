@@ -12,11 +12,17 @@ export class BooleanLiteralNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (booleanLiteral: BooleanLiteral, uri: string) {
         this.type = booleanLiteral.type;
         this.uri = uri;
         this.astNode = booleanLiteral;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

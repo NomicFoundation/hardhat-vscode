@@ -24,11 +24,17 @@ export class ${type}Node implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (${argName}: ${type}, uri: string) {
         this.type = ${argName}.type;
         this.uri = uri;
         this.astNode = ${argName};
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     addChild(child: Node): void {

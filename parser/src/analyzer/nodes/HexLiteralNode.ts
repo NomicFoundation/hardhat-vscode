@@ -12,11 +12,17 @@ export class HexLiteralNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (hexLiteral: HexLiteral, uri: string) {
         this.type = hexLiteral.type;
         this.uri = uri;
         this.astNode = hexLiteral;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

@@ -12,6 +12,8 @@ export class ContractDefinitionNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (contractDefinition: ContractDefinition, uri: string) {
         this.type = contractDefinition.type;
         this.uri = uri;
@@ -29,6 +31,12 @@ export class ContractDefinitionNode implements Node {
                 }
             };
         }
+
+        this.typeNodes.push(this);
+    }
+
+    getTypeNodes(): Node[] {
+        return this.typeNodes;
     }
 
     getName(): string | undefined {

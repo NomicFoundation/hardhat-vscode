@@ -13,6 +13,8 @@ export class UserDefinedTypeNameNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (userDefinedTypeName: UserDefinedTypeName, uri: string) {
         this.type = userDefinedTypeName.type;
         this.uri = uri;
@@ -25,6 +27,10 @@ export class UserDefinedTypeNameNode implements Node {
         }
 
         this.astNode = userDefinedTypeName;
+    }
+
+    getTypeNodes(): Node[] {
+        return this.typeNodes;
     }
 
     getName(): string | undefined {
@@ -46,6 +52,8 @@ export class UserDefinedTypeNameNode implements Node {
             if (definitionParent) {
                 this.setParent(definitionParent);
                 definitionParent?.addChild(this);
+
+                this.typeNodes.push(definitionParent);
 
                 return this;
             }

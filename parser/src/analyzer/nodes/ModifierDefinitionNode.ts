@@ -12,11 +12,17 @@ export class ModifierDefinitionNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (modifierDefinition: ModifierDefinition, uri: string) {
         this.type = modifierDefinition.type;
         this.uri = uri;
         this.astNode = modifierDefinition;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

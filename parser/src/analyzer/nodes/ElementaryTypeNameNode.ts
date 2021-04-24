@@ -12,6 +12,8 @@ export class ElementaryTypeNameNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (elementaryTypeName: ElementaryTypeName, uri: string) {
         this.type = elementaryTypeName.type;
         this.uri = uri;
@@ -19,6 +21,10 @@ export class ElementaryTypeNameNode implements Node {
         // TO-DO: Implement name location for rename
     }
     
+    getTypeNodes(): Node[] {
+        return [];
+    }
+
     getName(): string | undefined {
         return undefined;
     }

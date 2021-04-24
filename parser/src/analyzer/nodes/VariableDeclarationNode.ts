@@ -12,6 +12,8 @@ export class VariableDeclarationNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (variableDeclaration: VariableDeclaration, uri: string) {
         this.type = variableDeclaration.type;
         this.uri = uri;
@@ -35,6 +37,16 @@ export class VariableDeclarationNode implements Node {
         this.astNode = variableDeclaration;
     }
 
+    getTypeNodes(): Node[] {
+        let nodes: Node[] = [];
+
+        this.typeNodes.forEach(typeNode => {
+            nodes = nodes.concat(typeNode.getTypeNodes());
+        });
+
+        return nodes;
+    }
+
     getName(): string | undefined {
         return this.astNode.name;
     }
@@ -52,7 +64,11 @@ export class VariableDeclarationNode implements Node {
             this.setParent(parent);
         }
 
-        find(this.astNode.typeName, this.uri).accept(find, orphanNodes, this);
+        const typeNode = find(this.astNode.typeName, this.uri).accept(find, orphanNodes, this);
+
+        if (typeNode) {
+            this.typeNodes.push(typeNode);
+        }
 
         parent?.addChild(this);
 

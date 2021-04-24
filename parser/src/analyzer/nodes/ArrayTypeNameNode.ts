@@ -12,11 +12,17 @@ export class ArrayTypeNameNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (arrayTypeName: ArrayTypeName, uri: string) {
         this.type = arrayTypeName.type;
         this.uri = uri;
         this.astNode = arrayTypeName;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

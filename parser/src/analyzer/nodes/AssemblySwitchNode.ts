@@ -12,11 +12,17 @@ export class AssemblySwitchNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (assemblySwitch: AssemblySwitch, uri: string) {
         this.type = assemblySwitch.type;
         this.uri = uri;
         this.astNode = assemblySwitch;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

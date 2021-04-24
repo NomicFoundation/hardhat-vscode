@@ -12,11 +12,17 @@ export class InheritanceSpecifierNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (inheritanceSpecifier: InheritanceSpecifier, uri: string) {
         this.type = inheritanceSpecifier.type;
         this.uri = uri;
         this.astNode = inheritanceSpecifier;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

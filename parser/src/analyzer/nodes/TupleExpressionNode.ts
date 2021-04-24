@@ -12,11 +12,17 @@ export class TupleExpressionNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (tupleExpression: TupleExpression, uri: string) {
         this.type = tupleExpression.type;
         this.uri = uri;
         this.astNode = tupleExpression;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

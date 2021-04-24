@@ -12,11 +12,17 @@ export class FunctionTypeNameNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (functionTypeName: FunctionTypeName, uri: string) {
         this.type = functionTypeName.type;
         this.uri = uri;
         this.astNode = functionTypeName;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

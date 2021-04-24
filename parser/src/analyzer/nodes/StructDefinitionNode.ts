@@ -12,6 +12,8 @@ export class StructDefinitionNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (structDefinition: StructDefinition, uri: string) {
         this.type = structDefinition.type;
         this.uri = uri;
@@ -29,6 +31,12 @@ export class StructDefinitionNode implements Node {
                 }
             };
         }
+
+        this.typeNodes.push(this);
+    }
+
+    getTypeNodes(): Node[] {
+        return this.typeNodes;
     }
 
     getName(): string | undefined {

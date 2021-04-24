@@ -12,11 +12,17 @@ export class EventDefinitionNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (eventDefinition: EventDefinition, uri: string) {
         this.type = eventDefinition.type;
         this.uri = uri;
         this.astNode = eventDefinition;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

@@ -26,7 +26,10 @@ export interface Node extends Component {
     parent?: Node | undefined;
     children: Node[];
 
+    typeNodes: Node[];
+    
     addChild(child: Node): void;
     setParent(parent: Node): void;
     getName(): string | undefined;
+    getTypeNodes(): Node[];
 }

@@ -12,11 +12,17 @@ export class AssemblyFunctionDefinitionNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (assemblyFunctionDefinition: AssemblyFunctionDefinition, uri: string) {
         this.type = assemblyFunctionDefinition.type;
         this.uri = uri;
         this.astNode = assemblyFunctionDefinition;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

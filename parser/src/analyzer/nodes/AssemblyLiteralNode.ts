@@ -12,11 +12,17 @@ export class AssemblyLiteralNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (assemblyLiteral: AssemblyLiteral, uri: string) {
         this.type = assemblyLiteral.type;
         this.uri = uri;
         this.astNode = assemblyLiteral;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

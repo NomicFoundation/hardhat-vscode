@@ -12,11 +12,17 @@ export class AssemblyIfNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (assemblyIf: AssemblyIf, uri: string) {
         this.type = assemblyIf.type;
         this.uri = uri;
         this.astNode = assemblyIf;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

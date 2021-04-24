@@ -12,11 +12,17 @@ export class LabelDefinitionNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (labelDefinition: LabelDefinition, uri: string) {
         this.type = labelDefinition.type;
         this.uri = uri;
         this.astNode = labelDefinition;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

@@ -12,10 +12,16 @@ export class ReturnStatementNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (returnStatement: ReturnStatement, uri: string) {
         this.type = returnStatement.type;
         this.uri = uri;
         this.astNode = returnStatement;
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

@@ -12,10 +12,16 @@ export class BlockNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (block: Block, uri: string) {
         this.type = block.type;
         this.uri = uri;
         this.astNode = block;
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {

@@ -12,11 +12,17 @@ export class ConditionalNode implements Node {
     parent?: Node | undefined;
     children: Node[] = [];
 
+    typeNodes: Node[] = [];
+
     constructor (conditional: Conditional, uri: string) {
         this.type = conditional.type;
         this.uri = uri;
         this.astNode = conditional;
         // TO-DO: Implement name location for rename
+    }
+
+    getTypeNodes(): Node[] {
+        return [];
     }
 
     getName(): string | undefined {
