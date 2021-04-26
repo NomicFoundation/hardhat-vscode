@@ -30,7 +30,7 @@ export class MemberAccessNode implements Node {
     }
 
     getTypeNodes(): Node[] {
-        return [];
+        return this.typeNodes;
     }
 
     getName(): string | undefined {
@@ -57,6 +57,8 @@ export class MemberAccessNode implements Node {
                     if (definitionChild.getName() && definitionChild.getName() === this.getName()) {
                         this.setParent(definitionChild);
                         definitionChild?.addChild(this);
+
+                        this.typeNodes.push(definitionChild);
     
                         return this;
                     }

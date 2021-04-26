@@ -26,13 +26,13 @@ export class Analyzer {
                 tolerant: true
             });
 
-            // console.log(JSON.stringify(this.ast));
+            console.log(JSON.stringify(this.ast));
 
             this.analyzerTree = matcher.find(this.ast, this.uri).accept(matcher.find, this.orphanNodes);
 
             // TO-DO: Find parent for orphanNodes
 
-            console.log(JSON.stringify(this.analyzerTree, getCircularReplacer()));
+            // console.log(JSON.stringify(this.analyzerTree, getCircularReplacer()));
 
             return this.analyzerTree;
         } catch (err) {
