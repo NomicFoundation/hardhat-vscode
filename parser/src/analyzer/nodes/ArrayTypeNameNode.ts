@@ -22,7 +22,13 @@ export class ArrayTypeNameNode implements Node {
     }
 
     getTypeNodes(): Node[] {
-        return [];
+        let nodes: Node[] = [];
+
+        this.typeNodes.forEach(typeNode => {
+            nodes = nodes.concat(typeNode.getTypeNodes());
+        });
+
+        return nodes;
     }
 
     getName(): string | undefined {
@@ -38,7 +44,12 @@ export class ArrayTypeNameNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
-        // TO-DO: Method not implemented
+        const typeNode = find(this.astNode.baseTypeName, this.uri).accept(find, orphanNodes, parent);
+
+        if (typeNode) {
+            this.typeNodes.push(typeNode);
+        }
+
         return this;
     }
 }
