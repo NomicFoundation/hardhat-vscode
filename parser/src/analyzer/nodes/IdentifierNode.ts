@@ -30,7 +30,7 @@ export class IdentifierNode implements Node {
     }
 
     getTypeNodes(): Node[] {
-        return [];
+        return this.typeNodes;
     }
 
     getName(): string | undefined {
@@ -52,6 +52,8 @@ export class IdentifierNode implements Node {
             if (identifierParent) {
                 this.setParent(identifierParent);
                 identifierParent?.addChild(this);
+
+                this.typeNodes.push(identifierParent);
 
                 return this;
             }

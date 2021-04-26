@@ -19,7 +19,7 @@ export class FunctionDefinitionNode implements Node {
         this.uri = uri;
         this.astNode = functionDefinition;
         
-        if (functionDefinition.loc && functionDefinition.name) {
+        if (!functionDefinition.isConstructor && functionDefinition.loc && functionDefinition.name) {
             this.nameLoc = {
                 start: {
                     line: functionDefinition.loc.start.line,
@@ -68,9 +68,7 @@ export class FunctionDefinitionNode implements Node {
             for (const returnParam of this.astNode.returnParameters) {
                 const typeNode = find(returnParam, this.uri).accept(find, orphanNodes, this);
 
-                if (typeNode) {
-                    this.typeNodes.push(typeNode);
-                }
+                this.typeNodes.push(typeNode);
             }
         }
 

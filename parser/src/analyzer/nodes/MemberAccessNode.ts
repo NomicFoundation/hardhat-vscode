@@ -17,8 +17,16 @@ export class MemberAccessNode implements Node {
     constructor (memberAccess: MemberAccess, uri: string) {
         this.type = memberAccess.type;
         this.uri = uri;
+
+        if (memberAccess.loc) {
+            // Bug in solidity parser doesn't give exact locations
+            memberAccess.loc.start.column = memberAccess.loc.end.column;
+            memberAccess.loc.end.column = memberAccess.loc.end.column + memberAccess.memberName.length;
+
+            this.nameLoc = JSON.parse(JSON.stringify(memberAccess.loc));
+        }
+
         this.astNode = memberAccess;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -26,7 +34,7 @@ export class MemberAccessNode implements Node {
     }
 
     getName(): string | undefined {
-        return undefined;
+        return this.astNode.memberName;
     }
 
     addChild(child: Node): void {
@@ -38,8 +46,23 @@ export class MemberAccessNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
-        // TO-DO: Method not implemented
-        find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent);
+        // TO-DO: Improve logic for deeper member access
+        const expressionNode = find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent);
+
+        const expressionTypeNodes = expressionNode.getTypeNodes();
+
+        if (expressionTypeNodes.length === 1) {
+            for (const definitionType of expressionTypeNodes[0].getTypeNodes()) {
+                for (const definitionChild of definitionType.children) {
+                    if (definitionChild.getName() && definitionChild.getName() === this.getName()) {
+                        this.setParent(definitionChild);
+                        definitionChild?.addChild(this);
+    
+                        return this;
+                    }
+                }
+            }
+        }
 
         return this;
     }

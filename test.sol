@@ -2,25 +2,24 @@ pragma solidity ^0.4.18;
 
 contract BasicToken {
   struct Answer {
-      bytes32 text;
-      uint voteCount;
+    bytes32 text;
+    uint voteCount;
   }
 
   struct Question {
-      Answer text;
+    Answer test;
   }
 
   mapping(address => uint256) balances;
-
-  uint256 a1 = 1;
-  uint256 test = a1;
 
   function transfer(address recipient, uint256 value) public {
     balances[msg.sender] -= value;
     balances[recipient] += value;
   }
 
-  function balanceOf(address account) public constant returns (uint256) {
+  function balanceOf(address account, Question ans) public constant returns (uint256) {
+    ans.test.text = 1;
+
     return balances[account];
   }
 }
