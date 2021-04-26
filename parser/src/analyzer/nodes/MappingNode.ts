@@ -21,7 +21,13 @@ export class MappingNode implements Node {
     }
 
     getTypeNodes(): Node[] {
-        return [];
+        let nodes: Node[] = [];
+
+        this.typeNodes.forEach(typeNode => {
+            nodes = nodes.concat(typeNode.getTypeNodes());
+        });
+
+        return nodes;
     }
 
     getName(): string | undefined {
@@ -38,7 +44,9 @@ export class MappingNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
         find(this.astNode.keyType, this.uri).accept(find, orphanNodes, parent);
-        find(this.astNode.valueType, this.uri).accept(find, orphanNodes, parent);
+        const typeNode = find(this.astNode.valueType, this.uri).accept(find, orphanNodes, parent);
+
+        this.typeNodes.push(typeNode);
 
         return this;
     }

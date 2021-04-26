@@ -10,6 +10,8 @@ contract BasicToken {
     Answer test;
   }
 
+  mapping(address => Answer) public answers;
+
   mapping(address => uint256) balances;
 
   function transfer(address recipient, uint256 value) public {
@@ -19,6 +21,8 @@ contract BasicToken {
 
   function balanceOf(address account, Question ans) public constant returns (uint256) {
     ans.test.text = 1;
+
+    answers[account].voteCount = 1;
 
     return balances[account];
   }
