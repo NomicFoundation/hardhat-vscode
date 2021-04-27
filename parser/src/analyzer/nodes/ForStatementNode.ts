@@ -18,7 +18,6 @@ export class ForStatementNode implements Node {
         this.type = forStatement.type;
         this.uri = uri;
         this.astNode = forStatement;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -38,7 +37,24 @@ export class ForStatementNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
-        // TO-DO: Method not implemented
+        if (parent) {
+            this.setParent(parent);
+        }
+
+        if (this.astNode.initExpression) {
+            find(this.astNode.initExpression, this.uri).accept(find, orphanNodes, this);
+        }
+        if (this.astNode.conditionExpression) {
+            find(this.astNode.conditionExpression, this.uri).accept(find, orphanNodes, this);
+        }
+        if (this.astNode.loopExpression) {
+            find(this.astNode.loopExpression, this.uri).accept(find, orphanNodes, this);
+        }
+
+        find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
+
+        parent?.addChild(this);
+
         return this;
     }
 }

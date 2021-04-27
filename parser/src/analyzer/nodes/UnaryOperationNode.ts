@@ -18,7 +18,6 @@ export class UnaryOperationNode implements Node {
         this.type = unaryOperation.type;
         this.uri = uri;
         this.astNode = unaryOperation;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -38,7 +37,8 @@ export class UnaryOperationNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
-        // TO-DO: Method not implemented
+        find(this.astNode.subExpression, this.uri).accept(find, orphanNodes, parent);
+
         return this;
     }
 }

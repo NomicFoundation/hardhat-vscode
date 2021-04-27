@@ -18,7 +18,6 @@ export class FunctionCallNode implements Node {
         this.type = functionCall.type;
         this.uri = uri;
         this.astNode = functionCall;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -38,7 +37,13 @@ export class FunctionCallNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
-        // TO-DO: Method not implemented
+        // TO-DO: Implement references for expression name nodes
+        find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent);
+
+        for (const argument of this.astNode.arguments) {
+            find(argument, this.uri).accept(find, orphanNodes, parent);
+        }
+
         return this;
     }
 }
