@@ -22,7 +22,7 @@ export class SourceUnitNode implements Node {
     }
 
     getTypeNodes(): Node[] {
-        return [];
+        return this.typeNodes;
     }
 
     getName(): string | undefined {

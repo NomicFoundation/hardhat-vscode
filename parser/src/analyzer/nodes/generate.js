@@ -34,7 +34,7 @@ export class ${type}Node implements Node {
     }
 
     getTypeNodes(): Node[] {
-        return [];
+        return this.typeNodes;
     }
 
     addChild(child: Node): void {

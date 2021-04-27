@@ -22,7 +22,7 @@ export class ModifierInvocationNode implements Node {
     }
 
     getTypeNodes(): Node[] {
-        return [];
+        return this.typeNodes;
     }
 
     getName(): string | undefined {
