@@ -1,4 +1,4 @@
-import { UserDefinedTypeName } from "@solidity-parser/parser/dist/ast-types";
+import { UserDefinedTypeName } from "@solidity-parser/parser/dist/src/ast-types";
 
 import * as finder from "../finder";
 import { Location, FinderType, Node } from "./Node";

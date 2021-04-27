@@ -10,7 +10,7 @@ for (const type of types) {
     }
 
     fs.writeFileSync(`${__dirname}/${type}Node.ts`,
-`import { ${type} } from "@solidity-parser/parser/dist/ast-types";
+`import { ${type} } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { Location, FinderType, Node } from "./Node";
 

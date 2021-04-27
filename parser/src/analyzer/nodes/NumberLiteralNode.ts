@@ -1,4 +1,4 @@
-import { NumberLiteral } from "@solidity-parser/parser/dist/ast-types";
+import { NumberLiteral } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { Location, FinderType, Node } from "./Node";
 

@@ -6,24 +6,8 @@ contract BasicToken {
     uint voteCount;
   }
 
-  struct Question {
-    Answer test;
-  }
-
-  mapping(address => Answer) public answers;
-
-  mapping(address => uint256) balances;
-
-  function transfer(address recipient, uint256 value) public {
-    balances[msg.sender] -= value;
-    balances[recipient] += value;
-  }
-
-  function balanceOf(address account, Question ans) public constant returns (uint256) {
-    ans.test.text = 1;
-
-    answers[account].voteCount = 1;
-
-    return balances[account];
-  }
+  Answer a = Answer({
+    text: 1,
+    voteCount: 0
+  });
 }

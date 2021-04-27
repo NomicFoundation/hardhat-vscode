@@ -1,4 +1,4 @@
-import { VariableDeclarationStatement } from "@solidity-parser/parser/dist/ast-types";
+import { VariableDeclarationStatement } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { Location, FinderType, Node } from "./Node";
 
@@ -38,7 +38,9 @@ export class VariableDeclarationStatementNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
         for (const variable of this.astNode.variables) {
-            find(variable, this.uri).accept(find, orphanNodes, parent);
+            if (variable) {
+                find(variable, this.uri).accept(find, orphanNodes, parent);
+            }
         }
 
         if (this.astNode.initialValue) {

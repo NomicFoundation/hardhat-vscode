@@ -1,4 +1,4 @@
-import { IndexRangeAccess } from "@solidity-parser/parser/dist/ast-types";
+import { IndexRangeAccess } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { Location, FinderType, Node } from "./Node";
 

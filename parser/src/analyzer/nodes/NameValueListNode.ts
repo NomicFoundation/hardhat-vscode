@@ -1,11 +1,11 @@
-import { ModifierDefinition } from "@solidity-parser/parser/dist/src/ast-types";
+import { NameValueList } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { Location, FinderType, Node } from "./Node";
 
-export class ModifierDefinitionNode implements Node {
+export class NameValueListNode implements Node {
     type: string;
     uri: string;
-    astNode: ModifierDefinition;
+    astNode: NameValueList;
 
     nameLoc?: Location | undefined;
 
@@ -14,10 +14,10 @@ export class ModifierDefinitionNode implements Node {
 
     typeNodes: Node[] = [];
 
-    constructor (modifierDefinition: ModifierDefinition, uri: string) {
-        this.type = modifierDefinition.type;
+    constructor (nameValueList: NameValueList, uri: string) {
+        this.type = nameValueList.type;
         this.uri = uri;
-        this.astNode = modifierDefinition;
+        this.astNode = nameValueList;
         // TO-DO: Implement name location for rename
     }
 

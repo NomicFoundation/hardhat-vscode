@@ -1,4 +1,4 @@
-import { UsingForDeclaration } from "@solidity-parser/parser/dist/ast-types";
+import { UsingForDeclaration } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { Location, FinderType, Node } from "./Node";
 

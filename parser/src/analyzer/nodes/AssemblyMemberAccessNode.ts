@@ -1,11 +1,11 @@
-import { ModifierDefinition } from "@solidity-parser/parser/dist/src/ast-types";
+import { AssemblyMemberAccess } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { Location, FinderType, Node } from "./Node";
 
-export class ModifierDefinitionNode implements Node {
+export class AssemblyMemberAccessNode implements Node {
     type: string;
     uri: string;
-    astNode: ModifierDefinition;
+    astNode: AssemblyMemberAccess;
 
     nameLoc?: Location | undefined;
 
@@ -14,10 +14,10 @@ export class ModifierDefinitionNode implements Node {
 
     typeNodes: Node[] = [];
 
-    constructor (modifierDefinition: ModifierDefinition, uri: string) {
-        this.type = modifierDefinition.type;
+    constructor (assemblyMemberAccess: AssemblyMemberAccess, uri: string) {
+        this.type = assemblyMemberAccess.type;
         this.uri = uri;
-        this.astNode = modifierDefinition;
+        this.astNode = assemblyMemberAccess;
         // TO-DO: Implement name location for rename
     }
 

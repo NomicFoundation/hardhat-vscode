@@ -1,11 +1,11 @@
-import { ModifierDefinition } from "@solidity-parser/parser/dist/src/ast-types";
+import { FileLevelConstant } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { Location, FinderType, Node } from "./Node";
 
-export class ModifierDefinitionNode implements Node {
+export class FileLevelConstantNode implements Node {
     type: string;
     uri: string;
-    astNode: ModifierDefinition;
+    astNode: FileLevelConstant;
 
     nameLoc?: Location | undefined;
 
@@ -14,10 +14,10 @@ export class ModifierDefinitionNode implements Node {
 
     typeNodes: Node[] = [];
 
-    constructor (modifierDefinition: ModifierDefinition, uri: string) {
-        this.type = modifierDefinition.type;
+    constructor (fileLevelConstant: FileLevelConstant, uri: string) {
+        this.type = fileLevelConstant.type;
         this.uri = uri;
-        this.astNode = modifierDefinition;
+        this.astNode = fileLevelConstant;
         // TO-DO: Implement name location for rename
     }
 

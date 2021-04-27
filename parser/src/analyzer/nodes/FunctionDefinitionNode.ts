@@ -1,4 +1,4 @@
-import { FunctionDefinition } from "@solidity-parser/parser/dist/ast-types";
+import { FunctionDefinition } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { Location, FinderType, Node } from "./Node";
 
@@ -44,7 +44,7 @@ export class FunctionDefinitionNode implements Node {
     }
 
     getName(): string | undefined {
-        return this.astNode.name;
+        return this.astNode.name || undefined;
     }
 
     addChild(child: Node): void {

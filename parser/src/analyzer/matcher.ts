@@ -1,4 +1,4 @@
-import * as astTypes from "@solidity-parser/parser/dist/ast-types";
+import * as astTypes from "@solidity-parser/parser/dist/src/ast-types";
 
 import { SourceUnitNode } from "./nodes/SourceUnitNode";
 import { PragmaDirectiveNode } from "./nodes/PragmaDirectiveNode";
@@ -49,7 +49,6 @@ import { AssemblyFunctionDefinitionNode } from "./nodes/AssemblyFunctionDefiniti
 import { AssemblyFunctionReturnsNode } from "./nodes/AssemblyFunctionReturnsNode";
 import { AssemblyForNode } from "./nodes/AssemblyForNode";
 import { AssemblyIfNode } from "./nodes/AssemblyIfNode";
-import { AssemblyLiteralNode } from "./nodes/AssemblyLiteralNode";
 import { SubAssemblyNode } from "./nodes/SubAssemblyNode";
 import { NewExpressionNode } from "./nodes/NewExpressionNode";
 import { TupleExpressionNode } from "./nodes/TupleExpressionNode";
@@ -68,15 +67,21 @@ import { IndexRangeAccessNode } from "./nodes/IndexRangeAccessNode";
 import { MemberAccessNode } from "./nodes/MemberAccessNode";
 import { HexNumberNode } from "./nodes/HexNumberNode";
 import { DecimalNumberNode } from "./nodes/DecimalNumberNode";
+import { TryStatementNode } from "./nodes/TryStatementNode";
+import { NameValueListNode } from "./nodes/NameValueListNode";
+import { AssemblyMemberAccessNode } from "./nodes/AssemblyMemberAccessNode";
+import { CatchClauseNode } from "./nodes/CatchClauseNode";
+import { FileLevelConstantNode } from "./nodes/FileLevelConstantNode";
+
 import { Node } from "./nodes/Node";
 
-type ASTTypes = astTypes.AST["type"];
+type ASTTypes = astTypes.ASTNode["type"];
 type ASTMap<U> = { [K in ASTTypes]: U extends { type: K } ? U : never };
 
-type ASTTypeMap = ASTMap<astTypes.AST>;
+type ASTTypeMap = ASTMap<astTypes.ASTNode>;
 type Pattern<T> = { [K in keyof ASTTypeMap]: (ast: ASTTypeMap[K], uri: string) => T };
 
-function matcher<T>(pattern: Pattern<T>): (ast: astTypes.AST, uri: string) => T {
+function matcher<T>(pattern: Pattern<T>): (ast: astTypes.BaseASTNode, uri: string) => T {
     return (ast, uri) => pattern[ast.type](ast as any, uri as string)
 }
 
@@ -130,7 +135,6 @@ export const find = matcher<Node>({
 	AssemblyFunctionReturns: (assemblyFunctionReturns: astTypes.AssemblyFunctionReturns, uri: string) => new AssemblyFunctionReturnsNode(assemblyFunctionReturns, uri),
 	AssemblyFor: (assemblyFor: astTypes.AssemblyFor, uri: string) => new AssemblyForNode(assemblyFor, uri),
 	AssemblyIf: (assemblyIf: astTypes.AssemblyIf, uri: string) => new AssemblyIfNode(assemblyIf, uri),
-	AssemblyLiteral: (assemblyLiteral: astTypes.AssemblyLiteral, uri: string) => new AssemblyLiteralNode(assemblyLiteral, uri),
 	SubAssembly: (subAssembly: astTypes.SubAssembly, uri: string) => new SubAssemblyNode(subAssembly, uri),
 	NewExpression: (newExpression: astTypes.NewExpression, uri: string) => new NewExpressionNode(newExpression, uri),
 	TupleExpression: (tupleExpression: astTypes.TupleExpression, uri: string) => new TupleExpressionNode(tupleExpression, uri),
@@ -149,4 +153,9 @@ export const find = matcher<Node>({
 	MemberAccess: (memberAccess: astTypes.MemberAccess, uri: string) => new MemberAccessNode(memberAccess, uri),
 	HexNumber: (hexNumber: astTypes.HexNumber, uri: string) => new HexNumberNode(hexNumber, uri),
 	DecimalNumber: (decimalNumber: astTypes.DecimalNumber, uri: string) => new DecimalNumberNode(decimalNumber, uri),
+	TryStatement: (tryStatement: astTypes.TryStatement, uri: string) => new TryStatementNode(tryStatement, uri),
+	NameValueList: (nameValueList: astTypes.NameValueList, uri: string) => new NameValueListNode(nameValueList, uri),
+	AssemblyMemberAccess: (assemblyMemberAccess: astTypes.AssemblyMemberAccess, uri: string) => new AssemblyMemberAccessNode(assemblyMemberAccess, uri),
+	CatchClause: (catchClause: astTypes.CatchClause, uri: string) => new CatchClauseNode(catchClause, uri),
+	FileLevelConstant: (fileLevelConstant: astTypes.FileLevelConstant, uri: string) => new FileLevelConstantNode(fileLevelConstant, uri),
 });

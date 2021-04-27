@@ -1,4 +1,4 @@
-import { VariableDeclaration } from "@solidity-parser/parser/dist/ast-types";
+import { VariableDeclaration } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { Location, FinderType, Node } from "./Node";
 
@@ -48,7 +48,7 @@ export class VariableDeclarationNode implements Node {
     }
 
     getName(): string | undefined {
-        return this.astNode.name;
+        return this.astNode.name || undefined;
     }
 
     addChild(child: Node): void {
@@ -64,9 +64,9 @@ export class VariableDeclarationNode implements Node {
             this.setParent(parent);
         }
 
-        const typeNode = find(this.astNode.typeName, this.uri).accept(find, orphanNodes, this);
-
-        if (typeNode) {
+        if (this.astNode.typeName) {
+            const typeNode = find(this.astNode.typeName, this.uri).accept(find, orphanNodes, this);
+        
             this.typeNodes.push(typeNode);
         }
 

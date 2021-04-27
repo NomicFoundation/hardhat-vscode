@@ -1,11 +1,11 @@
-import { ModifierDefinition } from "@solidity-parser/parser/dist/src/ast-types";
+import { CatchClause } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { Location, FinderType, Node } from "./Node";
 
-export class ModifierDefinitionNode implements Node {
+export class CatchClauseNode implements Node {
     type: string;
     uri: string;
-    astNode: ModifierDefinition;
+    astNode: CatchClause;
 
     nameLoc?: Location | undefined;
 
@@ -14,10 +14,10 @@ export class ModifierDefinitionNode implements Node {
 
     typeNodes: Node[] = [];
 
-    constructor (modifierDefinition: ModifierDefinition, uri: string) {
-        this.type = modifierDefinition.type;
+    constructor (catchClause: CatchClause, uri: string) {
+        this.type = catchClause.type;
         this.uri = uri;
-        this.astNode = modifierDefinition;
+        this.astNode = catchClause;
         // TO-DO: Implement name location for rename
     }
 

@@ -1,5 +1,5 @@
 import * as parser from "@solidity-parser/parser";
-import { AST } from "@solidity-parser/parser/dist/ast-types";
+import { ASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { getCircularReplacer } from "../utils";
 import { Node } from "./nodes/Node"
@@ -9,7 +9,7 @@ export class Analyzer {
     document: string | undefined;
     uri: string | undefined;
 
-    ast: AST | undefined;
+    ast: ASTNode | undefined;
 
     analyzerTree?: Node;
 

@@ -1,4 +1,4 @@
-import { ExpressionStatement } from "@solidity-parser/parser/dist/ast-types";
+import { ExpressionStatement } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { Location, FinderType, Node } from "./Node";
 
@@ -37,7 +37,9 @@ export class ExpressionStatementNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
-        find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent);
+        if (this.astNode.expression) {
+            find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent);
+        }
 
         return this;
     }

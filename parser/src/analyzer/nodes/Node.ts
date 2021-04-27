@@ -1,4 +1,4 @@
-import { AST } from "@solidity-parser/parser/dist/ast-types";
+import { BaseASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
 export interface Position {
     line: number;
@@ -10,7 +10,7 @@ export interface Location {
     end: Position;
 }
 
-export type FinderType = (ast: AST, uri: string) => Node;
+export type FinderType = (ast: BaseASTNode, uri: string) => Node;
 
 export interface Component {
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node;
@@ -19,7 +19,7 @@ export interface Component {
 export interface Node extends Component {
     type: string;
     uri: string;
-    astNode: AST;
+    astNode: BaseASTNode;
     
     nameLoc?: Location | undefined;
 

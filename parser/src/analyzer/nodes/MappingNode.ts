@@ -1,4 +1,4 @@
-import { Mapping } from "@solidity-parser/parser/dist/ast-types";
+import { Mapping } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { Location, FinderType, Node } from "./Node";
 
