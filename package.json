@@ -12,20 +12,20 @@
 	},
 	"contributes": {
 		"configuration": {
-		  "type": "object",
-		  "title": "Solidity configuration"
+			"type": "object",
+			"title": "Solidity configuration"
 		},
 		"languages": [
-		  {
-			"id": "solidity",
-			"aliases": [
-			  "Solidity",
-			  "solidity"
-			],
-			"extensions": [
-			  ".sol"
-			]
-		  }
+			{
+				"id": "solidity",
+				"aliases": [
+					"Solidity",
+					"solidity"
+				],
+				"extensions": [
+					".sol"
+				]
+			}
 		]
 	},
 	"scripts": {
@@ -36,6 +36,7 @@
 	},
 	"devDependencies": {
 		"@types/node": "^12.12.0",
+		"@typescript-eslint/eslint-plugin": "^4.22.0",
 		"@typescript-eslint/parser": "^2.3.0",
 		"eslint": "^6.4.0",
 		"typescript": "^4.2.2"
