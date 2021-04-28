@@ -18,7 +18,6 @@ export class DoWhileStatementNode implements Node {
         this.type = doWhileStatement.type;
         this.uri = uri;
         this.astNode = doWhileStatement;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -38,7 +37,15 @@ export class DoWhileStatementNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
-        // TO-DO: Method not implemented
+        if (parent) {
+            this.setParent(parent);
+        }
+
+        find(this.astNode.condition, this.uri).accept(find, orphanNodes, this);
+        find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
+
+        parent?.addChild(this);
+
         return this;
     }
 }
