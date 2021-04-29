@@ -1,13 +1,14 @@
 function activate(context) {
+	// this method is called when your extension is activate
 }
 
 exports.activate = activate;
 
-// this method is called when your extension is deactivated
 function deactivate() {
+	// this method is called when your extension is deactivated
 }
 
 module.exports = {
 	activate,
 	deactivate
-}
+};
