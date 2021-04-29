@@ -73,7 +73,7 @@ suite('Client integration', () => {
 	test('InitializeResult', () => {
 		const expected = {
 			capabilities: {
-				textDocumentSync: 1,
+				textDocumentSync: 2,
 				completionProvider: { resolveProvider: true },
 				definitionProvider: true,
 				typeDefinitionProvider: true,
@@ -103,22 +103,24 @@ suite('Client integration', () => {
 	});
 
 	test('Goto Type Definition', async () => {
-		// TO-DO: Impement Type Definition
+		const provider = client.getFeature(lsclient.TypeDefinitionRequest.method).getProvider(document);
+		isDefined(provider);
+
+		const position: vscode.Position = new vscode.Position(41, 16);
+		const results = (await provider.provideTypeDefinition(document, position, tokenSource.token)) as vscode.Location[];
+
+		for (const result of results) {
+			isInstanceOf(result, vscode.Location);
+			uriEqual(result.uri, uri);
+			rangeEqual(result.range, 15, 4, 18, 4);
+		}
 	});
 
 	test('Find All References', async () => {
 		// TO-DO: Impement Find All References
 	});
 
-	test('Goto Implementation', async () => {
-		// TO-DO: Impement Goto Implementation
-	});
-
 	test('Do Rename', async () => {
 		// TO-DO: Impement Do Rename
-	});
-
-	test('Hover', async () => {
-		// TO-DO: Impement Hover
 	});
 });
