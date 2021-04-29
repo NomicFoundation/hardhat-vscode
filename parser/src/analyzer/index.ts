@@ -39,4 +39,4 @@ export class Analyzer {
             console.error(err);
         }
     }
-};
+}

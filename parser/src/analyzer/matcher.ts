@@ -82,7 +82,7 @@ type ASTTypeMap = ASTMap<astTypes.ASTNode>;
 type Pattern<T> = { [K in keyof ASTTypeMap]: (ast: ASTTypeMap[K], uri: string) => T };
 
 function matcher<T>(pattern: Pattern<T>): (ast: astTypes.BaseASTNode, uri: string) => T {
-    return (ast, uri) => pattern[ast.type](ast as any, uri as string)
+    return (ast, uri) => pattern[ast.type](ast as any, uri as string);
 }
 
 export const find = matcher<Node>({
