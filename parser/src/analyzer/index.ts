@@ -2,7 +2,7 @@ import * as parser from "@solidity-parser/parser";
 import { ASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { getCircularReplacer } from "../utils";
-import { Node } from "./nodes/Node"
+import { Node } from "./nodes/Node";
 import * as matcher from "./matcher";
 
 export class Analyzer {

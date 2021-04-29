@@ -17,19 +17,19 @@ import { analyzerTree } from '../../parser/src/analyzer/finder';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
-let connection = createConnection(ProposedFeatures.all);
+const connection = createConnection(ProposedFeatures.all);
 
 // Create a simple text document manager.
-let documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
+const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
-let hasConfigurationCapability: boolean = false;
-let hasWorkspaceFolderCapability: boolean = false;
-let hasDiagnosticRelatedInformationCapability: boolean = false;
+let hasConfigurationCapability = false;
+let hasWorkspaceFolderCapability = false;
+let hasDiagnosticRelatedInformationCapability = false;
 
 connection.onInitialize((params: InitializeParams) => {
 	console.log('server onInitialize');
 
-	let capabilities = params.capabilities;
+	const capabilities = params.capabilities;
 
 	// Does the client support the `workspace/configuration` request?
 	// If not, we fall back using global settings.
@@ -47,7 +47,7 @@ connection.onInitialize((params: InitializeParams) => {
 
 	const result: InitializeResult = {
 		capabilities: {
-			textDocumentSync: TextDocumentSyncKind.Incremental,
+			textDocumentSync: TextDocumentSyncKind.Full,
 			// Tell the client that this server supports code completion.
 			completionProvider: {
 				resolveProvider: true
@@ -98,7 +98,7 @@ const defaultSettings: ExampleSettings = { maxNumberOfProblems: 1000 };
 let globalSettings: ExampleSettings = defaultSettings;
 
 // Cache the settings of all open documents
-let documentSettings: Map<string, Thenable<ExampleSettings>> = new Map();
+const documentSettings: Map<string, Thenable<ExampleSettings>> = new Map();
 
 connection.onDidChangeConfiguration(change => {
 	console.log('server onDidChangeConfiguration');
@@ -112,23 +112,6 @@ connection.onDidChangeConfiguration(change => {
 		);
 	}
 });
-
-function getDocumentSettings(resource: string): Thenable<ExampleSettings> {
-	console.log('server getDocumentSettings');
-
-	if (!hasConfigurationCapability) {
-		return Promise.resolve(globalSettings);
-	}
-	let result = documentSettings.get(resource);
-	if (!result) {
-		result = connection.workspace.getConfiguration({
-			scopeUri: resource,
-			section: 'languageServerExample'
-		});
-		documentSettings.set(resource, result);
-	}
-	return result;
-}
 
 // Only keep settings for open documents
 documents.onDidClose(e => {
@@ -216,7 +199,7 @@ connection.onDefinition(params => {
 
 	if (document) {
 		const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
-
+		console.log(params.position);
 		if (analyzeTree) {
 			return languageServer.findDefinition(params.position, analyzeTree);
 		}
