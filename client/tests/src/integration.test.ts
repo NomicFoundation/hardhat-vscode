@@ -143,6 +143,7 @@ suite('Client integration', () => {
 		)) as vscode.Location[];
 
 		isArray(results, vscode.Location, 8);
+
 		for (let i = 0; i < results.length; i++) {
 			isInstanceOf(results[i], vscode.Location);
 			uriEqual(results[i].uri, expectedResults[i].uri);
@@ -157,6 +158,34 @@ suite('Client integration', () => {
 	});
 
 	test('Do Rename', async () => {
-		// TO-DO: Impement Do Rename
+		const expectedResults: [vscode.Uri, vscode.TextEdit[]] = JSON.parse('[{"$mid":1,"external":"file:///Users/riphal/Documents/Tenderly/vscode-solidity/client/tests/test_files/test.sol","path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/tests/test_files/test.sol","scheme":"file"},[{"range":[{"line":27,"character":31},{"line":27,"character":40}],"newText":"newName"},{"range":[{"line":41,"character":12},{"line":41,"character":21}],"newText":"newName"},{"range":[{"line":104,"character":12},{"line":104,"character":21}],"newText":"newName"},{"range":[{"line":124,"character":8},{"line":124,"character":17}],"newText":"newName"},{"range":[{"line":133,"character":29},{"line":133,"character":38}],"newText":"newName"},{"range":[{"line":134,"character":16},{"line":134,"character":25}],"newText":"newName"},{"range":[{"line":135,"character":35},{"line":135,"character":44}],"newText":"newName"},{"range":[{"line":147,"character":22},{"line":147,"character":31}],"newText":"newName"}]]');
+		const provider = client.getFeature(lsclient.RenameRequest.method).getProvider(document);
+		isDefined(provider);
+
+		const position: vscode.Position = new vscode.Position(41, 16);
+		const renameResult = await provider.provideRenameEdits(document, position, 'newName', tokenSource.token);
+		
+		isInstanceOf(renameResult, vscode.WorkspaceEdit);
+		for (const results of renameResult.entries()) {
+			if (results.length !== 2) {
+				throw new Error(`Result [vscode.Uri, vscode.TextEdit[]].length must be 2`);
+			}
+
+			isInstanceOf(results[0], vscode.Uri);
+			uriEqual(results[0], expectedResults[0]);
+
+			const textEdits = results[1];
+			for (let i = 0; i < textEdits.length; i++) {
+				isInstanceOf(textEdits[i], vscode.TextEdit);
+				assert.strictEqual(textEdits[i].newText, expectedResults[1][i].newText);
+				rangeEqual(
+					textEdits[i].range,
+					expectedResults[1][i].range[0].line,
+					expectedResults[1][i].range[0].character,
+					expectedResults[1][i].range[1].line,
+					expectedResults[1][i].range[1].character
+				);
+			}
+		}
 	});
 });
