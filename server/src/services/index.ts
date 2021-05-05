@@ -1,4 +1,3 @@
-import { Analyzer } from "../../../parser/out";
 import { Node } from "../../../parser/out/analyzer/nodes/Node";
 
 import { SolidityNavigation } from './SolidityNavigation';
