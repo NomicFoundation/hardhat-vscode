@@ -3,6 +3,7 @@ import { ASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { getCircularReplacer } from "../utils";
 import { Node } from "./nodes/Node";
+import * as finder from "./finder";
 import * as matcher from "./matcher";
 
 export class Analyzer {
@@ -30,7 +31,7 @@ export class Analyzer {
 
             this.analyzerTree = matcher.find(this.ast, this.uri).accept(matcher.find, this.orphanNodes);
 
-            // TO-DO: Find parent for orphanNodes
+            this.findParentForOrphanNodes();
 
             // console.log(JSON.stringify(this.analyzerTree, getCircularReplacer()));
 
@@ -38,5 +39,27 @@ export class Analyzer {
         } catch (err) {
             console.error(err);
         }
+    }
+
+    private findParentForOrphanNodes() {
+        const orphanNodes: Node[] = [];
+
+        let orphanNode = this.orphanNodes.shift();
+        while (orphanNode) {
+            const identifierParent = finder.findParent(orphanNode, this.analyzerTree);
+
+            if (identifierParent) {
+                orphanNode.setParent(identifierParent);
+                identifierParent?.addChild(orphanNode);
+    
+                orphanNode.typeNodes.push(identifierParent);
+            } else {
+                orphanNodes.push(orphanNode);
+            }
+
+            orphanNode = this.orphanNodes.shift();
+        }
+
+        this.orphanNodes = orphanNodes;
     }
 }
