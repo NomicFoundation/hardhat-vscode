@@ -14,7 +14,7 @@
 	"scripts": {
 		"compile": "tsc -b ./tsconfig.json",
 		"lint": "node node_modules/eslint/bin/eslint.js ./src/**/*.ts",
-		"test": "node out/runTests.js"
+		"tests": "node out/runTests.js"
 	},
 	"dependencies": {
 		"minimatch": "^3.0.4",

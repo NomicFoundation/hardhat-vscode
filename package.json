@@ -32,7 +32,8 @@
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
-		"postinstall": "cd client && yarn install && cd ../server && yarn install && cd .."
+		"postinstall": "cd client && yarn install && cd ../server && yarn install && cd ..",
+		"client-tests": "cd client/tests && rm -rf out && tsc -b && yarn run tests && cd ../.."
 	},
 	"devDependencies": {
 		"@types/node": "^12.12.0",
