@@ -21,7 +21,7 @@ export class IdentifierNode implements Node {
         
         if (identifier.loc) {
             // Bug in solidity parser doesn't give exact end location
-            identifier.loc.end.column = identifier.loc.end.column + identifier.name.length
+            identifier.loc.end.column = identifier.loc.end.column + identifier.name.length;
 
             this.nameLoc = JSON.parse(JSON.stringify(identifier.loc));
         }

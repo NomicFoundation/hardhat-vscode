@@ -13,7 +13,6 @@ import { MarkupKind } from 'vscode-languageserver-types';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import { languageServer } from './services';
-import { analyzerTree } from '../../parser/src/analyzer/finder';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.

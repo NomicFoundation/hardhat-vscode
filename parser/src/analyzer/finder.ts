@@ -36,7 +36,7 @@ export function findNodeByPosition(position: Position, from?: Node): Node | unde
     return node;
 }
 
-function search(node: Node, from?: Node | undefined, bottomUp: boolean = false): Node | undefined {
+function search(node: Node, from?: Node | undefined, bottomUp = false): Node | undefined {
     if (!from) {
         return undefined;
     }
@@ -108,4 +108,4 @@ function goUp(node: Node, name: string): Node {
     }
 
     return node;
-};
+}
