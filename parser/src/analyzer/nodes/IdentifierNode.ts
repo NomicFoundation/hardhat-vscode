@@ -1,7 +1,7 @@
 import { Identifier } from "@solidity-parser/parser/dist/src/ast-types";
 
 import * as finder from "../finder";
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, Node, Position } from "./Node";
 
 export class IdentifierNode implements Node {
     type: string;
@@ -61,6 +61,11 @@ export class IdentifierNode implements Node {
 
         orphanNodes.push(this);
 
+        return this;
+    }
+
+    getDefinitionNode(): Node {
+        // TO-DO: Method not implemented
         return this;
     }
 }

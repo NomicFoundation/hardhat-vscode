@@ -1,6 +1,6 @@
 import { BinaryOperation } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, Node, Position } from "./Node";
 
 export class BinaryOperationNode implements Node {
     type: string;
@@ -40,6 +40,11 @@ export class BinaryOperationNode implements Node {
         find(this.astNode.left, this.uri).accept(find, orphanNodes, parent);
         find(this.astNode.right, this.uri).accept(find, orphanNodes, parent);
 
+        return this;
+    }
+
+    getDefinitionNode(): Node {
+        // TO-DO: Method not implemented
         return this;
     }
 }

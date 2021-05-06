@@ -18,8 +18,9 @@ export function findParent(node: Node, from?: Node): Node | undefined {
         parent = search(node, from, true);
     }
 
-    if (parent && node.getName()) {
-        return goUp(parent, "" + node.getName());
+    const nodeName = node.getName();
+    if (parent && nodeName) {
+        return goUp(parent, nodeName);
     }
 
     return parent;
@@ -29,13 +30,15 @@ export function findNodeByPosition(position: Position, from?: Node): Node | unde
     visitedNodes = [];
     const node = walk(position, from || analyzerTree);
 
-    if (node?.getName()) {
-        return goUp(node, "" + node.getName());
+    const nodeName = node?.getName();
+    if (node && nodeName) {
+        return goUp(node, nodeName);
     }
 
     return node;
 }
 
+// TO-DO: Add shadowing in search (Make it smart)
 function search(node: Node, from?: Node | undefined, bottomUp = false): Node | undefined {
     if (!from) {
         return undefined;

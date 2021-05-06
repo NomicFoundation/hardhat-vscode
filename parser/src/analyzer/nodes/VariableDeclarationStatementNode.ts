@@ -1,6 +1,6 @@
 import { VariableDeclarationStatement } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, Node, Position } from "./Node";
 
 export class VariableDeclarationStatementNode implements Node {
     type: string;
@@ -47,6 +47,11 @@ export class VariableDeclarationStatementNode implements Node {
             find(this.astNode.initialValue, this.uri).accept(find, orphanNodes, parent);
         }
 
+        return this;
+    }
+
+    getDefinitionNode(): Node {
+        // TO-DO: Method not implemented
         return this;
     }
 }

@@ -41,12 +41,14 @@ export class Analyzer {
         }
     }
 
-    private findParentForOrphanNodes() {
+    // TO-DO: Implement shadowing for contracts.
+    // TO-DO: Run findParentForOrphanNodes until orphanNodes length decreases or equal to 0 (This will solve nesting).
+    private findParentForOrphanNodes(length = this.orphanNodes.length) {
         const orphanNodes: Node[] = [];
 
         let orphanNode = this.orphanNodes.shift();
         while (orphanNode) {
-            const identifierParent = finder.findParent(orphanNode, this.analyzerTree);
+            const identifierParent = finder.findParent(orphanNode);
 
             if (identifierParent) {
                 orphanNode.setParent(identifierParent);
@@ -61,5 +63,9 @@ export class Analyzer {
         }
 
         this.orphanNodes = orphanNodes;
+
+        if (this.orphanNodes.length < length) {
+            this.findParentForOrphanNodes(this.orphanNodes.length);
+        }
     }
 }

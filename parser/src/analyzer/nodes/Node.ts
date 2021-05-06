@@ -20,16 +20,20 @@ export interface Node extends Component {
     type: string;
     uri: string;
     astNode: BaseASTNode;
-    
+
     nameLoc?: Location | undefined;
 
     parent?: Node | undefined;
     children: Node[];
 
     typeNodes: Node[];
-    
+
+    getTypeNodes(): Node[];
+
+    getName(): string | undefined;
+
     addChild(child: Node): void;
     setParent(parent: Node): void;
-    getName(): string | undefined;
-    getTypeNodes(): Node[];
+
+    getDefinitionNode(): Node;
 }

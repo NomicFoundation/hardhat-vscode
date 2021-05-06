@@ -1,6 +1,6 @@
 import { HexLiteral } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, Node, Position } from "./Node";
 
 export class HexLiteralNode implements Node {
     type: string;
@@ -38,6 +38,11 @@ export class HexLiteralNode implements Node {
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
+        // TO-DO: Method not implemented
+        return this;
+    }
+
+    getDefinitionNode(): Node {
         // TO-DO: Method not implemented
         return this;
     }

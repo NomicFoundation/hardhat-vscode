@@ -2,7 +2,7 @@ import { Node } from "../../../parser/out/analyzer/nodes/Node";
 import { Analyzer } from "../../../parser/out/analyzer";
 
 import {
-	LanguageSettings, Position, Hover, Location, DocumentHighlight,
+	LanguageSettings, Position, Hover, Location,
     WorkspaceEdit, TextDocument, HoverSettings
 } from '../types/languageTypes';
 

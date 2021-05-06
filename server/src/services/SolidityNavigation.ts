@@ -41,7 +41,7 @@ export class SolidityNavigation {
 
 		highlightNodes.forEach(highlightNode => {
 			if (highlightNode.nameLoc) {
-				const range = this.getRange(highlightNode.nameLoc)
+				const range = this.getRange(highlightNode.nameLoc);
 
 				edits.push(TextEdit.replace(range, newName));
 			}

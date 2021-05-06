@@ -1,6 +1,6 @@
 import { Block } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, Node, Position } from "./Node";
 
 export class BlockNode implements Node {
     type: string;
@@ -41,6 +41,11 @@ export class BlockNode implements Node {
             find(statement, this.uri).accept(find, orphanNodes, parent);
         }
         
+        return this;
+    }
+
+    getDefinitionNode(): Node {
+        // TO-DO: Method not implemented
         return this;
     }
 }

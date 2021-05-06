@@ -1,6 +1,6 @@
 import { DoWhileStatement } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, Node, Position } from "./Node";
 
 export class DoWhileStatementNode implements Node {
     type: string;
@@ -46,6 +46,11 @@ export class DoWhileStatementNode implements Node {
 
         parent?.addChild(this);
 
+        return this;
+    }
+
+    getDefinitionNode(): Node {
+        // TO-DO: Method not implemented
         return this;
     }
 }
