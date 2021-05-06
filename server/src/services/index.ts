@@ -1,12 +1,13 @@
 import { Node } from "../../../parser/out/analyzer/nodes/Node";
-
-import { SolidityNavigation } from './SolidityNavigation';
-import { SolidityHover } from './SolidityHover';
+import { Analyzer } from "../../../parser/out/analyzer";
 
 import {
 	LanguageSettings, Position, Hover, Location, DocumentHighlight,
     WorkspaceEdit, TextDocument, HoverSettings
 } from '../types/languageTypes';
+
+import { SolidityNavigation } from './SolidityNavigation';
+import { SolidityHover } from './SolidityHover';
 
 export interface LanguageService {
     configure(raw?: LanguageSettings): void;
