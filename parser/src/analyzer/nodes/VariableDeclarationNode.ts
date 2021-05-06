@@ -20,7 +20,7 @@ export class VariableDeclarationNode implements Node {
 
         if (variableDeclaration.loc && variableDeclaration.name) {
             // Bug in solidity parser doesn't give exact end location
-            variableDeclaration.loc.end.column = variableDeclaration.loc.end.column + variableDeclaration.name.length
+            variableDeclaration.loc.end.column = variableDeclaration.loc.end.column + variableDeclaration.name.length;
 
             this.nameLoc = {
                 start: {
