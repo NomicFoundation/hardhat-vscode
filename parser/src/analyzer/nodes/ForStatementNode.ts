@@ -9,6 +9,8 @@ export class ForStatementNode implements Node {
 
     nameLoc?: Location | undefined;
 
+    expressionNode?: Node | undefined;
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -24,6 +26,23 @@ export class ForStatementNode implements Node {
         return this.typeNodes;
     }
 
+    addTypeNode(node: Node): void {
+        this.typeNodes.push(node);
+    }
+
+    getExpressionNode(): Node | undefined {
+        return this.expressionNode;
+    }
+
+    setExpressionNode(node: Node | undefined): void {
+        this.expressionNode = node;
+    }
+
+    getDefinitionNode(): Node {
+        // TO-DO: Method not implemented
+        return this;
+    }
+
     getName(): string | undefined {
         return undefined;
     }
@@ -32,8 +51,12 @@ export class ForStatementNode implements Node {
         this.children.push(child);
     }
 
-    setParent(parent: Node): void {
+    setParent(parent: Node | undefined): void {
         this.parent = parent;
+    }
+
+    getParent(): Node | undefined {
+        return this.parent;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
@@ -55,11 +78,6 @@ export class ForStatementNode implements Node {
 
         parent?.addChild(this);
 
-        return this;
-    }
-
-    getDefinitionNode(): Node {
-        // TO-DO: Method not implemented
         return this;
     }
 }

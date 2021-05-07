@@ -9,6 +9,8 @@ export class FunctionDefinitionNode implements Node {
 
     nameLoc?: Location | undefined;
 
+    expressionNode?: Node | undefined;
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -43,6 +45,22 @@ export class FunctionDefinitionNode implements Node {
         return nodes;
     }
 
+    addTypeNode(node: Node): void {
+        this.typeNodes.push(node);
+    }
+
+    getExpressionNode(): Node | undefined {
+        return this.expressionNode;
+    }
+
+    setExpressionNode(node: Node | undefined): void {
+        this.expressionNode = node;
+    }
+
+    getDefinitionNode(): Node {
+        return this;
+    }
+
     getName(): string | undefined {
         return this.astNode.name || undefined;
     }
@@ -51,14 +69,20 @@ export class FunctionDefinitionNode implements Node {
         this.children.push(child);
     }
 
-    setParent(parent: Node): void {
+    setParent(parent: Node | undefined): void {
         this.parent = parent;
+    }
+
+    getParent(): Node | undefined {
+        return this.parent;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
         if (parent) {
             this.setParent(parent);
         }
+
+        this.findChildren(orphanNodes);
 
         for (const param of this.astNode.parameters) {
             find(param, this.uri).accept(find, orphanNodes, this);
@@ -68,7 +92,7 @@ export class FunctionDefinitionNode implements Node {
             for (const returnParam of this.astNode.returnParameters) {
                 const typeNode = find(returnParam, this.uri).accept(find, orphanNodes, this);
 
-                this.typeNodes.push(typeNode);
+                this.addTypeNode(typeNode);
             }
         }
 
@@ -81,8 +105,23 @@ export class FunctionDefinitionNode implements Node {
         return this;
     }
 
-    getDefinitionNode(): Node {
-        // TO-DO: Method not implemented
-        return this;
+    private findChildren(orphanNodes: Node[]): void {
+        const newOrphanNodes: Node[] = [];
+
+        for (const orphanNode of orphanNodes) {
+            if (
+                orphanNode.type === 'FunctionCall' &&
+                orphanNode.getName() === this.getName()
+            ) {
+                orphanNode.setParent(this);
+                orphanNode.addTypeNode(this);
+
+                this.addChild(orphanNode);
+            } else {
+                newOrphanNodes.push(orphanNode);
+            }
+        }
+
+        orphanNodes = newOrphanNodes;
     }
 }

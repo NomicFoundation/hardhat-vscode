@@ -23,17 +23,24 @@ export interface Node extends Component {
 
     nameLoc?: Location | undefined;
 
+    expressionNode?: Node | undefined;
+
     parent?: Node | undefined;
     children: Node[];
 
     typeNodes: Node[];
 
     getTypeNodes(): Node[];
+    addTypeNode(node: Node): void;
+
+    getExpressionNode(): Node | undefined;
+    setExpressionNode(node: Node | undefined): void;
 
     getName(): string | undefined;
 
     addChild(child: Node): void;
-    setParent(parent: Node): void;
+    setParent(parent: Node | undefined): void;
+    getParent(): Node | undefined;
 
     getDefinitionNode(): Node;
 }

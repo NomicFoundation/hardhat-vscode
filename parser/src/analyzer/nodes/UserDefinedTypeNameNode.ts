@@ -10,6 +10,8 @@ export class UserDefinedTypeNameNode implements Node {
 
     nameLoc?: Location | undefined;
 
+    expressionNode?: Node | undefined;
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -21,7 +23,7 @@ export class UserDefinedTypeNameNode implements Node {
 
         if (userDefinedTypeName.loc) {
             // Bug in solidity parser doesn't give exact end location
-            userDefinedTypeName.loc.end.column = userDefinedTypeName.loc.end.column + userDefinedTypeName.namePath.length
+            userDefinedTypeName.loc.end.column = userDefinedTypeName.loc.end.column + userDefinedTypeName.namePath.length;
 
             this.nameLoc = JSON.parse(JSON.stringify(userDefinedTypeName.loc));
         }
@@ -33,6 +35,23 @@ export class UserDefinedTypeNameNode implements Node {
         return this.typeNodes;
     }
 
+    addTypeNode(node: Node): void {
+        this.typeNodes.push(node);
+    }
+
+    getExpressionNode(): Node | undefined {
+        return this.expressionNode;
+    }
+
+    setExpressionNode(node: Node | undefined): void {
+        this.expressionNode = node;
+    }
+
+    getDefinitionNode(): Node {
+        // TO-DO: Method not implemented
+        return this;
+    }
+
     getName(): string | undefined {
         return this.astNode.namePath;
     }
@@ -41,8 +60,12 @@ export class UserDefinedTypeNameNode implements Node {
         this.children.push(child);
     }
 
-    setParent(parent: Node): void {
+    setParent(parent: Node | undefined): void {
         this.parent = parent;
+    }
+
+    getParent(): Node | undefined {
+        return this.parent;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
@@ -51,9 +74,9 @@ export class UserDefinedTypeNameNode implements Node {
 
             if (definitionParent) {
                 this.setParent(definitionParent);
-                definitionParent?.addChild(this);
+                this.addTypeNode(definitionParent);
 
-                this.typeNodes.push(definitionParent);
+                definitionParent?.addChild(this);
 
                 return this;
             }
@@ -61,11 +84,6 @@ export class UserDefinedTypeNameNode implements Node {
 
         orphanNodes.push(this);
 
-        return this;
-    }
-
-    getDefinitionNode(): Node {
-        // TO-DO: Method not implemented
         return this;
     }
 }

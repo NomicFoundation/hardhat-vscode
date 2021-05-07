@@ -9,6 +9,8 @@ export class ArrayTypeNameNode implements Node {
 
     nameLoc?: Location | undefined;
 
+    expressionNode?: Node | undefined;
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -31,6 +33,23 @@ export class ArrayTypeNameNode implements Node {
         return nodes;
     }
 
+    addTypeNode(node: Node): void {
+        this.typeNodes.push(node);
+    }
+
+    getExpressionNode(): Node | undefined {
+        return this.expressionNode;
+    }
+
+    setExpressionNode(node: Node | undefined): void {
+        this.expressionNode = node;
+    }
+
+    getDefinitionNode(): Node {
+        // TO-DO: Method not implemented
+        return this;
+    }
+
     getName(): string | undefined {
         return undefined;
     }
@@ -39,22 +58,21 @@ export class ArrayTypeNameNode implements Node {
         this.children.push(child);
     }
 
-    setParent(parent: Node): void {
+    setParent(parent: Node | undefined): void {
         this.parent = parent;
+    }
+
+    getParent(): Node | undefined {
+        return this.parent;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
         const typeNode = find(this.astNode.baseTypeName, this.uri).accept(find, orphanNodes, parent);
 
         if (typeNode) {
-            this.typeNodes.push(typeNode);
+            this.addTypeNode(typeNode);
         }
 
-        return this;
-    }
-
-    getDefinitionNode(): Node {
-        // TO-DO: Method not implemented
         return this;
     }
 }
