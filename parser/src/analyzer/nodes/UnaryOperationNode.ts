@@ -11,6 +11,8 @@ export class UnaryOperationNode implements Node {
 
     expressionNode?: Node | undefined;
 
+    connectionTypeRules: string[] = [];
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -38,9 +40,9 @@ export class UnaryOperationNode implements Node {
         this.expressionNode = node;
     }
 
-    getDefinitionNode(): Node {
+    getDefinitionNode(): Node | undefined {
         // TO-DO: Method not implemented
-        return this;
+        return undefined;
     }
 
     getName(): string | undefined {
@@ -59,7 +61,9 @@ export class UnaryOperationNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+        this.setExpressionNode(expression);
+
         find(this.astNode.subExpression, this.uri).accept(find, orphanNodes, parent);
 
         return this;

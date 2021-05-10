@@ -12,6 +12,8 @@ export class IdentifierNode implements Node {
 
     expressionNode?: Node | undefined;
 
+    connectionTypeRules: string[] = [];
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -47,9 +49,8 @@ export class IdentifierNode implements Node {
         this.expressionNode = node;
     }
 
-    getDefinitionNode(): Node {
-        // TO-DO: Method not implemented
-        return this;
+    getDefinitionNode(): Node | undefined {
+        return this.parent?.getDefinitionNode();
     }
 
     getName(): string | undefined {
@@ -68,7 +69,9 @@ export class IdentifierNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+        this.setExpressionNode(expression);
+
         if (parent) {
             const identifierParent = finder.findParent(this, parent);
 

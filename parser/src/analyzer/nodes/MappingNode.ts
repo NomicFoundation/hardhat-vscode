@@ -11,6 +11,8 @@ export class MappingNode implements Node {
 
     expressionNode?: Node | undefined;
 
+    connectionTypeRules: string[] = [];
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -44,9 +46,9 @@ export class MappingNode implements Node {
         this.expressionNode = node;
     }
 
-    getDefinitionNode(): Node {
+    getDefinitionNode(): Node | undefined {
         // TO-DO: Method not implemented
-        return this;
+        return undefined;
     }
 
     getName(): string | undefined {
@@ -65,7 +67,9 @@ export class MappingNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+        this.setExpressionNode(expression);
+
         find(this.astNode.keyType, this.uri).accept(find, orphanNodes, parent);
         const typeNode = find(this.astNode.valueType, this.uri).accept(find, orphanNodes, parent);
 

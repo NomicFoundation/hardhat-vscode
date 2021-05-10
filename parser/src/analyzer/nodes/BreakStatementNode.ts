@@ -11,6 +11,8 @@ export class BreakStatementNode implements Node {
 
     expressionNode?: Node | undefined;
 
+    connectionTypeRules: string[] = [];
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -39,9 +41,9 @@ export class BreakStatementNode implements Node {
         this.expressionNode = node;
     }
 
-    getDefinitionNode(): Node {
+    getDefinitionNode(): Node | undefined {
         // TO-DO: Method not implemented
-        return this;
+        return undefined;
     }
 
     getName(): string | undefined {
@@ -60,7 +62,8 @@ export class BreakStatementNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+        this.setExpressionNode(expression);
         // TO-DO: Method not implemented
         return this;
     }

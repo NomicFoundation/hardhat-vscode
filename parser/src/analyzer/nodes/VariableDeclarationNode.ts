@@ -11,6 +11,8 @@ export class VariableDeclarationNode implements Node {
 
     expressionNode?: Node | undefined;
 
+    connectionTypeRules: string[] = [ "Identifier", "MemberAccess" ];
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -61,8 +63,7 @@ export class VariableDeclarationNode implements Node {
         this.expressionNode = node;
     }
 
-    getDefinitionNode(): Node {
-        // TO-DO: Method not implemented
+    getDefinitionNode(): Node | undefined {
         return this;
     }
 
@@ -82,7 +83,9 @@ export class VariableDeclarationNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+        this.setExpressionNode(expression);
+
         if (parent) {
             this.setParent(parent);
         }

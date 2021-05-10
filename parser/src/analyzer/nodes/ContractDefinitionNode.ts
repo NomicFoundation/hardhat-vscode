@@ -11,6 +11,8 @@ export class ContractDefinitionNode implements Node {
 
     expressionNode?: Node | undefined;
 
+    connectionTypeRules: string[] = [ "UserDefinedTypeName", "FunctionCall" ];
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -53,7 +55,7 @@ export class ContractDefinitionNode implements Node {
         this.expressionNode = node;
     }
 
-    getDefinitionNode(): Node {
+    getDefinitionNode(): Node | undefined {
         return this;
     }
 
@@ -73,7 +75,9 @@ export class ContractDefinitionNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+        this.setExpressionNode(expression);
+
         if (parent) {
             this.setParent(parent);
         }
@@ -92,11 +96,13 @@ export class ContractDefinitionNode implements Node {
     private findChildren(orphanNodes: Node[]): void {
         const newOrphanNodes: Node[] = [];
 
-        for (const orphanNode of orphanNodes) {
+        let orphanNode = orphanNodes.shift();
+        while (orphanNode) {
             if (
-                ['UserDefinedTypeName', 'FunctionCall'].includes(orphanNode.type) &&
-                orphanNode.getName() === this.getName()
-            ) {
+                orphanNode.getName() === this.getName() && (
+                    this.connectionTypeRules.includes(orphanNode.type) ||
+                    this.connectionTypeRules.includes(orphanNode.getExpressionNode()?.type || "")
+            )) {
                 orphanNode.setParent(this);
                 orphanNode.addTypeNode(this);
 
@@ -104,8 +110,12 @@ export class ContractDefinitionNode implements Node {
             } else {
                 newOrphanNodes.push(orphanNode);
             }
+
+            orphanNode = orphanNodes.shift();
         }
 
-        orphanNodes = newOrphanNodes;
+        for (const newOrphanNode of newOrphanNodes) {
+            orphanNodes.push(newOrphanNode);
+        }
     }
 }

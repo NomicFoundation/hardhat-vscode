@@ -15,12 +15,11 @@ export function findParent(node: Node, from?: Node): Node | undefined {
     if (!from) {
         parent = search(node, analyzerTree);
     } else {
-        parent = search(node, from, true);
+        parent = search(node, from);
     }
 
-    const nodeName = node.getName();
-    if (parent && nodeName) {
-        return goUp(parent, nodeName);
+    if (parent) {
+        return parent.getDefinitionNode();
     }
 
     return parent;
@@ -30,16 +29,14 @@ export function findNodeByPosition(position: Position, from?: Node): Node | unde
     visitedNodes = [];
     const node = walk(position, from || analyzerTree);
 
-    const nodeName = node?.getName();
-    if (node && nodeName) {
-        return goUp(node, nodeName);
+    if (node) {
+        return node.getDefinitionNode();
     }
 
     return node;
 }
 
-// TO-DO: Add shadowing in search (Make it smart)
-function search(node: Node, from?: Node | undefined, bottomUp = false): Node | undefined {
+function search(node: Node, from?: Node | undefined): Node | undefined {
     if (!from) {
         return undefined;
     }
@@ -51,24 +48,38 @@ function search(node: Node, from?: Node | undefined, bottomUp = false): Node | u
     // Add as visited node
     visitedNodes.push(from);
 
-    if (node.getName() && from.getName() && node.getName() === from.getName()) {
+    if (
+        node.getName() && from.getName() &&
+        node.getName() === from.getName() && (
+            from.connectionTypeRules.includes(node.type) ||
+            from.connectionTypeRules.includes(node.getExpressionNode()?.type || "")
+    )) {
         return from;
     }
 
     let parent: Node | undefined;
     for (const child of from.children) {
-        if (!bottomUp && child.type === 'FunctionDefinition') {
+        if ([ "FunctionDefinition", "ContractDefinition", "StructDefinition" ].includes(child.type)) {
+            if (
+                node.getName() && child.getName() &&
+                node.getName() === child.getName() && (
+                    child.connectionTypeRules.includes(node.type) ||
+                    child.connectionTypeRules.includes(node.getExpressionNode()?.type || "")
+            )) {
+                return child;
+            }
+
             continue;
         }
 
-        parent = search(node, child, bottomUp);
+        parent = search(node, child);
 
         if (parent) {
             return parent;
         }
     }
 
-    return search(node, from.parent, bottomUp);
+    return search(node, from.parent);
 }
 
 function walk(position: Position, from?: Node): Node | undefined {
@@ -103,12 +114,4 @@ function walk(position: Position, from?: Node): Node | undefined {
     }
 
     return walk(position, from.parent);
-}
-
-function goUp(node: Node, name: string): Node {
-    if (node.parent?.getName() === name) {
-        node = goUp(node.parent, name);
-    }
-
-    return node;
 }

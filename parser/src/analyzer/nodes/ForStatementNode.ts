@@ -11,6 +11,8 @@ export class ForStatementNode implements Node {
 
     expressionNode?: Node | undefined;
 
+    connectionTypeRules: string[] = [];
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -38,9 +40,8 @@ export class ForStatementNode implements Node {
         this.expressionNode = node;
     }
 
-    getDefinitionNode(): Node {
-        // TO-DO: Method not implemented
-        return this;
+    getDefinitionNode(): Node | undefined {
+        return undefined;
     }
 
     getName(): string | undefined {
@@ -59,7 +60,9 @@ export class ForStatementNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+        this.setExpressionNode(expression);
+
         if (parent) {
             this.setParent(parent);
         }

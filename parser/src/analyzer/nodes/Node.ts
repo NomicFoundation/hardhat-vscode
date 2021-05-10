@@ -13,7 +13,7 @@ export interface Location {
 export type FinderType = (ast: BaseASTNode, uri: string) => Node;
 
 export interface Component {
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node;
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node;
 }
 
 export interface Node extends Component {
@@ -23,7 +23,9 @@ export interface Node extends Component {
 
     nameLoc?: Location | undefined;
 
-    expressionNode?: Node | undefined;
+    expressionType?: Node | undefined;
+
+    connectionTypeRules: string[];
 
     parent?: Node | undefined;
     children: Node[];
@@ -42,5 +44,5 @@ export interface Node extends Component {
     setParent(parent: Node | undefined): void;
     getParent(): Node | undefined;
 
-    getDefinitionNode(): Node;
+    getDefinitionNode(): Node | undefined;
 }

@@ -11,6 +11,8 @@ export class FunctionCallNode implements Node {
 
     expressionNode?: Node | undefined;
 
+    connectionTypeRules: string[] = [];
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -38,9 +40,9 @@ export class FunctionCallNode implements Node {
         this.expressionNode = node;
     }
 
-    getDefinitionNode(): Node {
+    getDefinitionNode(): Node | undefined {
         // TO-DO: Method not implemented
-        return this;
+        return undefined;
     }
 
     getName(): string | undefined {
@@ -59,8 +61,10 @@ export class FunctionCallNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
-        find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent);
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+        this.setExpressionNode(expression);
+
+        find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent, this);
 
         for (const argument of this.astNode.arguments) {
             find(argument, this.uri).accept(find, orphanNodes, parent);

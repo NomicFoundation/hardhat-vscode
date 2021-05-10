@@ -11,6 +11,8 @@ export class MemberAccessNode implements Node {
 
     expressionNode?: Node | undefined;
 
+    connectionTypeRules: string[] = [];
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -47,8 +49,8 @@ export class MemberAccessNode implements Node {
         this.expressionNode = node;
     }
 
-    getDefinitionNode(): Node {
-        return this;
+    getDefinitionNode(): Node | undefined {
+        return this.parent?.getDefinitionNode();
     }
 
     getName(): string | undefined {
@@ -67,9 +69,11 @@ export class MemberAccessNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+        this.setExpressionNode(expression);
+
         // TO-DO: Improve logic for deeper member access
-        const expressionNode = find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent);
+        const expressionNode = find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent, this);
 
         const expressionTypeNodes = expressionNode.getTypeNodes();
 

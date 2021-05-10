@@ -11,6 +11,8 @@ export class FunctionDefinitionNode implements Node {
 
     expressionNode?: Node | undefined;
 
+    connectionTypeRules: string[] = [ "FunctionCall" ];
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -57,7 +59,7 @@ export class FunctionDefinitionNode implements Node {
         this.expressionNode = node;
     }
 
-    getDefinitionNode(): Node {
+    getDefinitionNode(): Node | undefined {
         return this;
     }
 
@@ -77,7 +79,9 @@ export class FunctionDefinitionNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+        this.setExpressionNode(expression);
+
         if (parent) {
             this.setParent(parent);
         }
@@ -108,10 +112,11 @@ export class FunctionDefinitionNode implements Node {
     private findChildren(orphanNodes: Node[]): void {
         const newOrphanNodes: Node[] = [];
 
-        for (const orphanNode of orphanNodes) {
+        let orphanNode = orphanNodes.shift();
+        while (orphanNode) {
             if (
-                orphanNode.type === 'FunctionCall' &&
-                orphanNode.getName() === this.getName()
+                orphanNode.getName() === this.getName() &&
+                this.connectionTypeRules.includes(orphanNode.getExpressionNode()?.type || "")
             ) {
                 orphanNode.setParent(this);
                 orphanNode.addTypeNode(this);
@@ -120,8 +125,12 @@ export class FunctionDefinitionNode implements Node {
             } else {
                 newOrphanNodes.push(orphanNode);
             }
+
+            orphanNode = orphanNodes.shift();
         }
 
-        orphanNodes = newOrphanNodes;
+        for (const newOrphanNode of newOrphanNodes) {
+            orphanNodes.push(newOrphanNode);
+        }
     }
 }

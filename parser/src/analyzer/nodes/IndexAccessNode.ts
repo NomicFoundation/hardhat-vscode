@@ -11,6 +11,8 @@ export class IndexAccessNode implements Node {
 
     expressionNode?: Node | undefined;
 
+    connectionTypeRules: string[] = [];
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -44,9 +46,9 @@ export class IndexAccessNode implements Node {
         this.expressionNode = node;
     }
 
-    getDefinitionNode(): Node {
+    getDefinitionNode(): Node | undefined {
         // TO-DO: Method not implemented
-        return this;
+        return undefined;
     }
 
     getName(): string | undefined {
@@ -65,7 +67,9 @@ export class IndexAccessNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+        this.setExpressionNode(expression);
+
         const typeNode = find(this.astNode.base, this.uri).accept(find, orphanNodes, parent);
         find(this.astNode.index, this.uri).accept(find, orphanNodes, parent);
 

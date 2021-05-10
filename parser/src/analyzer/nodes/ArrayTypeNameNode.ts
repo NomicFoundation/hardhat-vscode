@@ -11,6 +11,8 @@ export class ArrayTypeNameNode implements Node {
 
     expressionNode?: Node | undefined;
 
+    connectionTypeRules: string[] = [];
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -22,7 +24,7 @@ export class ArrayTypeNameNode implements Node {
         this.astNode = arrayTypeName;
         // TO-DO: Implement name location for rename
     }
-
+    
     getTypeNodes(): Node[] {
         let nodes: Node[] = [];
 
@@ -45,9 +47,9 @@ export class ArrayTypeNameNode implements Node {
         this.expressionNode = node;
     }
 
-    getDefinitionNode(): Node {
+    getDefinitionNode(): Node | undefined {
         // TO-DO: Method not implemented
-        return this;
+        return undefined;
     }
 
     getName(): string | undefined {
@@ -66,8 +68,10 @@ export class ArrayTypeNameNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
-        const typeNode = find(this.astNode.baseTypeName, this.uri).accept(find, orphanNodes, parent);
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+        this.setExpressionNode(expression);
+
+        const typeNode = find(this.astNode.baseTypeName, this.uri).accept(find, orphanNodes, parent, this);
 
         if (typeNode) {
             this.addTypeNode(typeNode);

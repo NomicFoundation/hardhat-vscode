@@ -11,6 +11,8 @@ export class StructDefinitionNode implements Node {
 
     expressionNode?: Node | undefined;
 
+    connectionTypeRules: string[] = [ "UserDefinedTypeName", "MemberAccess" ];
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -53,8 +55,7 @@ export class StructDefinitionNode implements Node {
         this.expressionNode = node;
     }
 
-    getDefinitionNode(): Node {
-        // TO-DO: Method not implemented
+    getDefinitionNode(): Node | undefined {
         return this;
     }
 
@@ -74,10 +75,14 @@ export class StructDefinitionNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+        this.setExpressionNode(expression);
+
         if (parent) {
             this.setParent(parent);
         }
+
+        this.findChildren(orphanNodes);
 
         for (const member of this.astNode.members) {
             find(member, this.uri).accept(find, orphanNodes, this);
@@ -86,5 +91,35 @@ export class StructDefinitionNode implements Node {
         parent?.addChild(this);
 
         return this;
+    }
+
+    private findChildren(orphanNodes: Node[]): void {
+        const newOrphanNodes: Node[] = [];
+
+        let orphanNode = orphanNodes.shift();
+        while (orphanNode) {
+            if (
+                orphanNode.getName() === this.getName() && (
+                    this.connectionTypeRules.includes(orphanNode.type) ||
+                    this.connectionTypeRules.includes(orphanNode.getExpressionNode()?.type || "")
+            )) {
+                orphanNode.setParent(this);
+                orphanNode.addTypeNode(this);
+
+                this.addChild(orphanNode);
+
+                // Handle children expression
+                // Problem is when struct is declare after memberAccess show then we need to
+                // find struct definition and handle children expression then remove it from orphan nodes
+            } else {
+                newOrphanNodes.push(orphanNode);
+            }
+
+            orphanNode = orphanNodes.shift();
+        }
+
+        for (const newOrphanNode of newOrphanNodes) {
+            orphanNodes.push(newOrphanNode);
+        }
     }
 }

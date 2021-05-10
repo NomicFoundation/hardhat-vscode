@@ -3,7 +3,6 @@ import { ASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { getCircularReplacer } from "../utils";
 import { Node } from "./nodes/Node";
-import * as finder from "./finder";
 import * as matcher from "./matcher";
 
 export class Analyzer {
@@ -27,45 +26,15 @@ export class Analyzer {
                 tolerant: true
             });
 
-            console.log(JSON.stringify(this.ast));
+            // console.log(JSON.stringify(this.ast));
 
             this.analyzerTree = matcher.find(this.ast, this.uri).accept(matcher.find, this.orphanNodes);
-
-            this.findParentForOrphanNodes();
 
             // console.log(JSON.stringify(this.analyzerTree, getCircularReplacer()));
 
             return this.analyzerTree;
         } catch (err) {
             console.error(err);
-        }
-    }
-
-    // TO-DO: Implement shadowing for contracts.
-    // TO-DO: Run findParentForOrphanNodes until orphanNodes length decreases or equal to 0 (This will solve nesting).
-    private findParentForOrphanNodes(length = this.orphanNodes.length) {
-        const orphanNodes: Node[] = [];
-
-        let orphanNode = this.orphanNodes.shift();
-        while (orphanNode) {
-            const identifierParent = finder.findParent(orphanNode);
-
-            if (identifierParent) {
-                orphanNode.setParent(identifierParent);
-                identifierParent?.addChild(orphanNode);
-    
-                orphanNode.typeNodes.push(identifierParent);
-            } else {
-                orphanNodes.push(orphanNode);
-            }
-
-            orphanNode = this.orphanNodes.shift();
-        }
-
-        this.orphanNodes = orphanNodes;
-
-        if (this.orphanNodes.length < length) {
-            this.findParentForOrphanNodes(this.orphanNodes.length);
         }
     }
 }

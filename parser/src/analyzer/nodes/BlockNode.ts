@@ -11,6 +11,8 @@ export class BlockNode implements Node {
 
     expressionNode?: Node | undefined;
 
+    connectionTypeRules: string[] = [];
+
     parent?: Node | undefined;
     children: Node[] = [];
 
@@ -38,9 +40,8 @@ export class BlockNode implements Node {
         this.expressionNode = node;
     }
 
-    getDefinitionNode(): Node {
-        // TO-DO: Method not implemented
-        return this;
+    getDefinitionNode(): Node | undefined {
+        return undefined;
     }
 
     getName(): string | undefined {
@@ -59,7 +60,9 @@ export class BlockNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node): Node {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+        this.setExpressionNode(expression);
+
         for (const statement of this.astNode.statements) {
             find(statement, this.uri).accept(find, orphanNodes, parent);
         }
