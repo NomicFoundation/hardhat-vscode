@@ -1,7 +1,7 @@
 import { UserDefinedTypeName } from "@solidity-parser/parser/dist/src/ast-types";
 
 import * as finder from "../finder";
-import { Location, FinderType, Node, Position } from "./Node";
+import { Location, FinderType, Node } from "./Node";
 
 export class UserDefinedTypeNameNode implements Node {
     type: string;
@@ -86,7 +86,6 @@ export class UserDefinedTypeNameNode implements Node {
 
             if (definitionParent) {
                 this.addTypeNode(definitionParent);
-                definitionParent.setDeclarationNode(this);
 
                 this.setParent(definitionParent);
                 definitionParent?.addChild(this);

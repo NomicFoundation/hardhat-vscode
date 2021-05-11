@@ -1,6 +1,6 @@
 import { StructDefinition } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node, Position } from "./Node";
+import { Location, FinderType, Node } from "./Node";
 
 export class StructDefinitionNode implements Node {
     type: string;
@@ -91,11 +91,11 @@ export class StructDefinitionNode implements Node {
             this.setParent(parent);
         }
 
-        this.findChildren(orphanNodes);
-
         for (const member of this.astNode.members) {
             find(member, this.uri).accept(find, orphanNodes, this);
         }
+
+        this.findChildren(orphanNodes);
 
         parent?.addChild(this);
 
@@ -104,6 +104,7 @@ export class StructDefinitionNode implements Node {
 
     private findChildren(orphanNodes: Node[]): void {
         const newOrphanNodes: Node[] = [];
+        const expressionNodes: Node[] = [];
 
         let orphanNode = orphanNodes.shift();
         while (orphanNode) {
@@ -113,14 +114,11 @@ export class StructDefinitionNode implements Node {
                     this.connectionTypeRules.includes(orphanNode.getExpressionNode()?.type || "")
             )) {
                 orphanNode.addTypeNode(this);
-                this.setDeclarationNode(orphanNode);
 
                 orphanNode.setParent(this);
                 this.addChild(orphanNode);
 
-                // Handle children expression
-                // Problem is when struct is declare after memberAccess show then we need to
-                // find struct definition and handle children expression then remove it from orphan nodes
+                expressionNodes.push(orphanNode);
             } else {
                 newOrphanNodes.push(orphanNode);
             }
@@ -130,6 +128,105 @@ export class StructDefinitionNode implements Node {
 
         for (const newOrphanNode of newOrphanNodes) {
             orphanNodes.push(newOrphanNode);
+        }
+
+        // Find struct type references for all expressions
+        for (const expressionNode of expressionNodes) {
+            this.findExpressionNodes(expressionNode, orphanNodes);
+        }
+    }
+
+    private findExpressionNodes(node: Node, orphanNodes: Node[]): void {
+        const newOrphanNodes: Node[] = [];
+        const declarationNode = node.getDeclarationNode();
+
+        if (!declarationNode) {
+            return;
+        }
+
+        let orphanNode = orphanNodes.shift();
+        while (orphanNode) {
+
+            if (this.matchNodeExpression(orphanNode, declarationNode)) {
+                for (const definitionChild of this.children) {
+
+                    if (definitionChild.getName() && definitionChild.getName() === orphanNode.getName()) {
+                        orphanNode.addTypeNode(definitionChild);
+
+                        orphanNode.setParent(definitionChild);
+                        definitionChild?.addChild(orphanNode);
+
+                        this.nestNode(orphanNode, orphanNodes);
+                    }
+                }
+            } else {
+                newOrphanNodes.push(orphanNode);
+            }
+
+            orphanNode = orphanNodes.shift();
+        }
+
+        for (const newOrphanNode of newOrphanNodes) {
+            orphanNodes.push(newOrphanNode);
+        }
+    }
+
+    private matchNodeExpression(expression: Node, node: Node): boolean {
+        for (const child of node.children) {
+            const expressionNode = child.getExpressionNode();
+
+            if (
+                expressionNode &&
+                expressionNode.nameLoc && expression.nameLoc &&
+                JSON.stringify(expressionNode.nameLoc) === JSON.stringify(expression.nameLoc) &&
+                expressionNode.getName() === expression.getName()
+            ) {
+                return true;
+            }
+		}
+
+        return false;
+    }
+
+    private nestNode(node: Node, orphanNodes: Node[]): void {
+        let expressionNode = node.getExpressionNode();
+        if (!expressionNode) {
+            return;
+        }
+
+        while (expressionNode.type !== "MemberAccess") {
+
+            expressionNode = expressionNode.getExpressionNode();
+            if (!expressionNode) {
+                return;
+            }
+        }
+
+        const orphanNode = orphanNodes.shift();
+        if (!orphanNode) {
+            return;
+        }
+
+        if (
+            expressionNode &&
+            expressionNode.nameLoc && orphanNode.nameLoc &&
+            JSON.stringify(expressionNode.nameLoc) === JSON.stringify(orphanNode.nameLoc) &&
+            expressionNode.getName() === orphanNode.getName()
+        ) {
+            for (const definitionType of node.getTypeNodes()) {
+                for (const definitionChild of definitionType.children) {
+                    if (definitionChild.getName() && definitionChild.getName() === orphanNode.getName()) {
+                        orphanNode.addTypeNode(definitionChild);
+
+                        orphanNode.setParent(definitionChild);
+                        definitionChild?.addChild(orphanNode);
+    
+                        this.nestNode(orphanNode, orphanNodes);
+                    }
+                }
+            }
+        } else {
+            orphanNodes.unshift(orphanNode);
         }
     }
 }

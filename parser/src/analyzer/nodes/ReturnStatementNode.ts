@@ -1,6 +1,6 @@
 import { ReturnStatement } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node, Position } from "./Node";
+import { Location, FinderType, Node } from "./Node";
 
 export class ReturnStatementNode implements Node {
     type: string;

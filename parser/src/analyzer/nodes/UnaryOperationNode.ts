@@ -1,6 +1,6 @@
 import { UnaryOperation } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node, Position } from "./Node";
+import { Location, FinderType, Node } from "./Node";
 
 export class UnaryOperationNode implements Node {
     type: string;

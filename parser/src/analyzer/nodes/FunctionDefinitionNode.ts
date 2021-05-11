@@ -1,6 +1,6 @@
 import { FunctionDefinition } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node, Position } from "./Node";
+import { Location, FinderType, Node } from "./Node";
 
 export class FunctionDefinitionNode implements Node {
     type: string;
@@ -128,7 +128,6 @@ export class FunctionDefinitionNode implements Node {
                 this.connectionTypeRules.includes(orphanNode.getExpressionNode()?.type || "")
             ) {
                 orphanNode.addTypeNode(this);
-                this.setDeclarationNode(orphanNode);
 
                 orphanNode.setParent(this);
                 this.addChild(orphanNode);

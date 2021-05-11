@@ -19,6 +19,7 @@ export class Analyzer {
         try {
             this.document = document;
             this.uri = uri;
+            this.orphanNodes = [];
 
             this.ast = parser.parse(document, {
                 loc: true,

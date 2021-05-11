@@ -1,7 +1,7 @@
 import { Identifier } from "@solidity-parser/parser/dist/src/ast-types";
 
 import * as finder from "../finder";
-import { Location, FinderType, Node, Position } from "./Node";
+import { Location, FinderType, Node } from "./Node";
 
 export class IdentifierNode implements Node {
     type: string;
@@ -35,7 +35,13 @@ export class IdentifierNode implements Node {
     }
 
     getTypeNodes(): Node[] {
-        return this.typeNodes;
+        let nodes: Node[] = [];
+
+        this.typeNodes.forEach(typeNode => {
+            nodes = nodes.concat(typeNode.getTypeNodes());
+        });
+
+        return nodes;
     }
 
     addTypeNode(node: Node): void {
@@ -86,7 +92,6 @@ export class IdentifierNode implements Node {
 
             if (identifierParent) {
                 this.addTypeNode(identifierParent);
-                identifierParent.setDeclarationNode(this);
 
                 this.setParent(identifierParent);
                 identifierParent?.addChild(this);

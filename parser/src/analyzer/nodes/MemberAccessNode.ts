@@ -1,6 +1,6 @@
 import { MemberAccess } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node, Position } from "./Node";
+import { Location, FinderType, Node } from "./Node";
 
 export class MemberAccessNode implements Node {
     type: string;
@@ -33,9 +33,15 @@ export class MemberAccessNode implements Node {
 
         this.astNode = memberAccess;
     }
-    
+
     getTypeNodes(): Node[] {
-        return this.typeNodes;
+        let nodes: Node[] = [];
+
+        this.typeNodes.forEach(typeNode => {
+            nodes = nodes.concat(typeNode.getTypeNodes());
+        });
+
+        return nodes;
     }
 
     addTypeNode(node: Node): void {
@@ -84,20 +90,18 @@ export class MemberAccessNode implements Node {
         // TO-DO: Improve logic for deeper member access
         const expressionNode = find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent, this);
 
-        const expressionTypeNodes = expressionNode.getTypeNodes();
+        const definitionType = expressionNode.getTypeNodes();
+        console.log(definitionType, expressionNode);
 
-        if (expressionTypeNodes.length === 1) {
-            for (const definitionType of expressionTypeNodes[0].getTypeNodes()) {
-                for (const definitionChild of definitionType.children) {
-                    if (definitionChild.getName() && definitionChild.getName() === this.getName()) {
-                        this.addTypeNode(definitionChild);
-                        definitionChild.setDeclarationNode(this);
-
-                        this.setParent(definitionChild);
-                        definitionChild?.addChild(this);
+        if (definitionType.length === 1) {
+            for (const definitionChild of definitionType[0].children) {
+                if (definitionChild.getName() && definitionChild.getName() === this.getName()) {
+                    this.addTypeNode(definitionChild);
     
-                        return this;
-                    }
+                    this.setParent(definitionChild);
+                    definitionChild?.addChild(this);
+    
+                    return this;
                 }
             }
         }
