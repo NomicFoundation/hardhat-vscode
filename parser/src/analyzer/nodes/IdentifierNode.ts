@@ -11,6 +11,7 @@ export class IdentifierNode implements Node {
     nameLoc?: Location | undefined;
 
     expressionNode?: Node | undefined;
+    declarationNode?: Node | undefined;
 
     connectionTypeRules: string[] = [];
 
@@ -49,6 +50,14 @@ export class IdentifierNode implements Node {
         this.expressionNode = node;
     }
 
+    getDeclarationNode(): Node | undefined {
+        return this.declarationNode;
+    }
+
+    setDeclarationNode(node: Node | undefined): void {
+        this.declarationNode = node;
+    }
+
     getDefinitionNode(): Node | undefined {
         return this.parent?.getDefinitionNode();
     }
@@ -76,10 +85,11 @@ export class IdentifierNode implements Node {
             const identifierParent = finder.findParent(this, parent);
 
             if (identifierParent) {
+                this.addTypeNode(identifierParent);
+                identifierParent.setDeclarationNode(this);
+
                 this.setParent(identifierParent);
                 identifierParent?.addChild(this);
-
-                this.typeNodes.push(identifierParent);
 
                 return this;
             }

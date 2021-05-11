@@ -10,8 +10,9 @@ export class StructDefinitionNode implements Node {
     nameLoc?: Location | undefined;
 
     expressionNode?: Node | undefined;
+    declarationNode?: Node | undefined;
 
-    connectionTypeRules: string[] = [ "UserDefinedTypeName", "MemberAccess" ];
+    connectionTypeRules: string[] = [ "UserDefinedTypeName", "MemberAccess", "FunctionCall" ];
 
     parent?: Node | undefined;
     children: Node[] = [];
@@ -53,6 +54,14 @@ export class StructDefinitionNode implements Node {
 
     setExpressionNode(node: Node | undefined): void {
         this.expressionNode = node;
+    }
+
+    getDeclarationNode(): Node | undefined {
+        return this.declarationNode;
+    }
+
+    setDeclarationNode(node: Node | undefined): void {
+        this.declarationNode = node;
     }
 
     getDefinitionNode(): Node | undefined {
@@ -103,9 +112,10 @@ export class StructDefinitionNode implements Node {
                     this.connectionTypeRules.includes(orphanNode.type) ||
                     this.connectionTypeRules.includes(orphanNode.getExpressionNode()?.type || "")
             )) {
-                orphanNode.setParent(this);
                 orphanNode.addTypeNode(this);
+                this.setDeclarationNode(orphanNode);
 
+                orphanNode.setParent(this);
                 this.addChild(orphanNode);
 
                 // Handle children expression

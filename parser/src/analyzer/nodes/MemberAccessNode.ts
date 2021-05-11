@@ -10,6 +10,7 @@ export class MemberAccessNode implements Node {
     nameLoc?: Location | undefined;
 
     expressionNode?: Node | undefined;
+    declarationNode?: Node | undefined;
 
     connectionTypeRules: string[] = [];
 
@@ -49,6 +50,14 @@ export class MemberAccessNode implements Node {
         this.expressionNode = node;
     }
 
+    getDeclarationNode(): Node | undefined {
+        return this.declarationNode;
+    }
+
+    setDeclarationNode(node: Node | undefined): void {
+        this.declarationNode = node;
+    }
+
     getDefinitionNode(): Node | undefined {
         return this.parent?.getDefinitionNode();
     }
@@ -81,10 +90,11 @@ export class MemberAccessNode implements Node {
             for (const definitionType of expressionTypeNodes[0].getTypeNodes()) {
                 for (const definitionChild of definitionType.children) {
                     if (definitionChild.getName() && definitionChild.getName() === this.getName()) {
+                        this.addTypeNode(definitionChild);
+                        definitionChild.setDeclarationNode(this);
+
                         this.setParent(definitionChild);
                         definitionChild?.addChild(this);
-
-                        this.typeNodes.push(definitionChild);
     
                         return this;
                     }

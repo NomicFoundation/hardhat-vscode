@@ -10,6 +10,7 @@ export class VariableDeclarationNode implements Node {
     nameLoc?: Location | undefined;
 
     expressionNode?: Node | undefined;
+    declarationNode?: Node | undefined;
 
     connectionTypeRules: string[] = [ "Identifier", "MemberAccess" ];
 
@@ -63,6 +64,14 @@ export class VariableDeclarationNode implements Node {
         this.expressionNode = node;
     }
 
+    getDeclarationNode(): Node | undefined {
+        return this.declarationNode;
+    }
+
+    setDeclarationNode(node: Node | undefined): void {
+        this.declarationNode = node;
+    }
+
     getDefinitionNode(): Node | undefined {
         return this;
     }
@@ -94,6 +103,7 @@ export class VariableDeclarationNode implements Node {
             const typeNode = find(this.astNode.typeName, this.uri).accept(find, orphanNodes, this);
         
             this.addTypeNode(typeNode);
+            typeNode.setDeclarationNode(this);
         }
 
         parent?.addChild(this);

@@ -11,6 +11,7 @@ export class UserDefinedTypeNameNode implements Node {
     nameLoc?: Location | undefined;
 
     expressionNode?: Node | undefined;
+    declarationNode?: Node | undefined;
 
     connectionTypeRules: string[] = [];
 
@@ -49,6 +50,14 @@ export class UserDefinedTypeNameNode implements Node {
         this.expressionNode = node;
     }
 
+    getDeclarationNode(): Node | undefined {
+        return this.declarationNode;
+    }
+
+    setDeclarationNode(node: Node | undefined): void {
+        this.declarationNode = node;
+    }
+
     getDefinitionNode(): Node | undefined {
         return this.parent?.getDefinitionNode();
     }
@@ -76,9 +85,10 @@ export class UserDefinedTypeNameNode implements Node {
             const definitionParent = finder.findParent(this, parent);
 
             if (definitionParent) {
-                this.setParent(definitionParent);
                 this.addTypeNode(definitionParent);
+                definitionParent.setDeclarationNode(this);
 
+                this.setParent(definitionParent);
                 definitionParent?.addChild(this);
 
                 return this;

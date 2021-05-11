@@ -23,7 +23,8 @@ export interface Node extends Component {
 
     nameLoc?: Location | undefined;
 
-    expressionType?: Node | undefined;
+    expressionNode?: Node | undefined;
+    declarationNode?: Node | undefined;
 
     connectionTypeRules: string[];
 
@@ -37,6 +38,9 @@ export interface Node extends Component {
 
     getExpressionNode(): Node | undefined;
     setExpressionNode(node: Node | undefined): void;
+
+    getDeclarationNode(): Node | undefined;
+    setDeclarationNode(node: Node | undefined): void;
 
     getName(): string | undefined;
 

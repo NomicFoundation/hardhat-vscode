@@ -10,6 +10,7 @@ export class ArrayTypeNameNode implements Node {
     nameLoc?: Location | undefined;
 
     expressionNode?: Node | undefined;
+    declarationNode?: Node | undefined;
 
     connectionTypeRules: string[] = [];
 
@@ -45,6 +46,14 @@ export class ArrayTypeNameNode implements Node {
 
     setExpressionNode(node: Node | undefined): void {
         this.expressionNode = node;
+    }
+
+    getDeclarationNode(): Node | undefined {
+        return this.declarationNode;
+    }
+
+    setDeclarationNode(node: Node | undefined): void {
+        this.declarationNode = node;
     }
 
     getDefinitionNode(): Node | undefined {
