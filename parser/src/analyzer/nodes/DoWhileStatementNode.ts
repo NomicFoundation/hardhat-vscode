@@ -26,7 +26,13 @@ export class DoWhileStatementNode implements Node {
     }
 
     getTypeNodes(): Node[] {
-        return this.typeNodes;
+        let nodes: Node[] = [];
+
+        this.typeNodes.forEach(typeNode => {
+            nodes = nodes.concat(typeNode.getTypeNodes());
+        });
+
+        return nodes;
     }
 
     addTypeNode(node: Node): void {
