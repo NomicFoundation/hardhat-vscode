@@ -124,8 +124,9 @@ export class FunctionDefinitionNode implements Node {
         let orphanNode = orphanNodes.shift();
         while (orphanNode) {
             if (
-                orphanNode.getName() === this.getName() &&
-                this.connectionTypeRules.includes(orphanNode.getExpressionNode()?.type || "")
+                this.getName() === orphanNode.getName() &&
+                this.connectionTypeRules.includes(orphanNode.getExpressionNode()?.type || "") &&
+                orphanNode.type !== "MemberAccess"
             ) {
                 orphanNode.addTypeNode(this);
 

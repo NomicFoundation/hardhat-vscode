@@ -1,5 +1,6 @@
 import { ContractDefinition } from "@solidity-parser/parser/dist/src/ast-types";
 
+import * as finder from "../finder";
 import { Location, FinderType, Node } from "./Node";
 
 export class ContractDefinitionNode implements Node {
@@ -90,41 +91,15 @@ export class ContractDefinitionNode implements Node {
         if (parent) {
             this.setParent(parent);
         }
-
-        this.findChildren(orphanNodes);
         
         for (const subNode of this.astNode.subNodes) {
             find(subNode, this.uri).accept(find, orphanNodes, this);
         }
 
+        finder.findChildren(this, orphanNodes);
+
         parent?.addChild(this);
 
         return this;
-    }
-
-    private findChildren(orphanNodes: Node[]): void {
-        const newOrphanNodes: Node[] = [];
-
-        let orphanNode = orphanNodes.shift();
-        while (orphanNode) {
-            if (
-                orphanNode.getName() === this.getName() && (
-                    this.connectionTypeRules.includes(orphanNode.type) ||
-                    this.connectionTypeRules.includes(orphanNode.getExpressionNode()?.type || "")
-            )) {
-                orphanNode.addTypeNode(this);
-
-                orphanNode.setParent(this);
-                this.addChild(orphanNode);
-            } else {
-                newOrphanNodes.push(orphanNode);
-            }
-
-            orphanNode = orphanNodes.shift();
-        }
-
-        for (const newOrphanNode of newOrphanNodes) {
-            orphanNodes.push(newOrphanNode);
-        }
     }
 }

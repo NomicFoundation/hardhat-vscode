@@ -91,7 +91,6 @@ export class MemberAccessNode implements Node {
         const expressionNode = find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent, this);
 
         const definitionType = expressionNode.getTypeNodes();
-        console.log(definitionType, expressionNode);
 
         if (definitionType.length === 1) {
             for (const definitionChild of definitionType[0].children) {

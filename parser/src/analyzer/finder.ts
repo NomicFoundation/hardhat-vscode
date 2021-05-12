@@ -36,6 +36,105 @@ export function findNodeByPosition(position: Position, from?: Node): Node | unde
     return node;
 }
 
+export function findChildren(definitionNode: Node, orphanNodes: Node[]): void {
+    const newOrphanNodes: Node[] = [];
+    const expressionNodes: Node[] = [];
+
+    let orphanNode = orphanNodes.shift();
+    while (orphanNode) {
+        if (isNodeConnectable(definitionNode, orphanNode)) {
+            orphanNode.addTypeNode(definitionNode);
+
+            orphanNode.setParent(definitionNode);
+            definitionNode.addChild(orphanNode);
+
+            expressionNodes.push(orphanNode);
+        } else {
+            newOrphanNodes.push(orphanNode);
+        }
+
+        orphanNode = orphanNodes.shift();
+    }
+
+    // Return to orphanNodes array unhandled orphan nodes
+    for (const newOrphanNode of newOrphanNodes) {
+        orphanNodes.push(newOrphanNode);
+    }
+
+    // Find struct type references for all expressions
+    for (const expressionNode of expressionNodes) {
+        findExpressionNodes(definitionNode, expressionNode, orphanNodes);
+    }
+}
+
+function findExpressionNodes(definitionNode: Node, node: Node, orphanNodes: Node[]): void {
+    const newOrphanNodes: Node[] = [];
+    let declarationNode = node.getDeclarationNode();
+
+    if (!declarationNode) {
+        if (node.getExpressionNode()) {
+            declarationNode = node;
+        } else {
+            return;
+        }
+    }
+
+    let orphanNode = orphanNodes.shift();
+    while (orphanNode) {
+
+        if (matchNodeExpression(orphanNode, declarationNode)) {
+            for (const definitionChild of definitionNode.children) {
+
+                if (definitionChild.getName() && definitionChild.getName() === orphanNode.getName()) {
+                    orphanNode.addTypeNode(definitionChild);
+
+                    orphanNode.setParent(definitionChild);
+                    definitionChild?.addChild(orphanNode);
+
+                    nestNode(orphanNode, orphanNodes);
+                }
+            }
+        } else {
+            newOrphanNodes.push(orphanNode);
+        }
+
+        orphanNode = orphanNodes.shift();
+    }
+
+    for (const newOrphanNode of newOrphanNodes) {
+        orphanNodes.push(newOrphanNode);
+    }
+}
+
+function nestNode(node: Node, orphanNodes: Node[]): void {
+    const expressionNode = getMemberAccessNodeFromExpression(node);
+    if (!expressionNode) {
+        return;
+    }
+
+    const orphanNode = orphanNodes.shift();
+    if (!orphanNode) {
+        return;
+    }
+
+    if (isNodeEqual(expressionNode, orphanNode)) {
+        for (const definitionType of node.getTypeNodes()) {
+            for (const definitionChild of definitionType.children) {
+                if (definitionChild.getName() && definitionChild.getName() === orphanNode.getName()) {
+                    orphanNode.addTypeNode(definitionChild);
+
+                    orphanNode.setParent(definitionChild);
+                    definitionChild?.addChild(orphanNode);
+
+                    nestNode(orphanNode, orphanNodes);
+                }
+            }
+        }
+    } else {
+        orphanNodes.unshift(orphanNode);
+    }
+}
+
 function search(node: Node, from?: Node | undefined): Node | undefined {
     if (!from) {
         return undefined;
@@ -48,24 +147,14 @@ function search(node: Node, from?: Node | undefined): Node | undefined {
     // Add as visited node
     visitedNodes.push(from);
 
-    if (
-        node.getName() && from.getName() &&
-        node.getName() === from.getName() && (
-            from.connectionTypeRules.includes(node.type) ||
-            from.connectionTypeRules.includes(node.getExpressionNode()?.type || "")
-    )) {
+    if (isNodeConnectable(from, node)) {
         return from;
     }
 
     let parent: Node | undefined;
     for (const child of from.children) {
         if ([ "FunctionDefinition", "ContractDefinition", "StructDefinition" ].includes(child.type)) {
-            if (
-                node.getName() && child.getName() &&
-                node.getName() === child.getName() && (
-                    child.connectionTypeRules.includes(node.type) ||
-                    child.connectionTypeRules.includes(node.getExpressionNode()?.type || "")
-            )) {
+            if (isNodeConnectable(child, node)) {
                 return child;
             }
 
@@ -114,4 +203,59 @@ function walk(position: Position, from?: Node): Node | undefined {
     }
 
     return walk(position, from.parent);
+}
+
+function matchNodeExpression(expression: Node, node: Node): boolean {
+    let expressionNode = getMemberAccessNodeFromExpression(node);
+
+    if (isNodeEqual(expressionNode, expression)) {
+        return true;
+    }
+
+    for (const child of node.children) {
+        expressionNode = getMemberAccessNodeFromExpression(child);
+
+        if (isNodeEqual(expressionNode, expression)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function getMemberAccessNodeFromExpression(node: Node): Node | undefined {
+    let expressionNode = node.getExpressionNode();
+
+    while (expressionNode && expressionNode.type !== "MemberAccess") {
+        expressionNode = expressionNode.getExpressionNode();
+    }
+
+    return expressionNode;
+}
+
+function isNodeEqual(first: Node | undefined, second: Node | undefined): boolean {
+    if (
+        first && second &&
+        first.nameLoc && second.nameLoc &&
+        JSON.stringify(first.nameLoc) === JSON.stringify(second.nameLoc) &&
+        first.getName() === second.getName()
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
+function isNodeConnectable(parent: Node | undefined, child: Node | undefined): boolean {
+    if (
+        parent && child &&
+        parent.getName() && child.getName() &&
+        parent.getName() === child.getName() && (
+            parent.connectionTypeRules.includes(child.type) ||
+            parent.connectionTypeRules.includes(child.getExpressionNode()?.type || "")
+    )) {
+        return true;
+    }
+
+    return false;
 }
