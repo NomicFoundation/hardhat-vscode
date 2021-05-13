@@ -101,7 +101,16 @@ export class VariableDeclarationNode implements Node {
         
             this.addTypeNode(typeNode);
             typeNode.setDeclarationNode(this);
+
+            if (this.astNode.loc && this.nameLoc) {
+                this.nameLoc.start.column = this.astNode.loc.start.column + (typeNode.getName()?.length || 0) + 1;
+                this.nameLoc.end.column = this.nameLoc.start.column + (this.getName()?.length || 0);
+
+                this.astNode.loc.end.column = this.nameLoc.end.column;
+            }
         }
+
+        // Don't handle expression, it is handled in StateVariableDeclarationNode
 
         parent?.addChild(this);
 
