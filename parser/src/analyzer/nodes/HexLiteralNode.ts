@@ -57,8 +57,7 @@ export class HexLiteralNode implements Node {
     }
 
     getDefinitionNode(): Node | undefined {
-        // TO-DO: Method not implemented
-        return undefined;
+        return this.parent?.getDefinitionNode();
     }
 
     getName(): string | undefined {

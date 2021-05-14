@@ -191,14 +191,13 @@ connection.onHover(params => {
 	};
 });
 
-
 connection.onDefinition(params => {
 	console.log("onDefinition");
 	const document = documents.get(params.textDocument.uri);
 
 	if (document) {
 		const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
-		console.log(params.position);
+
 		if (analyzeTree) {
 			return languageServer.findDefinition(params.position, analyzeTree);
 		}

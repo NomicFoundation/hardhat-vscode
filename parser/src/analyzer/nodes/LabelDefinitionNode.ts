@@ -51,8 +51,7 @@ export class LabelDefinitionNode implements Node {
     }
 
     getDefinitionNode(): Node | undefined {
-        // TO-DO: Method not implemented
-        return undefined;
+        return this;
     }
 
     getName(): string | undefined {
