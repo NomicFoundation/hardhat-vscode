@@ -57,7 +57,7 @@ export class UsingForDeclarationNode implements Node {
     }
 
     getDefinitionNode(): Node | undefined {
-        return this.parent?.getDefinitionNode();
+        return this;
     }
 
     getName(): string | undefined {
