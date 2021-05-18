@@ -115,3 +115,10 @@ export interface Node extends Component {
      */
     getDefinitionNode(): Node | undefined;
 }
+
+export interface ContractDefinitionNode extends Node {
+    inheritanceNodes: ContractDefinitionNode[];
+
+    getKind(): string;
+    getInheritanceNodes(): ContractDefinitionNode[];
+}

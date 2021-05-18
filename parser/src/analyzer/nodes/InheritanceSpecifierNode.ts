@@ -78,7 +78,13 @@ export class InheritanceSpecifierNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
-        return this;
+
+        const baseNode = find(this.astNode.baseName, this.uri).accept(find, orphanNodes, parent);
+
+        for (const argument of this.astNode.arguments) {
+            find(argument, this.uri).accept(find, orphanNodes, parent);
+        }
+
+        return baseNode;
     }
 }

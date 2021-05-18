@@ -1,4 +1,4 @@
-import { Position, Node } from "./nodes/Node";
+import { Position, Node, ContractDefinitionNode } from "./nodes/Node";
 
 let visitedNodes: Node[] = [];
 export let analyzerTree: Node | undefined;
@@ -149,6 +149,14 @@ function search(node: Node, from?: Node | undefined): Node | undefined {
 
     if (isNodeConnectable(from, node)) {
         return from;
+    } else if (from.type === "ContractDefinition") { // Handle inheritance
+        const inheritanceNodes = (from as ContractDefinitionNode).getInheritanceNodes();
+
+        for (const inheritanceNode of inheritanceNodes) {
+            if (isNodeConnectable(inheritanceNode, node)) {
+                return inheritanceNode;
+            }
+        }
     }
 
     let parent: Node | undefined;

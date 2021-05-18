@@ -1,9 +1,14 @@
 import { ContractDefinition } from "@solidity-parser/parser/dist/src/ast-types";
 
 import * as finder from "../finder";
-import { Location, FinderType, Node } from "./Node";
+import {
+    Location,
+    FinderType,
+    Node,
+    ContractDefinitionNode as IContractDefinitionNode
+} from "./Node";
 
-export class ContractDefinitionNode implements Node {
+export class ContractDefinitionNode implements IContractDefinitionNode {
     type: string;
     uri: string;
     astNode: ContractDefinition;
@@ -13,12 +18,14 @@ export class ContractDefinitionNode implements Node {
     expressionNode?: Node | undefined;
     declarationNode?: Node | undefined;
 
-    connectionTypeRules: string[] = [ "UserDefinedTypeName", "FunctionCall" ];
+    connectionTypeRules: string[] = [ "Identifier", "UserDefinedTypeName", "FunctionCall" ];
 
     parent?: Node | undefined;
     children: Node[] = [];
 
     typeNodes: Node[] = [];
+
+    inheritanceNodes: ContractDefinitionNode[] = [];
 
     constructor (contractDefinition: ContractDefinition, uri: string) {
         this.type = contractDefinition.type;
@@ -39,6 +46,14 @@ export class ContractDefinitionNode implements Node {
         }
 
         this.addTypeNode(this);
+    }
+
+    getKind(): string {
+        return this.astNode.kind;
+    }
+
+    getInheritanceNodes(): ContractDefinitionNode[] {
+        return this.inheritanceNodes;
     }
 
     getTypeNodes(): Node[] {
@@ -91,7 +106,17 @@ export class ContractDefinitionNode implements Node {
         if (parent) {
             this.setParent(parent);
         }
-        
+
+        for (const baseContract of this.astNode.baseContracts) {
+            const inheritanceNode = find(baseContract, this.uri).accept(find, orphanNodes, this);
+
+            const inheritanceNodeDefinition = inheritanceNode.getDefinitionNode();
+
+            if (inheritanceNodeDefinition && inheritanceNodeDefinition instanceof ContractDefinitionNode) {
+                this.inheritanceNodes.push(inheritanceNodeDefinition);
+            }
+        }
+
         for (const subNode of this.astNode.subNodes) {
             find(subNode, this.uri).accept(find, orphanNodes, this);
         }
