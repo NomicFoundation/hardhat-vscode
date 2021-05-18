@@ -61,7 +61,7 @@ export function findChildren(definitionNode: Node, orphanNodes: Node[]): void {
         orphanNodes.push(newOrphanNode);
     }
 
-    // Find struct type references for all expressions
+    // Find type references for all expressions
     for (const expressionNode of expressionNodes) {
         findExpressionNodes(definitionNode, expressionNode, orphanNodes);
     }

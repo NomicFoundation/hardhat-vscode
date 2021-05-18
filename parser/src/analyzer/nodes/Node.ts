@@ -66,7 +66,7 @@ export interface Node extends Component {
      */
     expressionNode?: Node | undefined;
     /**
-     * Serves to let us know who is declaration of some type Node this is the reverse of go to type definition.
+     * Serves to let us know who is declaration of some type Node this is the reverse of getTypeNodes.
      */
     declarationNode?: Node | undefined;
 
@@ -76,7 +76,7 @@ export interface Node extends Component {
     connectionTypeRules: string[];
 
     /**
-     * Node parent. Can be undefined for root or orphan Node
+     * Node parent. Can be undefined for root or orphan Node.
      */
     parent?: Node | undefined;
     /**
@@ -89,6 +89,9 @@ export interface Node extends Component {
      */
     typeNodes: Node[];
 
+    /**
+     * Return Nodes that are the type definition of the Node
+     */
     getTypeNodes(): Node[];
     addTypeNode(node: Node): void;
 
@@ -98,11 +101,17 @@ export interface Node extends Component {
     getDeclarationNode(): Node | undefined;
     setDeclarationNode(node: Node | undefined): void;
 
+    /**
+     * A Node name can be undefined for Nodes that don't have a name.
+     */
     getName(): string | undefined;
 
     addChild(child: Node): void;
     setParent(parent: Node | undefined): void;
     getParent(): Node | undefined;
 
+    /**
+     * Return Node that are the definition of the Node if definition exists.
+     */
     getDefinitionNode(): Node | undefined;
 }
