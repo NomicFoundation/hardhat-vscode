@@ -147,6 +147,7 @@ function search(node: Node, from?: Node | undefined): Node | undefined {
     // Add as visited node
     visitedNodes.push(from);
 
+    let parent: Node | undefined;
     if (isNodeConnectable(from, node)) {
         return from;
     } else if (from.type === "ContractDefinition") { // Handle inheritance
@@ -156,10 +157,15 @@ function search(node: Node, from?: Node | undefined): Node | undefined {
             if (isNodeConnectable(inheritanceNode, node)) {
                 return inheritanceNode;
             }
+
+            parent = search(node, inheritanceNode);
+
+            if (parent) {
+                return parent;
+            }
         }
     }
 
-    let parent: Node | undefined;
     for (const child of from.children) {
         if ([ "FunctionDefinition", "ContractDefinition", "StructDefinition" ].includes(child.type)) {
             if (isNodeConnectable(child, node)) {

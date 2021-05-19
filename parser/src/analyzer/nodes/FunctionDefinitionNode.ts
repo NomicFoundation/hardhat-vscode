@@ -1,6 +1,6 @@
 import { FunctionDefinition } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, Node, ContractDefinitionNode } from "./Node";
 
 export class FunctionDefinitionNode implements Node {
     type: string;
@@ -97,6 +97,10 @@ export class FunctionDefinitionNode implements Node {
 
         this.findChildren(orphanNodes);
 
+        for (const override of this.astNode.override || []) {
+            find(override, this.uri).accept(find, orphanNodes, this);
+        }
+
         for (const param of this.astNode.parameters) {
             find(param, this.uri).accept(find, orphanNodes, this);
         }
@@ -111,6 +115,19 @@ export class FunctionDefinitionNode implements Node {
 
         if (this.astNode.body) {
             find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
+        }
+
+        if (parent?.type === "ContractDefinition") {
+            const inheritanceNodes = (parent as ContractDefinitionNode).getInheritanceNodes();
+        
+            for (const inheritanceNode of inheritanceNodes) {
+                for (const child of inheritanceNode.children) {
+                    if (child.type === this.type && child.getName() === this.getName()) {
+                        this.addChild(child);
+                        child.addChild(this);
+                    }
+                }
+            }
         }
 
         parent?.addChild(this);

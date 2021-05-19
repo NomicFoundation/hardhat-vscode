@@ -92,6 +92,10 @@ export class SolidityNavigation {
 	}
 
 	private extractHighlightsFromNode(name: string, node: Node, highlights: Node[]) {
+		if (highlights.includes(node)) {
+			return;
+		}
+
 		if (name === node.getName()) {
 			highlights.push(node);
 		}
