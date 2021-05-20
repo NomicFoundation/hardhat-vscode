@@ -10,24 +10,6 @@
 	"engines": {
 		"vscode": "^1.54.3"
 	},
-	"contributes": {
-		"configuration": {
-			"type": "object",
-			"title": "Solidity configuration"
-		},
-		"languages": [
-			{
-				"id": "solidity",
-				"aliases": [
-					"Solidity",
-					"solidity"
-				],
-				"extensions": [
-					".sol"
-				]
-			}
-		]
-	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -b",
@@ -42,5 +24,31 @@
 		"eslint": "^6.4.0",
 		"typescript": "^4.2.2"
 	},
-	"dependencies": {}
+	"dependencies": {},
+	"contributes": {
+		"configuration": {
+			"type": "object",
+			"title": "Solidity configuration"
+		},
+		"languages": [
+			{
+				"id": "solidity",
+				"aliases": [
+					"Solidity",
+					"solidity"
+				],
+				"extensions": [
+					".sol"
+				],
+				"configuration": "./solidity.configuration.json"
+			}
+		],
+		"grammars": [
+			{
+			  "language": "solidity",
+			  "scopeName": "source.solidity",
+			  "path": "./syntaxes/solidity.json"
+			}
+		]
+	}
 }
