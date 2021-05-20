@@ -71,13 +71,12 @@ export class SolidityNavigation {
 
 	private findHighlightNodes(position: Position, analyzerTree: Node): Node[] {
 		const highlights: Node[] = [];
-		const visitedNodes: Node[] = [];
 
 		const node = this.findNodeByPosition(position, analyzerTree);
 
 		const nodeName = node?.getName();
 		if (node && nodeName) {
-			this.extractHighlightsFromNodeRecursive(nodeName, node, highlights, visitedNodes);
+			this.extractHighlightsFromNodeRecursive(nodeName, node, highlights);
 		}
 
         return highlights;
@@ -92,7 +91,11 @@ export class SolidityNavigation {
 		}, analyzerTree);
 	}
 
-	private extractHighlightsFromNodeRecursive(name: string, node: Node, results: Node[], visitedNodes: Node[]): void {
+	private extractHighlightsFromNodeRecursive(name: string, node: Node, results: Node[], visitedNodes?: Node[]): void {
+		if (!visitedNodes) {
+			visitedNodes = [];
+		}
+
 		if (visitedNodes.includes(node)) {
 			return;
 		}
