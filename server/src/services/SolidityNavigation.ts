@@ -58,10 +58,10 @@ export class SolidityNavigation {
 		const locations: Location[] = [];
 
 		highlightNodes.forEach(highlightNode => {
-			if (highlightNode.astNode.loc) {
+			if (highlightNode.nameLoc) {
 				locations.push({
 					uri: highlightNode.uri,
-					range: this.getRange(highlightNode.astNode.loc)
+					range: this.getRange(highlightNode.nameLoc)
 				});
 			}
 		});

@@ -1,6 +1,7 @@
 import { MemberAccess } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import * as finder from "../finder";
+import { Location, FinderType, Node, ContractDefinitionNode } from "./Node";
 
 export class MemberAccessNode implements Node {
     type: string;
@@ -90,16 +91,42 @@ export class MemberAccessNode implements Node {
         // TO-DO: Improve logic for deeper member access
         const expressionNode = find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent, this);
 
-        const definitionType = expressionNode.getTypeNodes();
+        const definitionTypes = expressionNode.getTypeNodes();
 
-        if (definitionType.length === 1) {
-            for (const definitionChild of definitionType[0].children) {
+        for (const definitionType of definitionTypes) {
+            for (const definitionChild of definitionType.children) {
                 if (definitionChild.getName() && definitionChild.getName() === this.getName()) {
                     this.addTypeNode(definitionChild);
-    
+
                     this.setParent(definitionChild);
                     definitionChild?.addChild(this);
-    
+
+                    return this;
+                }
+            }
+        }
+
+        // The Identifier name "super" is reserved, so we will try to find the parent for this Node in inheretence Nodes 
+        if (expressionNode.getName() === "super" && expressionNode.type === "Identifier") {
+            let contractDefinitionNode = parent;
+
+            while (contractDefinitionNode && contractDefinitionNode.type !== "ContractDefinition") {
+                contractDefinitionNode = contractDefinitionNode.getParent();
+            }
+
+            const inheritanceNodes = (contractDefinitionNode as ContractDefinitionNode).getInheritanceNodes();
+
+            for (let i = inheritanceNodes.length - 1; i >= 0; i--) {
+                const inheritanceNode = inheritanceNodes[i];
+
+                const memberAccessParent = finder.findParent(this, inheritanceNode, true);
+
+                if (memberAccessParent) {
+                    this.addTypeNode(memberAccessParent);
+
+                    this.setParent(memberAccessParent);
+                    memberAccessParent?.addChild(this);
+
                     return this;
                 }
             }

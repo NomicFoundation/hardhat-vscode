@@ -121,10 +121,46 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
             find(subNode, this.uri).accept(find, orphanNodes, this);
         }
 
+        // Find parent for orphanNodes from this contract in inheretence Nodes 
+        this.findParentForOrphanNodesInInheretenceNodes(orphanNodes);
+
         finder.findChildren(this, orphanNodes);
 
         parent?.addChild(this);
 
         return this;
+    }
+
+    findParentForOrphanNodesInInheretenceNodes(orphanNodes: Node[]): void {
+        const newOrphanNodes: Node[] = [];
+
+        let orphanNode = orphanNodes.shift();
+        while (orphanNode) {
+            if (
+                this.astNode.loc && orphanNode.astNode.loc &&
+                this.astNode.loc.start.line <= orphanNode.astNode.loc.start.line &&
+                this.astNode.loc.end.line >= orphanNode.astNode.loc.end.line
+            ) {
+                const nodeParent = finder.findParent(orphanNode, this, true);
+
+                if (nodeParent) {
+                    orphanNode.addTypeNode(nodeParent);
+
+                    orphanNode.setParent(nodeParent);
+                    nodeParent?.addChild(orphanNode);
+                } else {
+                    newOrphanNodes.push(orphanNode);
+                }
+            } else {
+                newOrphanNodes.push(orphanNode);
+            }
+
+            orphanNode = orphanNodes.shift();
+        }
+
+        // Return to orphanNodes array unhandled orphan nodes
+        for (const newOrphanNode of newOrphanNodes) {
+            orphanNodes.push(newOrphanNode);
+        }
     }
 }

@@ -7,15 +7,15 @@ export function setRoot(rootNode: Node) {
     analyzerTree = rootNode;
 }
 
-export function findParent(node: Node, from?: Node): Node | undefined {
+export function findParent(node: Node, from?: Node, searchInInheretenceNodes?: boolean): Node | undefined {
     visitedNodes = [];
     let parent: Node | undefined;
 
     // If from Node doesn't exist start finding from the root of the analyzer tree
     if (!from) {
-        parent = search(node, analyzerTree);
+        parent = search(node, analyzerTree, searchInInheretenceNodes);
     } else {
-        parent = search(node, from);
+        parent = search(node, from, searchInInheretenceNodes);
     }
 
     if (parent) {
@@ -135,7 +135,7 @@ function nestNode(node: Node, orphanNodes: Node[]): void {
     }
 }
 
-function search(node: Node, from?: Node | undefined): Node | undefined {
+function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: boolean): Node | undefined {
     if (!from) {
         return undefined;
     }
@@ -150,20 +150,6 @@ function search(node: Node, from?: Node | undefined): Node | undefined {
     let parent: Node | undefined;
     if (isNodeConnectable(from, node)) {
         return from;
-    } else if (from.type === "ContractDefinition") { // Handle inheritance
-        const inheritanceNodes = (from as ContractDefinitionNode).getInheritanceNodes();
-
-        for (const inheritanceNode of inheritanceNodes) {
-            if (isNodeConnectable(inheritanceNode, node)) {
-                return inheritanceNode;
-            }
-
-            parent = search(node, inheritanceNode);
-
-            if (parent) {
-                return parent;
-            }
-        }
     }
 
     for (const child of from.children) {
@@ -175,14 +161,33 @@ function search(node: Node, from?: Node | undefined): Node | undefined {
             continue;
         }
 
-        parent = search(node, child);
+        parent = search(node, child, searchInInheretenceNodes);
 
         if (parent) {
             return parent;
         }
     }
 
-    return search(node, from.parent);
+    // Handle inheritance
+    if (searchInInheretenceNodes && from.type === "ContractDefinition") {
+        const inheritanceNodes = (from as ContractDefinitionNode).getInheritanceNodes();
+
+        for (let i = inheritanceNodes.length - 1; i >= 0; i--) {
+            const inheritanceNode = inheritanceNodes[i];
+
+            if (isNodeConnectable(inheritanceNode, node)) {
+                return inheritanceNode;
+            }
+
+            parent = search(node, inheritanceNode, searchInInheretenceNodes);
+
+            if (parent) {
+                return parent;
+            }
+        }
+    }
+
+    return search(node, from.parent, searchInInheretenceNodes);
 }
 
 function walk(position: Position, from?: Node): Node | undefined {
