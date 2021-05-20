@@ -36,11 +36,11 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
             this.nameLoc = {
                 start: {
                     line: contractDefinition.loc.start.line,
-                    column: contractDefinition.loc.start.column + "contract ".length
+                    column: contractDefinition.loc.start.column + this.astNode.kind.length + 1
                 },
                 end: {
                     line: contractDefinition.loc.start.line,
-                    column: contractDefinition.loc.start.column + "contract ".length + contractDefinition.name.length
+                    column: contractDefinition.loc.start.column + this.astNode.kind.length + 1 + contractDefinition.name.length
                 }
             };
         }

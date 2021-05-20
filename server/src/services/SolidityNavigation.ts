@@ -71,12 +71,13 @@ export class SolidityNavigation {
 
 	private findHighlightNodes(position: Position, analyzerTree: Node): Node[] {
 		const highlights: Node[] = [];
+		const visitedNodes: Node[] = [];
 
 		const node = this.findNodeByPosition(position, analyzerTree);
 
 		const nodeName = node?.getName();
 		if (node && nodeName) {
-			this.extractHighlightsFromNode(nodeName, node, highlights);
+			this.extractHighlightsFromNodeRecursive(nodeName, node, highlights, visitedNodes);
 		}
 
         return highlights;
@@ -91,18 +92,36 @@ export class SolidityNavigation {
 		}, analyzerTree);
 	}
 
-	private extractHighlightsFromNode(name: string, node: Node, highlights: Node[]) {
-		if (highlights.includes(node)) {
+	private extractHighlightsFromNodeRecursive(name: string, node: Node, results: Node[], visitedNodes: Node[]): void {
+		if (visitedNodes.includes(node)) {
 			return;
 		}
+
+		visitedNodes.push(node);
+
+		if (name === node.getName()) {
+			results.push(node);
+		}
+
+		for (const child of node.children) {
+			this.extractHighlightsFromNodeRecursive(name, child, results, visitedNodes);
+		}
+	}
+
+	private extractHighlightsFromNode(name: string, node: Node): Node[] {
+		const highlights: Node[] = [];
 
 		if (name === node.getName()) {
 			highlights.push(node);
 		}
 
 		for (const child of node.children) {
-			this.extractHighlightsFromNode(name, child, highlights);
+			if (name === child.getName()) {
+				highlights.push(child);
+			}
 		}
+
+		return highlights;
 	}
 
 	private getRange(loc: NodeLocation): Range {
