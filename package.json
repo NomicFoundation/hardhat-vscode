@@ -1,5 +1,6 @@
 {
 	"name": "solidity-extension",
+	"publisher": "tenderly",
 	"description": "",
 	"license": "MIT",
 	"version": "1.0.0",
@@ -8,14 +9,14 @@
 	],
 	"main": "./client/out/extension",
 	"engines": {
-		"vscode": "^1.54.3"
+		"vscode": "^1.55.0"
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
 		"postinstall": "cd client && yarn install && cd ../server && yarn install && cd ..",
-		"client-tests": "cd client/tests && rm -rf out && tsc -b && yarn run tests && cd ../.."
+		"client-test": "cd client && tsc -b && yarn run test && cd .."
 	},
 	"devDependencies": {
 		"@types/node": "^12.12.0",
