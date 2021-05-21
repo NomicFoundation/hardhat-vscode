@@ -1,6 +1,5 @@
 import { Position, Node, ContractDefinitionNode } from "./nodes/Node";
 
-let visitedNodes: Node[] = [];
 export let analyzerTree: Node | undefined;
 
 export function setRoot(rootNode: Node) {
@@ -8,7 +7,6 @@ export function setRoot(rootNode: Node) {
 }
 
 export function findParent(node: Node, from?: Node, searchInInheretenceNodes?: boolean): Node | undefined {
-    visitedNodes = [];
     let parent: Node | undefined;
 
     // If from Node doesn't exist start finding from the root of the analyzer tree
@@ -26,7 +24,6 @@ export function findParent(node: Node, from?: Node, searchInInheretenceNodes?: b
 }
 
 export function findNodeByPosition(position: Position, from?: Node): Node | undefined {
-    visitedNodes = [];
     const node = walk(position, from || analyzerTree);
 
     if (node) {
@@ -135,7 +132,11 @@ function nestNode(node: Node, orphanNodes: Node[]): void {
     }
 }
 
-function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: boolean): Node | undefined {
+function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: boolean, visitedNodes?: Node[]): Node | undefined {
+    if (!visitedNodes) {
+        visitedNodes = [];
+    }
+
     if (!from) {
         return undefined;
     }
@@ -161,7 +162,7 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
             continue;
         }
 
-        parent = search(node, child, searchInInheretenceNodes);
+        parent = search(node, child, searchInInheretenceNodes, visitedNodes);
 
         if (parent) {
             return parent;
@@ -179,7 +180,7 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
                 return inheritanceNode;
             }
 
-            parent = search(node, inheritanceNode, searchInInheretenceNodes);
+            parent = search(node, inheritanceNode, searchInInheretenceNodes, visitedNodes);
 
             if (parent) {
                 return parent;
@@ -187,10 +188,14 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
         }
     }
 
-    return search(node, from.parent, searchInInheretenceNodes);
+    return search(node, from.parent, searchInInheretenceNodes, visitedNodes);
 }
 
-function walk(position: Position, from?: Node): Node | undefined {
+function walk(position: Position, from?: Node, visitedNodes?: Node[]): Node | undefined {
+    if (!visitedNodes) {
+        visitedNodes = [];
+    }
+
     if (!from) {
         return undefined;
     }
@@ -214,14 +219,14 @@ function walk(position: Position, from?: Node): Node | undefined {
 
     let parent: Node | undefined;
     for (const child of from.children) {
-        parent = walk(position, child);
+        parent = walk(position, child, visitedNodes);
 
         if (parent) {
             return parent;
         }
     }
 
-    return walk(position, from.parent);
+    return walk(position, from.parent, visitedNodes);
 }
 
 function matchNodeExpression(expression: Node, node: Node): boolean {
