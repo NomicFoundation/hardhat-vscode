@@ -102,11 +102,25 @@ export class VariableDeclarationNode implements Node {
             this.addTypeNode(typeNode);
             typeNode.setDeclarationNode(this);
 
-            if (this.astNode.loc && this.nameLoc) {
-                this.nameLoc.start.column = this.astNode.loc.start.column + (typeNode.getName()?.length || 0) + 1;
+            if (this.astNode.loc && this.nameLoc && typeNode.astNode.range) {
+                const diff = 1 + (+typeNode.astNode.range[1] - +typeNode.astNode.range[0]);
+
+                this.nameLoc.start.column = this.astNode.loc.start.column + diff + 1;
                 this.nameLoc.end.column = this.nameLoc.start.column + (this.getName()?.length || 0);
 
-                this.astNode.loc.end.column = this.nameLoc.end.column;
+                if (this.astNode.visibility && this.astNode.visibility !== "default" ) {
+                    this.nameLoc.start.column += this.astNode.visibility.length + 1;
+                    this.nameLoc.end.column += this.astNode.visibility.length + 1;
+                }
+
+                if (this.astNode.storageLocation) {
+                    this.nameLoc.start.column += this.astNode.storageLocation.length + 1;
+                    this.nameLoc.end.column += this.astNode.storageLocation.length + 1;
+                }
+
+                if (this.astNode.loc.end.column < this.nameLoc.end.column) {
+                    this.astNode.loc.end.column = this.nameLoc.end.column;
+                }
             }
         }
 
