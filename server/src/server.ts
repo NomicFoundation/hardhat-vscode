@@ -52,7 +52,7 @@ connection.onInitialize((params: InitializeParams) => {
 				resolveProvider: true
 			},
 			// hoverProvider: true,
-			// implementationProvider: true,
+			implementationProvider: true,
 			definitionProvider: true,
 			typeDefinitionProvider: true,
 			renameProvider: true,
@@ -226,6 +226,19 @@ connection.onReferences(params => {
 
 		if (analyzeTree) {
 			return languageServer.findReferences(params.position, analyzeTree);
+		}
+	}
+});
+
+connection.onImplementation(params => {
+	console.log("onImplementation");
+	const document = documents.get(params.textDocument.uri);
+	
+	if (document) {
+		const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
+
+		if (analyzeTree) {
+			return languageServer.findImplementation(params.position, analyzeTree);
 		}
 	}
 });

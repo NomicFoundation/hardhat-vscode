@@ -31,7 +31,7 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
         this.type = contractDefinition.type;
         this.uri = uri;
         this.astNode = contractDefinition;
-        
+
         if (contractDefinition.loc) {
             this.nameLoc = {
                 start: {

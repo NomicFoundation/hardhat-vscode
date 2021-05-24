@@ -122,3 +122,5 @@ export interface ContractDefinitionNode extends Node {
     getKind(): string;
     getInheritanceNodes(): ContractDefinitionNode[];
 }
+
+export const definitionNodeTypes = [ "ContractDefinition", "StructDefinition", "ModifierDefinition", "FunctionDefinition", "EventDefinition", "EnumDefinition", "AssemblyLocalDefinition", "LabelDefinition", "AssemblyFunctionDefinition", "UserDefinedTypeName" ];

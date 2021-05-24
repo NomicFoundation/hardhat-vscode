@@ -15,6 +15,7 @@ export interface LanguageService {
 	findDefinition(position: Position, analyzerTree: Node): Location | undefined;
 	findTypeDefinition(position: Position, analyzerTree: Node): Location[];
 	findReferences(position: Position, analyzerTree: Node): Location[];
+	findImplementation(position: Position, analyzerTree: Node): Location[];
 	doRename(document: TextDocument, position: Position, newName: string, analyzerTree: Node): WorkspaceEdit;
 	doHover(document: TextDocument, position: Position, analyzerTree: Node, settings?: HoverSettings): Hover | undefined;
 }
@@ -28,6 +29,7 @@ function createFacade(analyzer: Analyzer, navigation: SolidityNavigation, hover:
 		findDefinition: navigation.findDefinition.bind(navigation),
 		findTypeDefinition: navigation.findTypeDefinition.bind(navigation),
 		findReferences: navigation.findReferences.bind(navigation),
+		findImplementation: navigation.findImplementation.bind(navigation),
 		doRename: navigation.doRename.bind(navigation),
         doHover: hover.doHover.bind(hover)
 	};

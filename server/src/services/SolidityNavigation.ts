@@ -1,10 +1,13 @@
-import { Location as NodeLocation, Node } from "../../../parser/out/analyzer/nodes/Node";
+import {
+	Location as NodeLocation, Node,
+	ContractDefinitionNode, definitionNodeTypes
+} from "../../../parser/out/analyzer/nodes/Node";
 import * as finder from "../../../parser/out/analyzer/finder";
 
 import {
 	TextDocument, Position, Location,
 	Range, WorkspaceEdit, TextEdit
-} from '../types/languageTypes';
+} from "../types/languageTypes";
 
 export class SolidityNavigation {
 	public findDefinition(position: Position, analyzerTree: Node): Location | undefined {
@@ -33,6 +36,19 @@ export class SolidityNavigation {
 	public findReferences(position: Position, analyzerTree: Node): Location[] {
 		const highlightNodes = this.findHighlightNodes(position, analyzerTree);
         return this.getHighlightLocations(highlightNodes);
+	}
+
+	public findImplementation(position: Position, analyzerTree: Node): Location[] {
+		const highlightNodes = this.findHighlightNodes(position, analyzerTree);
+
+		const implementationNodes: Node[] = [];
+		for (const highlightNode of highlightNodes) {
+			if (definitionNodeTypes.includes(highlightNode.type)) {
+				implementationNodes.push(highlightNode);
+			}
+		}
+
+        return this.getHighlightLocations(implementationNodes);
 	}
 
 	public doRename(document: TextDocument, position: Position, newName: string, analyzerTree: Node): WorkspaceEdit {
