@@ -23,8 +23,17 @@ export async function activate(docUri: vscode.Uri) {
 	}
 }
 
+export async function changeDocument(docUri: vscode.Uri) {
+	try {
+		document = await vscode.workspace.openTextDocument(docUri);
+		editor = await vscode.window.showTextDocument(document);
+	} catch (e) {
+		console.error(e);
+	}
+}
+
 async function sleep(ms: number) {
-	return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export const getDocPath = (p: string) => {

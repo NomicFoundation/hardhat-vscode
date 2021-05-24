@@ -6,7 +6,7 @@ import * as vscode from 'vscode';
 import * as lsclient from 'vscode-languageclient/node';
 
 import {
-	activate, getDocUri, document, rangeEqual,
+	activate, changeDocument, getDocUri, document, rangeEqual,
 	uriEqual, isDefined, isInstanceOf, isArray
 } from './helper';
 
@@ -14,10 +14,10 @@ suite('Client integration', () => {
 	let client!: lsclient.LanguageClient;
 	let middleware: lsclient.Middleware;
 	let tokenSource!: vscode.CancellationTokenSource;
-
-	const docUri = getDocUri('test.sol');
+	let docUri!: vscode.Uri;
 
 	suiteSetup(async () => {
+		docUri = getDocUri('test.sol');
 		await activate(docUri);
 
 		tokenSource = new vscode.CancellationTokenSource();
@@ -60,8 +60,9 @@ suite('Client integration', () => {
 				completionProvider: { resolveProvider: true },
 				definitionProvider: true,
 				typeDefinitionProvider: true,
-				renameProvider: true,
 				referencesProvider: true,
+				implementationProvider: true,
+				renameProvider: true,
 				workspace: {
 					workspaceFolders: {
 						supported: true
@@ -74,6 +75,9 @@ suite('Client integration', () => {
 	});
 
 	test('Goto Definition', async () => {
+		docUri = getDocUri('test.sol');
+		await changeDocument(docUri);
+
 		const provider = client.getFeature(lsclient.DefinitionRequest.method).getProvider(document);
 		isDefined(provider);
 
@@ -86,6 +90,9 @@ suite('Client integration', () => {
 	});
 
 	test('Goto Type Definition', async () => {
+		docUri = getDocUri('test.sol');
+		await changeDocument(docUri);
+
 		const provider = client.getFeature(lsclient.TypeDefinitionRequest.method).getProvider(document);
 		isDefined(provider);
 
@@ -100,7 +107,10 @@ suite('Client integration', () => {
 		}
 	});
 
-	test('Find All References', async () => {
+	test('Find References', async () => {
+		docUri = getDocUri('test.sol');
+		await changeDocument(docUri);
+
 		const expectedResults: vscode.Location[] = JSON.parse('[{"uri":{"$mid":1,"path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test.sol","scheme":"file"},"range":[{"line":27,"character":22},{"line":27,"character":31}]},{"uri":{"$mid":1,"path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test.sol","scheme":"file"},"range":[{"line":41,"character":12},{"line":41,"character":21}]},{"uri":{"$mid":1,"path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test.sol","scheme":"file"},"range":[{"line":104,"character":12},{"line":104,"character":21}]},{"uri":{"$mid":1,"path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test.sol","scheme":"file"},"range":[{"line":124,"character":8},{"line":124,"character":17}]},{"uri":{"$mid":1,"path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test.sol","scheme":"file"},"range":[{"line":133,"character":29},{"line":133,"character":38}]},{"uri":{"$mid":1,"path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test.sol","scheme":"file"},"range":[{"line":134,"character":16},{"line":134,"character":25}]},{"uri":{"$mid":1,"path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test.sol","scheme":"file"},"range":[{"line":135,"character":35},{"line":135,"character":44}]},{"uri":{"$mid":1,"path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test.sol","scheme":"file"},"range":[{"line":147,"character":22},{"line":147,"character":31}]}]');
 
 		const provider = client.getFeature(lsclient.ReferencesRequest.method).getProvider(document);
@@ -131,7 +141,41 @@ suite('Client integration', () => {
 		}
 	});
 
+	test('Find Implementations', async () => {
+		docUri = getDocUri('test1.sol');
+		await changeDocument(docUri);
+
+		const expectedResults: vscode.Location[] = JSON.parse('[{"uri":{"$mid":1,"path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test1.sol","scheme":"file"},"range":[{"line":8,"character":9},{"line":8,"character":10}]},{"uri":{"$mid":1,"path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test1.sol","scheme":"file"},"range":[{"line":30,"character":14},{"line":30,"character":15}]},{"uri":{"$mid":1,"path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test1.sol","scheme":"file"},"range":[{"line":44,"character":14},{"line":44,"character":15}]}]');
+
+		const provider = client.getFeature(lsclient.ImplementationRequest.method).getProvider(document);
+		isDefined(provider);
+
+		const position: vscode.Position = new vscode.Position(8, 10);
+		const results = (await provider.provideImplementation(
+			document,
+			position,
+			tokenSource.token
+		)) as vscode.Location[];
+
+		isArray(results, vscode.Location, 3);
+
+		for (let i = 0; i < results.length; i++) {
+			isInstanceOf(results[i], vscode.Location);
+			uriEqual(results[i].uri, expectedResults[i].uri);
+			rangeEqual(
+				results[i].range,
+				expectedResults[i].range[0].line,
+				expectedResults[i].range[0].character,
+				expectedResults[i].range[1].line,
+				expectedResults[i].range[1].character
+			);
+		}
+	});
+
 	test('Do Rename', async () => {
+		docUri = getDocUri('test.sol');
+		await changeDocument(docUri);
+
 		const expectedResults: [vscode.Uri, vscode.TextEdit[]] = JSON.parse('[{"$mid":1,"external":"file:///Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test.sol","path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test.sol","scheme":"file"},[{"range":[{"line":27,"character":22},{"line":27,"character":31}],"newText":"newName"},{"range":[{"line":41,"character":12},{"line":41,"character":21}],"newText":"newName"},{"range":[{"line":104,"character":12},{"line":104,"character":21}],"newText":"newName"},{"range":[{"line":124,"character":8},{"line":124,"character":17}],"newText":"newName"},{"range":[{"line":133,"character":29},{"line":133,"character":38}],"newText":"newName"},{"range":[{"line":134,"character":16},{"line":134,"character":25}],"newText":"newName"},{"range":[{"line":135,"character":35},{"line":135,"character":44}],"newText":"newName"},{"range":[{"line":147,"character":22},{"line":147,"character":31}],"newText":"newName"}]]');
 		const provider = client.getFeature(lsclient.RenameRequest.method).getProvider(document);
 		isDefined(provider);

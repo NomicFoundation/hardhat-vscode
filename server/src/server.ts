@@ -52,11 +52,11 @@ connection.onInitialize((params: InitializeParams) => {
 				resolveProvider: true
 			},
 			// hoverProvider: true,
-			implementationProvider: true,
 			definitionProvider: true,
 			typeDefinitionProvider: true,
-			renameProvider: true,
-			referencesProvider: true
+			referencesProvider: true,
+			implementationProvider: true,
+			renameProvider: true
 		}
 	};
 
