@@ -95,7 +95,7 @@ export class MemberAccessNode implements Node {
 
         for (const definitionType of definitionTypes) {
             for (const definitionChild of definitionType.children) {
-                if (definitionChild.getName() && definitionChild.getName() === this.getName()) {
+                if (finder.isNodeConnectable(definitionChild, this)) {
                     this.addTypeNode(definitionChild);
 
                     this.setParent(definitionChild);

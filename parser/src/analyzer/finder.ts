@@ -270,7 +270,7 @@ function isNodeEqual(first: Node | undefined, second: Node | undefined): boolean
     return false;
 }
 
-function isNodeConnectable(parent: Node | undefined, child: Node | undefined): boolean {
+export function isNodeConnectable(parent: Node | undefined, child: Node | undefined): boolean {
     if (
         parent && child &&
         parent.getName() && child.getName() &&
