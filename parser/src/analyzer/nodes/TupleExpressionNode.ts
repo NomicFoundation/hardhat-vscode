@@ -23,7 +23,6 @@ export class TupleExpressionNode implements Node {
         this.type = tupleExpression.type;
         this.uri = uri;
         this.astNode = tupleExpression;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -78,7 +77,13 @@ export class TupleExpressionNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        for (const component of this.astNode.components) {
+            if (component) {
+                find(component, this.uri).accept(find, orphanNodes, parent);
+            }
+        }
+
         return this;
     }
 }
