@@ -1,5 +1,6 @@
 import { UsingForDeclaration } from "@solidity-parser/parser/dist/src/ast-types";
 
+import * as finder from "../finder";
 import { Location, FinderType, Node } from "./Node";
 
 export class UsingForDeclarationNode implements Node {
@@ -12,7 +13,7 @@ export class UsingForDeclarationNode implements Node {
     expressionNode?: Node | undefined;
     declarationNode?: Node | undefined;
 
-    connectionTypeRules: string[] = [];
+    connectionTypeRules: string[] = [ "ContractDefinition" ];
 
     parent?: Node | undefined;
     children: Node[] = [];
@@ -22,8 +23,21 @@ export class UsingForDeclarationNode implements Node {
     constructor (usingForDeclaration: UsingForDeclaration, uri: string) {
         this.type = usingForDeclaration.type;
         this.uri = uri;
+
+        if (usingForDeclaration.loc && usingForDeclaration.libraryName) {
+            this.nameLoc = {
+                start: {
+                    line: usingForDeclaration.loc.start.line,
+                    column: usingForDeclaration.loc.start.column + "using ".length
+                },
+                end: {
+                    line: usingForDeclaration.loc.start.line,
+                    column: usingForDeclaration.loc.start.column + "using ".length + usingForDeclaration.libraryName.length
+                }
+            };
+        }
+
         this.astNode = usingForDeclaration;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -57,11 +71,11 @@ export class UsingForDeclarationNode implements Node {
     }
 
     getDefinitionNode(): Node | undefined {
-        return this;
+        return this.parent?.getDefinitionNode();
     }
 
     getName(): string | undefined {
-        return undefined;
+        return this.astNode.libraryName;
     }
 
     addChild(child: Node): void {
@@ -78,7 +92,26 @@ export class UsingForDeclarationNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        if (this.astNode.typeName) {
+            find(this.astNode.typeName, this.uri).accept(find, orphanNodes, parent);
+        }
+
+        if (parent) {
+            const identifierParent = finder.findParent(this, parent);
+
+            if (identifierParent) {
+                this.addTypeNode(identifierParent);
+
+                this.setParent(identifierParent);
+                identifierParent?.addChild(this);
+
+                return this;
+            }
+        }
+
+        orphanNodes.push(this);
+
         return this;
     }
 }

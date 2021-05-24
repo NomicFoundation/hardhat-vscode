@@ -18,7 +18,7 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
     expressionNode?: Node | undefined;
     declarationNode?: Node | undefined;
 
-    connectionTypeRules: string[] = [ "Identifier", "UserDefinedTypeName", "FunctionCall" ];
+    connectionTypeRules: string[] = [ "Identifier", "UserDefinedTypeName", "FunctionCall", "UsingForDeclaration" ];
 
     parent?: Node | undefined;
     children: Node[] = [];
