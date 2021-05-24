@@ -1,5 +1,6 @@
 import { EventDefinition } from "@solidity-parser/parser/dist/src/ast-types";
 
+import * as finder from "../finder";
 import { Location, FinderType, Node } from "./Node";
 
 export class EventDefinitionNode implements Node {
@@ -12,7 +13,7 @@ export class EventDefinitionNode implements Node {
     expressionNode?: Node | undefined;
     declarationNode?: Node | undefined;
 
-    connectionTypeRules: string[] = [];
+    connectionTypeRules: string[] = [ "EmitStatement" ];
 
     parent?: Node | undefined;
     children: Node[] = [];
@@ -23,7 +24,19 @@ export class EventDefinitionNode implements Node {
         this.type = eventDefinition.type;
         this.uri = uri;
         this.astNode = eventDefinition;
-        // TO-DO: Implement name location for rename
+
+        if (eventDefinition.loc && eventDefinition.name) {
+            this.nameLoc = {
+                start: {
+                    line: eventDefinition.loc.start.line,
+                    column: eventDefinition.loc.start.column + "event ".length
+                },
+                end: {
+                    line: eventDefinition.loc.start.line,
+                    column: eventDefinition.loc.start.column + "event ".length + (this.getName()?.length || 0)
+                }
+            };
+        }
     }
 
     getTypeNodes(): Node[] {
@@ -55,7 +68,7 @@ export class EventDefinitionNode implements Node {
     }
 
     getName(): string | undefined {
-        return undefined;
+        return this.astNode.name;
     }
 
     addChild(child: Node): void {
@@ -72,7 +85,19 @@ export class EventDefinitionNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+        
+        if (parent) {
+            this.setParent(parent);
+        }
+
+        for (const parameter of this.astNode.parameters) {
+            find(parameter, this.uri).accept(find, orphanNodes, parent);
+        }
+
+        finder.findChildren(this, orphanNodes);
+
+        parent?.addChild(this);
+
         return this;
     }
 }

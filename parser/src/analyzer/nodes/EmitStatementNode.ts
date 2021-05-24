@@ -23,7 +23,6 @@ export class EmitStatementNode implements Node {
         this.type = emitStatement.type;
         this.uri = uri;
         this.astNode = emitStatement;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -78,7 +77,9 @@ export class EmitStatementNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        find(this.astNode.eventCall, this.uri).accept(find, orphanNodes, parent, this);
+
         return this;
     }
 }

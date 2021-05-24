@@ -23,6 +23,7 @@ export class UsingForDeclarationNode implements Node {
     constructor (usingForDeclaration: UsingForDeclaration, uri: string) {
         this.type = usingForDeclaration.type;
         this.uri = uri;
+        this.astNode = usingForDeclaration;
 
         if (usingForDeclaration.loc && usingForDeclaration.libraryName) {
             this.nameLoc = {
@@ -32,12 +33,10 @@ export class UsingForDeclarationNode implements Node {
                 },
                 end: {
                     line: usingForDeclaration.loc.start.line,
-                    column: usingForDeclaration.loc.start.column + "using ".length + usingForDeclaration.libraryName.length
+                    column: usingForDeclaration.loc.start.column + "using ".length + (this.getName()?.length || 0)
                 }
             };
         }
-
-        this.astNode = usingForDeclaration;
     }
 
     getTypeNodes(): Node[] {
