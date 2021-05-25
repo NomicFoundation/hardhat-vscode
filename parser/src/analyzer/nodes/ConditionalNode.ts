@@ -23,7 +23,6 @@ export class ConditionalNode implements Node {
         this.type = conditional.type;
         this.uri = uri;
         this.astNode = conditional;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -78,7 +77,19 @@ export class ConditionalNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        if (this.astNode.condition) {
+            find(this.astNode.condition, this.uri).accept(find, orphanNodes, parent);
+        }
+
+        if (this.astNode.trueExpression) {
+            find(this.astNode.trueExpression, this.uri).accept(find, orphanNodes, parent);
+        }
+
+        if (this.astNode.falseExpression) {
+            find(this.astNode.falseExpression, this.uri).accept(find, orphanNodes, parent);
+        }
+
         return this;
     }
 }
