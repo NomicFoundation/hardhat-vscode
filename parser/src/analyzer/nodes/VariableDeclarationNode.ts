@@ -22,6 +22,7 @@ export class VariableDeclarationNode implements Node {
     constructor (variableDeclaration: VariableDeclaration, uri: string) {
         this.type = variableDeclaration.type;
         this.uri = uri;
+        this.astNode = variableDeclaration;
 
         if (variableDeclaration.loc && variableDeclaration.name) {
             this.nameLoc = {
@@ -35,8 +36,6 @@ export class VariableDeclarationNode implements Node {
                 }
             };
         }
-
-        this.astNode = variableDeclaration;
     }
 
     getTypeNodes(): Node[] {

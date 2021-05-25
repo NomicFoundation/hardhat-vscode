@@ -12,7 +12,7 @@ export class FileLevelConstantNode implements Node {
     expressionNode?: Node | undefined;
     declarationNode?: Node | undefined;
 
-    connectionTypeRules: string[] = [];
+    connectionTypeRules: string[] = [ "Identifier" ];
 
     parent?: Node | undefined;
     children: Node[] = [];
@@ -23,7 +23,19 @@ export class FileLevelConstantNode implements Node {
         this.type = fileLevelConstant.type;
         this.uri = uri;
         this.astNode = fileLevelConstant;
-        // TO-DO: Implement name location for rename
+
+        if (fileLevelConstant.loc && fileLevelConstant.name) {
+            this.nameLoc = {
+                start: {
+                    line: fileLevelConstant.loc.end.line,
+                    column: fileLevelConstant.loc.end.column - fileLevelConstant.name.length
+                },
+                end: {
+                    line: fileLevelConstant.loc.end.line,
+                    column: fileLevelConstant.loc.end.column
+                }
+            };
+        }
     }
 
     getTypeNodes(): Node[] {
@@ -57,11 +69,11 @@ export class FileLevelConstantNode implements Node {
     }
 
     getDefinitionNode(): Node | undefined {
-        return this.parent?.getDefinitionNode();
+        return this;
     }
 
     getName(): string | undefined {
-        return undefined;
+        return this.astNode.name;
     }
 
     addChild(child: Node): void {
@@ -78,7 +90,40 @@ export class FileLevelConstantNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        if (parent) {
+            this.setParent(parent);
+        }
+
+        if (this.astNode.typeName) {
+            const typeNode = find(this.astNode.typeName, this.uri).accept(find, orphanNodes, this);
+        
+            this.addTypeNode(typeNode);
+            typeNode.setDeclarationNode(this);
+
+            this.updateLocationName(typeNode);
+        }
+
+        if (this.astNode.initialValue) {
+            find(this.astNode.initialValue, this.uri).accept(find, orphanNodes, parent);
+        }
+
+        parent?.addChild(this);
+
         return this;
+    }
+
+    updateLocationName(typeNode: Node): void {
+        // TO-DO: Need to improve location name when Franco Victorio add in FileLevelConstant isDeclaredConst and isImmutable variables
+        if (this.astNode.loc && this.nameLoc && typeNode.astNode.range) {
+            const diff = 1 + (+typeNode.astNode.range[1] - +typeNode.astNode.range[0]);
+
+            this.nameLoc.start.column = this.astNode.loc.start.column + diff + 1;
+            this.nameLoc.end.column = this.nameLoc.start.column + (this.getName()?.length || 0);
+
+            if (this.astNode.loc.end.column < this.nameLoc.end.column) {
+                this.astNode.loc.end.column = this.nameLoc.end.column;
+            }
+        }
     }
 }
