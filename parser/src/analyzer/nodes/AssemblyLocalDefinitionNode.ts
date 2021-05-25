@@ -7,23 +7,32 @@ export class AssemblyLocalDefinitionNode implements Node {
     uri: string;
     astNode: AssemblyLocalDefinition;
 
+    name?: string | undefined;
     nameLoc?: Location | undefined;
 
     expressionNode?: Node | undefined;
     declarationNode?: Node | undefined;
 
-    connectionTypeRules: string[] = [];
+    connectionTypeRules: string[] = [ "AssemblyCall" ];
 
     parent?: Node | undefined;
     children: Node[] = [];
 
     typeNodes: Node[] = [];
 
-    constructor (assemblyLocalDefinition: AssemblyLocalDefinition, uri: string) {
+    constructor (assemblyLocalDefinition: AssemblyLocalDefinition, uri: string, parent?: Node, identifierNode?: Node) {
         this.type = assemblyLocalDefinition.type;
         this.uri = uri;
         this.astNode = assemblyLocalDefinition;
-        // TO-DO: Implement name location for rename
+
+        if (parent && identifierNode) {
+            this.setParent(parent);
+    
+            this.nameLoc = identifierNode.nameLoc;
+            this.name = identifierNode.getName();
+    
+            parent.addChild(this);
+        }
     }
 
     getTypeNodes(): Node[] {
@@ -55,7 +64,7 @@ export class AssemblyLocalDefinitionNode implements Node {
     }
 
     getName(): string | undefined {
-        return undefined;
+        return this.name;
     }
 
     addChild(child: Node): void {
@@ -72,7 +81,17 @@ export class AssemblyLocalDefinitionNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+        
+        for (const name of this.astNode.names || []) {
+            const identifierNode = find(name, this.uri).accept(find, orphanNodes, this, this);
+
+            new AssemblyLocalDefinitionNode(this.astNode, identifierNode.uri, parent, identifierNode);
+        }
+
+        if (this.astNode.expression) {
+            find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent);
+        }
+
         return this;
     }
 }

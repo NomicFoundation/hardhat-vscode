@@ -87,6 +87,10 @@ export class IdentifierNode implements Node {
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
+        if (expression?.type === "AssemblyLocalDefinition") {
+            return this;
+        }
+
         if (parent) {
             const identifierParent = finder.findParent(this, parent);
 

@@ -1,5 +1,6 @@
 import { AssemblyCall } from "@solidity-parser/parser/dist/src/ast-types";
 
+import * as finder from "../finder";
 import { Location, FinderType, Node } from "./Node";
 
 export class AssemblyCallNode implements Node {
@@ -22,8 +23,15 @@ export class AssemblyCallNode implements Node {
     constructor (assemblyCall: AssemblyCall, uri: string) {
         this.type = assemblyCall.type;
         this.uri = uri;
+
+        if (assemblyCall.loc) {
+            // Bug in solidity parser doesn't give exact end location
+            assemblyCall.loc.end.column = assemblyCall.loc.end.column + assemblyCall.functionName.length;
+
+            this.nameLoc = JSON.parse(JSON.stringify(assemblyCall.loc));
+        }
+
         this.astNode = assemblyCall;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -61,7 +69,7 @@ export class AssemblyCallNode implements Node {
     }
 
     getName(): string | undefined {
-        return undefined;
+        return this.astNode.functionName;
     }
 
     addChild(child: Node): void {
@@ -78,7 +86,26 @@ export class AssemblyCallNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        for (const argument of this.astNode.arguments || []) {
+            find(argument, this.uri).accept(find, orphanNodes, parent);
+        }
+
+        if (parent) {
+            const identifierParent = finder.findParent(this, parent);
+
+            if (identifierParent) {
+                this.addTypeNode(identifierParent);
+
+                this.setParent(identifierParent);
+                identifierParent?.addChild(this);
+
+                return this;
+            }
+        }
+
+        orphanNodes.push(this);
+
         return this;
     }
 }

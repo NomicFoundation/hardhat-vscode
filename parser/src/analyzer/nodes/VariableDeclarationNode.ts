@@ -12,7 +12,7 @@ export class VariableDeclarationNode implements Node {
     expressionNode?: Node | undefined;
     declarationNode?: Node | undefined;
 
-    connectionTypeRules: string[] = [ "Identifier", "MemberAccess" ];
+    connectionTypeRules: string[] = [ "Identifier", "MemberAccess", "AssemblyCall" ];
 
     parent?: Node | undefined;
     children: Node[] = [];
