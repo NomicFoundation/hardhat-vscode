@@ -23,7 +23,6 @@ export class UncheckedStatementNode implements Node {
         this.type = uncheckedStatement.type;
         this.uri = uri;
         this.astNode = uncheckedStatement;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -78,7 +77,11 @@ export class UncheckedStatementNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        if (this.astNode.block) {
+            find(this.astNode.block, this.uri).accept(find, orphanNodes, parent);
+        }
+
         return this;
     }
 }
