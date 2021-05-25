@@ -1,4 +1,4 @@
-import { Position, Node, ContractDefinitionNode } from "./nodes/Node";
+import { Position, Node, ContractDefinitionNode, shadowNodes } from "./nodes/Node";
 
 export let analyzerTree: Node | undefined;
 
@@ -154,12 +154,12 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
     }
 
     for (const child of from.children) {
-        if ([ "FunctionDefinition", "ContractDefinition", "StructDefinition", "AssemblyBlock" ].includes(child.type)) {
+        if (shadowNodes.includes(child.type)) {
             if (isNodeConnectable(child, node)) {
                 return child;
+            } else if (!isNodeShadowedByNode(node, child)) {
+                continue;
             }
-
-            continue;
         }
 
         parent = search(node, child, searchInInheretenceNodes, visitedNodes);
@@ -263,6 +263,19 @@ function isNodeEqual(first: Node | undefined, second: Node | undefined): boolean
         first.nameLoc && second.nameLoc &&
         JSON.stringify(first.nameLoc) === JSON.stringify(second.nameLoc) &&
         first.getName() === second.getName()
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
+function isNodeShadowedByNode(child: Node | undefined, parent: Node | undefined): boolean {
+    if (
+        child && parent &&
+        parent.astNode.range && child.astNode.range &&
+        parent.astNode.range[0] < child.astNode.range[0] &&
+        parent.astNode.range[1] > child.astNode.range[1]
     ) {
         return true;
     }
