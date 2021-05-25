@@ -23,7 +23,6 @@ export class ArrayTypeNameNode implements Node {
         this.type = arrayTypeName.type;
         this.uri = uri;
         this.astNode = arrayTypeName;
-        // TO-DO: Implement name location for rename
     }
     
     getTypeNodes(): Node[] {

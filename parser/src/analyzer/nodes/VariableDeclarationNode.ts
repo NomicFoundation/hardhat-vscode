@@ -129,11 +129,6 @@ export class VariableDeclarationNode implements Node {
                 this.nameLoc.end.column += this.astNode.storageLocation.length + 1;
             }
 
-            if (this.astNode.storageLocation) {
-                this.nameLoc.start.column += this.astNode.storageLocation.length + 1;
-                this.nameLoc.end.column += this.astNode.storageLocation.length + 1;
-            }
-
             if (this.astNode.isDeclaredConst) {
                 this.nameLoc.start.column += "constant ".length;
                 this.nameLoc.end.column += "constant ".length;
