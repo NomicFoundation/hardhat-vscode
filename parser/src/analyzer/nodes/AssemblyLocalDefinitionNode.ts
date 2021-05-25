@@ -13,7 +13,7 @@ export class AssemblyLocalDefinitionNode implements Node {
     expressionNode?: Node | undefined;
     declarationNode?: Node | undefined;
 
-    connectionTypeRules: string[] = [ "AssemblyCall" ];
+    connectionTypeRules: string[] = [ "AssemblyCall", "Identifier" ];
 
     parent?: Node | undefined;
     children: Node[] = [];

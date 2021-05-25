@@ -23,7 +23,6 @@ export class AssemblyForNode implements Node {
         this.type = assemblyFor.type;
         this.uri = uri;
         this.astNode = assemblyFor;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -78,7 +77,25 @@ export class AssemblyForNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        if (parent) {
+            this.setParent(parent);
+        }
+
+        if (this.astNode.pre) {
+            find(this.astNode.pre, this.uri).accept(find, orphanNodes, this);
+        }
+        if (this.astNode.condition) {
+            find(this.astNode.condition, this.uri).accept(find, orphanNodes, this);
+        }
+        if (this.astNode.post) {
+            find(this.astNode.post, this.uri).accept(find, orphanNodes, this);
+        }
+
+        find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
+
+        parent?.addChild(this);
+
         return this;
     }
 }

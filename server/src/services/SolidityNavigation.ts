@@ -1,6 +1,6 @@
 import {
 	Location as NodeLocation, Node,
-	ContractDefinitionNode, definitionNodeTypes
+	definitionNodeTypes
 } from "../../../parser/out/analyzer/nodes/Node";
 import * as finder from "../../../parser/out/analyzer/finder";
 
