@@ -154,7 +154,7 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
     }
 
     for (const child of from.children) {
-        if ([ "FunctionDefinition", "ContractDefinition", "StructDefinition" ].includes(child.type)) {
+        if ([ "FunctionDefinition", "ContractDefinition", "StructDefinition", "AssemblyBlock" ].includes(child.type)) {
             if (isNodeConnectable(child, node)) {
                 return child;
             }

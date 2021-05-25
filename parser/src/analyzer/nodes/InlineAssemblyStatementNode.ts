@@ -23,7 +23,6 @@ export class InlineAssemblyStatementNode implements Node {
         this.type = inlineAssemblyStatement.type;
         this.uri = uri;
         this.astNode = inlineAssemblyStatement;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -78,7 +77,11 @@ export class InlineAssemblyStatementNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        if (this.astNode.body) {
+            find(this.astNode.body, this.uri).accept(find, orphanNodes, parent);
+        }
+
         return this;
     }
 }

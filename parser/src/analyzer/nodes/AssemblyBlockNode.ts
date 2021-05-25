@@ -23,7 +23,6 @@ export class AssemblyBlockNode implements Node {
         this.type = assemblyBlock.type;
         this.uri = uri;
         this.astNode = assemblyBlock;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -78,7 +77,17 @@ export class AssemblyBlockNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+        
+        if (parent) {
+            this.setParent(parent);
+        }
+
+        for (const operation of this.astNode.operations || []) {
+            find(operation, this.uri).accept(find, orphanNodes, this);
+        }
+
+        parent?.addChild(this);
+
         return this;
     }
 }
