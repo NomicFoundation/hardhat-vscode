@@ -23,7 +23,6 @@ export class IndexRangeAccessNode implements Node {
         this.type = indexRangeAccess.type;
         this.uri = uri;
         this.astNode = indexRangeAccess;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -78,7 +77,19 @@ export class IndexRangeAccessNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        if (this.astNode.base) {
+            find(this.astNode.base, this.uri).accept(find, orphanNodes, parent);
+        }
+
+        if (this.astNode.indexStart) {
+            find(this.astNode.indexStart, this.uri).accept(find, orphanNodes, parent);
+        }
+
+        if (this.astNode.indexEnd) {
+            find(this.astNode.indexEnd, this.uri).accept(find, orphanNodes, parent);
+        }
+
         return this;
     }
 }
