@@ -23,7 +23,6 @@ export class AssemblyAssignmentNode implements Node {
         this.type = assemblyAssignment.type;
         this.uri = uri;
         this.astNode = assemblyAssignment;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -78,7 +77,15 @@ export class AssemblyAssignmentNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        for (const name of this.astNode.names || []) {
+            find(name, this.uri).accept(find, orphanNodes, parent);
+        }
+
+        if (this.astNode.expression) {
+            find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent);
+        }
+
         return this;
     }
 }
