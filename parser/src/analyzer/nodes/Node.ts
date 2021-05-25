@@ -123,5 +123,4 @@ export interface ContractDefinitionNode extends Node {
     getInheritanceNodes(): ContractDefinitionNode[];
 }
 
-export const shadowNodes = [ "FunctionDefinition", "ContractDefinition", "StructDefinition", "AssemblyBlock", "ForStatement", "WhileStatementNode", "DoWhileStatementNode", "IfStatementNode" ];
 export const definitionNodeTypes = [ "ContractDefinition", "StructDefinition", "ModifierDefinition", "FunctionDefinition", "EventDefinition", "EnumDefinition", "AssemblyLocalDefinition", "LabelDefinition", "AssemblyFunctionDefinition", "UserDefinedTypeName" ];

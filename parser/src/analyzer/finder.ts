@@ -1,4 +1,4 @@
-import { Position, Node, ContractDefinitionNode, shadowNodes } from "./nodes/Node";
+import { Position, Node, ContractDefinitionNode } from "./nodes/Node";
 
 export let analyzerTree: Node | undefined;
 
@@ -154,12 +154,12 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
     }
 
     for (const child of from.children) {
-        if (shadowNodes.includes(child.type)) {
+        if (!isNodeShadowedByNode(node, child)) {
             if (isNodeConnectable(child, node)) {
                 return child;
-            } else if (!isNodeShadowedByNode(node, child)) {
-                continue;
             }
+
+            continue;
         }
 
         parent = search(node, child, searchInInheretenceNodes, visitedNodes);
