@@ -104,8 +104,8 @@ export class IdentifierNode implements Node {
             }
         }
 
-        // The name "super" is reserved so we won't add it to orphanNodes
-        if (this.getName() === "super") {
+        // The name "super" and "this" is reserved so we won't add it to orphanNodes
+        if (this.getName() === "super" || this.getName() === "this") {
             return this;
         }
 
