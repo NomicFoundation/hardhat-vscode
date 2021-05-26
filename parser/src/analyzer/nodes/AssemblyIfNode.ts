@@ -23,7 +23,6 @@ export class AssemblyIfNode implements Node {
         this.type = assemblyIf.type;
         this.uri = uri;
         this.astNode = assemblyIf;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -78,7 +77,17 @@ export class AssemblyIfNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        if (parent) {
+            this.setParent(parent);
+        }
+
+        find(this.astNode.condition, this.uri).accept(find, orphanNodes, this);
+        
+        find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
+
+        parent?.addChild(this);
+
         return this;
     }
 }
