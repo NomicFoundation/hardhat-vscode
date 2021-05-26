@@ -39,7 +39,7 @@ export function findChildren(definitionNode: Node, orphanNodes: Node[]): void {
 
     let orphanNode = orphanNodes.shift();
     while (orphanNode) {
-        if (isNodeConnectable(definitionNode, orphanNode)) {
+        if (isNodeShadowedByNode(orphanNode, definitionNode) && isNodeConnectable(definitionNode, orphanNode)) {
             orphanNode.addTypeNode(definitionNode);
 
             orphanNode.setParent(definitionNode);
