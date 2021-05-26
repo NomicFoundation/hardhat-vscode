@@ -270,7 +270,7 @@ function isNodeEqual(first: Node | undefined, second: Node | undefined): boolean
     return false;
 }
 
-function isNodeShadowedByNode(child: Node | undefined, parent: Node | undefined): boolean {
+export function isNodeShadowedByNode(child: Node | undefined, parent: Node | undefined): boolean {
     if (
         child && parent &&
         parent.astNode.range && child.astNode.range &&

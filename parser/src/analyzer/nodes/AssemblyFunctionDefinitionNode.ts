@@ -1,5 +1,6 @@
 import { AssemblyFunctionDefinition } from "@solidity-parser/parser/dist/src/ast-types";
 
+import * as finder from "../finder";
 import { Location, FinderType, Node } from "./Node";
 
 export class AssemblyFunctionDefinitionNode implements Node {
@@ -12,7 +13,7 @@ export class AssemblyFunctionDefinitionNode implements Node {
     expressionNode?: Node | undefined;
     declarationNode?: Node | undefined;
 
-    connectionTypeRules: string[] = [];
+    connectionTypeRules: string[] = [ "AssemblyCall" ];
 
     parent?: Node | undefined;
     children: Node[] = [];
@@ -23,11 +24,29 @@ export class AssemblyFunctionDefinitionNode implements Node {
         this.type = assemblyFunctionDefinition.type;
         this.uri = uri;
         this.astNode = assemblyFunctionDefinition;
-        // TO-DO: Implement name location for rename
+        
+        if (assemblyFunctionDefinition.loc && assemblyFunctionDefinition.name) {
+            this.nameLoc = {
+                start: {
+                    line: assemblyFunctionDefinition.loc.start.line,
+                    column: assemblyFunctionDefinition.loc.start.column + "function ".length
+                },
+                end: {
+                    line: assemblyFunctionDefinition.loc.start.line,
+                    column: assemblyFunctionDefinition.loc.start.column + "function ".length + assemblyFunctionDefinition.name.length
+                }
+            };
+        }
     }
 
     getTypeNodes(): Node[] {
-        return this.typeNodes;
+        let nodes: Node[] = [];
+
+        this.typeNodes.forEach(typeNode => {
+            nodes = nodes.concat(typeNode.getTypeNodes());
+        });
+
+        return nodes;
     }
 
     addTypeNode(node: Node): void {
@@ -55,7 +74,7 @@ export class AssemblyFunctionDefinitionNode implements Node {
     }
 
     getName(): string | undefined {
-        return undefined;
+        return this.astNode.name;
     }
 
     addChild(child: Node): void {
@@ -72,7 +91,55 @@ export class AssemblyFunctionDefinitionNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        if (parent) {
+            this.setParent(parent);
+        }
+
+        this.findChildren(orphanNodes);
+
+        for (const argument of this.astNode.arguments) {
+            find(argument, this.uri).accept(find, orphanNodes, this);
+        }
+
+        for (const returnArgument of this.astNode.returnArguments) {
+            const typeNode = find(returnArgument, this.uri).accept(find, orphanNodes, this);
+
+            this.addTypeNode(typeNode);
+        }
+
+        find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
+
+        parent?.addChild(this);
+
         return this;
+    }
+
+    private findChildren(orphanNodes: Node[]): void {
+        const newOrphanNodes: Node[] = [];
+        const parent = this.getParent();
+
+        let orphanNode = orphanNodes.shift();
+        while (orphanNode) {
+            if (
+                this.getName() === orphanNode.getName() && parent &&
+                finder.isNodeShadowedByNode(orphanNode, parent) &&
+                this.connectionTypeRules.includes(orphanNode.getExpressionNode()?.type || "") &&
+                orphanNode.type !== "MemberAccess"
+            ) {
+                orphanNode.addTypeNode(this);
+
+                orphanNode.setParent(this);
+                this.addChild(orphanNode);
+            } else {
+                newOrphanNodes.push(orphanNode);
+            }
+
+            orphanNode = orphanNodes.shift();
+        }
+
+        for (const newOrphanNode of newOrphanNodes) {
+            orphanNodes.push(newOrphanNode);
+        }
     }
 }
