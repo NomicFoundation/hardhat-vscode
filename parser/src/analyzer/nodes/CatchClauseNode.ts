@@ -23,7 +23,6 @@ export class CatchClauseNode implements Node {
         this.type = catchClause.type;
         this.uri = uri;
         this.astNode = catchClause;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -78,7 +77,19 @@ export class CatchClauseNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        if (parent) {
+            this.setParent(parent);
+        }
+
+        for (const param of this.astNode.parameters || []) {
+            find(param, this.uri).accept(find, orphanNodes, this);
+        }
+
+        find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
+
+        parent?.addChild(this);
+
         return this;
     }
 }

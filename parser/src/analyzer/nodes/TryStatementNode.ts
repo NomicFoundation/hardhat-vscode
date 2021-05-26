@@ -23,7 +23,6 @@ export class TryStatementNode implements Node {
         this.type = tryStatement.type;
         this.uri = uri;
         this.astNode = tryStatement;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -78,7 +77,25 @@ export class TryStatementNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        if (parent) {
+            this.setParent(parent);
+        }
+
+        find(this.astNode.expression, this.uri).accept(find, orphanNodes, this);
+
+        for (const returnParameter of this.astNode.returnParameters || []) {
+            find(returnParameter, this.uri).accept(find, orphanNodes, this);
+        }
+
+        find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
+
+        for (const catchClause of this.astNode.catchClauses || []) {
+            find(catchClause, this.uri).accept(find, orphanNodes, this);
+        }
+
+        parent?.addChild(this);
+
         return this;
     }
 }
