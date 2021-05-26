@@ -78,14 +78,6 @@ export class AssemblyBlockNode implements Node {
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
-        if (parent?.type === "AssemblyFor") {
-            for (const operation of this.astNode.operations || []) {
-                find(operation, this.uri).accept(find, orphanNodes, parent);
-            }
-
-            return this;
-        }
-        
         if (parent) {
             this.setParent(parent);
         }

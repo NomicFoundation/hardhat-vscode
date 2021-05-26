@@ -154,7 +154,7 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
     }
 
     for (const child of from.children) {
-        if (!isNodeShadowedByNode(node, child)) {
+        if (from.type !== "AssemblyFor" && !isNodeShadowedByNode(node, child)) {
             if (isNodeConnectable(child, node)) {
                 return child;
             }
