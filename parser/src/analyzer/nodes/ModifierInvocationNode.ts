@@ -1,5 +1,6 @@
 import { ModifierInvocation } from "@solidity-parser/parser/dist/src/ast-types";
 
+import * as finder from "../finder";
 import { Location, FinderType, Node } from "./Node";
 
 export class ModifierInvocationNode implements Node {
@@ -23,7 +24,19 @@ export class ModifierInvocationNode implements Node {
         this.type = modifierInvocation.type;
         this.uri = uri;
         this.astNode = modifierInvocation;
-        // TO-DO: Implement name location for rename
+        
+        if (modifierInvocation.loc) {
+            this.nameLoc = {
+                start: {
+                    line: modifierInvocation.loc.start.line,
+                    column: modifierInvocation.loc.start.column
+                },
+                end: {
+                    line: modifierInvocation.loc.start.line,
+                    column: modifierInvocation.loc.start.column + modifierInvocation.name.length
+                }
+            };
+        }
     }
 
     getTypeNodes(): Node[] {
@@ -61,7 +74,7 @@ export class ModifierInvocationNode implements Node {
     }
 
     getName(): string | undefined {
-        return undefined;
+        return this.astNode.name;
     }
 
     addChild(child: Node): void {
@@ -78,7 +91,26 @@ export class ModifierInvocationNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        for (const argument of this.astNode.arguments || []) {
+            find(argument, this.uri).accept(find, orphanNodes, parent);
+        }
+
+        if (parent) {
+            const modifierInvocationParent = finder.findParent(this, parent);
+
+            if (modifierInvocationParent) {
+                this.addTypeNode(modifierInvocationParent);
+
+                this.setParent(modifierInvocationParent);
+                modifierInvocationParent?.addChild(this);
+
+                return this;
+            }
+        }
+
+        orphanNodes.push(this);
+
         return this;
     }
 }

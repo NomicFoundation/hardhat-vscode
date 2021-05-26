@@ -92,13 +92,13 @@ export class AssemblyCallNode implements Node {
         }
 
         if (parent) {
-            const identifierParent = finder.findParent(this, parent);
+            const assemblyCallParent = finder.findParent(this, parent);
 
-            if (identifierParent) {
-                this.addTypeNode(identifierParent);
+            if (assemblyCallParent) {
+                this.addTypeNode(assemblyCallParent);
 
-                this.setParent(identifierParent);
-                identifierParent?.addChild(this);
+                this.setParent(assemblyCallParent);
+                assemblyCallParent?.addChild(this);
 
                 return this;
             }

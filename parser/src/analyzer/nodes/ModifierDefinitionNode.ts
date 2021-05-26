@@ -1,5 +1,6 @@
 import { ModifierDefinition } from "@solidity-parser/parser/dist/src/ast-types";
 
+import * as finder from "../finder";
 import { Location, FinderType, Node } from "./Node";
 
 export class ModifierDefinitionNode implements Node {
@@ -12,7 +13,7 @@ export class ModifierDefinitionNode implements Node {
     expressionNode?: Node | undefined;
     declarationNode?: Node | undefined;
 
-    connectionTypeRules: string[] = [];
+    connectionTypeRules: string[] = [ "ModifierInvocation" ];
 
     parent?: Node | undefined;
     children: Node[] = [];
@@ -23,7 +24,21 @@ export class ModifierDefinitionNode implements Node {
         this.type = modifierDefinition.type;
         this.uri = uri;
         this.astNode = modifierDefinition;
-        // TO-DO: Implement name location for rename
+        
+        if (modifierDefinition.loc) {
+            this.nameLoc = {
+                start: {
+                    line: modifierDefinition.loc.start.line,
+                    column: modifierDefinition.loc.start.column + "modifier ".length
+                },
+                end: {
+                    line: modifierDefinition.loc.start.line,
+                    column: modifierDefinition.loc.start.column + "modifier ".length + modifierDefinition.name.length
+                }
+            };
+        }
+
+        this.addTypeNode(this);
     }
 
     getTypeNodes(): Node[] {
@@ -55,7 +70,7 @@ export class ModifierDefinitionNode implements Node {
     }
 
     getName(): string | undefined {
-        return undefined;
+        return this.astNode.name;
     }
 
     addChild(child: Node): void {
@@ -72,7 +87,25 @@ export class ModifierDefinitionNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        if (parent) {
+            this.setParent(parent);
+        }
+
+        for (const override of this.astNode.override || []) {
+            find(override, this.uri).accept(find, orphanNodes, this);
+        }
+
+        for (const param of this.astNode.parameters || []) {
+            find(param, this.uri).accept(find, orphanNodes, this);
+        }
+
+        find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
+
+        finder.findChildren(this, orphanNodes);
+
+        parent?.addChild(this);
+
         return this;
     }
 }

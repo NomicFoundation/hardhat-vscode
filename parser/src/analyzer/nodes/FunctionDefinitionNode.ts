@@ -106,12 +106,16 @@ export class FunctionDefinitionNode implements Node {
             find(param, this.uri).accept(find, orphanNodes, this);
         }
 
-        if (this.astNode.returnParameters) {
-            for (const returnParam of this.astNode.returnParameters) {
-                const typeNode = find(returnParam, this.uri).accept(find, orphanNodes, this);
+        for (const returnParam of this.astNode.returnParameters || []) {
+            const typeNode = find(returnParam, this.uri).accept(find, orphanNodes, this);
 
-                this.addTypeNode(typeNode);
-            }
+            this.addTypeNode(typeNode);
+        }
+
+        for (const modifier of this.astNode.modifiers || []) {
+            const typeNode = find(modifier, this.uri).accept(find, orphanNodes, this);
+
+            this.addTypeNode(typeNode);
         }
 
         if (this.astNode.body) {
