@@ -82,16 +82,9 @@ export class AssemblyForNode implements Node {
             this.setParent(parent);
         }
 
-        if (this.astNode.pre) {
-            find(this.astNode.pre, this.uri).accept(find, orphanNodes, this);
-        }
-        if (this.astNode.condition) {
-            find(this.astNode.condition, this.uri).accept(find, orphanNodes, this);
-        }
-        if (this.astNode.post) {
-            find(this.astNode.post, this.uri).accept(find, orphanNodes, this);
-        }
-
+        find(this.astNode.pre, this.uri).accept(find, orphanNodes, this);
+        find(this.astNode.condition, this.uri).accept(find, orphanNodes, this);
+        find(this.astNode.post, this.uri).accept(find, orphanNodes, this);
         find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
 
         parent?.addChild(this);

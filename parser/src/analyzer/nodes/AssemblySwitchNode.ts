@@ -23,7 +23,6 @@ export class AssemblySwitchNode implements Node {
         this.type = assemblySwitch.type;
         this.uri = uri;
         this.astNode = assemblySwitch;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -78,7 +77,19 @@ export class AssemblySwitchNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        if (parent) {
+            this.setParent(parent);
+        }
+
+        find(this.astNode.expression, this.uri).accept(find, orphanNodes, this);
+
+        for (const caseNode of this.astNode.cases) {
+            find(caseNode, this.uri).accept(find, orphanNodes, this);
+        }
+
+        parent?.addChild(this);
+
         return this;
     }
 }
