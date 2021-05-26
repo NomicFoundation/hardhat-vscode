@@ -12,7 +12,7 @@ export class EnumValueNode implements Node {
     expressionNode?: Node | undefined;
     declarationNode?: Node | undefined;
 
-    connectionTypeRules: string[] = [];
+    connectionTypeRules: string[] = [ "MemberAccess" ];
 
     parent?: Node | undefined;
     children: Node[] = [];
@@ -22,8 +22,15 @@ export class EnumValueNode implements Node {
     constructor (enumValue: EnumValue, uri: string) {
         this.type = enumValue.type;
         this.uri = uri;
+
+        if (enumValue.loc) {
+            // Bug in solidity parser doesn't give exact end location
+            enumValue.loc.end.column = enumValue.loc.end.column + enumValue.name.length;
+
+            this.nameLoc = JSON.parse(JSON.stringify(enumValue.loc));
+        }
+
         this.astNode = enumValue;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -57,11 +64,11 @@ export class EnumValueNode implements Node {
     }
 
     getDefinitionNode(): Node | undefined {
-        return this.parent?.getDefinitionNode();
+        return this;
     }
 
     getName(): string | undefined {
-        return undefined;
+        return this.astNode.name;
     }
 
     addChild(child: Node): void {
@@ -78,7 +85,13 @@ export class EnumValueNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        if (parent) {
+            this.setParent(parent);
+        }
+
+        parent?.addChild(this);
+
         return this;
     }
 }

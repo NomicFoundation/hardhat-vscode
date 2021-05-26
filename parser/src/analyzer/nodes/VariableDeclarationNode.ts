@@ -97,7 +97,7 @@ export class VariableDeclarationNode implements Node {
 
         if (this.astNode.typeName) {
             const typeNode = find(this.astNode.typeName, this.uri).accept(find, orphanNodes, this);
-        
+
             this.addTypeNode(typeNode);
             typeNode.setDeclarationNode(this);
 
