@@ -1,5 +1,6 @@
 import { FunctionDefinition } from "@solidity-parser/parser/dist/src/ast-types";
 
+import * as finder from "../finder";
 import { Location, FinderType, Node, ContractDefinitionNode } from "./Node";
 
 export class FunctionDefinitionNode implements Node {
@@ -137,11 +138,13 @@ export class FunctionDefinitionNode implements Node {
 
     private findChildren(orphanNodes: Node[]): void {
         const newOrphanNodes: Node[] = [];
+        const parent = this.getParent();
 
         let orphanNode = orphanNodes.shift();
         while (orphanNode) {
             if (
-                this.getName() === orphanNode.getName() &&
+                this.getName() === orphanNode.getName() && parent &&
+                finder.isNodeShadowedByNode(orphanNode, parent) &&
                 this.connectionTypeRules.includes(orphanNode.getExpressionNode()?.type || "") &&
                 orphanNode.type !== "MemberAccess"
             ) {
