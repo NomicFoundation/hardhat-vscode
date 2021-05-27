@@ -36,11 +36,11 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
             this.nameLoc = {
                 start: {
                     line: contractDefinition.loc.start.line,
-                    column: contractDefinition.loc.start.column + this.astNode.kind.length + 1
+                    column: contractDefinition.loc.start.column + contractDefinition.kind.length + 1
                 },
                 end: {
                     line: contractDefinition.loc.start.line,
-                    column: contractDefinition.loc.start.column + this.astNode.kind.length + 1 + contractDefinition.name.length
+                    column: contractDefinition.loc.start.column + contractDefinition.kind.length + 1 + contractDefinition.name.length
                 }
             };
         }
@@ -124,7 +124,7 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
         // Find parent for orphanNodes from this contract in inheritance Nodes 
         this.findParentForOrphanNodesInInheritanceNodes(orphanNodes);
 
-        finder.findChildren(this, orphanNodes);
+        finder.findChildren(this, orphanNodes, false);
 
         parent?.addChild(this);
 

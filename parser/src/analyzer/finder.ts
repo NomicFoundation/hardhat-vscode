@@ -33,13 +33,17 @@ export function findNodeByPosition(position: Position, from?: Node): Node | unde
     return node;
 }
 
-export function findChildren(definitionNode: Node, orphanNodes: Node[]): void {
+export function findChildren(definitionNode: Node, orphanNodes: Node[], isShadowed = true): void {
     const newOrphanNodes: Node[] = [];
     const expressionNodes: Node[] = [];
 
     let orphanNode = orphanNodes.shift();
     while (orphanNode) {
-        if (isNodeShadowedByNode(orphanNode, definitionNode) && isNodeConnectable(definitionNode, orphanNode)) {
+        if (
+            (!isShadowed ||
+            (isShadowed && isNodeShadowedByNode(orphanNode, definitionNode))) &&
+            isNodeConnectable(definitionNode, orphanNode)
+        ) {
             orphanNode.addTypeNode(definitionNode);
 
             orphanNode.setParent(definitionNode);
