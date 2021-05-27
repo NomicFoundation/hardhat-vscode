@@ -52,7 +52,8 @@ export function rangeEqual(range: vscode.Range, sl: number, sc: number, el: numb
 }
 
 export function uriEqual(actual: vscode.Uri, expected: vscode.Uri): void {
-    assert.strictEqual(actual.path, expected.path);
+	const prefixPath = path.resolve(__dirname, '../..');
+    assert.strictEqual(actual.path.replace(prefixPath, ''), expected.path.replace(prefixPath, ''));
 }
 
 export function isDefined<T>(value: T | undefined | null): asserts value is Exclude<T, undefined | null> {
