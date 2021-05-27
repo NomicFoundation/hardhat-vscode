@@ -14,7 +14,7 @@
 	"scripts": {
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
-		"postinstall": "cd client && yarn install && cd ../server && yarn install && cd ..",
+		"postinstall": "cd client && yarn install && cd ../server && yarn install && cd ../parser && yarn install && cd ..",
 		"client-test": "cd client && tsc -b && yarn run test && cd .."
 	},
 	"devDependencies": {
