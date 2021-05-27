@@ -145,18 +145,18 @@ suite('Client integration', () => {
 		docUri = getDocUri('test1.sol');
 		await changeDocument(docUri);
 
-		const expectedResults: vscode.Location[] = JSON.parse('[{"uri":{"$mid":1,"path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test1.sol","scheme":"file"},"range":[{"line":8,"character":9},{"line":8,"character":10}]},{"uri":{"$mid":1,"path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test1.sol","scheme":"file"},"range":[{"line":30,"character":14},{"line":30,"character":15}]},{"uri":{"$mid":1,"path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test1.sol","scheme":"file"},"range":[{"line":44,"character":14},{"line":44,"character":15}]}]');
+		const expectedResults: vscode.Location[] = JSON.parse('[{"uri":{"$mid":1,"path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test1.sol","scheme":"file"},"range":[{"line":11,"character":9},{"line":11,"character":10}]},{"uri":{"$mid":1,"path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test1.sol","scheme":"file"},"range":[{"line":33,"character":14},{"line":33,"character":15}]},{"uri":{"$mid":1,"path":"/Users/riphal/Documents/Tenderly/vscode-solidity/client/src/test/testFixture/test1.sol","scheme":"file"},"range":[{"line":48,"character":14},{"line":48,"character":15}]}]');
 
 		const provider = client.getFeature(lsclient.ImplementationRequest.method).getProvider(document);
 		isDefined(provider);
 
-		const position: vscode.Position = new vscode.Position(8, 10);
+		const position: vscode.Position = new vscode.Position(11, 10);
 		const results = (await provider.provideImplementation(
 			document,
 			position,
 			tokenSource.token
 		)) as vscode.Location[];
-
+		
 		isArray(results, vscode.Location, 3);
 
 		for (let i = 0; i < results.length; i++) {

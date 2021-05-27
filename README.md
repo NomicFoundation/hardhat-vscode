@@ -24,3 +24,5 @@ The _vscode-solidity-languageservice_ contains the language smarts behind the so
 - Open the Debug in VSCode.
 - Run the *Launch Client* from the run viewlet and wait until a new VSCode window open.
 ![image](https://github.com/Tenderly/vscode-solidity/blob/main/docs/images/run_launch_client.png?raw=true)
+
+- Note: You can find test files in [testFixture](./client/src/test/testFixture/) directory.
