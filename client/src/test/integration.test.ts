@@ -75,18 +75,18 @@ suite('Client integration', () => {
 	});
 
 	test('Goto Definition', async () => {
-		docUri = getDocUri('test.sol');
+		docUri = getDocUri('test1.sol');
 		await changeDocument(docUri);
 
 		const provider = client.getFeature(lsclient.DefinitionRequest.method).getProvider(document);
 		isDefined(provider);
 
-		const position: vscode.Position = new vscode.Position(32, 31);
+		const position: vscode.Position = new vscode.Position(67, 14);
 		const result = (await provider.provideDefinition(document, position, tokenSource.token)) as vscode.Location;
 
 		isInstanceOf(result, vscode.Location);
 		uriEqual(result.uri, docUri);
-		rangeEqual(result.range, 8, 8, 8, 19);
+		rangeEqual(result.range, 96, 0, 113, 0);
 	});
 
 	test('Goto Type Definition', async () => {
