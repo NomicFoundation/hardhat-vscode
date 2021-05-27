@@ -1,8 +1,4 @@
 # vscode-solidity-languageservice
-Language service for solidity.
-
-## Why?
----
 The _vscode-solidity-languageservice_ contains the language smarts behind the solidity editing experience of Visual Studio Code.
 
 ## Todo
