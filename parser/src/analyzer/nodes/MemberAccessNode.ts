@@ -154,7 +154,6 @@ export class MemberAccessNode implements Node {
         return this;
     }
 
-
     findMemberAccessParent(expressionNode: Node, definitionTypes: Node[]): Node | undefined {
         for (const definitionType of definitionTypes) {
             for (const definitionChild of definitionType.children) {
