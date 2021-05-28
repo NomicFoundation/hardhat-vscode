@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { ImportDirective } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { Location, FinderType, Node } from "./Node";
@@ -20,10 +21,26 @@ export class ImportDirectiveNode implements Node {
     typeNodes: Node[] = [];
 
     constructor (importDirective: ImportDirective, uri: string) {
+        // const rootPath = vscode.workspace.workspaceFolders[0].uri.path;
         this.type = importDirective.type;
-        this.uri = uri;
+
+        // TO-DO: Improve for dependencies path and loc
+        this.uri = path.join(uri, '..', importDirective.path);
+        
+        if (importDirective.loc) {
+            this.nameLoc = {
+                start: {
+                    line: importDirective.loc.start.line,
+                    column: importDirective.loc.start.column + "import ".length
+                },
+                end: {
+                    line: importDirective.loc.end.line,
+                    column: importDirective.loc.end.column
+                }
+            };
+        }
+
         this.astNode = importDirective;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {
@@ -57,11 +74,11 @@ export class ImportDirectiveNode implements Node {
     }
 
     getDefinitionNode(): Node | undefined {
-        return this.parent?.getDefinitionNode();
+        return this;
     }
 
     getName(): string | undefined {
-        return undefined;
+        return this.astNode.path;
     }
 
     addChild(child: Node): void {
@@ -78,7 +95,13 @@ export class ImportDirectiveNode implements Node {
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+
+        if (parent) {
+            this.setParent(parent);
+        }
+
+        parent?.addChild(this);
+
         return this;
     }
 }
