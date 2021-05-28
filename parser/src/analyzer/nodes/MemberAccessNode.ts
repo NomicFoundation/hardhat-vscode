@@ -129,6 +129,26 @@ export class MemberAccessNode implements Node {
             }
         }
 
+        // The Identifier name "this" is reserved, so we will try to find the parent for this Node in contract first layer
+        if (expressionNode.getName() === "this" && expressionNode.type === "Identifier") {
+            let contractDefinitionNode = parent;
+
+            while (contractDefinitionNode && contractDefinitionNode.type !== "ContractDefinition") {
+                contractDefinitionNode = contractDefinitionNode.getParent();
+            }
+
+            const memberAccessParent = finder.findParent(this, contractDefinitionNode, true);
+
+            if (memberAccessParent) {
+                this.addTypeNode(memberAccessParent);
+
+                this.setParent(memberAccessParent);
+                memberAccessParent?.addChild(this);
+
+                return this;
+            }
+        }
+
         // Never add MemberAccessNode to orphanNodes because it is handled via expression
 
         return this;
