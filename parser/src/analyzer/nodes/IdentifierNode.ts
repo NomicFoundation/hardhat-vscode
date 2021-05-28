@@ -78,6 +78,13 @@ export class IdentifierNode implements Node {
 
     setParent(parent: Node | undefined): void {
         this.parent = parent;
+
+        const expressionNode = this.getExpressionNode();
+        if (parent && expressionNode && expressionNode.type === "MemberAccess") {
+            const definitionTypes = parent.getTypeNodes();
+
+            this.findMemberAccessParent(expressionNode, definitionTypes);
+        }
     }
 
     getParent(): Node | undefined {
@@ -112,5 +119,20 @@ export class IdentifierNode implements Node {
         orphanNodes.push(this);
 
         return this;
+    }
+
+    findMemberAccessParent(expressionNode: Node, definitionTypes: Node[]): void {
+        for (const definitionType of definitionTypes) {
+            for (const definitionChild of definitionType.children) {
+                if (finder.isNodeConnectable(definitionChild, expressionNode)) {
+                    expressionNode.addTypeNode(definitionChild);
+
+                    expressionNode.setParent(definitionChild);
+                    definitionChild?.addChild(expressionNode);
+
+                    return;
+                }
+            }
+        }
     }
 }

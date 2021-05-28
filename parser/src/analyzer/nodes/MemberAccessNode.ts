@@ -79,6 +79,13 @@ export class MemberAccessNode implements Node {
 
     setParent(parent: Node | undefined): void {
         this.parent = parent;
+
+        const expressionNode = this.getExpressionNode();
+        if (parent && expressionNode && expressionNode.type === "MemberAccess") {
+            const definitionTypes = parent.getTypeNodes();
+
+            this.findMemberAccessParent(expressionNode, definitionTypes);
+        }
     }
 
     getParent(): Node | undefined {
@@ -88,25 +95,15 @@ export class MemberAccessNode implements Node {
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
-        // TO-DO: Improve logic for deeper member access
         const expressionNode = find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent, this);
-
         const definitionTypes = expressionNode.getTypeNodes();
 
-        for (const definitionType of definitionTypes) {
-            for (const definitionChild of definitionType.children) {
-                if (finder.isNodeConnectable(definitionChild, this)) {
-                    this.addTypeNode(definitionChild);
-
-                    this.setParent(definitionChild);
-                    definitionChild?.addChild(this);
-
-                    return this;
-                }
-            }
+        const handled = this.findMemberAccessParent(expressionNode, definitionTypes);
+        if (handled) {
+            return handled;
         }
 
-        // The Identifier name "super" is reserved, so we will try to find the parent for this Node in inheretence Nodes 
+        // The Identifier name "super" is reserved, so we will try to find the parent for this Node in inheretence Nodes
         if (expressionNode.getName() === "super" && expressionNode.type === "Identifier") {
             let contractDefinitionNode = parent;
 
@@ -132,8 +129,26 @@ export class MemberAccessNode implements Node {
             }
         }
 
-        orphanNodes.push(this);
+        // Never add MemberAccessNode to orphanNodes because it is handled via expression
 
         return this;
+    }
+
+
+    findMemberAccessParent(expressionNode: Node, definitionTypes: Node[]): Node | undefined {
+        for (const definitionType of definitionTypes) {
+            for (const definitionChild of definitionType.children) {
+                if (finder.isNodeConnectable(definitionChild, expressionNode)) {
+                    expressionNode.addTypeNode(definitionChild);
+
+                    expressionNode.setParent(definitionChild);
+                    definitionChild?.addChild(expressionNode);
+
+                    return this;
+                }
+            }
+        }
+
+        return undefined;
     }
 }
