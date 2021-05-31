@@ -1,6 +1,6 @@
 import { Conditional } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class ConditionalNode implements Node {
     type: string;
@@ -75,19 +75,19 @@ export class ConditionalNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         if (this.astNode.condition) {
-            find(this.astNode.condition, this.uri).accept(find, orphanNodes, parent);
+            find(this.astNode.condition, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent);
         }
 
         if (this.astNode.trueExpression) {
-            find(this.astNode.trueExpression, this.uri).accept(find, orphanNodes, parent);
+            find(this.astNode.trueExpression, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent);
         }
 
         if (this.astNode.falseExpression) {
-            find(this.astNode.falseExpression, this.uri).accept(find, orphanNodes, parent);
+            find(this.astNode.falseExpression, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent);
         }
 
         return this;

@@ -1,6 +1,6 @@
 import { SubAssembly } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class SubAssemblyNode implements Node {
     type: string;
@@ -76,7 +76,7 @@ export class SubAssemblyNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
         // TO-DO: Method not implemented
         return this;

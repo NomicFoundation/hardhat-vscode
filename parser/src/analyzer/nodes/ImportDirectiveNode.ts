@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { ImportDirective } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class ImportDirectiveNode implements Node {
     type: string;
@@ -21,7 +21,6 @@ export class ImportDirectiveNode implements Node {
     typeNodes: Node[] = [];
 
     constructor (importDirective: ImportDirective, uri: string) {
-        // const rootPath = vscode.workspace.workspaceFolders[0].uri.path;
         this.type = importDirective.type;
 
         // TO-DO: Improve for dependencies path and loc
@@ -93,7 +92,7 @@ export class ImportDirectiveNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         if (parent) {

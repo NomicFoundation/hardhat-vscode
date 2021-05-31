@@ -1,7 +1,7 @@
 import { SourceUnit } from "@solidity-parser/parser/dist/src/ast-types";
 
 import * as finder from "../finder";
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class SourceUnitNode implements Node {
     type: string;
@@ -76,13 +76,13 @@ export class SourceUnitNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         finder.setRoot(this);
 
         for (const child of this.astNode.children) {
-            find(child, this.uri).accept(find, orphanNodes, this);
+            find(child, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
         }
 
         return this;

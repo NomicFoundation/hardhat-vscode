@@ -1,6 +1,6 @@
 import { FileLevelConstant } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class FileLevelConstantNode implements Node {
     type: string;
@@ -88,7 +88,7 @@ export class FileLevelConstantNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         if (parent) {
@@ -96,7 +96,7 @@ export class FileLevelConstantNode implements Node {
         }
 
         if (this.astNode.typeName) {
-            const typeNode = find(this.astNode.typeName, this.uri).accept(find, orphanNodes, this);
+            const typeNode = find(this.astNode.typeName, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
         
             this.addTypeNode(typeNode);
             typeNode.setDeclarationNode(this);
@@ -105,7 +105,7 @@ export class FileLevelConstantNode implements Node {
         }
 
         if (this.astNode.initialValue) {
-            find(this.astNode.initialValue, this.uri).accept(find, orphanNodes, parent);
+            find(this.astNode.initialValue, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent);
         }
 
         parent?.addChild(this);

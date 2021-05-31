@@ -1,6 +1,6 @@
 import { EmitStatement } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class EmitStatementNode implements Node {
     type: string;
@@ -75,10 +75,10 @@ export class EmitStatementNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
-        find(this.astNode.eventCall, this.uri).accept(find, orphanNodes, parent, this);
+        find(this.astNode.eventCall, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent, this);
 
         return this;
     }

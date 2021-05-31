@@ -1,7 +1,7 @@
 import { AssemblyFunctionDefinition } from "@solidity-parser/parser/dist/src/ast-types";
 
 import * as finder from "../finder";
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class AssemblyFunctionDefinitionNode implements Node {
     type: string;
@@ -89,7 +89,7 @@ export class AssemblyFunctionDefinitionNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         if (parent) {
@@ -99,16 +99,16 @@ export class AssemblyFunctionDefinitionNode implements Node {
         this.findChildren(orphanNodes);
 
         for (const argument of this.astNode.arguments) {
-            find(argument, this.uri).accept(find, orphanNodes, this);
+            find(argument, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
         }
 
         for (const returnArgument of this.astNode.returnArguments) {
-            const typeNode = find(returnArgument, this.uri).accept(find, orphanNodes, this);
+            const typeNode = find(returnArgument, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
 
             this.addTypeNode(typeNode);
         }
 
-        find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
+        find(this.astNode.body, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
 
         parent?.addChild(this);
 

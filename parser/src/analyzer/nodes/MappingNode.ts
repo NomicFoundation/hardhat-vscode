@@ -1,6 +1,6 @@
 import { Mapping } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class MappingNode implements Node {
     type: string;
@@ -75,11 +75,11 @@ export class MappingNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
-        find(this.astNode.keyType, this.uri).accept(find, orphanNodes, parent);
-        const typeNode = find(this.astNode.valueType, this.uri).accept(find, orphanNodes, parent);
+        find(this.astNode.keyType, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent);
+        const typeNode = find(this.astNode.valueType, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent);
 
         this.addTypeNode(typeNode);
 

@@ -35,8 +35,10 @@ function createFacade(analyzer: Analyzer, navigation: SolidityNavigation, hover:
 	};
 }
 
-export const languageServer = createFacade(
-    new Analyzer(),
-    new SolidityNavigation(),
-    new SolidityHover()
-);
+export function getLanguageServer(rootPath: string | undefined): LanguageService {
+	return createFacade(
+		new Analyzer(rootPath),
+		new SolidityNavigation(),
+		new SolidityHover()
+	);
+}

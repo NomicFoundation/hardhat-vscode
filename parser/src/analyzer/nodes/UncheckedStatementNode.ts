@@ -1,6 +1,6 @@
 import { UncheckedStatement } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class UncheckedStatementNode implements Node {
     type: string;
@@ -75,11 +75,11 @@ export class UncheckedStatementNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         if (this.astNode.block) {
-            find(this.astNode.block, this.uri).accept(find, orphanNodes, parent);
+            find(this.astNode.block, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent);
         }
 
         return this;

@@ -12,7 +12,7 @@ import {
 import { MarkupKind } from 'vscode-languageserver-types';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
-import { languageServer } from './services';
+import { getLanguageServer, LanguageService } from './services';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -24,9 +24,14 @@ const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
 let hasDiagnosticRelatedInformationCapability = false;
+let languageServer: LanguageService;
 
 connection.onInitialize((params: InitializeParams) => {
 	console.log('server onInitialize');
+
+	const rootPath = params.workspaceFolders ? params.workspaceFolders[0].uri : undefined;
+
+	languageServer = getLanguageServer(rootPath);
 
 	const capabilities = params.capabilities;
 
@@ -175,84 +180,115 @@ connection.onCompletionResolve(
 
 // Add hover example
 connection.onHover(params => {
-	return {
-		contents: {
-			kind: MarkupKind.Markdown,
-			value: [
-				'```typescript',
-				'function validate(document: TextDocument): Diagnostic[]',
-				'```',
-				'___',
-				'Some doc',
-				'',
-				'_@param_ `document` '
-			].join('\n')
-		}
-	};
+	try {
+		return {
+			contents: {
+				kind: MarkupKind.Markdown,
+				value: [
+					'```typescript',
+					'function validate(document: TextDocument): Diagnostic[]',
+					'```',
+					'___',
+					'Some doc',
+					'',
+					'_@param_ `document` '
+				].join('\n')
+			}
+		};
+	} catch (err) {
+		console.error(err);
+	}
 });
 
 connection.onDefinition(params => {
 	console.log("onDefinition");
-	const document = documents.get(params.textDocument.uri);
 
-	if (document) {
-		const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
+	try {
+		const document = documents.get(params.textDocument.uri);
 
-		if (analyzeTree) {
-			return languageServer.findDefinition(params.position, analyzeTree);
-		}
+		if (document) {
+			const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
+
+			if (analyzeTree) {
+				return languageServer.findDefinition(params.position, analyzeTree);
+			}
+		}	
+	} catch (err) {
+		console.error(err);
 	}
 });
 
 connection.onTypeDefinition(params => {
 	console.log("onTypeDefinition");
-	const document = documents.get(params.textDocument.uri);
 
-	if (document) {
-		const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
+	try {
+		const document = documents.get(params.textDocument.uri);
 
-		if (analyzeTree) {
-			return languageServer.findTypeDefinition(params.position, analyzeTree);
+		if (document) {
+			const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
+	
+			if (analyzeTree) {
+				return languageServer.findTypeDefinition(params.position, analyzeTree);
+			}
 		}
+	} catch (err) {
+		console.error(err);
 	}
+
 });
 
 connection.onReferences(params => {
 	console.log("onReferences");
-	const document = documents.get(params.textDocument.uri);
-	
-	if (document) {
-		const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
 
-		if (analyzeTree) {
-			return languageServer.findReferences(params.position, analyzeTree);
+	try {
+		const document = documents.get(params.textDocument.uri);
+	
+		if (document) {
+			const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
+	
+			if (analyzeTree) {
+				return languageServer.findReferences(params.position, analyzeTree);
+			}
 		}
+	} catch (err) {
+		console.error(err);
 	}
+
 });
 
 connection.onImplementation(params => {
 	console.log("onImplementation");
-	const document = documents.get(params.textDocument.uri);
-	
-	if (document) {
-		const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
 
-		if (analyzeTree) {
-			return languageServer.findImplementation(params.position, analyzeTree);
+	try {
+		const document = documents.get(params.textDocument.uri);
+	
+		if (document) {
+			const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
+	
+			if (analyzeTree) {
+				return languageServer.findImplementation(params.position, analyzeTree);
+			}
 		}
+	} catch (err) {
+		console.error(err);
 	}
 });
 
 connection.onRenameRequest(params => {
 	console.log("onRenameRequest");
-	const document = documents.get(params.textDocument.uri);
 
-	if (document) {
-		const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
+	try {
+		const document = documents.get(params.textDocument.uri);
 
-		if (analyzeTree) {
-			return languageServer.doRename(document, params.position, params.newName, analyzeTree);
+		if (document) {
+			const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
+	
+			if (analyzeTree) {
+				return languageServer.doRename(document, params.position, params.newName, analyzeTree);
+			}
 		}
+	} catch (err) {
+		console.error(err);
 	}
 });
 

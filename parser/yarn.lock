@@ -38,10 +38,10 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
-"@solidity-parser/parser@^0.13.0-rc.8":
-  version "0.13.0-rc.8"
-  resolved "https://registry.yarnpkg.com/@solidity-parser/parser/-/parser-0.13.0-rc.8.tgz#a583a5d742cc0ea450b649bb63602e3e42a58695"
-  integrity sha512-39F/W6tFdF28JP0H+04p32hhZ7KWakcgCs9vRSG5gQgZ5Wv9lY5f3jYZHpf4cKKn1xtAacwt6lkpTao57BUzlw==
+"@solidity-parser/parser@^0.13.2":
+  version "0.13.2"
+  resolved "https://registry.yarnpkg.com/@solidity-parser/parser/-/parser-0.13.2.tgz#b6c71d8ca0b382d90a7bbed241f9bc110af65cbe"
+  integrity sha512-RwHnpRnfrnD2MSPveYoPh8nhofEvX7fgjHk1Oq+NNvCcLx4r1js91CO9o+F/F3fBzOCyvm8kKRTriFICX/odWw==
   dependencies:
     antlr4ts "^0.5.0-alpha.4"
 

@@ -1,6 +1,6 @@
 import { AssemblyBlock } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class AssemblyBlockNode implements Node {
     type: string;
@@ -75,7 +75,7 @@ export class AssemblyBlockNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         if (parent) {
@@ -83,7 +83,7 @@ export class AssemblyBlockNode implements Node {
         }
 
         for (const operation of this.astNode.operations || []) {
-            find(operation, this.uri).accept(find, orphanNodes, this);
+            find(operation, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
         }
 
         parent?.addChild(this);

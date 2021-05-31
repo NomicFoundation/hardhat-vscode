@@ -1,7 +1,7 @@
 import { EventDefinition } from "@solidity-parser/parser/dist/src/ast-types";
 
 import * as finder from "../finder";
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class EventDefinitionNode implements Node {
     type: string;
@@ -83,7 +83,7 @@ export class EventDefinitionNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
         
         if (parent) {
@@ -91,7 +91,7 @@ export class EventDefinitionNode implements Node {
         }
 
         for (const parameter of this.astNode.parameters) {
-            find(parameter, this.uri).accept(find, orphanNodes, parent);
+            find(parameter, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent);
         }
 
         finder.findChildren(this, orphanNodes);

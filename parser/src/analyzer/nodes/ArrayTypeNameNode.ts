@@ -1,6 +1,6 @@
 import { ArrayTypeName } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class ArrayTypeNameNode implements Node {
     type: string;
@@ -75,11 +75,11 @@ export class ArrayTypeNameNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         // TO-DO: Improve
         this.setExpressionNode(expression);
 
-        const typeNode = find(this.astNode.baseTypeName, this.uri).accept(find, orphanNodes, parent, this);
+        const typeNode = find(this.astNode.baseTypeName, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent, this);
 
         if (typeNode) {
             this.addTypeNode(typeNode);

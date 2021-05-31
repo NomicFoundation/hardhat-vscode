@@ -4,6 +4,7 @@ import * as finder from "../finder";
 import {
     Location,
     FinderType,
+    DocumentsAnalyzerTree,
     Node,
     ContractDefinitionNode as IContractDefinitionNode
 } from "./Node";
@@ -100,7 +101,7 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         if (parent) {
@@ -108,7 +109,7 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
         }
 
         for (const baseContract of this.astNode.baseContracts) {
-            const inheritanceNode = find(baseContract, this.uri).accept(find, orphanNodes, this);
+            const inheritanceNode = find(baseContract, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
 
             const inheritanceNodeDefinition = inheritanceNode.getDefinitionNode();
 
@@ -118,7 +119,7 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
         }
 
         for (const subNode of this.astNode.subNodes) {
-            find(subNode, this.uri).accept(find, orphanNodes, this);
+            find(subNode, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
         }
 
         // Find parent for orphanNodes from this contract in inheritance Nodes 

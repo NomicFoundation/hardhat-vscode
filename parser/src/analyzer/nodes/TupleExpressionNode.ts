@@ -1,6 +1,6 @@
 import { TupleExpression } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class TupleExpressionNode implements Node {
     type: string;
@@ -75,12 +75,12 @@ export class TupleExpressionNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         for (const component of this.astNode.components) {
             if (component) {
-                find(component, this.uri).accept(find, orphanNodes, parent);
+                find(component, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent);
             }
         }
 

@@ -1,6 +1,6 @@
 import { AssemblyAssignment } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class AssemblyAssignmentNode implements Node {
     type: string;
@@ -75,15 +75,15 @@ export class AssemblyAssignmentNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         for (const name of this.astNode.names || []) {
-            find(name, this.uri).accept(find, orphanNodes, parent);
+            find(name, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent);
         }
 
         if (this.astNode.expression) {
-            find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent);
+            find(this.astNode.expression, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent);
         }
 
         return this;
