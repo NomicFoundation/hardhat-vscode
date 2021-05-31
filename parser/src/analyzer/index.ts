@@ -26,7 +26,7 @@ export class Analyzer {
                 tolerant: true
             });
 
-            // console.log(JSON.stringify(this.ast));
+            console.log(JSON.stringify(this.ast));
 
             this.analyzerTree = matcher.find(this.ast, this.uri).accept(matcher.find, this.orphanNodes);
 

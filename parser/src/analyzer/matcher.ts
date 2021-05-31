@@ -72,6 +72,8 @@ import { NameValueListNode } from "./nodes/NameValueListNode";
 import { AssemblyMemberAccessNode } from "./nodes/AssemblyMemberAccessNode";
 import { CatchClauseNode } from "./nodes/CatchClauseNode";
 import { FileLevelConstantNode } from "./nodes/FileLevelConstantNode";
+import { CustomErrorDefinitionNode } from "./nodes/CustomErrorDefinitionNode";
+import { RevertStatementNode } from "./nodes/RevertStatementNode";
 
 import { Node } from "./nodes/Node";
 
@@ -158,4 +160,6 @@ export const find = matcher<Node>({
 	AssemblyMemberAccess: (assemblyMemberAccess: astTypes.AssemblyMemberAccess, uri: string) => new AssemblyMemberAccessNode(assemblyMemberAccess, uri),
 	CatchClause: (catchClause: astTypes.CatchClause, uri: string) => new CatchClauseNode(catchClause, uri),
 	FileLevelConstant: (fileLevelConstant: astTypes.FileLevelConstant, uri: string) => new FileLevelConstantNode(fileLevelConstant, uri),
+	CustomErrorDefinition: (customErrorDefinition: astTypes.CustomErrorDefinition, uri: string) => new CustomErrorDefinitionNode(customErrorDefinition, uri),
+	RevertStatement: (revertStatement: astTypes.RevertStatement, uri: string) => new RevertStatementNode(revertStatement, uri),
 });
