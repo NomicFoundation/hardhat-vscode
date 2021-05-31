@@ -1,14 +1,22 @@
 import { SourceUnit } from "@solidity-parser/parser/dist/src/ast-types";
 
 import * as finder from "../finder";
-import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
+import {
+    Location,
+    FinderType,
+    DocumentsAnalyzerTree,
+    Node,
+    SourceUnitNode as ISourceUnitNode
+} from "./Node";
 
-export class SourceUnitNode implements Node {
+export class SourceUnitNode implements ISourceUnitNode {
     type: string;
     uri: string;
     astNode: SourceUnit;
 
     nameLoc?: Location | undefined;
+
+    exportNodes: Node[] = [];
 
     expressionNode?: Node | undefined;
     declarationNode?: Node | undefined;
@@ -38,6 +46,14 @@ export class SourceUnitNode implements Node {
 
     addTypeNode(node: Node): void {
         this.typeNodes.push(node);
+    }
+
+    addExportNode(exportNode: Node): void {
+        this.exportNodes.push(exportNode);
+    }
+
+    getExportNodes(): Node[] {
+        return this.exportNodes;
     }
 
     getExpressionNode(): Node | undefined {

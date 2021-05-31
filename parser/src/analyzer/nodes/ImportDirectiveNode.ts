@@ -1,14 +1,23 @@
 import * as path from 'path';
 import { ImportDirective } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
+import {
+    Location,
+    FinderType,
+    DocumentsAnalyzerTree,
+    Node,
+    SourceUnitNode,
+    ImportDirectiveNode as IImportDirectiveNode
+} from "./Node";
 
-export class ImportDirectiveNode implements Node {
+export class ImportDirectiveNode implements IImportDirectiveNode {
     type: string;
     uri: string;
     astNode: ImportDirective;
 
     nameLoc?: Location | undefined;
+
+    importNode: Node | undefined;
 
     expressionNode?: Node | undefined;
     declarationNode?: Node | undefined;
@@ -56,6 +65,14 @@ export class ImportDirectiveNode implements Node {
         this.typeNodes.push(node);
     }
 
+    setImportNode(importNode: Node): void {
+        this.importNode = importNode;
+    }
+
+    getImportNode(): Node | undefined {
+        return this.importNode;
+    }
+
     getExpressionNode(): Node | undefined {
         return this.expressionNode;
     }
@@ -97,6 +114,14 @@ export class ImportDirectiveNode implements Node {
 
         if (parent) {
             this.setParent(parent);
+        }
+
+        const importNode = documentsAnalyzerTree[this.uri];
+        if (importNode && importNode.type === "SourceUnit" && importNode?.astNode.loc) {
+            this.astNode.loc = importNode.astNode.loc;
+
+            this.setImportNode(importNode);
+            (importNode as SourceUnitNode).addExportNode(this);
         }
 
         parent?.addChild(this);

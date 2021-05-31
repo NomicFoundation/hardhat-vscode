@@ -126,4 +126,18 @@ export interface ContractDefinitionNode extends Node {
     getInheritanceNodes(): ContractDefinitionNode[];
 }
 
+export interface ImportDirectiveNode extends Node {
+    importNode: Node | undefined;
+
+    setImportNode(importNode: Node): void;
+    getImportNode(): Node | undefined;
+}
+
+export interface SourceUnitNode extends Node {
+    exportNodes: Node[];
+
+    addExportNode(exportNode: Node): void;
+    getExportNodes(): Node[];
+}
+
 export const definitionNodeTypes = [ "ContractDefinition", "StructDefinition", "ModifierDefinition", "FunctionDefinition", "EventDefinition", "EnumDefinition", "AssemblyLocalDefinition", "LabelDefinition", "AssemblyFunctionDefinition", "UserDefinedTypeName" ];

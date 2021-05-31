@@ -12,6 +12,7 @@ import {
 import { MarkupKind } from 'vscode-languageserver-types';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
+import { getUriFromDocument } from './utils';
 import { getLanguageServer, LanguageService } from './services';
 
 // Create a connection for the server, using Node's IPC as a transport.
@@ -207,10 +208,11 @@ connection.onDefinition(params => {
 		const document = documents.get(params.textDocument.uri);
 
 		if (document) {
-			const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
+			const documentURI = getUriFromDocument(document);
+			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
 
 			if (analyzeTree) {
-				return languageServer.findDefinition(params.position, analyzeTree);
+				return languageServer.findDefinition(documentURI, params.position, analyzeTree);
 			}
 		}	
 	} catch (err) {
@@ -225,10 +227,11 @@ connection.onTypeDefinition(params => {
 		const document = documents.get(params.textDocument.uri);
 
 		if (document) {
-			const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
+			const documentURI = getUriFromDocument(document);
+			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
 	
 			if (analyzeTree) {
-				return languageServer.findTypeDefinition(params.position, analyzeTree);
+				return languageServer.findTypeDefinition(documentURI, params.position, analyzeTree);
 			}
 		}
 	} catch (err) {
@@ -244,10 +247,11 @@ connection.onReferences(params => {
 		const document = documents.get(params.textDocument.uri);
 	
 		if (document) {
-			const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
+			const documentURI = getUriFromDocument(document);
+			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
 	
 			if (analyzeTree) {
-				return languageServer.findReferences(params.position, analyzeTree);
+				return languageServer.findReferences(documentURI, params.position, analyzeTree);
 			}
 		}
 	} catch (err) {
@@ -263,10 +267,11 @@ connection.onImplementation(params => {
 		const document = documents.get(params.textDocument.uri);
 	
 		if (document) {
-			const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
+			const documentURI = getUriFromDocument(document);
+			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
 	
 			if (analyzeTree) {
-				return languageServer.findImplementation(params.position, analyzeTree);
+				return languageServer.findImplementation(documentURI, params.position, analyzeTree);
 			}
 		}
 	} catch (err) {
@@ -281,10 +286,11 @@ connection.onRenameRequest(params => {
 		const document = documents.get(params.textDocument.uri);
 
 		if (document) {
-			const analyzeTree = languageServer.analyzeDocument(document.getText(), document.uri);
+			const documentURI = getUriFromDocument(document);
+			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
 	
 			if (analyzeTree) {
-				return languageServer.doRename(document, params.position, params.newName, analyzeTree);
+				return languageServer.doRename(documentURI, document, params.position, params.newName, analyzeTree);
 			}
 		}
 	} catch (err) {

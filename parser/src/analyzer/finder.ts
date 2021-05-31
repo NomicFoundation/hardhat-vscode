@@ -1,4 +1,4 @@
-import { Position, Node, ContractDefinitionNode } from "./nodes/Node";
+import { Position, Node, ContractDefinitionNode, ImportDirectiveNode } from "./nodes/Node";
 
 export let analyzerTree: Node | undefined;
 
@@ -23,8 +23,8 @@ export function findParent(node: Node, from?: Node, searchInInheretenceNodes?: b
     return parent;
 }
 
-export function findNodeByPosition(position: Position, from?: Node): Node | undefined {
-    const node = walk(position, from || analyzerTree);
+export function findNodeByPosition(uri: string, position: Position, from?: Node): Node | undefined {
+    const node = walk(uri, position, from || analyzerTree);
 
     if (node) {
         return node.getDefinitionNode();
@@ -158,7 +158,7 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
     }
 
     for (const child of from.children) {
-        if (from.type !== "AssemblyFor" && !isNodeShadowedByNode(node, child)) {
+        if (from.type !== "AssemblyFor" && child.type !== "ImportDirective" && !isNodeShadowedByNode(node, child)) {
             if (isNodeConnectable(child, node)) {
                 return child;
             }
@@ -192,10 +192,21 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
         }
     }
 
+    // Handle import
+    if (from.type === "ImportDirective") {
+        const importNode = (from as ImportDirectiveNode).getImportNode();
+
+        for (const child of importNode?.children || []) {
+            if (isNodeConnectable(child, node)) {
+                return child;
+            }
+        }
+    }
+
     return search(node, from.parent, searchInInheretenceNodes, visitedNodes);
 }
 
-function walk(position: Position, from?: Node, visitedNodes?: Node[]): Node | undefined {
+function walk(uri: string, position: Position, from?: Node, visitedNodes?: Node[], walkInImport = true): Node | undefined {
     if (!visitedNodes) {
         visitedNodes = [];
     }
@@ -216,21 +227,32 @@ function walk(position: Position, from?: Node, visitedNodes?: Node[]): Node | un
         from.nameLoc.start.line === position.line &&
         from.nameLoc.end.line === position.line &&
         from.nameLoc.start.column <= position.column &&
-        from.nameLoc.end.column >= position.column
+        from.nameLoc.end.column >= position.column &&
+        (from.type === "ImportDirective" || from.uri === uri)
     ) {
         return from;
     }
 
-    let parent: Node | undefined;
-    for (const child of from.children) {
-        parent = walk(position, child, visitedNodes);
+    // Handle import
+    if (walkInImport && from.type === "ImportDirective") {
+        const importNode = (from as ImportDirectiveNode).getImportNode();
+
+        const parent = walk(uri, position, importNode, visitedNodes, false);
 
         if (parent) {
             return parent;
         }
     }
 
-    return walk(position, from.parent, visitedNodes);
+    for (const child of from.children) {
+        const parent = walk(uri, position, child, visitedNodes);
+
+        if (parent) {
+            return parent;
+        }
+    }
+
+    return walk(uri, position, from.parent, visitedNodes);
 }
 
 function matchNodeExpression(expression: Node, node: Node): boolean {

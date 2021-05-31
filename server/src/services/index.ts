@@ -12,11 +12,11 @@ import { SolidityHover } from './SolidityHover';
 export interface LanguageService {
     configure(raw?: LanguageSettings): void;
     analyzeDocument(document: string, uri: string): Node | undefined;
-	findDefinition(position: Position, analyzerTree: Node): Location | undefined;
-	findTypeDefinition(position: Position, analyzerTree: Node): Location[];
-	findReferences(position: Position, analyzerTree: Node): Location[];
-	findImplementation(position: Position, analyzerTree: Node): Location[];
-	doRename(document: TextDocument, position: Position, newName: string, analyzerTree: Node): WorkspaceEdit;
+	findDefinition(uri: string, position: Position, analyzerTree: Node): Location | undefined;
+	findTypeDefinition(uri: string, position: Position, analyzerTree: Node): Location[];
+	findReferences(uri: string, position: Position, analyzerTree: Node): Location[];
+	findImplementation(uri: string, position: Position, analyzerTree: Node): Location[];
+	doRename(uri: string, document: TextDocument, position: Position, newName: string, analyzerTree: Node): WorkspaceEdit;
 	doHover(document: TextDocument, position: Position, analyzerTree: Node, settings?: HoverSettings): Hover | undefined;
 }
 

@@ -10,8 +10,8 @@ import {
 } from "../types/languageTypes";
 
 export class SolidityNavigation {
-	public findDefinition(position: Position, analyzerTree: Node): Location | undefined {
-		const definitionNode = this.findNodeByPosition(position, analyzerTree);
+	public findDefinition(uri: string, position: Position, analyzerTree: Node): Location | undefined {
+		const definitionNode = this.findNodeByPosition(uri, position, analyzerTree);
 
 		if (definitionNode && definitionNode.astNode.loc) {
 			return {
@@ -23,8 +23,8 @@ export class SolidityNavigation {
 		return undefined;
 	}
 
-	public findTypeDefinition(position: Position, analyzerTree: Node): Location[] {
-		const definitionNode = this.findNodeByPosition(position, analyzerTree);
+	public findTypeDefinition(uri: string, position: Position, analyzerTree: Node): Location[] {
+		const definitionNode = this.findNodeByPosition(uri, position, analyzerTree);
 
 		if (!definitionNode) {
 			return [];
@@ -33,13 +33,13 @@ export class SolidityNavigation {
 		return this.getHighlightLocations(definitionNode.getTypeNodes());
 	}
 
-	public findReferences(position: Position, analyzerTree: Node): Location[] {
-		const highlightNodes = this.findHighlightNodes(position, analyzerTree);
+	public findReferences(uri: string, position: Position, analyzerTree: Node): Location[] {
+		const highlightNodes = this.findHighlightNodes(uri, position, analyzerTree);
         return this.getHighlightLocations(highlightNodes);
 	}
 
-	public findImplementation(position: Position, analyzerTree: Node): Location[] {
-		const highlightNodes = this.findHighlightNodes(position, analyzerTree);
+	public findImplementation(uri: string, position: Position, analyzerTree: Node): Location[] {
+		const highlightNodes = this.findHighlightNodes(uri, position, analyzerTree);
 
 		const implementationNodes: Node[] = [];
 		for (const highlightNode of highlightNodes) {
@@ -51,8 +51,8 @@ export class SolidityNavigation {
         return this.getHighlightLocations(implementationNodes);
 	}
 
-	public doRename(document: TextDocument, position: Position, newName: string, analyzerTree: Node): WorkspaceEdit {
-		const highlightNodes = this.findHighlightNodes(position, analyzerTree);
+	public doRename(uri: string, document: TextDocument, position: Position, newName: string, analyzerTree: Node): WorkspaceEdit {
+		const highlightNodes = this.findHighlightNodes(uri, position, analyzerTree);
 		const edits: TextEdit[] = [];
 
 		highlightNodes.forEach(highlightNode => {
@@ -85,10 +85,10 @@ export class SolidityNavigation {
         return locations;
 	}
 
-	private findHighlightNodes(position: Position, analyzerTree: Node): Node[] {
+	private findHighlightNodes(uri: string, position: Position, analyzerTree: Node): Node[] {
 		const highlights: Node[] = [];
 
-		const node = this.findNodeByPosition(position, analyzerTree);
+		const node = this.findNodeByPosition(uri, position, analyzerTree);
 
 		const nodeName = node?.getName();
 		if (node && nodeName) {
@@ -98,8 +98,8 @@ export class SolidityNavigation {
         return highlights;
 	}
 
-	private findNodeByPosition(position: Position, analyzerTree: Node): Node | undefined {
-		return finder.findNodeByPosition({
+	private findNodeByPosition(uri: string, position: Position, analyzerTree: Node): Node | undefined {
+		return finder.findNodeByPosition(uri, {
 			// TO-DO: Remove +1 when "@solidity-parser" fix line counting.
 			// Why +1? Because "vs-code" line counting from 0, and "@solidity-parser" from 1.
 			line: position.line + 1,
