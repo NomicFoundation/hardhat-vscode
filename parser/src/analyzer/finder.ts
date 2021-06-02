@@ -267,7 +267,8 @@ function walk(uri: string, position: Position, from?: Node, visitedNodes?: Node[
         from.nameLoc.end.line === position.line &&
         from.nameLoc.start.column <= position.column &&
         from.nameLoc.end.column >= position.column &&
-        (from.type === "ImportDirective" || from.uri === uri)
+        (from.uri === uri ||
+        (from.type === "ImportDirective" && (from as ImportDirectiveNode).realURI === uri))
     ) {
         return from;
     }
