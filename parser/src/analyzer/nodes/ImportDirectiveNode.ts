@@ -38,30 +38,9 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
         // TO-DO: Improve for dependencies path and loc
         this.uri = path.join(uri, '..', importDirective.path);
         
-        if (importDirective.loc) {
-            if (importDirective.symbolAliasesIdentifiers) {
-                this.nameLoc = {
-                    start: {
-                        line: importDirective.loc.end.line,
-                        column: importDirective.loc.end.column - importDirective.path.length
-                    },
-                    end: {
-                        line: importDirective.loc.end.line,
-                        column: importDirective.loc.end.column
-                    }
-                };
-            } else {
-                this.nameLoc = {
-                    start: {
-                        line: importDirective.loc.start.line,
-                        column: importDirective.loc.start.column + "import ".length
-                    },
-                    end: {
-                        line: importDirective.loc.start.line,
-                        column: importDirective.loc.start.column + "import ".length + importDirective.path.length
-                    }
-                };
-            }
+        if (importDirective.pathLiteral && importDirective.pathLiteral.loc) {
+            this.nameLoc = importDirective.pathLiteral.loc;
+            this.nameLoc.end.column = (this.nameLoc?.end.column || 0) + importDirective.pathLiteral.value.length;
         }
 
         this.astNode = importDirective;

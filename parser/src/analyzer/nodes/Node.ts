@@ -29,12 +29,13 @@ export interface Component {
     /**
      * 
      * @param find A Matcher find function that matches BaseASTNode to analyzer Nodes then create metched analyzer Node and returned it.
-     * @param documentsAnalyzerTree Map { uri: Node } for chaining different files through imports.
+     * @param documentsAnalyzer Map { [uri: string]: DocumentAnalyzer } have all documentsAnalyzer class instances used for handle imports on first project start.
+     * @param documentsAnalyzerTree Map { [uri: string]: Node | undefined } for chaining different files through imports.
      * @param orphanNodes Array of nodes that didn't find a parent.
      * @param parent Parent of current node in AST (Abstract syntax tree).
      * @param expression AST child Node expression. Expression serves to let us know later if there is a Node expression like FunctionCallNode, ArrayTypeNameNode...  
      * 
-     * @returns Child node.
+     * @returns Child node in AST.
      */
     accept(find: FinderType, documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node;
 }
