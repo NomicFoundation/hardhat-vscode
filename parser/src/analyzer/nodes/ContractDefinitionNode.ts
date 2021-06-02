@@ -125,6 +125,12 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
         // Find parent for orphanNodes from this contract in inheritance Nodes 
         this.findParentForOrphanNodesInInheritanceNodes(orphanNodes);
 
+        const rootNode = finder.findSourceUnitNode(parent);
+        if (rootNode) {
+            const exportNodes = new Array(...rootNode.getExportNodes());
+            finder.findChildren(this, exportNodes, false);
+        }
+
         finder.findChildren(this, orphanNodes, false);
 
         parent?.addChild(this);

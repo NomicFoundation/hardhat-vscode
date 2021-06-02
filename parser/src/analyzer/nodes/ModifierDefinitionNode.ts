@@ -102,6 +102,12 @@ export class ModifierDefinitionNode implements Node {
 
         find(this.astNode.body, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
 
+        const rootNode = finder.findSourceUnitNode(parent);
+        if (rootNode) {
+            const exportNodes = new Array(...rootNode.getExportNodes());
+            finder.findChildren(this, exportNodes, false);
+        }
+
         finder.findChildren(this, orphanNodes);
 
         parent?.addChild(this);

@@ -1,4 +1,4 @@
-import { Position, Node, ContractDefinitionNode, ImportDirectiveNode } from "./nodes/Node";
+import { Position, Node, ContractDefinitionNode, ImportDirectiveNode, SourceUnitNode } from "./nodes/Node";
 
 export let analyzerTree: Node | undefined;
 
@@ -17,7 +17,16 @@ export function findParent(node: Node, from?: Node, searchInInheretenceNodes?: b
     }
 
     if (parent) {
-        return parent.getDefinitionNode();
+        parent = parent.getDefinitionNode();
+    }
+
+    // If the parent uri and node uri are not the same, add the node to the exportNode field
+    if (parent && parent.uri !== node.uri) {
+        const rootNode = findSourceUnitNode(parent);
+
+        if (rootNode) {
+            rootNode.addExportNode(node);
+        }
     }
 
     return parent;
@@ -321,4 +330,17 @@ export function isNodeConnectable(parent: Node | undefined, child: Node | undefi
     }
 
     return false;
+}
+
+export function findSourceUnitNode(node: Node | undefined): SourceUnitNode | undefined {
+    let rootNode = node;
+    while (rootNode && rootNode.type !== "SourceUnit") {
+        rootNode = rootNode.getParent();
+    }
+
+    if (rootNode?.type === "SourceUnit") {
+        return (rootNode as SourceUnitNode);
+    }
+
+    return undefined;
 }

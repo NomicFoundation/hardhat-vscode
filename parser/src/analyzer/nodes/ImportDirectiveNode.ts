@@ -12,6 +12,7 @@ import {
 
 export class ImportDirectiveNode implements IImportDirectiveNode {
     type: string;
+    realURI: string;
     uri: string;
     astNode: ImportDirective;
 
@@ -31,6 +32,7 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
 
     constructor (importDirective: ImportDirective, uri: string) {
         this.type = importDirective.type;
+        this.realURI = uri;
 
         // TO-DO: Improve for dependencies path and loc
         this.uri = path.join(uri, '..', importDirective.path);
@@ -120,8 +122,16 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
         if (importNode && importNode.type === "SourceUnit" && importNode?.astNode.loc) {
             this.astNode.loc = importNode.astNode.loc;
 
-            this.setImportNode(importNode);
-            (importNode as SourceUnitNode).addExportNode(this);
+            const sourceUintImportNode = importNode as SourceUnitNode;
+            const sourceUintExportNodes = sourceUintImportNode.getExportNodes();
+
+            for (let i = 0; i < sourceUintExportNodes.length; i++) {
+                if (sourceUintExportNodes[i].uri === this.realURI) {
+                    sourceUintExportNodes.splice(i, 1);
+                }
+            }
+
+            this.setImportNode(sourceUintImportNode);
         }
 
         parent?.addChild(this);

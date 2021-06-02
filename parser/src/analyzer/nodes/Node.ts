@@ -127,6 +127,7 @@ export interface ContractDefinitionNode extends Node {
 }
 
 export interface ImportDirectiveNode extends Node {
+    realURI: string;
     importNode: Node | undefined;
 
     setImportNode(importNode: Node): void;

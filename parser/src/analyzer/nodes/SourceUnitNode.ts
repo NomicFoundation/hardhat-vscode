@@ -48,6 +48,9 @@ export class SourceUnitNode implements ISourceUnitNode {
         this.typeNodes.push(node);
     }
 
+    /**
+     * @param exportNode is root node from the file that imports this file
+     */
     addExportNode(exportNode: Node): void {
         this.exportNodes.push(exportNode);
     }
@@ -96,6 +99,11 @@ export class SourceUnitNode implements ISourceUnitNode {
         this.setExpressionNode(expression);
 
         finder.setRoot(this);
+
+        const oldSourceUint = documentsAnalyzerTree[this.uri];
+        if (oldSourceUint && oldSourceUint instanceof SourceUnitNode) {
+            this.exportNodes = oldSourceUint.getExportNodes();
+        }
 
         for (const child of this.astNode.children) {
             find(child, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);

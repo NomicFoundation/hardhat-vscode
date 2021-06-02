@@ -94,6 +94,12 @@ export class FunctionDefinitionNode implements Node {
 
         if (parent) {
             this.setParent(parent);
+
+            const rootNode = finder.findSourceUnitNode(parent);
+            if (rootNode) {
+                const exportNodes = new Array(...rootNode.getExportNodes());
+                this.findChildren(exportNodes);
+            }
         }
 
         this.findChildren(orphanNodes);

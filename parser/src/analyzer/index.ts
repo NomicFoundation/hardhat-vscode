@@ -3,7 +3,7 @@ import * as path from "path";
 import * as parser from "@solidity-parser/parser";
 import { ASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Node, DocumentsAnalyzerTree } from "./nodes/Node";
+import { Node, DocumentsAnalyzerTree, SourceUnitNode } from "./nodes/Node";
 import * as matcher from "./matcher";
 
 export class Analyzer {

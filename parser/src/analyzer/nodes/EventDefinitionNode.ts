@@ -94,6 +94,12 @@ export class EventDefinitionNode implements Node {
             find(parameter, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent);
         }
 
+        const rootNode = finder.findSourceUnitNode(parent);
+        if (rootNode) {
+            const exportNodes = new Array(...rootNode.getExportNodes());
+            finder.findChildren(this, exportNodes, false);
+        }
+
         finder.findChildren(this, orphanNodes);
 
         parent?.addChild(this);
