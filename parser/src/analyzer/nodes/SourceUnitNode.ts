@@ -106,6 +106,8 @@ export class SourceUnitNode implements ISourceUnitNode {
             this.exportNodes = oldSourceUint.getExportNodes();
         }
 
+        documentsAnalyzerTree[this.uri] = this;
+
         for (const child of this.astNode.children) {
             find(child, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, this);
         }
