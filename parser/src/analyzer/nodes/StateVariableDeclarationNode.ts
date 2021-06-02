@@ -1,6 +1,6 @@
 import { StateVariableDeclaration } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerMap, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class StateVariableDeclarationNode implements Node {
     type: string;
@@ -75,15 +75,15 @@ export class StateVariableDeclarationNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         for (const variable of this.astNode.variables) {
-            find(variable, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent);
+            find(variable, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, parent);
         }
 
         if (this.astNode.initialValue) {
-            find(this.astNode.initialValue, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent);
+            find(this.astNode.initialValue, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, parent);
         }
 
         return this;

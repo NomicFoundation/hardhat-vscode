@@ -4,6 +4,7 @@ import { ImportDirective } from "@solidity-parser/parser/dist/src/ast-types";
 import {
     Location,
     FinderType,
+    DocumentsAnalyzerMap,
     DocumentsAnalyzerTree,
     Node,
     SourceUnitNode,
@@ -38,16 +39,29 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
         this.uri = path.join(uri, '..', importDirective.path);
         
         if (importDirective.loc) {
-            this.nameLoc = {
-                start: {
-                    line: importDirective.loc.start.line,
-                    column: importDirective.loc.start.column + "import ".length
-                },
-                end: {
-                    line: importDirective.loc.end.line,
-                    column: importDirective.loc.end.column
-                }
-            };
+            if (importDirective.symbolAliasesIdentifiers) {
+                this.nameLoc = {
+                    start: {
+                        line: importDirective.loc.end.line,
+                        column: importDirective.loc.end.column - importDirective.path.length
+                    },
+                    end: {
+                        line: importDirective.loc.end.line,
+                        column: importDirective.loc.end.column
+                    }
+                };
+            } else {
+                this.nameLoc = {
+                    start: {
+                        line: importDirective.loc.start.line,
+                        column: importDirective.loc.start.column + "import ".length
+                    },
+                    end: {
+                        line: importDirective.loc.start.line,
+                        column: importDirective.loc.start.column + "import ".length + importDirective.path.length
+                    }
+                };
+            }
         }
 
         this.astNode = importDirective;
@@ -111,11 +125,15 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
         return this.parent;
     }
 
-    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         if (parent) {
             this.setParent(parent);
+        }
+
+        if (!documentsAnalyzerTree[this.uri] && documentsAnalyzer[this.uri]) {
+            documentsAnalyzerTree[this.uri] = documentsAnalyzer[this.uri].analyze(documentsAnalyzer, documentsAnalyzerTree);
         }
 
         const importNode = documentsAnalyzerTree[this.uri];

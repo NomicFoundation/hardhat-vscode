@@ -1,7 +1,7 @@
 import { StructDefinition } from "@solidity-parser/parser/dist/src/ast-types";
 
 import * as finder from "../finder";
-import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerMap, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class StructDefinitionNode implements Node {
     type: string;
@@ -85,7 +85,7 @@ export class StructDefinitionNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         if (parent) {
@@ -93,7 +93,7 @@ export class StructDefinitionNode implements Node {
         }
 
         for (const member of this.astNode.members) {
-            find(member, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
+            find(member, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, this);
         }
 
         const rootNode = finder.findSourceUnitNode(parent);

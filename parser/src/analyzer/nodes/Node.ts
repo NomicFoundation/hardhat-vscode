@@ -1,4 +1,4 @@
-import { BaseASTNode } from "@solidity-parser/parser/dist/src/ast-types";
+import { ASTNode, BaseASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
 /** 
  *  Position in vscode file.
@@ -22,6 +22,7 @@ export interface Location {
  */
 export type FinderType = (ast: BaseASTNode, uri: string) => Node;
 
+export type DocumentsAnalyzerMap = { [uri: string]: DocumentAnalyzer };
 export type DocumentsAnalyzerTree = { [uri: string]: Node | undefined };
 
 export interface Component {
@@ -35,7 +36,7 @@ export interface Component {
      * 
      * @returns Child node.
      */
-    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node;
+    accept(find: FinderType, documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node;
 }
 
 export interface Node extends Component {
@@ -142,3 +143,16 @@ export interface SourceUnitNode extends Node {
 }
 
 export const definitionNodeTypes = [ "ContractDefinition", "StructDefinition", "ModifierDefinition", "FunctionDefinition", "EventDefinition", "EnumDefinition", "AssemblyLocalDefinition", "LabelDefinition", "AssemblyFunctionDefinition", "UserDefinedTypeName" ];
+
+export interface DocumentAnalyzer {
+    document: string | undefined;
+    uri: string;
+
+    ast: ASTNode | undefined;
+
+    analyzerTree?: Node;
+
+    orphanNodes: Node[];
+
+    analyze(documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, document?: string): Node | undefined;
+}

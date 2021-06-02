@@ -1,7 +1,7 @@
 import { ModifierDefinition } from "@solidity-parser/parser/dist/src/ast-types";
 
 import * as finder from "../finder";
-import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerMap, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class ModifierDefinitionNode implements Node {
     type: string;
@@ -85,7 +85,7 @@ export class ModifierDefinitionNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         if (parent) {
@@ -93,14 +93,16 @@ export class ModifierDefinitionNode implements Node {
         }
 
         for (const override of this.astNode.override || []) {
-            find(override, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
+            find(override, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, this);
         }
 
         for (const param of this.astNode.parameters || []) {
-            find(param, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
+            find(param, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, this);
         }
 
-        find(this.astNode.body, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
+        if (this.astNode.body) {
+            find(this.astNode.body, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, this);
+        }
 
         const rootNode = finder.findSourceUnitNode(parent);
         if (rootNode) {

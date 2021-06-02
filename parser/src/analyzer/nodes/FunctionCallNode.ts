@@ -1,6 +1,6 @@
 import { FunctionCall } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerMap, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class FunctionCallNode implements Node {
     type: string;
@@ -75,17 +75,17 @@ export class FunctionCallNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         if (expression?.type !== "EmitStatement") {
             expression = this;
         }
 
-        const expressionNode = find(this.astNode.expression, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent, expression);
+        const expressionNode = find(this.astNode.expression, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, parent, expression);
 
         for (const argument of this.astNode.arguments) {
-            find(argument, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent);
+            find(argument, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, parent);
         }
 
         return expressionNode;

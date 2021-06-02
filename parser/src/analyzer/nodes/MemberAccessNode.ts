@@ -1,7 +1,14 @@
 import { MemberAccess } from "@solidity-parser/parser/dist/src/ast-types";
 
 import * as finder from "../finder";
-import { Location, FinderType, DocumentsAnalyzerTree, Node, ContractDefinitionNode } from "./Node";
+import {
+    Location,
+    FinderType,
+    DocumentsAnalyzerMap,
+    DocumentsAnalyzerTree,
+    ContractDefinitionNode,
+    Node
+} from "./Node";
 
 export class MemberAccessNode implements Node {
     type: string;
@@ -92,10 +99,10 @@ export class MemberAccessNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
-        const expressionNode = find(this.astNode.expression, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent, this);
+        const expressionNode = find(this.astNode.expression, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, parent, this);
         const definitionTypes = expressionNode.getTypeNodes();
 
         const handled = this.findMemberAccessParent(expressionNode, definitionTypes);

@@ -1,6 +1,6 @@
 import { UnaryOperation } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerMap, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class UnaryOperationNode implements Node {
     type: string;
@@ -75,10 +75,10 @@ export class UnaryOperationNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
-        find(this.astNode.subExpression, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent);
+        find(this.astNode.subExpression, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, parent);
 
         return this;
     }

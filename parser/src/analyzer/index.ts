@@ -3,11 +3,16 @@ import * as path from "path";
 import * as parser from "@solidity-parser/parser";
 import { ASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Node, DocumentsAnalyzerTree, SourceUnitNode } from "./nodes/Node";
 import * as matcher from "./matcher";
+import {
+    Node,
+    DocumentsAnalyzerTree,
+    DocumentsAnalyzerMap,
+    DocumentAnalyzer as IDocumentAnalyzer
+} from "./nodes/Node";
 
 export class Analyzer {
-    documentsAnalyzer: { [uri: string]: DocumentAnalyzer } = {};
+    documentsAnalyzer: DocumentsAnalyzerMap = {};
     documentsAnalyzerTree: DocumentsAnalyzerTree = {};
 
     constructor (rootPath: string | undefined) {
@@ -17,9 +22,12 @@ export class Analyzer {
 
         // Init all documentAnalyzers
         for (const documentUri of documentsUri) {
-            if (!this.documentsAnalyzer[documentUri]) {
-                this.documentsAnalyzer[documentUri] = new DocumentAnalyzer(documentUri);
-                this.documentsAnalyzerTree[documentUri] = this.documentsAnalyzer[documentUri].analyze(this.documentsAnalyzerTree);
+            this.documentsAnalyzer[documentUri] = new DocumentAnalyzer(documentUri);
+        }
+
+        for (const documentUri of documentsUri) {
+            if (!this.documentsAnalyzerTree[documentUri]) {
+                this.documentsAnalyzerTree[documentUri] = this.documentsAnalyzer[documentUri].analyze(this.documentsAnalyzer, this.documentsAnalyzerTree);
             }
         }
     }
@@ -30,12 +38,12 @@ export class Analyzer {
         }
 
         if (this.documentsAnalyzer[uri]) {
-            this.documentsAnalyzerTree[uri] = this.documentsAnalyzer[uri].analyze(this.documentsAnalyzerTree, document);
+            this.documentsAnalyzerTree[uri] = this.documentsAnalyzer[uri].analyze(this.documentsAnalyzer, this.documentsAnalyzerTree, document);
             return this.documentsAnalyzerTree[uri];
         }
 
         this.documentsAnalyzer[uri] = new DocumentAnalyzer(uri);
-        this.documentsAnalyzerTree[uri] = this.documentsAnalyzer[uri].analyze(this.documentsAnalyzerTree, document);
+        this.documentsAnalyzerTree[uri] = this.documentsAnalyzer[uri].analyze(this.documentsAnalyzer, this.documentsAnalyzerTree, document);
 
         return this.documentsAnalyzerTree[uri];
     }
@@ -67,7 +75,7 @@ export class Analyzer {
     }
 }
 
-class DocumentAnalyzer {
+class DocumentAnalyzer implements IDocumentAnalyzer {
     document: string | undefined;
     uri: string;
 
@@ -82,7 +90,7 @@ class DocumentAnalyzer {
         this.document = "" + fs.readFileSync(uri);
     }
 
-    public analyze(documentsAnalyzerTree: DocumentsAnalyzerTree, document?: string): Node | undefined {
+    public analyze(documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, document?: string): Node | undefined {
         try {
             this.orphanNodes = [];
 
@@ -96,9 +104,9 @@ class DocumentAnalyzer {
                 tolerant: true
             });
 
-            // console.log(this.uri); //, JSON.stringify(this.ast));
+            // console.log(this.uri, JSON.stringify(this.ast));
 
-            this.analyzerTree = matcher.find(this.ast, this.uri).accept(matcher.find, documentsAnalyzerTree, this.orphanNodes);
+            this.analyzerTree = matcher.find(this.ast, this.uri).accept(matcher.find, documentsAnalyzer, documentsAnalyzerTree, this.orphanNodes);
 
             return this.analyzerTree;
         } catch (err) {

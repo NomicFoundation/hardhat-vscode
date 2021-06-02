@@ -1,7 +1,14 @@
 import { FunctionDefinition } from "@solidity-parser/parser/dist/src/ast-types";
 
 import * as finder from "../finder";
-import { Location, FinderType, DocumentsAnalyzerTree, Node, ContractDefinitionNode } from "./Node";
+import {
+    Location,
+    FinderType,
+    DocumentsAnalyzerMap,
+    DocumentsAnalyzerTree,
+    ContractDefinitionNode,
+    Node
+} from "./Node";
 
 export class FunctionDefinitionNode implements Node {
     type: string;
@@ -89,7 +96,7 @@ export class FunctionDefinitionNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         if (parent) {
@@ -105,27 +112,27 @@ export class FunctionDefinitionNode implements Node {
         this.findChildren(orphanNodes);
 
         for (const override of this.astNode.override || []) {
-            find(override, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
+            find(override, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, this);
         }
 
         for (const param of this.astNode.parameters) {
-            find(param, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
+            find(param, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, this);
         }
 
         for (const returnParam of this.astNode.returnParameters || []) {
-            const typeNode = find(returnParam, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
+            const typeNode = find(returnParam, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, this);
 
             this.addTypeNode(typeNode);
         }
 
         for (const modifier of this.astNode.modifiers || []) {
-            const typeNode = find(modifier, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
+            const typeNode = find(modifier, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, this);
 
             this.addTypeNode(typeNode);
         }
 
         if (this.astNode.body) {
-            find(this.astNode.body, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
+            find(this.astNode.body, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, this);
         }
 
         if (parent?.type === "ContractDefinition") {

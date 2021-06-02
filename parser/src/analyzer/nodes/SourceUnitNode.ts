@@ -4,6 +4,7 @@ import * as finder from "../finder";
 import {
     Location,
     FinderType,
+    DocumentsAnalyzerMap,
     DocumentsAnalyzerTree,
     Node,
     SourceUnitNode as ISourceUnitNode
@@ -95,7 +96,7 @@ export class SourceUnitNode implements ISourceUnitNode {
         return this.parent;
     }
 
-    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         finder.setRoot(this);
@@ -106,7 +107,7 @@ export class SourceUnitNode implements ISourceUnitNode {
         }
 
         for (const child of this.astNode.children) {
-            find(child, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this);
+            find(child, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, this);
         }
 
         return this;

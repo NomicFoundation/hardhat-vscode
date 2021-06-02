@@ -145,9 +145,13 @@ function nestNode(node: Node, orphanNodes: Node[]): void {
     }
 }
 
-function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: boolean, visitedNodes?: Node[]): Node | undefined {
+function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: boolean, visitedNodes?: Node[], visitedFiles?: string[]): Node | undefined {
     if (!visitedNodes) {
         visitedNodes = [];
+    }
+
+    if (!visitedFiles) {
+        visitedFiles = [];
     }
 
     if (!from) {
@@ -202,22 +206,48 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
     }
 
     // Handle import
-    if (from.type === "ImportDirective") {
-        const importNode = (from as ImportDirectiveNode).getImportNode();
-
-        for (const child of importNode?.children || []) {
-            if (isNodeConnectable(child, node)) {
-                return child;
-            }
-        }
+    const matched = searchInImportNodes(visitedFiles, node, from);
+    if (matched) {
+        return matched;
     }
 
     return search(node, from.parent, searchInInheretenceNodes, visitedNodes);
 }
 
-function walk(uri: string, position: Position, from?: Node, visitedNodes?: Node[], walkInImport = true): Node | undefined {
+function searchInImportNodes(visitedFiles: string[], node: Node, from?: Node | undefined): Node | undefined {
+    if (!from) {
+        return undefined;
+    }
+
+    if (from.type === "ImportDirective") {
+        const importNode = (from as ImportDirectiveNode).getImportNode();
+
+        if (importNode && visitedFiles.indexOf(importNode.uri) === -1) {
+            // Add as visited file
+            visitedFiles.push(importNode.uri);
+
+            for (const child of importNode?.children || []) {
+                const matched = searchInImportNodes(visitedFiles, node, child);
+
+                if (matched) {
+                    return matched;
+                }
+
+                if (isNodeConnectable(child, node)) {
+                    return child;
+                }
+            }
+        }
+    }
+}
+
+function walk(uri: string, position: Position, from?: Node, visitedNodes?: Node[], visitedFiles?: string[]): Node | undefined {
     if (!visitedNodes) {
         visitedNodes = [];
+    }
+
+    if (!visitedFiles) {
+        visitedFiles = [];
     }
 
     if (!from) {
@@ -243,25 +273,30 @@ function walk(uri: string, position: Position, from?: Node, visitedNodes?: Node[
     }
 
     // Handle import
-    if (walkInImport && from.type === "ImportDirective") {
+    if (from.type === "ImportDirective") {
         const importNode = (from as ImportDirectiveNode).getImportNode();
 
-        const parent = walk(uri, position, importNode, visitedNodes, false);
+        if (importNode && visitedFiles.indexOf(importNode.uri) === -1) {
+            // Add as visited file
+            visitedFiles.push(importNode.uri);
 
-        if (parent) {
-            return parent;
+            const parent = walk(uri, position, importNode, visitedNodes, visitedFiles);
+
+            if (parent) {
+                return parent;
+            }
         }
     }
 
     for (const child of from.children) {
-        const parent = walk(uri, position, child, visitedNodes);
+        const parent = walk(uri, position, child, visitedNodes, visitedFiles);
 
         if (parent) {
             return parent;
         }
     }
 
-    return walk(uri, position, from.parent, visitedNodes);
+    return walk(uri, position, from.parent, visitedNodes, visitedFiles);
 }
 
 function matchNodeExpression(expression: Node, node: Node): boolean {

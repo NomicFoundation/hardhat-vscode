@@ -1,6 +1,6 @@
 import { AssemblyLocalDefinition } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { Location, FinderType, DocumentsAnalyzerTree, Node } from "./Node";
+import { Location, FinderType, DocumentsAnalyzerMap, DocumentsAnalyzerTree, Node } from "./Node";
 
 export class AssemblyLocalDefinitionNode implements Node {
     type: string;
@@ -79,17 +79,17 @@ export class AssemblyLocalDefinitionNode implements Node {
         return this.parent;
     }
 
-    accept(find: FinderType, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
         
         for (const name of this.astNode.names || []) {
-            const identifierNode = find(name, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, this, this);
+            const identifierNode = find(name, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, this, this);
 
             new AssemblyLocalDefinitionNode(this.astNode, identifierNode.uri, parent, identifierNode);
         }
 
         if (this.astNode.expression) {
-            find(this.astNode.expression, this.uri).accept(find, documentsAnalyzerTree, orphanNodes, parent);
+            find(this.astNode.expression, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, parent);
         }
 
         return this;
