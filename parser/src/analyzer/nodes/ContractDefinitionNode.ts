@@ -35,14 +35,15 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
         this.astNode = contractDefinition;
 
         if (contractDefinition.loc) {
+            const escapePrefix = contractDefinition.kind === "abstract" ? "abstract contract ".length : contractDefinition.kind.length + 1;
             this.nameLoc = {
                 start: {
                     line: contractDefinition.loc.start.line,
-                    column: contractDefinition.loc.start.column + contractDefinition.kind.length + 1
+                    column: contractDefinition.loc.start.column + escapePrefix
                 },
                 end: {
                     line: contractDefinition.loc.start.line,
-                    column: contractDefinition.loc.start.column + contractDefinition.kind.length + 1 + contractDefinition.name.length
+                    column: contractDefinition.loc.start.column + escapePrefix + contractDefinition.name.length
                 }
             };
         }

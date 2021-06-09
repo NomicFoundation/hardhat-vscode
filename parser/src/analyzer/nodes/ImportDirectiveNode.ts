@@ -1,6 +1,8 @@
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
 import { ImportDirective } from "@solidity-parser/parser/dist/src/ast-types";
 
+import { projectRootPath } from "../finder";
 import {
     Location,
     FinderType,
@@ -35,9 +37,17 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
         this.type = importDirective.type;
         this.realURI = uri;
 
-        // TO-DO: Improve for dependencies path and loc
-        this.uri = path.join(uri, '..', importDirective.path);
-        
+        this.uri = path.join(uri, "..", importDirective.path);
+
+        // See if file exists
+        if (!fs.existsSync(this.uri)) {
+            const nodeModulesPath = this.findNodeModules();
+
+            if (nodeModulesPath) {
+                this.uri = path.join(nodeModulesPath, importDirective.path);
+            }
+        }
+
         if (importDirective.pathLiteral && importDirective.pathLiteral.loc) {
             this.nameLoc = importDirective.pathLiteral.loc;
             this.nameLoc.end.column = (this.nameLoc?.end.column || 0) + importDirective.pathLiteral.value.length;
@@ -134,5 +144,19 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
         parent?.addChild(this);
 
         return this;
+    }
+
+    findNodeModules(): string | undefined {
+        let nodeModulesPath = path.join(this.uri, "..", "node_modules");
+
+        while (projectRootPath && nodeModulesPath.includes(projectRootPath) && !fs.existsSync(nodeModulesPath)) {
+            nodeModulesPath = path.join(nodeModulesPath, "..", "..", "node_modules");
+        }
+
+        if (fs.existsSync(nodeModulesPath)) {
+            return nodeModulesPath;
+        }
+
+        return undefined;
     }
 }

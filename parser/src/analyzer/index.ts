@@ -3,6 +3,7 @@ import * as path from "path";
 import * as parser from "@solidity-parser/parser";
 import { ASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
+import { setProjectRootPath } from "./finder";
 import * as matcher from "./matcher";
 import {
     Node,
@@ -16,8 +17,9 @@ export class Analyzer {
     documentsAnalyzerTree: DocumentsAnalyzerTree = {};
 
     constructor (rootPath: string | undefined) {
-        const documentsUri: string[] = [];
+        setProjectRootPath(rootPath);
 
+        const documentsUri: string[] = [];
         this.findSolFiles(rootPath, documentsUri);
 
         // Init all documentAnalyzers
@@ -33,6 +35,8 @@ export class Analyzer {
     }
 
     public analyzeDocument(document: string, uri: string): Node | undefined {
+        uri = decodeURIComponent(uri);
+
         if (uri.indexOf('file://') !== -1) {
             uri = uri.replace("file://", "");
         }
@@ -61,6 +65,10 @@ export class Analyzer {
             const files = fs.readdirSync(base);
 
             files.forEach(file => {
+                // if (file === "node_modules") {
+                //     return;
+                // }
+
                 const newBase = path.join(base || "", file);
 
                 if (fs.statSync(newBase).isDirectory()) {
@@ -87,7 +95,12 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
 
     constructor (uri: string) {
         this.uri = uri;
-        this.document = "" + fs.readFileSync(uri);
+
+        if (fs.existsSync(uri)) {
+            this.document = "" + fs.readFileSync(uri);
+        } else {
+            this.document = "";
+        }
     }
 
     public analyze(documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, document?: string): Node | undefined {

@@ -1,5 +1,19 @@
 import { Position, Node, ContractDefinitionNode, ImportDirectiveNode, SourceUnitNode } from "./nodes/Node";
 
+export let projectRootPath: string | undefined;
+
+export function setProjectRootPath(rootPath: string | undefined) {
+    if (rootPath && rootPath.indexOf('file://') !== -1) {
+        rootPath = rootPath.replace("file://", "");
+    }
+
+    if (rootPath) {
+        rootPath = decodeURIComponent(rootPath);
+    }
+
+    projectRootPath = rootPath;
+}
+
 export let analyzerTree: Node | undefined;
 
 export function setRoot(rootNode: Node) {

@@ -127,22 +127,6 @@ export class SolidityNavigation {
 		}
 	}
 
-	private extractHighlightsFromNode(name: string, node: Node): Node[] {
-		const highlights: Node[] = [];
-
-		if (name === node.getName()) {
-			highlights.push(node);
-		}
-
-		for (const child of node.children) {
-			if (name === child.getName()) {
-				highlights.push(child);
-			}
-		}
-
-		return highlights;
-	}
-
 	private getRange(loc: NodeLocation): Range {
 		// TO-DO: Remove -1 when "@solidity-parser" fix line counting.
 		// Why -1? Because "vs-code" line counting from 0, and "@solidity-parser" from 1.

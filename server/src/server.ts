@@ -208,7 +208,7 @@ connection.onDefinition(params => {
 		const document = documents.get(params.textDocument.uri);
 
 		if (document) {
-			const documentURI = getUriFromDocument(document);
+			const documentURI = decodeURIComponent(getUriFromDocument(document));
 			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
 
 			if (analyzeTree) {
@@ -227,7 +227,7 @@ connection.onTypeDefinition(params => {
 		const document = documents.get(params.textDocument.uri);
 
 		if (document) {
-			const documentURI = getUriFromDocument(document);
+			const documentURI = decodeURIComponent(getUriFromDocument(document));
 			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
 	
 			if (analyzeTree) {
@@ -247,7 +247,7 @@ connection.onReferences(params => {
 		const document = documents.get(params.textDocument.uri);
 	
 		if (document) {
-			const documentURI = getUriFromDocument(document);
+			const documentURI = decodeURIComponent(getUriFromDocument(document));
 			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
 	
 			if (analyzeTree) {
@@ -267,7 +267,7 @@ connection.onImplementation(params => {
 		const document = documents.get(params.textDocument.uri);
 	
 		if (document) {
-			const documentURI = getUriFromDocument(document);
+			const documentURI = decodeURIComponent(getUriFromDocument(document));
 			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
 	
 			if (analyzeTree) {
@@ -286,7 +286,7 @@ connection.onRenameRequest(params => {
 		const document = documents.get(params.textDocument.uri);
 
 		if (document) {
-			const documentURI = getUriFromDocument(document);
+			const documentURI = decodeURIComponent(getUriFromDocument(document));
 			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
 	
 			if (analyzeTree) {
