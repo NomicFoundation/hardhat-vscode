@@ -76,7 +76,6 @@ export class ArrayTypeNameNode implements Node {
     }
 
     accept(find: FinderType, documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
-        // TO-DO: Improve
         this.setExpressionNode(expression);
 
         const typeNode = find(this.astNode.baseTypeName, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, parent, this);

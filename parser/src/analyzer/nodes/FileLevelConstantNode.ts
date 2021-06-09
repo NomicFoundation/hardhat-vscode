@@ -121,6 +121,16 @@ export class FileLevelConstantNode implements Node {
             this.nameLoc.start.column = this.astNode.loc.start.column + diff + 1;
             this.nameLoc.end.column = this.nameLoc.start.column + (this.getName()?.length || 0);
 
+            if (this.astNode.isDeclaredConst) {
+                this.nameLoc.start.column += "constant ".length;
+                this.nameLoc.end.column += "constant ".length;
+            }
+
+            if (this.astNode.isImmutable) {
+                this.nameLoc.start.column += "immutable ".length;
+                this.nameLoc.end.column += "immutable ".length;
+            }
+
             if (this.astNode.loc.end.column < this.nameLoc.end.column) {
                 this.astNode.loc.end.column = this.nameLoc.end.column;
             }
