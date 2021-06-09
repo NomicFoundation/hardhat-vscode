@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { ImportDirective } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { projectRootPath } from "../finder";
+import { findNodeModules } from "../utils";
 import {
     Location,
     FinderType,
@@ -41,7 +41,7 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
 
         // See if file exists
         if (!fs.existsSync(this.uri)) {
-            const nodeModulesPath = this.findNodeModules();
+            const nodeModulesPath = findNodeModules(this.uri);
 
             if (nodeModulesPath) {
                 this.uri = path.join(nodeModulesPath, importDirective.path);
@@ -144,19 +144,5 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
         parent?.addChild(this);
 
         return this;
-    }
-
-    findNodeModules(): string | undefined {
-        let nodeModulesPath = path.join(this.uri, "..", "node_modules");
-
-        while (projectRootPath && nodeModulesPath.includes(projectRootPath) && !fs.existsSync(nodeModulesPath)) {
-            nodeModulesPath = path.join(nodeModulesPath, "..", "..", "node_modules");
-        }
-
-        if (fs.existsSync(nodeModulesPath)) {
-            return nodeModulesPath;
-        }
-
-        return undefined;
     }
 }

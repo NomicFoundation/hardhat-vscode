@@ -3,6 +3,7 @@ import * as path from "path";
 import * as parser from "@solidity-parser/parser";
 import { ASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
+import { findNodeModules } from "./utils";
 import { setProjectRootPath } from "./finder";
 import * as matcher from "./matcher";
 import {
@@ -43,6 +44,30 @@ export class Analyzer {
 
         if (this.documentsAnalyzer[uri]) {
             this.documentsAnalyzerTree[uri] = this.documentsAnalyzer[uri].analyze(this.documentsAnalyzer, this.documentsAnalyzerTree, document);
+
+            // Refresh imported files
+            const ast = this.documentsAnalyzer[uri].ast;
+            if (ast?.type === "SourceUnit") {
+                for (const child of ast.children) {
+                    if (child.type === "ImportDirective") {
+                        let importURI = path.join(uri, "..", child.path);
+
+                        // See if file exists
+                        if (!fs.existsSync(importURI)) {
+                            const nodeModulesPath = findNodeModules(importURI);
+                
+                            if (nodeModulesPath) {
+                                importURI = path.join(nodeModulesPath, child.path);
+                            }
+                        }
+
+                        if (this.documentsAnalyzer[importURI]) {
+                            this.documentsAnalyzerTree[importURI] = this.documentsAnalyzer[importURI].analyze(this.documentsAnalyzer, this.documentsAnalyzerTree);
+                        }
+                    }
+                }
+            }
+           
             return this.documentsAnalyzerTree[uri];
         }
 
