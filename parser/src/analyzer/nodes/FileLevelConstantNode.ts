@@ -114,7 +114,6 @@ export class FileLevelConstantNode implements Node {
     }
 
     updateLocationName(typeNode: Node): void {
-        // TO-DO: Need to improve location name when Franco Victorio add in FileLevelConstant isDeclaredConst and isImmutable variables
         if (this.astNode.loc && this.nameLoc && typeNode.astNode.range) {
             const diff = 1 + (+typeNode.astNode.range[1] - +typeNode.astNode.range[0]);
 

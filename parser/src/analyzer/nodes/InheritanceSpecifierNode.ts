@@ -23,7 +23,6 @@ export class InheritanceSpecifierNode implements Node {
         this.type = inheritanceSpecifier.type;
         this.uri = uri;
         this.astNode = inheritanceSpecifier;
-        // TO-DO: Implement name location for rename
     }
 
     getTypeNodes(): Node[] {

@@ -53,21 +53,20 @@ export class SolidityNavigation {
 
 	public doRename(uri: string, document: TextDocument, position: Position, newName: string, analyzerTree: Node): WorkspaceEdit {
 		const highlightNodes = this.findHighlightNodes(uri, position, analyzerTree);
-		const edits: TextEdit[] = [];
+		const workspaceEdit: WorkspaceEdit = { changes: {} };
 
 		highlightNodes.forEach(highlightNode => {
-			if (highlightNode.nameLoc) {
-				const range = this.getRange(highlightNode.nameLoc);
+			if (highlightNode.nameLoc && workspaceEdit.changes) {
+				if (workspaceEdit.changes && !workspaceEdit.changes[highlightNode.uri]) {
+					workspaceEdit.changes[highlightNode.uri] = [];
+				}
 
-				edits.push(TextEdit.replace(range, newName));
+				const range = this.getRange(highlightNode.nameLoc);
+				workspaceEdit.changes[highlightNode.uri].push(TextEdit.replace(range, newName));
 			}
 		});
 
-		return {
-			changes: {
-				[document.uri]: edits
-			}
-		};
+		return workspaceEdit;
 	}
 
 	private getHighlightLocations(highlightNodes: Node[]): Location[] {
