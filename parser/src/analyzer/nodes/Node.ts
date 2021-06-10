@@ -131,9 +131,13 @@ export interface ContractDefinitionNode extends Node {
 export interface ImportDirectiveNode extends Node {
     realURI: string;
     importNode: Node | undefined;
+    aliasNodes: Node[];
 
     setImportNode(importNode: Node): void;
     getImportNode(): Node | undefined;
+
+    addAliasNode(aliasNodes: Node): void;
+    getAliasNodes(): Node[];
 }
 
 export interface SourceUnitNode extends Node {

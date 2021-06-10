@@ -24,9 +24,9 @@ export class IdentifierNode implements Node {
         this.type = identifier.type;
         this.uri = uri;
         
-        if (identifier.loc) {
+        if (identifier.loc && identifier.range) {
             // Bug in solidity parser doesn't give exact end location
-            identifier.loc.end.column = identifier.loc.end.column + identifier.name.length;
+            identifier.loc.end.column = identifier.loc.end.column + (identifier.range[1] - identifier.range[0]) + 1;
 
             this.nameLoc = JSON.parse(JSON.stringify(identifier.loc));
         }
@@ -96,6 +96,19 @@ export class IdentifierNode implements Node {
 
         if (expression?.type === "AssemblyLocalDefinition") {
             return this;
+        }
+
+        if (expression?.type === "ImportDirective" && parent) {
+            const definitionNode = parent.getDefinitionNode();
+
+            if (definitionNode) {
+                this.addTypeNode(definitionNode);
+
+                this.setParent(definitionNode);
+                definitionNode?.addChild(this);
+
+                return this;
+            }
         }
 
         if (parent) {

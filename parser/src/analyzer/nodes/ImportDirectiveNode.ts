@@ -22,6 +22,7 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
     nameLoc?: Location | undefined;
 
     importNode: Node | undefined;
+    aliasNodes: Node[] = [];
 
     expressionNode?: Node | undefined;
     declarationNode?: Node | undefined;
@@ -76,6 +77,14 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
 
     getImportNode(): Node | undefined {
         return this.importNode;
+    }
+
+    addAliasNode(aliasNode: Node): void {
+        this.aliasNodes.push(aliasNode);
+    }
+
+    getAliasNodes(): Node[] {
+        return this.aliasNodes;
     }
 
     getExpressionNode(): Node | undefined {
@@ -139,6 +148,23 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
             }
 
             this.setImportNode(sourceUintImportNode);
+        }
+
+        const aliesNodes: Node[] = [];
+        for (const symbolAliasesIdentifier of this.astNode.symbolAliasesIdentifiers || []) {
+            const importedContractNode = find(symbolAliasesIdentifier[0], this.realURI).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, this);
+
+            // Check if alias exist for importedContractNode
+            if (symbolAliasesIdentifier[1]) {
+                const importedContractAliasNode = find(symbolAliasesIdentifier[1], this.realURI).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, importedContractNode, this);
+                aliesNodes.push(importedContractAliasNode);
+            } else {
+                aliesNodes.push(importedContractNode);
+            }
+        }
+
+        for (const aliesNode of aliesNodes) {
+            this.addAliasNode(aliesNode);
         }
 
         parent?.addChild(this);

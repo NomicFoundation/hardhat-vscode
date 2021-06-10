@@ -235,20 +235,32 @@ function searchInImportNodes(visitedFiles: string[], node: Node, from?: Node | u
 
     if (from.type === "ImportDirective") {
         const importNode = (from as ImportDirectiveNode).getImportNode();
+        const importAliasNodes = (from as ImportDirectiveNode).getAliasNodes();
 
         if (importNode && visitedFiles.indexOf(importNode.uri) === -1) {
             // Add as visited file
             visitedFiles.push(importNode.uri);
 
-            for (const child of importNode?.children || []) {
-                const matched = searchInImportNodes(visitedFiles, node, child);
-
-                if (matched) {
-                    return matched;
+            if (importAliasNodes.length > 0) {
+                for (const importAliasNode of importAliasNodes) {
+                    if (importAliasNode && node &&
+                        importAliasNode.getName() && node.getName() &&
+                        importAliasNode.getName() === node.getName()
+                    ) {
+                        return importAliasNode;
+                    }
                 }
-
-                if (isNodeConnectable(child, node)) {
-                    return child;
+            } else {
+                for (const child of importNode?.children || []) {
+                    const matched = searchInImportNodes(visitedFiles, node, child);
+    
+                    if (matched) {
+                        return matched;
+                    }
+    
+                    if (isNodeConnectable(child, node)) {
+                        return child;
+                    }
                 }
             }
         }
