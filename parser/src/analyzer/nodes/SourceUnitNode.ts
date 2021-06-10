@@ -17,6 +17,8 @@ export class SourceUnitNode implements ISourceUnitNode {
 
     nameLoc?: Location | undefined;
 
+    aliasName?: string | undefined;
+
     exportNodes: Node[] = [];
 
     expressionNode?: Node | undefined;
@@ -82,6 +84,14 @@ export class SourceUnitNode implements ISourceUnitNode {
 
     getName(): string | undefined {
         return undefined;
+    }
+
+    getAliasName(): string | undefined {
+        return this.aliasName;
+    }
+
+    setAliasName(aliasName: string | undefined): void {
+        this.aliasName = aliasName;
     }
 
     addChild(child: Node): void {

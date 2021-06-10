@@ -59,6 +59,8 @@ export interface Node extends Component {
      */
     nameLoc?: Location | undefined;
 
+    aliasName?: string | undefined;
+
     /**
      * Serves to let us know if there is a Node expression like FunctionCallNode, ArrayTypeNameNode...
      * 
@@ -110,6 +112,12 @@ export interface Node extends Component {
      * A Node name can be undefined for Nodes that don't have a name.
      */
     getName(): string | undefined;
+
+    /**
+     * A Node alias name can be undefined for Nodes that don't declared with alias name.
+     */
+    getAliasName(): string | undefined;
+    setAliasName(aliasName: string | undefined): void;
 
     addChild(child: Node): void;
     setParent(parent: Node | undefined): void;

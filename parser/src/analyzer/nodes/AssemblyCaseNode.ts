@@ -9,6 +9,8 @@ export class AssemblyCaseNode implements Node {
 
     nameLoc?: Location | undefined;
 
+    aliasName?: string | undefined;
+
     expressionNode?: Node | undefined;
     declarationNode?: Node | undefined;
 
@@ -61,6 +63,14 @@ export class AssemblyCaseNode implements Node {
 
     getName(): string | undefined {
         return undefined;
+    }
+
+    getAliasName(): string | undefined {
+        return this.aliasName;
+    }
+
+    setAliasName(aliasName: string | undefined): void {
+        this.aliasName = aliasName;
     }
 
     addChild(child: Node): void {

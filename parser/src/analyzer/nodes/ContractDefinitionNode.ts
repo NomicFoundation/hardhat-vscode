@@ -17,6 +17,8 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
 
     nameLoc?: Location | undefined;
 
+    aliasName?: string | undefined;
+
     expressionNode?: Node | undefined;
     declarationNode?: Node | undefined;
 
@@ -89,6 +91,14 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
 
     getName(): string | undefined {
         return this.astNode.name;
+    }
+
+    getAliasName(): string | undefined {
+        return this.aliasName;
+    }
+
+    setAliasName(aliasName: string | undefined): void {
+        this.aliasName = aliasName;
     }
 
     addChild(child: Node): void {

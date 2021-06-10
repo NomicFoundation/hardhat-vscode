@@ -31,6 +31,8 @@ export function findParent(node: Node, from?: Node, searchInInheretenceNodes?: b
     }
 
     if (parent) {
+        node.setAliasName(parent.getAliasName());
+
         parent = parent.getDefinitionNode();
     }
 
@@ -384,7 +386,7 @@ export function isNodeConnectable(parent: Node | undefined, child: Node | undefi
     if (
         parent && child &&
         parent.getName() && child.getName() &&
-        parent.getName() === child.getName() && (
+        (parent.getName() === child.getName() || parent.getName() === child.getAliasName()) && (
             parent.connectionTypeRules.includes(child.type) ||
             parent.connectionTypeRules.includes(child.getExpressionNode()?.type || "")
     )) {

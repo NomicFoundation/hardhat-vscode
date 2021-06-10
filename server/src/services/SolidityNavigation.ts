@@ -117,7 +117,7 @@ export class SolidityNavigation {
 
 		visitedNodes.push(node);
 
-		if (name === node.getName()) {
+		if (name === node.getName() || name === node.getAliasName()) {
 			results.push(node);
 		}
 

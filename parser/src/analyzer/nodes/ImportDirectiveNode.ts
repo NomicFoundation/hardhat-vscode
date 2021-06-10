@@ -21,6 +21,8 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
 
     nameLoc?: Location | undefined;
 
+    aliasName?: string | undefined;
+
     importNode: Node | undefined;
     aliasNodes: Node[] = [];
 
@@ -111,6 +113,14 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
         return this.astNode.path;
     }
 
+    getAliasName(): string | undefined {
+        return this.aliasName;
+    }
+
+    setAliasName(aliasName: string | undefined): void {
+        this.aliasName = aliasName;
+    }
+
     addChild(child: Node): void {
         this.children.push(child);
     }
@@ -157,6 +167,8 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
             // Check if alias exist for importedContractNode
             if (symbolAliasesIdentifier[1]) {
                 const importedContractAliasNode = find(symbolAliasesIdentifier[1], this.realURI).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, importedContractNode, this);
+                importedContractAliasNode.setAliasName(importedContractNode.getName());
+
                 aliesNodes.push(importedContractAliasNode);
             } else {
                 aliesNodes.push(importedContractNode);
