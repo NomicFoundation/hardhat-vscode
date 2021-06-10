@@ -51,9 +51,6 @@ export class SourceUnitNode implements ISourceUnitNode {
         this.typeNodes.push(node);
     }
 
-    /**
-     * @param exportNode is root node from the file that imports this file
-     */
     addExportNode(exportNode: Node): void {
         this.exportNodes.push(exportNode);
     }

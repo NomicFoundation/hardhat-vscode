@@ -129,6 +129,17 @@ documents.onDidClose(e => {
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(change => {
 	console.log('server onDidChangeContent');
+
+	try {
+		const document = documents.get(change.document.uri);
+
+		if (document) {
+			const documentURI = decodeURIComponent(getUriFromDocument(document));
+			languageServer.analyzeDocument(document.getText(), documentURI);
+		}	
+	} catch (err) {
+		console.error(err);
+	}
 });
 
 connection.onDidChangeWatchedFiles(_change => {
