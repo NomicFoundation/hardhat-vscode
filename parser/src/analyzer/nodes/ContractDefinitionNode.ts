@@ -15,6 +15,8 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
     uri: string;
     astNode: ContractDefinition;
 
+    alive = true;
+
     nameLoc?: Location | undefined;
 
     aliasName?: string | undefined;
@@ -103,6 +105,16 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
 
     addChild(child: Node): void {
         this.children.push(child);
+    }
+
+    removeChild(child: Node): void {
+        const index = this.children.indexOf(child, 0);
+
+        if (index > -1) {
+            this.children.splice(index, 1);
+        }
+
+        child.alive = false;
     }
 
     setParent(parent: Node | undefined): void {

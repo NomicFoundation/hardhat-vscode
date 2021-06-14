@@ -55,6 +55,11 @@ export interface Node extends Component {
     astNode: BaseASTNode;
 
     /**
+     * Is node alive.
+     */
+    alive: boolean;
+
+    /**
      * Exect name Location of that Node used for rename and search node by name.
      */
     nameLoc?: Location | undefined;
@@ -120,6 +125,8 @@ export interface Node extends Component {
     setAliasName(aliasName: string | undefined): void;
 
     addChild(child: Node): void;
+    removeChild(child: Node): void;
+
     setParent(parent: Node | undefined): void;
     getParent(): Node | undefined;
 
@@ -149,7 +156,11 @@ export interface ImportDirectiveNode extends Node {
 }
 
 export interface SourceUnitNode extends Node {
+    importNodes: Node[];
     exportNodes: Node[];
+
+    addImportNode(importNode: Node): void;
+    getImportNodes(): Node[];
 
     addExportNode(exportNode: Node): void;
     getExportNodes(): Node[];

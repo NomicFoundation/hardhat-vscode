@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { ImportDirective } from "@solidity-parser/parser/dist/src/ast-types";
 
+import * as finder from "../finder";
 import { findNodeModules } from "../utils";
 import {
     Location,
@@ -18,6 +19,8 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
     realURI: string;
     uri: string;
     astNode: ImportDirective;
+
+    alive = true;
 
     nameLoc?: Location | undefined;
 
@@ -125,6 +128,16 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
         this.children.push(child);
     }
 
+    removeChild(child: Node): void {
+        const index = this.children.indexOf(child, 0);
+
+        if (index > -1) {
+            this.children.splice(index, 1);
+        }
+
+        child.alive = false;
+    }
+
     setParent(parent: Node | undefined): void {
         this.parent = parent;
     }
@@ -147,17 +160,15 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
         const importNode = documentsAnalyzerTree[this.uri];
         if (importNode && importNode.type === "SourceUnit" && importNode?.astNode.loc) {
             this.astNode.loc = importNode.astNode.loc;
+            this.setImportNode(importNode);
 
-            const sourceUintImportNode = importNode as SourceUnitNode;
-            const sourceUintExportNodes = sourceUintImportNode.getExportNodes();
-
-            for (let i = 0; i < sourceUintExportNodes.length; i++) {
-                if (sourceUintExportNodes[i].uri === this.realURI) {
-                    sourceUintExportNodes.splice(i, 1);
-                }
+            // We transfer orphan nodes from the imported file in case it imports ours and we have a circular dependency.
+            // We need to do this since the current analysis is not yet complete so some exported nodes may miss finding a parent.
+            // This way we have solved this problem.
+            for (const importOrphanNode of documentsAnalyzer[this.uri].orphanNodes) {
+                (importNode as SourceUnitNode).addImportNode(importOrphanNode);
+                (documentsAnalyzerTree[this.realURI] as SourceUnitNode).addExportNode(importOrphanNode);
             }
-
-            this.setImportNode(sourceUintImportNode);
         }
 
         const aliesNodes: Node[] = [];
@@ -171,6 +182,8 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
 
                 aliesNodes.push(importedContractAliasNode);
             } else {
+                // Set your name as an alias name
+                importedContractNode.setAliasName(importedContractNode.getName());
                 aliesNodes.push(importedContractNode);
             }
         }

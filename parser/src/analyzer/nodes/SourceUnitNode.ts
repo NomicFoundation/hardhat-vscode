@@ -15,10 +15,13 @@ export class SourceUnitNode implements ISourceUnitNode {
     uri: string;
     astNode: SourceUnit;
 
+    alive = true;
+
     nameLoc?: Location | undefined;
 
     aliasName?: string | undefined;
 
+    importNodes: Node[] = [];
     exportNodes: Node[] = [];
 
     expressionNode?: Node | undefined;
@@ -49,6 +52,14 @@ export class SourceUnitNode implements ISourceUnitNode {
 
     addTypeNode(node: Node): void {
         this.typeNodes.push(node);
+    }
+
+    addImportNode(importNode: Node): void {
+        this.importNodes.push(importNode);
+    }
+
+    getImportNodes(): Node[] {
+        return this.importNodes;
     }
 
     addExportNode(exportNode: Node): void {
@@ -95,6 +106,16 @@ export class SourceUnitNode implements ISourceUnitNode {
         this.children.push(child);
     }
 
+    removeChild(child: Node): void {
+        const index = this.children.indexOf(child, 0);
+
+        if (index > -1) {
+            this.children.splice(index, 1);
+        }
+
+        child.alive = false;
+    }
+
     setParent(parent: Node | undefined): void {
         this.parent = parent;
     }
@@ -108,9 +129,14 @@ export class SourceUnitNode implements ISourceUnitNode {
 
         finder.setRoot(this);
 
+        console.log(this.uri);
         const oldSourceUint = documentsAnalyzerTree[this.uri];
         if (oldSourceUint && oldSourceUint instanceof SourceUnitNode) {
-            this.exportNodes = oldSourceUint.getExportNodes();
+            for (const oldSource of oldSourceUint.getExportNodes()) {
+                if (oldSource.alive) {
+                    this.addExportNode(oldSource);
+                }
+            }
         }
 
         documentsAnalyzerTree[this.uri] = this;

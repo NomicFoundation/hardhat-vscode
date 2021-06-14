@@ -38,10 +38,15 @@ export function findParent(node: Node, from?: Node, searchInInheretenceNodes?: b
 
     // If the parent uri and node uri are not the same, add the node to the exportNode field
     if (parent && parent.uri !== node.uri) {
-        const rootNode = findSourceUnitNode(parent);
+        const exportRootNode = findSourceUnitNode(parent);
+        const importRootNode = findSourceUnitNode(analyzerTree);
 
-        if (rootNode) {
-            rootNode.addExportNode(node);
+        if (exportRootNode) {
+            exportRootNode.addExportNode(node);
+        }
+
+        if (importRootNode) {
+            importRootNode.addImportNode(node);
         }
     }
 
