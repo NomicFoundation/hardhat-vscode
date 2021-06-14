@@ -15,7 +15,7 @@ export class SourceUnitNode implements ISourceUnitNode {
     uri: string;
     astNode: SourceUnit;
 
-    alive = true;
+    isAlive = true;
 
     nameLoc?: Location | undefined;
 
@@ -113,7 +113,7 @@ export class SourceUnitNode implements ISourceUnitNode {
             this.children.splice(index, 1);
         }
 
-        child.alive = false;
+        child.isAlive = false;
     }
 
     setParent(parent: Node | undefined): void {
@@ -129,17 +129,16 @@ export class SourceUnitNode implements ISourceUnitNode {
 
         finder.setRoot(this);
 
-        console.log(this.uri);
         const oldSourceUint = documentsAnalyzerTree[this.uri];
         if (oldSourceUint && oldSourceUint instanceof SourceUnitNode) {
             for (const oldSource of oldSourceUint.getExportNodes()) {
-                if (oldSource.alive) {
+                if (oldSource.isAlive) {
                     this.addExportNode(oldSource);
                 }
             }
         }
 
-        documentsAnalyzerTree[this.uri] = this;
+        documentsAnalyzerTree[this.uri].rootNode = this;
 
         for (const child of this.astNode.children) {
             find(child, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, this);

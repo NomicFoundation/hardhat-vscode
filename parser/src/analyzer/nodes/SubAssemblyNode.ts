@@ -7,7 +7,7 @@ export class SubAssemblyNode implements Node {
     uri: string;
     astNode: SubAssembly;
 
-    alive = true;
+    isAlive = true;
 
     nameLoc?: Location | undefined;
 
@@ -87,7 +87,7 @@ export class SubAssemblyNode implements Node {
             this.children.splice(index, 1);
         }
 
-        child.alive = false;
+        child.isAlive = false;
     }
 
     setParent(parent: Node | undefined): void {

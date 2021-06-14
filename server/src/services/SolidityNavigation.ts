@@ -35,7 +35,8 @@ export class SolidityNavigation {
 
 	public findReferences(uri: string, position: Position, analyzerTree: Node): Location[] {
 		const highlightNodes = this.findHighlightNodes(uri, position, analyzerTree);
-        return this.getHighlightLocations(highlightNodes);
+
+		return this.getHighlightLocations(highlightNodes);
 	}
 
 	public findImplementation(uri: string, position: Position, analyzerTree: Node): Location[] {
@@ -80,6 +81,8 @@ export class SolidityNavigation {
 				});
 			}
 		});
+
+		console.log(locations);
 
         return locations;
 	}

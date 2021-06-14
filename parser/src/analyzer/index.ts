@@ -7,6 +7,7 @@ import { setProjectRootPath } from "./finder";
 import * as matcher from "./matcher";
 import {
     Node,
+    SourceUnitNode,
     DocumentsAnalyzerTree,
     DocumentsAnalyzerMap,
     DocumentAnalyzer as IDocumentAnalyzer
@@ -25,11 +26,12 @@ export class Analyzer {
         // Init all documentAnalyzers
         for (const documentUri of documentsUri) {
             this.documentsAnalyzer[documentUri] = new DocumentAnalyzer(documentUri);
+            this.documentsAnalyzerTree[documentUri] = { rootNode: undefined };
         }
 
         for (const documentUri of documentsUri) {
-            if (!this.documentsAnalyzerTree[documentUri]) {
-                this.documentsAnalyzerTree[documentUri] = this.documentsAnalyzer[documentUri].analyze(this.documentsAnalyzer, this.documentsAnalyzerTree);
+            if (!this.documentsAnalyzerTree[documentUri].rootNode) {
+                this.documentsAnalyzer[documentUri].analyze(this.documentsAnalyzer, this.documentsAnalyzerTree);
             }
         }
     }
@@ -42,10 +44,20 @@ export class Analyzer {
         }
 
         if (this.documentsAnalyzer[uri]) {
+            if (this.documentsAnalyzerTree[uri].rootNode) {
+                const oldDocumentsAnalyzerTree = this.documentsAnalyzerTree[uri].rootNode as SourceUnitNode;
+
+                for (const importNode of oldDocumentsAnalyzerTree.getImportNodes()) {
+                    importNode.getParent()?.removeChild(importNode);
+                    importNode.setParent(undefined);
+                }
+            }
+            
             return this.documentsAnalyzer[uri].analyze(this.documentsAnalyzer, this.documentsAnalyzerTree, document);
         }
 
         this.documentsAnalyzer[uri] = new DocumentAnalyzer(uri);
+        this.documentsAnalyzerTree[uri] = { rootNode: undefined };
         return this.documentsAnalyzer[uri].analyze(this.documentsAnalyzer, this.documentsAnalyzerTree, document);
     }
 
@@ -114,6 +126,7 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
                 tolerant: true
             });
 
+            console.log(this.uri);
             // console.log(this.uri, JSON.stringify(this.ast));
 
             this.analyzerTree = matcher.find(this.ast, this.uri).accept(matcher.find, documentsAnalyzer, documentsAnalyzerTree, this.orphanNodes);

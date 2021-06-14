@@ -8,7 +8,7 @@ export class EventDefinitionNode implements Node {
     uri: string;
     astNode: EventDefinition;
 
-    alive = true;
+    isAlive = true;
 
     nameLoc?: Location | undefined;
 
@@ -94,7 +94,7 @@ export class EventDefinitionNode implements Node {
             this.children.splice(index, 1);
         }
 
-        child.alive = false;
+        child.isAlive = false;
     }
 
     setParent(parent: Node | undefined): void {

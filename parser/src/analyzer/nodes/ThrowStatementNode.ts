@@ -7,7 +7,7 @@ export class ThrowStatementNode implements Node {
     uri: string;
     astNode: ThrowStatement;
 
-    alive = true;
+    isAlive = true;
 
     nameLoc?: Location | undefined;
 
@@ -87,7 +87,7 @@ export class ThrowStatementNode implements Node {
             this.children.splice(index, 1);
         }
 
-        child.alive = false;
+        child.isAlive = false;
     }
 
     setParent(parent: Node | undefined): void {

@@ -8,7 +8,7 @@ export class AssemblyCallNode implements Node {
     uri: string;
     astNode: AssemblyCall;
 
-    alive = true;
+    isAlive = true;
 
     nameLoc?: Location | undefined;
 
@@ -95,7 +95,7 @@ export class AssemblyCallNode implements Node {
             this.children.splice(index, 1);
         }
 
-        child.alive = false;
+        child.isAlive = false;
     }
 
     setParent(parent: Node | undefined): void {

@@ -23,7 +23,7 @@ export interface Location {
 export type FinderType = (ast: BaseASTNode, uri: string) => Node;
 
 export type DocumentsAnalyzerMap = { [uri: string]: DocumentAnalyzer };
-export type DocumentsAnalyzerTree = { [uri: string]: Node | undefined };
+export type DocumentsAnalyzerTree = { [uri: string]: { rootNode: Node | undefined } };
 
 export interface Component {
     /**
@@ -57,7 +57,7 @@ export interface Node extends Component {
     /**
      * Is node alive.
      */
-    alive: boolean;
+    isAlive: boolean;
 
     /**
      * Exect name Location of that Node used for rename and search node by name.

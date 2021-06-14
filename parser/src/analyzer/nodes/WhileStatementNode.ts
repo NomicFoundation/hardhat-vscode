@@ -7,7 +7,7 @@ export class WhileStatementNode implements Node {
     uri: string;
     astNode: WhileStatement;
 
-    alive = true;
+    isAlive = true;
 
     nameLoc?: Location | undefined;
 
@@ -86,7 +86,7 @@ export class WhileStatementNode implements Node {
             this.children.splice(index, 1);
         }
 
-        child.alive = false;
+        child.isAlive = false;
     }
 
     setParent(parent: Node | undefined): void {

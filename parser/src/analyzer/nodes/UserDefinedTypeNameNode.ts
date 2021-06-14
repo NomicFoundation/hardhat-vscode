@@ -8,7 +8,7 @@ export class UserDefinedTypeNameNode implements Node {
     uri: string;
     astNode: UserDefinedTypeName;
 
-    alive = true;
+    isAlive = true;
 
     nameLoc?: Location | undefined;
 
@@ -95,7 +95,7 @@ export class UserDefinedTypeNameNode implements Node {
             this.children.splice(index, 1);
         }
 
-        child.alive = false;
+        child.isAlive = false;
     }
 
     setParent(parent: Node | undefined): void {
@@ -147,6 +147,20 @@ export class UserDefinedTypeNameNode implements Node {
 
                     expressionNode.setParent(definitionChild);
                     definitionChild?.addChild(expressionNode);
+
+                    // If the parent uri and node uri are not the same, add the node to the exportNode field
+                    if (definitionChild && definitionChild.uri !== expressionNode.uri) {
+                        const exportRootNode = finder.findSourceUnitNode(definitionChild);
+                        const importRootNode = finder.findSourceUnitNode(finder.analyzerTree);
+
+                        if (exportRootNode) {
+                            exportRootNode.addExportNode(expressionNode);
+                        }
+
+                        if (importRootNode) {
+                            importRootNode.addImportNode(expressionNode);
+                        }
+                    }
 
                     return;
                 }

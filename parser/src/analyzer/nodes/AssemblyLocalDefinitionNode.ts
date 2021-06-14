@@ -8,7 +8,7 @@ export class AssemblyLocalDefinitionNode implements Node {
     astNode: AssemblyLocalDefinition;
 
     name?: string | undefined;
-    alive = true;
+    isAlive = true;
 
     nameLoc?: Location | undefined;
 
@@ -90,7 +90,7 @@ export class AssemblyLocalDefinitionNode implements Node {
             this.children.splice(index, 1);
         }
 
-        child.alive = false;
+        child.isAlive = false;
     }
 
     setParent(parent: Node | undefined): void {

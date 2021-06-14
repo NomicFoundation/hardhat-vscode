@@ -20,7 +20,7 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
     uri: string;
     astNode: ImportDirective;
 
-    alive = true;
+    isAlive = true;
 
     nameLoc?: Location | undefined;
 
@@ -135,7 +135,7 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
             this.children.splice(index, 1);
         }
 
-        child.alive = false;
+        child.isAlive = false;
     }
 
     setParent(parent: Node | undefined): void {
@@ -153,22 +153,32 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
             this.setParent(parent);
         }
 
-        if (!documentsAnalyzerTree[this.uri] && documentsAnalyzer[this.uri]) {
-            documentsAnalyzerTree[this.uri] = documentsAnalyzer[this.uri].analyze(documentsAnalyzer, documentsAnalyzerTree);
+        if (!documentsAnalyzerTree[this.uri]) {
+            documentsAnalyzerTree[this.uri] = { rootNode: undefined };
         }
 
-        const importNode = documentsAnalyzerTree[this.uri];
-        if (importNode && importNode.type === "SourceUnit" && importNode?.astNode.loc) {
-            this.astNode.loc = importNode.astNode.loc;
-            this.setImportNode(importNode);
+        if (documentsAnalyzer[this.uri] && !documentsAnalyzerTree[this.uri].rootNode) {
+            documentsAnalyzerTree[this.uri].rootNode = documentsAnalyzer[this.uri].analyze(documentsAnalyzer, documentsAnalyzerTree);
+
+            // Analyze will change root node so we need to return root node after analyze
+            const rootNode = documentsAnalyzerTree[this.realURI].rootNode;
+            if (rootNode) {
+                finder.setRoot(rootNode);
+            }
 
             // We transfer orphan nodes from the imported file in case it imports ours and we have a circular dependency.
             // We need to do this since the current analysis is not yet complete so some exported nodes may miss finding a parent.
             // This way we have solved this problem.
             for (const importOrphanNode of documentsAnalyzer[this.uri].orphanNodes) {
-                (importNode as SourceUnitNode).addImportNode(importOrphanNode);
-                (documentsAnalyzerTree[this.realURI] as SourceUnitNode).addExportNode(importOrphanNode);
+                (documentsAnalyzerTree[this.uri].rootNode as SourceUnitNode).addImportNode(importOrphanNode);
+                (documentsAnalyzerTree[this.realURI].rootNode as SourceUnitNode).addExportNode(importOrphanNode);
             }
+        }
+
+        const importNode = documentsAnalyzerTree[this.uri].rootNode;
+        if (importNode && importNode.type === "SourceUnit" && importNode?.astNode.loc) {
+            this.astNode.loc = importNode.astNode.loc;
+            this.setImportNode(importNode);
         }
 
         const aliesNodes: Node[] = [];

@@ -7,7 +7,7 @@ export class VariableDeclarationStatementNode implements Node {
     uri: string;
     astNode: VariableDeclarationStatement;
 
-    alive = true;
+    isAlive = true;
 
     nameLoc?: Location | undefined;
 
@@ -86,7 +86,7 @@ export class VariableDeclarationStatementNode implements Node {
             this.children.splice(index, 1);
         }
 
-        child.alive = false;
+        child.isAlive = false;
     }
 
     setParent(parent: Node | undefined): void {

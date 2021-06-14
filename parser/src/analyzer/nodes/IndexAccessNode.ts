@@ -7,7 +7,7 @@ export class IndexAccessNode implements Node {
     uri: string;
     astNode: IndexAccess;
 
-    alive = true;
+    isAlive = true;
 
     nameLoc?: Location | undefined;
 
@@ -86,7 +86,7 @@ export class IndexAccessNode implements Node {
             this.children.splice(index, 1);
         }
 
-        child.alive = false;
+        child.isAlive = false;
     }
 
     setParent(parent: Node | undefined): void {
