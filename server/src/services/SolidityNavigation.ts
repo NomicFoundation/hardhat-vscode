@@ -82,8 +82,6 @@ export class SolidityNavigation {
 			}
 		});
 
-		console.log(locations);
-
         return locations;
 	}
 

@@ -309,12 +309,24 @@ function walk(uri: string, position: Position, from?: Node, visitedNodes?: Node[
     // Handle import
     if (from.type === "ImportDirective") {
         const importNode = (from as ImportDirectiveNode).getImportNode();
+        const importAliasNodes = (from as ImportDirectiveNode).getAliasNodes();
 
         if (importNode && visitedFiles.indexOf(importNode.uri) === -1) {
             // Add as visited file
             visitedFiles.push(importNode.uri);
 
-            const parent = walk(uri, position, importNode, visitedNodes, visitedFiles);
+            let parent: Node | undefined = undefined;
+            if (importAliasNodes.length > 0) {
+                for (const importAliasNode of importAliasNodes) {
+                    parent = walk(uri, position, importAliasNode, visitedNodes, visitedFiles);
+
+                    if (parent) {
+                        break;
+                    }
+                }
+            } else {
+                parent = walk(uri, position, importNode, visitedNodes, visitedFiles);
+            }
 
             if (parent) {
                 return parent;

@@ -129,7 +129,7 @@ export class SourceUnitNode implements ISourceUnitNode {
 
         finder.setRoot(this);
 
-        const oldSourceUint = documentsAnalyzerTree[this.uri];
+        const oldSourceUint = documentsAnalyzerTree[this.uri].rootNode;
         if (oldSourceUint && oldSourceUint instanceof SourceUnitNode) {
             for (const oldSource of oldSourceUint.getExportNodes()) {
                 if (oldSource.isAlive) {

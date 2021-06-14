@@ -26,7 +26,7 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
 
     aliasName?: string | undefined;
 
-    importNode: Node | undefined;
+    importNode: { rootNode: Node | undefined } = { rootNode: undefined };
     aliasNodes: Node[] = [];
 
     expressionNode?: Node | undefined;
@@ -76,12 +76,12 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
         this.typeNodes.push(node);
     }
 
-    setImportNode(importNode: Node): void {
+    setImportNode(importNode: { rootNode: Node | undefined }): void {
         this.importNode = importNode;
     }
 
     getImportNode(): Node | undefined {
-        return this.importNode;
+        return this.importNode.rootNode;
     }
 
     addAliasNode(aliasNode: Node): void {
@@ -178,7 +178,7 @@ export class ImportDirectiveNode implements IImportDirectiveNode {
         const importNode = documentsAnalyzerTree[this.uri].rootNode;
         if (importNode && importNode.type === "SourceUnit" && importNode?.astNode.loc) {
             this.astNode.loc = importNode.astNode.loc;
-            this.setImportNode(importNode);
+            this.setImportNode(documentsAnalyzerTree[this.uri]);
         }
 
         const aliesNodes: Node[] = [];
