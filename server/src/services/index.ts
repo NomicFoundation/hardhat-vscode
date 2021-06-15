@@ -3,10 +3,11 @@ import { Analyzer } from "../../../parser/out/analyzer";
 
 import {
 	LanguageSettings, Position, Hover, Location,
-    WorkspaceEdit, TextDocument, HoverSettings
+    WorkspaceEdit, TextDocument, HoverSettings, CompletionList
 } from '../types/languageTypes';
 
 import { SolidityNavigation } from './SolidityNavigation';
+import { SolidityCompletion } from './SolidityCompletion';
 import { SolidityHover } from './SolidityHover';
 
 export interface LanguageService {
@@ -17,10 +18,11 @@ export interface LanguageService {
 	findReferences(uri: string, position: Position, analyzerTree: Node): Location[];
 	findImplementation(uri: string, position: Position, analyzerTree: Node): Location[];
 	doRename(uri: string, document: TextDocument, position: Position, newName: string, analyzerTree: Node): WorkspaceEdit;
+	doComplete(document: TextDocument, position: Position, analyzerTree: Node): CompletionList;
 	doHover(document: TextDocument, position: Position, analyzerTree: Node, settings?: HoverSettings): Hover | undefined;
 }
 
-function createFacade(analyzer: Analyzer, navigation: SolidityNavigation, hover: SolidityHover): LanguageService {
+function createFacade(analyzer: Analyzer, navigation: SolidityNavigation, completion: SolidityCompletion, hover: SolidityHover): LanguageService {
 	return {
         configure: (settings) => {
 			hover.configure(settings?.hover);
@@ -31,6 +33,7 @@ function createFacade(analyzer: Analyzer, navigation: SolidityNavigation, hover:
 		findReferences: navigation.findReferences.bind(navigation),
 		findImplementation: navigation.findImplementation.bind(navigation),
 		doRename: navigation.doRename.bind(navigation),
+		doComplete: completion.doComplete.bind(completion),
         doHover: hover.doHover.bind(hover)
 	};
 }
@@ -39,6 +42,7 @@ export function getLanguageServer(rootPath: string | undefined): LanguageService
 	return createFacade(
 		new Analyzer(rootPath),
 		new SolidityNavigation(),
+		new SolidityCompletion(),
 		new SolidityHover()
 	);
 }
