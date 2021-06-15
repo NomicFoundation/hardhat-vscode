@@ -12,7 +12,7 @@ import {
 import { MarkupKind } from 'vscode-languageserver-types';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
-import { getUriFromDocument } from './utils';
+import { getUriFromDocument, debounce } from './utils';
 import { getLanguageServer, LanguageService } from './services';
 
 // Create a connection for the server, using Node's IPC as a transport.
@@ -125,13 +125,13 @@ documents.onDidClose(e => {
 	documentSettings.delete(e.document.uri);
 });
 
-// The content of a text document has changed. This event is emitted
-// when the text document first opened or when its content has changed.
-documents.onDidChangeContent(change => {
-	console.log('server onDidChangeContent');
+
+// ---------------------------------------------------------------------------------
+function analyzeFunc(uri: string) {
+	console.log('debounced onDidChangeContent');
 
 	try {
-		const document = documents.get(change.document.uri);
+		const document = documents.get(uri);
 
 		if (document) {
 			const documentURI = decodeURIComponent(getUriFromDocument(document));
@@ -140,6 +140,16 @@ documents.onDidChangeContent(change => {
 	} catch (err) {
 		console.error(err);
 	}
+}
+
+const debounceAnalyzeDocument = debounce(analyzeFunc, 500);
+
+// The content of a text document has changed. This event is emitted
+// when the text document first opened or when its content has changed.
+documents.onDidChangeContent(change => {
+	console.log('server onDidChangeContent');
+
+	debounceAnalyzeDocument(change.document.uri);
 });
 
 connection.onDidChangeWatchedFiles(_change => {
@@ -152,7 +162,7 @@ connection.onDidChangeWatchedFiles(_change => {
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
 	(_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-		console.log('server onDidChangeWatchedFiles');
+		console.log('server onCompletion', _textDocumentPosition);
 		// The pass parameter contains the position of the text document in
 		// which code complete got requested. For the example we ignore this
 		// info and always provide the same completion items.

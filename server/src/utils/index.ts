@@ -9,3 +9,18 @@ export function getUriFromDocument (document: TextDocument): string {
 
     return uri;
 }
+
+export function debounce<Params extends any[]>(
+        func: (...args: Params) => any,
+        timeoutInMilliseconds: number
+    ): (...args: Params) => void {
+    let timer: NodeJS.Timeout;
+
+    return (...args: Params) => {
+        clearTimeout(timer);
+
+        timer = setTimeout(() => {
+            func(...args);
+        }, timeoutInMilliseconds);
+    };
+}
