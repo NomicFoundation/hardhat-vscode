@@ -36,6 +36,10 @@ export class Analyzer {
         }
     }
 
+    public getDocumentAnalyzer(uri: string): DocumentAnalyzer | undefined {
+        return this.documentsAnalyzer[uri];
+    }
+
     public analyzeDocument(document: string, uri: string): Node | undefined {
         uri = decodeURIComponent(uri);
 
@@ -44,15 +48,6 @@ export class Analyzer {
         }
 
         if (this.documentsAnalyzer[uri]) {
-            if (this.documentsAnalyzerTree[uri].rootNode) {
-                const oldDocumentsAnalyzerTree = this.documentsAnalyzerTree[uri].rootNode as SourceUnitNode;
-
-                for (const importNode of oldDocumentsAnalyzerTree.getImportNodes()) {
-                    importNode.getParent()?.removeChild(importNode);
-                    importNode.setParent(undefined);
-                }
-            }
-            
             return this.documentsAnalyzer[uri].analyze(this.documentsAnalyzer, this.documentsAnalyzerTree, document);
         }
 
@@ -126,8 +121,17 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
                 tolerant: true
             });
 
+            if (documentsAnalyzerTree[this.uri].rootNode) {
+                const oldDocumentsAnalyzerTree = documentsAnalyzerTree[this.uri].rootNode as SourceUnitNode;
+
+                for (const importNode of oldDocumentsAnalyzerTree.getImportNodes()) {
+                    importNode.getParent()?.removeChild(importNode);
+                    importNode.setParent(undefined);
+                }
+            }
+
             console.log(this.uri);
-            // console.log(this.uri, JSON.stringify(this.ast));
+            console.log(this.uri, JSON.stringify(this.ast));
 
             this.analyzerTree = matcher.find(this.ast, this.uri).accept(matcher.find, documentsAnalyzer, documentsAnalyzerTree, this.orphanNodes);
 
