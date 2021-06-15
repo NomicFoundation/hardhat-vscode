@@ -37,6 +37,10 @@ export class Analyzer {
     }
 
     public getDocumentAnalyzer(uri: string): DocumentAnalyzer | undefined {
+        if (uri.indexOf('file://') !== -1) {
+            uri = uri.replace("file://", "");
+        }
+
         return this.documentsAnalyzer[uri];
     }
 
@@ -131,7 +135,7 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
             }
 
             console.log(this.uri);
-            console.log(this.uri, JSON.stringify(this.ast));
+            // console.log(this.uri, JSON.stringify(this.ast));
 
             this.analyzerTree = matcher.find(this.ast, this.uri).accept(matcher.find, documentsAnalyzer, documentsAnalyzerTree, this.orphanNodes);
 

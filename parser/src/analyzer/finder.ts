@@ -53,10 +53,10 @@ export function findParent(node: Node, from?: Node, searchInInheretenceNodes?: b
     return parent;
 }
 
-export function findNodeByPosition(uri: string, position: Position, from?: Node): Node | undefined {
-    const node = walk(uri, position, from || analyzerTree);
+export function findNodeByPosition(uri: string, position: Position, from?: Node, returnDefinitionNode = true, searchInExpression = false): Node | undefined {
+    const node = walk(uri, position, from || analyzerTree, searchInExpression);
 
-    if (node) {
+    if (node && returnDefinitionNode) {
         return node.getDefinitionNode();
     }
 
@@ -274,7 +274,23 @@ function searchInImportNodes(visitedFiles: string[], node: Node, from?: Node | u
     }
 }
 
-function walk(uri: string, position: Position, from?: Node, visitedNodes?: Node[], visitedFiles?: string[]): Node | undefined {
+function searchInExpressionNode(uri: string, position: Position, expressionNode?: Node | undefined): Node | undefined {
+    if (!expressionNode) {
+        return undefined;
+    }
+
+    if (
+        isNodePosition(expressionNode, position) &&
+        (expressionNode.uri === uri ||
+        (expressionNode.type === "ImportDirective" && (expressionNode as ImportDirectiveNode).realURI === uri))
+    ) {
+        return expressionNode;
+    }
+
+    searchInExpressionNode(uri, position, expressionNode.getExpressionNode());
+}
+
+function walk(uri: string, position: Position, from?: Node, searchInExpression?: boolean, visitedNodes?: Node[], visitedFiles?: string[]): Node | undefined {
     if (!visitedNodes) {
         visitedNodes = [];
     }
@@ -295,11 +311,7 @@ function walk(uri: string, position: Position, from?: Node, visitedNodes?: Node[
     visitedNodes.push(from);
 
     if (
-        from.nameLoc &&
-        from.nameLoc.start.line === position.line &&
-        from.nameLoc.end.line === position.line &&
-        from.nameLoc.start.column <= position.column &&
-        from.nameLoc.end.column >= position.column &&
+        isNodePosition(from, position) &&
         (from.uri === uri ||
         (from.type === "ImportDirective" && (from as ImportDirectiveNode).realURI === uri))
     ) {
@@ -318,14 +330,14 @@ function walk(uri: string, position: Position, from?: Node, visitedNodes?: Node[
             let parent: Node | undefined = undefined;
             if (importAliasNodes.length > 0) {
                 for (const importAliasNode of importAliasNodes) {
-                    parent = walk(uri, position, importAliasNode, visitedNodes, visitedFiles);
+                    parent = walk(uri, position, importAliasNode, searchInExpression, visitedNodes, visitedFiles);
 
                     if (parent) {
                         break;
                     }
                 }
             } else {
-                parent = walk(uri, position, importNode, visitedNodes, visitedFiles);
+                parent = walk(uri, position, importNode, searchInExpression, visitedNodes, visitedFiles);
             }
 
             if (parent) {
@@ -335,14 +347,21 @@ function walk(uri: string, position: Position, from?: Node, visitedNodes?: Node[
     }
 
     for (const child of from.children) {
-        const parent = walk(uri, position, child, visitedNodes, visitedFiles);
+        const parent = walk(uri, position, child, searchInExpression, visitedNodes, visitedFiles);
 
         if (parent) {
             return parent;
         }
     }
 
-    return walk(uri, position, from.parent, visitedNodes, visitedFiles);
+    if (searchInExpression) {
+        const expressionNode = searchInExpressionNode(uri, position, from.getExpressionNode());
+        if (expressionNode) {
+            return expressionNode;
+        }
+    }
+
+    return walk(uri, position, from.parent, searchInExpression, visitedNodes, visitedFiles);
 }
 
 function matchNodeExpression(expression: Node, node: Node): boolean {
@@ -379,6 +398,20 @@ function isNodeEqual(first: Node | undefined, second: Node | undefined): boolean
         first.nameLoc && second.nameLoc &&
         JSON.stringify(first.nameLoc) === JSON.stringify(second.nameLoc) &&
         first.getName() === second.getName()
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
+export function isNodePosition(node: Node, position: Position): boolean {
+    if (
+        node.nameLoc &&
+        node.nameLoc.start.line === position.line &&
+        node.nameLoc.end.line === position.line &&
+        node.nameLoc.start.column <= position.column &&
+        node.nameLoc.end.column >= position.column
     ) {
         return true;
     }

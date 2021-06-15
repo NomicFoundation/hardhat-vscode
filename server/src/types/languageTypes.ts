@@ -1,7 +1,7 @@
 import { 
 	Position, WorkspaceEdit, DocumentHighlight, TextEdit, Range,
 	DocumentHighlightKind, MarkupKind, Definition, Hover, Location,
-	CompletionList
+	CompletionList, CompletionItem, CompletionItemKind
 } from 'vscode-languageserver-types';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -9,7 +9,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument';
 export {
     TextDocument, Position, WorkspaceEdit, DocumentHighlight, TextEdit,
 	Range, DocumentHighlightKind, MarkupKind, Definition, Hover, Location,
-	CompletionList
+	CompletionList, CompletionItem, CompletionItemKind
 };
 
 export interface LanguageSettings {

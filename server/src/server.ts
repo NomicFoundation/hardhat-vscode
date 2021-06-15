@@ -3,10 +3,9 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 import {
-	createConnection, TextDocuments, Diagnostic, DiagnosticSeverity,
-	ProposedFeatures, InitializeParams, DidChangeConfigurationNotification,
-	CompletionItem, CompletionItemKind, TextDocumentPositionParams,
-	TextDocumentSyncKind, InitializeResult
+	createConnection, TextDocuments, ProposedFeatures, InitializeParams,
+	DidChangeConfigurationNotification, CompletionItem, CompletionList,
+	TextDocumentPositionParams, TextDocumentSyncKind, InitializeResult
 } from 'vscode-languageserver/node';
 
 import { MarkupKind } from 'vscode-languageserver-types';
@@ -161,31 +160,17 @@ connection.onDidChangeWatchedFiles(_change => {
 
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
-	(_textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
+	(_textDocumentPosition: TextDocumentPositionParams): CompletionList | undefined => {
 		console.log('server onCompletion', _textDocumentPosition);
 		// The pass parameter contains the position of the text document in
 		// which code complete got requested. For the example we ignore this
 		// info and always provide the same completion items.
 
-		const document = documents.get(_textDocumentPosition.textDocument.uri);
+		const documentAnalyzer = languageServer.getDocumentAnalyzer(_textDocumentPosition.textDocument.uri);
 
-		const startPosition = JSON.parse(JSON.stringify(_textDocumentPosition.position));
-		startPosition.character = 0;
-
-		console.log(document?.getText({ start: startPosition, end: _textDocumentPosition.position }));
-
-		return [
-			{
-				label: 'TypeScript',
-				kind: CompletionItemKind.Constructor,
-				data: 1
-			},
-			{
-				label: 'JavaScript',
-				kind: CompletionItemKind.Function,
-				data: 2
-			}
-		];
+		if (documentAnalyzer) {
+			return languageServer.doComplete(_textDocumentPosition.position, documentAnalyzer);
+		}
 	}
 );
 
