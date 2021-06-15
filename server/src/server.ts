@@ -166,15 +166,23 @@ connection.onCompletion(
 		// The pass parameter contains the position of the text document in
 		// which code complete got requested. For the example we ignore this
 		// info and always provide the same completion items.
+
+		const document = documents.get(_textDocumentPosition.textDocument.uri);
+
+		const startPosition = JSON.parse(JSON.stringify(_textDocumentPosition.position));
+		startPosition.character = 0;
+
+		console.log(document?.getText({ start: startPosition, end: _textDocumentPosition.position }));
+
 		return [
 			{
 				label: 'TypeScript',
-				kind: CompletionItemKind.Text,
+				kind: CompletionItemKind.Constructor,
 				data: 1
 			},
 			{
 				label: 'JavaScript',
-				kind: CompletionItemKind.Text,
+				kind: CompletionItemKind.Function,
 				data: 2
 			}
 		];

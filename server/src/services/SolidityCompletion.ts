@@ -5,10 +5,7 @@ import { TextDocument, Position, CompletionList } from '../types/languageTypes';
 export class SolidityCompletion {
 
     public doComplete(document: TextDocument, position: Position, analyzerTree: Node): CompletionList {
-        // TO-DO: Implement doHover
-        return {
-            isIncomplete: true,
-            items: []
-        };
+        const result: CompletionList = { isIncomplete: false, items: [] };
+        return result;
     }
 }

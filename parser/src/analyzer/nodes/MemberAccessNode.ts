@@ -37,6 +37,7 @@ export class MemberAccessNode implements Node {
 
         if (memberAccess.loc) {
             // Bug in solidity parser doesn't give exact locations
+            memberAccess.loc.start.line = memberAccess.loc.end.line;
             memberAccess.loc.start.column = memberAccess.loc.end.column;
             memberAccess.loc.end.column = memberAccess.loc.end.column + memberAccess.memberName.length;
 
