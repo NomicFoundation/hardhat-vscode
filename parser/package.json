@@ -2,12 +2,17 @@
   "name": "parser",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./out/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Riphal <boris@tenderly.co>",
   "license": "UNLICENCED",
+  "_moduleAliases": {
+    "@analyzer": "./out/analyzer",
+    "@common": "./out/analyzer/common",
+    "@nodes": "./out/analyzer/nodes"
+  },
   "devDependencies": {
     "@types/node": "^14.14.37",
     "eslint": "^7.23.0"
@@ -15,6 +20,7 @@
   "dependencies": {
     "@solidity-parser/parser": "^0.13.3-rc.1",
     "add": "^2.0.6",
+    "module-alias": "^2.2.2",
     "typescript": "^4.2.4",
     "yarn": "^1.22.10"
   }

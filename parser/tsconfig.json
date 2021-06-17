@@ -8,7 +8,13 @@
 		"strict": true,
 		"outDir": "out",
 		"rootDir": "src",
-		"composite": true
+		"composite": true,
+		"baseUrl": "./src",
+		"paths": {
+			"@analyzer/*": ["./analyzer/*"],
+			"@common/*": ["./analyzer/common/*"],
+			"@nodes/*": ["./analyzer/nodes/*"],
+		}
 	},
 	"include": ["src"],
 	"exclude": ["node_modules", ".vscode-test"]

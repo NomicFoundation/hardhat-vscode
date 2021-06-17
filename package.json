@@ -45,9 +45,9 @@
 		],
 		"grammars": [
 			{
-			  "language": "solidity",
-			  "scopeName": "source.solidity",
-			  "path": "./syntaxes/solidity.json"
+				"language": "solidity",
+				"scopeName": "source.solidity",
+				"path": "./syntaxes/solidity.json"
 			}
 		]
 	}

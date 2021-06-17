@@ -1,6 +1,6 @@
 import { MemberAccess } from "@solidity-parser/parser/dist/src/ast-types";
 
-import * as finder from "../finder";
+import * as finder from "@common/finder";
 import {
     Location,
     FinderType,
@@ -8,7 +8,7 @@ import {
     DocumentsAnalyzerTree,
     ContractDefinitionNode,
     Node
-} from "./Node";
+} from "@nodes/Node";
 
 export class MemberAccessNode implements Node {
     type: string;

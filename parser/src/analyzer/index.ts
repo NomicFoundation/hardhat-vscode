@@ -3,15 +3,15 @@ import * as path from "path";
 import * as parser from "@solidity-parser/parser";
 import { ASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { setProjectRootPath } from "./finder";
-import * as matcher from "./matcher";
+import { setProjectRootPath } from "@common/finder";
+import * as matcher from "@analyzer/matcher";
 import {
     Node,
     SourceUnitNode,
     DocumentsAnalyzerTree,
     DocumentsAnalyzerMap,
     DocumentAnalyzer as IDocumentAnalyzer
-} from "./nodes/Node";
+} from "@nodes/Node";
 
 export class Analyzer {
     documentsAnalyzer: DocumentsAnalyzerMap = {};

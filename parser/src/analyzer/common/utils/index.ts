@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { projectRootPath } from "./finder";
+import { projectRootPath } from "@common/finder";
 
 export function findNodeModules(fromURI: string): string | undefined {
     let nodeModulesPath = path.join(fromURI, "..", "node_modules");

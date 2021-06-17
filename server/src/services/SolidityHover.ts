@@ -1,4 +1,4 @@
-import { Node } from "../../../parser/out/analyzer/nodes/Node";
+import { Node } from "@nodes/Node";
 
 import { TextDocument, Position, Hover, HoverSettings } from '../types/languageTypes';
 

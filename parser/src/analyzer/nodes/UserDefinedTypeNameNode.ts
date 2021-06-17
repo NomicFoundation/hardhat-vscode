@@ -1,7 +1,7 @@
 import { UserDefinedTypeName } from "@solidity-parser/parser/dist/src/ast-types";
 
-import * as finder from "../finder";
-import { Location, FinderType, DocumentsAnalyzerMap, DocumentsAnalyzerTree, Node } from "./Node";
+import * as finder from "@common/finder";
+import { Location, FinderType, DocumentsAnalyzerMap, DocumentsAnalyzerTree, Node } from "@nodes/Node";
 
 export class UserDefinedTypeNameNode implements Node {
     type: string;

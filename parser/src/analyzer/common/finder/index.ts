@@ -1,4 +1,4 @@
-import { Position, Node, ContractDefinitionNode, ImportDirectiveNode, SourceUnitNode } from "./nodes/Node";
+import { Position, Node, ContractDefinitionNode, ImportDirectiveNode, SourceUnitNode } from "@nodes/Node";
 
 export let projectRootPath: string | undefined;
 

@@ -1,6 +1,6 @@
 import { SourceUnit } from "@solidity-parser/parser/dist/src/ast-types";
 
-import * as finder from "../finder";
+import * as finder from "@common/finder";
 import {
     Location,
     FinderType,
@@ -8,7 +8,7 @@ import {
     DocumentsAnalyzerTree,
     Node,
     SourceUnitNode as ISourceUnitNode
-} from "./Node";
+} from "@nodes/Node";
 
 export class SourceUnitNode implements ISourceUnitNode {
     type: string;

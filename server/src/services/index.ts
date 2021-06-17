@@ -1,4 +1,4 @@
-import { Node, DocumentAnalyzer } from "../../../parser/out/analyzer/nodes/Node";
+import { Node, DocumentAnalyzer } from "@nodes/Node";
 import { Analyzer } from "../../../parser/out/analyzer";
 
 import {

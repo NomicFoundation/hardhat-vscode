@@ -1,5 +1,5 @@
-import { DocumentAnalyzer, Node, definitionNodeTypes } from "../../../parser/out/analyzer/nodes/Node";
-import * as finder from "../../../parser/out/analyzer/finder";
+import { DocumentAnalyzer, Node, definitionNodeTypes } from "@nodes/Node";
+import * as finder from "@common/finder";
 
 import { Position, CompletionList, CompletionItem, CompletionItemKind } from '../types/languageTypes';
 

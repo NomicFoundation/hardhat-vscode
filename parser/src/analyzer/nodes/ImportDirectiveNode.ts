@@ -2,8 +2,8 @@ import * as fs from "fs";
 import * as path from "path";
 import { ImportDirective } from "@solidity-parser/parser/dist/src/ast-types";
 
-import * as finder from "../finder";
-import { findNodeModules } from "../utils";
+import * as finder from "@common/finder";
+import { findNodeModules } from "@common/utils";
 import {
     Location,
     FinderType,
@@ -12,7 +12,7 @@ import {
     Node,
     SourceUnitNode,
     ImportDirectiveNode as IImportDirectiveNode
-} from "./Node";
+} from "@nodes/Node";
 
 export class ImportDirectiveNode implements IImportDirectiveNode {
     type: string;
