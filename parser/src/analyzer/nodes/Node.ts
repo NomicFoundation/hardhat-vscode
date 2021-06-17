@@ -1,9 +1,9 @@
-import { ASTNode, BaseASTNode } from "@solidity-parser/parser/dist/src/ast-types";
+import { BaseASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
 /** 
  *  Position in vscode file.
  */
-export interface Position {
+ export interface Position {
     line: number;
     column: number;
 }
@@ -22,25 +22,7 @@ export interface Location {
  */
 export type FinderType = (ast: BaseASTNode, uri: string) => Node;
 
-export type DocumentsAnalyzerMap = { [uri: string]: DocumentAnalyzer };
-export type DocumentsAnalyzerTree = { [uri: string]: { rootNode: Node | undefined } };
-
-export interface Component {
-    /**
-     * 
-     * @param find A Matcher find function that matches BaseASTNode to analyzer Nodes then create metched analyzer Node and returned it.
-     * @param documentsAnalyzer Map { [uri: string]: DocumentAnalyzer } have all documentsAnalyzer class instances used for handle imports on first project start.
-     * @param documentsAnalyzerTree Map { [uri: string]: Node | undefined } for chaining different files through imports.
-     * @param orphanNodes Array of nodes that didn't find a parent.
-     * @param parent Parent of current node in AST (Abstract syntax tree).
-     * @param expression AST child Node expression. Expression serves to let us know later if there is a Node expression like FunctionCallNode, ArrayTypeNameNode...  
-     * 
-     * @returns Child node in AST.
-     */
-    accept(find: FinderType, documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node;
-}
-
-export interface Node extends Component {
+export abstract class Node {
     /**
      * AST node type.
      */
@@ -52,12 +34,12 @@ export interface Node extends Component {
     /**
      * AST node interface.
      */
-    astNode: BaseASTNode;
+    abstract astNode: BaseASTNode;
 
     /**
      * Is node alive.
      */
-    isAlive: boolean;
+    isAlive = true;
 
     /**
      * Exect name Location of that Node used for rename and search node by name.
@@ -85,7 +67,7 @@ export interface Node extends Component {
     /**
      * Rules for declaration nodes that must be met in order for nodes to be connected.
      */
-    connectionTypeRules: string[];
+    connectionTypeRules: string[] = [];
 
     /**
      * Node parent. Can be undefined for root or orphan Node.
@@ -94,89 +76,106 @@ export interface Node extends Component {
     /**
      * Node children.
      */
-    children: Node[];
+    children: Node[] = [];
 
     /**
      * Node types.
      */
-    typeNodes: Node[];
+    typeNodes: Node[] = [];
+
+    constructor (baseASTNode: BaseASTNode, uri: string) {
+        this.type = baseASTNode.type;
+        this.uri = uri;
+    }
 
     /**
      * Return Nodes that are the type definition of the Node
      */
-    getTypeNodes(): Node[];
-    addTypeNode(node: Node): void;
+    getTypeNodes(): Node[] {
+        let nodes: Node[] = [];
 
-    getExpressionNode(): Node | undefined;
-    setExpressionNode(node: Node | undefined): void;
+        this.typeNodes.forEach(typeNode => {
+            nodes = nodes.concat(typeNode.getTypeNodes());
+        });
 
-    getDeclarationNode(): Node | undefined;
-    setDeclarationNode(node: Node | undefined): void;
+        return nodes;
+    }
 
-    /**
-     * A Node name can be undefined for Nodes that don't have a name.
-     */
-    getName(): string | undefined;
+    addTypeNode(node: Node): void {
+        this.typeNodes.push(node);
+    }
 
-    /**
-     * A Node alias name can be undefined for Nodes that don't declared with alias name.
-     */
-    getAliasName(): string | undefined;
-    setAliasName(aliasName: string | undefined): void;
+    getExpressionNode(): Node | undefined {
+        return this.expressionNode;
+    }
 
-    addChild(child: Node): void;
-    removeChild(child: Node): void;
-
-    setParent(parent: Node | undefined): void;
-    getParent(): Node | undefined;
+    setExpressionNode(node: Node | undefined): void {
+        this.expressionNode = node;
+    }
 
     /**
      * Return Node that are the definition of the Node if definition exists.
      */
-    getDefinitionNode(): Node | undefined;
-}
+    getDefinitionNode(): Node | undefined {
+        return this.parent?.getDefinitionNode();
+    }
 
-export interface ContractDefinitionNode extends Node {
-    inheritanceNodes: ContractDefinitionNode[];
+    getDeclarationNode(): Node | undefined {
+        return this.declarationNode;
+    }
 
-    getKind(): string;
-    getInheritanceNodes(): ContractDefinitionNode[];
-}
+    setDeclarationNode(node: Node | undefined): void {
+        this.declarationNode = node;
+    }
 
-export interface ImportDirectiveNode extends Node {
-    realURI: string;
-    importNode: { rootNode: Node | undefined };
-    aliasNodes: Node[];
+    /**
+     * A Node name can be undefined for Nodes that don't have a name.
+     */
+    getName(): string | undefined {
+        return undefined;
+    }
 
-    setImportNode(importNode: { rootNode: Node | undefined }): void;
-    getImportNode(): Node | undefined;
+    /**
+     * A Node alias name can be undefined for Nodes that don't declared with alias name.
+     */
+    getAliasName(): string | undefined {
+        return this.aliasName;
+    }
 
-    addAliasNode(aliasNodes: Node): void;
-    getAliasNodes(): Node[];
-}
+    setAliasName(aliasName: string | undefined): void {
+        this.aliasName = aliasName;
+    }
 
-export interface SourceUnitNode extends Node {
-    importNodes: Node[];
-    exportNodes: Node[];
+    addChild(child: Node): void {
+        this.children.push(child);
+    }
 
-    addImportNode(importNode: Node): void;
-    getImportNodes(): Node[];
+    removeChild(child: Node): void {
+        const index = this.children.indexOf(child, 0);
 
-    addExportNode(exportNode: Node): void;
-    getExportNodes(): Node[];
-}
+        if (index > -1) {
+            this.children.splice(index, 1);
+        }
 
-export const definitionNodeTypes = [ "ContractDefinition", "StructDefinition", "ModifierDefinition", "FunctionDefinition", "EventDefinition", "EnumDefinition", "AssemblyLocalDefinition", "LabelDefinition", "AssemblyFunctionDefinition", "UserDefinedTypeName", "FileLevelConstant" ];
+        child.isAlive = false;
+    }
 
-export interface DocumentAnalyzer {
-    document: string | undefined;
-    uri: string;
+    setParent(parent: Node | undefined): void {
+        this.parent = parent;
+    }
 
-    ast: ASTNode | undefined;
+    getParent(): Node | undefined {
+        return this.parent;
+    }
 
-    analyzerTree?: Node;
-
-    orphanNodes: Node[];
-
-    analyze(documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, document?: string): Node | undefined;
+    /**
+     * 
+     * @param find A Matcher find function that matches BaseASTNode to analyzer Nodes then create metched analyzer Node and returned it.
+     * @param orphanNodes Array of nodes that didn't find a parent.
+     * @param parent Parent of current node in AST (Abstract syntax tree).
+     * @param expression AST child Node expression. Expression serves to let us know later if there is a Node expression like FunctionCallNode, ArrayTypeNameNode...  
+     * 
+     * @returns Child node in AST.
+     */
+    abstract accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node;
 }

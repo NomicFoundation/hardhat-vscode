@@ -1,8 +1,8 @@
 import {
 	Location as NodeLocation, Node,
 	definitionNodeTypes
-} from "@nodes/Node";
-import * as finder from "@common/finder";
+} from "../../../parser/out/analyzer/common/types";
+import * as finder from "../../../parser/out/analyzer/common/finder";
 
 import {
 	TextDocument, Position, Location,

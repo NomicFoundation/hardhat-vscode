@@ -16,3 +16,15 @@ export function findNodeModules(fromURI: string): string | undefined {
 
     return undefined;
 }
+
+export function decodeUriAndRemoveFilePrefix(uri: string): string {
+    if (uri && uri.indexOf('file://') !== -1) {
+        uri = uri.replace("file://", "");
+    }
+
+    if (uri) {
+        uri = decodeURIComponent(uri);
+    }
+
+    return uri;
+}

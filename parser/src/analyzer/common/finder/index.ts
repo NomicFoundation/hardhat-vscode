@@ -1,4 +1,5 @@
-import { Position, Node, ContractDefinitionNode, ImportDirectiveNode, SourceUnitNode } from "@nodes/Node";
+import * as cache from "@common/cache";
+import { Position, Node, ContractDefinitionNode, ImportDirectiveNode, SourceUnitNode } from "@common/types";
 
 export let projectRootPath: string | undefined;
 
@@ -241,8 +242,13 @@ function searchInImportNodes(visitedFiles: string[], node: Node, from?: Node | u
     }
 
     if (from.type === "ImportDirective") {
-        const importNode = (from as ImportDirectiveNode).getImportNode();
+        const importPath = (from as ImportDirectiveNode).getImportPath();
         const importAliasNodes = (from as ImportDirectiveNode).getAliasNodes();
+
+        let importNode;
+        if (importPath) {
+            importNode = cache.getDocumentAnalyzer(importPath)?.analyzerTree;
+        }
 
         if (importNode && visitedFiles.indexOf(importNode.uri) === -1) {
             // Add as visited file
@@ -282,7 +288,7 @@ function searchInExpressionNode(uri: string, position: Position, expressionNode?
     if (
         isNodePosition(expressionNode, position) &&
         (expressionNode.uri === uri ||
-        (expressionNode.type === "ImportDirective" && (expressionNode as ImportDirectiveNode).realURI === uri))
+        (expressionNode.type === "ImportDirective" && (expressionNode as ImportDirectiveNode).realUri === uri))
     ) {
         return expressionNode;
     }
@@ -313,15 +319,20 @@ function walk(uri: string, position: Position, from?: Node, searchInExpression?:
     if (
         isNodePosition(from, position) &&
         (from.uri === uri ||
-        (from.type === "ImportDirective" && (from as ImportDirectiveNode).realURI === uri))
+        (from.type === "ImportDirective" && (from as ImportDirectiveNode).realUri === uri))
     ) {
         return from;
     }
 
     // Handle import
     if (from.type === "ImportDirective") {
-        const importNode = (from as ImportDirectiveNode).getImportNode();
+        const importPath = (from as ImportDirectiveNode).getImportPath();
         const importAliasNodes = (from as ImportDirectiveNode).getAliasNodes();
+
+        let importNode;
+        if (importPath) {
+            importNode = cache.getDocumentAnalyzer(importPath)?.analyzerTree;
+        }
 
         if (importNode && visitedFiles.indexOf(importNode.uri) === -1) {
             // Add as visited file

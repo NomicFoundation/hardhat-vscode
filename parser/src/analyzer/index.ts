@@ -3,20 +3,13 @@ import * as path from "path";
 import * as parser from "@solidity-parser/parser";
 import { ASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
-import { setProjectRootPath } from "@common/finder";
 import * as matcher from "@analyzer/matcher";
-import {
-    Node,
-    SourceUnitNode,
-    DocumentsAnalyzerTree,
-    DocumentsAnalyzerMap,
-    DocumentAnalyzer as IDocumentAnalyzer
-} from "@nodes/Node";
+import * as cache from "@common/cache";
+import { setProjectRootPath } from "@common/finder";
+import { Node, SourceUnitNode, DocumentAnalyzer as IDocumentAnalyzer } from "@common/types";
+import { decodeUriAndRemoveFilePrefix } from "@common/utils";
 
 export class Analyzer {
-    documentsAnalyzer: DocumentsAnalyzerMap = {};
-    documentsAnalyzerTree: DocumentsAnalyzerTree = {};
-
     constructor (rootPath: string | undefined) {
         setProjectRootPath(rootPath);
 
@@ -25,39 +18,36 @@ export class Analyzer {
 
         // Init all documentAnalyzers
         for (const documentUri of documentsUri) {
-            this.documentsAnalyzer[documentUri] = new DocumentAnalyzer(documentUri);
-            this.documentsAnalyzerTree[documentUri] = { rootNode: undefined };
+            cache.setDocumentAnalyzer(documentUri, new DocumentAnalyzer(documentUri));
         }
 
         for (const documentUri of documentsUri) {
-            if (!this.documentsAnalyzerTree[documentUri].rootNode) {
-                this.documentsAnalyzer[documentUri].analyze(this.documentsAnalyzer, this.documentsAnalyzerTree);
+            const documentAnalyzer = cache.getDocumentAnalyzer(documentUri);
+
+            if (documentAnalyzer && !documentAnalyzer.analyzerTree) {
+                documentAnalyzer.analyze();
             }
         }
     }
 
     public getDocumentAnalyzer(uri: string): DocumentAnalyzer | undefined {
-        if (uri.indexOf('file://') !== -1) {
-            uri = uri.replace("file://", "");
-        }
-
-        return this.documentsAnalyzer[uri];
+        uri = decodeUriAndRemoveFilePrefix(uri);
+        return cache.getDocumentAnalyzer(uri);
     }
 
     public analyzeDocument(document: string, uri: string): Node | undefined {
-        uri = decodeURIComponent(uri);
+        uri = decodeUriAndRemoveFilePrefix(uri);
 
-        if (uri.indexOf('file://') !== -1) {
-            uri = uri.replace("file://", "");
+        let documentAnalyzer = cache.getDocumentAnalyzer(uri);
+
+        if (documentAnalyzer) {
+            return documentAnalyzer.analyze(document);
         }
 
-        if (this.documentsAnalyzer[uri]) {
-            return this.documentsAnalyzer[uri].analyze(this.documentsAnalyzer, this.documentsAnalyzerTree, document);
-        }
+        documentAnalyzer = new DocumentAnalyzer(uri);
+        cache.setDocumentAnalyzer(uri, documentAnalyzer);
 
-        this.documentsAnalyzer[uri] = new DocumentAnalyzer(uri);
-        this.documentsAnalyzerTree[uri] = { rootNode: undefined };
-        return this.documentsAnalyzer[uri].analyze(this.documentsAnalyzer, this.documentsAnalyzerTree, document);
+        return documentAnalyzer.analyze(document);
     }
 
     private findSolFiles(base: string | undefined, documentsUri: string[]): void {
@@ -65,9 +55,7 @@ export class Analyzer {
             return;
         }
 
-        if (base.indexOf('file://') !== -1) {
-            base = base.replace("file://", "");
-        }
+        base = decodeUriAndRemoveFilePrefix(base);
 
         try {
             const files = fs.readdirSync(base);
@@ -111,7 +99,7 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
         }
     }
 
-    public analyze(documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, document?: string): Node | undefined {
+    public analyze(document?: string): Node | undefined {
         try {
             this.orphanNodes = [];
 
@@ -125,8 +113,8 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
                 tolerant: true
             });
 
-            if (documentsAnalyzerTree[this.uri].rootNode) {
-                const oldDocumentsAnalyzerTree = documentsAnalyzerTree[this.uri].rootNode as SourceUnitNode;
+            if (this.analyzerTree) {
+                const oldDocumentsAnalyzerTree = this.analyzerTree as SourceUnitNode;
 
                 for (const importNode of oldDocumentsAnalyzerTree.getImportNodes()) {
                     importNode.getParent()?.removeChild(importNode);
@@ -134,10 +122,9 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
                 }
             }
 
-            console.log(this.uri);
             // console.log(this.uri, JSON.stringify(this.ast));
 
-            this.analyzerTree = matcher.find(this.ast, this.uri).accept(matcher.find, documentsAnalyzer, documentsAnalyzerTree, this.orphanNodes);
+            this.analyzerTree = matcher.find(this.ast, this.uri).accept(matcher.find, this.orphanNodes);
 
             return this.analyzerTree;
         } catch (err) {

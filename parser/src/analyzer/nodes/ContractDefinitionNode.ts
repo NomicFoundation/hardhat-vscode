@@ -1,41 +1,18 @@
-import { ContractDefinition } from "@solidity-parser/parser/dist/src/ast-types";
-
 import * as finder from "@common/finder";
 import {
-    Location,
+    ContractDefinition,
     FinderType,
-    DocumentsAnalyzerMap,
-    DocumentsAnalyzerTree,
     Node,
-    ContractDefinitionNode as IContractDefinitionNode
-} from "@nodes/Node";
+    ContractDefinitionNode as AbstractContractDefinitionNode
+} from "@common/types";
 
-export class ContractDefinitionNode implements IContractDefinitionNode {
-    type: string;
-    uri: string;
+export class ContractDefinitionNode extends AbstractContractDefinitionNode {
     astNode: ContractDefinition;
-
-    isAlive = true;
-
-    nameLoc?: Location | undefined;
-
-    aliasName?: string | undefined;
-
-    expressionNode?: Node | undefined;
-    declarationNode?: Node | undefined;
 
     connectionTypeRules: string[] = [ "Identifier", "UserDefinedTypeName", "FunctionCall", "UsingForDeclaration" ];
 
-    parent?: Node | undefined;
-    children: Node[] = [];
-
-    typeNodes: Node[] = [];
-
-    inheritanceNodes: ContractDefinitionNode[] = [];
-
     constructor (contractDefinition: ContractDefinition, uri: string) {
-        this.type = contractDefinition.type;
-        this.uri = uri;
+        super(contractDefinition, uri);
         this.astNode = contractDefinition;
 
         if (contractDefinition.loc) {
@@ -59,32 +36,8 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
         return this.astNode.kind;
     }
 
-    getInheritanceNodes(): ContractDefinitionNode[] {
-        return this.inheritanceNodes;
-    }
-
     getTypeNodes(): Node[] {
         return this.typeNodes;
-    }
-
-    addTypeNode(node: Node): void {
-        this.typeNodes.push(node);
-    }
-
-    getExpressionNode(): Node | undefined {
-        return this.expressionNode;
-    }
-
-    setExpressionNode(node: Node | undefined): void {
-        this.expressionNode = node;
-    }
-
-    getDeclarationNode(): Node | undefined {
-        return this.declarationNode;
-    }
-
-    setDeclarationNode(node: Node | undefined): void {
-        this.declarationNode = node;
     }
 
     getDefinitionNode(): Node | undefined {
@@ -95,37 +48,7 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
         return this.astNode.name;
     }
 
-    getAliasName(): string | undefined {
-        return this.aliasName;
-    }
-
-    setAliasName(aliasName: string | undefined): void {
-        this.aliasName = aliasName;
-    }
-
-    addChild(child: Node): void {
-        this.children.push(child);
-    }
-
-    removeChild(child: Node): void {
-        const index = this.children.indexOf(child, 0);
-
-        if (index > -1) {
-            this.children.splice(index, 1);
-        }
-
-        child.isAlive = false;
-    }
-
-    setParent(parent: Node | undefined): void {
-        this.parent = parent;
-    }
-
-    getParent(): Node | undefined {
-        return this.parent;
-    }
-
-    accept(find: FinderType, documentsAnalyzer: DocumentsAnalyzerMap, documentsAnalyzerTree: DocumentsAnalyzerTree, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
         if (parent) {
@@ -133,7 +56,7 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
         }
 
         for (const baseContract of this.astNode.baseContracts) {
-            const inheritanceNode = find(baseContract, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, this);
+            const inheritanceNode = find(baseContract, this.uri).accept(find, orphanNodes, this);
 
             const inheritanceNodeDefinition = inheritanceNode.getDefinitionNode();
 
@@ -143,7 +66,7 @@ export class ContractDefinitionNode implements IContractDefinitionNode {
         }
 
         for (const subNode of this.astNode.subNodes) {
-            find(subNode, this.uri).accept(find, documentsAnalyzer, documentsAnalyzerTree, orphanNodes, this);
+            find(subNode, this.uri).accept(find, orphanNodes, this);
         }
 
         // Find parent for orphanNodes from this contract in inheritance Nodes 
