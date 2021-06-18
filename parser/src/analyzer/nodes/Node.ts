@@ -1,7 +1,7 @@
 import { BaseASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
 /** 
- *  Position in vscode file.
+ *  Position in file.
  */
  export interface Position {
     line: number;
@@ -9,7 +9,7 @@ import { BaseASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 }
 
 /** 
- *  Location in vscode file has start and end Position.
+ *  Location in file has start and end Position.
  */
 export interface Location {
     start: Position;
@@ -17,8 +17,8 @@ export interface Location {
 }
 
 /**
- * @param {BaseASTNode} ast The node who you want to find.
- * @param {string} uri The path to the file of that ast node.
+ * @param {BaseASTNode} ast The ast node who you want to find.
+ * @param {string} uri The path to the {@link Node} file.
  */
 export type FinderType = (ast: BaseASTNode, uri: string) => Node;
 
@@ -28,7 +28,7 @@ export abstract class Node {
      */
     type: string;
     /**
-     * The path to the node file.
+     * The path to the {@link Node} file.
      * URI need to be decoded and without "file://"" prefix.
      * To get that format of uri you can use decodeUriAndRemoveFilePrefix in @common/util
      */
