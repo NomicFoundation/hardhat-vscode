@@ -4,14 +4,6 @@ import { Position, Node, ContractDefinitionNode, ImportDirectiveNode, SourceUnit
 export let projectRootPath: string | undefined;
 
 export function setProjectRootPath(rootPath: string | undefined) {
-    if (rootPath && rootPath.indexOf('file://') !== -1) {
-        rootPath = rootPath.replace("file://", "");
-    }
-
-    if (rootPath) {
-        rootPath = decodeURIComponent(rootPath);
-    }
-
     projectRootPath = rootPath;
 }
 

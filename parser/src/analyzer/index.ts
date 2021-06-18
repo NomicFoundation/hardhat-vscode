@@ -11,6 +11,10 @@ import { decodeUriAndRemoveFilePrefix } from "@common/utils";
 
 export class Analyzer {
     constructor (rootPath: string | undefined) {
+        if (rootPath) {
+            rootPath = decodeUriAndRemoveFilePrefix(rootPath);
+        }
+
         setProjectRootPath(rootPath);
 
         const documentsUri: string[] = [];
