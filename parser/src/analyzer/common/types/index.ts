@@ -103,13 +103,28 @@ export abstract class SourceUnitNode extends Node {
 }
 
 export interface DocumentAnalyzer {
+    /**
+     * The contents of the file we will try to analyze.
+     */
     document: string | undefined;
+    /**
+     * The path to the file with the document we are analyzing.
+     */
     uri: string;
 
+    /**
+     * AST that we get from @solidity-parser/parser.
+     */
     ast: ASTNode | undefined;
 
-    analyzerTree?: Node;
+    /**
+     * Analyzed tree.
+     */
+    analyzerTree?: Node | undefined;
 
+    /**
+     * This is the place for all the Nodes for which we couldn't find a parent
+     */
     orphanNodes: Node[];
 
     analyze(document?: string): Node | undefined;

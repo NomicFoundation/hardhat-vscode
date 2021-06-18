@@ -91,7 +91,7 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
 
     ast: ASTNode | undefined;
 
-    analyzerTree?: Node;
+    analyzerTree?: Node | undefined;
 
     orphanNodes: Node[] = [];
 
