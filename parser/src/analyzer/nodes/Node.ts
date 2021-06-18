@@ -28,7 +28,9 @@ export abstract class Node {
      */
     type: string;
     /**
-     * The path to the file of that ast node.
+     * The path to the node file.
+     * URI need to be decoded and without "file://"" prefix.
+     * To get that format of uri you can use decodeUriAndRemoveFilePrefix in @common/util
      */
     uri: string;
     /**
@@ -37,15 +39,20 @@ export abstract class Node {
     abstract astNode: BaseASTNode;
 
     /**
-     * Is node alive.
+     * Represents is node alive or not. If it isn't alive we need to remove it, because if we don't 
+     * remove the dead nodes, we can have references to code that doesn't exist. Default is true and
+     * default implementations of the removeChildren will set isAlive to false.
      */
     isAlive = true;
 
     /**
-     * Exect name Location of that Node used for rename and search node by name.
+     * Exact name Location of Node used for rename and search node by name.
      */
     nameLoc?: Location | undefined;
 
+    /**
+     * Import alias name. If the aliasName exists he is the real name and {@link Node.getName getName} will return the alias.
+     */
     aliasName?: string | undefined;
 
     /**
@@ -80,9 +87,16 @@ export abstract class Node {
 
     /**
      * Node types.
+     * Example: uint256 num; uint256 will be typeNode for VariableDeclarationNode num
+     * TypeNodes is an array because some declaration can have more than one types like function. 
      */
     typeNodes: Node[] = [];
 
+    /**
+     * Base Node constructor
+     * @param baseASTNode AST node interface.
+     * @param uri The path to the node file.
+     */
     constructor (baseASTNode: BaseASTNode, uri: string) {
         this.type = baseASTNode.type;
         this.uri = uri;
@@ -105,6 +119,10 @@ export abstract class Node {
         this.typeNodes.push(node);
     }
 
+    /**
+     * An {@link Node.expressionNode expressionNode} is a Node above the current Node by AST.
+     * @returns ExpressionNode if exist otherwise undefined
+     */
     getExpressionNode(): Node | undefined {
         return this.expressionNode;
     }
@@ -137,6 +155,7 @@ export abstract class Node {
 
     /**
      * A Node alias name can be undefined for Nodes that don't declared with alias name.
+     * If the aliasName exists he is the real name and {@link Node.getName getName} will return the alias.
      */
     getAliasName(): string | undefined {
         return this.aliasName;
@@ -150,6 +169,10 @@ export abstract class Node {
         this.children.push(child);
     }
 
+    /**
+     * Note that removeChild will set {@link Node.isAlive isAlive} to false for the removed child
+     * @param child Child who you want to remove
+     */
     removeChild(child: Node): void {
         const index = this.children.indexOf(child, 0);
 
@@ -172,8 +195,8 @@ export abstract class Node {
      * 
      * @param find A Matcher find function that matches BaseASTNode to analyzer Nodes then create metched analyzer Node and returned it.
      * @param orphanNodes Array of nodes that didn't find a parent.
-     * @param parent Parent of current node in AST (Abstract syntax tree).
-     * @param expression AST child Node expression. Expression serves to let us know later if there is a Node expression like FunctionCallNode, ArrayTypeNameNode...  
+     * @param parent {@link Node.parent Parent} of current node in AST (Abstract syntax tree).
+     * @param expression AST child Node {@link Node.expressionNode expression}. Expression serves to let us know later if there is a Node expression like FunctionCallNode, ArrayTypeNameNode...  
      * 
      * @returns Child node in AST.
      */
