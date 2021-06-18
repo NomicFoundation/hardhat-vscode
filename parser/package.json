@@ -9,9 +9,9 @@
   "author": "Riphal <boris@tenderly.co>",
   "license": "UNLICENCED",
   "_moduleAliases": {
-    "@analyzer": "./out/analyzer",
-    "@common": "./out/analyzer/common",
-    "@nodes": "./out/analyzer/nodes"
+    "@analyzer": "./out/analyzer/",
+    "@common": "./out/analyzer/common/",
+    "@nodes": "./out/analyzer/nodes/"
   },
   "devDependencies": {
     "@types/node": "^14.14.37",

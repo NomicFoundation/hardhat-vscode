@@ -83,7 +83,6 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
             documentAnalyzer.analyzerTree.astNode.loc
         ) {
             this.astNode.loc = documentAnalyzer.analyzerTree.astNode.loc;
-            this.setImportPath(documentAnalyzer.analyzerTree.uri);
         }
 
         const aliesNodes: Node[] = [];

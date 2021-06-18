@@ -1,4 +1,4 @@
-import { Node, DocumentAnalyzer } from "../../../parser/out/analyzer/common/types";
+import { Node, DocumentAnalyzer } from "../../../parser/out/types";
 import { Analyzer } from "../../../parser";
 
 import {

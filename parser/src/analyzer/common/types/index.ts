@@ -44,23 +44,32 @@ export { Position, Location, FinderType, Node };
 export abstract class ContractDefinitionNode extends Node {
     inheritanceNodes: ContractDefinitionNode[] = [];
 
+    /**
+     * Kind can be "abstract" | "contract" | "library" | "interface"
+     * @returns Contract kind
+     */
     abstract getKind(): string;
+
+    /**
+     * @returns inherited Nodes
+     */
     getInheritanceNodes(): ContractDefinitionNode[] {
         return this.inheritanceNodes;
     }
 }
 
 export abstract class ImportDirectiveNode extends Node {
+    /**
+     * The path to the file.
+     * But in this case, realUri will be the URI of the file in which the import is declared.
+     * And {@link Node.uri uri} will be a path to imported Node
+     */
     abstract realUri: string;
-    importPath: string | undefined;
+
     aliasNodes: Node[] = [];
 
-    setImportPath(importPath: string | undefined): void {
-        this.importPath = importPath;
-    }
-
     getImportPath(): string | undefined {
-        return this.importPath;
+        return this.uri;
     }
 
     addAliasNode(aliasNode: Node): void {
