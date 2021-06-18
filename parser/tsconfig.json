@@ -9,6 +9,7 @@
 		"outDir": "out",
 		"rootDir": "src",
 		"composite": true,
+		"declaration": true,
 		"baseUrl": "./src",
 		"paths": {
 			"@analyzer/*": ["./analyzer/*"],

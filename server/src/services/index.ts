@@ -1,5 +1,5 @@
 import { Node, DocumentAnalyzer } from "../../../parser/out/analyzer/common/types";
-import { Analyzer } from "../../../parser/out/analyzer";
+import { Analyzer } from "../../../parser/out";
 
 import {
 	LanguageSettings, Position, Hover, Location,
