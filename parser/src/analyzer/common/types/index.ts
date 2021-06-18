@@ -130,7 +130,9 @@ export interface DocumentAnalyzer {
     analyze(document?: string): Node | undefined;
 }
 
-// documentsAnalyzer Map { [uri: string]: DocumentAnalyzer } have all documentsAnalyzer class instances used for handle imports on first project start.
+/**
+ * documentsAnalyzer Map { [uri: string]: DocumentAnalyzer } have all documentsAnalyzer class instances used for handle imports on first project start.
+ */
 export type DocumentsAnalyzerMap = { [uri: string]: DocumentAnalyzer | undefined };
 
 export const definitionNodeTypes = [ "ContractDefinition", "StructDefinition", "ModifierDefinition", "FunctionDefinition", "EventDefinition", "EnumDefinition", "AssemblyLocalDefinition", "LabelDefinition", "AssemblyFunctionDefinition", "UserDefinedTypeName", "FileLevelConstant" ];

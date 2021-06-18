@@ -7,7 +7,7 @@ import { ASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
 import * as matcher from "@analyzer/matcher";
 import * as cache from "@common/cache";
-import { setProjectRootPath } from "@common/finder";
+import { setProjectRootPath } from "@common/utils";
 import { Node, SourceUnitNode, DocumentAnalyzer as IDocumentAnalyzer } from "@common/types";
 import { decodeUriAndRemoveFilePrefix } from "@common/utils";
 

@@ -1,22 +1,28 @@
 import * as cache from "@common/cache";
 import { Position, Node, ContractDefinitionNode, ImportDirectiveNode, SourceUnitNode } from "@common/types";
 
-export let projectRootPath: string | undefined;
-
-export function setProjectRootPath(rootPath: string | undefined) {
-    projectRootPath = rootPath;
-}
-
+/**
+ * Default analyzerTree. It is variable in relation to the document we are analyzing at the time.
+ */
 export let analyzerTree: Node | undefined;
-
+/**
+ * @param rootNode New default {@link analyzerTree} will be rootNode.
+ */
 export function setRoot(rootNode: Node) {
     analyzerTree = rootNode;
 }
 
-export function findParent(node: Node, from?: Node, searchInInheretenceNodes?: boolean): Node | undefined {
+/**
+ * Searches for a parent definition for the forwarded Node.
+ * @param node Node for wich we are looking for a parent.
+ * @param from From which Node do we start searching for the parent.
+ * @param searchInInheretenceNodes If it is true, we will look for the parent in the inheritance nodes as well. Default is false.
+ * @returns Parent Node if it exists, otherwise returns undefined.
+ */
+export function findParent(node: Node, from?: Node, searchInInheretenceNodes = false): Node | undefined {
     let parent: Node | undefined;
 
-    // If from Node doesn't exist start finding from the root of the analyzer tree
+    // If from doesn't exist start finding from the root of the analyzerTree.
     if (!from) {
         parent = search(node, analyzerTree, searchInInheretenceNodes);
     } else {
@@ -24,12 +30,18 @@ export function findParent(node: Node, from?: Node, searchInInheretenceNodes?: b
     }
 
     if (parent) {
+        // If the parent Node has an alias, then we must set the alias on the Node to which it is the parent.
+        // For parent with an alias, we have to set an alias to all his children Nodes
+        // if we want them to be listed when find all references called.
         node.setAliasName(parent.getAliasName());
 
+        // If parent exists always return definition Node.
         parent = parent.getDefinitionNode();
     }
 
-    // If the parent uri and node uri are not the same, add the node to the exportNode field
+    // If the parent uri and node uri are not the same, add the node to the exportNode field.
+    // And for every exportNode we need to add them to the importNodes field so
+    // we can later refresh all exportNodes without analyzing all the files in our project.
     if (parent && parent.uri !== node.uri) {
         const exportRootNode = findSourceUnitNode(parent);
         const importRootNode = findSourceUnitNode(analyzerTree);
@@ -46,6 +58,17 @@ export function findParent(node: Node, from?: Node, searchInInheretenceNodes?: b
     return parent;
 }
 
+/**
+ * 
+ * @param uri Path to the file.
+ * @param position Position in the file.
+ * @param from From which Node do we start searching for the parent.
+ * @param returnDefinitionNode If it is true, we will return the definition Node of found Node,
+ * otherwise we will return found Node. Default is true.
+ * @param searchInExpression If it is true, we will also look at the expressionNode for Node
+ * otherwise, we won't. Default is false.
+ * @returns Found Node.
+ */
 export function findNodeByPosition(uri: string, position: Position, from?: Node, returnDefinitionNode = true, searchInExpression = false): Node | undefined {
     const node = walk(uri, position, from || analyzerTree, searchInExpression);
 

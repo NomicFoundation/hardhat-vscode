@@ -29,7 +29,7 @@ export abstract class Node {
     type: string;
     /**
      * The path to the {@link Node} file.
-     * URI need to be decoded and without "file://"" prefix.
+     * URI need to be decoded and without "file://" prefix.
      * To get that format of uri you can use decodeUriAndRemoveFilePrefix in @common/util
      */
     uri: string;
