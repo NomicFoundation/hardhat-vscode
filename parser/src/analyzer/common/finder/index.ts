@@ -115,6 +115,14 @@ export function findChildren(definitionNode: Node, orphanNodes: Node[], isShadow
     }
 }
 
+/**
+ * This function looking for a Node that can be connected to the forwarded node.
+ * 
+ * @param node For which we are trying to find a node that can be connected.
+ * @param from From which Node do we start searching.
+ * @param searchInInheretenceNodes If it is true, we will look for the parent in the inheritance nodes as well.
+ * @returns Node that can connect to the forwarded node.
+ */
 function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: boolean, visitedNodes?: Node[], visitedFiles?: string[]): Node | undefined {
     if (!visitedNodes) {
         visitedNodes = [];
@@ -141,6 +149,8 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
     }
 
     for (const child of from.children) {
+        // Don't check if the Node is in the shadow of the Node for AssemblyFor and ImportDirective Nodes
+        // because we have to get into them and check if Node is shadowed for their children
         if (from.type !== "AssemblyFor" && child.type !== "ImportDirective" && !isNodeShadowedByNode(node, child)) {
             if (isNodeConnectable(child, node)) {
                 return child;
@@ -184,6 +194,16 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
     return search(node, from.parent, searchInInheretenceNodes, visitedNodes);
 }
 
+/**
+ * This function looking for a Node that can be connected to the forwarded node in imported files.
+ * This means that we will not check if the Node is shaded because it is in another file.
+ * 
+ * @param visitedFiles This will be an array of URIs.
+ * We need this to stop infinite recursion if someone implements circular dependency.
+ * @param node For which we are trying to find a node that can be connected.
+ * @param from From which Node do we start searching.
+ * @returns Node that can connect to the forwarded node.
+ */
 function searchInImportNodes(visitedFiles: string[], node: Node, from?: Node | undefined): Node | undefined {
     if (!from) {
         return undefined;
@@ -228,23 +248,17 @@ function searchInImportNodes(visitedFiles: string[], node: Node, from?: Node | u
     }
 }
 
-function searchInExpressionNode(uri: string, position: Position, expressionNode?: Node | undefined): Node | undefined {
-    if (!expressionNode) {
-        return undefined;
-    }
-
-    if (
-        isNodePosition(expressionNode, position) &&
-        (expressionNode.uri === uri ||
-        (expressionNode.type === "ImportDirective" && (expressionNode as ImportDirectiveNode).realUri === uri))
-    ) {
-        return expressionNode;
-    }
-
-    searchInExpressionNode(uri, position, expressionNode.getExpressionNode());
-}
-
-function walk(uri: string, position: Position, from?: Node, searchInExpression?: boolean, visitedNodes?: Node[], visitedFiles?: string[]): Node | undefined {
+/**
+ * Walk through the analyzedTree and try to find Node with forwarded {@link Node.uri uri} and {@link Node.nameLoc position}.
+ * 
+ * @param uri The path to the {@link Node} file.
+ * @param position {@link Node} position in file.
+ * @param from From which Node do we start searching.
+ * @param searchInExpression Default is false. Set true only if you try to find Nodes 
+ * that aren't in orphan Nodes and don't have a parent. Like MemberAccessNode without a parent.
+ * @returns Wanted {@link Node} if exist.
+ */
+function walk(uri: string, position: Position, from?: Node, searchInExpression = false, visitedNodes?: Node[], visitedFiles?: string[]): Node | undefined {
     if (!visitedNodes) {
         visitedNodes = [];
     }
@@ -323,6 +337,35 @@ function walk(uri: string, position: Position, from?: Node, searchInExpression?:
     return walk(uri, position, from.parent, searchInExpression, visitedNodes, visitedFiles);
 }
 
+/**
+ * We search Node in expression, we have to search in an expression node, 
+ * because expression nodes, such as MemberAccess, aren't in orphanNodes.
+ * 
+ * @param uri The path to the {@link Node} file.
+ * @param position {@link Node} position in file.
+ * @returns Wanted {@link Node} if exist.
+ */
+ function searchInExpressionNode(uri: string, position: Position, expressionNode?: Node | undefined): Node | undefined {
+    if (!expressionNode) {
+        return undefined;
+    }
+
+    if (
+        isNodePosition(expressionNode, position) &&
+        (expressionNode.uri === uri ||
+        (expressionNode.type === "ImportDirective" && (expressionNode as ImportDirectiveNode).realUri === uri))
+    ) {
+        return expressionNode;
+    }
+
+    searchInExpressionNode(uri, position, expressionNode.getExpressionNode());
+}
+
+/**
+ * Checks if the forwarded position is equal to the position of the forwarded Node.
+ * 
+ * @returns true if the positions are equal, otherwise false.
+ */
 export function isNodePosition(node: Node, position: Position): boolean {
     if (
         node.nameLoc &&
@@ -337,6 +380,11 @@ export function isNodePosition(node: Node, position: Position): boolean {
     return false;
 }
 
+/**
+ * Checks if the child's range is within the parent range. 
+ * 
+ * @returns true if the child is shadowed by a parent, otherwise false.
+ */
 export function isNodeShadowedByNode(child: Node | undefined, parent: Node | undefined): boolean {
     if (
         child && parent &&
@@ -350,6 +398,11 @@ export function isNodeShadowedByNode(child: Node | undefined, parent: Node | und
     return false;
 }
 
+/**
+ * Checks if the child can connect with the parent.
+ * 
+ * @returns true if the child is connectable to parent, otherwise false.
+ */
 export function isNodeConnectable(parent: Node | undefined, child: Node | undefined): boolean {
     if (
         parent && child &&
@@ -364,6 +417,10 @@ export function isNodeConnectable(parent: Node | undefined, child: Node | undefi
     return false;
 }
 
+/**
+ * @param node From which Node do we start searching.
+ * @returns SourceUnitNode if exist.
+ */
 export function findSourceUnitNode(node: Node | undefined): SourceUnitNode | undefined {
     let rootNode = node;
     while (rootNode && rootNode.type !== "SourceUnit") {

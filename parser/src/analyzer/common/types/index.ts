@@ -90,7 +90,6 @@ export abstract class SourceUnitNode extends Node {
     }
 
     /**
-     * 
      * @returns all imported Nodes in this SourceUint
      */
     getImportNodes(): Node[] {
@@ -102,7 +101,6 @@ export abstract class SourceUnitNode extends Node {
     }
 
     /**
-     * 
      * @returns all exported Nodes from this SourceUint
      */
     getExportNodes(): Node[] {
