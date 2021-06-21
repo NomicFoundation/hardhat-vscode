@@ -89,6 +89,10 @@ export abstract class SourceUnitNode extends Node {
         this.importNodes.push(importNode);
     }
 
+    /**
+     * 
+     * @returns all imported Nodes in this SourceUint
+     */
     getImportNodes(): Node[] {
         return this.importNodes;
     }
@@ -97,6 +101,10 @@ export abstract class SourceUnitNode extends Node {
         this.exportNodes.push(exportNode);
     }
 
+    /**
+     * 
+     * @returns all exported Nodes from this SourceUint
+     */
     getExportNodes(): Node[] {
         return this.exportNodes;
     }

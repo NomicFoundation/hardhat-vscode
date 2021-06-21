@@ -14,6 +14,7 @@ export function setRoot(rootNode: Node) {
 
 /**
  * Searches for a parent definition for the forwarded Node.
+ * 
  * @param node Node for wich we are looking for a parent.
  * @param from From which Node do we start searching for the parent.
  * @param searchInInheretenceNodes If it is true, we will look for the parent in the inheritance nodes as well. Default is false.
@@ -79,9 +80,16 @@ export function findNodeByPosition(uri: string, position: Position, from?: Node,
     return node;
 }
 
+/**
+ * This function searches children for definitionNode and if any exist 
+ * adds them to the children definitionNode list and sets their parent to definitionNode.
+ * 
+ * @param definitionNode A node that calls this function and which will be the parent Node of the found children.
+ * @param orphanNodes Place where we search for children.
+ * @param isShadowed If this is true, make sure the child is in the shadow of definitionNode. Default is true.
+ */
 export function findChildren(definitionNode: Node, orphanNodes: Node[], isShadowed = true): void {
     const newOrphanNodes: Node[] = [];
-    const expressionNodes: Node[] = [];
 
     let orphanNode = orphanNodes.shift();
     while (orphanNode) {
@@ -94,8 +102,6 @@ export function findChildren(definitionNode: Node, orphanNodes: Node[], isShadow
 
             orphanNode.setParent(definitionNode);
             definitionNode.addChild(orphanNode);
-
-            expressionNodes.push(orphanNode);
         } else {
             newOrphanNodes.push(orphanNode);
         }
@@ -106,79 +112,6 @@ export function findChildren(definitionNode: Node, orphanNodes: Node[], isShadow
     // Return to orphanNodes array unhandled orphan nodes
     for (const newOrphanNode of newOrphanNodes) {
         orphanNodes.push(newOrphanNode);
-    }
-
-    // Find type references for all expressions
-    for (const expressionNode of expressionNodes) {
-        findExpressionNodes(definitionNode, expressionNode, orphanNodes);
-    }
-}
-
-function findExpressionNodes(definitionNode: Node, node: Node, orphanNodes: Node[]): void {
-    const newOrphanNodes: Node[] = [];
-    let declarationNode = node.getDeclarationNode();
-
-    if (!declarationNode) {
-        if (node.getExpressionNode()) {
-            declarationNode = node;
-        } else {
-            return;
-        }
-    }
-
-    let orphanNode = orphanNodes.shift();
-    while (orphanNode) {
-
-        if (matchNodeExpression(orphanNode, declarationNode)) {
-            for (const definitionChild of definitionNode.children) {
-
-                if (definitionChild.getName() && definitionChild.getName() === orphanNode.getName()) {
-                    orphanNode.addTypeNode(definitionChild);
-
-                    orphanNode.setParent(definitionChild);
-                    definitionChild?.addChild(orphanNode);
-
-                    nestNode(orphanNode, orphanNodes);
-                }
-            }
-        } else {
-            newOrphanNodes.push(orphanNode);
-        }
-
-        orphanNode = orphanNodes.shift();
-    }
-
-    for (const newOrphanNode of newOrphanNodes) {
-        orphanNodes.push(newOrphanNode);
-    }
-}
-
-function nestNode(node: Node, orphanNodes: Node[]): void {
-    const expressionNode = getMemberAccessNodeFromExpression(node);
-    if (!expressionNode) {
-        return;
-    }
-
-    const orphanNode = orphanNodes.shift();
-    if (!orphanNode) {
-        return;
-    }
-
-    if (isNodeEqual(expressionNode, orphanNode)) {
-        for (const definitionType of node.getTypeNodes()) {
-            for (const definitionChild of definitionType.children) {
-                if (definitionChild.getName() && definitionChild.getName() === orphanNode.getName()) {
-                    orphanNode.addTypeNode(definitionChild);
-
-                    orphanNode.setParent(definitionChild);
-                    definitionChild?.addChild(orphanNode);
-
-                    nestNode(orphanNode, orphanNodes);
-                }
-            }
-        }
-    } else {
-        orphanNodes.unshift(orphanNode);
     }
 }
 
@@ -388,47 +321,6 @@ function walk(uri: string, position: Position, from?: Node, searchInExpression?:
     }
 
     return walk(uri, position, from.parent, searchInExpression, visitedNodes, visitedFiles);
-}
-
-function matchNodeExpression(expression: Node, node: Node): boolean {
-    let expressionNode = getMemberAccessNodeFromExpression(node);
-
-    if (isNodeEqual(expressionNode, expression)) {
-        return true;
-    }
-
-    for (const child of node.children) {
-        expressionNode = getMemberAccessNodeFromExpression(child);
-
-        if (isNodeEqual(expressionNode, expression)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-function getMemberAccessNodeFromExpression(node: Node): Node | undefined {
-    let expressionNode = node.getExpressionNode();
-
-    while (expressionNode && expressionNode.type !== "MemberAccess") {
-        expressionNode = expressionNode.getExpressionNode();
-    }
-
-    return expressionNode;
-}
-
-function isNodeEqual(first: Node | undefined, second: Node | undefined): boolean {
-    if (
-        first && second &&
-        first.nameLoc && second.nameLoc &&
-        JSON.stringify(first.nameLoc) === JSON.stringify(second.nameLoc) &&
-        first.getName() === second.getName()
-    ) {
-        return true;
-    }
-
-    return false;
 }
 
 export function isNodePosition(node: Node, position: Position): boolean {

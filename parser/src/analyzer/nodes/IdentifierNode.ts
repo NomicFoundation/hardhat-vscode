@@ -32,8 +32,6 @@ export class IdentifierNode extends Node {
         }
     }
 
-
-
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
