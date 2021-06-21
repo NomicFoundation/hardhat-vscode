@@ -49,7 +49,7 @@ If you make subsequent edits in the codebase, you can reload (`Ctrl+R`) the `[Ex
 4. Start debugging (`F5`) or play button.
 5. It will attach to processes and the breakpoints will be applied to them.
 
-**Note**: Breakpoints need to be in the server because we attach to the server and only server breakpoints will be visible for us.
+**Note**: Breakpoints need to be in the server directory because we attach to the server and only server breakpoints will be visible for us.
 
 ## Test
 
