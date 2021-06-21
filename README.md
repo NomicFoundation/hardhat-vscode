@@ -43,7 +43,7 @@ If you make subsequent edits in the codebase, you can reload (`Ctrl+R`) the `[Ex
 ### Debug
 
 1. Go to the Run view and choose the `Attach to Server` configuration. \
-![image](https://github.com/Tenderly/vscode-solidity/blob/main/docs/images/run_attach_to_server.png?raw=true
+![image](https://github.com/Tenderly/vscode-solidity/blob/main/docs/images/run_attach_to_server.png?raw=true)
 2. Add breakpoints as needed.
 3. Before starting the `Attach to Server` configuration make sure that `Launch Client` is already started.
 4. Start debugging (`F5`) or play button.
