@@ -42,12 +42,17 @@ If you make subsequent edits in the codebase, you can reload (`Ctrl+R`) the `[Ex
 
 ### Debug
 
+Debugging the client code is as easy as debugging a normal extension. Set a breakpoint in the client code and debug the extension by running `Launch Client`.
+
+Since the server is started by the `LanguageClient` running in the extension (client), we need to attach a debugger to the running server.
+
+To do this, you need:
 1. Go to the Run view and choose the `Attach to Server` configuration. \
 ![image](https://github.com/Tenderly/vscode-solidity/blob/main/docs/images/run_attach_to_server.png?raw=true)
 2. Add breakpoints as needed.
 3. Before starting the `Attach to Server` configuration make sure that `Launch Client` is already started.
 4. Start debugging (`F5`) or play button.
-5. It will attach to process and the breakpoints will be applied to them.
+5. This will attach the debugger to the server and the breakpoints will be applied to them.
 
 **Note**: Breakpoints need to be in the server directory because we attach to the server and only server breakpoints will be visible for us.
 
