@@ -1,13 +1,13 @@
 # vscode-solidity-languageservice
 The _vscode-solidity-languageservice_ contains the language smarts behind the solidity editing experience of Visual Studio Code.
 
-## Todo
+### Todo
  - *doValidation* analyses an input string and returns syntax and lint errors.
  - *doComplete* provides completion proposals for a given location.
  - *doHover* provides a hover text for a given location.
  - *doCodeActions* evaluates code actions for the given location, typically to fix a problem.
 
-## Done
+### Done
  - *findDefinition* finds the definition of the symbol at the given location.
  - *findTypeDefinition* finds the type definition of the symbol at the given location.
  - *findReferences* finds all references to the symbol at the given location.
