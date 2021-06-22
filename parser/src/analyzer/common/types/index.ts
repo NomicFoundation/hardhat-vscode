@@ -142,3 +142,4 @@ export interface DocumentAnalyzer {
 export type DocumentsAnalyzerMap = { [uri: string]: DocumentAnalyzer | undefined };
 
 export const definitionNodeTypes = [ "ContractDefinition", "StructDefinition", "ModifierDefinition", "FunctionDefinition", "EventDefinition", "EnumDefinition", "AssemblyLocalDefinition", "LabelDefinition", "AssemblyFunctionDefinition", "UserDefinedTypeName", "FileLevelConstant" ];
+export const declarationNodeTypes = [ "StateVariableDeclaration", "UsingForDeclaration", "VariableDeclaration", "VariableDeclarationStatement" ];

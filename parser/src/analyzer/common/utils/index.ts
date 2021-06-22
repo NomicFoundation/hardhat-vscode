@@ -62,8 +62,32 @@ export function isNodeShadowedByNode(child: Node | undefined, parent: Node | und
     if (
         child && parent &&
         parent.astNode.range && child.astNode.range &&
-        parent.astNode.range[0] < child.astNode.range[0] &&
-        parent.astNode.range[1] > child.astNode.range[1]
+        parent.astNode.range[0] <= child.astNode.range[0] &&
+        parent.astNode.range[1] >= child.astNode.range[1]
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Checks if the position is within the node position. 
+ * 
+ * @returns true if the position is shadowed by node, otherwise false.
+ */
+ export function isPositionShadowedByNode(position: Position, node: Node | undefined): boolean {
+    if (
+        position && node?.astNode.loc &&
+        ((
+            node.astNode.loc.start.line < position.line &&
+            node.astNode.loc.end.line > position.line
+        ) || (
+            node.astNode.loc.start.line === position.line &&
+            node.astNode.loc.end.line === position.line &&
+            node.astNode.loc.start.column <= position.column &&
+            node.astNode.loc.end.column >= position.column
+        ))
     ) {
         return true;
     }

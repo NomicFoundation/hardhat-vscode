@@ -1,12 +1,10 @@
-import {
-	Location as NodeLocation, Node,
-	definitionNodeTypes
-} from "../../../parser/out/types";
+import { Node, definitionNodeTypes } from "../../../parser/out/types";
 import * as finder from "../../../parser/out/finder";
 
+import { getParserPositionFromVSCodePosition, getRange } from "../utils";
 import {
 	TextDocument, Position, Location,
-	Range, WorkspaceEdit, TextEdit
+	WorkspaceEdit, TextEdit
 } from "../types/languageTypes";
 
 export class SolidityNavigation {
@@ -16,7 +14,7 @@ export class SolidityNavigation {
 		if (definitionNode && definitionNode.astNode.loc) {
 			return {
 				uri: definitionNode.uri,
-				range: this.getRange(definitionNode.astNode.loc)
+				range: getRange(definitionNode.astNode.loc)
 			};
 		}
 
@@ -62,7 +60,7 @@ export class SolidityNavigation {
 					workspaceEdit.changes[highlightNode.uri] = [];
 				}
 
-				const range = this.getRange(highlightNode.nameLoc);
+				const range = getRange(highlightNode.nameLoc);
 				workspaceEdit.changes[highlightNode.uri].push(TextEdit.replace(range, newName));
 			}
 		});
@@ -77,7 +75,7 @@ export class SolidityNavigation {
 			if (highlightNode.nameLoc) {
 				locations.push({
 					uri: highlightNode.uri,
-					range: this.getRange(highlightNode.nameLoc)
+					range: getRange(highlightNode.nameLoc)
 				});
 			}
 		});
@@ -99,12 +97,7 @@ export class SolidityNavigation {
 	}
 
 	private findNodeByPosition(uri: string, position: Position, analyzerTree: Node): Node | undefined {
-		return finder.findNodeByPosition(uri, {
-			// TO-DO: Remove +1 when "@solidity-parser" fix line counting.
-			// Why +1? Because "vs-code" line counting from 0, and "@solidity-parser" from 1.
-			line: position.line + 1,
-			column: position.character
-		}, analyzerTree);
+		return finder.findNodeByPosition(uri, getParserPositionFromVSCodePosition(position), analyzerTree);
 	}
 
 	private extractHighlightsFromNodeRecursive(name: string, node: Node, results: Node[], visitedNodes?: Node[]): void {
@@ -125,14 +118,5 @@ export class SolidityNavigation {
 		for (const child of node.children) {
 			this.extractHighlightsFromNodeRecursive(name, child, results, visitedNodes);
 		}
-	}
-
-	private getRange(loc: NodeLocation): Range {
-		// TO-DO: Remove -1 when "@solidity-parser" fix line counting.
-		// Why -1? Because "vs-code" line counting from 0, and "@solidity-parser" from 1.
-		return Range.create(
-			Position.create(loc.start.line - 1, loc.start.column),
-			Position.create(loc.end.line - 1, loc.end.column),
-		);
 	}
 }

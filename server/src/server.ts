@@ -133,7 +133,7 @@ function analyzeFunc(uri: string) {
 		const document = documents.get(uri);
 
 		if (document) {
-			const documentURI = decodeURIComponent(getUriFromDocument(document));
+			const documentURI = getUriFromDocument(document);
 			languageServer.analyzeDocument(document.getText(), documentURI);
 		}	
 	} catch (err) {
@@ -166,7 +166,8 @@ connection.onCompletion(
 		// which code complete got requested. For the example we ignore this
 		// info and always provide the same completion items.
 
-		const documentAnalyzer = languageServer.getDocumentAnalyzer(_textDocumentPosition.textDocument.uri);
+		const documentURI = getUriFromDocument(_textDocumentPosition.textDocument);
+		const documentAnalyzer = languageServer.getDocumentAnalyzer(documentURI);
 
 		if (documentAnalyzer) {
 			return languageServer.doComplete(_textDocumentPosition.position, documentAnalyzer);
@@ -221,7 +222,7 @@ connection.onDefinition(params => {
 		const document = documents.get(params.textDocument.uri);
 
 		if (document) {
-			const documentURI = decodeURIComponent(getUriFromDocument(document));
+			const documentURI = getUriFromDocument(document);
 			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
 
 			if (analyzeTree) {
@@ -240,7 +241,7 @@ connection.onTypeDefinition(params => {
 		const document = documents.get(params.textDocument.uri);
 
 		if (document) {
-			const documentURI = decodeURIComponent(getUriFromDocument(document));
+			const documentURI = getUriFromDocument(document);
 			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
 	
 			if (analyzeTree) {
@@ -260,7 +261,7 @@ connection.onReferences(params => {
 		const document = documents.get(params.textDocument.uri);
 	
 		if (document) {
-			const documentURI = decodeURIComponent(getUriFromDocument(document));
+			const documentURI = getUriFromDocument(document);
 			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
 	
 			if (analyzeTree) {
@@ -280,7 +281,7 @@ connection.onImplementation(params => {
 		const document = documents.get(params.textDocument.uri);
 	
 		if (document) {
-			const documentURI = decodeURIComponent(getUriFromDocument(document));
+			const documentURI = getUriFromDocument(document);
 			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
 	
 			if (analyzeTree) {
@@ -299,7 +300,7 @@ connection.onRenameRequest(params => {
 		const document = documents.get(params.textDocument.uri);
 
 		if (document) {
-			const documentURI = decodeURIComponent(getUriFromDocument(document));
+			const documentURI = getUriFromDocument(document);
 			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
 	
 			if (analyzeTree) {

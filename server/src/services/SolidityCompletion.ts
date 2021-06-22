@@ -1,7 +1,8 @@
-import { DocumentAnalyzer, Node, definitionNodeTypes } from "../../../parser/out/types";
+import { DocumentAnalyzer, Node } from "../../../parser/out/types";
 import * as finder from "../../../parser/out/finder";
 
-import { Position, CompletionList, CompletionItem, CompletionItemKind } from '../types/languageTypes';
+import { getParserPositionFromVSCodePosition } from "../utils";
+import { Position, CompletionList, CompletionItem, CompletionItemKind } from "../types/languageTypes";
 
 export class SolidityCompletion {
     public doComplete(position: Position, documentAnalyzer: DocumentAnalyzer): CompletionList {
@@ -21,7 +22,7 @@ export class SolidityCompletion {
                     break;
 
                 default:
-                    result.items = this.getDefaultCompletions(definitionNode, analyzerTree);
+                    result.items = this.getDefaultCompletions(documentAnalyzer.uri, position, analyzerTree);
                     break;
             }
         }
@@ -39,44 +40,42 @@ export class SolidityCompletion {
         return [];
     }
 
-    private getDefaultCompletions(node: Node | undefined, analyzerTree: Node): CompletionItem[] {
-        const completions: CompletionItem[] = [];
-
-        if (!node) {
-            this.findAllDefaultCompletions(analyzerTree, completions);
-        }
-
-        return completions;
+    private getDefaultCompletions(uri: string, position: Position, analyzerTree: Node): CompletionItem[] {
+        const definitionNodes: Node[] = finder.findDefinitionNodes(
+            uri,
+            getParserPositionFromVSCodePosition(position),
+            analyzerTree
+        );
+        
+        return this.getCompletionsFromNodes(definitionNodes);
     }
 
-    private findAllDefaultCompletions(node: Node | undefined, completions: CompletionItem[]): void {
-        if (!node) {
-            return;
-        }
+    private getCompletionsFromNodes(nodes: Node[]): CompletionItem[] {
+        const completions: CompletionItem[] = [];
 
-        for (const child of node.children) {
-            const name = child.getName();
+        for (const node of nodes) {
+            const name = node.getName();
 
-            if (
-                definitionNodeTypes.includes(child.type) && name &&
-                !completions.filter(completion => completion.label === name)[0]
-            ) {
+            if (name && !completions.filter(completion => completion.label === name)[0]) {
                 completions.push({
                     label: name,
                     kind: CompletionItemKind.Function
                 });
             }
-
-            this.findAllDefaultCompletions(child, completions);
         }
+
+        return completions;
     }
 
     private findNodeByPosition(uri: string, position: Position, analyzerTree: Node): Node | undefined {
-		return finder.findNodeByPosition(uri, {
-			// TO-DO: Remove +1 when "@solidity-parser" fix line counting.
-			// Why +1? Because "vs-code" line counting from 0, and "@solidity-parser" from 1.
-			line: position.line + 1,
-			column: position.character
-		}, analyzerTree, false, true);
+		return finder.findNodeByPosition(
+            uri,
+            getParserPositionFromVSCodePosition(position),
+            analyzerTree,
+            false,
+            true
+        );
 	}
+
+ 
 }

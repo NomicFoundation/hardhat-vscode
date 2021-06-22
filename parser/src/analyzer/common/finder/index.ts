@@ -1,6 +1,6 @@
 import * as cache from "@common/cache";
-import { isNodePosition, isNodeShadowedByNode, isNodeConnectable, findSourceUnitNode } from "@common/utils";
-import { Position, Node, ContractDefinitionNode, ImportDirectiveNode } from "@common/types";
+import * as utils from "@common/utils";
+import { Position, Node, ContractDefinitionNode, ImportDirectiveNode, definitionNodeTypes, declarationNodeTypes } from "@common/types";
 
 /**
  * Default analyzerTree. It is variable in relation to the document we are analyzing at the time.
@@ -45,8 +45,8 @@ export function findParent(node: Node, from?: Node, searchInInheretenceNodes = f
     // And for every exportNode we need to add them to the importNodes field so
     // we can later refresh all exportNodes without analyzing all the files in our project.
     if (parent && parent.uri !== node.uri) {
-        const exportRootNode = findSourceUnitNode(parent);
-        const importRootNode = findSourceUnitNode(analyzerTree);
+        const exportRootNode = utils.findSourceUnitNode(parent);
+        const importRootNode = utils.findSourceUnitNode(analyzerTree);
 
         if (exportRootNode) {
             exportRootNode.addExportNode(node);
@@ -64,7 +64,7 @@ export function findParent(node: Node, from?: Node, searchInInheretenceNodes = f
  * 
  * @param uri Path to the file.
  * @param position Position in the file.
- * @param from From which Node do we start searching for the parent.
+ * @param from From which Node do we start searching.
  * @param returnDefinitionNode If it is true, we will return the definition Node of found Node,
  * otherwise we will return found Node. Default is true.
  * @param searchInExpression If it is true, we will also look at the expressionNode for Node
@@ -82,8 +82,8 @@ export function findNodeByPosition(uri: string, position: Position, from?: Node,
 }
 
 /**
- * This function searches children for definitionNode and if any exist 
- * adds them to the children definitionNode list and sets their parent to definitionNode.
+ * Searches children for definitionNode and if any exist adds them to the 
+ * children definitionNode list and sets their parent to definitionNode.
  * 
  * @param definitionNode A node that calls this function and which will be the parent Node of the found children.
  * @param orphanNodes Place where we search for children.
@@ -96,8 +96,8 @@ export function findChildren(definitionNode: Node, orphanNodes: Node[], isShadow
     while (orphanNode) {
         if (
             (!isShadowed ||
-            (isShadowed && isNodeShadowedByNode(orphanNode, definitionNode))) &&
-            isNodeConnectable(definitionNode, orphanNode)
+            (isShadowed && utils.isNodeShadowedByNode(orphanNode, definitionNode))) &&
+            utils.isNodeConnectable(definitionNode, orphanNode)
         ) {
             orphanNode.addTypeNode(definitionNode);
 
@@ -114,6 +114,21 @@ export function findChildren(definitionNode: Node, orphanNodes: Node[], isShadow
     for (const newOrphanNode of newOrphanNodes) {
         orphanNodes.push(newOrphanNode);
     }
+}
+
+/**
+ * Searches for all definitionNodes in forwarded from Node and in its imports.
+ * 
+ * @param uri File where is cursor now.
+ * @param position Cursor position in file.
+ * @param from From which Node do we start searching.
+ * @returns Definition Nodes.
+ */
+export function findDefinitionNodes(uri: string, position: Position, from: Node): Node[] {
+    const definitionNodes: Node[] = [];
+    _findDefinitionNodes(uri, position, from, definitionNodes);
+
+    return definitionNodes;
 }
 
 /**
@@ -145,15 +160,15 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
     visitedNodes.push(from);
 
     let parent: Node | undefined;
-    if (isNodeConnectable(from, node)) {
+    if (utils.isNodeConnectable(from, node)) {
         return from;
     }
 
     for (const child of from.children) {
         // Don't check if the Node is in the shadow of the Node for AssemblyFor and ImportDirective Nodes
         // because we have to get into them and check if Node is shadowed for their children
-        if (from.type !== "AssemblyFor" && child.type !== "ImportDirective" && !isNodeShadowedByNode(node, child)) {
-            if (isNodeConnectable(child, node)) {
+        if (from.type !== "AssemblyFor" && child.type !== "ImportDirective" && !utils.isNodeShadowedByNode(node, child)) {
+            if (utils.isNodeConnectable(child, node)) {
                 return child;
             }
 
@@ -174,7 +189,7 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
         for (let i = inheritanceNodes.length - 1; i >= 0; i--) {
             const inheritanceNode = inheritanceNodes[i];
 
-            if (isNodeConnectable(inheritanceNode, node)) {
+            if (utils.isNodeConnectable(inheritanceNode, node)) {
                 return inheritanceNode;
             }
 
@@ -205,7 +220,7 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
  * @param from From which Node do we start searching.
  * @returns Node that can connect to the forwarded node.
  */
-function searchInImportNodes(visitedFiles: string[], node: Node, from?: Node | undefined): Node | undefined {
+ function searchInImportNodes(visitedFiles: string[], node: Node, from?: Node | undefined): Node | undefined {
     if (!from) {
         return undefined;
     }
@@ -240,13 +255,37 @@ function searchInImportNodes(visitedFiles: string[], node: Node, from?: Node | u
                         return matched;
                     }
     
-                    if (isNodeConnectable(child, node)) {
+                    if (utils.isNodeConnectable(child, node)) {
                         return child;
                     }
                 }
             }
         }
     }
+}
+
+/**
+ * We search Node in expression, we have to search in an expression node, 
+ * because expression nodes, such as MemberAccess, aren't in orphanNodes.
+ * 
+ * @param uri The path to the {@link Node} file.
+ * @param position {@link Node} position in file.
+ * @returns Wanted {@link Node} if exist.
+ */
+ function searchInExpressionNode(uri: string, position: Position, expressionNode?: Node | undefined): Node | undefined {
+    if (!expressionNode) {
+        return undefined;
+    }
+
+    if (
+        utils.isNodePosition(expressionNode, position) &&
+        (expressionNode.uri === uri ||
+        (expressionNode.type === "ImportDirective" && (expressionNode as ImportDirectiveNode).realUri === uri))
+    ) {
+        return expressionNode;
+    }
+
+    searchInExpressionNode(uri, position, expressionNode.getExpressionNode());
 }
 
 /**
@@ -259,7 +298,7 @@ function searchInImportNodes(visitedFiles: string[], node: Node, from?: Node | u
  * that aren't in orphan Nodes and don't have a parent. Like MemberAccessNode without a parent.
  * @returns Wanted {@link Node} if exist.
  */
-function walk(uri: string, position: Position, from?: Node, searchInExpression = false, visitedNodes?: Node[], visitedFiles?: string[]): Node | undefined {
+ function walk(uri: string, position: Position, from?: Node, searchInExpression = false, visitedNodes?: Node[], visitedFiles?: string[]): Node | undefined {
     if (!visitedNodes) {
         visitedNodes = [];
     }
@@ -280,7 +319,7 @@ function walk(uri: string, position: Position, from?: Node, searchInExpression =
     visitedNodes.push(from);
 
     if (
-        isNodePosition(from, position) &&
+        utils.isNodePosition(from, position) &&
         (from.uri === uri ||
         (from.type === "ImportDirective" && (from as ImportDirectiveNode).realUri === uri))
     ) {
@@ -338,26 +377,79 @@ function walk(uri: string, position: Position, from?: Node, searchInExpression =
     return walk(uri, position, from.parent, searchInExpression, visitedNodes, visitedFiles);
 }
 
-/**
- * We search Node in expression, we have to search in an expression node, 
- * because expression nodes, such as MemberAccess, aren't in orphanNodes.
- * 
- * @param uri The path to the {@link Node} file.
- * @param position {@link Node} position in file.
- * @returns Wanted {@link Node} if exist.
- */
- function searchInExpressionNode(uri: string, position: Position, expressionNode?: Node | undefined): Node | undefined {
-    if (!expressionNode) {
-        return undefined;
+function _findDefinitionNodes(uri: string, position: Position, from: Node | undefined, definitionNodes: Node[], isShadowedByParent = false, visitedNodes?: Node[], visitedFiles?: string[]): void {
+    if (!visitedNodes) {
+        visitedNodes = [];
+    }
+
+    if (!visitedFiles) {
+        visitedFiles = [];
+    }
+
+    if (!from) {
+        return;
+    }
+
+    if (visitedNodes.indexOf(from) !== -1) {
+        return;
+    }
+
+    // Add as visited node
+    visitedNodes.push(from);
+
+    if ((
+            isShadowedByParent ||
+            utils.isPositionShadowedByNode(position, from) ||
+            from.parent?.type === "SourceUnit"
+        ) && (
+            definitionNodeTypes.includes(from.type) ||
+            declarationNodeTypes.includes(from.type)
+        ) &&
+        uri === from.uri
+    ) {
+        isShadowedByParent = true;
+        definitionNodes.push(from);
+    }
+    else if (
+        from.parent?.type === "SourceUnit" &&
+        definitionNodeTypes.includes(from.type) &&
+        uri !== from.uri
+    ) {
+        definitionNodes.push(from);
     }
 
     if (
-        isNodePosition(expressionNode, position) &&
-        (expressionNode.uri === uri ||
-        (expressionNode.type === "ImportDirective" && (expressionNode as ImportDirectiveNode).realUri === uri))
+        definitionNodeTypes.includes(from.type) &&
+        !utils.isPositionShadowedByNode(position, from)
     ) {
-        return expressionNode;
+        isShadowedByParent = false;
     }
 
-    searchInExpressionNode(uri, position, expressionNode.getExpressionNode());
+    // Handle import
+    if (from.type === "ImportDirective") {
+        const importPath = (from as ImportDirectiveNode).getImportPath();
+        const importAliasNodes = (from as ImportDirectiveNode).getAliasNodes();
+
+        let importNode;
+        if (importPath) {
+            importNode = cache.getDocumentAnalyzer(importPath)?.analyzerTree;
+        }
+
+        if (importNode && visitedFiles.indexOf(importNode.uri) === -1) {
+            // Add as visited file
+            visitedFiles.push(importNode.uri);
+
+            if (importAliasNodes.length > 0) {
+                for (const importAliasNode of importAliasNodes) {
+                    definitionNodes.push(importAliasNode);
+                }
+            } else {
+                _findDefinitionNodes(uri, position, importNode, definitionNodes, isShadowedByParent, visitedNodes, visitedFiles);
+            }
+        }
+    }
+
+    for (const child of from.children) {
+        _findDefinitionNodes(uri, position, child, definitionNodes, isShadowedByParent, visitedNodes, visitedFiles);
+    }
 }
