@@ -3,7 +3,7 @@ import { BaseASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 /** 
  *  Position in file.
  */
- export interface Position {
+export interface Position {
     line: number;
     column: number;
 }
