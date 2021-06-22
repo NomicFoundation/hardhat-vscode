@@ -1,4 +1,5 @@
 import * as finder from "@common/finder";
+import { findSourceUnitNode } from "@common/utils";
 import { StructDefinition, FinderType, Node } from "@common/types";
 
 export class StructDefinitionNode extends Node {
@@ -49,7 +50,7 @@ export class StructDefinitionNode extends Node {
             find(member, this.uri).accept(find, orphanNodes, this);
         }
 
-        const rootNode = finder.findSourceUnitNode(parent);
+        const rootNode = findSourceUnitNode(parent);
         if (rootNode) {
             const exportNodes = new Array(...rootNode.getExportNodes());
             finder.findChildren(this, exportNodes, false);

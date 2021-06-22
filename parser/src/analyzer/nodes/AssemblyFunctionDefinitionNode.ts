@@ -1,4 +1,4 @@
-import * as finder from "@common/finder";
+import { isNodeShadowedByNode } from "@common/utils";
 import { AssemblyFunctionDefinition, FinderType, Node } from "@common/types";
 
 export class AssemblyFunctionDefinitionNode extends Node {
@@ -67,7 +67,7 @@ export class AssemblyFunctionDefinitionNode extends Node {
         while (orphanNode) {
             if (
                 this.getName() === orphanNode.getName() && parent &&
-                finder.isNodeShadowedByNode(orphanNode, parent) &&
+                isNodeShadowedByNode(orphanNode, parent) &&
                 this.connectionTypeRules.includes(orphanNode.getExpressionNode()?.type || "") &&
                 orphanNode.type !== "MemberAccess"
             ) {

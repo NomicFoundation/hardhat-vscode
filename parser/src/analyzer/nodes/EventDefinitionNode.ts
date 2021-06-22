@@ -1,4 +1,5 @@
 import * as finder from "@common/finder";
+import { findSourceUnitNode } from "@common/utils";
 import { EventDefinition, FinderType, Node } from "@common/types";
 
 export class EventDefinitionNode extends Node {
@@ -47,7 +48,7 @@ export class EventDefinitionNode extends Node {
             find(parameter, this.uri).accept(find, orphanNodes, parent);
         }
 
-        const rootNode = finder.findSourceUnitNode(parent);
+        const rootNode = findSourceUnitNode(parent);
         if (rootNode) {
             const exportNodes = new Array(...rootNode.getExportNodes());
             finder.findChildren(this, exportNodes, false);

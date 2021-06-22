@@ -45,8 +45,8 @@ export abstract class ContractDefinitionNode extends Node {
     inheritanceNodes: ContractDefinitionNode[] = [];
 
     /**
-     * Kind can be "abstract" | "contract" | "library" | "interface"
-     * @returns Contract kind
+     * Kind can be "abstract" | "contract" | "library" | "interface".
+     * @returns Contract kind.
      */
     abstract getKind(): string;
 
@@ -62,7 +62,7 @@ export abstract class ImportDirectiveNode extends Node {
     /**
      * The path to the file.
      * But in this case, realUri will be the URI of the file in which the import is declared.
-     * And {@link Node.uri uri} will be a path to imported Node
+     * And {@link Node.uri uri} will be a path to imported Node.
      */
     abstract realUri: string;
 
@@ -90,7 +90,7 @@ export abstract class SourceUnitNode extends Node {
     }
 
     /**
-     * @returns all imported Nodes in this SourceUint
+     * @returns all imported Nodes in this SourceUint.
      */
     getImportNodes(): Node[] {
         return this.importNodes;
@@ -101,7 +101,7 @@ export abstract class SourceUnitNode extends Node {
     }
 
     /**
-     * @returns all exported Nodes from this SourceUint
+     * @returns all exported Nodes from this SourceUint.
      */
     getExportNodes(): Node[] {
         return this.exportNodes;
@@ -129,7 +129,7 @@ export interface DocumentAnalyzer {
     analyzerTree?: Node | undefined;
 
     /**
-     * This is the place for all the Nodes for which we couldn't find a parent
+     * The Nodes for which we couldn't find a parent.
      */
     orphanNodes: Node[];
 

@@ -1,4 +1,4 @@
-import * as finder from "@common/finder";
+import { isNodeShadowedByNode, findSourceUnitNode } from "@common/utils";
 import { FunctionDefinition, FinderType, ContractDefinitionNode, Node } from "@common/types";
 
 export class FunctionDefinitionNode extends Node {
@@ -38,7 +38,7 @@ export class FunctionDefinitionNode extends Node {
         if (parent) {
             this.setParent(parent);
 
-            const rootNode = finder.findSourceUnitNode(parent);
+            const rootNode = findSourceUnitNode(parent);
             if (rootNode) {
                 const exportNodes = new Array(...rootNode.getExportNodes());
                 this.findChildren(exportNodes);
@@ -97,7 +97,7 @@ export class FunctionDefinitionNode extends Node {
         while (orphanNode) {
             if (
                 this.getName() === orphanNode.getName() && parent &&
-                finder.isNodeShadowedByNode(orphanNode, parent) &&
+                isNodeShadowedByNode(orphanNode, parent) &&
                 this.connectionTypeRules.includes(orphanNode.getExpressionNode()?.type || "") &&
                 orphanNode.type !== "MemberAccess"
             ) {

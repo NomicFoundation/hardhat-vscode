@@ -1,4 +1,5 @@
 import * as finder from "@common/finder";
+import { findSourceUnitNode } from "@common/utils";
 import {
     ContractDefinition,
     FinderType,
@@ -72,7 +73,7 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
         // Find parent for orphanNodes from this contract in inheritance Nodes 
         this.findParentForOrphanNodesInInheritanceNodes(orphanNodes);
 
-        const rootNode = finder.findSourceUnitNode(parent);
+        const rootNode = findSourceUnitNode(parent);
         if (rootNode) {
             const exportNodes = new Array(...rootNode.getExportNodes());
             finder.findChildren(this, exportNodes, false);

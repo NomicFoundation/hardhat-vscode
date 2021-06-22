@@ -1,4 +1,5 @@
 import * as finder from "@common/finder";
+import { isNodeConnectable, findSourceUnitNode } from "@common/utils";
 import { Identifier, FinderType, Node } from "@common/types";
 
 export class IdentifierNode extends Node {
@@ -78,7 +79,7 @@ export class IdentifierNode extends Node {
     findMemberAccessParent(expressionNode: Node, definitionTypes: Node[]): void {
         for (const definitionType of definitionTypes) {
             for (const definitionChild of definitionType.children) {
-                if (finder.isNodeConnectable(definitionChild, expressionNode)) {
+                if (isNodeConnectable(definitionChild, expressionNode)) {
                     expressionNode.addTypeNode(definitionChild);
 
                     expressionNode.setParent(definitionChild);
@@ -86,8 +87,8 @@ export class IdentifierNode extends Node {
 
                     // If the parent uri and node uri are not the same, add the node to the exportNode field
                     if (definitionChild && definitionChild.uri !== expressionNode.uri) {
-                        const exportRootNode = finder.findSourceUnitNode(definitionChild);
-                        const importRootNode = finder.findSourceUnitNode(finder.analyzerTree);
+                        const exportRootNode = findSourceUnitNode(definitionChild);
+                        const importRootNode = findSourceUnitNode(finder.analyzerTree);
 
                         if (exportRootNode) {
                             exportRootNode.addExportNode(expressionNode);

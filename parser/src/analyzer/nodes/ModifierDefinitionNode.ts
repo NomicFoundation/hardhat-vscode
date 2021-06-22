@@ -1,4 +1,5 @@
 import * as finder from "@common/finder";
+import { findSourceUnitNode } from "@common/utils";
 import { ModifierDefinition, FinderType, Node } from "@common/types";
 
 export class ModifierDefinitionNode extends Node {
@@ -57,7 +58,7 @@ export class ModifierDefinitionNode extends Node {
             find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
         }
 
-        const rootNode = finder.findSourceUnitNode(parent);
+        const rootNode = findSourceUnitNode(parent);
         if (rootNode) {
             const exportNodes = new Array(...rootNode.getExportNodes());
             finder.findChildren(this, exportNodes, false);
