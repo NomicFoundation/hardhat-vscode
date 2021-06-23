@@ -46,7 +46,7 @@ export class MemberAccessNode extends Node {
             return handled;
         }
 
-        // The Identifier name "super" is reserved, so we will try to find the parent for this Node in inheretence Nodes
+        // The Identifier name "super" is reserved, so we will try to find the parent for this Node in inheritance Nodes
         if (expressionNode.getName() === "super" && expressionNode.type === "Identifier") {
             let contractDefinitionNode = parent;
 

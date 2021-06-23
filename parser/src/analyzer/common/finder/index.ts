@@ -18,17 +18,17 @@ export function setRoot(rootNode: Node) {
  * 
  * @param node Node for wich we are looking for a parent.
  * @param from From which Node do we start searching for the parent.
- * @param searchInInheretenceNodes If it is true, we will look for the parent in the inheritance nodes as well. Default is false.
+ * @param searchInInheritanceNodes If it is true, we will look for the parent in the inheritance nodes as well. Default is false.
  * @returns Parent Node if it exists, otherwise returns undefined.
  */
-export function findParent(node: Node, from?: Node, searchInInheretenceNodes = false): Node | undefined {
+export function findParent(node: Node, from?: Node, searchInInheritanceNodes = false): Node | undefined {
     let parent: Node | undefined;
 
     // If from doesn't exist start finding from the root of the analyzerTree.
     if (!from) {
-        parent = search(node, analyzerTree, searchInInheretenceNodes);
+        parent = search(node, analyzerTree, searchInInheritanceNodes);
     } else {
-        parent = search(node, from, searchInInheretenceNodes);
+        parent = search(node, from, searchInInheritanceNodes);
     }
 
     if (parent) {
@@ -136,10 +136,10 @@ export function findDefinitionNodes(uri: string, position: Position, from: Node)
  * 
  * @param node For which we are trying to find a node that can be connected.
  * @param from From which Node do we start searching.
- * @param searchInInheretenceNodes If it is true, we will look for the parent in the inheritance nodes as well.
+ * @param searchInInheritanceNodes If it is true, we will look for the parent in the inheritance nodes as well.
  * @returns Node that can connect to the forwarded node.
  */
-function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: boolean, visitedNodes?: Node[], visitedFiles?: string[]): Node | undefined {
+function search(node: Node, from?: Node | undefined, searchInInheritanceNodes?: boolean, visitedNodes?: Node[], visitedFiles?: string[]): Node | undefined {
     if (!visitedNodes) {
         visitedNodes = [];
     }
@@ -175,7 +175,7 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
             continue;
         }
 
-        parent = search(node, child, searchInInheretenceNodes, visitedNodes);
+        parent = search(node, child, searchInInheritanceNodes, visitedNodes);
 
         if (parent) {
             return parent;
@@ -183,7 +183,7 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
     }
 
     // Handle inheritance
-    if (searchInInheretenceNodes && from.type === "ContractDefinition") {
+    if (searchInInheritanceNodes && from.type === "ContractDefinition") {
         const inheritanceNodes = (from as ContractDefinitionNode).getInheritanceNodes();
 
         for (let i = inheritanceNodes.length - 1; i >= 0; i--) {
@@ -193,7 +193,7 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
                 return inheritanceNode;
             }
 
-            parent = search(node, inheritanceNode, searchInInheretenceNodes, visitedNodes);
+            parent = search(node, inheritanceNode, searchInInheritanceNodes, visitedNodes);
 
             if (parent) {
                 return parent;
@@ -207,7 +207,7 @@ function search(node: Node, from?: Node | undefined, searchInInheretenceNodes?: 
         return matched;
     }
 
-    return search(node, from.parent, searchInInheretenceNodes, visitedNodes);
+    return search(node, from.parent, searchInInheritanceNodes, visitedNodes);
 }
 
 /**
