@@ -1,0 +1,159 @@
+{
+	".source.solidity": {
+        "pragma": {
+			"prefix": "pragma",
+			"body": "// SPDX-License-Identifier: SEE LICENSE IN LICENSE\npragma solidity ${1};",
+			"description": "Pragma statement."
+		},
+		"import": {
+			"prefix": "import",
+			"body": "import \"${1:filename}\";",
+			"description": "Import statement."
+		},
+		"import file as symbolName": {
+			"prefix": "import symbol",
+			"body": "import \"${1:filename}\" as ${2:symbolName};",
+			"description": "Import statement with symbolName."
+		},
+		"import * as symbolName from file": {
+			"prefix": "import symbol",
+			"body": "import * as ${1:symbolName} from \"${2:filename}\";",
+			"description": "Import statement with symbolName."
+		},
+        "import external module": {
+			"prefix": "import statment",
+			"body": "import {${1:symbol}} from \"${2:filename}\";",
+			"description": "Import external module."
+		},
+		"contract definition": {
+			"prefix": "contract",
+			"body": "contract ${1:Name} {\n\tconstructor() {\n\t\t${3}\n\t}\n}",
+			"description": "Contract definition."
+		},
+        "abstract contract definition": {
+			"prefix": "abstract contract",
+			"body": "abstract contract ${1:Name} {\n\tconstructor() {\n\t\t${3}\n\t}\n}",
+			"description": "Abstract contract definition."
+		},
+        "interface definition": {
+			"prefix": "interface",
+			"body": "interface ${1:Name} {\n\t${3}\n}",
+			"description": "Interface definition."
+		},
+        "library definition": {
+			"prefix": "library",
+			"body": "library ${1:Name} {\n\t${3}\n}",
+			"description": "Library definition."
+		},
+        "struct definition": {
+			"prefix": "struct",
+			"body": "struct ${1:Name} {\n\t${3}\n}",
+			"description": "Struct definition."
+		},
+        "enum definition": {
+			"prefix": "enum",
+			"body": "enum ${1:Name} {\n\t${3}\n}",
+			"description": "Enum definition."
+		},
+        "assembly function definition": {
+			"prefix": "function assembly",
+			"body": "function ${1:f}() -> ${2:a} {\n\t${3}\n}",
+			"description": "Assembly function definition."
+		},
+		"function definition": {
+			"prefix": "function",
+			"body": "function ${1:name}($2) $3 returns ($5) {\n\t${6}\n}",
+			"description": "Function definition."
+		},
+        "modifier definition": {
+			"prefix": "modifier",
+			"body": "modifier ${1:name} {\n\t${2}\n}",
+			"description": "Modifier definition."
+		},
+		"assert statement": {
+			"prefix": "assert",
+			"body": "assert ($1);",
+			"description": "Assert statement."
+		},
+        "event statement": {
+			"prefix": "event",
+			"body": "event ${1:Name}(${2});",
+			"description": "Event statement."
+		},
+        "require statement": {
+			"prefix": "require",
+			"body": "require (${1});",
+			"description": "Require statement."
+		},
+        "assembly statement": {
+			"prefix": "assembly",
+			"body": "assembly {\n\t${1}\n}",
+			"description": "Assembly statement."
+		},
+        "mapping declaration": {
+			"prefix": "mapping",
+			"body": "mapping (${1:address} => ${2:uint}) ${3:name};",
+			"description": "Mapping declaration."
+		},
+        "assembly if statement": {
+			"prefix": "if assembly",
+			"body": "if ${1:expression} {\n\t${2}\n}",
+			"description": "Assembly if statement."
+		},
+        "if statement": {
+			"prefix": "if",
+			"body": "if (${1:expression}) {\n\t${2}\n}",
+			"description": "If statement."
+		},
+		"else branch": {
+			"prefix": "else",
+			"body": "else {\n\t${1}\n}",
+			"description": "Else branch."
+		},
+		"if else statement": {
+			"prefix": "if else",
+			"body": "if (${1:expression}) {\n\t${2}\n} else {\n\t${3}\n}",
+			"description": "If else statement."
+		},
+        "try catch statement": {
+			"prefix": "try catch",
+			"body": "try ${1} returns (${2}) {\n\t${3}\n} catch ${4} {\n\t${5}\n}",
+			"description": "Try catch statement."
+		},
+        "catch statement": {
+			"prefix": "catch",
+			"body": "catch ${1} {\n\t${2}\n}",
+			"description": "Catch statement."
+		},
+        "switch statement": {
+			"prefix": "switch",
+			"body": "switch ${1:key}\ncase ${2:value} {\n\t$3\n}\ndefault {\n\t$4\n}",
+			"description": "Switch statement."
+		},
+		"case clause": {
+			"prefix": "case",
+			"body": "case ${1:value} {\n\t$2\n}",
+			"description": "Case clause."
+		},
+        "for statement": {
+			"prefix": "for",
+			"body": "for (uint ${1:i} = 0; ${1:i} < ${2:array}.length; ${1:i}++) {\n\t${3}\n}",
+			"description": "For loop."
+		},
+        "assembly for statement": {
+			"prefix": "for assembly",
+			"body": "for { let ${1:i} := 0 } lt(${1:i}, 0x100) { ${1:i} := add(${1:i}, 0x20) } {\n\t${2}\n}",
+			"description": "Assembly for loop."
+		},
+        "while statement": {
+			"prefix": "while",
+			"body": "while (${1:expression}) {\n\t${2}\n}",
+			"description": "While loop."
+		},
+        "do while statement": {
+			"prefix": "do while",
+			"body": "do {\n\t${1}\n} while (${2:expression});",
+			"description": "Do while loop."
+		}
+	}
+}

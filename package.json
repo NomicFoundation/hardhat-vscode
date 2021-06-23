@@ -49,6 +49,12 @@
 				"scopeName": "source.solidity",
 				"path": "./syntaxes/solidity.json"
 			}
+		],
+		"snippets": [
+			{
+				"language": "solidity",
+				"path": "./snippets/solidity.json"
+			}
 		]
 	}
 }
