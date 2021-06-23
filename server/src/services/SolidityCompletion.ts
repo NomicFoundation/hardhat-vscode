@@ -46,7 +46,7 @@ export class SolidityCompletion {
             getParserPositionFromVSCodePosition(position),
             analyzerTree
         );
-        
+
         return this.getCompletionsFromNodes(definitionNodes);
     }
 
@@ -76,6 +76,4 @@ export class SolidityCompletion {
             true
         );
 	}
-
- 
 }
