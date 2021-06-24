@@ -47,9 +47,11 @@ export class MemberAccessNode extends Node {
         const expressionNode = find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent, this);
         const definitionTypes = expressionNode.getTypeNodes();
 
-        const handled = this.findMemberAccessParent(expressionNode, definitionTypes);
-        if (handled) {
-            return handled;
+        if (!expressionNode.parent) {
+            const handled = this.findMemberAccessParent(expressionNode, definitionTypes);
+            if (handled) {
+                return handled;
+            }
         }
 
         // The Identifier name "super" is reserved, so we will try to find the parent for this Node in inheritance Nodes
