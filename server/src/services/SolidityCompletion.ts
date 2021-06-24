@@ -1,4 +1,4 @@
-import { DocumentAnalyzer, Node } from "../../../parser/out/types";
+import { DocumentAnalyzer, Node, expressionNodeTypes } from "../../../parser/out/types";
 import * as finder from "../../../parser/out/finder";
 
 import { getParserPositionFromVSCodePosition } from "../utils";
@@ -12,18 +12,14 @@ export class SolidityCompletion {
         if (analyzerTree) {
             const definitionNode = this.findNodeByPosition(documentAnalyzer.uri, position, analyzerTree);
 
-            switch (definitionNode?.type) {
-                case "ImportDirective":
-                    result.items = this.getImportPathCompletion(definitionNode);
-                    break;
-
-                case "MemberAccess":
-                    result.items = this.getMemberAccessCompletions(definitionNode);
-                    break;
-
-                default:
-                    result.items = this.getDefaultCompletions(documentAnalyzer.uri, position, analyzerTree);
-                    break;
+            if (definitionNode && definitionNode.type === "ImportDirective") {
+                result.items = this.getImportPathCompletion(definitionNode);
+            }
+            else if (definitionNode && expressionNodeTypes.includes(definitionNode.getExpressionNode()?.type || "")) {
+                result.items = this.getMemberAccessCompletions(definitionNode);
+            }
+            else {
+                result.items = this.getDefaultCompletions(documentAnalyzer.uri, position, analyzerTree);
             }
         }
 
@@ -37,7 +33,17 @@ export class SolidityCompletion {
     }
 
     private getMemberAccessCompletions(node: Node): CompletionItem[] {
-        return [];
+        const definitionNodes: Node[] = [];
+
+        for (const definitionType of node.getTypeNodes()) {
+            for (const definitionChild of definitionType.children) {
+                if (definitionType.uri === definitionChild.uri) {
+                    definitionNodes.push(definitionChild);
+                }
+            }
+        }
+
+        return this.getCompletionsFromNodes(definitionNodes);
     }
 
     private getDefaultCompletions(uri: string, position: Position, analyzerTree: Node): CompletionItem[] {

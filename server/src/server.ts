@@ -54,8 +54,9 @@ connection.onInitialize((params: InitializeParams) => {
 			textDocumentSync: TextDocumentSyncKind.Incremental,
 			// Tell the client that this server supports code completion.
 			completionProvider: {
-				resolveProvider: true
-			},
+				resolveProvider: true,
+                triggerCharacters: ["."]
+            },
 			// hoverProvider: true,
 			definitionProvider: true,
 			typeDefinitionProvider: true,
@@ -166,11 +167,23 @@ connection.onCompletion(
 		// which code complete got requested. For the example we ignore this
 		// info and always provide the same completion items.
 
-		const documentURI = getUriFromDocument(_textDocumentPosition.textDocument);
-		const documentAnalyzer = languageServer.getDocumentAnalyzer(documentURI);
+		const document = documents.get(_textDocumentPosition.textDocument.uri);
 
-		if (documentAnalyzer) {
-			return languageServer.doComplete(_textDocumentPosition.position, documentAnalyzer);
+		if (document) {
+			const documentText = document.getText();
+
+			// Hack where we insert ";" because the tolerance mode @ solidity-parser/parser crashes as we type.
+			// This only happens if there is no ";" at the end of the line.
+			const offset = document.offsetAt(_textDocumentPosition.position);
+			const newDocumentText = documentText.slice(0, offset) + ";" + documentText.slice(offset);
+
+			const documentURI = getUriFromDocument(document);
+			languageServer.analyzeDocument(newDocumentText, documentURI);
+
+			const documentAnalyzer = languageServer.getDocumentAnalyzer(documentURI);
+			if (documentAnalyzer) {
+				return languageServer.doComplete(_textDocumentPosition.position, documentAnalyzer);
+			}
 		}
 	}
 );
@@ -223,10 +236,10 @@ connection.onDefinition(params => {
 
 		if (document) {
 			const documentURI = getUriFromDocument(document);
-			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
+			const documentAnalyzer = languageServer.getDocumentAnalyzer(documentURI);
 
-			if (analyzeTree) {
-				return languageServer.findDefinition(documentURI, params.position, analyzeTree);
+			if (documentAnalyzer?.analyzerTree) {
+				return languageServer.findDefinition(documentURI, params.position, documentAnalyzer.analyzerTree);
 			}
 		}	
 	} catch (err) {
@@ -242,10 +255,10 @@ connection.onTypeDefinition(params => {
 
 		if (document) {
 			const documentURI = getUriFromDocument(document);
-			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
-	
-			if (analyzeTree) {
-				return languageServer.findTypeDefinition(documentURI, params.position, analyzeTree);
+			const documentAnalyzer = languageServer.getDocumentAnalyzer(documentURI);
+
+			if (documentAnalyzer?.analyzerTree) {
+				return languageServer.findTypeDefinition(documentURI, params.position, documentAnalyzer.analyzerTree);
 			}
 		}
 	} catch (err) {
@@ -262,10 +275,10 @@ connection.onReferences(params => {
 	
 		if (document) {
 			const documentURI = getUriFromDocument(document);
-			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
-	
-			if (analyzeTree) {
-				return languageServer.findReferences(documentURI, params.position, analyzeTree);
+			const documentAnalyzer = languageServer.getDocumentAnalyzer(documentURI);
+
+			if (documentAnalyzer?.analyzerTree) {
+				return languageServer.findReferences(documentURI, params.position, documentAnalyzer.analyzerTree);
 			}
 		}
 	} catch (err) {
@@ -282,10 +295,10 @@ connection.onImplementation(params => {
 	
 		if (document) {
 			const documentURI = getUriFromDocument(document);
-			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
-	
-			if (analyzeTree) {
-				return languageServer.findImplementation(documentURI, params.position, analyzeTree);
+			const documentAnalyzer = languageServer.getDocumentAnalyzer(documentURI);
+
+			if (documentAnalyzer?.analyzerTree) {
+				return languageServer.findImplementation(documentURI, params.position, documentAnalyzer.analyzerTree);
 			}
 		}
 	} catch (err) {
@@ -301,10 +314,10 @@ connection.onRenameRequest(params => {
 
 		if (document) {
 			const documentURI = getUriFromDocument(document);
-			const analyzeTree = languageServer.analyzeDocument(document.getText(), documentURI);
-	
-			if (analyzeTree) {
-				return languageServer.doRename(documentURI, document, params.position, params.newName, analyzeTree);
+			const documentAnalyzer = languageServer.getDocumentAnalyzer(documentURI);
+
+			if (documentAnalyzer?.analyzerTree) {
+				return languageServer.doRename(documentURI, document, params.position, params.newName, documentAnalyzer.analyzerTree);
 			}
 		}
 	} catch (err) {

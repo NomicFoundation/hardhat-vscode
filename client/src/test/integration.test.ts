@@ -57,7 +57,10 @@ suite('Client integration', () => {
 		const expected = {
 			capabilities: {
 				textDocumentSync: 2,
-				completionProvider: { resolveProvider: true },
+				completionProvider: {
+					resolveProvider: true,
+					triggerCharacters: ["."]
+				},
 				definitionProvider: true,
 				typeDefinitionProvider: true,
 				referencesProvider: true,

@@ -12,7 +12,7 @@ export class MemberAccessNode extends Node {
             // Bug in solidity parser doesn't give exact locations
             memberAccess.loc.start.line = memberAccess.loc.end.line;
             memberAccess.loc.start.column = memberAccess.loc.end.column;
-            memberAccess.loc.end.column = memberAccess.loc.end.column + memberAccess.memberName.length;
+            memberAccess.loc.end.column = memberAccess.loc.end.column + (memberAccess.memberName.length || 1);
 
             this.nameLoc = JSON.parse(JSON.stringify(memberAccess.loc));
         }

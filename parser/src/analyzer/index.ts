@@ -128,7 +128,7 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
                 }
             }
 
-            console.log(this.uri, JSON.stringify(this.ast));
+            // console.log(this.uri, JSON.stringify(this.ast));
 
             this.analyzerTree = matcher.find(this.ast, this.uri).accept(matcher.find, this.orphanNodes);
 
