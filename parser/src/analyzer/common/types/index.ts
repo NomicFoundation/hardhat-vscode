@@ -58,6 +58,21 @@ export abstract class ContractDefinitionNode extends Node {
     }
 }
 
+export abstract class MemberAccessNode extends Node {
+    previousMemberAccessNode: Node | undefined;
+
+    setPreviousMemberAccessNode(node: Node): void {
+        this.previousMemberAccessNode = node;
+    }
+
+    /**
+     * @returns get previous MemberAccessNode
+     */
+    getPreviousMemberAccessNode(): Node | undefined {
+        return this.previousMemberAccessNode;
+    }
+}
+
 export abstract class ImportDirectiveNode extends Node {
     /**
      * The path to the file.

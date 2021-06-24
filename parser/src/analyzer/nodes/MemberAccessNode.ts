@@ -1,8 +1,15 @@
 import * as finder from "@common/finder";
 import { isNodeConnectable, findSourceUnitNode } from "@common/utils";
-import { MemberAccess, FinderType, ContractDefinitionNode, Node, expressionNodeTypes } from "@common/types";
+import {
+    MemberAccess,
+    FinderType,
+    ContractDefinitionNode,
+    Node,
+    MemberAccessNode as IMemberAccessNode,
+    expressionNodeTypes
+} from "@common/types";
 
-export class MemberAccessNode extends Node {
+export class MemberAccessNode extends IMemberAccessNode {
     astNode: MemberAccess;
 
     constructor (memberAccess: MemberAccess, uri: string) {
@@ -45,6 +52,8 @@ export class MemberAccessNode extends Node {
         this.setExpressionNode(expression);
 
         const expressionNode = find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent, this);
+        this.setPreviousMemberAccessNode(expressionNode);
+
         const definitionTypes = expressionNode.getTypeNodes();
 
         if (!expressionNode.parent) {

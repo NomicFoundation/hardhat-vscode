@@ -1,6 +1,9 @@
 import * as cache from "@common/cache";
 import * as utils from "@common/utils";
-import { Position, Node, ContractDefinitionNode, ImportDirectiveNode, definitionNodeTypes, declarationNodeTypes, expressionNodeTypes } from "@common/types";
+import {
+    Position, Node, ContractDefinitionNode, ImportDirectiveNode,
+    definitionNodeTypes, declarationNodeTypes, MemberAccessNode
+} from "@common/types";
 
 /**
  * Default analyzerTree. It is variable in relation to the document we are analyzing at the time.
@@ -372,9 +375,8 @@ function search(node: Node, from?: Node | undefined, searchInInheritanceNodes?: 
 
     if (searchInExpression) {
         const expressionNode = searchInExpressionNode(uri, position, from.getExpressionNode());
-        if (expressionNode) {
-            // return "from" because "from" have expression and expression don't have "from"
-            return from;
+        if (expressionNode?.type === "MemberAccess") {
+            return (expressionNode as MemberAccessNode).getPreviousMemberAccessNode();
         }
     }
 
