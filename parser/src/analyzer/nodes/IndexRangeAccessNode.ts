@@ -11,9 +11,7 @@ export class IndexRangeAccessNode extends Node {
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
-        if (this.astNode.base) {
-            find(this.astNode.base, this.uri).accept(find, orphanNodes, parent);
-        }
+        const typeNode = find(this.astNode.base, this.uri).accept(find, orphanNodes, parent, this);
 
         if (this.astNode.indexStart) {
             find(this.astNode.indexStart, this.uri).accept(find, orphanNodes, parent);
@@ -23,6 +21,6 @@ export class IndexRangeAccessNode extends Node {
             find(this.astNode.indexEnd, this.uri).accept(find, orphanNodes, parent);
         }
 
-        return this;
+        return typeNode;
     }
 }

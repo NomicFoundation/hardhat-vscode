@@ -8,18 +8,12 @@ export class IndexAccessNode extends Node {
         this.astNode = indexAccess;
     }
 
-    getDefinitionNode(): Node | undefined {
-        return this;
-    }
-
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
-        const typeNode = find(this.astNode.base, this.uri).accept(find, orphanNodes, parent);
+        const typeNode = find(this.astNode.base, this.uri).accept(find, orphanNodes, parent, this);
         find(this.astNode.index, this.uri).accept(find, orphanNodes, parent);
 
-        this.addTypeNode(typeNode);
-
-        return this;
+        return typeNode;
     }
 }
