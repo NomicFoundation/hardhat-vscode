@@ -116,7 +116,11 @@ export abstract class Node {
     }
 
     addTypeNode(node: Node): void {
-        this.typeNodes.push(node);
+        const typeNodeExist = this.typeNodes.filter(typeNode => isNodeEqual(typeNode, node))[0];
+
+        if (!typeNodeExist) {
+            this.typeNodes.push(node);
+        }
     }
 
     /**
@@ -166,7 +170,11 @@ export abstract class Node {
     }
 
     addChild(child: Node): void {
-        this.children.push(child);
+        const childExist = this.children.filter(tmpChild => isNodeEqual(tmpChild, child))[0];
+
+        if (!childExist) {
+            this.children.push(child);
+        }
     }
 
     /**
@@ -201,4 +209,28 @@ export abstract class Node {
      * @returns Child node in AST.
      */
     abstract accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node;
+}
+
+/**
+ * Checks if 2 nodes have the same {@link Node.getName name}, {@link Node.nameLoc location name} and {@link Node.uri URI}. 
+ * @returns true if the Nodes are equal, otherwise false.
+ */
+function isNodeEqual(node1: Node | undefined, node2: Node | undefined): boolean {
+    if (!node1 || !node2) {
+        return false;
+    }
+
+    if (node1 === node2) {
+        return true;
+    }
+
+    if (
+        node1.getName() === node2.getName() &&
+        JSON.stringify(node1.nameLoc) === JSON.stringify(node2.nameLoc) &&
+        node1.uri === node2.uri
+    ) {
+        return true;
+    }
+
+    return false;
 }
