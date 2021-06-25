@@ -34,7 +34,7 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
 
         if (importDirective.pathLiteral && importDirective.pathLiteral.loc) {
             this.nameLoc = importDirective.pathLiteral.loc;
-            this.nameLoc.end.column = (this.nameLoc?.end.column || 0) + importDirective.pathLiteral.value.length;
+            this.nameLoc.end.column = (this.nameLoc?.end.column || 0) + importDirective.pathLiteral.value.length + 1;
         }
 
         this.astNode = importDirective;
