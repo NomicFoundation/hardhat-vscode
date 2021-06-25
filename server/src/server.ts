@@ -25,11 +25,12 @@ let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
 let hasDiagnosticRelatedInformationCapability = false;
 let languageServer: LanguageService;
+let rootPath: string | undefined;
 
 connection.onInitialize((params: InitializeParams) => {
 	console.log('server onInitialize');
 
-	const rootPath = params.workspaceFolders ? params.workspaceFolders[0].uri : undefined;
+	rootPath = params.workspaceFolders ? params.workspaceFolders[0].uri : undefined;
 
 	languageServer = getLanguageServer(rootPath);
 
@@ -55,7 +56,9 @@ connection.onInitialize((params: InitializeParams) => {
 			// Tell the client that this server supports code completion.
 			completionProvider: {
 				resolveProvider: true,
-                triggerCharacters: ["."]
+                triggerCharacters: [
+					'.', '/'
+				]
             },
 			// hoverProvider: true,
 			definitionProvider: true,
@@ -172,17 +175,18 @@ connection.onCompletion(
 		if (document) {
 			const documentText = document.getText();
 
-			// Hack where we insert ";" because the tolerance mode @ solidity-parser/parser crashes as we type.
+			// Hack where we insert ";" because the tolerance mode @solidity-parser/parser crashes as we type.
 			// This only happens if there is no ";" at the end of the line.
-			const offset = document.offsetAt(_textDocumentPosition.position);
+			let offset = document.offsetAt(_textDocumentPosition.position);
+			offset = documentText.indexOf("\n", offset) > offset ? documentText.indexOf("\n", offset) : offset;
 			const newDocumentText = documentText.slice(0, offset) + ";" + documentText.slice(offset);
 
 			const documentURI = getUriFromDocument(document);
 			languageServer.analyzeDocument(newDocumentText, documentURI);
 
 			const documentAnalyzer = languageServer.getDocumentAnalyzer(documentURI);
-			if (documentAnalyzer) {
-				return languageServer.doComplete(_textDocumentPosition.position, documentAnalyzer);
+			if (documentAnalyzer && rootPath) {
+				return languageServer.doComplete(rootPath, _textDocumentPosition.position, documentAnalyzer);
 			}
 		}
 	}

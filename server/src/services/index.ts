@@ -19,7 +19,7 @@ export interface LanguageService {
 	findReferences(uri: string, position: Position, analyzerTree: Node): Location[];
 	findImplementation(uri: string, position: Position, analyzerTree: Node): Location[];
 	doRename(uri: string, document: TextDocument, position: Position, newName: string, analyzerTree: Node): WorkspaceEdit;
-	doComplete(position: Position, documentAnalyzer: DocumentAnalyzer): CompletionList;
+	doComplete(rootPath: string, position: Position, documentAnalyzer: DocumentAnalyzer): CompletionList;
 	doHover(document: TextDocument, position: Position, analyzerTree: Node, settings?: HoverSettings): Hover | undefined;
 }
 

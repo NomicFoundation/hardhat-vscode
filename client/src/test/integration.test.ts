@@ -59,7 +59,9 @@ suite('Client integration', () => {
 				textDocumentSync: 2,
 				completionProvider: {
 					resolveProvider: true,
-					triggerCharacters: ["."]
+					triggerCharacters: [
+						'.', '/'
+					]
 				},
 				definitionProvider: true,
 				typeDefinitionProvider: true,

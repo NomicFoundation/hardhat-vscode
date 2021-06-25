@@ -1,3 +1,5 @@
+import * as fs from "fs";
+import * as path from "path";
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { TextDocumentIdentifier } from 'vscode-languageserver-protocol';
 
@@ -19,6 +21,20 @@ export function getUriFromDocument (document: TextDocument | TextDocumentIdentif
     }
 
     return uri;
+}
+
+export function findNodeModules(fromURI: string, projectRootPath: string): string | undefined {
+    let nodeModulesPath = path.join(fromURI, "..", "node_modules");
+
+    while (projectRootPath && nodeModulesPath.includes(projectRootPath) && !fs.existsSync(nodeModulesPath)) {
+        nodeModulesPath = path.join(nodeModulesPath, "..", "..", "node_modules");
+    }
+
+    if (fs.existsSync(nodeModulesPath)) {
+        return nodeModulesPath;
+    }
+
+    return undefined;
 }
 
 export function debounce<Params extends any[]>(

@@ -1,11 +1,13 @@
-import { DocumentAnalyzer, Node, expressionNodeTypes } from "../../../parser/out/types";
+import * as fs from "fs";
+import * as path from "path";
 import * as finder from "../../../parser/out/finder";
+import { DocumentAnalyzer, Node, ImportDirectiveNode, expressionNodeTypes } from "../../../parser/out/types";
 
-import { getParserPositionFromVSCodePosition } from "../utils";
+import { getParserPositionFromVSCodePosition, findNodeModules } from "../utils";
 import { Position, CompletionList, CompletionItem, CompletionItemKind } from "../types/languageTypes";
 
 export class SolidityCompletion {
-    public doComplete(position: Position, documentAnalyzer: DocumentAnalyzer): CompletionList {
+    public doComplete(rootPath: string, position: Position, documentAnalyzer: DocumentAnalyzer): CompletionList {
         const analyzerTree = documentAnalyzer.analyzerTree;
         const result: CompletionList = { isIncomplete: false, items: [] };
 
@@ -13,7 +15,7 @@ export class SolidityCompletion {
             const definitionNode = this.findNodeByPosition(documentAnalyzer.uri, position, analyzerTree);
 
             if (definitionNode && definitionNode.type === "ImportDirective") {
-                result.items = this.getImportPathCompletion(definitionNode);
+                result.items = this.getImportPathCompletion(rootPath, definitionNode as ImportDirectiveNode);
             }
             else if (definitionNode && expressionNodeTypes.includes(definitionNode.getExpressionNode()?.type || "")) {
                 result.items = this.getMemberAccessCompletions(definitionNode);
@@ -28,8 +30,24 @@ export class SolidityCompletion {
         return result;
     }
 
-    private getImportPathCompletion(node: Node): CompletionItem[] {
-        return [];
+    private getImportPathCompletion(rootPath: string, node: ImportDirectiveNode): CompletionItem[] {
+        let completions: CompletionItem[] = [];
+        const importPath = path.join(node.realUri, "..", node.astNode.path);
+        let nodeModulesPath = findNodeModules(node.realUri, rootPath);
+        
+        if (fs.existsSync(importPath)) {
+            const files = fs.readdirSync(importPath);
+            completions = this.getCompletionsFromFiles(importPath, files);
+        } else if (nodeModulesPath) {
+            nodeModulesPath = path.join(nodeModulesPath, node.astNode.path);
+
+            if (fs.existsSync(nodeModulesPath)) {
+                const files = fs.readdirSync(nodeModulesPath);
+                completions = this.getCompletionsFromFiles(nodeModulesPath, files);
+            }
+        }
+
+        return completions;
     }
 
     private getMemberAccessCompletions(node: Node): CompletionItem[] {
@@ -54,6 +72,33 @@ export class SolidityCompletion {
         );
 
         return this.getCompletionsFromNodes(definitionNodes);
+    }
+
+    private getCompletionsFromFiles(importPath: string, files: string[]): CompletionItem[] {
+        const completions: CompletionItem[] = [];
+
+        files.forEach(file => {
+            try {
+                const absolutePath = path.join(importPath, file);
+                const fileStat = fs.lstatSync(absolutePath);
+
+                if (fileStat.isFile() && file.slice(-4) === ".sol") {
+                    completions.push({
+                        label: file,
+                        kind: CompletionItemKind.File
+                    });
+                } else if (fileStat.isDirectory() && file !== "node_modules") {
+                    completions.push({
+                        label: file,
+                        kind: CompletionItemKind.Folder
+                    });
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+
+        return completions;
     }
 
     private getCompletionsFromNodes(nodes: Node[]): CompletionItem[] {
