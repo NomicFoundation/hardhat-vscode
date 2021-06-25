@@ -42,6 +42,11 @@ import { Position, Location, FinderType, Node } from "@nodes/Node";
 export { Position, Location, FinderType, Node };
 
 export abstract class ContractDefinitionNode extends Node {
+    /**
+     * AST ContractDefinition interface.
+     */
+    abstract astNode: ContractDefinition;
+
     inheritanceNodes: ContractDefinitionNode[] = [];
 
     /**
@@ -59,6 +64,11 @@ export abstract class ContractDefinitionNode extends Node {
 }
 
 export abstract class MemberAccessNode extends Node {
+    /**
+     * AST MemberAccess interface.
+     */
+    abstract astNode: MemberAccess;
+
     previousMemberAccessNode: Node | undefined;
 
     setPreviousMemberAccessNode(node: Node): void {
@@ -74,6 +84,11 @@ export abstract class MemberAccessNode extends Node {
 }
 
 export abstract class ImportDirectiveNode extends Node {
+    /**
+     * AST ImportDirective interface.
+     */
+    abstract astNode: ImportDirective;
+
     /**
      * The path to the file.
      * But in this case, realUri will be the URI of the file in which the import is declared.
@@ -97,6 +112,11 @@ export abstract class ImportDirectiveNode extends Node {
 }
 
 export abstract class SourceUnitNode extends Node {
+    /**
+     * AST SourceUnit interface.
+     */
+    abstract astNode: SourceUnit;
+
     importNodes: Node[] = [];
     exportNodes: Node[] = [];
 
