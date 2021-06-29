@@ -1,6 +1,9 @@
-import { VariableDeclaration, StateVariableDeclarationVariable, FinderType, Node } from "@common/types";
+import {
+    VariableDeclaration, StateVariableDeclarationVariable, FinderType,
+    Node, VariableDeclarationNode as IVariableDeclarationNode
+} from "@common/types";
 
-export class VariableDeclarationNode extends Node {
+export class VariableDeclarationNode extends IVariableDeclarationNode {
     astNode: VariableDeclaration;
 
     connectionTypeRules: string[] = [ "Identifier", "MemberAccess", "AssemblyCall" ];

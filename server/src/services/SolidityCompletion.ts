@@ -21,7 +21,7 @@ export class SolidityCompletion {
                 result.items = this.getImportPathCompletion(rootPath, definitionNode as ImportDirectiveNode);
             }
             else if (definitionNode && expressionNodeTypes.includes(definitionNode.getExpressionNode()?.type || "")) {
-                result.items = this.getMemberAccessCompletions(definitionNode);
+                result.items = this.getMemberAccessCompletions(documentAnalyzer.uri, position, definitionNode);
             }
             else {
                 result.items = this.getDefaultCompletions(documentAnalyzer.uri, position, analyzerTree);
@@ -35,7 +35,7 @@ export class SolidityCompletion {
         let completions: CompletionItem[] = [];
         const importPath = path.join(node.realUri, "..", node.astNode.path);
         let nodeModulesPath = findNodeModules(node.realUri, rootPath);
-        
+
         if (fs.existsSync(importPath)) {
             const files = fs.readdirSync(importPath);
             completions = this.getCompletionsFromFiles(importPath, files);
@@ -51,13 +51,17 @@ export class SolidityCompletion {
         return completions;
     }
 
-    private getMemberAccessCompletions(node: Node): CompletionItem[] {
+    private getMemberAccessCompletions(uri: string, position: Position, node: Node): CompletionItem[] {
         const definitionNodes: Node[] = [];
+        const cursorPosition = getParserPositionFromVSCodePosition(position);
 
         for (const definitionType of node.getTypeNodes()) {
             for (const definitionChild of definitionType.children) {
                 if (definitionType.uri === definitionChild.uri) {
-                    definitionNodes.push(definitionChild);
+                    const isVisible = finder.checkIsNodeVisible(uri, cursorPosition, definitionChild, false);
+                    if (isVisible) {
+                        definitionNodes.push(definitionChild);
+                    }
                 }
             }
         }

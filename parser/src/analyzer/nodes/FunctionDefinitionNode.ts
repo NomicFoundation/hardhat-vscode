@@ -1,7 +1,10 @@
 import { isNodeShadowedByNode, findSourceUnitNode } from "@common/utils";
-import { FunctionDefinition, FinderType, ContractDefinitionNode, Node } from "@common/types";
+import {
+    FunctionDefinition, FinderType, ContractDefinitionNode,
+    Node, FunctionDefinitionNode as IFunctionDefinitionNode
+} from "@common/types";
 
-export class FunctionDefinitionNode extends Node {
+export class FunctionDefinitionNode extends IFunctionDefinitionNode {
     astNode: FunctionDefinition;
 
     connectionTypeRules: string[] = [ "FunctionCall" ];

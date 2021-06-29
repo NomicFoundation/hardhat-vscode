@@ -143,6 +143,38 @@ export abstract class SourceUnitNode extends Node {
     }
 }
 
+export abstract class FunctionDefinitionNode extends Node {
+     /**
+     * AST FunctionDefinition interface.
+     */
+    abstract astNode: FunctionDefinition;
+
+    /**
+     * Visability can be 'default' | 'external' | 'internal' | 'public' | 'private'
+     * 
+     * @returns function visability.
+     */
+    getVisibility(): string {
+        return this.astNode.visibility;
+    }
+}
+
+export abstract class VariableDeclarationNode extends Node {
+    /**
+    * AST VariableDeclaration interface.
+    */
+   abstract astNode: VariableDeclaration;
+
+   /**
+    * Visability can be 'public' | 'private' | 'internal' | 'default'
+    * 
+    * @returns function visability.
+    */
+   getVisibility(): string | undefined {
+       return this.astNode.visibility;
+   }
+}
+
 export interface DocumentAnalyzer {
     /**
      * The contents of the file we will try to analyze.

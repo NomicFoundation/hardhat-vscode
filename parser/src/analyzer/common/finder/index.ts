@@ -2,7 +2,8 @@ import * as cache from "@common/cache";
 import * as utils from "@common/utils";
 import {
     Position, Node, ContractDefinitionNode, ImportDirectiveNode,
-    definitionNodeTypes, declarationNodeTypes, MemberAccessNode
+    definitionNodeTypes, declarationNodeTypes, MemberAccessNode,
+    FunctionDefinitionNode, VariableDeclarationNode
 } from "@common/types";
 
 /**
@@ -383,6 +384,14 @@ function search(node: Node, from?: Node | undefined, searchInInheritanceNodes?: 
     return walk(uri, position, from.parent, searchInExpression, visitedNodes, visitedFiles);
 }
 
+/**
+ * 
+ * @param uri The path to the {@link Node} file.
+ * @param position Cursor position in file.
+ * @param from From which Node do we start searching.
+ * @param definitionNodes When the function is complete, we will find all the definition nodes here.
+ * @param isShadowedByParent Is current from node shadowed by position.
+ */
 function _findDefinitionNodes(uri: string, position: Position, from: Node | undefined, definitionNodes: Node[], isShadowedByParent = false, visitedNodes?: Node[], visitedFiles?: string[]): void {
     if (!visitedNodes) {
         visitedNodes = [];
@@ -414,14 +423,21 @@ function _findDefinitionNodes(uri: string, position: Position, from: Node | unde
         uri === from.uri
     ) {
         isShadowedByParent = true;
-        definitionNodes.push(from);
+
+        const isVisible = checkIsNodeVisible(uri, position, from, isShadowedByParent);
+        if (isVisible) {
+            definitionNodes.push(from);
+        }
     }
     else if (
         from.parent?.type === "SourceUnit" &&
         definitionNodeTypes.includes(from.type) &&
         uri !== from.uri
     ) {
-        definitionNodes.push(from);
+        const isVisible = checkIsNodeVisible(uri, position, from, false);
+        if (isVisible) {
+            definitionNodes.push(from);
+        }
     }
 
     if (
@@ -447,7 +463,10 @@ function _findDefinitionNodes(uri: string, position: Position, from: Node | unde
 
             if (importAliasNodes.length > 0) {
                 for (const importAliasNode of importAliasNodes) {
-                    definitionNodes.push(importAliasNode);
+                    const isVisible = checkIsNodeVisible(uri, position, importAliasNode, false);
+                    if (isVisible) {
+                        definitionNodes.push(importAliasNode);
+                    }
                 }
             } else {
                 _findDefinitionNodes(uri, position, importNode, definitionNodes, isShadowedByParent, visitedNodes, visitedFiles);
@@ -463,7 +482,12 @@ function _findDefinitionNodes(uri: string, position: Position, from: Node | unde
             const inheritanceNode = inheritanceNodes[i];
 
             for (const child of inheritanceNode.children) {
-                definitionNodes.push(child);
+                const childVisibility = getNodeVisibility(child);
+                const isVisible = checkIsNodeVisible(uri, position, child, false);
+
+                if (isVisible || childVisibility === "internal") {
+                    definitionNodes.push(child);
+                }
             }
         }
     }
@@ -471,4 +495,47 @@ function _findDefinitionNodes(uri: string, position: Position, from: Node | unde
     for (const child of from.children) {
         _findDefinitionNodes(uri, position, child, definitionNodes, isShadowedByParent, visitedNodes, visitedFiles);
     }
+}
+
+/**
+ * @returns Node visibility type.
+ */
+function getNodeVisibility(node: Node): string | undefined {
+    if (node.type === "FunctionDefinition") {
+        return (node as FunctionDefinitionNode).getVisibility();
+    } else if (node.type === "VariableDeclaration") {
+        return (node as VariableDeclarationNode).getVisibility();
+    }
+
+    return undefined;
+}
+
+/**
+ * @param uri The path to the {@link Node} file.
+ * @param position Cursor position in file.
+ * @param node That we will try to add in definitionNodes.
+ * @param isShadowedByParent Is current from node shadowed by position.
+ * 
+ * @returns If the node is visible, we will return true, otherwise it will be false.
+ */
+export function checkIsNodeVisible(uri: string, position: Position, node: Node, isShadowedByParent: boolean): boolean {
+    const visibility = getNodeVisibility(node);
+
+    if (!visibility || (visibility && ["default", "public"].includes(visibility))) {
+        return true;
+    }
+    else if (
+        ["internal", "private"].includes(visibility) && uri === node.uri &&
+        (utils.isPositionShadowedByNode(position, node) || isShadowedByParent)
+    ) {
+        return true;
+    }
+    else if (
+        visibility === "external" && !isShadowedByParent &&
+        !utils.isPositionShadowedByNode(position, node)
+    ) {
+        return true;
+    }
+
+    return false;
 }
