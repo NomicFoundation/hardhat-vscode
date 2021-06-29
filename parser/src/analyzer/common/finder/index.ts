@@ -12,7 +12,7 @@ export let analyzerTree: Node | undefined;
 /**
  * @param rootNode New default {@link analyzerTree} will be rootNode.
  */
-export function setRoot(rootNode: Node) {
+export function setRoot(rootNode: Node | undefined) {
     analyzerTree = rootNode;
 }
 

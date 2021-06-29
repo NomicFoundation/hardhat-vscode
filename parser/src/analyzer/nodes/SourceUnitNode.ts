@@ -22,8 +22,6 @@ export class SourceUnitNode extends AbstractSourceUnitNode {
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
-        finder.setRoot(this);
-
         const documentAnalyzer = cache.getDocumentAnalyzer(this.uri);
         if (documentAnalyzer?.analyzerTree && documentAnalyzer.analyzerTree instanceof SourceUnitNode) {
             this.exportNodes = documentAnalyzer.analyzerTree.getExportNodes().filter(exportNode => exportNode.isAlive);
@@ -32,6 +30,8 @@ export class SourceUnitNode extends AbstractSourceUnitNode {
         if (documentAnalyzer) {
             documentAnalyzer.analyzerTree = this;
         }
+
+        finder.setRoot(documentAnalyzer?.analyzerTree);
 
         for (const child of this.astNode.children) {
             find(child, this.uri).accept(find, orphanNodes, this);

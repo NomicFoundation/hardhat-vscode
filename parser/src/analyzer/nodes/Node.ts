@@ -115,12 +115,19 @@ export abstract class Node {
         return nodes;
     }
 
+    /**
+     * If node alerdy exists in the {@link Node.typeNodes typeNodes}, the old node will be removed, and new node will be added.
+     * In that way we secure that we alwes have the latast node references in our {@link Node.typeNodes typeNodes}.
+     */
     addTypeNode(node: Node): void {
         const typeNodeExist = this.typeNodes.filter(typeNode => isNodeEqual(typeNode, node))[0];
 
-        if (!typeNodeExist) {
-            this.typeNodes.push(node);
+        if (typeNodeExist) {
+            const index = this.typeNodes.indexOf(typeNodeExist);
+            this.typeNodes.splice(index, 1);
         }
+
+        this.typeNodes.push(node);
     }
 
     /**
@@ -169,6 +176,9 @@ export abstract class Node {
         this.aliasName = aliasName;
     }
 
+    /**
+     * If a child already exists in the {@link Node.children children}, it will not be added.
+     */
     addChild(child: Node): void {
         const childExist = this.children.filter(tmpChild => isNodeEqual(tmpChild, child))[0];
 
