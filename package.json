@@ -40,7 +40,7 @@
 				"extensions": [
 					".sol"
 				],
-				"configuration": "./solidity.configuration.json"
+				"configuration": "./language-configuration.json"
 			}
 		],
 		"grammars": [
