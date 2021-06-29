@@ -3,7 +3,6 @@ The _vscode-solidity-languageservice_ contains the language smarts behind the so
 
 ### Todo
  - *doValidation* analyses an input string and returns syntax and lint errors.
- - *doComplete* provides completion proposals for a given location.
  - *doHover* provides a hover text for a given location.
  - *doCodeActions* evaluates code actions for the given location, typically to fix a problem.
 
@@ -13,6 +12,7 @@ The _vscode-solidity-languageservice_ contains the language smarts behind the so
  - *findReferences* finds all references to the symbol at the given location.
  - *findImplementation* finds all implementations to the symbol at the given location.
  - *doRename* renames all symbols connected to the given location.
+ - *doComplete* provides completion proposals for a given location.
 
 
 ## Developing
