@@ -111,8 +111,6 @@ export class SolidityCompletion {
             const name = node.getName();
 
             if (name && !completions.filter(completion => completion.label === name)[0]) {
-                console.log(name, node.type);
-
                 if (node.type === "Identifier") {
                     const nodeTmp = node.getDefinitionNode();
                     node = nodeTmp ? nodeTmp : node;
