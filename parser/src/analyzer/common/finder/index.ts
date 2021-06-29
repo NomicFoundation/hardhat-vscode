@@ -455,6 +455,19 @@ function _findDefinitionNodes(uri: string, position: Position, from: Node | unde
         }
     }
 
+    // Handle inheritance
+    if (from.type === "ContractDefinition") {
+        const inheritanceNodes = (from as ContractDefinitionNode).getInheritanceNodes();
+
+        for (let i = inheritanceNodes.length - 1; i >= 0; i--) {
+            const inheritanceNode = inheritanceNodes[i];
+
+            for (const child of inheritanceNode.children) {
+                definitionNodes.push(child);
+            }
+        }
+    }
+
     for (const child of from.children) {
         _findDefinitionNodes(uri, position, child, definitionNodes, isShadowedByParent, visitedNodes, visitedFiles);
     }
