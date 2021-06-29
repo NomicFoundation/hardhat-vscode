@@ -130,7 +130,7 @@ documents.onDidClose(e => {
 
 
 // ---------------------------------------------------------------------------------
-function analyzeFunc(uri: string) {
+function analyzeFunc(uri: string): void {
 	console.log('debounced onDidChangeContent');
 
 	try {
@@ -145,14 +145,17 @@ function analyzeFunc(uri: string) {
 	}
 }
 
-const debounceAnalyzeDocument = debounce(analyzeFunc, 500);
-
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(change => {
 	console.log('server onDidChangeContent');
 
-	debounceAnalyzeDocument(change.document.uri);
+	const debounceAnalyzeDocument: { [uri: string]: (uri: string) => void } = {};
+	if (!debounceAnalyzeDocument[change.document.uri]) {
+		debounceAnalyzeDocument[change.document.uri] = debounce(analyzeFunc, 500);
+	}
+
+	debounceAnalyzeDocument[change.document.uri](change.document.uri);
 });
 
 connection.onDidChangeWatchedFiles(_change => {
