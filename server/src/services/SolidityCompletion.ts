@@ -1,7 +1,10 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as finder from "../../../parser/out/finder";
-import { DocumentAnalyzer, Node, ImportDirectiveNode, expressionNodeTypes } from "../../../parser/out/types";
+import {
+    DocumentAnalyzer, ImportDirectiveNode, ContractDefinitionNode,
+    Node, expressionNodeTypes 
+} from "../../../parser/out/types";
 
 import { getParserPositionFromVSCodePosition, findNodeModules } from "../utils";
 import { Position, CompletionList, CompletionItem, CompletionItemKind } from "../types/languageTypes";
@@ -24,8 +27,6 @@ export class SolidityCompletion {
                 result.items = this.getDefaultCompletions(documentAnalyzer.uri, position, analyzerTree);
             }
         }
-
-        console.log(result);
 
         return result;
     }
@@ -103,14 +104,71 @@ export class SolidityCompletion {
 
     private getCompletionsFromNodes(nodes: Node[]): CompletionItem[] {
         const completions: CompletionItem[] = [];
+        let kind;
+        let contractDefinitionNode: ContractDefinitionNode;
 
-        for (const node of nodes) {
+        for (let node of nodes) {
             const name = node.getName();
 
             if (name && !completions.filter(completion => completion.label === name)[0]) {
+                console.log(name, node.type);
+
+                if (node.type === "Identifier") {
+                    const nodeTmp = node.getDefinitionNode();
+                    node = nodeTmp ? nodeTmp : node;
+                }
+
+                switch (node.type) {
+                    case "ContractDefinition":
+                        contractDefinitionNode = node as ContractDefinitionNode;
+
+                        switch (contractDefinitionNode.getKind()) {
+                            case "interface":
+                                kind = CompletionItemKind.Interface;
+                                break;
+                        
+                            default:
+                                kind = CompletionItemKind.Class;
+                                break;
+                        }
+                        break;
+
+                    case "StructDefinition":
+                        kind = CompletionItemKind.Struct;
+                        break;
+
+                    case "EnumDefinition":
+                        kind = CompletionItemKind.Enum;
+                        break;
+
+                    case "EnumValue":
+                        kind = CompletionItemKind.EnumMember;
+                        break;
+
+                    case "EventDefinition":
+                        kind = CompletionItemKind.Event;
+                        break;
+
+                    case "VariableDeclaration":
+                        kind = CompletionItemKind.Variable;
+                        break;
+
+                    case "FileLevelConstant":
+                        kind = CompletionItemKind.Constant;
+                        break;
+
+                    case "AssemblyLocalDefinition":
+                        kind = CompletionItemKind.Variable;
+                        break;
+
+                    default:
+                        kind = CompletionItemKind.Function;
+                        break;
+                }
+
                 completions.push({
                     label: name,
-                    kind: CompletionItemKind.Function
+                    kind
                 });
             }
         }
