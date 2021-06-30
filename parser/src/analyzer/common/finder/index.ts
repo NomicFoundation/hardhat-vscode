@@ -424,7 +424,7 @@ function _findDefinitionNodes(uri: string, position: Position, from: Node | unde
     ) {
         isShadowedByParent = true;
 
-        const isVisible = checkIsNodeVisible(uri, position, from, isShadowedByParent);
+        const isVisible = checkIsNodeVisible(uri, position, from);
         if (isVisible) {
             definitionNodes.push(from);
         }
@@ -434,7 +434,7 @@ function _findDefinitionNodes(uri: string, position: Position, from: Node | unde
         definitionNodeTypes.includes(from.type) &&
         uri !== from.uri
     ) {
-        const isVisible = checkIsNodeVisible(uri, position, from, false);
+        const isVisible = checkIsNodeVisible(uri, position, from);
         if (isVisible) {
             definitionNodes.push(from);
         }
@@ -463,7 +463,7 @@ function _findDefinitionNodes(uri: string, position: Position, from: Node | unde
 
             if (importAliasNodes.length > 0) {
                 for (const importAliasNode of importAliasNodes) {
-                    const isVisible = checkIsNodeVisible(uri, position, importAliasNode, false);
+                    const isVisible = checkIsNodeVisible(uri, position, importAliasNode);
                     if (isVisible) {
                         definitionNodes.push(importAliasNode);
                     }
@@ -475,7 +475,11 @@ function _findDefinitionNodes(uri: string, position: Position, from: Node | unde
     }
 
     // Handle inheritance
-    if (from.type === "ContractDefinition") {
+    if (
+        from.type === "ContractDefinition" &&
+        utils.isPositionShadowedByNode(position, from) &&
+        uri === from.uri
+    ) {
         const inheritanceNodes = (from as ContractDefinitionNode).getInheritanceNodes();
 
         for (let i = inheritanceNodes.length - 1; i >= 0; i--) {
@@ -483,7 +487,7 @@ function _findDefinitionNodes(uri: string, position: Position, from: Node | unde
 
             for (const child of inheritanceNode.children) {
                 const childVisibility = getNodeVisibility(child);
-                const isVisible = checkIsNodeVisible(uri, position, child, false);
+                const isVisible = checkIsNodeVisible(uri, position, child);
 
                 if (isVisible || childVisibility === "internal") {
                     definitionNodes.push(child);
@@ -511,28 +515,28 @@ function getNodeVisibility(node: Node): string | undefined {
 }
 
 /**
- * @param uri The path to the {@link Node} file.
+ * @param uri The path to the file.
  * @param position Cursor position in file.
  * @param node That we will try to add in definitionNodes.
  * @param isShadowedByParent Is current from node shadowed by position.
  * 
  * @returns If the node is visible, we will return true, otherwise it will be false.
  */
-export function checkIsNodeVisible(uri: string, position: Position, node: Node, isShadowedByParent: boolean): boolean {
+export function checkIsNodeVisible(uri: string, position: Position, node: Node): boolean {
     const visibility = getNodeVisibility(node);
 
     if (!visibility || (visibility && ["default", "public"].includes(visibility))) {
         return true;
     }
     else if (
-        ["internal", "private"].includes(visibility) && uri === node.uri &&
-        (utils.isPositionShadowedByNode(position, node) || isShadowedByParent)
+        ["internal", "private"].includes(visibility) &&
+        utils.checkIfPositionInNodeContractDefinition(uri, position, node)
     ) {
         return true;
     }
     else if (
-        visibility === "external" && !isShadowedByParent &&
-        !utils.isPositionShadowedByNode(position, node)
+        visibility === "external" &&
+        !utils.checkIfPositionInNodeContractDefinition(uri, position, node)
     ) {
         return true;
     }

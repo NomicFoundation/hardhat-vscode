@@ -44,9 +44,9 @@ export class EventDefinitionNode extends Node {
             this.setParent(parent);
         }
 
-        for (const parameter of this.astNode.parameters) {
-            find(parameter, this.uri).accept(find, orphanNodes, parent);
-        }
+        // for (const parameter of this.astNode.parameters) {
+        //     find(parameter, this.uri).accept(find, orphanNodes, parent);
+        // }
 
         const rootNode = findSourceUnitNode(parent);
         if (rootNode) {

@@ -58,8 +58,9 @@ export class SolidityCompletion {
         for (const definitionType of node.getTypeNodes()) {
             for (const definitionChild of definitionType.children) {
                 if (definitionType.uri === definitionChild.uri) {
-                    const isVisible = finder.checkIsNodeVisible(uri, cursorPosition, definitionChild, false);
-                    if (isVisible) {
+                    const isVisible = finder.checkIsNodeVisible(uri, cursorPosition, definitionChild);
+
+                    if (isVisible && definitionChild.getName() !== definitionType.getName()) {
                         definitionNodes.push(definitionChild);
                     }
                 }

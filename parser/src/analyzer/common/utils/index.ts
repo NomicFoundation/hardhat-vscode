@@ -130,3 +130,24 @@ export function findSourceUnitNode(node: Node | undefined): SourceUnitNode | und
 
     return undefined;
 }
+
+/**
+ * Checks that the forwarded URI is the same as the ContractDefinitionNode URI and 
+ * that the forwarded position shadowed by the forwarded ContractDefinitionNode location.
+ * 
+ * @param uri The path to the file of position.
+ * @param position Cursor position in file.
+ * @param node From which node we will try go to ContractDefinitionNode.
+ * @returns true if position in node contractDefinition, otherwise false.
+ */
+export function checkIfPositionInNodeContractDefinition(uri: string, position: Position, node: Node | undefined): boolean {
+    while (node && node.type !== "ContractDefinition") {
+        node = node.getParent();
+    }
+
+    if (node?.type === "ContractDefinition" && uri === node.uri && isPositionShadowedByNode(position, node)) {
+        return true;
+    }
+
+    return false;
+}
