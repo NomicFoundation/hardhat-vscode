@@ -2,16 +2,14 @@ import { Node, DocumentAnalyzer } from "../../../parser/out/types";
 import { Analyzer } from "../../../parser";
 
 import {
-	LanguageSettings, Position, Hover, Location,
-    WorkspaceEdit, TextDocument, HoverSettings, CompletionList
+	Position, Location, WorkspaceEdit,
+	TextDocument, CompletionList
 } from '../types/languageTypes';
 
 import { SolidityNavigation } from './SolidityNavigation';
 import { SolidityCompletion } from './SolidityCompletion';
-import { SolidityHover } from './SolidityHover';
 
 export interface LanguageService {
-    configure(raw?: LanguageSettings): void;
 	getDocumentAnalyzer(uri: string): DocumentAnalyzer | undefined;
     analyzeDocument(document: string, uri: string): Node | undefined;
 	findDefinition(uri: string, position: Position, analyzerTree: Node): Location | undefined;
@@ -20,14 +18,10 @@ export interface LanguageService {
 	findImplementation(uri: string, position: Position, analyzerTree: Node): Location[];
 	doRename(uri: string, document: TextDocument, position: Position, newName: string, analyzerTree: Node): WorkspaceEdit;
 	doComplete(rootPath: string, position: Position, documentAnalyzer: DocumentAnalyzer): CompletionList;
-	doHover(document: TextDocument, position: Position, analyzerTree: Node, settings?: HoverSettings): Hover | undefined;
 }
 
-function createFacade(analyzer: Analyzer, navigation: SolidityNavigation, completion: SolidityCompletion, hover: SolidityHover): LanguageService {
+function createFacade(analyzer: Analyzer, navigation: SolidityNavigation, completion: SolidityCompletion): LanguageService {
 	return {
-        configure: (settings) => {
-			hover.configure(settings?.hover);
-		},
 		getDocumentAnalyzer: analyzer.getDocumentAnalyzer.bind(analyzer),
         analyzeDocument: analyzer.analyzeDocument.bind(analyzer),
 		findDefinition: navigation.findDefinition.bind(navigation),
@@ -35,8 +29,7 @@ function createFacade(analyzer: Analyzer, navigation: SolidityNavigation, comple
 		findReferences: navigation.findReferences.bind(navigation),
 		findImplementation: navigation.findImplementation.bind(navigation),
 		doRename: navigation.doRename.bind(navigation),
-		doComplete: completion.doComplete.bind(completion),
-        doHover: hover.doHover.bind(hover)
+		doComplete: completion.doComplete.bind(completion)
 	};
 }
 
@@ -44,7 +37,6 @@ export function getLanguageServer(rootPath: string | undefined): LanguageService
 	return createFacade(
 		new Analyzer(rootPath),
 		new SolidityNavigation(),
-		new SolidityCompletion(),
-		new SolidityHover()
+		new SolidityCompletion()
 	);
 }
