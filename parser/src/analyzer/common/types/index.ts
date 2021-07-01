@@ -15,7 +15,8 @@ import {
     StateVariableDeclaration, StringLiteral, StructDefinition, SubAssembly,
     ThrowStatement, TryStatement, TupleExpression, TypeNameExpression, UnaryOperation,
     UncheckedStatement, UserDefinedTypeName, UsingForDeclaration, VariableDeclaration,
-    StateVariableDeclarationVariable, VariableDeclarationStatement, WhileStatement
+    StateVariableDeclarationVariable, VariableDeclarationStatement, WhileStatement,
+    TypeName
 } from "@solidity-parser/parser/dist/src/ast-types";
 
 export {
@@ -35,7 +36,8 @@ export {
     StateVariableDeclaration, StringLiteral, StructDefinition, SubAssembly,
     ThrowStatement, TryStatement, TupleExpression, TypeNameExpression, UnaryOperation,
     UncheckedStatement, UserDefinedTypeName, UsingForDeclaration, VariableDeclaration,
-    StateVariableDeclarationVariable, VariableDeclarationStatement, WhileStatement
+    StateVariableDeclarationVariable, VariableDeclarationStatement, WhileStatement,
+    TypeName
 };
 
 import { Position, Location, FinderType, Node } from "@nodes/Node";

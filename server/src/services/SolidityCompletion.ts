@@ -3,11 +3,11 @@ import * as path from "path";
 import * as finder from "../../../parser/out/finder";
 import {
     DocumentAnalyzer, ImportDirectiveNode, ContractDefinitionNode,
-    Node, expressionNodeTypes 
+    Node, VariableDeclaration, FileLevelConstant, TypeName, expressionNodeTypes
 } from "../../../parser/out/types";
 
 import { getParserPositionFromVSCodePosition, findNodeModules } from "../utils";
-import { Position, CompletionList, CompletionItem, CompletionItemKind } from "../types/languageTypes";
+import { Position, CompletionList, CompletionItem, CompletionItemKind, MarkupKind } from "../types/languageTypes";
 
 export class SolidityCompletion {
     public doComplete(rootPath: string, position: Position, documentAnalyzer: DocumentAnalyzer): CompletionList {
@@ -91,12 +91,14 @@ export class SolidityCompletion {
                 if (fileStat.isFile() && file.slice(-4) === ".sol") {
                     completions.push({
                         label: file,
-                        kind: CompletionItemKind.File
+                        kind: CompletionItemKind.File,
+                        documentation: "Imports the package"
                     });
                 } else if (fileStat.isDirectory() && file !== "node_modules") {
                     completions.push({
                         label: file,
-                        kind: CompletionItemKind.Folder
+                        kind: CompletionItemKind.Folder,
+                        documentation: "Imports the package"
                     });
                 }
             } catch (err) {
@@ -109,7 +111,8 @@ export class SolidityCompletion {
 
     private getCompletionsFromNodes(nodes: Node[]): CompletionItem[] {
         const completions: CompletionItem[] = [];
-        let kind;
+        let typeNode: TypeName | null;
+        let item: CompletionItem;
         let contractDefinitionNode: ContractDefinitionNode;
 
         for (let node of nodes) {
@@ -127,56 +130,141 @@ export class SolidityCompletion {
 
                         switch (contractDefinitionNode.getKind()) {
                             case "interface":
-                                kind = CompletionItemKind.Interface;
+                                item = {
+                                    label: name,
+                                    kind: CompletionItemKind.Interface,
+                                    documentation: {
+                                        kind: MarkupKind.Markdown,
+                                        value: `${contractDefinitionNode.getKind()} ${name}`
+                                    }
+                                };
                                 break;
                         
                             default:
-                                kind = CompletionItemKind.Class;
+                                item = {
+                                    label: name,
+                                    kind: CompletionItemKind.Class,
+                                    documentation: {
+                                        kind: MarkupKind.Markdown,
+                                        value: `${contractDefinitionNode.getKind()} ${name}`
+                                    }
+                                };
                                 break;
                         }
                         break;
 
                     case "StructDefinition":
-                        kind = CompletionItemKind.Struct;
+                        item = {
+                            label: name,
+                            kind: CompletionItemKind.Struct,
+                            documentation: {
+                                kind: MarkupKind.Markdown,
+                                value: `struct ${name}`
+                            }
+                        };
                         break;
 
                     case "EnumDefinition":
-                        kind = CompletionItemKind.Enum;
+                        item = {
+                            label: name,
+                            kind: CompletionItemKind.Enum,
+                            documentation: {
+                                kind: MarkupKind.Markdown,
+                                value: `enum ${name}`
+                            }
+                        };
                         break;
 
                     case "EnumValue":
-                        kind = CompletionItemKind.EnumMember;
+                        item = {
+                            label: name,
+                            kind: CompletionItemKind.EnumMember,
+                            documentation: {
+                                kind: MarkupKind.Markdown,
+                                value: `enum member ${name}`
+                            }
+                        };
                         break;
 
                     case "EventDefinition":
-                        kind = CompletionItemKind.Event;
+                        item = {
+                            label: name,
+                            kind: CompletionItemKind.Event,
+                            documentation: {
+                                kind: MarkupKind.Markdown,
+                                value: `event ${name}`
+                            }
+                        };
                         break;
 
                     case "VariableDeclaration":
-                        kind = CompletionItemKind.Variable;
+                        typeNode = (node.astNode as VariableDeclaration).typeName;
+
+                        item = {
+                            label: name,
+                            kind: CompletionItemKind.Variable,
+                            documentation: {
+                                kind: MarkupKind.Markdown,
+                                value: `*(variable)* ${this.getTypeName(typeNode)} ${name}`
+                            }
+                        };
                         break;
 
                     case "FileLevelConstant":
-                        kind = CompletionItemKind.Constant;
+                        typeNode = (node.astNode as FileLevelConstant).typeName;
+
+                        item = {
+                            label: name,
+                            kind: CompletionItemKind.Constant,
+                            documentation: {
+                                kind: MarkupKind.Markdown,
+                                value: `*(constant)* ${this.getTypeName(typeNode)} ${name}`
+                            }
+                        };
                         break;
 
                     case "AssemblyLocalDefinition":
-                        kind = CompletionItemKind.Variable;
+                        item = {
+                            label: name,
+                            kind: CompletionItemKind.Variable,
+                            documentation: {
+                                kind: MarkupKind.Markdown,
+                                value: `*(assembly variable)* ${name}`
+                            }
+                        };
                         break;
 
                     default:
-                        kind = CompletionItemKind.Function;
+                        item = {
+                            label: name,
+                            kind: CompletionItemKind.Function
+                        };
                         break;
                 }
 
-                completions.push({
-                    label: name,
-                    kind
-                });
+                completions.push(item);
             }
         }
 
         return completions;
+    }
+
+    private getTypeName(typeNode: TypeName | null): string {
+        switch (typeNode?.type) {
+            case "ElementaryTypeName":
+                return typeNode.name;
+
+            case "UserDefinedTypeName":
+                return typeNode.namePath;
+
+            case "Mapping":
+                return `mapping(${typeNode.keyType.type === "ElementaryTypeName" ? typeNode.keyType.name : typeNode.keyType.namePath} => ${this.getTypeName(typeNode.valueType)})`;
+
+            case "ArrayTypeName":
+                return this.getTypeName(typeNode.baseTypeName);
+        }
+
+        return "";
     }
 
     private findNodeByPosition(uri: string, position: Position, analyzerTree: Node): Node | undefined {

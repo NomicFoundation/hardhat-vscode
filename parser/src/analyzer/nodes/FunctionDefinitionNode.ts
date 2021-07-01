@@ -76,7 +76,7 @@ export class FunctionDefinitionNode extends IFunctionDefinitionNode {
 
         if (parent?.type === "ContractDefinition") {
             const inheritanceNodes = (parent as ContractDefinitionNode).getInheritanceNodes();
-        
+
             for (const inheritanceNode of inheritanceNodes) {
                 for (const child of inheritanceNode.children) {
                     if (child.type === this.type && child.getName() === this.getName()) {
