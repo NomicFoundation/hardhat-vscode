@@ -25,16 +25,18 @@ let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
 let hasDiagnosticRelatedInformationCapability = false;
 let languageServer: LanguageService;
-let rootPath: string | undefined;
 
 connection.onInitialize((params: InitializeParams) => {
 	console.log('server onInitialize');
 
-	// Fix: move root path to Nodes constructor
-	console.log(params.workspaceFolders);
-	rootPath = params.workspaceFolders ? params.workspaceFolders[0].uri : undefined;
-
-	languageServer = new LanguageService(rootPath);
+	/**
+	 * We know that rootUri is deprecated but we need it.
+	 * We will monitor https://github.com/microsoft/vscode-extension-samples/issues/207 issue,
+	 * so when it will be resolved we can update how we get rootUri.
+	 */ 
+	if (params.rootUri) {
+		languageServer = new LanguageService(params.rootUri);
+	}
 
 	const capabilities = params.capabilities;
 
@@ -89,9 +91,11 @@ connection.onInitialized(() => {
 		// Register for all configuration changes.
 		connection.client.register(DidChangeConfigurationNotification.type, undefined);
 	}
+
 	if (hasWorkspaceFolderCapability) {
 		connection.workspace.onDidChangeWorkspaceFolders(_event => {
 			connection.console.log('Workspace folder change event received.');
+			console.log(_event);
 		});
 	}
 });
@@ -175,24 +179,28 @@ connection.onCompletion(
 		// which code complete got requested. For the example we ignore this
 		// info and always provide the same completion items.
 
-		const document = documents.get(_textDocumentPosition.textDocument.uri);
+		try {
+			const document = documents.get(_textDocumentPosition.textDocument.uri);
 
-		if (document) {
-			const documentText = document.getText();
+			if (document) {
+				const documentText = document.getText();
 
-			// Hack where we insert ";" because the tolerance mode @solidity-parser/parser crashes as we type.
-			// This only happens if there is no ";" at the end of the line.
-			let offset = document.offsetAt(_textDocumentPosition.position);
-			offset = documentText.indexOf("\n", offset) > offset ? documentText.indexOf("\n", offset) : offset;
-			const newDocumentText = documentText.slice(0, offset) + ";" + documentText.slice(offset);
+				// Hack where we insert ";" because the tolerance mode @solidity-parser/parser crashes as we type.
+				// This only happens if there is no ";" at the end of the line.
+				let offset = document.offsetAt(_textDocumentPosition.position);
+				offset = documentText.indexOf("\n", offset) > offset ? documentText.indexOf("\n", offset) : offset;
+				const newDocumentText = documentText.slice(0, offset) + ";" + documentText.slice(offset);
 
-			const documentURI = getUriFromDocument(document);
-			languageServer.analyzer.analyzeDocument(newDocumentText, documentURI);
+				const documentURI = getUriFromDocument(document);
+				languageServer.analyzer.analyzeDocument(newDocumentText, documentURI);
 
-			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
-			if (documentAnalyzer && rootPath) {
-				return languageServer.solidityCompletion.doComplete(rootPath, _textDocumentPosition.position, documentAnalyzer);
+				const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
+				if (documentAnalyzer) {
+					return languageServer.solidityCompletion.doComplete(documentAnalyzer.rootPath, _textDocumentPosition.position, documentAnalyzer);
+				}
 			}
+		} catch (err) {
+			console.error(err);
 		}
 	}
 );

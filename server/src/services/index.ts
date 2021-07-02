@@ -8,7 +8,7 @@ export class LanguageService {
 	solidityNavigation: SolidityNavigation;
 	solidityCompletion: SolidityCompletion;
 
-	constructor(rootPath: string | undefined) {
+	constructor(rootPath: string) {
 		this.analyzer = new Analyzer(rootPath);
 		this.solidityNavigation = new SolidityNavigation();
 		this.solidityCompletion = new SolidityCompletion();

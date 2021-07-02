@@ -179,6 +179,11 @@ export abstract class VariableDeclarationNode extends Node {
 
 export interface DocumentAnalyzer {
     /**
+     * The rootPath of the workspace.
+     */
+    rootPath: string;
+
+    /**
      * The contents of the file we will try to analyze.
      */
     document: string | undefined;

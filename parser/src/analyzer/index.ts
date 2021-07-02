@@ -12,19 +12,19 @@ import { Node, SourceUnitNode, DocumentAnalyzer as IDocumentAnalyzer } from "@co
 import { decodeUriAndRemoveFilePrefix } from "@common/utils";
 
 export class Analyzer {
-    constructor (rootPath: string | undefined) {
-        if (rootPath) {
-            rootPath = decodeUriAndRemoveFilePrefix(rootPath);
-        }
+    rootPath: string;
 
-        setProjectRootPath(rootPath);
+    constructor (rootPath: string) {
+        this.rootPath = decodeUriAndRemoveFilePrefix(rootPath);
+
+        setProjectRootPath(this.rootPath);
 
         const documentsUri: string[] = [];
-        this.findSolFiles(rootPath, documentsUri);
+        this.findSolFiles(this.rootPath, documentsUri);
 
         // Init all documentAnalyzers
         for (const documentUri of documentsUri) {
-            cache.setDocumentAnalyzer(documentUri, new DocumentAnalyzer(documentUri));
+            cache.setDocumentAnalyzer(documentUri, new DocumentAnalyzer(this.rootPath, documentUri));
         }
 
         // TO-DO: More comments and move cache to Analyzer
@@ -51,7 +51,7 @@ export class Analyzer {
             return documentAnalyzer.analyze(document);
         }
 
-        documentAnalyzer = new DocumentAnalyzer(uri);
+        documentAnalyzer = new DocumentAnalyzer(this.rootPath, uri);
         cache.setDocumentAnalyzer(uri, documentAnalyzer);
 
         return documentAnalyzer.analyze(document);
@@ -87,6 +87,8 @@ export class Analyzer {
 }
 
 class DocumentAnalyzer implements IDocumentAnalyzer {
+    rootPath: string;
+
     document: string | undefined;
     uri: string;
 
@@ -96,7 +98,8 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
 
     orphanNodes: Node[] = [];
 
-    constructor (uri: string) {
+    constructor (rootPath: string, uri: string) {
+        this.rootPath = rootPath;
         this.uri = uri;
 
         if (fs.existsSync(uri)) {
