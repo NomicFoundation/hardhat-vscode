@@ -65,7 +65,6 @@ export function findParent(node: Node, from?: Node, searchInInheritanceNodes = f
 }
 
 /**
- * 
  * @param uri Path to the file.
  * @param position Position in the file.
  * @param from From which Node do we start searching.
@@ -156,7 +155,7 @@ function search(node: Node, from?: Node | undefined, searchInInheritanceNodes?: 
         return undefined;
     }
 
-    if (visitedNodes.indexOf(from) !== -1) {
+    if (visitedNodes.includes(from)) {
         return undefined;
     }
 
@@ -238,7 +237,7 @@ function search(node: Node, from?: Node | undefined, searchInInheritanceNodes?: 
             importNode = cache.getDocumentAnalyzer(importPath)?.analyzerTree;
         }
 
-        if (importNode && visitedFiles.indexOf(importNode.uri) === -1) {
+        if (importNode && !visitedFiles.includes(importNode.uri)) {
             // Add as visited file
             visitedFiles.push(importNode.uri);
 
@@ -318,7 +317,7 @@ function search(node: Node, from?: Node | undefined, searchInInheritanceNodes?: 
         return undefined;
     }
 
-    if (visitedNodes.indexOf(from) !== -1) {
+    if (visitedNodes.includes(from)) {
         return undefined;
     }
 
@@ -343,7 +342,7 @@ function search(node: Node, from?: Node | undefined, searchInInheritanceNodes?: 
             importNode = cache.getDocumentAnalyzer(importPath)?.analyzerTree;
         }
 
-        if (importNode && visitedFiles.indexOf(importNode.uri) === -1) {
+        if (importNode && !visitedFiles.includes(importNode.uri)) {
             // Add as visited file
             visitedFiles.push(importNode.uri);
 
@@ -405,7 +404,7 @@ function _findDefinitionNodes(uri: string, position: Position, from: Node | unde
         return;
     }
 
-    if (visitedNodes.indexOf(from) !== -1) {
+    if (visitedNodes.includes(from)) {
         return;
     }
 
@@ -457,7 +456,7 @@ function _findDefinitionNodes(uri: string, position: Position, from: Node | unde
             importNode = cache.getDocumentAnalyzer(importPath)?.analyzerTree;
         }
 
-        if (importNode && visitedFiles.indexOf(importNode.uri) === -1) {
+        if (importNode && !visitedFiles.includes(importNode.uri)) {
             // Add as visited file
             visitedFiles.push(importNode.uri);
 

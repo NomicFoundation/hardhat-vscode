@@ -348,7 +348,7 @@ export class SolidityCompletion {
             return undefined;
         }
 
-        if (visitedNodes.indexOf(from) !== -1) {
+        if (visitedNodes.includes(from)) {
             return undefined;
         }
 
