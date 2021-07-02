@@ -12,7 +12,7 @@ import { MarkupKind } from 'vscode-languageserver-types';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import { getUriFromDocument, debounce } from './utils';
-import { getLanguageServer, LanguageService } from './services';
+import { LanguageService } from './services';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -30,9 +30,11 @@ let rootPath: string | undefined;
 connection.onInitialize((params: InitializeParams) => {
 	console.log('server onInitialize');
 
+	// Fix: move root path to Nodes constructor
+	console.log(params.workspaceFolders);
 	rootPath = params.workspaceFolders ? params.workspaceFolders[0].uri : undefined;
 
-	languageServer = getLanguageServer(rootPath);
+	languageServer = new LanguageService(rootPath);
 
 	const capabilities = params.capabilities;
 
@@ -138,7 +140,7 @@ function analyzeFunc(uri: string): void {
 
 		if (document) {
 			const documentURI = getUriFromDocument(document);
-			languageServer.analyzeDocument(document.getText(), documentURI);
+			languageServer.analyzer.analyzeDocument(document.getText(), documentURI);
 		}	
 	} catch (err) {
 		console.error(err);
@@ -185,11 +187,11 @@ connection.onCompletion(
 			const newDocumentText = documentText.slice(0, offset) + ";" + documentText.slice(offset);
 
 			const documentURI = getUriFromDocument(document);
-			languageServer.analyzeDocument(newDocumentText, documentURI);
+			languageServer.analyzer.analyzeDocument(newDocumentText, documentURI);
 
-			const documentAnalyzer = languageServer.getDocumentAnalyzer(documentURI);
+			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 			if (documentAnalyzer && rootPath) {
-				return languageServer.doComplete(rootPath, _textDocumentPosition.position, documentAnalyzer);
+				return languageServer.solidityCompletion.doComplete(rootPath, _textDocumentPosition.position, documentAnalyzer);
 			}
 		}
 	}
@@ -233,10 +235,10 @@ connection.onDefinition(params => {
 
 		if (document) {
 			const documentURI = getUriFromDocument(document);
-			const documentAnalyzer = languageServer.getDocumentAnalyzer(documentURI);
+			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
 			if (documentAnalyzer?.analyzerTree) {
-				return languageServer.findDefinition(documentURI, params.position, documentAnalyzer.analyzerTree);
+				return languageServer.solidityNavigation.findDefinition(documentURI, params.position, documentAnalyzer.analyzerTree);
 			}
 		}	
 	} catch (err) {
@@ -252,10 +254,10 @@ connection.onTypeDefinition(params => {
 
 		if (document) {
 			const documentURI = getUriFromDocument(document);
-			const documentAnalyzer = languageServer.getDocumentAnalyzer(documentURI);
+			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
 			if (documentAnalyzer?.analyzerTree) {
-				return languageServer.findTypeDefinition(documentURI, params.position, documentAnalyzer.analyzerTree);
+				return languageServer.solidityNavigation.findTypeDefinition(documentURI, params.position, documentAnalyzer.analyzerTree);
 			}
 		}
 	} catch (err) {
@@ -272,10 +274,10 @@ connection.onReferences(params => {
 	
 		if (document) {
 			const documentURI = getUriFromDocument(document);
-			const documentAnalyzer = languageServer.getDocumentAnalyzer(documentURI);
+			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
 			if (documentAnalyzer?.analyzerTree) {
-				return languageServer.findReferences(documentURI, params.position, documentAnalyzer.analyzerTree);
+				return languageServer.solidityNavigation.findReferences(documentURI, params.position, documentAnalyzer.analyzerTree);
 			}
 		}
 	} catch (err) {
@@ -292,10 +294,10 @@ connection.onImplementation(params => {
 	
 		if (document) {
 			const documentURI = getUriFromDocument(document);
-			const documentAnalyzer = languageServer.getDocumentAnalyzer(documentURI);
+			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
 			if (documentAnalyzer?.analyzerTree) {
-				return languageServer.findImplementation(documentURI, params.position, documentAnalyzer.analyzerTree);
+				return languageServer.solidityNavigation.findImplementation(documentURI, params.position, documentAnalyzer.analyzerTree);
 			}
 		}
 	} catch (err) {
@@ -311,10 +313,10 @@ connection.onRenameRequest(params => {
 
 		if (document) {
 			const documentURI = getUriFromDocument(document);
-			const documentAnalyzer = languageServer.getDocumentAnalyzer(documentURI);
+			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
 			if (documentAnalyzer?.analyzerTree) {
-				return languageServer.doRename(documentURI, document, params.position, params.newName, documentAnalyzer.analyzerTree);
+				return languageServer.solidityNavigation.doRename(documentURI, document, params.position, params.newName, documentAnalyzer.analyzerTree);
 			}
 		}
 	} catch (err) {

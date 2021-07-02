@@ -27,6 +27,7 @@ export class Analyzer {
             cache.setDocumentAnalyzer(documentUri, new DocumentAnalyzer(documentUri));
         }
 
+        // TO-DO: More comments and move cache to Analyzer
         for (const documentUri of documentsUri) {
             const documentAnalyzer = cache.getDocumentAnalyzer(documentUri);
 
