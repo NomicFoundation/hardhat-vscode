@@ -39,7 +39,7 @@ export function decodeUriAndRemoveFilePrefix(uri: string): string {
  * 
  * @returns true if the positions are equal, otherwise false.
  */
- export function isNodePosition(node: Node, position: Position): boolean {
+export function isNodePosition(node: Node, position: Position): boolean {
     if (
         node.nameLoc &&
         node.nameLoc.start.line === position.line &&

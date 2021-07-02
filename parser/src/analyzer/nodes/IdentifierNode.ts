@@ -72,11 +72,6 @@ export class IdentifierNode extends Node {
             }
         }
 
-        // The name "super" and "this" is reserved so we won't add it to orphanNodes
-        if (this.getName() === "super" || this.getName() === "this") {
-            return this;
-        }
-
         orphanNodes.push(this);
 
         return this;

@@ -3,7 +3,8 @@ import * as path from "path";
 import * as finder from "../../../parser/out/finder";
 import {
     DocumentAnalyzer, ImportDirectiveNode, ContractDefinitionNode,
-    Node, VariableDeclaration, FileLevelConstant, TypeName, expressionNodeTypes
+    Node, VariableDeclaration, FileLevelConstant, TypeName,
+    expressionNodeTypes, Position as NodePosition
 } from "../../../parser/out/types";
 
 import { getParserPositionFromVSCodePosition, findNodeModules } from "../utils";
@@ -15,9 +16,32 @@ export class SolidityCompletion {
         const result: CompletionList = { isIncomplete: false, items: [] };
 
         if (analyzerTree) {
-            const definitionNode = this.findNodeByPosition(documentAnalyzer.uri, position, analyzerTree);
+            let definitionNode = this.findNodeByPosition(documentAnalyzer.uri, position, analyzerTree);
 
-            if (definitionNode && definitionNode.type === "ImportDirective") {
+            // Check if the definitionNode exists and if not, we will check if maybe Node exists in orphan Nodes.
+            // This is important for "this" and "super" keywords because they exist only in orphanNodes.
+            if (!definitionNode) {
+                const newPosition = {
+                    line: position.line + 1,
+                    column: position.character - 3
+                };
+
+                for (const orphanNode of documentAnalyzer.orphanNodes) {
+                    if (this.isNodePosition(orphanNode, newPosition)) {
+                        definitionNode = orphanNode;
+                        break;
+                    }
+                }
+            }
+
+            const definitionNodeName = definitionNode?.getName();
+            if (definitionNodeName === "this") {
+                result.items = this.getThisCompletions(documentAnalyzer, position);
+            }
+            else if (definitionNodeName === "super") {
+                result.items = this.getSuperCompletions(documentAnalyzer, position);
+            }
+            else if (definitionNode && definitionNode.type === "ImportDirective") {
                 result.items = this.getImportPathCompletion(rootPath, definitionNode as ImportDirectiveNode);
             }
             else if (definitionNode && expressionNodeTypes.includes(definitionNode.getExpressionNode()?.type || "")) {
@@ -29,6 +53,30 @@ export class SolidityCompletion {
         }
 
         return result;
+    }
+
+    private getThisCompletions(documentAnalyzer: DocumentAnalyzer, position: Position): CompletionItem[] {
+        const completions: CompletionItem[] = [];
+        const node = this.findContractDefinition(documentAnalyzer.analyzerTree, {
+            line: position.line + 1,
+            column: position.character
+        });
+
+        console.log(node);
+
+        return completions;
+    }
+
+    private getSuperCompletions(documentAnalyzer: DocumentAnalyzer, position: Position): CompletionItem[] {
+        const completions: CompletionItem[] = [];
+        const node = this.findContractDefinition(documentAnalyzer.analyzerTree, {
+            line: position.line + 1,
+            column: position.character
+        });
+
+        console.log(node);
+
+        return completions;
     }
 
     private getImportPathCompletion(rootPath: string, node: ImportDirectiveNode): CompletionItem[] {
@@ -276,4 +324,52 @@ export class SolidityCompletion {
             true
         );
 	}
+
+    private isNodePosition(node: Node, position: NodePosition): boolean {
+        if (
+            node.nameLoc &&
+            node.nameLoc.start.line === position.line &&
+            node.nameLoc.end.line === position.line &&
+            node.nameLoc.start.column <= position.column &&
+            node.nameLoc.end.column >= position.column
+        ) {
+            return true;
+        }
+    
+        return false;
+    }
+
+    private findContractDefinition(from: Node | undefined, position: NodePosition, visitedNodes?: Node[]): Node | undefined {
+        if (!visitedNodes) {
+            visitedNodes = [];
+        }
+
+        if (!from) {
+            return undefined;
+        }
+
+        if (visitedNodes.indexOf(from) !== -1) {
+            return undefined;
+        }
+
+        // Add as visited node
+        visitedNodes.push(from);
+
+        if (from.astNode.loc &&
+            from.astNode.loc.start.line <= position.line &&
+            from.astNode.loc.end.line >= position.line &&
+            from.type === "ContractDefinition"
+        ) {
+            return from;
+        }
+
+        let contractDefinitionNode: Node | undefined;
+        for (const child of from.children) {
+            contractDefinitionNode = this.findContractDefinition(child, position, visitedNodes);
+
+            if (contractDefinitionNode) {
+                return contractDefinitionNode;
+            }
+        }
+    }
 }
