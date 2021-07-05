@@ -73,8 +73,7 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
         }
 
         if (
-            documentAnalyzer?.analyzerTree &&
-            documentAnalyzer.analyzerTree.type === "SourceUnit" &&
+            documentAnalyzer?.analyzerTree?.type === "SourceUnit" &&
             documentAnalyzer.analyzerTree.astNode.loc
         ) {
             this.astNode.loc = documentAnalyzer.analyzerTree.astNode.loc;
