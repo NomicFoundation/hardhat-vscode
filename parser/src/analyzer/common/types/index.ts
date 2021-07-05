@@ -15,7 +15,7 @@ import {
     StateVariableDeclaration, StringLiteral, StructDefinition, SubAssembly,
     ThrowStatement, TryStatement, TupleExpression, TypeNameExpression, UnaryOperation,
     UncheckedStatement, UserDefinedTypeName, UsingForDeclaration, VariableDeclaration,
-    StateVariableDeclarationVariable, VariableDeclarationStatement, WhileStatement
+    StateVariableDeclarationVariable, VariableDeclarationStatement, WhileStatement, BaseASTNode
 } from "@solidity-parser/parser/dist/src/ast-types";
 
 export {
@@ -38,8 +38,21 @@ export {
     StateVariableDeclarationVariable, VariableDeclarationStatement, WhileStatement
 };
 
-import { Position, Location, FinderType, DocumentAnalyzer, DocumentsAnalyzerMap, Node } from "@nodes/Node";
+import { Position, Location, FinderType, EmptyNodeType, DocumentAnalyzer, DocumentsAnalyzerMap, Node } from "@nodes/Node";
 export { Position, Location, FinderType, DocumentAnalyzer, DocumentsAnalyzerMap, Node };
+
+export class EmptyNode extends Node {
+    astNode: EmptyNodeType;
+
+    constructor (emptyNode: EmptyNodeType, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(emptyNode, uri, rootPath, documentsAnalyzer);
+        this.astNode = emptyNode;
+    }
+
+    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
+        return this;
+    }
+}
 
 export abstract class ContractDefinitionNode extends Node {
     /**

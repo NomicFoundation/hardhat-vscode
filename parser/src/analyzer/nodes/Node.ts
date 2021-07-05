@@ -50,7 +50,7 @@ export interface DocumentAnalyzer {
     /**
      * Analyzed tree.
      */
-    analyzerTree?: Node | undefined;
+    analyzerTree: Node;
     /**
      * If the document is analyzed this will be true, otherwise false.
      */
@@ -68,6 +68,12 @@ export interface DocumentAnalyzer {
  * documentsAnalyzer Map { [uri: string]: DocumentAnalyzer } have all documentsAnalyzer class instances used for handle imports on first project start.
  */
 export type DocumentsAnalyzerMap = { [uri: string]: DocumentAnalyzer | undefined };
+
+export type EmptyNodeType = {
+    type: "Empty",
+    range?: [number, number];
+    loc?: Location;
+};
 
 export abstract class Node {
     /**
@@ -92,7 +98,7 @@ export abstract class Node {
     /**
      * AST node interface.
      */
-    abstract astNode: BaseASTNode;
+    abstract astNode: BaseASTNode | EmptyNodeType;
 
     /**
      * Represents is node alive or not. If it isn't alive we need to remove it, because if we don't 
@@ -153,7 +159,7 @@ export abstract class Node {
      * @param baseASTNode AST node interface.
      * @param uri The path to the node file.
      */
-    constructor (baseASTNode: BaseASTNode, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+    constructor (baseASTNode: BaseASTNode | EmptyNodeType, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
         this.type = baseASTNode.type;
         this.uri = uri;
         this.rootPath = rootPath;

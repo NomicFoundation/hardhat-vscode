@@ -9,7 +9,8 @@ import * as matcher from "@analyzer/matcher";
 import { decodeUriAndRemoveFilePrefix } from "@common/utils";
 import {
     Node, SourceUnitNode, DocumentsAnalyzerMap,
-    DocumentAnalyzer as IDocumentAnalyzer
+    DocumentAnalyzer as IDocumentAnalyzer,
+    EmptyNode
 } from "@common/types";
 
 export class Analyzer {
@@ -98,7 +99,7 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
 
     ast: ASTNode | undefined;
 
-    analyzerTree?: Node | undefined;
+    analyzerTree: Node;
     isAnalyzed = false;
 
     orphanNodes: Node[] = [];
@@ -106,6 +107,8 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
     constructor (rootPath: string, uri: string) {
         this.rootPath = rootPath;
         this.uri = uri;
+
+        this.analyzerTree = new EmptyNode({ type: "Empty" }, this.uri, this.rootPath, {});
 
         if (fs.existsSync(uri)) {
             this.document = "" + fs.readFileSync(uri);
