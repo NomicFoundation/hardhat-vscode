@@ -3,8 +3,8 @@ import { ReturnStatement, FinderType, Node } from "@common/types";
 export class ReturnStatementNode extends Node {
     astNode: ReturnStatement;
 
-    constructor (returnStatement: ReturnStatement, uri: string) {
-        super(returnStatement, uri);
+    constructor (returnStatement: ReturnStatement, uri: string, rootPath: string) {
+        super(returnStatement, uri, rootPath);
         this.astNode = returnStatement;
     }
 
@@ -12,7 +12,7 @@ export class ReturnStatementNode extends Node {
         this.setExpressionNode(expression);
 
         if (this.astNode.expression) {
-            find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent);
+            find(this.astNode.expression, this.uri, this.rootPath).accept(find, orphanNodes, parent);
         }
 
         return this;

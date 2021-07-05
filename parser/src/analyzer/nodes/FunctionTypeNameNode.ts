@@ -3,8 +3,8 @@ import { FunctionTypeName, FinderType, Node } from "@common/types";
 export class FunctionTypeNameNode extends Node {
     astNode: FunctionTypeName;
 
-    constructor (functionTypeName: FunctionTypeName, uri: string) {
-        super(functionTypeName, uri);
+    constructor (functionTypeName: FunctionTypeName, uri: string, rootPath: string) {
+        super(functionTypeName, uri, rootPath);
         this.astNode = functionTypeName;
         // TO-DO: Implement name location for rename
     }

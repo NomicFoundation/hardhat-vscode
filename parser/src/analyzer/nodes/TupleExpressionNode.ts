@@ -3,8 +3,8 @@ import { TupleExpression, FinderType, Node } from "@common/types";
 export class TupleExpressionNode extends Node {
     astNode: TupleExpression;
 
-    constructor (tupleExpression: TupleExpression, uri: string) {
-        super(tupleExpression, uri);
+    constructor (tupleExpression: TupleExpression, uri: string, rootPath: string) {
+        super(tupleExpression, uri, rootPath);
         this.astNode = tupleExpression;
     }
 
@@ -13,7 +13,7 @@ export class TupleExpressionNode extends Node {
 
         for (const component of this.astNode.components) {
             if (component) {
-                find(component, this.uri).accept(find, orphanNodes, parent);
+                find(component, this.uri, this.rootPath).accept(find, orphanNodes, parent);
             }
         }
 

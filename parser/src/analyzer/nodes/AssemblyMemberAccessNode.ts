@@ -3,8 +3,8 @@ import { AssemblyMemberAccess, FinderType, Node } from "@common/types";
 export class AssemblyMemberAccessNode extends Node {
     astNode: AssemblyMemberAccess;
 
-    constructor (assemblyMemberAccess: AssemblyMemberAccess, uri: string) {
-        super(assemblyMemberAccess, uri);
+    constructor (assemblyMemberAccess: AssemblyMemberAccess, uri: string, rootPath: string) {
+        super(assemblyMemberAccess, uri, rootPath);
         this.astNode = assemblyMemberAccess;
         // TO-DO: Implement name location for rename
     }

@@ -7,7 +7,6 @@ import { ASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
 import * as matcher from "@analyzer/matcher";
 import * as cache from "@common/cache";
-import { setProjectRootPath } from "@common/utils";
 import { Node, SourceUnitNode, DocumentAnalyzer as IDocumentAnalyzer } from "@common/types";
 import { decodeUriAndRemoveFilePrefix } from "@common/utils";
 
@@ -16,8 +15,6 @@ export class Analyzer {
 
     constructor (rootPath: string) {
         this.rootPath = decodeUriAndRemoveFilePrefix(rootPath);
-
-        setProjectRootPath(this.rootPath);
 
         const documentsUri: string[] = [];
         this.findSolFiles(this.rootPath, documentsUri);
@@ -134,7 +131,7 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
 
             // console.log(this.uri, JSON.stringify(this.ast));
 
-            this.analyzerTree = matcher.find(this.ast, this.uri).accept(matcher.find, this.orphanNodes);
+            this.analyzerTree = matcher.find(this.ast, this.uri, this.rootPath).accept(matcher.find, this.orphanNodes);
 
             return this.analyzerTree;
         } catch (err) {

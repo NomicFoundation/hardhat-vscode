@@ -8,8 +8,8 @@ export class VariableDeclarationNode extends IVariableDeclarationNode {
 
     connectionTypeRules: string[] = [ "Identifier", "MemberAccess", "AssemblyCall" ];
 
-    constructor (variableDeclaration: VariableDeclaration, uri: string) {
-        super(variableDeclaration, uri);
+    constructor (variableDeclaration: VariableDeclaration, uri: string, rootPath: string) {
+        super(variableDeclaration, uri, rootPath);
         this.astNode = variableDeclaration;
 
         if (variableDeclaration.loc && variableDeclaration.name) {
@@ -42,7 +42,7 @@ export class VariableDeclarationNode extends IVariableDeclarationNode {
         }
 
         if (this.astNode.typeName) {
-            const typeNode = find(this.astNode.typeName, this.uri).accept(find, orphanNodes, this);
+            const typeNode = find(this.astNode.typeName, this.uri, this.rootPath).accept(find, orphanNodes, this);
 
             this.addTypeNode(typeNode);
             typeNode.setDeclarationNode(this);

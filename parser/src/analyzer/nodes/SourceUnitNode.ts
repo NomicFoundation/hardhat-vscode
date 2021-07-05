@@ -10,8 +10,8 @@ import {
 export class SourceUnitNode extends AbstractSourceUnitNode {
     astNode: SourceUnit;
 
-    constructor (sourceUnit: SourceUnit, uri: string) {
-        super(sourceUnit, uri);
+    constructor (sourceUnit: SourceUnit, uri: string, rootPath: string) {
+        super(sourceUnit, uri, rootPath);
         this.astNode = sourceUnit;
     }
 
@@ -34,7 +34,7 @@ export class SourceUnitNode extends AbstractSourceUnitNode {
         finder.setRoot(documentAnalyzer?.analyzerTree);
 
         for (const child of this.astNode.children) {
-            find(child, this.uri).accept(find, orphanNodes, this);
+            find(child, this.uri, this.rootPath).accept(find, orphanNodes, this);
         }
 
         return this;

@@ -7,8 +7,8 @@ export class EventDefinitionNode extends Node {
 
     connectionTypeRules: string[] = [ "EmitStatement" ];
 
-    constructor (eventDefinition: EventDefinition, uri: string) {
-        super(eventDefinition, uri);
+    constructor (eventDefinition: EventDefinition, uri: string, rootPath: string) {
+        super(eventDefinition, uri, rootPath);
         this.astNode = eventDefinition;
 
         if (eventDefinition.loc && eventDefinition.name) {
@@ -45,7 +45,7 @@ export class EventDefinitionNode extends Node {
         }
 
         // for (const parameter of this.astNode.parameters) {
-        //     find(parameter, this.uri).accept(find, orphanNodes, parent);
+        //     find(parameter, this.uri, this.rootPath).accept(find, orphanNodes, parent);
         // }
 
         const rootNode = findSourceUnitNode(parent);

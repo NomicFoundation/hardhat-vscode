@@ -4,8 +4,8 @@ import { AssemblyCall, FinderType, Node } from "@common/types";
 export class AssemblyCallNode extends Node {
     astNode: AssemblyCall;
 
-    constructor (assemblyCall: AssemblyCall, uri: string) {
-        super(assemblyCall, uri);
+    constructor (assemblyCall: AssemblyCall, uri: string, rootPath: string) {
+        super(assemblyCall, uri, rootPath);
 
         if (assemblyCall.loc) {
             // Bug in solidity parser doesn't give exact end location
@@ -25,7 +25,7 @@ export class AssemblyCallNode extends Node {
         this.setExpressionNode(expression);
 
         for (const argument of this.astNode.arguments || []) {
-            find(argument, this.uri).accept(find, orphanNodes, parent);
+            find(argument, this.uri, this.rootPath).accept(find, orphanNodes, parent);
         }
 
         if (parent) {

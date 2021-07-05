@@ -3,8 +3,8 @@ import { AssemblyIf, FinderType, Node } from "@common/types";
 export class AssemblyIfNode extends Node {
     astNode: AssemblyIf;
 
-    constructor (assemblyIf: AssemblyIf, uri: string) {
-        super(assemblyIf, uri);
+    constructor (assemblyIf: AssemblyIf, uri: string, rootPath: string) {
+        super(assemblyIf, uri, rootPath);
         this.astNode = assemblyIf;
     }
 
@@ -15,9 +15,9 @@ export class AssemblyIfNode extends Node {
             this.setParent(parent);
         }
 
-        find(this.astNode.condition, this.uri).accept(find, orphanNodes, this);
+        find(this.astNode.condition, this.uri, this.rootPath).accept(find, orphanNodes, this);
         
-        find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
+        find(this.astNode.body, this.uri, this.rootPath).accept(find, orphanNodes, this);
 
         parent?.addChild(this);
 

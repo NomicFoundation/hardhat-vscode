@@ -3,8 +3,8 @@ import { ContinueStatement, FinderType, Node } from "@common/types";
 export class ContinueStatementNode extends Node {
     astNode: ContinueStatement;
 
-    constructor (continueStatement: ContinueStatement, uri: string) {
-        super(continueStatement, uri);
+    constructor (continueStatement: ContinueStatement, uri: string, rootPath: string) {
+        super(continueStatement, uri, rootPath);
         this.astNode = continueStatement;
         // TO-DO: Implement name location for rename
     }

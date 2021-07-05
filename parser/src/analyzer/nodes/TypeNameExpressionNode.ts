@@ -3,8 +3,8 @@ import { TypeNameExpression, FinderType, Node } from "@common/types";
 export class TypeNameExpressionNode extends Node {
     astNode: TypeNameExpression;
 
-    constructor (typeNameExpression: TypeNameExpression, uri: string) {
-        super(typeNameExpression, uri);
+    constructor (typeNameExpression: TypeNameExpression, uri: string, rootPath: string) {
+        super(typeNameExpression, uri, rootPath);
         this.astNode = typeNameExpression;
         // TO-DO: Implement name location for rename
     }

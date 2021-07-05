@@ -3,8 +3,8 @@ import { DecimalNumber, FinderType, Node } from "@common/types";
 export class DecimalNumberNode extends Node {
     astNode: DecimalNumber;
 
-    constructor (decimalNumber: DecimalNumber, uri: string) {
-        super(decimalNumber, uri);
+    constructor (decimalNumber: DecimalNumber, uri: string, rootPath: string) {
+        super(decimalNumber, uri, rootPath);
         this.astNode = decimalNumber;
         // TO-DO: Implement name location for rename
     }

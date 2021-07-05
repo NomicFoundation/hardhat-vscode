@@ -3,8 +3,8 @@ import { ThrowStatement, FinderType, Node } from "@common/types";
 export class ThrowStatementNode extends Node {
     astNode: ThrowStatement;
 
-    constructor (throwStatement: ThrowStatement, uri: string) {
-        super(throwStatement, uri);
+    constructor (throwStatement: ThrowStatement, uri: string, rootPath: string) {
+        super(throwStatement, uri, rootPath);
         this.astNode = throwStatement;
         // TO-DO: Implement name location for rename
     }

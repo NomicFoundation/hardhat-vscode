@@ -5,8 +5,8 @@ import { UserDefinedTypeName, FinderType, Node } from "@common/types";
 export class UserDefinedTypeNameNode extends Node {
     astNode: UserDefinedTypeName;
 
-    constructor (userDefinedTypeName: UserDefinedTypeName, uri: string) {
-        super(userDefinedTypeName, uri);
+    constructor (userDefinedTypeName: UserDefinedTypeName, uri: string, rootPath: string) {
+        super(userDefinedTypeName, uri, rootPath);
 
         if (userDefinedTypeName.loc) {
             // Bug in solidity parser doesn't give exact end location

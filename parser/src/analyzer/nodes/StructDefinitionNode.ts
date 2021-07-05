@@ -7,8 +7,8 @@ export class StructDefinitionNode extends Node {
 
     connectionTypeRules: string[] = [ "UserDefinedTypeName", "MemberAccess", "FunctionCall" ];
 
-    constructor (structDefinition: StructDefinition, uri: string) {
-        super(structDefinition, uri);
+    constructor (structDefinition: StructDefinition, uri: string, rootPath: string) {
+        super(structDefinition, uri, rootPath);
         this.astNode = structDefinition;
 
         if (structDefinition.loc) {
@@ -47,7 +47,7 @@ export class StructDefinitionNode extends Node {
         }
 
         for (const member of this.astNode.members) {
-            find(member, this.uri).accept(find, orphanNodes, this);
+            find(member, this.uri, this.rootPath).accept(find, orphanNodes, this);
         }
 
         const rootNode = findSourceUnitNode(parent);

@@ -18,14 +18,14 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
     uri: string;
     astNode: ImportDirective;
 
-    constructor (importDirective: ImportDirective, uri: string) {
-        super(importDirective, uri);
+    constructor (importDirective: ImportDirective, uri: string, rootPath: string) {
+        super(importDirective, uri, rootPath);
         this.realUri = uri;
         this.uri = path.join(uri, "..", importDirective.path);
 
         // See if file exists
         if (!fs.existsSync(this.uri)) {
-            const nodeModulesPath = findNodeModules(this.uri);
+            const nodeModulesPath = findNodeModules(this.uri, this.rootPath);
 
             if (nodeModulesPath) {
                 this.uri = path.join(nodeModulesPath, importDirective.path);
@@ -87,11 +87,11 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
 
         const aliesNodes: Node[] = [];
         for (const symbolAliasesIdentifier of this.astNode.symbolAliasesIdentifiers || []) {
-            const importedContractNode = find(symbolAliasesIdentifier[0], this.realUri).accept(find, orphanNodes, this);
+            const importedContractNode = find(symbolAliasesIdentifier[0], this.realUri, this.rootPath).accept(find, orphanNodes, this);
 
             // Check if alias exist for importedContractNode
             if (symbolAliasesIdentifier[1]) {
-                const importedContractAliasNode = find(symbolAliasesIdentifier[1], this.realUri).accept(find, orphanNodes, importedContractNode, this);
+                const importedContractAliasNode = find(symbolAliasesIdentifier[1], this.realUri, this.rootPath).accept(find, orphanNodes, importedContractNode, this);
                 importedContractAliasNode.setAliasName(importedContractNode.getName());
 
                 aliesNodes.push(importedContractAliasNode);

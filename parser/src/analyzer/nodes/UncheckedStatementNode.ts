@@ -3,8 +3,8 @@ import { UncheckedStatement, FinderType, Node } from "@common/types";
 export class UncheckedStatementNode extends Node {
     astNode: UncheckedStatement;
 
-    constructor (uncheckedStatement: UncheckedStatement, uri: string) {
-        super(uncheckedStatement, uri);
+    constructor (uncheckedStatement: UncheckedStatement, uri: string, rootPath: string) {
+        super(uncheckedStatement, uri, rootPath);
         this.astNode = uncheckedStatement;
     }
 
@@ -12,7 +12,7 @@ export class UncheckedStatementNode extends Node {
         this.setExpressionNode(expression);
 
         if (this.astNode.block) {
-            find(this.astNode.block, this.uri).accept(find, orphanNodes, parent);
+            find(this.astNode.block, this.uri, this.rootPath).accept(find, orphanNodes, parent);
         }
 
         return this;

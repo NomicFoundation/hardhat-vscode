@@ -3,8 +3,8 @@ import { SubAssembly, FinderType, Node } from "@common/types";
 export class SubAssemblyNode extends Node {
     astNode: SubAssembly;
 
-    constructor (subAssembly: SubAssembly, uri: string) {
-        super(subAssembly, uri);
+    constructor (subAssembly: SubAssembly, uri: string, rootPath: string) {
+        super(subAssembly, uri, rootPath);
         this.astNode = subAssembly;
         // TO-DO: Implement name location for rename
     }

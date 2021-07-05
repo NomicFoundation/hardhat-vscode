@@ -3,8 +3,8 @@ import { TryStatement, FinderType, Node } from "@common/types";
 export class TryStatementNode extends Node {
     astNode: TryStatement;
 
-    constructor (tryStatement: TryStatement, uri: string) {
-        super(tryStatement, uri);
+    constructor (tryStatement: TryStatement, uri: string, rootPath: string) {
+        super(tryStatement, uri, rootPath);
         this.astNode = tryStatement;
     }
 
@@ -15,16 +15,16 @@ export class TryStatementNode extends Node {
             this.setParent(parent);
         }
 
-        find(this.astNode.expression, this.uri).accept(find, orphanNodes, this);
+        find(this.astNode.expression, this.uri, this.rootPath).accept(find, orphanNodes, this);
 
         for (const returnParameter of this.astNode.returnParameters || []) {
-            find(returnParameter, this.uri).accept(find, orphanNodes, this);
+            find(returnParameter, this.uri, this.rootPath).accept(find, orphanNodes, this);
         }
 
-        find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
+        find(this.astNode.body, this.uri, this.rootPath).accept(find, orphanNodes, this);
 
         for (const catchClause of this.astNode.catchClauses || []) {
-            find(catchClause, this.uri).accept(find, orphanNodes, this);
+            find(catchClause, this.uri, this.rootPath).accept(find, orphanNodes, this);
         }
 
         parent?.addChild(this);

@@ -3,15 +3,10 @@ import * as path from "path";
 
 import { Position, Node, SourceUnitNode } from "@common/types";
 
-export let projectRootPath: string | undefined;
-export function setProjectRootPath(rootPath: string | undefined) {
-    projectRootPath = rootPath;
-}
-
-export function findNodeModules(fromURI: string): string | undefined {
+export function findNodeModules(fromURI: string, rootPath: string): string | undefined {
     let nodeModulesPath = path.join(fromURI, "..", "node_modules");
 
-    while (projectRootPath && nodeModulesPath.includes(projectRootPath) && !fs.existsSync(nodeModulesPath)) {
+    while (rootPath && nodeModulesPath.includes(rootPath) && !fs.existsSync(nodeModulesPath)) {
         nodeModulesPath = path.join(nodeModulesPath, "..", "..", "node_modules");
     }
 
@@ -23,7 +18,7 @@ export function findNodeModules(fromURI: string): string | undefined {
 }
 
 export function decodeUriAndRemoveFilePrefix(uri: string): string {
-    if (uri && uri.indexOf('file://') !== -1) {
+    if (uri && uri.includes('file://')) {
         uri = uri.replace("file://", "");
     }
 

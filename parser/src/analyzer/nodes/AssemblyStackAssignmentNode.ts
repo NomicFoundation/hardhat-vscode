@@ -3,8 +3,8 @@ import { AssemblyStackAssignment, FinderType, Node } from "@common/types";
 export class AssemblyStackAssignmentNode extends Node {
     astNode: AssemblyStackAssignment;
 
-    constructor (assemblyStackAssignment: AssemblyStackAssignment, uri: string) {
-        super(assemblyStackAssignment, uri);
+    constructor (assemblyStackAssignment: AssemblyStackAssignment, uri: string, rootPath: string) {
+        super(assemblyStackAssignment, uri, rootPath);
         this.astNode = assemblyStackAssignment;
         // TO-DO: Implement name location for rename
     }

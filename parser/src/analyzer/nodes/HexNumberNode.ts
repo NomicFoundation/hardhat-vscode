@@ -3,8 +3,8 @@ import { HexNumber, FinderType, Node } from "@common/types";
 export class HexNumberNode extends Node {
     astNode: HexNumber;
 
-    constructor (hexNumber: HexNumber, uri: string) {
-        super(hexNumber, uri);
+    constructor (hexNumber: HexNumber, uri: string, rootPath: string) {
+        super(hexNumber, uri, rootPath);
         this.astNode = hexNumber;
         // TO-DO: Implement name location for rename
     }

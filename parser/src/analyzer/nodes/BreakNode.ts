@@ -3,8 +3,8 @@ import { Break, FinderType, Node } from "@common/types";
 export class BreakNode extends Node {
     astNode: Break;
 
-    constructor (astBreak: Break, uri: string) {
-        super(astBreak, uri);
+    constructor (astBreak: Break, uri: string, rootPath: string) {
+        super(astBreak, uri, rootPath);
         this.astNode = astBreak;
         // TO-DO: Implement name location for rename
     }

@@ -6,8 +6,8 @@ export class AssemblyFunctionDefinitionNode extends Node {
 
     connectionTypeRules: string[] = [ "AssemblyCall" ];
 
-    constructor (assemblyFunctionDefinition: AssemblyFunctionDefinition, uri: string) {
-        super(assemblyFunctionDefinition, uri);
+    constructor (assemblyFunctionDefinition: AssemblyFunctionDefinition, uri: string, rootPath: string) {
+        super(assemblyFunctionDefinition, uri, rootPath);
 
         this.astNode = assemblyFunctionDefinition;
         
@@ -43,16 +43,16 @@ export class AssemblyFunctionDefinitionNode extends Node {
         this.findChildren(orphanNodes);
 
         for (const argument of this.astNode.arguments) {
-            find(argument, this.uri).accept(find, orphanNodes, this);
+            find(argument, this.uri, this.rootPath).accept(find, orphanNodes, this);
         }
 
         for (const returnArgument of this.astNode.returnArguments) {
-            const typeNode = find(returnArgument, this.uri).accept(find, orphanNodes, this);
+            const typeNode = find(returnArgument, this.uri, this.rootPath).accept(find, orphanNodes, this);
 
             this.addTypeNode(typeNode);
         }
 
-        find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
+        find(this.astNode.body, this.uri, this.rootPath).accept(find, orphanNodes, this);
 
         parent?.addChild(this);
 

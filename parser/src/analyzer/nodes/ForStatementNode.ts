@@ -3,8 +3,8 @@ import { ForStatement, FinderType, Node } from "@common/types";
 export class ForStatementNode extends Node {
     astNode: ForStatement;
 
-    constructor (forStatement: ForStatement, uri: string) {
-        super(forStatement, uri);
+    constructor (forStatement: ForStatement, uri: string, rootPath: string) {
+        super(forStatement, uri, rootPath);
         this.astNode = forStatement;
     }
 
@@ -20,16 +20,16 @@ export class ForStatementNode extends Node {
         }
 
         if (this.astNode.initExpression) {
-            find(this.astNode.initExpression, this.uri).accept(find, orphanNodes, this);
+            find(this.astNode.initExpression, this.uri, this.rootPath).accept(find, orphanNodes, this);
         }
         if (this.astNode.conditionExpression) {
-            find(this.astNode.conditionExpression, this.uri).accept(find, orphanNodes, this);
+            find(this.astNode.conditionExpression, this.uri, this.rootPath).accept(find, orphanNodes, this);
         }
         if (this.astNode.loopExpression) {
-            find(this.astNode.loopExpression, this.uri).accept(find, orphanNodes, this);
+            find(this.astNode.loopExpression, this.uri, this.rootPath).accept(find, orphanNodes, this);
         }
 
-        find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
+        find(this.astNode.body, this.uri, this.rootPath).accept(find, orphanNodes, this);
 
         parent?.addChild(this);
 

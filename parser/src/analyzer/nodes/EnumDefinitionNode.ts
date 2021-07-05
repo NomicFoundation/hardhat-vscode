@@ -7,8 +7,8 @@ export class EnumDefinitionNode extends Node {
 
     connectionTypeRules: string[] = [ "Identifier", "UserDefinedTypeName" ];
 
-    constructor (enumDefinition: EnumDefinition, uri: string) {
-        super(enumDefinition, uri);
+    constructor (enumDefinition: EnumDefinition, uri: string, rootPath: string) {
+        super(enumDefinition, uri, rootPath);
         this.astNode = enumDefinition;
 
         if (enumDefinition.loc) {
@@ -47,7 +47,7 @@ export class EnumDefinitionNode extends Node {
         }
 
         for (const member of this.astNode.members) {
-            find(member, this.uri).accept(find, orphanNodes, this);
+            find(member, this.uri, this.rootPath).accept(find, orphanNodes, this);
         }
 
         const rootNode = findSourceUnitNode(parent);

@@ -5,8 +5,8 @@ export class EnumValueNode extends Node {
 
     connectionTypeRules: string[] = [ "MemberAccess" ];
 
-    constructor (enumValue: EnumValue, uri: string) {
-        super(enumValue, uri);
+    constructor (enumValue: EnumValue, uri: string, rootPath: string) {
+        super(enumValue, uri, rootPath);
 
         if (enumValue.loc) {
             // Bug in solidity parser doesn't give exact end location

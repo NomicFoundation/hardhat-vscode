@@ -3,8 +3,8 @@ import { RevertStatement, FinderType, Node } from "@common/types";
 export class RevertStatementNode extends Node {
     astNode: RevertStatement;
 
-    constructor (revertStatement: RevertStatement, uri: string) {
-        super(revertStatement, uri);
+    constructor (revertStatement: RevertStatement, uri: string, rootPath: string) {
+        super(revertStatement, uri, rootPath);
         this.astNode = revertStatement;
         // TO-DO: Implement name location for rename
     }

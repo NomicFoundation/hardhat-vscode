@@ -6,8 +6,8 @@ export class UsingForDeclarationNode extends Node {
 
     connectionTypeRules: string[] = [ "ContractDefinition" ];
 
-    constructor (usingForDeclaration: UsingForDeclaration, uri: string) {
-        super(usingForDeclaration, uri);
+    constructor (usingForDeclaration: UsingForDeclaration, uri: string, rootPath: string) {
+        super(usingForDeclaration, uri, rootPath);
         this.astNode = usingForDeclaration;
 
         if (usingForDeclaration.loc && usingForDeclaration.libraryName) {
@@ -32,7 +32,7 @@ export class UsingForDeclarationNode extends Node {
         this.setExpressionNode(expression);
 
         if (this.astNode.typeName) {
-            find(this.astNode.typeName, this.uri).accept(find, orphanNodes, parent);
+            find(this.astNode.typeName, this.uri, this.rootPath).accept(find, orphanNodes, parent);
         }
 
         if (parent) {

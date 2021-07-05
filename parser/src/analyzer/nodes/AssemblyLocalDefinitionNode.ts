@@ -7,8 +7,8 @@ export class AssemblyLocalDefinitionNode extends Node {
 
     connectionTypeRules: string[] = [ "AssemblyCall", "Identifier" ];
 
-    constructor (assemblyLocalDefinition: AssemblyLocalDefinition, uri: string, parent?: Node, identifierNode?: Node) {
-        super(assemblyLocalDefinition, uri);
+    constructor (assemblyLocalDefinition: AssemblyLocalDefinition, uri: string, rootPath: string, parent?: Node, identifierNode?: Node) {
+        super(assemblyLocalDefinition, uri, rootPath);
         this.astNode = assemblyLocalDefinition;
 
         if (parent && identifierNode) {
@@ -37,13 +37,13 @@ export class AssemblyLocalDefinitionNode extends Node {
         this.setExpressionNode(expression);
         
         for (const name of this.astNode.names || []) {
-            const identifierNode = find(name, this.uri).accept(find, orphanNodes, this, this);
+            const identifierNode = find(name, this.uri, this.rootPath).accept(find, orphanNodes, this, this);
 
-            new AssemblyLocalDefinitionNode(this.astNode, identifierNode.uri, parent, identifierNode);
+            new AssemblyLocalDefinitionNode(this.astNode, identifierNode.uri, identifierNode.rootPath, parent, identifierNode);
         }
 
         if (this.astNode.expression) {
-            find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent);
+            find(this.astNode.expression, this.uri, this.rootPath).accept(find, orphanNodes, parent);
         }
 
         return this;

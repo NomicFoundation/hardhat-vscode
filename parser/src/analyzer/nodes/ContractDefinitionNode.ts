@@ -12,8 +12,8 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
 
     connectionTypeRules: string[] = [ "Identifier", "UserDefinedTypeName", "FunctionCall", "UsingForDeclaration" ];
 
-    constructor (contractDefinition: ContractDefinition, uri: string) {
-        super(contractDefinition, uri);
+    constructor (contractDefinition: ContractDefinition, uri: string, rootPath: string) {
+        super(contractDefinition, uri, rootPath);
         this.astNode = contractDefinition;
 
         if (contractDefinition.loc) {
@@ -57,7 +57,7 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
         }
 
         for (const baseContract of this.astNode.baseContracts) {
-            const inheritanceNode = find(baseContract, this.uri).accept(find, orphanNodes, this);
+            const inheritanceNode = find(baseContract, this.uri, this.rootPath).accept(find, orphanNodes, this);
 
             const inheritanceNodeDefinition = inheritanceNode.getDefinitionNode();
 
@@ -67,7 +67,7 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
         }
 
         for (const subNode of this.astNode.subNodes) {
-            find(subNode, this.uri).accept(find, orphanNodes, this);
+            find(subNode, this.uri, this.rootPath).accept(find, orphanNodes, this);
         }
 
         // Find parent for orphanNodes from this contract in inheritance Nodes 

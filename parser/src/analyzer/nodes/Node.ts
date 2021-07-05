@@ -20,19 +20,26 @@ export interface Location {
  * @param {BaseASTNode} ast The ast node who you want to find.
  * @param {string} uri The path to the {@link Node} file.
  */
-export type FinderType = (ast: BaseASTNode, uri: string) => Node;
+export type FinderType = (ast: BaseASTNode, uri: string, rootPath: string) => Node;
 
 export abstract class Node {
     /**
      * AST node type.
      */
     type: string;
+
     /**
      * The path to the {@link Node} file.
      * URI need to be decoded and without "file://" prefix.
      * To get that format of uri you can use decodeUriAndRemoveFilePrefix in @common/util
      */
     uri: string;
+
+    /**
+     * The rootPath of the workspace where this Node belongs.
+     */
+    rootPath: string;
+
     /**
      * AST node interface.
      */
@@ -97,9 +104,10 @@ export abstract class Node {
      * @param baseASTNode AST node interface.
      * @param uri The path to the node file.
      */
-    constructor (baseASTNode: BaseASTNode, uri: string) {
+    constructor (baseASTNode: BaseASTNode, uri: string, rootPath: string) {
         this.type = baseASTNode.type;
         this.uri = uri;
+        this.rootPath = rootPath;
     }
 
     /**

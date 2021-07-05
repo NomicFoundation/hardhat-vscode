@@ -3,8 +3,8 @@ import { CatchClause, FinderType, Node } from "@common/types";
 export class CatchClauseNode extends Node {
     astNode: CatchClause;
 
-    constructor (catchClause: CatchClause, uri: string) {
-        super(catchClause, uri);
+    constructor (catchClause: CatchClause, uri: string, rootPath: string) {
+        super(catchClause, uri, rootPath);
         this.astNode = catchClause;
     }
 
@@ -16,10 +16,10 @@ export class CatchClauseNode extends Node {
         }
 
         for (const param of this.astNode.parameters || []) {
-            find(param, this.uri).accept(find, orphanNodes, this);
+            find(param, this.uri, this.rootPath).accept(find, orphanNodes, this);
         }
 
-        find(this.astNode.body, this.uri).accept(find, orphanNodes, this);
+        find(this.astNode.body, this.uri, this.rootPath).accept(find, orphanNodes, this);
 
         parent?.addChild(this);
 

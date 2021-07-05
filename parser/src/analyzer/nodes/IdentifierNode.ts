@@ -5,8 +5,8 @@ import { Identifier, FinderType, Node, expressionNodeTypes } from "@common/types
 export class IdentifierNode extends Node {
     astNode: Identifier;
 
-    constructor (identifier: Identifier, uri: string) {
-        super(identifier, uri);
+    constructor (identifier: Identifier, uri: string, rootPath: string) {
+        super(identifier, uri, rootPath);
         
         if (identifier.loc && identifier.range) {
             // Bug in solidity parser doesn't give exact end location

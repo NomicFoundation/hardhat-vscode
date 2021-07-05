@@ -3,8 +3,8 @@ import { AssemblyBlock, FinderType, Node } from "@common/types";
 export class AssemblyBlockNode extends Node {
     astNode: AssemblyBlock;
 
-    constructor (assemblyBlock: AssemblyBlock, uri: string) {
-        super(assemblyBlock, uri);
+    constructor (assemblyBlock: AssemblyBlock, uri: string, rootPath: string) {
+        super(assemblyBlock, uri, rootPath);
         this.astNode = assemblyBlock;
     }
 
@@ -16,7 +16,7 @@ export class AssemblyBlockNode extends Node {
         }
 
         for (const operation of this.astNode.operations || []) {
-            find(operation, this.uri).accept(find, orphanNodes, this);
+            find(operation, this.uri, this.rootPath).accept(find, orphanNodes, this);
         }
 
         parent?.addChild(this);

@@ -3,8 +3,8 @@ import { LabelDefinition, FinderType, Node } from "@common/types";
 export class LabelDefinitionNode extends Node {
     astNode: LabelDefinition;
 
-    constructor (labelDefinition: LabelDefinition, uri: string) {
-        super(labelDefinition, uri);
+    constructor (labelDefinition: LabelDefinition, uri: string, rootPath: string) {
+        super(labelDefinition, uri, rootPath);
         this.astNode = labelDefinition;
         // TO-DO: Implement name location for rename
     }

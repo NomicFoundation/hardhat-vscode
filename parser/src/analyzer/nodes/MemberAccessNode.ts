@@ -12,8 +12,8 @@ import {
 export class MemberAccessNode extends IMemberAccessNode {
     astNode: MemberAccess;
 
-    constructor (memberAccess: MemberAccess, uri: string) {
-        super(memberAccess, uri);
+    constructor (memberAccess: MemberAccess, uri: string, rootPath: string) {
+        super(memberAccess, uri, rootPath);
 
         if (memberAccess.loc) {
             // Bug in solidity parser doesn't give exact locations
@@ -51,7 +51,7 @@ export class MemberAccessNode extends IMemberAccessNode {
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
-        const expressionNode = find(this.astNode.expression, this.uri).accept(find, orphanNodes, parent, this);
+        const expressionNode = find(this.astNode.expression, this.uri, this.rootPath).accept(find, orphanNodes, parent, this);
         this.setPreviousMemberAccessNode(expressionNode);
 
         const definitionTypes = expressionNode.getTypeNodes();

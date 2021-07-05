@@ -3,8 +3,8 @@ import { NumberLiteral, FinderType, Node } from "@common/types";
 export class NumberLiteralNode extends Node {
     astNode: NumberLiteral;
 
-    constructor (numberLiteral: NumberLiteral, uri: string) {
-        super(numberLiteral, uri);
+    constructor (numberLiteral: NumberLiteral, uri: string, rootPath: string) {
+        super(numberLiteral, uri, rootPath);
         this.astNode = numberLiteral;
         // TO-DO: Implement name location for rename
     }

@@ -5,8 +5,8 @@ export class FileLevelConstantNode extends Node {
 
     connectionTypeRules: string[] = [ "Identifier" ];
 
-    constructor (fileLevelConstant: FileLevelConstant, uri: string) {
-        super(fileLevelConstant, uri);
+    constructor (fileLevelConstant: FileLevelConstant, uri: string, rootPath: string) {
+        super(fileLevelConstant, uri, rootPath);
         this.astNode = fileLevelConstant;
 
         if (fileLevelConstant.loc && fileLevelConstant.name) {
@@ -39,7 +39,7 @@ export class FileLevelConstantNode extends Node {
         }
 
         if (this.astNode.typeName) {
-            const typeNode = find(this.astNode.typeName, this.uri).accept(find, orphanNodes, this);
+            const typeNode = find(this.astNode.typeName, this.uri, this.rootPath).accept(find, orphanNodes, this);
         
             this.addTypeNode(typeNode);
             typeNode.setDeclarationNode(this);
@@ -48,7 +48,7 @@ export class FileLevelConstantNode extends Node {
         }
 
         if (this.astNode.initialValue) {
-            find(this.astNode.initialValue, this.uri).accept(find, orphanNodes, parent);
+            find(this.astNode.initialValue, this.uri, this.rootPath).accept(find, orphanNodes, parent);
         }
 
         parent?.addChild(this);
