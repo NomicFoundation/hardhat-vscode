@@ -1,10 +1,10 @@
-import { LabelDefinition, FinderType, Node } from "@common/types";
+import { LabelDefinition, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class LabelDefinitionNode extends Node {
     astNode: LabelDefinition;
 
-    constructor (labelDefinition: LabelDefinition, uri: string, rootPath: string) {
-        super(labelDefinition, uri, rootPath);
+    constructor (labelDefinition: LabelDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(labelDefinition, uri, rootPath, documentsAnalyzer);
         this.astNode = labelDefinition;
         // TO-DO: Implement name location for rename
     }

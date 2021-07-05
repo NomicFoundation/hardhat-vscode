@@ -1,12 +1,12 @@
-import { FileLevelConstant, FinderType, Node } from "@common/types";
+import { FileLevelConstant, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class FileLevelConstantNode extends Node {
     astNode: FileLevelConstant;
 
     connectionTypeRules: string[] = [ "Identifier" ];
 
-    constructor (fileLevelConstant: FileLevelConstant, uri: string, rootPath: string) {
-        super(fileLevelConstant, uri, rootPath);
+    constructor (fileLevelConstant: FileLevelConstant, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(fileLevelConstant, uri, rootPath, documentsAnalyzer);
         this.astNode = fileLevelConstant;
 
         if (fileLevelConstant.loc && fileLevelConstant.name) {
@@ -39,7 +39,7 @@ export class FileLevelConstantNode extends Node {
         }
 
         if (this.astNode.typeName) {
-            const typeNode = find(this.astNode.typeName, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            const typeNode = find(this.astNode.typeName, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         
             this.addTypeNode(typeNode);
             typeNode.setDeclarationNode(this);
@@ -48,7 +48,7 @@ export class FileLevelConstantNode extends Node {
         }
 
         if (this.astNode.initialValue) {
-            find(this.astNode.initialValue, this.uri, this.rootPath).accept(find, orphanNodes, parent);
+            find(this.astNode.initialValue, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
         }
 
         parent?.addChild(this);

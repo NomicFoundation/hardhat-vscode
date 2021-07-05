@@ -1,10 +1,10 @@
-import { AssemblyAssignment, FinderType, Node } from "@common/types";
+import { AssemblyAssignment, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class AssemblyAssignmentNode extends Node {
     astNode: AssemblyAssignment;
 
-    constructor (assemblyAssignment: AssemblyAssignment, uri: string, rootPath: string) {
-        super(assemblyAssignment, uri, rootPath);
+    constructor (assemblyAssignment: AssemblyAssignment, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(assemblyAssignment, uri, rootPath, documentsAnalyzer);
         this.astNode = assemblyAssignment;
     }
 
@@ -12,11 +12,11 @@ export class AssemblyAssignmentNode extends Node {
         this.setExpressionNode(expression);
 
         for (const name of this.astNode.names || []) {
-            find(name, this.uri, this.rootPath).accept(find, orphanNodes, parent);
+            find(name, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
         }
 
         if (this.astNode.expression) {
-            find(this.astNode.expression, this.uri, this.rootPath).accept(find, orphanNodes, parent);
+            find(this.astNode.expression, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
         }
 
         return this;

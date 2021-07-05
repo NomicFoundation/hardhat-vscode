@@ -1,10 +1,10 @@
-import { HexNumber, FinderType, Node } from "@common/types";
+import { HexNumber, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class HexNumberNode extends Node {
     astNode: HexNumber;
 
-    constructor (hexNumber: HexNumber, uri: string, rootPath: string) {
-        super(hexNumber, uri, rootPath);
+    constructor (hexNumber: HexNumber, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(hexNumber, uri, rootPath, documentsAnalyzer);
         this.astNode = hexNumber;
         // TO-DO: Implement name location for rename
     }

@@ -1,14 +1,14 @@
 import * as finder from "@common/finder";
 import { findSourceUnitNode } from "@common/utils";
-import { EnumDefinition, FinderType, Node } from "@common/types";
+import { EnumDefinition, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class EnumDefinitionNode extends Node {
     astNode: EnumDefinition;
 
     connectionTypeRules: string[] = [ "Identifier", "UserDefinedTypeName" ];
 
-    constructor (enumDefinition: EnumDefinition, uri: string, rootPath: string) {
-        super(enumDefinition, uri, rootPath);
+    constructor (enumDefinition: EnumDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(enumDefinition, uri, rootPath, documentsAnalyzer);
         this.astNode = enumDefinition;
 
         if (enumDefinition.loc) {
@@ -47,7 +47,7 @@ export class EnumDefinitionNode extends Node {
         }
 
         for (const member of this.astNode.members) {
-            find(member, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            find(member, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         }
 
         const rootNode = findSourceUnitNode(parent);

@@ -1,10 +1,10 @@
-import { ElementaryTypeName, FinderType, Node } from "@common/types";
+import { ElementaryTypeName, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class ElementaryTypeNameNode extends Node {
     astNode: ElementaryTypeName;
 
-    constructor (elementaryTypeName: ElementaryTypeName, uri: string, rootPath: string) {
-        super(elementaryTypeName, uri, rootPath);
+    constructor (elementaryTypeName: ElementaryTypeName, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(elementaryTypeName, uri, rootPath, documentsAnalyzer);
         this.astNode = elementaryTypeName;
         // TO-DO: Implement name location for rename
     }

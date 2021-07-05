@@ -1,10 +1,10 @@
-import { DecimalNumber, FinderType, Node } from "@common/types";
+import { DecimalNumber, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class DecimalNumberNode extends Node {
     astNode: DecimalNumber;
 
-    constructor (decimalNumber: DecimalNumber, uri: string, rootPath: string) {
-        super(decimalNumber, uri, rootPath);
+    constructor (decimalNumber: DecimalNumber, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(decimalNumber, uri, rootPath, documentsAnalyzer);
         this.astNode = decimalNumber;
         // TO-DO: Implement name location for rename
     }

@@ -1,10 +1,10 @@
-import { HexLiteral, FinderType, Node } from "@common/types";
+import { HexLiteral, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class HexLiteralNode extends Node {
     astNode: HexLiteral;
 
-    constructor (hexLiteral: HexLiteral, uri: string, rootPath: string) {
-        super(hexLiteral, uri, rootPath);
+    constructor (hexLiteral: HexLiteral, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(hexLiteral, uri, rootPath, documentsAnalyzer);
         this.astNode = hexLiteral;
         // TO-DO: Implement name location for rename
     }

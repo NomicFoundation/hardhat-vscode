@@ -1,10 +1,10 @@
-import { DoWhileStatement, FinderType, Node } from "@common/types";
+import { DoWhileStatement, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class DoWhileStatementNode extends Node {
     astNode: DoWhileStatement;
 
-    constructor (doWhileStatement: DoWhileStatement, uri: string, rootPath: string) {
-        super(doWhileStatement, uri, rootPath);
+    constructor (doWhileStatement: DoWhileStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(doWhileStatement, uri, rootPath, documentsAnalyzer);
         this.astNode = doWhileStatement;
     }
 
@@ -19,8 +19,8 @@ export class DoWhileStatementNode extends Node {
             this.setParent(parent);
         }
 
-        find(this.astNode.condition, this.uri, this.rootPath).accept(find, orphanNodes, this);
-        find(this.astNode.body, this.uri, this.rootPath).accept(find, orphanNodes, this);
+        find(this.astNode.condition, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
+        find(this.astNode.body, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
 
         parent?.addChild(this);
 

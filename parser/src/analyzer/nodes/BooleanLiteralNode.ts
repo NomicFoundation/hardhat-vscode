@@ -1,10 +1,10 @@
-import { BooleanLiteral, FinderType, Node } from "@common/types";
+import { BooleanLiteral, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class BooleanLiteralNode extends Node {
     astNode: BooleanLiteral;
 
-    constructor (booleanLiteral: BooleanLiteral, uri: string, rootPath: string) {
-        super(booleanLiteral, uri, rootPath);
+    constructor (booleanLiteral: BooleanLiteral, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(booleanLiteral, uri, rootPath, documentsAnalyzer);
         this.astNode = booleanLiteral;
         // TO-DO: Implement name location for rename
     }

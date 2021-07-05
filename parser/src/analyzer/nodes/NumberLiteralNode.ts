@@ -1,10 +1,10 @@
-import { NumberLiteral, FinderType, Node } from "@common/types";
+import { NumberLiteral, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class NumberLiteralNode extends Node {
     astNode: NumberLiteral;
 
-    constructor (numberLiteral: NumberLiteral, uri: string, rootPath: string) {
-        super(numberLiteral, uri, rootPath);
+    constructor (numberLiteral: NumberLiteral, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(numberLiteral, uri, rootPath, documentsAnalyzer);
         this.astNode = numberLiteral;
         // TO-DO: Implement name location for rename
     }

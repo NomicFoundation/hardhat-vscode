@@ -1,10 +1,10 @@
-import { AssemblyMemberAccess, FinderType, Node } from "@common/types";
+import { AssemblyMemberAccess, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class AssemblyMemberAccessNode extends Node {
     astNode: AssemblyMemberAccess;
 
-    constructor (assemblyMemberAccess: AssemblyMemberAccess, uri: string, rootPath: string) {
-        super(assemblyMemberAccess, uri, rootPath);
+    constructor (assemblyMemberAccess: AssemblyMemberAccess, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(assemblyMemberAccess, uri, rootPath, documentsAnalyzer);
         this.astNode = assemblyMemberAccess;
         // TO-DO: Implement name location for rename
     }

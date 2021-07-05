@@ -1,10 +1,10 @@
-import { Break, FinderType, Node } from "@common/types";
+import { Break, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class BreakNode extends Node {
     astNode: Break;
 
-    constructor (astBreak: Break, uri: string, rootPath: string) {
-        super(astBreak, uri, rootPath);
+    constructor (astBreak: Break, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(astBreak, uri, rootPath, documentsAnalyzer);
         this.astNode = astBreak;
         // TO-DO: Implement name location for rename
     }

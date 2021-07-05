@@ -1,15 +1,11 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import * as cache from "@common/cache";
 import * as finder from "@common/finder";
 import { findNodeModules } from "@common/utils";
 import {
-    ImportDirective,
-    FinderType,
-    Node,
-    SourceUnitNode,
-    ImportDirectiveNode as AbstractImportDirectiveNode
+    ImportDirective, FinderType, DocumentsAnalyzerMap, Node,
+    SourceUnitNode, ImportDirectiveNode as AbstractImportDirectiveNode
 } from "@common/types";
 
 export class ImportDirectiveNode extends AbstractImportDirectiveNode {
@@ -18,8 +14,8 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
     uri: string;
     astNode: ImportDirective;
 
-    constructor (importDirective: ImportDirective, uri: string, rootPath: string) {
-        super(importDirective, uri, rootPath);
+    constructor (importDirective: ImportDirective, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(importDirective, uri, rootPath, documentsAnalyzer);
         this.realUri = uri;
         this.uri = path.join(uri, "..", importDirective.path);
 
@@ -55,18 +51,17 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
             this.setParent(parent);
         }
 
-        const documentAnalyzer = cache.getDocumentAnalyzer(this.uri);
-
-        if (documentAnalyzer && !documentAnalyzer.analyzerTree) {
-            documentAnalyzer.analyze();
+        const documentAnalyzer = this.documentsAnalyzer[this.uri];
+        if (documentAnalyzer && !documentAnalyzer.isAnalyzed) {
+            documentAnalyzer.analyze(this.documentsAnalyzer);
 
             // Analyze will change root node so we need to return root node after analyze
-            const rootNode = cache.getDocumentAnalyzer(this.realUri)?.analyzerTree;
+            const rootNode = this.documentsAnalyzer[this.realUri]?.analyzerTree;
             if (rootNode) {
                 finder.setRoot(rootNode);
             }
 
-            if (documentAnalyzer.analyzerTree && rootNode) {
+            if (documentAnalyzer.isAnalyzed && rootNode) {
                 // We transfer orphan nodes from the imported file in case it imports ours and we have a circular dependency.
                 // We need to do this since the current analysis is not yet complete so some exported nodes may miss finding a parent.
                 // This way we have solved this problem.
@@ -87,11 +82,11 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
 
         const aliesNodes: Node[] = [];
         for (const symbolAliasesIdentifier of this.astNode.symbolAliasesIdentifiers || []) {
-            const importedContractNode = find(symbolAliasesIdentifier[0], this.realUri, this.rootPath).accept(find, orphanNodes, this);
+            const importedContractNode = find(symbolAliasesIdentifier[0], this.realUri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
 
             // Check if alias exist for importedContractNode
             if (symbolAliasesIdentifier[1]) {
-                const importedContractAliasNode = find(symbolAliasesIdentifier[1], this.realUri, this.rootPath).accept(find, orphanNodes, importedContractNode, this);
+                const importedContractAliasNode = find(symbolAliasesIdentifier[1], this.realUri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, importedContractNode, this);
                 importedContractAliasNode.setAliasName(importedContractNode.getName());
 
                 aliesNodes.push(importedContractAliasNode);

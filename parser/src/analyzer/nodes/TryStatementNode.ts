@@ -1,10 +1,10 @@
-import { TryStatement, FinderType, Node } from "@common/types";
+import { TryStatement, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class TryStatementNode extends Node {
     astNode: TryStatement;
 
-    constructor (tryStatement: TryStatement, uri: string, rootPath: string) {
-        super(tryStatement, uri, rootPath);
+    constructor (tryStatement: TryStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(tryStatement, uri, rootPath, documentsAnalyzer);
         this.astNode = tryStatement;
     }
 
@@ -15,16 +15,16 @@ export class TryStatementNode extends Node {
             this.setParent(parent);
         }
 
-        find(this.astNode.expression, this.uri, this.rootPath).accept(find, orphanNodes, this);
+        find(this.astNode.expression, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
 
         for (const returnParameter of this.astNode.returnParameters || []) {
-            find(returnParameter, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            find(returnParameter, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         }
 
-        find(this.astNode.body, this.uri, this.rootPath).accept(find, orphanNodes, this);
+        find(this.astNode.body, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
 
         for (const catchClause of this.astNode.catchClauses || []) {
-            find(catchClause, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            find(catchClause, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         }
 
         parent?.addChild(this);

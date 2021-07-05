@@ -1,10 +1,10 @@
-import { Block, FinderType, Node } from "@common/types";
+import { Block, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class BlockNode extends Node {
     astNode: Block;
 
-    constructor (block: Block, uri: string, rootPath: string) {
-        super(block, uri, rootPath);
+    constructor (block: Block, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(block, uri, rootPath, documentsAnalyzer);
         this.astNode = block;
     }
 
@@ -16,7 +16,7 @@ export class BlockNode extends Node {
         this.setExpressionNode(expression);
 
         for (const statement of this.astNode.statements) {
-            find(statement, this.uri, this.rootPath).accept(find, orphanNodes, parent);
+            find(statement, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
         }
         
         return this;

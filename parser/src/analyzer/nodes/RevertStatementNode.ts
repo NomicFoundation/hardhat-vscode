@@ -1,10 +1,10 @@
-import { RevertStatement, FinderType, Node } from "@common/types";
+import { RevertStatement, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class RevertStatementNode extends Node {
     astNode: RevertStatement;
 
-    constructor (revertStatement: RevertStatement, uri: string, rootPath: string) {
-        super(revertStatement, uri, rootPath);
+    constructor (revertStatement: RevertStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(revertStatement, uri, rootPath, documentsAnalyzer);
         this.astNode = revertStatement;
         // TO-DO: Implement name location for rename
     }

@@ -1,9 +1,7 @@
 import * as finder from "@common/finder";
 import { findSourceUnitNode } from "@common/utils";
 import {
-    ContractDefinition,
-    FinderType,
-    Node,
+    ContractDefinition, FinderType, DocumentsAnalyzerMap, Node,
     ContractDefinitionNode as AbstractContractDefinitionNode
 } from "@common/types";
 
@@ -12,8 +10,8 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
 
     connectionTypeRules: string[] = [ "Identifier", "UserDefinedTypeName", "FunctionCall", "UsingForDeclaration" ];
 
-    constructor (contractDefinition: ContractDefinition, uri: string, rootPath: string) {
-        super(contractDefinition, uri, rootPath);
+    constructor (contractDefinition: ContractDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(contractDefinition, uri, rootPath, documentsAnalyzer);
         this.astNode = contractDefinition;
 
         if (contractDefinition.loc) {
@@ -57,7 +55,7 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
         }
 
         for (const baseContract of this.astNode.baseContracts) {
-            const inheritanceNode = find(baseContract, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            const inheritanceNode = find(baseContract, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
 
             const inheritanceNodeDefinition = inheritanceNode.getDefinitionNode();
 
@@ -67,7 +65,7 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
         }
 
         for (const subNode of this.astNode.subNodes) {
-            find(subNode, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            find(subNode, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         }
 
         // Find parent for orphanNodes from this contract in inheritance Nodes 

@@ -245,7 +245,7 @@ connection.onDefinition(params => {
 			const documentURI = getUriFromDocument(document);
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
-			if (documentAnalyzer?.analyzerTree) {
+			if (documentAnalyzer.analyzerTree) {
 				return languageServer.solidityNavigation.findDefinition(documentURI, params.position, documentAnalyzer.analyzerTree);
 			}
 		}	
@@ -264,7 +264,7 @@ connection.onTypeDefinition(params => {
 			const documentURI = getUriFromDocument(document);
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
-			if (documentAnalyzer?.analyzerTree) {
+			if (documentAnalyzer.analyzerTree) {
 				return languageServer.solidityNavigation.findTypeDefinition(documentURI, params.position, documentAnalyzer.analyzerTree);
 			}
 		}
@@ -284,7 +284,7 @@ connection.onReferences(params => {
 			const documentURI = getUriFromDocument(document);
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
-			if (documentAnalyzer?.analyzerTree) {
+			if (documentAnalyzer.analyzerTree) {
 				return languageServer.solidityNavigation.findReferences(documentURI, params.position, documentAnalyzer.analyzerTree);
 			}
 		}
@@ -304,7 +304,7 @@ connection.onImplementation(params => {
 			const documentURI = getUriFromDocument(document);
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
-			if (documentAnalyzer?.analyzerTree) {
+			if (documentAnalyzer.analyzerTree) {
 				return languageServer.solidityNavigation.findImplementation(documentURI, params.position, documentAnalyzer.analyzerTree);
 			}
 		}
@@ -323,7 +323,7 @@ connection.onRenameRequest(params => {
 			const documentURI = getUriFromDocument(document);
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
-			if (documentAnalyzer?.analyzerTree) {
+			if (documentAnalyzer.analyzerTree) {
 				return languageServer.solidityNavigation.doRename(documentURI, document, params.position, params.newName, documentAnalyzer.analyzerTree);
 			}
 		}

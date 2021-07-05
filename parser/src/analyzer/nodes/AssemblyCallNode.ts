@@ -1,11 +1,11 @@
 import * as finder from "@common/finder";
-import { AssemblyCall, FinderType, Node } from "@common/types";
+import { AssemblyCall, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class AssemblyCallNode extends Node {
     astNode: AssemblyCall;
 
-    constructor (assemblyCall: AssemblyCall, uri: string, rootPath: string) {
-        super(assemblyCall, uri, rootPath);
+    constructor (assemblyCall: AssemblyCall, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(assemblyCall, uri, rootPath, documentsAnalyzer);
 
         if (assemblyCall.loc) {
             // Bug in solidity parser doesn't give exact end location
@@ -25,7 +25,7 @@ export class AssemblyCallNode extends Node {
         this.setExpressionNode(expression);
 
         for (const argument of this.astNode.arguments || []) {
-            find(argument, this.uri, this.rootPath).accept(find, orphanNodes, parent);
+            find(argument, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
         }
 
         if (parent) {

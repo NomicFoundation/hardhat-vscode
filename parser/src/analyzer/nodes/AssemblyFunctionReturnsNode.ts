@@ -1,10 +1,10 @@
-import { AssemblyFunctionReturns, FinderType, Node } from "@common/types";
+import { AssemblyFunctionReturns, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class AssemblyFunctionReturnsNode extends Node {
     astNode: AssemblyFunctionReturns;
 
-    constructor (assemblyFunctionReturns: AssemblyFunctionReturns, uri: string, rootPath: string) {
-        super(assemblyFunctionReturns, uri, rootPath);
+    constructor (assemblyFunctionReturns: AssemblyFunctionReturns, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(assemblyFunctionReturns, uri, rootPath, documentsAnalyzer);
         this.astNode = assemblyFunctionReturns;
         // TO-DO: Implement name location for rename
     }

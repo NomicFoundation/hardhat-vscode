@@ -1,12 +1,12 @@
 import * as finder from "@common/finder";
 import { isNodeConnectable, findSourceUnitNode } from "@common/utils";
-import { UserDefinedTypeName, FinderType, Node } from "@common/types";
+import { UserDefinedTypeName, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class UserDefinedTypeNameNode extends Node {
     astNode: UserDefinedTypeName;
 
-    constructor (userDefinedTypeName: UserDefinedTypeName, uri: string, rootPath: string) {
-        super(userDefinedTypeName, uri, rootPath);
+    constructor (userDefinedTypeName: UserDefinedTypeName, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(userDefinedTypeName, uri, rootPath, documentsAnalyzer);
 
         if (userDefinedTypeName.loc) {
             // Bug in solidity parser doesn't give exact end location

@@ -1,10 +1,10 @@
-import { NameValueExpression, FinderType, Node } from "@common/types";
+import { NameValueExpression, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class NameValueExpressionNode extends Node {
     astNode: NameValueExpression;
 
-    constructor (nameValueExpression: NameValueExpression, uri: string, rootPath: string) {
-        super(nameValueExpression, uri, rootPath);
+    constructor (nameValueExpression: NameValueExpression, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(nameValueExpression, uri, rootPath, documentsAnalyzer);
         this.astNode = nameValueExpression;
         // TO-DO: Implement name location for rename
     }

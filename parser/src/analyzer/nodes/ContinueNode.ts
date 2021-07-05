@@ -1,10 +1,10 @@
-import { Continue, FinderType, Node } from "@common/types";
+import { Continue, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class ContinueNode extends Node {
     astNode: Continue;
 
-    constructor (astContinue: Continue, uri: string, rootPath: string) {
-        super(astContinue, uri, rootPath);
+    constructor (astContinue: Continue, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(astContinue, uri, rootPath, documentsAnalyzer);
         this.astNode = astContinue;
         // TO-DO: Implement name location for rename
     }

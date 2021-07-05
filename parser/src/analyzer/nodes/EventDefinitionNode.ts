@@ -1,14 +1,14 @@
 import * as finder from "@common/finder";
 import { findSourceUnitNode } from "@common/utils";
-import { EventDefinition, FinderType, Node } from "@common/types";
+import { EventDefinition, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class EventDefinitionNode extends Node {
     astNode: EventDefinition;
 
     connectionTypeRules: string[] = [ "EmitStatement" ];
 
-    constructor (eventDefinition: EventDefinition, uri: string, rootPath: string) {
-        super(eventDefinition, uri, rootPath);
+    constructor (eventDefinition: EventDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(eventDefinition, uri, rootPath, documentsAnalyzer);
         this.astNode = eventDefinition;
 
         if (eventDefinition.loc && eventDefinition.name) {
@@ -45,7 +45,7 @@ export class EventDefinitionNode extends Node {
         }
 
         // for (const parameter of this.astNode.parameters) {
-        //     find(parameter, this.uri, this.rootPath).accept(find, orphanNodes, parent);
+        //     find(parameter, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
         // }
 
         const rootNode = findSourceUnitNode(parent);

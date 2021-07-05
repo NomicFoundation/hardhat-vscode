@@ -1,14 +1,14 @@
 import * as finder from "@common/finder";
 import { findSourceUnitNode } from "@common/utils";
-import { ModifierDefinition, FinderType, Node } from "@common/types";
+import { ModifierDefinition, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class ModifierDefinitionNode extends Node {
     astNode: ModifierDefinition;
 
     connectionTypeRules: string[] = [ "ModifierInvocation" ];
 
-    constructor (modifierDefinition: ModifierDefinition, uri: string, rootPath: string) {
-        super(modifierDefinition, uri, rootPath);
+    constructor (modifierDefinition: ModifierDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(modifierDefinition, uri, rootPath, documentsAnalyzer);
         this.astNode = modifierDefinition;
         
         if (modifierDefinition.loc) {
@@ -47,15 +47,15 @@ export class ModifierDefinitionNode extends Node {
         }
 
         for (const override of this.astNode.override || []) {
-            find(override, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            find(override, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         }
 
         for (const param of this.astNode.parameters || []) {
-            find(param, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            find(param, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         }
 
         if (this.astNode.body) {
-            find(this.astNode.body, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            find(this.astNode.body, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         }
 
         const rootNode = findSourceUnitNode(parent);

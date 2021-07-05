@@ -1,10 +1,10 @@
-import { VariableDeclarationStatement, FinderType, Node } from "@common/types";
+import { VariableDeclarationStatement, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class VariableDeclarationStatementNode extends Node {
     astNode: VariableDeclarationStatement;
 
-    constructor (variableDeclarationStatement: VariableDeclarationStatement, uri: string, rootPath: string) {
-        super(variableDeclarationStatement, uri, rootPath);
+    constructor (variableDeclarationStatement: VariableDeclarationStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(variableDeclarationStatement, uri, rootPath, documentsAnalyzer);
         this.astNode = variableDeclarationStatement;
     }
 
@@ -17,12 +17,12 @@ export class VariableDeclarationStatementNode extends Node {
 
         for (const variable of this.astNode.variables) {
             if (variable) {
-                find(variable, this.uri, this.rootPath).accept(find, orphanNodes, parent);
+                find(variable, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
             }
         }
 
         if (this.astNode.initialValue) {
-            find(this.astNode.initialValue, this.uri, this.rootPath).accept(find, orphanNodes, parent);
+            find(this.astNode.initialValue, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
         }
 
         return this;

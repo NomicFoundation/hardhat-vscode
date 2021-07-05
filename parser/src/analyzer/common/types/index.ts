@@ -6,7 +6,7 @@ import {
     Break, BreakStatement, CatchClause, Conditional, Continue, ContinueStatement,
     ContractDefinition, CustomErrorDefinition, DecimalNumber, DoWhileStatement,
     ElementaryTypeName, EmitStatement, EnumDefinition, EnumValue, EventDefinition,
-    ExpressionStatement, FileLevelConstant, ForStatement, FunctionCall,
+    ExpressionStatement, FileLevelConstant, ForStatement, FunctionCall, TypeName,
     FunctionDefinition, FunctionTypeName, HexLiteral, HexNumber, Identifier,
     IfStatement, ImportDirective, IndexAccess, IndexRangeAccess, InheritanceSpecifier,
     InlineAssemblyStatement, LabelDefinition, Mapping, MemberAccess, ModifierDefinition,
@@ -15,8 +15,7 @@ import {
     StateVariableDeclaration, StringLiteral, StructDefinition, SubAssembly,
     ThrowStatement, TryStatement, TupleExpression, TypeNameExpression, UnaryOperation,
     UncheckedStatement, UserDefinedTypeName, UsingForDeclaration, VariableDeclaration,
-    StateVariableDeclarationVariable, VariableDeclarationStatement, WhileStatement,
-    TypeName
+    StateVariableDeclarationVariable, VariableDeclarationStatement, WhileStatement
 } from "@solidity-parser/parser/dist/src/ast-types";
 
 export {
@@ -27,7 +26,7 @@ export {
     Break, BreakStatement, CatchClause, Conditional, Continue, ContinueStatement,
     ContractDefinition, CustomErrorDefinition, DecimalNumber, DoWhileStatement,
     ElementaryTypeName, EmitStatement, EnumDefinition, EnumValue, EventDefinition,
-    ExpressionStatement, FileLevelConstant, ForStatement, FunctionCall,
+    ExpressionStatement, FileLevelConstant, ForStatement, FunctionCall, TypeName,
     FunctionDefinition, FunctionTypeName, HexLiteral, HexNumber, Identifier,
     IfStatement, ImportDirective, IndexAccess, IndexRangeAccess, InheritanceSpecifier,
     InlineAssemblyStatement, LabelDefinition, Mapping, MemberAccess, ModifierDefinition,
@@ -36,12 +35,11 @@ export {
     StateVariableDeclaration, StringLiteral, StructDefinition, SubAssembly,
     ThrowStatement, TryStatement, TupleExpression, TypeNameExpression, UnaryOperation,
     UncheckedStatement, UserDefinedTypeName, UsingForDeclaration, VariableDeclaration,
-    StateVariableDeclarationVariable, VariableDeclarationStatement, WhileStatement,
-    TypeName
+    StateVariableDeclarationVariable, VariableDeclarationStatement, WhileStatement
 };
 
-import { Position, Location, FinderType, Node } from "@nodes/Node";
-export { Position, Location, FinderType, Node };
+import { Position, Location, FinderType, DocumentAnalyzer, DocumentsAnalyzerMap, Node } from "@nodes/Node";
+export { Position, Location, FinderType, DocumentAnalyzer, DocumentsAnalyzerMap, Node };
 
 export abstract class ContractDefinitionNode extends Node {
     /**
@@ -176,44 +174,6 @@ export abstract class VariableDeclarationNode extends Node {
        return this.astNode.visibility;
    }
 }
-
-export interface DocumentAnalyzer {
-    /**
-     * The rootPath of the workspace.
-     */
-    rootPath: string;
-
-    /**
-     * The contents of the file we will try to analyze.
-     */
-    document: string | undefined;
-    /**
-     * The path to the file with the document we are analyzing.
-     */
-    uri: string;
-
-    /**
-     * AST that we get from @solidity-parser/parser.
-     */
-    ast: ASTNode | undefined;
-
-    /**
-     * Analyzed tree.
-     */
-    analyzerTree?: Node | undefined;
-
-    /**
-     * The Nodes for which we couldn't find a parent.
-     */
-    orphanNodes: Node[];
-
-    analyze(document?: string): Node | undefined;
-}
-
-/**
- * documentsAnalyzer Map { [uri: string]: DocumentAnalyzer } have all documentsAnalyzer class instances used for handle imports on first project start.
- */
-export type DocumentsAnalyzerMap = { [uri: string]: DocumentAnalyzer | undefined };
 
 export const definitionNodeTypes = [ "ContractDefinition", "StructDefinition", "ModifierDefinition", "FunctionDefinition", "EventDefinition", "EnumDefinition", "AssemblyLocalDefinition", "LabelDefinition", "AssemblyFunctionDefinition", "UserDefinedTypeName", "FileLevelConstant" ];
 export const declarationNodeTypes = [ "StateVariableDeclaration", "UsingForDeclaration", "VariableDeclaration", "VariableDeclarationStatement" ];

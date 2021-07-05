@@ -1,6 +1,6 @@
 import {
-    VariableDeclaration, StateVariableDeclarationVariable, FinderType,
-    Node, VariableDeclarationNode as IVariableDeclarationNode
+    VariableDeclaration, StateVariableDeclarationVariable, FinderType, Node,
+    DocumentsAnalyzerMap, VariableDeclarationNode as IVariableDeclarationNode
 } from "@common/types";
 
 export class VariableDeclarationNode extends IVariableDeclarationNode {
@@ -8,8 +8,8 @@ export class VariableDeclarationNode extends IVariableDeclarationNode {
 
     connectionTypeRules: string[] = [ "Identifier", "MemberAccess", "AssemblyCall" ];
 
-    constructor (variableDeclaration: VariableDeclaration, uri: string, rootPath: string) {
-        super(variableDeclaration, uri, rootPath);
+    constructor (variableDeclaration: VariableDeclaration, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(variableDeclaration, uri, rootPath, documentsAnalyzer);
         this.astNode = variableDeclaration;
 
         if (variableDeclaration.loc && variableDeclaration.name) {
@@ -42,7 +42,7 @@ export class VariableDeclarationNode extends IVariableDeclarationNode {
         }
 
         if (this.astNode.typeName) {
-            const typeNode = find(this.astNode.typeName, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            const typeNode = find(this.astNode.typeName, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
 
             this.addTypeNode(typeNode);
             typeNode.setDeclarationNode(this);

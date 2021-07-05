@@ -1,12 +1,12 @@
-import { EnumValue, FinderType, Node } from "@common/types";
+import { EnumValue, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class EnumValueNode extends Node {
     astNode: EnumValue;
 
     connectionTypeRules: string[] = [ "MemberAccess" ];
 
-    constructor (enumValue: EnumValue, uri: string, rootPath: string) {
-        super(enumValue, uri, rootPath);
+    constructor (enumValue: EnumValue, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(enumValue, uri, rootPath, documentsAnalyzer);
 
         if (enumValue.loc) {
             // Bug in solidity parser doesn't give exact end location

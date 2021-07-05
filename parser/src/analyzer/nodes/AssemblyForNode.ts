@@ -1,10 +1,10 @@
-import { AssemblyFor, FinderType, Node } from "@common/types";
+import { AssemblyFor, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class AssemblyForNode extends Node {
     astNode: AssemblyFor;
 
-    constructor (assemblyFor: AssemblyFor, uri: string, rootPath: string) {
-        super(assemblyFor, uri, rootPath);
+    constructor (assemblyFor: AssemblyFor, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(assemblyFor, uri, rootPath, documentsAnalyzer);
         this.astNode = assemblyFor;
     }
 
@@ -15,10 +15,10 @@ export class AssemblyForNode extends Node {
             this.setParent(parent);
         }
 
-        find(this.astNode.pre, this.uri, this.rootPath).accept(find, orphanNodes, this);
-        find(this.astNode.condition, this.uri, this.rootPath).accept(find, orphanNodes, this);
-        find(this.astNode.post, this.uri, this.rootPath).accept(find, orphanNodes, this);
-        find(this.astNode.body, this.uri, this.rootPath).accept(find, orphanNodes, this);
+        find(this.astNode.pre, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
+        find(this.astNode.condition, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
+        find(this.astNode.post, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
+        find(this.astNode.body, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
 
         parent?.addChild(this);
 

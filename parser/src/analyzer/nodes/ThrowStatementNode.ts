@@ -1,10 +1,10 @@
-import { ThrowStatement, FinderType, Node } from "@common/types";
+import { ThrowStatement, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class ThrowStatementNode extends Node {
     astNode: ThrowStatement;
 
-    constructor (throwStatement: ThrowStatement, uri: string, rootPath: string) {
-        super(throwStatement, uri, rootPath);
+    constructor (throwStatement: ThrowStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(throwStatement, uri, rootPath, documentsAnalyzer);
         this.astNode = throwStatement;
         // TO-DO: Implement name location for rename
     }

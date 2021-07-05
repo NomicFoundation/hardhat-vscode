@@ -1,10 +1,10 @@
-import { TupleExpression, FinderType, Node } from "@common/types";
+import { TupleExpression, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class TupleExpressionNode extends Node {
     astNode: TupleExpression;
 
-    constructor (tupleExpression: TupleExpression, uri: string, rootPath: string) {
-        super(tupleExpression, uri, rootPath);
+    constructor (tupleExpression: TupleExpression, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(tupleExpression, uri, rootPath, documentsAnalyzer);
         this.astNode = tupleExpression;
     }
 
@@ -13,7 +13,7 @@ export class TupleExpressionNode extends Node {
 
         for (const component of this.astNode.components) {
             if (component) {
-                find(component, this.uri, this.rootPath).accept(find, orphanNodes, parent);
+                find(component, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
             }
         }
 

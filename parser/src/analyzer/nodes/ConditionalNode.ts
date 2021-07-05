@@ -1,10 +1,10 @@
-import { Conditional, FinderType, Node } from "@common/types";
+import { Conditional, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class ConditionalNode extends Node {
     astNode: Conditional;
 
-    constructor (conditional: Conditional, uri: string, rootPath: string) {
-        super(conditional, uri, rootPath);
+    constructor (conditional: Conditional, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(conditional, uri, rootPath, documentsAnalyzer);
         this.astNode = conditional;
     }
 
@@ -12,15 +12,15 @@ export class ConditionalNode extends Node {
         this.setExpressionNode(expression);
 
         if (this.astNode.condition) {
-            find(this.astNode.condition, this.uri, this.rootPath).accept(find, orphanNodes, parent);
+            find(this.astNode.condition, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
         }
 
         if (this.astNode.trueExpression) {
-            find(this.astNode.trueExpression, this.uri, this.rootPath).accept(find, orphanNodes, parent);
+            find(this.astNode.trueExpression, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
         }
 
         if (this.astNode.falseExpression) {
-            find(this.astNode.falseExpression, this.uri, this.rootPath).accept(find, orphanNodes, parent);
+            find(this.astNode.falseExpression, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
         }
 
         return this;

@@ -1,13 +1,13 @@
 import { isNodeShadowedByNode } from "@common/utils";
-import { AssemblyFunctionDefinition, FinderType, Node } from "@common/types";
+import { AssemblyFunctionDefinition, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class AssemblyFunctionDefinitionNode extends Node {
     astNode: AssemblyFunctionDefinition;
 
     connectionTypeRules: string[] = [ "AssemblyCall" ];
 
-    constructor (assemblyFunctionDefinition: AssemblyFunctionDefinition, uri: string, rootPath: string) {
-        super(assemblyFunctionDefinition, uri, rootPath);
+    constructor (assemblyFunctionDefinition: AssemblyFunctionDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(assemblyFunctionDefinition, uri, rootPath, documentsAnalyzer);
 
         this.astNode = assemblyFunctionDefinition;
         
@@ -43,16 +43,16 @@ export class AssemblyFunctionDefinitionNode extends Node {
         this.findChildren(orphanNodes);
 
         for (const argument of this.astNode.arguments) {
-            find(argument, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            find(argument, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         }
 
         for (const returnArgument of this.astNode.returnArguments) {
-            const typeNode = find(returnArgument, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            const typeNode = find(returnArgument, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
 
             this.addTypeNode(typeNode);
         }
 
-        find(this.astNode.body, this.uri, this.rootPath).accept(find, orphanNodes, this);
+        find(this.astNode.body, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
 
         parent?.addChild(this);
 

@@ -1,10 +1,10 @@
-import { StringLiteral, FinderType, Node } from "@common/types";
+import { StringLiteral, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class StringLiteralNode extends Node {
     astNode: StringLiteral;
 
-    constructor (stringLiteral: StringLiteral, uri: string, rootPath: string) {
-        super(stringLiteral, uri, rootPath);
+    constructor (stringLiteral: StringLiteral, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(stringLiteral, uri, rootPath, documentsAnalyzer);
         this.astNode = stringLiteral;
         // TO-DO: Implement name location for rename
     }

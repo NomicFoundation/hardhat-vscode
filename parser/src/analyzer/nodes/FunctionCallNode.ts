@@ -1,10 +1,10 @@
-import { FunctionCall, FinderType, Node } from "@common/types";
+import { FunctionCall, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class FunctionCallNode extends Node {
     astNode: FunctionCall;
 
-    constructor (functionCall: FunctionCall, uri: string, rootPath: string) {
-        super(functionCall, uri, rootPath);
+    constructor (functionCall: FunctionCall, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(functionCall, uri, rootPath, documentsAnalyzer);
         this.astNode = functionCall;
     }
 
@@ -15,10 +15,10 @@ export class FunctionCallNode extends Node {
             expression = this;
         }
 
-        const expressionNode = find(this.astNode.expression, this.uri, this.rootPath).accept(find, orphanNodes, parent, expression);
+        const expressionNode = find(this.astNode.expression, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent, expression);
 
         for (const argument of this.astNode.arguments) {
-            find(argument, this.uri, this.rootPath).accept(find, orphanNodes, parent);
+            find(argument, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
         }
 
         return expressionNode;

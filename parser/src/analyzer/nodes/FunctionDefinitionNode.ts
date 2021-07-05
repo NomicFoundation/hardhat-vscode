@@ -1,6 +1,6 @@
 import { isNodeShadowedByNode, findSourceUnitNode } from "@common/utils";
 import {
-    FunctionDefinition, FinderType, ContractDefinitionNode,
+    FunctionDefinition, FinderType, DocumentsAnalyzerMap, ContractDefinitionNode,
     Node, FunctionDefinitionNode as IFunctionDefinitionNode
 } from "@common/types";
 
@@ -9,8 +9,8 @@ export class FunctionDefinitionNode extends IFunctionDefinitionNode {
 
     connectionTypeRules: string[] = [ "FunctionCall" ];
 
-    constructor (functionDefinition: FunctionDefinition, uri: string, rootPath: string) {
-        super(functionDefinition, uri, rootPath);
+    constructor (functionDefinition: FunctionDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(functionDefinition, uri, rootPath, documentsAnalyzer);
         this.astNode = functionDefinition;
         
         if (!functionDefinition.isConstructor && functionDefinition.loc && functionDefinition.name) {
@@ -51,27 +51,27 @@ export class FunctionDefinitionNode extends IFunctionDefinitionNode {
         this.findChildren(orphanNodes);
 
         for (const override of this.astNode.override || []) {
-            find(override, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            find(override, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         }
 
         for (const param of this.astNode.parameters) {
-            find(param, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            find(param, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         }
 
         for (const returnParam of this.astNode.returnParameters || []) {
-            const typeNode = find(returnParam, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            const typeNode = find(returnParam, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
 
             this.addTypeNode(typeNode);
         }
 
         for (const modifier of this.astNode.modifiers || []) {
-            const typeNode = find(modifier, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            const typeNode = find(modifier, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
 
             this.addTypeNode(typeNode);
         }
 
         if (this.astNode.body) {
-            find(this.astNode.body, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            find(this.astNode.body, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         }
 
         if (parent?.type === "ContractDefinition") {

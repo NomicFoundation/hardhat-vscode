@@ -1,4 +1,3 @@
-import * as cache from "@common/cache";
 import * as utils from "@common/utils";
 import {
     Position, Node, ContractDefinitionNode, ImportDirectiveNode,
@@ -234,7 +233,7 @@ function search(node: Node, from?: Node | undefined, searchInInheritanceNodes?: 
 
         let importNode;
         if (importPath) {
-            importNode = cache.getDocumentAnalyzer(importPath)?.analyzerTree;
+            importNode = from.documentsAnalyzer[importPath]?.analyzerTree;
         }
 
         if (importNode && !visitedFiles.includes(importNode.uri)) {
@@ -339,7 +338,7 @@ function search(node: Node, from?: Node | undefined, searchInInheritanceNodes?: 
 
         let importNode;
         if (importPath) {
-            importNode = cache.getDocumentAnalyzer(importPath)?.analyzerTree;
+            importNode = from.documentsAnalyzer[importPath]?.analyzerTree;
         }
 
         if (importNode && !visitedFiles.includes(importNode.uri)) {
@@ -453,7 +452,7 @@ function _findDefinitionNodes(uri: string, position: Position, from: Node | unde
 
         let importNode;
         if (importPath) {
-            importNode = cache.getDocumentAnalyzer(importPath)?.analyzerTree;
+            importNode = from.documentsAnalyzer[importPath]?.analyzerTree;
         }
 
         if (importNode && !visitedFiles.includes(importNode.uri)) {

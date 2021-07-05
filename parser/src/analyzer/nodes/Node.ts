@@ -1,4 +1,4 @@
-import { BaseASTNode } from "@solidity-parser/parser/dist/src/ast-types";
+import { ASTNode, BaseASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
 /** 
  *  Position in file.
@@ -20,7 +20,54 @@ export interface Location {
  * @param {BaseASTNode} ast The ast node who you want to find.
  * @param {string} uri The path to the {@link Node} file.
  */
-export type FinderType = (ast: BaseASTNode, uri: string, rootPath: string) => Node;
+export type FinderType = (
+    ast: BaseASTNode,
+    uri: string,
+    rootPath: string,
+    documentsAnalyzer: DocumentsAnalyzerMap
+) => Node;
+
+export interface DocumentAnalyzer {
+    /**
+     * The rootPath of the workspace.
+     */
+    rootPath: string;
+
+    /**
+     * The contents of the file we will try to analyze.
+     */
+    document: string | undefined;
+    /**
+     * The path to the file with the document we are analyzing.
+     */
+    uri: string;
+
+    /**
+     * AST that we get from @solidity-parser/parser.
+     */
+    ast: ASTNode | undefined;
+
+    /**
+     * Analyzed tree.
+     */
+    analyzerTree?: Node | undefined;
+    /**
+     * If the document is analyzed this will be true, otherwise false.
+     */
+    isAnalyzed: boolean;
+
+    /**
+     * The Nodes for which we couldn't find a parent.
+     */
+    orphanNodes: Node[];
+
+    analyze(documentsAnalyzer: DocumentsAnalyzerMap, document?: string): Node | undefined;
+}
+
+/**
+ * documentsAnalyzer Map { [uri: string]: DocumentAnalyzer } have all documentsAnalyzer class instances used for handle imports on first project start.
+ */
+export type DocumentsAnalyzerMap = { [uri: string]: DocumentAnalyzer | undefined };
 
 export abstract class Node {
     /**
@@ -39,6 +86,8 @@ export abstract class Node {
      * The rootPath of the workspace where this Node belongs.
      */
     rootPath: string;
+
+    readonly documentsAnalyzer: DocumentsAnalyzerMap;
 
     /**
      * AST node interface.
@@ -104,10 +153,11 @@ export abstract class Node {
      * @param baseASTNode AST node interface.
      * @param uri The path to the node file.
      */
-    constructor (baseASTNode: BaseASTNode, uri: string, rootPath: string) {
+    constructor (baseASTNode: BaseASTNode, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
         this.type = baseASTNode.type;
         this.uri = uri;
         this.rootPath = rootPath;
+        this.documentsAnalyzer = documentsAnalyzer;
     }
 
     /**

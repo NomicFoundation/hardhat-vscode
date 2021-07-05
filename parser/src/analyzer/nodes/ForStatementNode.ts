@@ -1,10 +1,10 @@
-import { ForStatement, FinderType, Node } from "@common/types";
+import { ForStatement, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class ForStatementNode extends Node {
     astNode: ForStatement;
 
-    constructor (forStatement: ForStatement, uri: string, rootPath: string) {
-        super(forStatement, uri, rootPath);
+    constructor (forStatement: ForStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(forStatement, uri, rootPath, documentsAnalyzer);
         this.astNode = forStatement;
     }
 
@@ -20,16 +20,16 @@ export class ForStatementNode extends Node {
         }
 
         if (this.astNode.initExpression) {
-            find(this.astNode.initExpression, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            find(this.astNode.initExpression, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         }
         if (this.astNode.conditionExpression) {
-            find(this.astNode.conditionExpression, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            find(this.astNode.conditionExpression, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         }
         if (this.astNode.loopExpression) {
-            find(this.astNode.loopExpression, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            find(this.astNode.loopExpression, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         }
 
-        find(this.astNode.body, this.uri, this.rootPath).accept(find, orphanNodes, this);
+        find(this.astNode.body, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
 
         parent?.addChild(this);
 

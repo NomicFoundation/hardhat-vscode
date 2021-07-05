@@ -1,13 +1,13 @@
 import * as finder from "@common/finder";
-import { UsingForDeclaration, FinderType, Node } from "@common/types";
+import { UsingForDeclaration, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class UsingForDeclarationNode extends Node {
     astNode: UsingForDeclaration;
 
     connectionTypeRules: string[] = [ "ContractDefinition" ];
 
-    constructor (usingForDeclaration: UsingForDeclaration, uri: string, rootPath: string) {
-        super(usingForDeclaration, uri, rootPath);
+    constructor (usingForDeclaration: UsingForDeclaration, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(usingForDeclaration, uri, rootPath, documentsAnalyzer);
         this.astNode = usingForDeclaration;
 
         if (usingForDeclaration.loc && usingForDeclaration.libraryName) {
@@ -32,7 +32,7 @@ export class UsingForDeclarationNode extends Node {
         this.setExpressionNode(expression);
 
         if (this.astNode.typeName) {
-            find(this.astNode.typeName, this.uri, this.rootPath).accept(find, orphanNodes, parent);
+            find(this.astNode.typeName, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
         }
 
         if (parent) {

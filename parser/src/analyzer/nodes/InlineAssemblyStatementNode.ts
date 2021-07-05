@@ -1,10 +1,10 @@
-import { InlineAssemblyStatement, FinderType, Node } from "@common/types";
+import { InlineAssemblyStatement, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class InlineAssemblyStatementNode extends Node {
     astNode: InlineAssemblyStatement;
 
-    constructor (inlineAssemblyStatement: InlineAssemblyStatement, uri: string, rootPath: string) {
-        super(inlineAssemblyStatement, uri, rootPath);
+    constructor (inlineAssemblyStatement: InlineAssemblyStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(inlineAssemblyStatement, uri, rootPath, documentsAnalyzer);
         this.astNode = inlineAssemblyStatement;
     }
 
@@ -12,7 +12,7 @@ export class InlineAssemblyStatementNode extends Node {
         this.setExpressionNode(expression);
 
         if (this.astNode.body) {
-            find(this.astNode.body, this.uri, this.rootPath).accept(find, orphanNodes, parent);
+            find(this.astNode.body, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
         }
 
         return this;

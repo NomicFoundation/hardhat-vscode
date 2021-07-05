@@ -1,10 +1,10 @@
-import { SubAssembly, FinderType, Node } from "@common/types";
+import { SubAssembly, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class SubAssemblyNode extends Node {
     astNode: SubAssembly;
 
-    constructor (subAssembly: SubAssembly, uri: string, rootPath: string) {
-        super(subAssembly, uri, rootPath);
+    constructor (subAssembly: SubAssembly, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(subAssembly, uri, rootPath, documentsAnalyzer);
         this.astNode = subAssembly;
         // TO-DO: Implement name location for rename
     }

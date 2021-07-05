@@ -1,14 +1,14 @@
 import * as finder from "@common/finder";
 import { findSourceUnitNode } from "@common/utils";
-import { StructDefinition, FinderType, Node } from "@common/types";
+import { StructDefinition, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class StructDefinitionNode extends Node {
     astNode: StructDefinition;
 
     connectionTypeRules: string[] = [ "UserDefinedTypeName", "MemberAccess", "FunctionCall" ];
 
-    constructor (structDefinition: StructDefinition, uri: string, rootPath: string) {
-        super(structDefinition, uri, rootPath);
+    constructor (structDefinition: StructDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(structDefinition, uri, rootPath, documentsAnalyzer);
         this.astNode = structDefinition;
 
         if (structDefinition.loc) {
@@ -47,7 +47,7 @@ export class StructDefinitionNode extends Node {
         }
 
         for (const member of this.astNode.members) {
-            find(member, this.uri, this.rootPath).accept(find, orphanNodes, this);
+            find(member, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         }
 
         const rootNode = findSourceUnitNode(parent);
