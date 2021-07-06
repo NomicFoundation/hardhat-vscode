@@ -9,10 +9,12 @@ import {
     Location as ParserLocation
 } from "../../../parser/out/types";
 
-export function getUriFromDocument (document: TextDocument | TextDocumentIdentifier): string {
-    let uri = document.uri;
+export function getUriFromDocument(document: TextDocument | TextDocumentIdentifier): string {
+    return decodeUriAndRemoveFilePrefix(document.uri);
+}
 
-    if (uri && uri.indexOf('file://') !== -1) {
+export function decodeUriAndRemoveFilePrefix(uri: string): string {
+    if (uri && uri.includes('file://')) {
         uri = uri.replace("file://", "");
     }
 

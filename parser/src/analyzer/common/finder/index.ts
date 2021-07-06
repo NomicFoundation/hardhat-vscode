@@ -64,7 +64,7 @@ export function findParent(node: Node, from?: Node, searchInInheritanceNodes = f
 }
 
 /**
- * @param uri Path to the file.
+ * @param uri Path to the file. Uri needs to be decoded and without the "file://" prefix.
  * @param position Position in the file.
  * @param from From which Node do we start searching.
  * @param returnDefinitionNode If it is true, we will return the definition Node of found Node,
@@ -121,7 +121,7 @@ export function findChildren(definitionNode: Node, orphanNodes: Node[], isShadow
 /**
  * Searches for all definitionNodes in forwarded from Node and in its imports.
  * 
- * @param uri File where is cursor now.
+ * @param uri File where is cursor now. Uri needs to be decoded and without the "file://" prefix.
  * @param position Cursor position in file.
  * @param from From which Node do we start searching.
  * @returns Definition Nodes.
@@ -270,7 +270,7 @@ function search(node: Node, from?: Node | undefined, searchInInheritanceNodes?: 
  * We search Node in expression, we have to search in an expression node, 
  * because expression nodes, such as MemberAccess, aren't in orphanNodes.
  * 
- * @param uri The path to the {@link Node} file.
+ * @param uri The path to the {@link Node} file. Uri needs to be decoded and without the "file://" prefix.
  * @param position {@link Node} position in file.
  * @returns Wanted {@link Node} if exist.
  */
@@ -296,7 +296,7 @@ function search(node: Node, from?: Node | undefined, searchInInheritanceNodes?: 
 /**
  * Walk through the analyzedTree and try to find Node with forwarded {@link Node.uri uri} and {@link Node.nameLoc position}.
  * 
- * @param uri The path to the {@link Node} file.
+ * @param uri The path to the {@link Node} file. Uri needs to be decoded and without the "file://" prefix.
  * @param position {@link Node} position in file.
  * @param from From which Node do we start searching.
  * @param searchInExpression Default is false. Set true only if you try to find Nodes 
@@ -384,7 +384,7 @@ function search(node: Node, from?: Node | undefined, searchInInheritanceNodes?: 
 
 /**
  * 
- * @param uri The path to the {@link Node} file.
+ * @param uri The path to the {@link Node} file. Uri needs to be decoded and without the "file://" prefix.
  * @param position Cursor position in file.
  * @param from From which Node do we start searching.
  * @param definitionNodes When the function is complete, we will find all the definition nodes here.
@@ -513,7 +513,7 @@ function getNodeVisibility(node: Node): string | undefined {
 }
 
 /**
- * @param uri The path to the file.
+ * @param uri The path to the file. Uri needs to be decoded and without the "file://" prefix.
  * @param position Cursor position in file.
  * @param node That we will try to add in definitionNodes.
  * @param isShadowedByParent Is current from node shadowed by position.

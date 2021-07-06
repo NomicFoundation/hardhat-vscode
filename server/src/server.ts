@@ -11,7 +11,7 @@ import {
 import { MarkupKind } from 'vscode-languageserver-types';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
-import { getUriFromDocument, debounce } from './utils';
+import { getUriFromDocument, decodeUriAndRemoveFilePrefix, debounce } from './utils';
 import { LanguageService } from './services';
 
 // Create a connection for the server, using Node's IPC as a transport.
@@ -33,9 +33,10 @@ connection.onInitialize((params: InitializeParams) => {
 	 * We know that rootUri is deprecated but we need it.
 	 * We will monitor https://github.com/microsoft/vscode-extension-samples/issues/207 issue,
 	 * so when it will be resolved we can update how we get rootUri.
-	 */ 
+	 */
 	if (params.rootUri) {
-		languageServer = new LanguageService(params.rootUri);
+		const uri = decodeUriAndRemoveFilePrefix(params.rootUri);
+		languageServer = new LanguageService(uri);
 	}
 
 	const capabilities = params.capabilities;

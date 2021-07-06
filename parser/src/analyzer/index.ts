@@ -6,7 +6,6 @@ import * as parser from "@solidity-parser/parser";
 import { ASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
 import * as matcher from "@analyzer/matcher";
-import { decodeUriAndRemoveFilePrefix } from "@common/utils";
 import {
     Node, SourceUnitNode, DocumentsAnalyzerMap,
     DocumentAnalyzer as IDocumentAnalyzer,
@@ -19,7 +18,7 @@ export class Analyzer {
     documentsAnalyzer: DocumentsAnalyzerMap = {};
 
     constructor (rootPath: string) {
-        this.rootPath = decodeUriAndRemoveFilePrefix(rootPath);
+        this.rootPath = rootPath;
 
         const documentsUri: string[] = [];
         this.findSolFiles(this.rootPath, documentsUri);
@@ -41,11 +40,13 @@ export class Analyzer {
 
     /**
      * Get or create and get DocumentAnalyzer.
+     * 
+     * @param uri The path to the file with the document.
+     * Uri needs to be decoded and without the "file://" prefix.
      */
     public getDocumentAnalyzer(uri: string): DocumentAnalyzer {
-        uri = decodeUriAndRemoveFilePrefix(uri);
-
         let documentAnalyzer = this.documentsAnalyzer[uri];
+
         if (!documentAnalyzer) {
             documentAnalyzer = new DocumentAnalyzer(this.rootPath, uri);
             this.documentsAnalyzer[uri] = documentAnalyzer;
@@ -54,9 +55,10 @@ export class Analyzer {
         return documentAnalyzer;
     }
 
+    /**
+     * @param uri The path to the file with the document.
+     */
     public analyzeDocument(document: string, uri: string): Node | undefined {
-        uri = decodeUriAndRemoveFilePrefix(uri);
-
         const documentAnalyzer = this.getDocumentAnalyzer(uri);
         return documentAnalyzer.analyze(this.documentsAnalyzer, document);
     }
@@ -65,8 +67,6 @@ export class Analyzer {
         if (!base) {
             return;
         }
-
-        base = decodeUriAndRemoveFilePrefix(base);
 
         try {
             const files = fs.readdirSync(base);
@@ -140,7 +140,7 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
                 }
             }
 
-            // console.log(this.uri, JSON.stringify(this.ast));
+            console.log(this.uri);// , JSON.stringify(this.ast));
 
             this.isAnalyzed = true;
             this.analyzerTree = matcher.find(this.ast, this.uri, this.rootPath, documentsAnalyzer).accept(matcher.find, this.orphanNodes);

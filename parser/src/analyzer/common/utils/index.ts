@@ -17,18 +17,6 @@ export function findNodeModules(fromURI: string, rootPath: string): string | und
     return undefined;
 }
 
-export function decodeUriAndRemoveFilePrefix(uri: string): string {
-    if (uri && uri.includes('file://')) {
-        uri = uri.replace("file://", "");
-    }
-
-    if (uri) {
-        uri = decodeURIComponent(uri);
-    }
-
-    return uri;
-}
-
 /**
  * Checks if the forwarded position is equal to the position of the forwarded Node.
  * 
@@ -130,7 +118,7 @@ export function findSourceUnitNode(node: Node | undefined): SourceUnitNode | und
  * Checks that the forwarded URI is the same as the ContractDefinitionNode URI and 
  * that the forwarded position shadowed by the forwarded ContractDefinitionNode location.
  * 
- * @param uri The path to the file of position.
+ * @param uri The path to the file of position. Uri needs to be decoded and without the "file://" prefix.
  * @param position Cursor position in file.
  * @param node From which node we will try go to ContractDefinitionNode.
  * @returns true if position in node contractDefinition, otherwise false.

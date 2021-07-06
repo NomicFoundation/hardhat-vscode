@@ -19,6 +19,7 @@ export interface Location {
 /**
  * @param {BaseASTNode} ast The ast node who you want to find.
  * @param {string} uri The path to the {@link Node} file.
+ * Uri needs to be decoded and without the "file://" prefix.
  */
 export type FinderType = (
     ast: BaseASTNode,
@@ -39,6 +40,7 @@ export interface DocumentAnalyzer {
     document: string | undefined;
     /**
      * The path to the file with the document we are analyzing.
+     * Uri needs to be decoded and without the "file://" prefix.
      */
     uri: string;
 
@@ -157,7 +159,7 @@ export abstract class Node {
     /**
      * Base Node constructor
      * @param baseASTNode AST node interface.
-     * @param uri The path to the node file.
+     * @param uri The path to the node file. Uri needs to be decoded and without the "file://" prefix.
      */
     constructor (baseASTNode: BaseASTNode | EmptyNodeType, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
         this.type = baseASTNode.type;
