@@ -331,7 +331,6 @@ export class SolidityCompletion {
             uri,
             getParserPositionFromVSCodePosition(position),
             analyzerTree,
-            false,
             true
         );
 	}

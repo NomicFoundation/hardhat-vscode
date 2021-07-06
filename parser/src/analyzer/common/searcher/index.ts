@@ -66,20 +66,22 @@ export class Searcher implements ISearcher {
      * @param uri Path to the file. Uri needs to be decoded and without the "file://" prefix.
      * @param position Position in the file.
      * @param from From which Node do we start searching.
-     * @param returnDefinitionNode If it is true, we will return the definition Node of found Node,
-     * otherwise we will return found Node. Default is true.
+     * @returns Founded definition node.
+     */
+    public findDefinitionNodeByPosition(uri: string, position: Position, from?: Node): Node | undefined {
+        return this._findNodeByPosition(uri, position, from, true, false);
+    }
+
+    /**
+     * @param uri Path to the file. Uri needs to be decoded and without the "file://" prefix.
+     * @param position Position in the file.
+     * @param from From which Node do we start searching.
      * @param searchInExpression If it is true, we will also look at the expressionNode for Node
      * otherwise, we won't. Default is false.
-     * @returns Found Node.
+     * @returns Founded definition node.
      */
-    public findNodeByPosition(uri: string, position: Position, from?: Node, returnDefinitionNode = true, searchInExpression = false): Node | undefined {
-        const node = this.walk(uri, position, from || this.analyzerTree.tree, searchInExpression);
-
-        if (node && returnDefinitionNode) {
-            return node.getDefinitionNode();
-        }
-
-        return node;
+    public findNodeByPosition(uri: string, position: Position, from?: Node, searchInExpression?: boolean): Node | undefined {
+        return this._findNodeByPosition(uri, position, from, false, searchInExpression);
     }
 
     /**
@@ -160,6 +162,26 @@ export class Searcher implements ISearcher {
         }
 
         return false;
+    }
+
+    /**
+     * @param uri Path to the file. Uri needs to be decoded and without the "file://" prefix.
+     * @param position Position in the file.
+     * @param from From which Node do we start searching.
+     * @param returnDefinitionNode If it is true, we will return the definition Node of found Node,
+     * otherwise we will return found Node. Default is true.
+     * @param searchInExpression If it is true, we will also look at the expressionNode for Node
+     * otherwise, we won't. Default is false.
+     * @returns Founded Node.
+     */
+    private _findNodeByPosition(uri: string, position: Position, from?: Node, returnDefinitionNode = true, searchInExpression = false): Node | undefined {
+        const node = this.walk(uri, position, from || this.analyzerTree.tree, searchInExpression);
+
+        if (node && returnDefinitionNode) {
+            return node.getDefinitionNode();
+        }
+
+        return node;
     }
 
     /**

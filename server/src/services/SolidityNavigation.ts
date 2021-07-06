@@ -104,7 +104,7 @@ export class SolidityNavigation {
 
 	private findNodeByPosition(uri: string, position: Position, analyzerTree: Node): Node | undefined {
 		const documentAnalyzer = this.analyzer.getDocumentAnalyzer(uri);
-		return documentAnalyzer.searcher.findNodeByPosition(uri, getParserPositionFromVSCodePosition(position), analyzerTree);
+		return documentAnalyzer.searcher.findDefinitionNodeByPosition(uri, getParserPositionFromVSCodePosition(position), analyzerTree);
 	}
 
 	private extractHighlightsFromNodeRecursive(name: string, node: Node, results: Node[], visitedNodes?: Node[]): void {
