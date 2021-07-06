@@ -1,5 +1,5 @@
+import { Analyzer } from "../../../parser/src";
 import { Node, definitionNodeTypes } from "../../../parser/out/types";
-import * as finder from "../../../parser/out/finder";
 
 import { getParserPositionFromVSCodePosition, getRange } from "../utils";
 import {
@@ -8,6 +8,12 @@ import {
 } from "../types/languageTypes";
 
 export class SolidityNavigation {
+	analyzer: Analyzer
+
+	constructor(analyzer: Analyzer) {
+		this.analyzer = analyzer;
+	}
+
 	public findDefinition(uri: string, position: Position, analyzerTree: Node): Location | undefined {
 		const definitionNode = this.findNodeByPosition(uri, position, analyzerTree);
 
@@ -97,7 +103,8 @@ export class SolidityNavigation {
 	}
 
 	private findNodeByPosition(uri: string, position: Position, analyzerTree: Node): Node | undefined {
-		return finder.findNodeByPosition(uri, getParserPositionFromVSCodePosition(position), analyzerTree);
+		const documentAnalyzer = this.analyzer.getDocumentAnalyzer(uri);
+		return documentAnalyzer.searcher.findNodeByPosition(uri, getParserPositionFromVSCodePosition(position), analyzerTree);
 	}
 
 	private extractHighlightsFromNodeRecursive(name: string, node: Node, results: Node[], visitedNodes?: Node[]): void {

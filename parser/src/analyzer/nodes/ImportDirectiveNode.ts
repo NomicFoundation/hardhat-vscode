@@ -1,7 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import * as finder from "@common/finder";
 import { findNodeModules } from "@common/utils";
 import {
     ImportDirective, FinderType, DocumentsAnalyzerMap, Node,
@@ -56,27 +55,24 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
             documentAnalyzer.analyze(this.documentsAnalyzer);
 
             // Analyze will change root node so we need to return root node after analyze
-            const rootNode = this.documentsAnalyzer[this.realUri]?.analyzerTree;
-            if (rootNode) {
-                finder.setRoot(rootNode);
-            }
+            const rootNode = this.documentsAnalyzer[this.realUri]?.analyzerTree.tree;
 
             if (documentAnalyzer.isAnalyzed && rootNode) {
                 // We transfer orphan nodes from the imported file in case it imports ours and we have a circular dependency.
                 // We need to do this since the current analysis is not yet complete so some exported nodes may miss finding a parent.
                 // This way we have solved this problem.
                 for (const importOrphanNode of documentAnalyzer.orphanNodes) {
-                    (documentAnalyzer.analyzerTree as SourceUnitNode).addImportNode(importOrphanNode);
+                    (documentAnalyzer.analyzerTree.tree as SourceUnitNode).addImportNode(importOrphanNode);
                     (rootNode as SourceUnitNode).addExportNode(importOrphanNode);
                 }
             }
         }
 
         if (
-            documentAnalyzer?.analyzerTree?.type === "SourceUnit" &&
-            documentAnalyzer.analyzerTree.astNode.loc
+            documentAnalyzer?.analyzerTree.tree.type === "SourceUnit" &&
+            documentAnalyzer.analyzerTree.tree.astNode.loc
         ) {
-            this.astNode.loc = documentAnalyzer.analyzerTree.astNode.loc;
+            this.astNode.loc = documentAnalyzer.analyzerTree.tree.astNode.loc;
         }
 
         const aliesNodes: Node[] = [];

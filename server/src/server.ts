@@ -247,7 +247,7 @@ connection.onDefinition(params => {
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
 			if (documentAnalyzer.isAnalyzed) {
-				return languageServer.solidityNavigation.findDefinition(documentURI, params.position, documentAnalyzer.analyzerTree);
+				return languageServer.solidityNavigation.findDefinition(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
 			}
 		}	
 	} catch (err) {
@@ -266,7 +266,7 @@ connection.onTypeDefinition(params => {
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
 			if (documentAnalyzer.isAnalyzed) {
-				return languageServer.solidityNavigation.findTypeDefinition(documentURI, params.position, documentAnalyzer.analyzerTree);
+				return languageServer.solidityNavigation.findTypeDefinition(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
 			}
 		}
 	} catch (err) {
@@ -286,7 +286,7 @@ connection.onReferences(params => {
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
 			if (documentAnalyzer.isAnalyzed) {
-				return languageServer.solidityNavigation.findReferences(documentURI, params.position, documentAnalyzer.analyzerTree);
+				return languageServer.solidityNavigation.findReferences(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
 			}
 		}
 	} catch (err) {
@@ -306,7 +306,7 @@ connection.onImplementation(params => {
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
 			if (documentAnalyzer.isAnalyzed) {
-				return languageServer.solidityNavigation.findImplementation(documentURI, params.position, documentAnalyzer.analyzerTree);
+				return languageServer.solidityNavigation.findImplementation(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
 			}
 		}
 	} catch (err) {
@@ -325,7 +325,7 @@ connection.onRenameRequest(params => {
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
 			if (documentAnalyzer.isAnalyzed) {
-				return languageServer.solidityNavigation.doRename(documentURI, document, params.position, params.newName, documentAnalyzer.analyzerTree);
+				return languageServer.solidityNavigation.doRename(documentURI, document, params.position, params.newName, documentAnalyzer.analyzerTree.tree);
 			}
 		}
 	} catch (err) {

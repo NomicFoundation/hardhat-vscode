@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import * as finder from "../../../parser/out/finder";
+import { Analyzer } from "../../../parser/src";
 import {
     DocumentAnalyzer, ImportDirectiveNode, ContractDefinitionNode,
     Node, VariableDeclaration, FileLevelConstant, TypeName,
@@ -11,8 +11,14 @@ import { getParserPositionFromVSCodePosition, findNodeModules } from "../utils";
 import { Position, CompletionList, CompletionItem, CompletionItemKind, MarkupKind } from "../types/languageTypes";
 
 export class SolidityCompletion {
+    analyzer: Analyzer
+
+	constructor(analyzer: Analyzer) {
+		this.analyzer = analyzer;
+	}
+
     public doComplete(rootPath: string, position: Position, documentAnalyzer: DocumentAnalyzer): CompletionList {
-        const analyzerTree = documentAnalyzer.analyzerTree;
+        const analyzerTree = documentAnalyzer.analyzerTree.tree;
         const result: CompletionList = { isIncomplete: false, items: [] };
 
         if (analyzerTree) {
@@ -57,7 +63,7 @@ export class SolidityCompletion {
 
     private getThisCompletions(documentAnalyzer: DocumentAnalyzer, position: Position): CompletionItem[] {
         const completions: CompletionItem[] = [];
-        const node = this.findContractDefinition(documentAnalyzer.analyzerTree, {
+        const node = this.findContractDefinition(documentAnalyzer.analyzerTree.tree, {
             line: position.line + 1,
             column: position.character
         });
@@ -69,7 +75,7 @@ export class SolidityCompletion {
 
     private getSuperCompletions(documentAnalyzer: DocumentAnalyzer, position: Position): CompletionItem[] {
         const completions: CompletionItem[] = [];
-        const node = this.findContractDefinition(documentAnalyzer.analyzerTree, {
+        const node = this.findContractDefinition(documentAnalyzer.analyzerTree.tree, {
             line: position.line + 1,
             column: position.character
         });
@@ -101,12 +107,13 @@ export class SolidityCompletion {
 
     private getMemberAccessCompletions(uri: string, position: Position, node: Node): CompletionItem[] {
         const definitionNodes: Node[] = [];
+        const documentAnalyzer = this.analyzer.getDocumentAnalyzer(uri);
         const cursorPosition = getParserPositionFromVSCodePosition(position);
 
         for (const definitionType of node.getTypeNodes()) {
             for (const definitionChild of definitionType.children) {
                 if (definitionType.uri === definitionChild.uri) {
-                    const isVisible = finder.checkIsNodeVisible(uri, cursorPosition, definitionChild);
+                    const isVisible = documentAnalyzer.searcher.checkIsNodeVisible(uri, cursorPosition, definitionChild);
 
                     if (isVisible && definitionChild.getName() !== definitionType.getName()) {
                         definitionNodes.push(definitionChild);
@@ -119,7 +126,9 @@ export class SolidityCompletion {
     }
 
     private getDefaultCompletions(uri: string, position: Position, analyzerTree: Node): CompletionItem[] {
-        const definitionNodes: Node[] = finder.findDefinitionNodes(
+        const documentAnalyzer = this.analyzer.getDocumentAnalyzer(uri);
+
+        const definitionNodes: Node[] = documentAnalyzer.searcher.findDefinitionNodes(
             uri,
             getParserPositionFromVSCodePosition(position),
             analyzerTree
@@ -316,7 +325,9 @@ export class SolidityCompletion {
     }
 
     private findNodeByPosition(uri: string, position: Position, analyzerTree: Node): Node | undefined {
-		return finder.findNodeByPosition(
+        const documentAnalyzer = this.analyzer.getDocumentAnalyzer(uri);
+
+		return documentAnalyzer.searcher.findNodeByPosition(
             uri,
             getParserPositionFromVSCodePosition(position),
             analyzerTree,

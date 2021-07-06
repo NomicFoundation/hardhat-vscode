@@ -1,4 +1,3 @@
-import * as finder from "@common/finder";
 import { isNodeConnectable, findSourceUnitNode } from "@common/utils";
 import { UserDefinedTypeName, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
@@ -42,7 +41,8 @@ export class UserDefinedTypeNameNode extends Node {
         this.setExpressionNode(expression);
 
         if (parent) {
-            const definitionParent = finder.findParent(this, parent);
+            const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+            const definitionParent = searcher?.findParent(this, parent);
 
             if (definitionParent) {
                 this.addTypeNode(definitionParent);
@@ -71,7 +71,7 @@ export class UserDefinedTypeNameNode extends Node {
                     // If the parent uri and node uri are not the same, add the node to the exportNode field
                     if (definitionChild && definitionChild.uri !== expressionNode.uri) {
                         const exportRootNode = findSourceUnitNode(definitionChild);
-                        const importRootNode = findSourceUnitNode(finder.analyzerTree);
+                        const importRootNode = findSourceUnitNode(this.documentsAnalyzer[this.uri]?.analyzerTree.tree);
 
                         if (exportRootNode) {
                             exportRootNode.addExportNode(expressionNode);

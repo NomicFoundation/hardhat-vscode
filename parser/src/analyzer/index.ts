@@ -6,10 +6,11 @@ import * as parser from "@solidity-parser/parser";
 import { ASTNode } from "@solidity-parser/parser/dist/src/ast-types";
 
 import * as matcher from "@analyzer/matcher";
+import { Searcher } from "@common/searcher";
 import {
     Node, SourceUnitNode, DocumentsAnalyzerMap,
     DocumentAnalyzer as IDocumentAnalyzer,
-    EmptyNode
+    EmptyNode, Searcher as ISearcher
 } from "@common/types";
 
 export class Analyzer {
@@ -99,8 +100,10 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
 
     ast: ASTNode | undefined;
 
-    analyzerTree: Node;
+    analyzerTree: { tree: Node };
     isAnalyzed = false;
+
+    searcher: ISearcher;
 
     orphanNodes: Node[] = [];
 
@@ -108,7 +111,8 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
         this.rootPath = rootPath;
         this.uri = uri;
 
-        this.analyzerTree = new EmptyNode({ type: "Empty" }, this.uri, this.rootPath, {});
+        this.analyzerTree = { tree: new EmptyNode({ type: "Empty" }, this.uri, this.rootPath, {}) };
+        this.searcher = new Searcher(this.analyzerTree);
 
         if (fs.existsSync(uri)) {
             this.document = "" + fs.readFileSync(uri);
@@ -132,7 +136,7 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
             });
 
             if (this.isAnalyzed) {
-                const oldDocumentsAnalyzerTree = this.analyzerTree as SourceUnitNode;
+                const oldDocumentsAnalyzerTree = this.analyzerTree.tree as SourceUnitNode;
 
                 for (const importNode of oldDocumentsAnalyzerTree.getImportNodes()) {
                     importNode.getParent()?.removeChild(importNode);
@@ -140,16 +144,16 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
                 }
             }
 
-            console.log(this.uri);// , JSON.stringify(this.ast));
+            // console.log(this.uri, JSON.stringify(this.ast));
 
             this.isAnalyzed = true;
-            this.analyzerTree = matcher.find(this.ast, this.uri, this.rootPath, documentsAnalyzer).accept(matcher.find, this.orphanNodes);
+            this.analyzerTree.tree = matcher.find(this.ast, this.uri, this.rootPath, documentsAnalyzer).accept(matcher.find, this.orphanNodes);
 
-            return this.analyzerTree;
+            return this.analyzerTree.tree;
         } catch (err) {
             console.error(err);
 
-            return this.analyzerTree;
+            return this.analyzerTree.tree;
         }
     }
 }

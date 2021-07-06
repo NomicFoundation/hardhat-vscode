@@ -1,4 +1,3 @@
-import * as finder from "@common/finder";
 import { findSourceUnitNode } from "@common/utils";
 import { EventDefinition, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
@@ -40,6 +39,8 @@ export class EventDefinitionNode extends Node {
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
         
+        const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+
         if (parent) {
             this.setParent(parent);
         }
@@ -51,10 +52,10 @@ export class EventDefinitionNode extends Node {
         const rootNode = findSourceUnitNode(parent);
         if (rootNode) {
             const exportNodes = new Array(...rootNode.getExportNodes());
-            finder.findChildren(this, exportNodes, false);
+            searcher?.findChildren(this, exportNodes, false);
         }
 
-        finder.findChildren(this, orphanNodes);
+        searcher?.findChildren(this, orphanNodes);
 
         parent?.addChild(this);
 

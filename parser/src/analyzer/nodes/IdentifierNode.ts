@@ -1,4 +1,3 @@
-import * as finder from "@common/finder";
 import { isNodeConnectable, findSourceUnitNode } from "@common/utils";
 import {
     Identifier, FinderType, DocumentsAnalyzerMap, Node, expressionNodeTypes
@@ -62,7 +61,8 @@ export class IdentifierNode extends Node {
         }
 
         if (parent) {
-            const identifierParent = finder.findParent(this, parent);
+            const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+            const identifierParent = searcher?.findParent(this, parent);
 
             if (identifierParent) {
                 this.addTypeNode(identifierParent);
@@ -91,7 +91,7 @@ export class IdentifierNode extends Node {
                     // If the parent uri and node uri are not the same, add the node to the exportNode field
                     if (definitionChild && definitionChild.uri !== expressionNode.uri) {
                         const exportRootNode = findSourceUnitNode(definitionChild);
-                        const importRootNode = findSourceUnitNode(finder.analyzerTree);
+                        const importRootNode = findSourceUnitNode(this.documentsAnalyzer[this.uri]?.analyzerTree.tree);
 
                         if (exportRootNode) {
                             exportRootNode.addExportNode(expressionNode);

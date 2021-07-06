@@ -1,4 +1,3 @@
-import * as finder from "@common/finder";
 import {
     SourceUnit, FinderType, DocumentsAnalyzerMap,
     Node, SourceUnitNode as AbstractSourceUnitNode
@@ -28,10 +27,8 @@ export class SourceUnitNode extends AbstractSourceUnitNode {
         }
 
         if (documentAnalyzer) {
-            documentAnalyzer.analyzerTree = this;
+            documentAnalyzer.analyzerTree.tree = this;
         }
-
-        finder.setRoot(documentAnalyzer?.analyzerTree);
 
         for (const child of this.astNode.children) {
             find(child, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);

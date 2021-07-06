@@ -1,4 +1,3 @@
-import * as finder from "@common/finder";
 import { UsingForDeclaration, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class UsingForDeclarationNode extends Node {
@@ -36,7 +35,8 @@ export class UsingForDeclarationNode extends Node {
         }
 
         if (parent) {
-            const identifierParent = finder.findParent(this, parent);
+            const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+            const identifierParent = searcher?.findParent(this, parent);
 
             if (identifierParent) {
                 this.addTypeNode(identifierParent);

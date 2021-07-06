@@ -1,4 +1,3 @@
-import * as finder from "@common/finder";
 import { AssemblyCall, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class AssemblyCallNode extends Node {
@@ -29,7 +28,8 @@ export class AssemblyCallNode extends Node {
         }
 
         if (parent) {
-            const assemblyCallParent = finder.findParent(this, parent);
+            const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+            const assemblyCallParent = searcher?.findParent(this, parent);
 
             if (assemblyCallParent) {
                 this.addTypeNode(assemblyCallParent);

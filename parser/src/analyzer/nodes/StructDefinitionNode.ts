@@ -1,4 +1,3 @@
-import * as finder from "@common/finder";
 import { findSourceUnitNode } from "@common/utils";
 import { StructDefinition, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
@@ -51,12 +50,14 @@ export class StructDefinitionNode extends Node {
         }
 
         const rootNode = findSourceUnitNode(parent);
+        const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+
         if (rootNode) {
             const exportNodes = new Array(...rootNode.getExportNodes());
-            finder.findChildren(this, exportNodes, false);
+            searcher?.findChildren(this, exportNodes, false);
         }
 
-        finder.findChildren(this, orphanNodes);
+        searcher?.findChildren(this, orphanNodes);
 
         parent?.addChild(this);
 

@@ -1,4 +1,3 @@
-import * as finder from "@common/finder";
 import { ModifierInvocation, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class ModifierInvocationNode extends Node {
@@ -34,7 +33,8 @@ export class ModifierInvocationNode extends Node {
         }
 
         if (parent) {
-            const modifierInvocationParent = finder.findParent(this, parent);
+            const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+            const modifierInvocationParent = searcher?.findParent(this, parent);
 
             if (modifierInvocationParent) {
                 this.addTypeNode(modifierInvocationParent);

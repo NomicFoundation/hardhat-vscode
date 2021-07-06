@@ -1,4 +1,3 @@
-import * as finder from "@common/finder";
 import { findSourceUnitNode } from "@common/utils";
 import {
     ContractDefinition, FinderType, DocumentsAnalyzerMap, Node,
@@ -50,6 +49,8 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
+        const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+
         if (parent) {
             this.setParent(parent);
         }
@@ -74,10 +75,10 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
         const rootNode = findSourceUnitNode(parent);
         if (rootNode) {
             const exportNodes = new Array(...rootNode.getExportNodes());
-            finder.findChildren(this, exportNodes, false);
+            searcher?.findChildren(this, exportNodes, false);
         }
 
-        finder.findChildren(this, orphanNodes, false);
+        searcher?.findChildren(this, orphanNodes, false);
 
         parent?.addChild(this);
 
@@ -85,6 +86,7 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
     }
 
     findParentForOrphanNodesInInheritanceNodes(orphanNodes: Node[]): void {
+        const searcher = this.documentsAnalyzer[this.uri]?.searcher;
         const newOrphanNodes: Node[] = [];
 
         let orphanNode = orphanNodes.shift();
@@ -94,7 +96,7 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
                 this.astNode.loc.start.line <= orphanNode.astNode.loc.start.line &&
                 this.astNode.loc.end.line >= orphanNode.astNode.loc.end.line
             ) {
-                const nodeParent = finder.findParent(orphanNode, this, true);
+                const nodeParent = searcher?.findParent(orphanNode, this, true);
 
                 if (nodeParent) {
                     orphanNode.addTypeNode(nodeParent);

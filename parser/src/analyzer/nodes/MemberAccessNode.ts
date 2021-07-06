@@ -1,4 +1,3 @@
-import * as finder from "@common/finder";
 import { isNodeConnectable, findSourceUnitNode } from "@common/utils";
 import {
     MemberAccess, FinderType, DocumentsAnalyzerMap, ContractDefinitionNode,
@@ -67,12 +66,13 @@ export class MemberAccessNode extends IMemberAccessNode {
                 contractDefinitionNode = contractDefinitionNode.getParent();
             }
 
+            const searcher = this.documentsAnalyzer[this.uri]?.searcher;
             const inheritanceNodes = (contractDefinitionNode as ContractDefinitionNode).getInheritanceNodes();
 
             for (let i = inheritanceNodes.length - 1; i >= 0; i--) {
                 const inheritanceNode = inheritanceNodes[i];
 
-                const memberAccessParent = finder.findParent(this, inheritanceNode, true);
+                const memberAccessParent = searcher?.findParent(this, inheritanceNode, true);
 
                 if (memberAccessParent) {
                     this.addTypeNode(memberAccessParent);
@@ -93,7 +93,8 @@ export class MemberAccessNode extends IMemberAccessNode {
                 contractDefinitionNode = contractDefinitionNode.getParent();
             }
 
-            const memberAccessParent = finder.findParent(this, contractDefinitionNode, true);
+            const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+            const memberAccessParent = searcher?.findParent(this, contractDefinitionNode, true);
 
             if (memberAccessParent) {
                 this.addTypeNode(memberAccessParent);
@@ -122,7 +123,7 @@ export class MemberAccessNode extends IMemberAccessNode {
                     // If the parent uri and node uri are not the same, add the node to the exportNode field
                     if (definitionChild && definitionChild.uri !== expressionNode.uri) {
                         const exportRootNode = findSourceUnitNode(definitionChild);
-                        const importRootNode = findSourceUnitNode(finder.analyzerTree);
+                        const importRootNode = findSourceUnitNode(this.documentsAnalyzer[this.uri]?.analyzerTree.tree);
 
                         if (exportRootNode) {
                             exportRootNode.addExportNode(expressionNode);
