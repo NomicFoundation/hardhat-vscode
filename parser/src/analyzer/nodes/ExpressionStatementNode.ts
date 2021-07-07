@@ -4,7 +4,7 @@ export class ExpressionStatementNode extends Node {
     astNode: ExpressionStatement;
 
     constructor (expressionStatement: ExpressionStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(expressionStatement, uri, rootPath, documentsAnalyzer);
+        super(expressionStatement, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = expressionStatement;
     }
 

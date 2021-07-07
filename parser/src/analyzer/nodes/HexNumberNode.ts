@@ -4,7 +4,7 @@ export class HexNumberNode extends Node {
     astNode: HexNumber;
 
     constructor (hexNumber: HexNumber, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(hexNumber, uri, rootPath, documentsAnalyzer);
+        super(hexNumber, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = hexNumber;
         // TO-DO: Implement name location for rename
     }

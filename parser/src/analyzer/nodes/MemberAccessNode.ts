@@ -8,7 +8,7 @@ export class MemberAccessNode extends IMemberAccessNode {
     astNode: MemberAccess;
 
     constructor (memberAccess: MemberAccess, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(memberAccess, uri, rootPath, documentsAnalyzer);
+        super(memberAccess, uri, rootPath, documentsAnalyzer, memberAccess.memberName);
 
         if (memberAccess.loc) {
             // Bug in solidity parser doesn't give exact locations
@@ -20,10 +20,6 @@ export class MemberAccessNode extends IMemberAccessNode {
         }
 
         this.astNode = memberAccess;
-    }
-
-    getName(): string | undefined {
-        return this.astNode.memberName;
     }
 
     setParent(parent: Node | undefined): void {

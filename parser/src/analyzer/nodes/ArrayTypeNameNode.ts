@@ -4,7 +4,7 @@ export class ArrayTypeNameNode extends Node {
     astNode: ArrayTypeName;
 
     constructor (arrayTypeName: ArrayTypeName, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(arrayTypeName, uri, rootPath, documentsAnalyzer);
+        super(arrayTypeName, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = arrayTypeName;
     }
 

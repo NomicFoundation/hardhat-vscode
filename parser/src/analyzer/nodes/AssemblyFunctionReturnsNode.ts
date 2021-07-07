@@ -4,7 +4,7 @@ export class AssemblyFunctionReturnsNode extends Node {
     astNode: AssemblyFunctionReturns;
 
     constructor (assemblyFunctionReturns: AssemblyFunctionReturns, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(assemblyFunctionReturns, uri, rootPath, documentsAnalyzer);
+        super(assemblyFunctionReturns, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = assemblyFunctionReturns;
         // TO-DO: Implement name location for rename
     }

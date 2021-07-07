@@ -4,7 +4,7 @@ export class FunctionCallNode extends Node {
     astNode: FunctionCall;
 
     constructor (functionCall: FunctionCall, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(functionCall, uri, rootPath, documentsAnalyzer);
+        super(functionCall, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = functionCall;
     }
 

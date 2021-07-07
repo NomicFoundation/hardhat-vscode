@@ -6,7 +6,7 @@ export class UsingForDeclarationNode extends Node {
     connectionTypeRules: string[] = [ "ContractDefinition" ];
 
     constructor (usingForDeclaration: UsingForDeclaration, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(usingForDeclaration, uri, rootPath, documentsAnalyzer);
+        super(usingForDeclaration, uri, rootPath, documentsAnalyzer, usingForDeclaration.libraryName);
         this.astNode = usingForDeclaration;
 
         if (usingForDeclaration.loc && usingForDeclaration.libraryName) {
@@ -21,10 +21,6 @@ export class UsingForDeclarationNode extends Node {
                 }
             };
         }
-    }
-
-    getName(): string | undefined {
-        return this.astNode.libraryName;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {

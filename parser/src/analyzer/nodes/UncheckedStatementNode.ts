@@ -4,7 +4,7 @@ export class UncheckedStatementNode extends Node {
     astNode: UncheckedStatement;
 
     constructor (uncheckedStatement: UncheckedStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(uncheckedStatement, uri, rootPath, documentsAnalyzer);
+        super(uncheckedStatement, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = uncheckedStatement;
     }
 

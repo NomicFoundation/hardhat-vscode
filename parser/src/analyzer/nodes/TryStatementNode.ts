@@ -4,7 +4,7 @@ export class TryStatementNode extends Node {
     astNode: TryStatement;
 
     constructor (tryStatement: TryStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(tryStatement, uri, rootPath, documentsAnalyzer);
+        super(tryStatement, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = tryStatement;
     }
 

@@ -4,7 +4,7 @@ export class EmitStatementNode extends Node {
     astNode: EmitStatement;
 
     constructor (emitStatement: EmitStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(emitStatement, uri, rootPath, documentsAnalyzer);
+        super(emitStatement, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = emitStatement;
     }
 

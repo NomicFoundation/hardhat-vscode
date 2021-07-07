@@ -14,7 +14,7 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
     astNode: ImportDirective;
 
     constructor (importDirective: ImportDirective, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(importDirective, uri, rootPath, documentsAnalyzer);
+        super(importDirective, uri, rootPath, documentsAnalyzer, importDirective.path);
         this.realUri = uri;
         this.uri = path.join(uri, "..", importDirective.path);
 
@@ -37,10 +37,6 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
 
     getDefinitionNode(): Node | undefined {
         return this;
-    }
-
-    getName(): string | undefined {
-        return this.astNode.path;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {

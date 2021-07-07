@@ -4,7 +4,7 @@ export class ThrowStatementNode extends Node {
     astNode: ThrowStatement;
 
     constructor (throwStatement: ThrowStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(throwStatement, uri, rootPath, documentsAnalyzer);
+        super(throwStatement, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = throwStatement;
         // TO-DO: Implement name location for rename
     }

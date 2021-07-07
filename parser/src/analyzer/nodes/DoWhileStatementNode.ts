@@ -4,7 +4,7 @@ export class DoWhileStatementNode extends Node {
     astNode: DoWhileStatement;
 
     constructor (doWhileStatement: DoWhileStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(doWhileStatement, uri, rootPath, documentsAnalyzer);
+        super(doWhileStatement, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = doWhileStatement;
     }
 

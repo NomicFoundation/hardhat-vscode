@@ -4,7 +4,7 @@ export class AssemblyLiteralNode extends Node {
     astNode: AssemblyLiteral;
 
     constructor (assemblyLiteral: AssemblyLiteral, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(assemblyLiteral, uri, rootPath, documentsAnalyzer);
+        super(assemblyLiteral, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = assemblyLiteral;
         // TO-DO: Implement name location for rename
     }

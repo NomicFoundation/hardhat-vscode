@@ -4,7 +4,7 @@ export class AssemblyAssignmentNode extends Node {
     astNode: AssemblyAssignment;
 
     constructor (assemblyAssignment: AssemblyAssignment, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(assemblyAssignment, uri, rootPath, documentsAnalyzer);
+        super(assemblyAssignment, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = assemblyAssignment;
     }
 

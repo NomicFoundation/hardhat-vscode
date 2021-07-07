@@ -4,7 +4,7 @@ export class BlockNode extends Node {
     astNode: Block;
 
     constructor (block: Block, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(block, uri, rootPath, documentsAnalyzer);
+        super(block, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = block;
     }
 

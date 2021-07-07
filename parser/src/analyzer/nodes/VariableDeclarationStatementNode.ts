@@ -4,7 +4,7 @@ export class VariableDeclarationStatementNode extends Node {
     astNode: VariableDeclarationStatement;
 
     constructor (variableDeclarationStatement: VariableDeclarationStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(variableDeclarationStatement, uri, rootPath, documentsAnalyzer);
+        super(variableDeclarationStatement, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = variableDeclarationStatement;
     }
 

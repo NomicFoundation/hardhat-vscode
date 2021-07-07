@@ -4,7 +4,7 @@ export class AssemblyCallNode extends Node {
     astNode: AssemblyCall;
 
     constructor (assemblyCall: AssemblyCall, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(assemblyCall, uri, rootPath, documentsAnalyzer);
+        super(assemblyCall, uri, rootPath, documentsAnalyzer, assemblyCall.functionName);
 
         if (assemblyCall.loc) {
             // Bug in solidity parser doesn't give exact end location
@@ -14,10 +14,6 @@ export class AssemblyCallNode extends Node {
         }
 
         this.astNode = assemblyCall;
-    }
-
-    getName(): string | undefined {
-        return this.astNode.functionName;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {

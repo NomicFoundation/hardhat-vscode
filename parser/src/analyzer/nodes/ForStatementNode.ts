@@ -4,7 +4,7 @@ export class ForStatementNode extends Node {
     astNode: ForStatement;
 
     constructor (forStatement: ForStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(forStatement, uri, rootPath, documentsAnalyzer);
+        super(forStatement, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = forStatement;
     }
 

@@ -3,8 +3,6 @@ import { AssemblyLocalDefinition, FinderType, DocumentsAnalyzerMap, Node } from 
 export class AssemblyLocalDefinitionNode extends Node {
     astNode: AssemblyLocalDefinition;
 
-    name?: string | undefined;
-
     connectionTypeRules: string[] = [ "AssemblyCall", "Identifier" ];
 
     constructor (
@@ -15,7 +13,7 @@ export class AssemblyLocalDefinitionNode extends Node {
         parent?: Node,
         identifierNode?: Node
     ) {
-        super(assemblyLocalDefinition, uri, rootPath, documentsAnalyzer);
+        super(assemblyLocalDefinition, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = assemblyLocalDefinition;
 
         if (parent && identifierNode) {
@@ -34,10 +32,6 @@ export class AssemblyLocalDefinitionNode extends Node {
 
     getDefinitionNode(): Node | undefined {
         return this;
-    }
-
-    getName(): string | undefined {
-        return this.name;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {

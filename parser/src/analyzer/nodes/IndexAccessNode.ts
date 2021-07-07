@@ -4,7 +4,7 @@ export class IndexAccessNode extends Node {
     astNode: IndexAccess;
 
     constructor (indexAccess: IndexAccess, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(indexAccess, uri, rootPath, documentsAnalyzer);
+        super(indexAccess, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = indexAccess;
     }
 

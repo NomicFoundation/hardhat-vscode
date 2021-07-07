@@ -4,7 +4,7 @@ export class AssemblyForNode extends Node {
     astNode: AssemblyFor;
 
     constructor (assemblyFor: AssemblyFor, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(assemblyFor, uri, rootPath, documentsAnalyzer);
+        super(assemblyFor, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = assemblyFor;
     }
 

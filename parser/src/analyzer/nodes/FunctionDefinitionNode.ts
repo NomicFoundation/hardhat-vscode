@@ -10,7 +10,7 @@ export class FunctionDefinitionNode extends IFunctionDefinitionNode {
     connectionTypeRules: string[] = [ "FunctionCall" ];
 
     constructor (functionDefinition: FunctionDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(functionDefinition, uri, rootPath, documentsAnalyzer);
+        super(functionDefinition, uri, rootPath, documentsAnalyzer, functionDefinition.name || undefined);
         this.astNode = functionDefinition;
         
         if (!functionDefinition.isConstructor && functionDefinition.loc && functionDefinition.name) {
@@ -29,10 +29,6 @@ export class FunctionDefinitionNode extends IFunctionDefinitionNode {
 
     getDefinitionNode(): Node | undefined {
         return this;
-    }
-
-    getName(): string | undefined {
-        return this.astNode.name || undefined;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {

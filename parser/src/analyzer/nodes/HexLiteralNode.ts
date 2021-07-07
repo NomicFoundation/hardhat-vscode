@@ -4,7 +4,7 @@ export class HexLiteralNode extends Node {
     astNode: HexLiteral;
 
     constructor (hexLiteral: HexLiteral, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(hexLiteral, uri, rootPath, documentsAnalyzer);
+        super(hexLiteral, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = hexLiteral;
         // TO-DO: Implement name location for rename
     }

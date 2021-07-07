@@ -4,7 +4,7 @@ export class BreakNode extends Node {
     astNode: Break;
 
     constructor (astBreak: Break, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(astBreak, uri, rootPath, documentsAnalyzer);
+        super(astBreak, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = astBreak;
         // TO-DO: Implement name location for rename
     }

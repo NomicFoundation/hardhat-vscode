@@ -4,7 +4,7 @@ export class StringLiteralNode extends Node {
     astNode: StringLiteral;
 
     constructor (stringLiteral: StringLiteral, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(stringLiteral, uri, rootPath, documentsAnalyzer);
+        super(stringLiteral, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = stringLiteral;
         // TO-DO: Implement name location for rename
     }

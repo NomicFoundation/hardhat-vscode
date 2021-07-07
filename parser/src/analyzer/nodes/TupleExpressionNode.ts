@@ -4,7 +4,7 @@ export class TupleExpressionNode extends Node {
     astNode: TupleExpression;
 
     constructor (tupleExpression: TupleExpression, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(tupleExpression, uri, rootPath, documentsAnalyzer);
+        super(tupleExpression, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = tupleExpression;
     }
 

@@ -4,7 +4,7 @@ export class AssemblyCaseNode extends Node {
     astNode: AssemblyCase;
 
     constructor (assemblyCase: AssemblyCase, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(assemblyCase, uri, rootPath, documentsAnalyzer);
+        super(assemblyCase, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = assemblyCase;
     }
 

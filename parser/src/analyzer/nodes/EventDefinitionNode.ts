@@ -7,7 +7,7 @@ export class EventDefinitionNode extends Node {
     connectionTypeRules: string[] = [ "EmitStatement" ];
 
     constructor (eventDefinition: EventDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(eventDefinition, uri, rootPath, documentsAnalyzer);
+        super(eventDefinition, uri, rootPath, documentsAnalyzer, eventDefinition.name);
         this.astNode = eventDefinition;
 
         if (eventDefinition.loc && eventDefinition.name) {
@@ -30,10 +30,6 @@ export class EventDefinitionNode extends Node {
 
     getDefinitionNode(): Node | undefined {
         return this;
-    }
-
-    getName(): string | undefined {
-        return this.astNode.name;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {

@@ -6,7 +6,7 @@ export class EnumValueNode extends Node {
     connectionTypeRules: string[] = [ "MemberAccess" ];
 
     constructor (enumValue: EnumValue, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(enumValue, uri, rootPath, documentsAnalyzer);
+        super(enumValue, uri, rootPath, documentsAnalyzer, enumValue.name);
 
         if (enumValue.loc) {
             // Bug in solidity parser doesn't give exact end location
@@ -20,10 +20,6 @@ export class EnumValueNode extends Node {
 
     getDefinitionNode(): Node | undefined {
         return this;
-    }
-
-    getName(): string | undefined {
-        return this.astNode.name;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {

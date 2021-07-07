@@ -4,7 +4,7 @@ export class MappingNode extends Node {
     astNode: Mapping;
 
     constructor (mapping: Mapping, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(mapping, uri, rootPath, documentsAnalyzer);
+        super(mapping, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = mapping;
     }
 

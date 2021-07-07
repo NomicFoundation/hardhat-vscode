@@ -4,7 +4,7 @@ export class CustomErrorDefinitionNode extends Node {
     astNode: CustomErrorDefinition;
 
     constructor (customErrorDefinition: CustomErrorDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(customErrorDefinition, uri, rootPath, documentsAnalyzer);
+        super(customErrorDefinition, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = customErrorDefinition;
         // TO-DO: Implement name location for rename
     }

@@ -4,7 +4,7 @@ export class InlineAssemblyStatementNode extends Node {
     astNode: InlineAssemblyStatement;
 
     constructor (inlineAssemblyStatement: InlineAssemblyStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(inlineAssemblyStatement, uri, rootPath, documentsAnalyzer);
+        super(inlineAssemblyStatement, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = inlineAssemblyStatement;
     }
 

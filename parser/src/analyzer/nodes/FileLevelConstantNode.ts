@@ -6,7 +6,7 @@ export class FileLevelConstantNode extends Node {
     connectionTypeRules: string[] = [ "Identifier" ];
 
     constructor (fileLevelConstant: FileLevelConstant, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(fileLevelConstant, uri, rootPath, documentsAnalyzer);
+        super(fileLevelConstant, uri, rootPath, documentsAnalyzer, fileLevelConstant.name);
         this.astNode = fileLevelConstant;
 
         if (fileLevelConstant.loc && fileLevelConstant.name) {
@@ -25,10 +25,6 @@ export class FileLevelConstantNode extends Node {
 
     getDefinitionNode(): Node | undefined {
         return this;
-    }
-
-    getName(): string | undefined {
-        return this.astNode.name;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {

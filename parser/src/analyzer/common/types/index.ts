@@ -231,6 +231,11 @@ export abstract class Node {
     nameLoc?: Location | undefined;
 
     /**
+     * Node name. Name can be undefined for Nodes that don't have a name.
+     */
+    name: string | undefined;
+
+    /**
      * Import alias name. If the aliasName exists he is the real name and {@link Node.getName getName} will return the alias.
      */
     aliasName?: string | undefined;
@@ -277,11 +282,18 @@ export abstract class Node {
      * @param baseASTNode AST node interface.
      * @param uri The path to the node file. Uri needs to be decoded and without the "file://" prefix.
      */
-    constructor (baseASTNode: BaseASTNode | EmptyNodeType, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+    constructor (
+        baseASTNode: BaseASTNode | EmptyNodeType,
+        uri: string,
+        rootPath: string,
+        documentsAnalyzer: DocumentsAnalyzerMap,
+        name: string | undefined
+    ) {
         this.type = baseASTNode.type;
         this.uri = uri;
         this.rootPath = rootPath;
         this.documentsAnalyzer = documentsAnalyzer;
+        this.name = name;
     }
 
     /**
@@ -343,7 +355,11 @@ export abstract class Node {
      * A Node name can be undefined for Nodes that don't have a name.
      */
     getName(): string | undefined {
-        return undefined;
+        return this.name;
+    }
+
+    setName(name: string): void {
+        this.name = name;
     }
 
     /**
@@ -403,36 +419,11 @@ export abstract class Node {
     abstract accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node;
 }
 
-/**
- * Checks if 2 nodes have the same {@link Node.getName name}, {@link Node.nameLoc location name} and {@link Node.uri URI}. 
- * @returns true if the Nodes are equal, otherwise false.
- */
-function isNodeEqual(node1: Node | undefined, node2: Node | undefined): boolean {
-    if (!node1 || !node2) {
-        return false;
-    }
-
-    if (node1 === node2) {
-        return true;
-    }
-
-    if (
-        node1.getName() === node2.getName() &&
-        JSON.stringify(node1.nameLoc) === JSON.stringify(node2.nameLoc) &&
-        node1.uri === node2.uri
-    ) {
-        return true;
-    }
-
-    return false;
-}
-
-
 export class EmptyNode extends Node {
     astNode: EmptyNodeType;
 
     constructor (emptyNode: EmptyNodeType, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(emptyNode, uri, rootPath, documentsAnalyzer);
+        super(emptyNode, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = emptyNode;
     }
 
@@ -578,3 +569,27 @@ export abstract class VariableDeclarationNode extends Node {
 export const definitionNodeTypes = [ "ContractDefinition", "StructDefinition", "ModifierDefinition", "FunctionDefinition", "EventDefinition", "EnumDefinition", "AssemblyLocalDefinition", "LabelDefinition", "AssemblyFunctionDefinition", "UserDefinedTypeName", "FileLevelConstant" ];
 export const declarationNodeTypes = [ "StateVariableDeclaration", "UsingForDeclaration", "VariableDeclaration", "VariableDeclarationStatement" ];
 export const expressionNodeTypes = [ "IndexAccess", "IndexRangeAccess", "TupleExpression", "BinaryOperation", "Conditional", "MemberAccess", "FunctionCall", "UnaryOperation", "NewExpression", "NameValueExpression", "BooleanLiteral", "HexLiteral", "StringLiteral", "NumberLiteral", "Identifier", "TupleExpression", "TypeNameExpression" ];
+
+/**
+ * Checks if 2 nodes have the same {@link Node.getName name}, {@link Node.nameLoc location name} and {@link Node.uri URI}. 
+ * @returns true if the Nodes are equal, otherwise false.
+ */
+function isNodeEqual(node1: Node | undefined, node2: Node | undefined): boolean {
+    if (!node1 || !node2) {
+        return false;
+    }
+
+    if (node1 === node2) {
+        return true;
+    }
+
+    if (
+        node1.getName() === node2.getName() &&
+        JSON.stringify(node1.nameLoc) === JSON.stringify(node2.nameLoc) &&
+        node1.uri === node2.uri
+    ) {
+        return true;
+    }
+
+    return false;
+}

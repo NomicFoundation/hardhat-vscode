@@ -4,7 +4,7 @@ export class FunctionTypeNameNode extends Node {
     astNode: FunctionTypeName;
 
     constructor (functionTypeName: FunctionTypeName, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(functionTypeName, uri, rootPath, documentsAnalyzer);
+        super(functionTypeName, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = functionTypeName;
         // TO-DO: Implement name location for rename
     }

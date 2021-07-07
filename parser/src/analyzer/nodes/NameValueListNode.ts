@@ -4,7 +4,7 @@ export class NameValueListNode extends Node {
     astNode: NameValueList;
 
     constructor (nameValueList: NameValueList, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(nameValueList, uri, rootPath, documentsAnalyzer);
+        super(nameValueList, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = nameValueList;
         // TO-DO: Implement name location for rename
     }

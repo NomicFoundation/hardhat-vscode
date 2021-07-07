@@ -4,7 +4,7 @@ export class LabelDefinitionNode extends Node {
     astNode: LabelDefinition;
 
     constructor (labelDefinition: LabelDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(labelDefinition, uri, rootPath, documentsAnalyzer);
+        super(labelDefinition, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = labelDefinition;
         // TO-DO: Implement name location for rename
     }

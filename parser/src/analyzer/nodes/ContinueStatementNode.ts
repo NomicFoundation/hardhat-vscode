@@ -4,7 +4,7 @@ export class ContinueStatementNode extends Node {
     astNode: ContinueStatement;
 
     constructor (continueStatement: ContinueStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(continueStatement, uri, rootPath, documentsAnalyzer);
+        super(continueStatement, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = continueStatement;
         // TO-DO: Implement name location for rename
     }

@@ -4,7 +4,7 @@ export class BreakStatementNode extends Node {
     astNode: BreakStatement;
 
     constructor (breakStatement: BreakStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(breakStatement, uri, rootPath, documentsAnalyzer);
+        super(breakStatement, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = breakStatement;
         // TO-DO: Implement name location for rename
     }

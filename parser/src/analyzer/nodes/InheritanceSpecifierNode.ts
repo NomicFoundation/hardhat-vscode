@@ -4,7 +4,7 @@ export class InheritanceSpecifierNode extends Node {
     astNode: InheritanceSpecifier;
 
     constructor (inheritanceSpecifier: InheritanceSpecifier, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(inheritanceSpecifier, uri, rootPath, documentsAnalyzer);
+        super(inheritanceSpecifier, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = inheritanceSpecifier;
     }
 

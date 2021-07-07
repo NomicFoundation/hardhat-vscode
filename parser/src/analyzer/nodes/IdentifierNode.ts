@@ -7,7 +7,7 @@ export class IdentifierNode extends Node {
     astNode: Identifier;
 
     constructor (identifier: Identifier, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(identifier, uri, rootPath, documentsAnalyzer);
+        super(identifier, uri, rootPath, documentsAnalyzer, identifier.name);
         
         if (identifier.loc && identifier.range) {
             // Bug in solidity parser doesn't give exact end location
@@ -17,10 +17,6 @@ export class IdentifierNode extends Node {
         }
 
         this.astNode = identifier;
-    }
-
-    getName(): string | undefined {
-        return this.astNode.name;
     }
 
     setParent(parent: Node | undefined): void {

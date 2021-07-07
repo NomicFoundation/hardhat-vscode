@@ -10,7 +10,7 @@ export class VariableDeclarationNode extends IVariableDeclarationNode {
     connectionTypeRules: string[] = [ "Identifier", "MemberAccess", "AssemblyCall" ];
 
     constructor (variableDeclaration: VariableDeclaration, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(variableDeclaration, uri, rootPath, documentsAnalyzer);
+        super(variableDeclaration, uri, rootPath, documentsAnalyzer, variableDeclaration.name || undefined);
         this.astNode = variableDeclaration;
 
         if (variableDeclaration.loc && variableDeclaration.name) {
@@ -29,10 +29,6 @@ export class VariableDeclarationNode extends IVariableDeclarationNode {
 
     getDefinitionNode(): Node | undefined {
         return this;
-    }
-
-    getName(): string | undefined {
-        return this.astNode.name || undefined;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {

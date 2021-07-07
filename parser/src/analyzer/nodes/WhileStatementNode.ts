@@ -4,7 +4,7 @@ export class WhileStatementNode extends Node {
     astNode: WhileStatement;
 
     constructor (whileStatement: WhileStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(whileStatement, uri, rootPath, documentsAnalyzer);
+        super(whileStatement, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = whileStatement;
     }
 

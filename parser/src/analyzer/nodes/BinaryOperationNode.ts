@@ -4,7 +4,7 @@ export class BinaryOperationNode extends Node {
     astNode: BinaryOperation;
 
     constructor (binaryOperation: BinaryOperation, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(binaryOperation, uri, rootPath, documentsAnalyzer);
+        super(binaryOperation, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = binaryOperation;
     }
 

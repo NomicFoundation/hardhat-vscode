@@ -7,7 +7,7 @@ export class StructDefinitionNode extends Node {
     connectionTypeRules: string[] = [ "UserDefinedTypeName", "MemberAccess", "FunctionCall" ];
 
     constructor (structDefinition: StructDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(structDefinition, uri, rootPath, documentsAnalyzer);
+        super(structDefinition, uri, rootPath, documentsAnalyzer, structDefinition.name);
         this.astNode = structDefinition;
 
         if (structDefinition.loc) {
@@ -32,10 +32,6 @@ export class StructDefinitionNode extends Node {
 
     getDefinitionNode(): Node | undefined {
         return this;
-    }
-
-    getName(): string | undefined {
-        return this.astNode.name;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {

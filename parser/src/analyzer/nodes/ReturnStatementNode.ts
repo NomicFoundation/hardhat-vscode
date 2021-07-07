@@ -4,7 +4,7 @@ export class ReturnStatementNode extends Node {
     astNode: ReturnStatement;
 
     constructor (returnStatement: ReturnStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(returnStatement, uri, rootPath, documentsAnalyzer);
+        super(returnStatement, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = returnStatement;
     }
 

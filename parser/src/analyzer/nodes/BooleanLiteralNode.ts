@@ -4,7 +4,7 @@ export class BooleanLiteralNode extends Node {
     astNode: BooleanLiteral;
 
     constructor (booleanLiteral: BooleanLiteral, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(booleanLiteral, uri, rootPath, documentsAnalyzer);
+        super(booleanLiteral, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = booleanLiteral;
         // TO-DO: Implement name location for rename
     }

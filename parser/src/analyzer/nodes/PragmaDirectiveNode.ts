@@ -4,7 +4,7 @@ export class PragmaDirectiveNode extends Node {
     astNode: PragmaDirective;
 
     constructor (pragmaDirective: PragmaDirective, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(pragmaDirective, uri, rootPath, documentsAnalyzer);
+        super(pragmaDirective, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = pragmaDirective;
         // TO-DO: Implement name location for rename
     }

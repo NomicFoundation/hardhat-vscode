@@ -4,7 +4,7 @@ export class ConditionalNode extends Node {
     astNode: Conditional;
 
     constructor (conditional: Conditional, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(conditional, uri, rootPath, documentsAnalyzer);
+        super(conditional, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = conditional;
     }
 

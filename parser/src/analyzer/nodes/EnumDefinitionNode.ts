@@ -7,7 +7,7 @@ export class EnumDefinitionNode extends Node {
     connectionTypeRules: string[] = [ "Identifier", "UserDefinedTypeName" ];
 
     constructor (enumDefinition: EnumDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(enumDefinition, uri, rootPath, documentsAnalyzer);
+        super(enumDefinition, uri, rootPath, documentsAnalyzer, enumDefinition.name);
         this.astNode = enumDefinition;
 
         if (enumDefinition.loc) {
@@ -32,10 +32,6 @@ export class EnumDefinitionNode extends Node {
 
     getDefinitionNode(): Node | undefined {
         return this;
-    }
-
-    getName(): string | undefined {
-        return this.astNode.name;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {

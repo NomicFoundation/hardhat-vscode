@@ -10,7 +10,7 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
     connectionTypeRules: string[] = [ "Identifier", "UserDefinedTypeName", "FunctionCall", "UsingForDeclaration" ];
 
     constructor (contractDefinition: ContractDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(contractDefinition, uri, rootPath, documentsAnalyzer);
+        super(contractDefinition, uri, rootPath, documentsAnalyzer, contractDefinition.name);
         this.astNode = contractDefinition;
 
         if (contractDefinition.loc) {
@@ -40,10 +40,6 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
 
     getDefinitionNode(): Node | undefined {
         return this;
-    }
-
-    getName(): string | undefined {
-        return this.astNode.name;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {

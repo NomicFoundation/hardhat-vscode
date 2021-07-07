@@ -4,7 +4,7 @@ export class AssemblyIfNode extends Node {
     astNode: AssemblyIf;
 
     constructor (assemblyIf: AssemblyIf, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(assemblyIf, uri, rootPath, documentsAnalyzer);
+        super(assemblyIf, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = assemblyIf;
     }
 

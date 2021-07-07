@@ -4,7 +4,7 @@ export class SubAssemblyNode extends Node {
     astNode: SubAssembly;
 
     constructor (subAssembly: SubAssembly, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(subAssembly, uri, rootPath, documentsAnalyzer);
+        super(subAssembly, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = subAssembly;
         // TO-DO: Implement name location for rename
     }

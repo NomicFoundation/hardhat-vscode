@@ -4,7 +4,7 @@ export class AssemblyBlockNode extends Node {
     astNode: AssemblyBlock;
 
     constructor (assemblyBlock: AssemblyBlock, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(assemblyBlock, uri, rootPath, documentsAnalyzer);
+        super(assemblyBlock, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = assemblyBlock;
     }
 

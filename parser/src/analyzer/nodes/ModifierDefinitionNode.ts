@@ -7,7 +7,7 @@ export class ModifierDefinitionNode extends Node {
     connectionTypeRules: string[] = [ "ModifierInvocation" ];
 
     constructor (modifierDefinition: ModifierDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(modifierDefinition, uri, rootPath, documentsAnalyzer);
+        super(modifierDefinition, uri, rootPath, documentsAnalyzer, modifierDefinition.name);
         this.astNode = modifierDefinition;
         
         if (modifierDefinition.loc) {
@@ -32,10 +32,6 @@ export class ModifierDefinitionNode extends Node {
 
     getDefinitionNode(): Node | undefined {
         return this;
-    }
-
-    getName(): string | undefined {
-        return this.astNode.name;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {

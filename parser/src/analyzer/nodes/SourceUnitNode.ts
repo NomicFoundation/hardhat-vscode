@@ -7,7 +7,7 @@ export class SourceUnitNode extends AbstractSourceUnitNode {
     astNode: SourceUnit;
 
     constructor (sourceUnit: SourceUnit, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(sourceUnit, uri, rootPath, documentsAnalyzer);
+        super(sourceUnit, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = sourceUnit;
     }
 

@@ -7,7 +7,7 @@ export class AssemblyFunctionDefinitionNode extends Node {
     connectionTypeRules: string[] = [ "AssemblyCall" ];
 
     constructor (assemblyFunctionDefinition: AssemblyFunctionDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(assemblyFunctionDefinition, uri, rootPath, documentsAnalyzer);
+        super(assemblyFunctionDefinition, uri, rootPath, documentsAnalyzer, assemblyFunctionDefinition.name);
 
         this.astNode = assemblyFunctionDefinition;
         
@@ -27,10 +27,6 @@ export class AssemblyFunctionDefinitionNode extends Node {
 
     getDefinitionNode(): Node | undefined {
         return this;
-    }
-
-    getName(): string | undefined {
-        return this.astNode.name;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {

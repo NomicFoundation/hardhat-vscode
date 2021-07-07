@@ -4,7 +4,7 @@ export class AssemblySwitchNode extends Node {
     astNode: AssemblySwitch;
 
     constructor (assemblySwitch: AssemblySwitch, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(assemblySwitch, uri, rootPath, documentsAnalyzer);
+        super(assemblySwitch, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = assemblySwitch;
     }
 

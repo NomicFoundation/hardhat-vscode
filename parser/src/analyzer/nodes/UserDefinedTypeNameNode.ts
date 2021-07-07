@@ -5,7 +5,7 @@ export class UserDefinedTypeNameNode extends Node {
     astNode: UserDefinedTypeName;
 
     constructor (userDefinedTypeName: UserDefinedTypeName, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(userDefinedTypeName, uri, rootPath, documentsAnalyzer);
+        super(userDefinedTypeName, uri, rootPath, documentsAnalyzer, userDefinedTypeName.namePath);
 
         if (userDefinedTypeName.loc) {
             // Bug in solidity parser doesn't give exact end location
@@ -15,10 +15,6 @@ export class UserDefinedTypeNameNode extends Node {
         }
 
         this.astNode = userDefinedTypeName;
-    }
-
-    getName(): string | undefined {
-        return this.astNode.namePath;
     }
 
     setParent(parent: Node | undefined): void {

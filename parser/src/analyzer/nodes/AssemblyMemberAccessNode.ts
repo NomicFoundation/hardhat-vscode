@@ -4,7 +4,7 @@ export class AssemblyMemberAccessNode extends Node {
     astNode: AssemblyMemberAccess;
 
     constructor (assemblyMemberAccess: AssemblyMemberAccess, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(assemblyMemberAccess, uri, rootPath, documentsAnalyzer);
+        super(assemblyMemberAccess, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = assemblyMemberAccess;
         // TO-DO: Implement name location for rename
     }

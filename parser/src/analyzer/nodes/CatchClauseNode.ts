@@ -4,7 +4,7 @@ export class CatchClauseNode extends Node {
     astNode: CatchClause;
 
     constructor (catchClause: CatchClause, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(catchClause, uri, rootPath, documentsAnalyzer);
+        super(catchClause, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = catchClause;
     }
 

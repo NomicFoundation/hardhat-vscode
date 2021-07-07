@@ -4,7 +4,7 @@ export class RevertStatementNode extends Node {
     astNode: RevertStatement;
 
     constructor (revertStatement: RevertStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(revertStatement, uri, rootPath, documentsAnalyzer);
+        super(revertStatement, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = revertStatement;
         // TO-DO: Implement name location for rename
     }

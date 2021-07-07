@@ -4,7 +4,7 @@ export class ModifierInvocationNode extends Node {
     astNode: ModifierInvocation;
 
     constructor (modifierInvocation: ModifierInvocation, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(modifierInvocation, uri, rootPath, documentsAnalyzer);
+        super(modifierInvocation, uri, rootPath, documentsAnalyzer, modifierInvocation.name);
         this.astNode = modifierInvocation;
         
         if (modifierInvocation.loc) {
@@ -19,10 +19,6 @@ export class ModifierInvocationNode extends Node {
                 }
             };
         }
-    }
-
-    getName(): string | undefined {
-        return this.astNode.name;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {

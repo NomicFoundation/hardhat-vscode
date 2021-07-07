@@ -4,7 +4,7 @@ export class IfStatementNode extends Node {
     astNode: IfStatement;
 
     constructor (ifStatement: IfStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(ifStatement, uri, rootPath, documentsAnalyzer);
+        super(ifStatement, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = ifStatement;
     }
 

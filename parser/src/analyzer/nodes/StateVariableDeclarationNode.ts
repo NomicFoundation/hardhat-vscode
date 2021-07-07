@@ -4,7 +4,7 @@ export class StateVariableDeclarationNode extends Node {
     astNode: StateVariableDeclaration;
 
     constructor (stateVariableDeclaration: StateVariableDeclaration, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(stateVariableDeclaration, uri, rootPath, documentsAnalyzer);
+        super(stateVariableDeclaration, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = stateVariableDeclaration;
     }
 

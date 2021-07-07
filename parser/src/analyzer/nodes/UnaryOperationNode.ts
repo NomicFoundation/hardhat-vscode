@@ -4,7 +4,7 @@ export class UnaryOperationNode extends Node {
     astNode: UnaryOperation;
 
     constructor (unaryOperation: UnaryOperation, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(unaryOperation, uri, rootPath, documentsAnalyzer);
+        super(unaryOperation, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = unaryOperation;
     }
 
