@@ -131,8 +131,10 @@ export class Searcher implements ISearcher {
 
         let exportNode = exportNodes.shift();
         while (exportNode) {
+            const exportDefinitionNode = exportNode.getDefinitionNode();
+
             if (
-                utils.isNodeShadowedByNode(exportNode.getDefinitionNode(), definitionNode.parent) &&
+                exportDefinitionNode?.parent?.getName() === definitionNode.parent?.getName() &&
                 utils.isNodeConnectable(definitionNode, exportNode)
             ) {
                 exportNode.addTypeNode(definitionNode);
