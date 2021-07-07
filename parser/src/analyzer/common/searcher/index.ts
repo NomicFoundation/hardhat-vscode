@@ -92,7 +92,7 @@ export class Searcher implements ISearcher {
      * @param orphanNodes Place where we search for children.
      * @param isShadowed If this is true, make sure the child is in the shadow of definitionNode. Default is true.
      */
-    public findChildren(definitionNode: Node, orphanNodes: Node[], isShadowed = true): void {
+    public findAndAddChildren(definitionNode: Node, orphanNodes: Node[], isShadowed = true): void {
         const newOrphanNodes: Node[] = [];
 
         let orphanNode = orphanNodes.shift();
@@ -116,6 +116,39 @@ export class Searcher implements ISearcher {
         // Return to orphanNodes array unhandled orphan nodes
         for (const newOrphanNode of newOrphanNodes) {
             orphanNodes.push(newOrphanNode);
+        }
+    }
+
+    /**
+     * Searches children for definitionNode and if any exist adds them to the 
+     * children definitionNode list and sets their parent to definitionNode.
+     * 
+     * @param definitionNode A node that calls this function and which will be the parent Node of the found children.
+     * @param exportNodes Place where we search for children.
+     */
+     public findAndAddExportChildren(definitionNode: Node, exportNodes: Node[]): void {
+        const newOrphanNodes: Node[] = [];
+
+        let exportNode = exportNodes.shift();
+        while (exportNode) {
+            if (
+                utils.isNodeShadowedByNode(exportNode.getDefinitionNode(), definitionNode.parent) &&
+                utils.isNodeConnectable(definitionNode, exportNode)
+            ) {
+                exportNode.addTypeNode(definitionNode);
+
+                exportNode.setParent(definitionNode);
+                definitionNode.addChild(exportNode);
+            } else {
+                newOrphanNodes.push(exportNode);
+            }
+
+            exportNode = exportNodes.shift();
+        }
+
+        // Return to orphanNodes array unhandled orphan nodes
+        for (const newOrphanNode of newOrphanNodes) {
+            exportNodes.push(newOrphanNode);
         }
     }
 

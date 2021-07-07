@@ -52,10 +52,10 @@ export class EventDefinitionNode extends Node {
         const rootNode = findSourceUnitNode(parent);
         if (rootNode) {
             const exportNodes = new Array(...rootNode.getExportNodes());
-            searcher?.findChildren(this, exportNodes, false);
+            searcher?.findAndAddExportChildren(this, exportNodes);
         }
 
-        searcher?.findChildren(this, orphanNodes);
+        searcher?.findAndAddChildren(this, orphanNodes);
 
         parent?.addChild(this);
 

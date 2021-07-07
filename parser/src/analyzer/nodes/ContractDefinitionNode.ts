@@ -75,10 +75,10 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
         const rootNode = findSourceUnitNode(parent);
         if (rootNode) {
             const exportNodes = new Array(...rootNode.getExportNodes());
-            searcher?.findChildren(this, exportNodes, false);
+            searcher?.findAndAddExportChildren(this, exportNodes);
         }
 
-        searcher?.findChildren(this, orphanNodes, false);
+        searcher?.findAndAddChildren(this, orphanNodes, false);
 
         parent?.addChild(this);
 

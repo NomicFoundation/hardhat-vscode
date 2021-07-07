@@ -1,3 +1,4 @@
+import { findSourceUnitNode } from "@common/utils";
 import {
     VariableDeclaration, StateVariableDeclarationVariable, FinderType, Node,
     DocumentsAnalyzerMap, VariableDeclarationNode as IVariableDeclarationNode
@@ -48,6 +49,14 @@ export class VariableDeclarationNode extends IVariableDeclarationNode {
             typeNode.setDeclarationNode(this);
 
             this.updateLocationName(typeNode);
+        }
+
+        const rootNode = findSourceUnitNode(parent);
+        if (rootNode) {
+            const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+            const exportNodes = new Array(...rootNode.getExportNodes());
+
+            searcher?.findAndAddExportChildren(this, exportNodes);
         }
 
         // Don't handle expression, it is handled in StateVariableDeclarationNode
