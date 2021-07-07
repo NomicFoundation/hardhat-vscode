@@ -21,9 +21,9 @@ export class SourceUnitNode extends AbstractSourceUnitNode {
         const documentAnalyzer = this.documentsAnalyzer[this.uri];
         if (
             documentAnalyzer?.isAnalyzed &&
-            documentAnalyzer.analyzerTree instanceof SourceUnitNode
+            documentAnalyzer.analyzerTree.tree instanceof SourceUnitNode
         ) {
-            this.exportNodes = documentAnalyzer.analyzerTree.getExportNodes().filter(exportNode => exportNode.isAlive);
+            this.exportNodes = documentAnalyzer.analyzerTree.tree.getExportNodes().filter(exportNode => exportNode.isAlive);
         }
 
         if (documentAnalyzer) {

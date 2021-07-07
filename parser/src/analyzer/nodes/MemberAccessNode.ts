@@ -49,9 +49,8 @@ export class MemberAccessNode extends IMemberAccessNode {
         const expressionNode = find(this.astNode.expression, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent, this);
         this.setPreviousMemberAccessNode(expressionNode);
 
-        const definitionTypes = expressionNode.getTypeNodes();
-
         if (!expressionNode.parent) {
+            const definitionTypes = expressionNode.getTypeNodes();
             const handled = this.findMemberAccessParent(expressionNode, definitionTypes);
             if (handled) {
                 return handled;
