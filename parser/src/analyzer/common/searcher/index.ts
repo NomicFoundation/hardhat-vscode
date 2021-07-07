@@ -428,10 +428,8 @@ export class Searcher implements ISearcher {
             }
 
             if (importNode && !visitedFiles.includes(importNode.uri)) {
-                // Add as visited file
-                visitedFiles.push(importNode.uri);
-
                 let parent: Node | undefined = undefined;
+
                 if (importAliasNodes.length > 0) {
                     for (const importAliasNode of importAliasNodes) {
                         parent = this.walk(uri, position, importAliasNode, searchInExpression, visitedNodes, visitedFiles);
@@ -441,6 +439,9 @@ export class Searcher implements ISearcher {
                         }
                     }
                 } else {
+                    // Add URI in visitedFiles only when we analyze the whole file.
+                    visitedFiles.push(importNode.uri);
+
                     parent = this.walk(uri, position, importNode, searchInExpression, visitedNodes, visitedFiles);
                 }
 
