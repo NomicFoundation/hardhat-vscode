@@ -7,7 +7,7 @@ import { Position, Range } from '../types/languageTypes';
 import {
     Position as ParserPosition,
     Location as ParserLocation
-} from "../../../parser/out/types";
+} from "solidity-parser/types";
 
 export function getUriFromDocument(document: TextDocument | TextDocumentIdentifier): string {
     return decodeUriAndRemoveFilePrefix(document.uri);

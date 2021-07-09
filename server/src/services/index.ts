@@ -1,4 +1,4 @@
-import { Analyzer } from "../../../parser";
+import { Analyzer } from "solidity-parser";
 
 import { SolidityNavigation } from './SolidityNavigation';
 import { SolidityCompletion } from './SolidityCompletion';

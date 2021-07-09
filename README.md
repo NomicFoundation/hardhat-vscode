@@ -20,12 +20,12 @@ The _vscode-solidity-languageservice_ contains the language smarts behind the so
 ### Setup
 
 1) Install [node](https://nodejs.org/en/).
-2) Clone the repository, run `yarn && yarn run compile`, and open VS Code:
+2) Clone the repository, run `yarn && yarn run link && yarn run compile`, and open VS Code:
 
     ```bash
     git clone https://github.com/Tenderly/vscode-solidity.git
     cd vscode-solidity
-    yarn && yarn run compile
+    yarn && yarn run link && yarn run compile
     code .
     ```
 

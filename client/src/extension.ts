@@ -55,7 +55,7 @@ function getOuterMostWorkspaceFolder(folder: WorkspaceFolder): WorkspaceFolder {
 export function activate(context: ExtensionContext) {
 	console.log('client started');
 
-	const module = context.asAbsolutePath(path.join('server', 'out', 'server.js'));
+	const module = context.asAbsolutePath(path.join('server', 'dist', 'server.js'));
 	const outputChannel: OutputChannel = window.createOutputChannel('solidity-language-server');
 
 	function didOpenTextDocument(document: TextDocument): void {

@@ -1,5 +1,5 @@
-import { Analyzer } from "../../../parser/src";
-import { Node, definitionNodeTypes } from "../../../parser/out/types";
+import { Analyzer } from "solidity-parser";
+import { Node, definitionNodeTypes } from "solidity-parser/types";
 
 import { getParserPositionFromVSCodePosition, getRange } from "../utils";
 import {

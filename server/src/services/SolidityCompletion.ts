@@ -1,11 +1,11 @@
 import * as fs from "fs";
 import * as path from "path";
-import { Analyzer } from "../../../parser/src";
+import { Analyzer } from "solidity-parser";
 import {
     DocumentAnalyzer, ImportDirectiveNode, ContractDefinitionNode,
     Node, VariableDeclaration, FileLevelConstant, TypeName,
     expressionNodeTypes, Position as NodePosition
-} from "../../../parser/out/types";
+} from "solidity-parser/types";
 
 import { getParserPositionFromVSCodePosition, findNodeModules } from "../utils";
 import { Position, CompletionList, CompletionItem, CompletionItemKind, MarkupKind } from "../types/languageTypes";

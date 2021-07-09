@@ -3,18 +3,18 @@
 	"publisher": "tenderly",
 	"description": "",
 	"license": "MIT",
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"activationEvents": [
 		"onLanguage:solidity"
 	],
-	"main": "./client/out/extension",
+	"main": "./client/dist/extension",
 	"engines": {
 		"vscode": "^1.55.0"
 	},
 	"scripts": {
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
-		"postinstall": "cd client && yarn install && cd ../server && yarn install && cd ../parser && yarn install && cd ..",
+		"link": "cd parser && yarn link && cd ../server && yarn link solidity-parser && cd ..",
 		"client-test": "cd client && tsc -b && yarn run test && cd .."
 	},
 	"devDependencies": {
