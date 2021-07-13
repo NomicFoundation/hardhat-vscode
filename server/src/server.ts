@@ -21,9 +21,7 @@ const connection = createConnection(ProposedFeatures.all);
 // Create a simple text document manager.
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
-let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
-let hasDiagnosticRelatedInformationCapability = false;
 let languageServer: LanguageService;
 
 connection.onInitialize((params: InitializeParams) => {
@@ -40,19 +38,9 @@ connection.onInitialize((params: InitializeParams) => {
 	}
 
 	const capabilities = params.capabilities;
-
-	// Does the client support the `workspace/configuration` request?
-	// If not, we fall back using global settings.
-	hasConfigurationCapability = !!(
-		capabilities.workspace && !!capabilities.workspace.configuration
-	);
+	
 	hasWorkspaceFolderCapability = !!(
 		capabilities.workspace && !!capabilities.workspace.workspaceFolders
-	);
-	hasDiagnosticRelatedInformationCapability = !!(
-		capabilities.textDocument &&
-		capabilities.textDocument.publishDiagnostics &&
-		capabilities.textDocument.publishDiagnostics.relatedInformation
 	);
 
 	const result: InitializeResult = {
@@ -88,51 +76,12 @@ connection.onInitialize((params: InitializeParams) => {
 connection.onInitialized(() => {
 	console.log('server onInitialized');
 
-	if (hasConfigurationCapability) {
-		// Register for all configuration changes.
-		connection.client.register(DidChangeConfigurationNotification.type, undefined);
-	}
-
 	if (hasWorkspaceFolderCapability) {
 		connection.workspace.onDidChangeWorkspaceFolders(_event => {
 			connection.console.log('Workspace folder change event received.');
 			console.log(_event);
 		});
 	}
-});
-
-// The example settings
-interface ExampleSettings {
-	maxNumberOfProblems: number;
-}
-
-// The global settings, used when the `workspace/configuration` request is not supported by the client.
-// Please note that this is not the case when using this server with the client provided in this example
-// but could happen with other clients.
-const defaultSettings: ExampleSettings = { maxNumberOfProblems: 1000 };
-let globalSettings: ExampleSettings = defaultSettings;
-
-// Cache the settings of all open documents
-const documentSettings: Map<string, Thenable<ExampleSettings>> = new Map();
-
-connection.onDidChangeConfiguration(change => {
-	console.log('server onDidChangeConfiguration');
-
-	if (hasConfigurationCapability) {
-		// Reset all cached document settings
-		documentSettings.clear();
-	} else {
-		globalSettings = <ExampleSettings>(
-			(change.settings.languageServerExample || defaultSettings)
-		);
-	}
-});
-
-// Only keep settings for open documents
-documents.onDidClose(e => {
-	console.log('server onDidClose');
-
-	documentSettings.delete(e.document.uri);
 });
 
 
@@ -165,20 +114,10 @@ documents.onDidChangeContent(change => {
 	debounceAnalyzeDocument[change.document.uri](change.document.uri);
 });
 
-connection.onDidChangeWatchedFiles(_change => {
-	console.log('server onDidChangeWatchedFiles');
-
-	// Monitored files have change in VSCode
-	connection.console.log('We received an file change event');
-});
-
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
 	(_textDocumentPosition: TextDocumentPositionParams): CompletionList | undefined => {
 		console.log('server onCompletion', _textDocumentPosition);
-		// The pass parameter contains the position of the text document in
-		// which code complete got requested. For the example we ignore this
-		// info and always provide the same completion items.
 
 		try {
 			const document = documents.get(_textDocumentPosition.textDocument.uri);
@@ -205,36 +144,6 @@ connection.onCompletion(
 		}
 	}
 );
-
-// This handler resolves additional information for the item selected in
-// the completion list.
-connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-	console.log('server onCompletionResolve');
-	return item;
-});
-
-
-// Add hover example
-connection.onHover(params => {
-	try {
-		return {
-			contents: {
-				kind: MarkupKind.Markdown,
-				value: [
-					'```typescript',
-					'function validate(document: TextDocument): Diagnostic[]',
-					'```',
-					'___',
-					'Some doc',
-					'',
-					'_@param_ `document` '
-				].join('\n')
-			}
-		};
-	} catch (err) {
-		console.error(err);
-	}
-});
 
 connection.onDefinition(params => {
 	console.log("onDefinition");
