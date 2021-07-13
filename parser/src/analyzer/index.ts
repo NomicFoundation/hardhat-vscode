@@ -29,7 +29,9 @@ export class Analyzer {
             this.documentsAnalyzer[documentUri] = new DocumentAnalyzer(this.rootPath, documentUri);
         }
 
-        // TO-DO: More comments and move cache to Analyzer
+        // We will initialize all DocumentAnalizers first, because when we analyze documents we enter to their imports and
+        // if they are not analyzed we analyze them, in order to be able to analyze imports we need to have DocumentAnalizer and
+        // therefore we initiate everything first. The isAnalyzed serves to check if the document was analyzed so we don't analyze the document twice.
         for (const documentUri of documentsUri) {
             const documentAnalyzer = this.getDocumentAnalyzer(documentUri);
 
