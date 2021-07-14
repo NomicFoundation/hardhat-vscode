@@ -1,5 +1,4 @@
-import { Analyzer } from "solidity-parser";
-import { Node, definitionNodeTypes } from "solidity-parser/types";
+import { Analyzer, types } from "solidity-analyzer";
 
 import { getParserPositionFromVSCodePosition, getRange } from "../utils";
 import {
@@ -14,7 +13,7 @@ export class SolidityNavigation {
 		this.analyzer = analyzer;
 	}
 
-	public findDefinition(uri: string, position: Position, analyzerTree: Node): Location | undefined {
+	public findDefinition(uri: string, position: Position, analyzerTree: types.Node): Location | undefined {
 		const definitionNode = this.findNodeByPosition(uri, position, analyzerTree);
 
 		if (definitionNode && definitionNode.astNode.loc) {
@@ -27,7 +26,7 @@ export class SolidityNavigation {
 		return undefined;
 	}
 
-	public findTypeDefinition(uri: string, position: Position, analyzerTree: Node): Location[] {
+	public findTypeDefinition(uri: string, position: Position, analyzerTree: types.Node): Location[] {
 		const definitionNode = this.findNodeByPosition(uri, position, analyzerTree);
 
 		if (!definitionNode) {
@@ -37,18 +36,18 @@ export class SolidityNavigation {
 		return this.getHighlightLocations(definitionNode.getTypeNodes());
 	}
 
-	public findReferences(uri: string, position: Position, analyzerTree: Node): Location[] {
+	public findReferences(uri: string, position: Position, analyzerTree: types.Node): Location[] {
 		const highlightNodes = this.findHighlightNodes(uri, position, analyzerTree);
 
 		return this.getHighlightLocations(highlightNodes);
 	}
 
-	public findImplementation(uri: string, position: Position, analyzerTree: Node): Location[] {
+	public findImplementation(uri: string, position: Position, analyzerTree: types.Node): Location[] {
 		const highlightNodes = this.findHighlightNodes(uri, position, analyzerTree);
 
-		const implementationNodes: Node[] = [];
+		const implementationNodes: types.Node[] = [];
 		for (const highlightNode of highlightNodes) {
-			if (definitionNodeTypes.includes(highlightNode.type)) {
+			if (types.definitionNodeTypes.includes(highlightNode.type)) {
 				implementationNodes.push(highlightNode);
 			}
 		}
@@ -56,7 +55,7 @@ export class SolidityNavigation {
         return this.getHighlightLocations(implementationNodes);
 	}
 
-	public doRename(uri: string, document: TextDocument, position: Position, newName: string, analyzerTree: Node): WorkspaceEdit {
+	public doRename(uri: string, document: TextDocument, position: Position, newName: string, analyzerTree: types.Node): WorkspaceEdit {
 		const highlightNodes = this.findHighlightNodes(uri, position, analyzerTree);
 		const workspaceEdit: WorkspaceEdit = { changes: {} };
 
@@ -76,7 +75,7 @@ export class SolidityNavigation {
 		return workspaceEdit;
 	}
 
-	private getHighlightLocations(highlightNodes: Node[]): Location[] {
+	private getHighlightLocations(highlightNodes: types.Node[]): Location[] {
 		const locations: Location[] = [];
 
 		highlightNodes.forEach(highlightNode => {
@@ -91,8 +90,8 @@ export class SolidityNavigation {
         return locations;
 	}
 
-	private findHighlightNodes(uri: string, position: Position, analyzerTree: Node): Node[] {
-		const highlights: Node[] = [];
+	private findHighlightNodes(uri: string, position: Position, analyzerTree: types.Node): types.Node[] {
+		const highlights: types.Node[] = [];
 
 		const node = this.findNodeByPosition(uri, position, analyzerTree);
 
@@ -104,12 +103,12 @@ export class SolidityNavigation {
         return highlights;
 	}
 
-	private findNodeByPosition(uri: string, position: Position, analyzerTree: Node): Node | undefined {
+	private findNodeByPosition(uri: string, position: Position, analyzerTree: types.Node): types.Node | undefined {
 		const documentAnalyzer = this.analyzer.getDocumentAnalyzer(uri);
 		return documentAnalyzer.searcher.findDefinitionNodeByPosition(uri, getParserPositionFromVSCodePosition(position), analyzerTree);
 	}
 
-	private extractHighlightsFromNodeRecursive(name: string, node: Node, results: Node[], visitedNodes?: Node[]): void {
+	private extractHighlightsFromNodeRecursive(name: string, node: types.Node, results: types.Node[], visitedNodes?: types.Node[]): void {
 		if (!visitedNodes) {
 			visitedNodes = [];
 		}

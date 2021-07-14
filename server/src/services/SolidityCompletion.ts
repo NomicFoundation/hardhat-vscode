@@ -1,11 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import { Analyzer } from "solidity-parser";
-import {
-    DocumentAnalyzer, ImportDirectiveNode, ContractDefinitionNode,
-    Node, VariableDeclaration, FileLevelConstant, TypeName,
-    expressionNodeTypes, Position as NodePosition
-} from "solidity-parser/types";
+import { Analyzer, types } from "solidity-analyzer";
 
 import { getParserPositionFromVSCodePosition, findNodeModules } from "../utils";
 import { Position, CompletionList, CompletionItem, CompletionItemKind, MarkupKind } from "../types/languageTypes";
@@ -17,7 +12,7 @@ export class SolidityCompletion {
 		this.analyzer = analyzer;
 	}
 
-    public doComplete(rootPath: string, position: Position, documentAnalyzer: DocumentAnalyzer): CompletionList {
+    public doComplete(rootPath: string, position: Position, documentAnalyzer: types.DocumentAnalyzer): CompletionList {
         const analyzerTree = documentAnalyzer.analyzerTree.tree;
         const result: CompletionList = { isIncomplete: false, items: [] };
 
@@ -48,9 +43,9 @@ export class SolidityCompletion {
                 result.items = this.getSuperCompletions(documentAnalyzer, position);
             }
             else if (definitionNode && definitionNode.type === "ImportDirective") {
-                result.items = this.getImportPathCompletion(rootPath, definitionNode as ImportDirectiveNode);
+                result.items = this.getImportPathCompletion(rootPath, definitionNode as types.ImportDirectiveNode);
             }
-            else if (definitionNode && expressionNodeTypes.includes(definitionNode.getExpressionNode()?.type || "")) {
+            else if (definitionNode && types.expressionNodeTypes.includes(definitionNode.getExpressionNode()?.type || "")) {
                 result.items = this.getMemberAccessCompletions(documentAnalyzer.uri, position, definitionNode);
             }
             else {
@@ -61,7 +56,7 @@ export class SolidityCompletion {
         return result;
     }
 
-    private getThisCompletions(documentAnalyzer: DocumentAnalyzer, position: Position): CompletionItem[] {
+    private getThisCompletions(documentAnalyzer: types.DocumentAnalyzer, position: Position): CompletionItem[] {
         const completions: CompletionItem[] = [];
         const node = this.findContractDefinition(documentAnalyzer.analyzerTree.tree, {
             line: position.line + 1,
@@ -73,7 +68,7 @@ export class SolidityCompletion {
         return completions;
     }
 
-    private getSuperCompletions(documentAnalyzer: DocumentAnalyzer, position: Position): CompletionItem[] {
+    private getSuperCompletions(documentAnalyzer: types.DocumentAnalyzer, position: Position): CompletionItem[] {
         const completions: CompletionItem[] = [];
         const node = this.findContractDefinition(documentAnalyzer.analyzerTree.tree, {
             line: position.line + 1,
@@ -85,7 +80,7 @@ export class SolidityCompletion {
         return completions;
     }
 
-    private getImportPathCompletion(rootPath: string, node: ImportDirectiveNode): CompletionItem[] {
+    private getImportPathCompletion(rootPath: string, node: types.ImportDirectiveNode): CompletionItem[] {
         let completions: CompletionItem[] = [];
         const importPath = path.join(node.realUri, "..", node.astNode.path);
         let nodeModulesPath = findNodeModules(node.realUri, rootPath);
@@ -105,8 +100,8 @@ export class SolidityCompletion {
         return completions;
     }
 
-    private getMemberAccessCompletions(uri: string, position: Position, node: Node): CompletionItem[] {
-        const definitionNodes: Node[] = [];
+    private getMemberAccessCompletions(uri: string, position: Position, node: types.Node): CompletionItem[] {
+        const definitionNodes: types.Node[] = [];
         const documentAnalyzer = this.analyzer.getDocumentAnalyzer(uri);
         const cursorPosition = getParserPositionFromVSCodePosition(position);
 
@@ -125,10 +120,10 @@ export class SolidityCompletion {
         return this.getCompletionsFromNodes(definitionNodes);
     }
 
-    private getDefaultCompletions(uri: string, position: Position, analyzerTree: Node): CompletionItem[] {
+    private getDefaultCompletions(uri: string, position: Position, analyzerTree: types.Node): CompletionItem[] {
         const documentAnalyzer = this.analyzer.getDocumentAnalyzer(uri);
 
-        const definitionNodes: Node[] = documentAnalyzer.searcher.findDefinitionNodes(
+        const definitionNodes: types.Node[] = documentAnalyzer.searcher.findDefinitionNodes(
             uri,
             getParserPositionFromVSCodePosition(position),
             analyzerTree
@@ -166,11 +161,11 @@ export class SolidityCompletion {
         return completions;
     }
 
-    private getCompletionsFromNodes(nodes: Node[]): CompletionItem[] {
+    private getCompletionsFromNodes(nodes: types.Node[]): CompletionItem[] {
         const completions: CompletionItem[] = [];
-        let typeNode: TypeName | null;
+        let typeNode: types.TypeName | null;
         let item: CompletionItem;
-        let contractDefinitionNode: ContractDefinitionNode;
+        let contractDefinitionNode: types.ContractDefinitionNode;
 
         for (let node of nodes) {
             const name = node.getName();
@@ -183,7 +178,7 @@ export class SolidityCompletion {
 
                 switch (node.type) {
                     case "ContractDefinition":
-                        contractDefinitionNode = node as ContractDefinitionNode;
+                        contractDefinitionNode = node as types.ContractDefinitionNode;
 
                         switch (contractDefinitionNode.getKind()) {
                             case "interface":
@@ -255,7 +250,7 @@ export class SolidityCompletion {
                         break;
 
                     case "VariableDeclaration":
-                        typeNode = (node.astNode as VariableDeclaration).typeName;
+                        typeNode = (node.astNode as types.VariableDeclaration).typeName;
 
                         item = {
                             label: name,
@@ -268,7 +263,7 @@ export class SolidityCompletion {
                         break;
 
                     case "FileLevelConstant":
-                        typeNode = (node.astNode as FileLevelConstant).typeName;
+                        typeNode = (node.astNode as types.FileLevelConstant).typeName;
 
                         item = {
                             label: name,
@@ -306,7 +301,7 @@ export class SolidityCompletion {
         return completions;
     }
 
-    private getTypeName(typeNode: TypeName | null): string {
+    private getTypeName(typeNode: types.TypeName | null): string {
         switch (typeNode?.type) {
             case "ElementaryTypeName":
                 return typeNode.name;
@@ -324,7 +319,7 @@ export class SolidityCompletion {
         return "";
     }
 
-    private findNodeByPosition(uri: string, position: Position, analyzerTree: Node): Node | undefined {
+    private findNodeByPosition(uri: string, position: Position, analyzerTree: types.Node): types.Node | undefined {
         const documentAnalyzer = this.analyzer.getDocumentAnalyzer(uri);
 
 		return documentAnalyzer.searcher.findNodeByPosition(
@@ -335,7 +330,7 @@ export class SolidityCompletion {
         );
 	}
 
-    private isNodePosition(node: Node, position: NodePosition): boolean {
+    private isNodePosition(node: types.Node, position: types.Position): boolean {
         if (
             node.nameLoc &&
             node.nameLoc.start.line === position.line &&
@@ -349,7 +344,7 @@ export class SolidityCompletion {
         return false;
     }
 
-    private findContractDefinition(from: Node | undefined, position: NodePosition, visitedNodes?: Node[]): Node | undefined {
+    private findContractDefinition(from: types.Node | undefined, position: types.Position, visitedNodes?: types.Node[]): types.Node | undefined {
         if (!visitedNodes) {
             visitedNodes = [];
         }
@@ -373,7 +368,7 @@ export class SolidityCompletion {
             return from;
         }
 
-        let contractDefinitionNode: Node | undefined;
+        let contractDefinitionNode: types.Node | undefined;
         for (const child of from.children) {
             contractDefinitionNode = this.findContractDefinition(child, position, visitedNodes);
 

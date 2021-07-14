@@ -1,5 +1,0 @@
-{
-    "name": "solidity-parser/types",
-    "private": true,
-    "main": "../dist/types.js"
-}
