@@ -57,15 +57,19 @@ export class SolidityCompletion {
     }
 
     private getThisCompletions(documentAnalyzer: types.DocumentAnalyzer, position: Position): CompletionItem[] {
-        const completions: CompletionItem[] = [];
-        const node = this.findContractDefinition(documentAnalyzer.analyzerTree.tree, {
+        const definitionNodes: types.Node[] = [];
+        const contractDefinitionNode = this.findContractDefinition(documentAnalyzer.analyzerTree.tree, {
             line: position.line + 1,
             column: position.character
         });
 
-        console.log(node);
+        for (const definitionNode of contractDefinitionNode?.children || []) {
+            if (contractDefinitionNode?.getName() !== definitionNode.getName()) {
+                definitionNodes.push(definitionNode);
+            }
+        }
 
-        return completions;
+        return this.getCompletionsFromNodes(definitionNodes);
     }
 
     private getSuperCompletions(documentAnalyzer: types.DocumentAnalyzer, position: Position): CompletionItem[] {
@@ -75,7 +79,7 @@ export class SolidityCompletion {
             column: position.character
         });
 
-        console.log(node);
+        // console.log(node);
 
         return completions;
     }

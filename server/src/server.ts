@@ -82,8 +82,6 @@ connection.onInitialized(() => {
 	}
 });
 
-
-// ---------------------------------------------------------------------------------
 function analyzeFunc(uri: string): void {
 	console.log('debounced onDidChangeContent');
 
