@@ -200,6 +200,19 @@ export class Searcher implements ISearcher {
     }
 
     /**
+     * @returns Node visibility type.
+     */
+    public getNodeVisibility(node: Node): string | undefined {
+        if (node.type === "FunctionDefinition") {
+            return (node as FunctionDefinitionNode).getVisibility();
+        } else if (node.type === "VariableDeclaration") {
+            return (node as VariableDeclarationNode).getVisibility();
+        }
+
+        return undefined;
+    }
+
+    /**
      * @param uri Path to the file. Uri needs to be decoded and without the "file://" prefix.
      * @param position Position in the file.
      * @param from From which Node do we start searching.
@@ -584,18 +597,5 @@ export class Searcher implements ISearcher {
         for (const child of from.children) {
             this._findDefinitionNodes(uri, position, child, definitionNodes, isShadowedByParent, visitedNodes, visitedFiles);
         }
-    }
-
-    /**
-     * @returns Node visibility type.
-     */
-    private getNodeVisibility(node: Node): string | undefined {
-        if (node.type === "FunctionDefinition") {
-            return (node as FunctionDefinitionNode).getVisibility();
-        } else if (node.type === "VariableDeclaration") {
-            return (node as VariableDeclarationNode).getVisibility();
-        }
-
-        return undefined;
     }
 }

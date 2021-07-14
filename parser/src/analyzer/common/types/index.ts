@@ -112,6 +112,11 @@ export interface Searcher {
      * @returns If the node is visible, we will return true, otherwise it will be false.
      */
     checkIsNodeVisible(uri: string, position: Position, node: Node): boolean;
+
+    /**
+     * @returns Node visibility type.
+     */
+    getNodeVisibility(node: Node): string | undefined;
 }
 
 export interface DocumentAnalyzer {

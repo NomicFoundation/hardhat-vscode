@@ -58,10 +58,9 @@ export class SolidityCompletion {
 
     private getThisCompletions(documentAnalyzer: types.DocumentAnalyzer, position: Position): CompletionItem[] {
         const definitionNodes: types.Node[] = [];
-        const contractDefinitionNode = this.findContractDefinition(documentAnalyzer.analyzerTree.tree, {
-            line: position.line + 1,
-            column: position.character
-        });
+        const cursorPosition = getParserPositionFromVSCodePosition(position);
+
+        const contractDefinitionNode = this.findContractDefinition(documentAnalyzer.analyzerTree.tree, cursorPosition);
 
         for (const definitionNode of contractDefinitionNode?.children || []) {
             if (contractDefinitionNode?.getName() !== definitionNode.getName()) {
@@ -73,15 +72,22 @@ export class SolidityCompletion {
     }
 
     private getSuperCompletions(documentAnalyzer: types.DocumentAnalyzer, position: Position): CompletionItem[] {
-        const completions: CompletionItem[] = [];
-        const node = this.findContractDefinition(documentAnalyzer.analyzerTree.tree, {
-            line: position.line + 1,
-            column: position.character
-        });
+        const definitionNodes: types.Node[] = [];
+        const cursorPosition = getParserPositionFromVSCodePosition(position);
 
-        // console.log(node);
+        const contractDefinitionNode = this.findContractDefinition(documentAnalyzer.analyzerTree.tree, cursorPosition);
 
-        return completions;
+        for (const inheritanceNode of contractDefinitionNode?.getInheritanceNodes() || []) {
+            for (const definitionNode of inheritanceNode.children) {
+                const visibility = documentAnalyzer.searcher.getNodeVisibility(definitionNode);
+
+                if (visibility !== "private" && contractDefinitionNode?.getName() !== definitionNode.getName()) {
+                    definitionNodes.push(definitionNode);
+                }
+            }
+        }
+
+        return this.getCompletionsFromNodes(definitionNodes);
     }
 
     private getImportPathCompletion(rootPath: string, node: types.ImportDirectiveNode): CompletionItem[] {
@@ -110,12 +116,12 @@ export class SolidityCompletion {
         const cursorPosition = getParserPositionFromVSCodePosition(position);
 
         for (const definitionType of node.getTypeNodes()) {
-            for (const definitionChild of definitionType.children) {
-                if (definitionType.uri === definitionChild.uri) {
-                    const isVisible = documentAnalyzer.searcher.checkIsNodeVisible(uri, cursorPosition, definitionChild);
+            for (const definitionNode of definitionType.children) {
+                if (definitionType.uri === definitionNode.uri) {
+                    const isVisible = documentAnalyzer.searcher.checkIsNodeVisible(uri, cursorPosition, definitionNode);
 
-                    if (isVisible && definitionChild.getName() !== definitionType.getName()) {
-                        definitionNodes.push(definitionChild);
+                    if (isVisible && definitionNode.getName() !== definitionType.getName()) {
+                        definitionNodes.push(definitionNode);
                     }
                 }
             }
@@ -348,7 +354,7 @@ export class SolidityCompletion {
         return false;
     }
 
-    private findContractDefinition(from: types.Node | undefined, position: types.Position, visitedNodes?: types.Node[]): types.Node | undefined {
+    private findContractDefinition(from: types.Node | undefined, position: types.Position, visitedNodes?: types.Node[]): types.ContractDefinitionNode | undefined {
         if (!visitedNodes) {
             visitedNodes = [];
         }
@@ -369,7 +375,7 @@ export class SolidityCompletion {
             from.astNode.loc.end.line >= position.line &&
             from.type === "ContractDefinition"
         ) {
-            return from;
+            return from as types.ContractDefinitionNode;
         }
 
         let contractDefinitionNode: types.Node | undefined;
@@ -377,7 +383,7 @@ export class SolidityCompletion {
             contractDefinitionNode = this.findContractDefinition(child, position, visitedNodes);
 
             if (contractDefinitionNode) {
-                return contractDefinitionNode;
+                return contractDefinitionNode as types.ContractDefinitionNode;
             }
         }
     }
