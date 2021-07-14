@@ -4,11 +4,9 @@
  * ------------------------------------------------------------------------------------------ */
 import {
 	createConnection, TextDocuments, ProposedFeatures, InitializeParams,
-	DidChangeConfigurationNotification, CompletionItem, CompletionList,
-	TextDocumentPositionParams, TextDocumentSyncKind, InitializeResult
+	CompletionList, TextDocumentPositionParams, TextDocumentSyncKind, InitializeResult
 } from 'vscode-languageserver/node';
 
-import { MarkupKind } from 'vscode-languageserver-types';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import { getUriFromDocument, decodeUriAndRemoveFilePrefix, debounce } from './utils';
