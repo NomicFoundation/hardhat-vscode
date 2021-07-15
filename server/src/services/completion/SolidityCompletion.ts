@@ -2,8 +2,9 @@ import * as fs from "fs";
 import * as path from "path";
 import { Analyzer, types } from "solidity-analyzer";
 
-import { getParserPositionFromVSCodePosition, findNodeModules } from "../utils";
-import { Position, CompletionList, CompletionItem, CompletionItemKind, MarkupKind } from "../types/languageTypes";
+import { getParserPositionFromVSCodePosition, findNodeModules } from "../../utils";
+import { Position, CompletionList, CompletionItem, CompletionItemKind, MarkupKind } from "../../types/languageTypes";
+import { defaultCompletion } from "./defaultCompletion";
 
 export class SolidityCompletion {
     analyzer: Analyzer
@@ -139,7 +140,10 @@ export class SolidityCompletion {
             analyzerTree
         );
 
-        return this.getCompletionsFromNodes(definitionNodes);
+        return [
+            ...this.getCompletionsFromNodes(definitionNodes),
+            ...defaultCompletion
+        ];
     }
 
     private getCompletionsFromFiles(importPath: string, files: string[]): CompletionItem[] {

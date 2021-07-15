@@ -80,15 +80,25 @@
 			"body": "event ${1:Name}(${2});",
 			"description": "Event statement."
 		},
-        "require statement": {
+        "revert statement": {
+			"prefix": "revert",
+			"body": "revert (${1});",
+			"description": "Revert statement."
+		},
+		"require statement": {
 			"prefix": "require",
 			"body": "require (${1});",
 			"description": "Require statement."
 		},
-        "assembly statement": {
+		"unchecked block": {
+			"prefix": "unchecked",
+			"body": "unchecked {\n\t${1}\n}",
+			"description": "Unchecked block."
+		},
+        "assembly block": {
 			"prefix": "assembly",
 			"body": "assembly {\n\t${1}\n}",
-			"description": "Assembly statement."
+			"description": "Assembly block."
 		},
         "mapping declaration": {
 			"prefix": "mapping",

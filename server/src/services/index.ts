@@ -1,7 +1,7 @@
 import { Analyzer } from "solidity-analyzer";
 
-import { SolidityNavigation } from './SolidityNavigation';
-import { SolidityCompletion } from './SolidityCompletion';
+import { SolidityNavigation } from './navigation/SolidityNavigation';
+import { SolidityCompletion } from './completion/SolidityCompletion';
 
 export class LanguageService {
 	analyzer: Analyzer;

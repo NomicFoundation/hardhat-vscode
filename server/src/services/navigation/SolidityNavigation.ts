@@ -1,10 +1,10 @@
 import { Analyzer, types } from "solidity-analyzer";
 
-import { getParserPositionFromVSCodePosition, getRange } from "../utils";
+import { getParserPositionFromVSCodePosition, getRange } from "../../utils";
 import {
 	TextDocument, Position, Location,
 	WorkspaceEdit, TextEdit
-} from "../types/languageTypes";
+} from "../../types/languageTypes";
 
 export class SolidityNavigation {
 	analyzer: Analyzer
