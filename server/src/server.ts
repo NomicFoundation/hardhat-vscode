@@ -4,7 +4,7 @@
  * ------------------------------------------------------------------------------------------ */
 import {
 	createConnection, TextDocuments, ProposedFeatures, InitializeParams,
-	CompletionList, TextDocumentPositionParams, TextDocumentSyncKind, InitializeResult
+	CompletionList, CompletionParams, TextDocumentSyncKind, InitializeResult
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -112,27 +112,30 @@ documents.onDidChangeContent(change => {
 
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
-	(_textDocumentPosition: TextDocumentPositionParams): CompletionList | undefined => {
-		console.log('server onCompletion', _textDocumentPosition);
+	(params: CompletionParams): CompletionList | undefined => {
+		console.log('server onCompletion', params);
 
 		try {
-			const document = documents.get(_textDocumentPosition.textDocument.uri);
+			const document = documents.get(params.textDocument.uri);
 
 			if (document) {
 				const documentText = document.getText();
+				let newDocumentText = documentText;
 
-				// Hack where we insert ";" because the tolerance mode @solidity-parser/parser crashes as we type.
+				// Hack if triggerCharacter was "." then we insert ";" because the tolerance mode @solidity-parser/parser crashes as we type.
 				// This only happens if there is no ";" at the end of the line.
-				let offset = document.offsetAt(_textDocumentPosition.position);
-				offset = documentText.indexOf("\n", offset) > offset ? documentText.indexOf("\n", offset) : offset;
-				const newDocumentText = documentText.slice(0, offset) + ";" + documentText.slice(offset);
+				if (params.context?.triggerCharacter === ".") {
+					const cursorOffset = document.offsetAt(params.position);
+					const eofOffset = documentText.indexOf("\n", cursorOffset) > cursorOffset ? documentText.indexOf("\n", cursorOffset) : cursorOffset;
+					newDocumentText = documentText.slice(0, cursorOffset) + "_" + documentText.slice(cursorOffset, eofOffset) + ";";
+				}
 
 				const documentURI = getUriFromDocument(document);
 				languageServer.analyzer.analyzeDocument(newDocumentText, documentURI);
 
 				const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 				if (documentAnalyzer) {
-					return languageServer.solidityCompletion.doComplete(documentAnalyzer.rootPath, _textDocumentPosition.position, documentAnalyzer);
+					return languageServer.solidityCompletion.doComplete(documentAnalyzer.rootPath, params.position, documentAnalyzer);
 				}
 			}
 		} catch (err) {
