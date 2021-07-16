@@ -14,7 +14,7 @@
 	"scripts": {
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
-		"link": "cd parser && yarn link && cd ../server && yarn link solidity-parser && cd ..",
+		"link": "cd vscode-solidity-languageservice && yarn link && cd ../server && yarn link vscode-solidity-languageservice && cd ..",
 		"client-test": "cd client && tsc -b && yarn run test && cd .."
 	},
 	"devDependencies": {
