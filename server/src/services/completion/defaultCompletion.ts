@@ -11,11 +11,28 @@ const functionVisibilitySpecifiers = [ "public", "private", "external", "interna
 const modifiers = [ "pure", "view", "payable", "constant", "immutable", "anonymous", "indexed", "virtual", "override" ];
 const reservedKeywords = [ "after", "alias", "apply", "auto", "case", "copyof", "default", "define", "final", "immutable", "implements", "in", "inline", "let", "macro", "match", "mutable", "null", "of", "partial", "promise", "reference", "relocatable", "sealed", "sizeof", "static", "supports", "switch", "typedef", "typeof", "unchecked" ];
 
-const globalVariables = [ "abi", "block", "msg", "tx" ];
+const globalFunctions = [ "gasleft", "blockhash", "keccak256", "sha256", "ripemd160", "ecrecover", "addmod", "mulmod", "selfdestruct" ];
+
+type GlobalVariablesType = { [ globalVariable: string ]: string[] }
+export const globalVariables: GlobalVariablesType = {
+    abi: [ "decode", "encode", "encodePacked", "encodeWithSelector", "encodeWithSignature", "encodeWithSelector" ],
+    bytes: [ "concat" ],
+    block: [ "chainid", "coinbase", "difficulty", "gaslimit", "number", "timestamp" ],
+    msg: [ "data", "sender", "value" ],
+    tx: [ "gasprice", "origin" ],
+};
 
 export const defaultCompletion = [
+    // --------------- Global Functions ---------------
+    ...globalFunctions.map(globalFunction => {
+        return {
+            label: globalFunction,
+            kind: CompletionItemKind.Function
+        };
+    }),
+
     // --------------- Global Variables ---------------
-    ...globalVariables.map(globalVariable => {
+    ...Object.keys(globalVariables).map(globalVariable => {
         return {
             label: globalVariable,
             kind: CompletionItemKind.Variable

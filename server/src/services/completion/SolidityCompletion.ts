@@ -4,7 +4,7 @@ import { Analyzer, types } from "solidity-analyzer";
 
 import { getParserPositionFromVSCodePosition, findNodeModules } from "../../utils";
 import { Position, CompletionList, CompletionItem, CompletionItemKind, MarkupKind } from "../../types/languageTypes";
-import { defaultCompletion } from "./defaultCompletion";
+import { globalVariables, defaultCompletion } from "./defaultCompletion";
 
 export class SolidityCompletion {
     analyzer: Analyzer
@@ -21,11 +21,11 @@ export class SolidityCompletion {
             let definitionNode = this.findNodeByPosition(documentAnalyzer.uri, position, analyzerTree);
 
             // Check if the definitionNode exists and if not, we will check if maybe Node exists in orphan Nodes.
-            // This is important for "this" and "super" keywords because they exist only in orphanNodes.
+            // This is important for "this", "super" and global variables because they exist only in orphanNodes.
             if (!definitionNode) {
                 const newPosition = {
                     line: position.line + 1,
-                    column: position.character - 3
+                    column: position.character - 1 // -1 because we want to get the element before "."
                 };
 
                 for (const orphanNode of documentAnalyzer.orphanNodes) {
@@ -42,6 +42,9 @@ export class SolidityCompletion {
             }
             else if (definitionNodeName === "super") {
                 result.items = this.getSuperCompletions(documentAnalyzer, position);
+            }
+            else if (definitionNodeName && Object.keys(globalVariables).includes(definitionNodeName)) {
+                result.items = this.getGlobalVariableCompletions(definitionNodeName);
             }
             else if (definitionNode && definitionNode.type === "ImportDirective") {
                 result.items = this.getImportPathCompletion(rootPath, definitionNode as types.ImportDirectiveNode);
@@ -89,6 +92,21 @@ export class SolidityCompletion {
         }
 
         return this.getCompletionsFromNodes(definitionNodes);
+    }
+    
+    private getGlobalVariableCompletions(globalVariable: string): CompletionItem[] {
+        const globalVariableFunctions = globalVariables[globalVariable];
+
+        if (globalVariableFunctions) {
+            return globalVariableFunctions.map((globalVariableFunction: string) => {
+                return {
+                    label: globalVariableFunction,
+                    kind: CompletionItemKind.Function
+                };
+            });
+        }
+
+        return [];
     }
 
     private getImportPathCompletion(rootPath: string, node: types.ImportDirectiveNode): CompletionItem[] {
