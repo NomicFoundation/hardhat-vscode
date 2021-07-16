@@ -1,230 +1,77 @@
 import { CompletionItemKind } from "../../types/languageTypes"; 
 
+const elementaryTypeNames = [ "address", "bool", "string", "var" ];
+const ints = [ "int", "int8", "int16", "int24", "int32", "int40", "int48", "int56", "int64", "int72", "int80", "int88", "int96", "int104", "int112", "int120", "int128", "int136", "int144", "int152", "int160", "int168", "int176", "int184", "int192", "int200", "int208", "int216", "int224", "int232", "int240", "int248", "int256" ];
+const uints = [ "uint", "uint8", "uint16", "uint24", "uint32", "uint40", "uint48", "uint56", "uint64", "uint72", "uint80", "uint88", "uint96", "uint104", "uint112", "uint120", "uint128", "uint136", "uint144", "uint152", "uint160", "uint168", "uint176", "uint184", "uint192", "uint200", "uint208", "uint216", "uint224", "uint232", "uint240", "uint248", "uint256" ];
+const bytes = [ "byte", "bytes", "bytes1", "bytes2", "bytes3", "bytes4", "bytes5", "bytes6", "bytes7", "bytes8", "bytes9", "bytes10", "bytes11", "bytes12", "bytes13", "bytes14", "bytes15", "bytes16", "bytes17", "bytes18", "bytes19", "bytes20", "bytes21", "bytes22", "bytes23", "bytes24", "bytes25", "bytes26", "bytes27", "bytes28", "bytes29", "bytes30", "bytes31", "bytes32" ];
+const fixed = 'fixed';
+const ufixed = 'ufixed';
+
+const functionVisibilitySpecifiers = [ "public", "private", "external", "internal" ];
+const modifiers = [ "pure", "view", "payable", "constant", "immutable", "anonymous", "indexed", "virtual", "override" ];
+const reservedKeywords = [ "after", "alias", "apply", "auto", "case", "copyof", "default", "define", "final", "immutable", "implements", "in", "inline", "let", "macro", "match", "mutable", "null", "of", "partial", "promise", "reference", "relocatable", "sealed", "sizeof", "static", "supports", "switch", "typedef", "typeof", "unchecked" ];
+
+const globalVariables = [ "abi", "block", "msg", "tx" ];
+
 export const defaultCompletion = [
     // --------------- Global Variables ---------------
-    {
-        label: "abi",
-        kind: CompletionItemKind.Variable
-    },
-    {
-        label: "block",
-        kind: CompletionItemKind.Variable
-    },
-    {
-        label: "msg",
-        kind: CompletionItemKind.Variable
-    },
-    {
-        label: "tx",
-        kind: CompletionItemKind.Variable
-    },
+    ...globalVariables.map(globalVariable => {
+        return {
+            label: globalVariable,
+            kind: CompletionItemKind.Variable
+        };
+    }),
+    
     // --------------- Keywords ---------------
+    ...functionVisibilitySpecifiers.map(functionVisibilitySpecifier => {
+        return {
+            label: functionVisibilitySpecifier,
+            kind: CompletionItemKind.Keyword
+        };
+    }),
+    ...modifiers.map(modifier => {
+        return {
+            label: modifier,
+            kind: CompletionItemKind.Keyword
+        };
+    }),
+    ...reservedKeywords.map(reservedKeyword => {
+        return {
+            label: reservedKeyword,
+            kind: CompletionItemKind.Keyword
+        };
+    }),
+
+    ...elementaryTypeNames.map(elementaryTypeName => {
+        return {
+            label: elementaryTypeName,
+            kind: CompletionItemKind.Keyword
+        };
+    }),
+    ...ints.map(intType => {
+        return {
+            label: intType,
+            kind: CompletionItemKind.Keyword
+        };
+    }),
+    ...uints.map(uintType => {
+        return {
+            label: uintType,
+            kind: CompletionItemKind.Keyword
+        };
+    }),
+    ...bytes.map(byteType => {
+        return {
+            label: byteType,
+            kind: CompletionItemKind.Keyword
+        };
+    }),
     {
-        label: "bytes",
+        label: fixed,
         kind: CompletionItemKind.Keyword
     },
     {
-        label: "address",
+        label: ufixed,
         kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "this",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "super",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "public",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "private",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "external",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "internal",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "memory",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "pure",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "view",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "payable",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "constant",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "immutable",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "anonymous",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "indexed",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "virtual",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "override",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "immutable",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "final",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "static",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "let",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "delete",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "return",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "try",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "catch",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "case",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "default",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "define",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "implements",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "mutable",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "sizeof",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "switch",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "typedef",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "typeof",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "in",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "of",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "null",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "inline",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "after",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "alias",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "apply",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "auto",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "copyof",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "macro",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "match",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "partial",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "promise",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "reference",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "relocatable",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "sealed",
-        kind: CompletionItemKind.Keyword
-    },
-    {
-        label: "supports",
-        kind: CompletionItemKind.Keyword
-    },
+    }
 ];
