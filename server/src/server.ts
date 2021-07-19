@@ -10,7 +10,7 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import { getUriFromDocument, decodeUriAndRemoveFilePrefix, debounce } from './utils';
-import { LanguageService } from '../../vscode-solidity-languageservice/dist';
+import { LanguageService } from 'vscode-solidity-languageservice';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
