@@ -1,5 +1,3 @@
-import "module-alias/register";
-
 import { Analyzer } from "@analyzer/index";
 
 import { SolidityNavigation } from '@services/navigation/SolidityNavigation';

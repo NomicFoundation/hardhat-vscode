@@ -4,16 +4,19 @@
 		"lib": ["ES2019"],
 		"module": "commonjs",
 		"moduleResolution": "node",
+		"outDir": "dist",
+		"rootDir": "src",
 		"sourceMap": true,
 		"strict": true,
 		"composite": true,
 		"declaration": true,
-		"outDir": "dist",
-		"rootDir": "src"
+		"baseUrl": "./src",
+		"paths": {
+			"@analyzer/*": ["./parser/analyzer/*"],
+			"@common/*": ["./parser/common/*"],
+			"@services/*": ["./parser/services/*"],
+		}
 	},
 	"include": ["src"],
 	"exclude": ["node_modules", ".vscode-test"],
-	"references": [
-		{ "path": "../vscode-solidity-languageservice" },
-	]
 }

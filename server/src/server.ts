@@ -1,7 +1,5 @@
-/* --------------------------------------------------------------------------------------------
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- * ------------------------------------------------------------------------------------------ */
+import "module-alias/register";
+
 import {
 	createConnection, TextDocuments, ProposedFeatures, InitializeParams,
 	CompletionList, CompletionParams, TextDocumentSyncKind, InitializeResult
@@ -10,7 +8,7 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import { getUriFromDocument, decodeUriAndRemoveFilePrefix, debounce } from './utils';
-import { LanguageService } from 'vscode-solidity-languageservice';
+import { LanguageService } from './parser';
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
