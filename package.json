@@ -1,16 +1,25 @@
 {
 	"name": "solidity-extension",
 	"publisher": "tenderly",
-	"description": "",
+	"description": "The solidity-extension contains the language smarts behind the solidity editing experience of Visual Studio Code.",
 	"license": "MIT",
 	"version": "0.0.1",
-	"activationEvents": [
-		"onLanguage:solidity"
-	],
-	"main": "./client/dist/extension",
+	"main": "./client/dist/extension.js",
+	"module": "./client/dist/extension.js",
+	"icon": "docs/images/solidity-logo.png",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Tenderly/vscode-solidity"
+	},
+	"bugs": {
+		"url": "https://github.com/Tenderly/vscode-solidity/issues"
+	},
 	"engines": {
 		"vscode": "^1.55.0"
 	},
+	"activationEvents": [
+		"onLanguage:solidity"
+	],
 	"scripts": {
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
@@ -23,7 +32,6 @@
 		"eslint": "^6.4.0",
 		"typescript": "^4.2.2"
 	},
-	"dependencies": {},
 	"contributes": {
 		"configuration": {
 			"type": "object",

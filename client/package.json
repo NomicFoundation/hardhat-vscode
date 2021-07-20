@@ -3,6 +3,8 @@
 	"description": "",
 	"license": "MIT",
 	"version": "0.0.1",
+	"main": "./dist/extension.js",
+	"module": "./dist/extension.js",
 	"scripts": {
 		"test": "node dist/test/runTests.js"
 	},
