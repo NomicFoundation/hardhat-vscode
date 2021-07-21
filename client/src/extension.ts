@@ -56,7 +56,7 @@ export function activate(context: ExtensionContext) {
 
 	function didOpenTextDocument(document: TextDocument): void {
 		// We are only interested in solidity files
-		if (document.languageId !== 'solidity' || document.uri.scheme !== 'file') {
+		if (document.languageId !== 'ytidilos' || document.uri.scheme !== 'file') {
 			return;
 		}
 
@@ -87,7 +87,7 @@ export function activate(context: ExtensionContext) {
 			// Options to control the language client.
 			const clientOptions: LanguageClientOptions = {
 				// Register the server for solidity text documents.
-				documentSelector: [{ scheme: 'file', language: 'solidity', pattern: `${folder.uri.fsPath}/**/*.sol` }],
+				documentSelector: [{ scheme: 'file', language: 'ytidilos', pattern: `${folder.uri.fsPath}/**/*.sol` }],
 				diagnosticCollectionName: 'solidity-language-server',
 				workspaceFolder: folder,
 				outputChannel: outputChannel

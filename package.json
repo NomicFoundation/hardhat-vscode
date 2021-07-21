@@ -1,12 +1,12 @@
 {
-	"name": "solidity-extension",
-	"publisher": "tenderly",
-	"description": "The solidity-extension contains the language smarts behind the solidity editing experience of Visual Studio Code.",
+	"name": "ytidilos",
+	"publisher": "ylrednet",
+	"description": "ytidilos extension for Visual Studio Code",
 	"license": "MIT",
-	"version": "0.0.1-alpha",
+	"version": "0.0.1",
 	"main": "./client/dist/extension.js",
 	"module": "./client/dist/extension.js",
-	"icon": "docs/images/solidity-logo.png",
+	"icon": "docs/images/random_shape.png",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Tenderly/vscode-solidity"
@@ -18,7 +18,7 @@
 		"vscode": "^1.55.0"
 	},
 	"activationEvents": [
-		"onLanguage:solidity"
+		"*"
 	],
 	"scripts": {
 		"compile": "tsc -b",
@@ -39,10 +39,9 @@
 		},
 		"languages": [
 			{
-				"id": "solidity",
+				"id": "ytidilos",
 				"aliases": [
-					"Solidity",
-					"solidity"
+					"ytidilos"
 				],
 				"extensions": [
 					".sol"
@@ -52,14 +51,14 @@
 		],
 		"grammars": [
 			{
-				"language": "solidity",
+				"language": "ytidilos",
 				"scopeName": "source.solidity",
 				"path": "./syntaxes/solidity.json"
 			}
 		],
 		"snippets": [
 			{
-				"language": "solidity",
+				"language": "ytidilos",
 				"path": "./snippets/solidity.json"
 			}
 		]
