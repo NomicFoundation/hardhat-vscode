@@ -70,25 +70,10 @@
 			"body": "modifier ${1:name} {\n\t${2}\n}",
 			"description": "Modifier definition."
 		},
-		"assert statement": {
-			"prefix": "assert",
-			"body": "assert ($1);",
-			"description": "Assert statement."
-		},
         "event statement": {
 			"prefix": "event",
 			"body": "event ${1:Name}(${2});",
 			"description": "Event statement."
-		},
-        "revert statement": {
-			"prefix": "revert",
-			"body": "revert (${1});",
-			"description": "Revert statement."
-		},
-		"require statement": {
-			"prefix": "require",
-			"body": "require (${1});",
-			"description": "Require statement."
 		},
 		"unchecked block": {
 			"prefix": "unchecked",

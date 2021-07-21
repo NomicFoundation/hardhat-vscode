@@ -10,6 +10,7 @@ const ufixed = 'ufixed';
 const functionVisibilitySpecifiers = [ "public", "private", "external", "internal" ];
 const modifiers = [ "pure", "view", "payable", "constant", "immutable", "anonymous", "indexed", "virtual", "override" ];
 const reservedKeywords = [ "after", "alias", "apply", "auto", "case", "copyof", "default", "define", "final", "immutable", "implements", "in", "inline", "let", "macro", "match", "mutable", "null", "of", "partial", "promise", "reference", "relocatable", "sealed", "sizeof", "static", "supports", "switch", "typedef", "typeof", "unchecked" ];
+const statements = [ "assert", "revert", "require" ];
 
 const globalFunctions = [ "gasleft", "blockhash", "keccak256", "sha256", "ripemd160", "ecrecover", "addmod", "mulmod", "selfdestruct" ];
 
@@ -55,6 +56,12 @@ export const defaultCompletion = [
     ...reservedKeywords.map(reservedKeyword => {
         return {
             label: reservedKeyword,
+            kind: CompletionItemKind.Keyword
+        };
+    }),
+    ...statements.map(statement => {
+        return {
+            label: statement,
             kind: CompletionItemKind.Keyword
         };
     }),
