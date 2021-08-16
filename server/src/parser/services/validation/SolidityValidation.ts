@@ -1,16 +1,3 @@
-const {
-	TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS,
-	TASK_COMPILE_SOLIDITY_GET_SOURCE_NAMES,
-	TASK_COMPILE_SOLIDITY_GET_DEPENDENCY_GRAPH,
-	TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE,
-	TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT,
-	TASK_COMPILE_SOLIDITY_COMPILE
-} = require("hardhat/builtin-tasks/task-names");
-const {
-	getSolidityFilesCachePath,
-	SolidityFilesCache,
-} = require("hardhat/builtin-tasks/utils/solidity-files-cache");
-
 import { Analyzer } from "@analyzer/index";
 import {
 	TextDocument, Diagnostic, DiagnosticSeverity, Range
@@ -30,6 +17,20 @@ export class SolidityValidation {
 		if (hre === undefined) {
 			return Promise.resolve({});
 		}
+
+		const {
+			TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS,
+			TASK_COMPILE_SOLIDITY_GET_SOURCE_NAMES,
+			TASK_COMPILE_SOLIDITY_GET_DEPENDENCY_GRAPH,
+			TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE,
+			TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT,
+			TASK_COMPILE_SOLIDITY_COMPILE
+		} = require("hardhat/builtin-tasks/task-names");
+
+		const {
+			getSolidityFilesCachePath,
+			SolidityFilesCache,
+		} = require("hardhat/builtin-tasks/utils/solidity-files-cache");
 
 		const sourcePaths = await hre.run(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS);
 
