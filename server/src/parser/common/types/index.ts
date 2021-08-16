@@ -15,13 +15,14 @@ import {
     StateVariableDeclaration, StringLiteral, StructDefinition, SubAssembly,
     ThrowStatement, TryStatement, TupleExpression, TypeNameExpression, UnaryOperation,
     UncheckedStatement, UserDefinedTypeName, UsingForDeclaration, VariableDeclaration,
-    StateVariableDeclarationVariable, VariableDeclarationStatement, WhileStatement, BaseASTNode
+    StateVariableDeclarationVariable, VariableDeclarationStatement, WhileStatement,
+    BaseASTNode
 } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { 
 	Position as VSCodePosition, WorkspaceEdit, DocumentHighlight, TextEdit, Range,
 	DocumentHighlightKind, MarkupKind, Definition, Hover, Location as VSCodeLocation,
-	CompletionList, CompletionItem, CompletionItemKind
+	CompletionList, CompletionItem, CompletionItemKind, Diagnostic, DiagnosticSeverity
 } from 'vscode-languageserver-types';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -46,7 +47,7 @@ export {
     StateVariableDeclarationVariable, VariableDeclarationStatement, WhileStatement,
     TextDocument, VSCodePosition, WorkspaceEdit, DocumentHighlight, TextEdit,
 	Range, DocumentHighlightKind, MarkupKind, Definition, Hover, VSCodeLocation,
-	CompletionList, CompletionItem, CompletionItemKind
+	CompletionList, CompletionItem, CompletionItemKind, Diagnostic, DiagnosticSeverity
 };
 
 export interface Searcher {
