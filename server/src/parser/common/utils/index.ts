@@ -104,6 +104,7 @@ export function isNodeShadowedByNode(child: Node | undefined, parent: Node | und
 export function isNodeConnectable(parent: Node | undefined, child: Node | undefined): boolean {
     if (
         parent && child &&
+        parent.isAlive && child.isAlive &&
         parent.getName() && child.getName() &&
         (parent.getName() === child.getName() || parent.getName() === child.getAliasName()) && (
             parent.connectionTypeRules.includes(child.type) ||

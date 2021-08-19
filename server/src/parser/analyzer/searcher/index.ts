@@ -342,6 +342,7 @@ export class Searcher implements ISearcher {
                 if (importAliasNodes.length > 0) {
                     for (const importAliasNode of importAliasNodes) {
                         if (importAliasNode && node &&
+                            importAliasNode.isAlive && node.isAlive &&
                             importAliasNode.getName() && node.getName() &&
                             importAliasNode.getName() === node.getName()
                         ) {
@@ -424,6 +425,7 @@ export class Searcher implements ISearcher {
 
         if (
             utils.isNodePosition(from, position) &&
+            from.isAlive &&
             (from.uri === uri ||
             (from.type === "ImportDirective" && (from as ImportDirectiveNode).realUri === uri))
         ) {

@@ -20,6 +20,7 @@
 	},
 	"dependencies": {
 		"@solidity-parser/parser": "^0.13.3-rc.1",
+		"hardhat": "^2.6.0",
 		"module-alias": "^2.2.2",
 		"solc": "^0.8.6",
 		"vscode-languageserver": "^7.0.0",

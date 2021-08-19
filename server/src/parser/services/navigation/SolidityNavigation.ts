@@ -68,7 +68,7 @@ export class SolidityNavigation {
 				const range = getRange(highlightNode.nameLoc);
 				workspaceEdit.changes[highlightNode.uri].push(TextEdit.replace(range, newName));
 
-				highlightNode.setName(newName);
+				highlightNode.isAlive = false;
 			}
 		});
 

@@ -2,7 +2,8 @@ import "module-alias/register";
 
 import {
 	createConnection, TextDocuments, ProposedFeatures, InitializeParams,
-	CompletionList, CompletionParams, TextDocumentSyncKind, InitializeResult
+	CompletionList, CompletionParams, TextDocumentSyncKind, InitializeResult,
+	Diagnostic
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -19,6 +20,9 @@ const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
 let hasWorkspaceFolderCapability = false;
 let languageServer: LanguageService;
+
+const debounceAnalyzeDocument: { [uri: string]: (uri: string) => void } = {};
+const debounceValidateDocument: { [uri: string]: (document: TextDocument) => void } = {};
 
 connection.onInitialize((params: InitializeParams) => {
 	console.log('server onInitialize');
@@ -94,17 +98,49 @@ function analyzeFunc(uri: string): void {
 	}
 }
 
+async function validateTextDocument(document: TextDocument): Promise<void> {
+	console.log("validateTextDocument");
+
+	try {
+		const documentURI = getUriFromDocument(document);
+		const diagnostics = await languageServer.solidityValidation.doValidation(documentURI, document);
+
+		// Send the calculated diagnostics to VSCode, but only for the file over which we called validation.
+		for (const diagnosticUri of Object.keys(diagnostics)) {
+			if (documentURI.includes(diagnosticUri)) {
+				connection.sendDiagnostics({
+					uri: document.uri,
+					diagnostics: diagnostics[diagnosticUri]
+				});
+
+				return;
+			}
+		}
+		
+		connection.sendDiagnostics({
+			uri: document.uri,
+			diagnostics: []
+		});
+	} catch (err) {
+		console.error(err);
+	}
+}
+
 // The content of a text document has changed. This event is emitted
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(change => {
 	console.log('server onDidChangeContent');
 
-	const debounceAnalyzeDocument: { [uri: string]: (uri: string) => void } = {};
 	if (!debounceAnalyzeDocument[change.document.uri]) {
 		debounceAnalyzeDocument[change.document.uri] = debounce(analyzeFunc, 500);
 	}
-
 	debounceAnalyzeDocument[change.document.uri](change.document.uri);
+
+
+	if (!debounceValidateDocument[change.document.uri]) {
+		debounceValidateDocument[change.document.uri] = debounce(validateTextDocument, 500);
+	}
+	debounceValidateDocument[change.document.uri](change.document);
 });
 
 // This handler provides the initial list of the completion items.
