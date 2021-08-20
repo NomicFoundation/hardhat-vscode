@@ -10,6 +10,12 @@ import {
 	uriEqual, isDefined, isInstanceOf, isArray
 } from './helper';
 
+type IndexFileData = {
+	path: string,
+	current: number,
+	total: number,
+};
+
 suite('Client integration', () => {
 	let client!: lsclient.LanguageClient;
 	let middleware: lsclient.Middleware;
@@ -47,6 +53,17 @@ suite('Client integration', () => {
 		client.start();
 
 		await client.onReady();
+
+		// Wait for analyzer to indexing all files
+		const promise = new Promise<void>(resolve => {
+			client.onNotification("custom/indexingFile", (data: IndexFileData) => {
+				if (data.current === data.total) {
+					resolve();
+				}
+			});
+		});
+
+		await promise;
 	});
 
 	suiteTeardown(async () => {

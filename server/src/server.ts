@@ -2,12 +2,12 @@ import "module-alias/register";
 
 import {
 	createConnection, TextDocuments, ProposedFeatures, InitializeParams,
-	CompletionList, CompletionParams, TextDocumentSyncKind, InitializeResult,
-	Diagnostic
+	CompletionList, CompletionParams, TextDocumentSyncKind, InitializeResult
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
+import { IndexFileData, eventEmitter as em } from '@common/event';
 import { getUriFromDocument, decodeUriAndRemoveFilePrefix, debounce } from './utils';
 import { LanguageService } from './parser';
 
@@ -18,6 +18,7 @@ const connection = createConnection(ProposedFeatures.all);
 // Create a simple text document manager.
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
+let rootUri: string;
 let hasWorkspaceFolderCapability = false;
 let languageServer: LanguageService;
 
@@ -33,8 +34,7 @@ connection.onInitialize((params: InitializeParams) => {
 	 * so when it will be resolved we can update how we get rootUri.
 	 */
 	if (params.rootUri) {
-		const uri = decodeUriAndRemoveFilePrefix(params.rootUri);
-		languageServer = new LanguageService(uri);
+		rootUri = decodeUriAndRemoveFilePrefix(params.rootUri);
 	}
 
 	const capabilities = params.capabilities;
@@ -75,12 +75,18 @@ connection.onInitialize((params: InitializeParams) => {
 connection.onInitialized(() => {
 	console.log('server onInitialized');
 
+	languageServer = new LanguageService(rootUri);
+
 	if (hasWorkspaceFolderCapability) {
 		connection.workspace.onDidChangeWorkspaceFolders(_event => {
 			connection.console.log('Workspace folder change event received.');
 			console.log(_event);
 		});
 	}
+});
+
+em.on('IndexingFile', (data: IndexFileData) => {
+	connection.sendNotification("custom/indexingFile", data);
 });
 
 function analyzeFunc(uri: string): void {
