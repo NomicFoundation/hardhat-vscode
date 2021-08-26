@@ -6,10 +6,6 @@
 		"outDir": "out",
 		"sourceMap": true
 	},
-	"include": [
-		"src",
-		"test"
-	],
 	"exclude": [
 		"node_modules",
 		".vscode-test"

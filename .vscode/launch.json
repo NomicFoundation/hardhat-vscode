@@ -29,10 +29,10 @@
 			"runtimeExecutable": "${execPath}",
 			"args": [
 				"--extensionDevelopmentPath=${workspaceRoot}",
-				"--extensionTestsPath=${workspaceRoot}/out/integration/index",
+				"--extensionTestsPath=${workspaceRoot}/out/test/integration/index",
 				"${workspaceRoot}/test/testdata"
 			],
-			"outFiles": ["${workspaceRoot}/out/**/*.js"]
+			"outFiles": ["${workspaceRoot}/out/test/**/*.js"]
 		}
 	],
 	"compounds": [
