@@ -57,11 +57,11 @@ To do this, you need:
 
 ## Test
 
-Tests in [testFixture](./client/src/test/testFixture/) directory are End-to-End tests. The benefit of this approach is that it runs the test by instantiating a VS Code instance with a workspace, opening the file, activating the Language Client / Server, and running VS Code commands.
+Tests in [testdata](./test/testdata/) directory are End-to-End tests. The benefit of this approach is that it runs the test by instantiating a VS Code instance with a workspace, opening the file, activating the Language Client / Server, and running VS Code commands.
 
 You can run End-to-End tests in two way:
 
 1. Open the Run view (`Ctrl+Shift+D`), select `Language Server E2E Test`, and click the Play button (`F5`). \
 ![image](https://github.com/Tenderly/vscode-solidity/blob/main/docs/images/run_e2e_test.png?raw=true)
 
-2. Or run `yarn run client-test` in command-line.
+2. Or run `yarn run test` in command-line.

@@ -40,3 +40,6 @@ out/**/*
 
 # VS Code extension packages
 *.vsix
+
+# vscode test
+.vscode-test

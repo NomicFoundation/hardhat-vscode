@@ -23,7 +23,7 @@
 	"scripts": {
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
-		"client-test": "cd client && tsc -b && yarn run test && cd .."
+		"test": "tsc -b && node ./out/runTests.js"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.1.3",

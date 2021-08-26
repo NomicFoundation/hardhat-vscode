@@ -37,7 +37,7 @@ async function sleep(ms: number) {
 }
 
 export const getDocPath = (p: string) => {
-	return path.resolve(__dirname, '../../src/test/testFixture', p);
+	return path.resolve(__dirname, '../../test/testdata', p);
 };
 
 export const getDocUri = (p: string) => {
@@ -52,8 +52,8 @@ export function rangeEqual(range: vscode.Range, sl: number, sc: number, el: numb
 }
 
 export function uriEqual(actual: vscode.Uri, expected: vscode.Uri): void {
-	const actualPath = actual.path.match(/src\/test(.*)/)[0];
-	const expectedPath = expected.path.match(/src\/test(.*)/)[0];
+	const actualPath = actual.path.match(/test\/testdata(.*)/)[0];
+	const expectedPath = expected.path.match(/test\/testdata(.*)/)[0];
 
     assert.strictEqual(actualPath, expectedPath);
 }

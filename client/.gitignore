@@ -15,9 +15,6 @@ results
 tmp
 out
 
-# vscode test
-.vscode-test
-
 # Build
 public/css/main.css
 

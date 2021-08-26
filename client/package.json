@@ -5,9 +5,6 @@
 	"version": "0.0.1",
 	"main": "./out/extension.js",
 	"module": "./out/extension.js",
-	"scripts": {
-		"test": "node out/test/runTests.js"
-	},
 	"dependencies": {
 		"vscode-languageclient": "^7.0.0"
 	}
