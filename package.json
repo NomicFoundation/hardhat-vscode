@@ -4,8 +4,8 @@
 	"description": "The solidity-extension contains the language smarts behind the solidity editing experience of Visual Studio Code.",
 	"license": "MIT",
 	"version": "0.0.1-alpha",
-	"main": "./client/dist/extension.js",
-	"module": "./client/dist/extension.js",
+	"main": "./client/out/extension.js",
+	"module": "./client/out/extension.js",
 	"icon": "docs/images/solidity-logo.png",
 	"repository": {
 		"type": "git",
@@ -26,11 +26,20 @@
 		"client-test": "cd client && tsc -b && yarn run test && cd .."
 	},
 	"devDependencies": {
+		"@types/glob": "^7.1.3",
+		"@types/mocha": "^8.2.2",
 		"@types/node": "^12.12.0",
+		"@types/vscode": "^1.55.0",
 		"@typescript-eslint/eslint-plugin": "^4.22.1",
 		"@typescript-eslint/parser": "^4.22.1",
-		"eslint": "^6.4.0",
-		"typescript": "^4.2.2"
+		"eslint": "^7.25.0",
+		"glob": "^7.1.6",
+		"mocha": "^8.4.0",
+		"typescript": "^4.2.2",
+		"vscode-test": "^1.5.2"
+	},
+	"dependencies": {
+		"vscode-languageclient": "^7.0.0"
 	},
 	"contributes": {
 		"configuration": {

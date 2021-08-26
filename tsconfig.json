@@ -3,12 +3,12 @@
 		"module": "commonjs",
 		"target": "es2019",
 		"lib": ["ES2019"],
-		"outDir": "dist",
-		"rootDir": "src",
+		"outDir": "out",
 		"sourceMap": true
 	},
 	"include": [
-		"src"
+		"src",
+		"test"
 	],
 	"exclude": [
 		"node_modules",

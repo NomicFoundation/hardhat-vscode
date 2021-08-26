@@ -4,15 +4,15 @@
 	"version": "1.0.0",
 	"license": "MIT",
 	"author": "Riphal <bjankovic998@gmail.com>",
-	"main": "./dist/server.js",
-	"types": "./dist/server.d.ts",
+	"main": "./out/server.js",
+	"types": "./out/server.d.ts",
 	"engines": {
 		"node": "*"
 	},
 	"_moduleAliases": {
-		"@analyzer": "./dist/parser/analyzer/",
-		"@common": "./dist/parser/common/",
-		"@services": "./dist/parser/services/"
+		"@analyzer": "./out/parser/analyzer/",
+		"@common": "./out/parser/common/",
+		"@services": "./out/parser/services/"
 	},
 	"devDependencies": {
 		"@types/node": "^14.14.37",
@@ -22,7 +22,6 @@
 		"@solidity-parser/parser": "^0.13.3-rc.1",
 		"hardhat": "^2.6.0",
 		"module-alias": "^2.2.2",
-		"solc": "^0.8.6",
 		"vscode-languageserver": "^7.0.0",
 		"vscode-languageserver-textdocument": "^1.0.1",
 		"vscode-languageserver-types": "^3.16.0"

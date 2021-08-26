@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as events from 'events';
 import {
-	workspace, window, commands, ExtensionContext, TextDocument,
+	workspace, window, ExtensionContext, TextDocument,
 	OutputChannel, WorkspaceFolder, Uri, ProgressLocation,
 } from 'vscode';
 import {
@@ -62,7 +62,7 @@ function sleep(ms) {
 export function activate(context: ExtensionContext) {
 	console.log('client started');
 
-	const module = context.asAbsolutePath(path.join('server', 'dist', 'server.js'));
+	const module = context.asAbsolutePath(path.join('server', 'out', 'server.js'));
 	const outputChannel: OutputChannel = window.createOutputChannel('solidity-language-server');
 
 	function didOpenTextDocument(document: TextDocument): void {
@@ -87,7 +87,7 @@ export function activate(context: ExtensionContext) {
 			// The debug options for the server.
 			// --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging.
 			const debugOptions = { execArgv: ["--nolazy", `--inspect=${6009 + clients.size}`] };
-			
+
 			// If the extension is launched in debug mode then the debug server options are used.
 			// Otherwise the run options are used.
 			const serverOptions = {

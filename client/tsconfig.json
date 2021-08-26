@@ -3,9 +3,10 @@
 		"module": "commonjs",
 		"target": "es2019",
 		"lib": ["ES2019"],
-		"outDir": "dist",
+		"outDir": "out",
 		"rootDir": "src",
-		"sourceMap": true
+		"sourceMap": true,
+		"composite": true
 	},
 	"include": ["src"],
 	"exclude": ["node_modules", ".vscode-test"]

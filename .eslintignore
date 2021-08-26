@@ -1,5 +1,5 @@
 node_modules/**
 client/node_modules/**
-client/dist/**
+client/out/**
 server/node_modules/**
-server/dist/**
+server/out/**

@@ -7,7 +7,7 @@ lib-cov
 *.pid
 *.gz
 *.swp
-*.swp
+*.tsbuildinfo
 
 pids
 logs
@@ -40,4 +40,4 @@ bower_components
 Thumbs.db
 
 # Ignore built ts files
-dist/**/*
+out/**/*

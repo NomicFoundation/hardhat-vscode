@@ -28,7 +28,7 @@ suite('Client integration', () => {
 
 		tokenSource = new vscode.CancellationTokenSource();
 
-		const serverModule = path.join(__dirname, '..', '..', '..' ,'server', 'dist', 'server.js');
+		const serverModule = path.join(__dirname, '..', '..', '..' ,'server', 'out', 'server.js');
 		const serverOptions: lsclient.ServerOptions = {
 			run: { module: serverModule, transport: lsclient.TransportKind.ipc },
 			debug: { module: serverModule, transport: lsclient.TransportKind.ipc, options: { execArgv: ['--nolazy', '--inspect=6014'] } }
