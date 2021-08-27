@@ -7,15 +7,10 @@ import * as vscode from 'vscode';
 import * as lsclient from 'vscode-languageclient/node';
 
 import {
-	activate, changeDocument, getDocUri, document, rangeEqual,
+	IndexFileData, IntegrationSamples, activate,
+	changeDocument, getDocUri, document, rangeEqual,
 	uriEqual, isDefined, isInstanceOf, isArray
 } from './helper';
-
-type IndexFileData = {
-	path: string,
-	current: number,
-	total: number,
-};
 
 suite('Client integration', () => {
 	let client!: lsclient.LanguageClient;
@@ -23,7 +18,7 @@ suite('Client integration', () => {
 	let tokenSource!: vscode.CancellationTokenSource;
 	let docUri!: vscode.Uri;
 
-	const integrationSamples = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', 'test', 'integration', 'integration.test.json'), 'utf8'));
+	const integrationSamples: IntegrationSamples[] = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', '..', 'test', 'integration', 'integration.test.json'), 'utf8'));
 	const integrationTests = {
 		doDefinitionRequest,
 		doTypeDefinitionRequest,

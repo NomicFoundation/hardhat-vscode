@@ -1,6 +1,6 @@
 [
     {
-        "title": "Go to Definition",
+        "title": "[Single file] - Go to Definition",
         "action": "DefinitionRequest",
         "uri": "./test1.sol",
         "position": {
@@ -23,7 +23,7 @@
         }
     },
     {
-        "title": "Go to Type Definition",
+        "title": "[Single file] - Go to Type Definition",
         "action": "TypeDefinitionRequest",
         "uri": "./test.sol",
         "position": {
@@ -48,7 +48,7 @@
         ]
     },
     {
-        "title": "Find All References",
+        "title": "[Single file] - Find All References",
         "action": "ReferencesRequest",
         "uri": "./test.sol",
         "position": {
@@ -164,7 +164,7 @@
         ]
     },
     {
-        "title": "Find All Implementations",
+        "title": "[Single file] - Find All Implementations",
         "action": "ImplementationRequest",
         "uri": "./test1.sol",
         "position": {
@@ -215,7 +215,7 @@
         ]
     },
     {
-        "title": "Do Rename",
+        "title": "[Single file] - Do Rename",
         "action": "RenameRequest",
         "new_name": "newName",
         "uri": "./test.sol",
