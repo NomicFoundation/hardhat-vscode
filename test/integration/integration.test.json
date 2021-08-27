@@ -224,85 +224,87 @@
             "character": 16
         },
         "expected": [
-            {
-                "$mid": 1,
-                "path": "./test/testdata/test.sol",
-                "scheme": "file"
-            },
             [
                 {
-                    "range": [{
-                        "line": 27,
-                        "character": 22
+                    "$mid": 1,
+                    "path": "./test/testdata/test.sol",
+                    "scheme": "file"
+                },
+                [
+                    {
+                        "range": [{
+                            "line": 27,
+                            "character": 22
+                        }, {
+                            "line": 27,
+                            "character": 31
+                        }],
+                        "newText": "newName"
                     }, {
-                        "line": 27,
-                        "character": 31
-                    }],
-                    "newText": "newName"
-                }, {
-                    "range": [{
-                        "line": 41,
-                        "character": 12
+                        "range": [{
+                            "line": 41,
+                            "character": 12
+                        }, {
+                            "line": 41,
+                            "character": 21
+                        }],
+                        "newText": "newName"
                     }, {
-                        "line": 41,
-                        "character": 21
-                    }],
-                    "newText": "newName"
-                }, {
-                    "range": [{
-                        "line": 104,
-                        "character": 12
+                        "range": [{
+                            "line": 104,
+                            "character": 12
+                        }, {
+                            "line": 104,
+                            "character": 21
+                        }],
+                        "newText": "newName"
                     }, {
-                        "line": 104,
-                        "character": 21
-                    }],
-                    "newText": "newName"
-                }, {
-                    "range": [{
-                        "line": 124,
-                        "character": 8
+                        "range": [{
+                            "line": 124,
+                            "character": 8
+                        }, {
+                            "line": 124,
+                            "character": 17
+                        }],
+                        "newText": "newName"
                     }, {
-                        "line": 124,
-                        "character": 17
-                    }],
-                    "newText": "newName"
-                }, {
-                    "range": [{
-                        "line": 133,
-                        "character": 29
+                        "range": [{
+                            "line": 133,
+                            "character": 29
+                        }, {
+                            "line": 133,
+                            "character": 38
+                        }],
+                        "newText": "newName"
                     }, {
-                        "line": 133,
-                        "character": 38
-                    }],
-                    "newText": "newName"
-                }, {
-                    "range": [{
-                        "line": 134,
-                        "character": 16
+                        "range": [{
+                            "line": 134,
+                            "character": 16
+                        }, {
+                            "line": 134,
+                            "character": 25
+                        }],
+                        "newText": "newName"
                     }, {
-                        "line": 134,
-                        "character": 25
-                    }],
-                    "newText": "newName"
-                }, {
-                    "range": [{
-                        "line": 135,
-                        "character": 35
+                        "range": [{
+                            "line": 135,
+                            "character": 35
+                        }, {
+                            "line": 135,
+                            "character": 44
+                        }],
+                        "newText": "newName"
                     }, {
-                        "line": 135,
-                        "character": 44
-                    }],
-                    "newText": "newName"
-                }, {
-                    "range": [{
-                        "line": 147,
-                        "character": 22
-                    }, {
-                        "line": 147,
-                        "character": 31
-                    }],
-                    "newText": "newName"
-                }
+                        "range": [{
+                            "line": 147,
+                            "character": 22
+                        }, {
+                            "line": 147,
+                            "character": 31
+                        }],
+                        "newText": "newName"
+                    }
+                ]
             ]
         ]
     }

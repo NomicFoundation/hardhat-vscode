@@ -221,7 +221,6 @@ async function doImplementationRequest(client: lsclient.LanguageClient, tokenSou
 	}
 }
 
-// TO-DO: Improve expected sample
 async function doRenameRequest(client: lsclient.LanguageClient, tokenSource: vscode.CancellationTokenSource, sample: any): Promise<void> {
 	const provider = client.getFeature(lsclient.RenameRequest.method).getProvider(document);
 	isDefined(provider);
@@ -230,24 +229,27 @@ async function doRenameRequest(client: lsclient.LanguageClient, tokenSource: vsc
 	const renameResult = await provider.provideRenameEdits(document, position, 'newName', tokenSource.token);
 
 	isInstanceOf(renameResult, vscode.WorkspaceEdit);
-	for (const results of renameResult.entries()) {
+	for (let i = 0; i < renameResult.entries().length; i++) {
+		const results = renameResult.entries()[i];
+		const expected = sample.expected[i];
+
 		if (results.length !== 2) {
 			throw new Error(`Result [vscode.Uri, vscode.TextEdit[]].length must be 2`);
 		}
 
 		isInstanceOf(results[0], vscode.Uri);
-		uriEqual(results[0], sample.expected[0]);
+		uriEqual(results[0], expected[0]);
 
 		const textEdits = results[1];
-		for (let i = 0; i < textEdits.length; i++) {
-			isInstanceOf(textEdits[i], vscode.TextEdit);
-			assert.strictEqual(textEdits[i].newText, sample.expected[1][i].newText);
+		for (let j = 0; j < textEdits.length; j++) {
+			isInstanceOf(textEdits[j], vscode.TextEdit);
+			assert.strictEqual(textEdits[j].newText, expected[1][j].newText);
 			rangeEqual(
-				textEdits[i].range,
-				sample.expected[1][i].range[0].line,
-				sample.expected[1][i].range[0].character,
-				sample.expected[1][i].range[1].line,
-				sample.expected[1][i].range[1].character
+				textEdits[j].range,
+				expected[1][j].range[0].line,
+				expected[1][j].range[0].character,
+				expected[1][j].range[1].line,
+				expected[1][j].range[1].character
 			);
 		}
 	}
