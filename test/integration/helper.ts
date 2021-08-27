@@ -30,7 +30,13 @@ export type IntegrationSamples = {
      * Represents a line and character position, such as the position of the cursor.
 	 */
 	position: {
+		/**
+         * The zero-based line value.
+         */
 		line: number,
+        /**
+         * The zero-based character value.
+         */
 		character: number
 	},
 	/**
@@ -105,11 +111,7 @@ export function isInstanceOf<T>(value: T, clazz: any): asserts value is Exclude<
     assert.ok(value instanceof clazz);
 }
 
-export function isArray<T>(value: Array<T> | undefined | null, clazz: any, length = 1): asserts value is Array<T> {
+export function isArray<T>(value: Array<T> | undefined | null, length = 1): asserts value is Array<T> {
     assert.ok(Array.isArray(value), `value is array`);
     assert.strictEqual(value!.length, length, 'value has given length');
-
-    if (length > 0) {
-        assert.ok(value![0] instanceof clazz);
-    }
 }

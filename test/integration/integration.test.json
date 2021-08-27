@@ -2,23 +2,92 @@
     {
         "title": "[Single file] - Go to Definition",
         "action": "DefinitionRequest",
-        "uri": "./test1.sol",
+        "uri": "./test.sol",
         "position": {
-            "line": 67,
-            "character": 14
+            "line": 14,
+            "character": 25
         },
         "expected": {
             "uri": {
                 "$mid": 1,
-                "path": "./test/testdata/test1.sol",
+                "path": "./test/testdata/test.sol",
                 "scheme": "file"
             },
             "range": [{
-                "line": 96,
-                "character": 0
+                "line": 9,
+                "character": 4
             }, {
-                "line": 113,
-                "character": 0
+                "line": 12,
+                "character": 4
+            }]
+        }
+    },
+    {
+        "title": "[Single file][Defined after usage] - Go to Definition",
+        "action": "DefinitionRequest",
+        "uri": "./test.sol",
+        "position": {
+            "line": 15,
+            "character": 9
+        },
+        "expected": {
+            "uri": {
+                "$mid": 1,
+                "path": "./test/testdata/test.sol",
+                "scheme": "file"
+            },
+            "range": [{
+                "line": 53,
+                "character": 4
+            }, {
+                "line": 55,
+                "character": 4
+            }]
+        }
+    },
+    {
+        "title": "[Single file][MemberAccess] - Go to Definition",
+        "action": "DefinitionRequest",
+        "uri": "./test.sol",
+        "position": {
+            "line": 26,
+            "character": 25
+        },
+        "expected": {
+            "uri": {
+                "$mid": 1,
+                "path": "./test/testdata/test.sol",
+                "scheme": "file"
+            },
+            "range": [{
+                "line": 10,
+                "character": 8
+            }, {
+                "line": 10,
+                "character": 18
+            }]
+        }
+    },
+    {
+        "title": "[Single file][MemberAccess][Defined after usage] - Go to Definition",
+        "action": "DefinitionRequest",
+        "uri": "./test.sol",
+        "position": {
+            "line": 50,
+            "character": 50
+        },
+        "expected": {
+            "uri": {
+                "$mid": 1,
+                "path": "./test/testdata/test.sol",
+                "scheme": "file"
+            },
+            "range": [{
+                "line": 54,
+                "character": 8
+            }, {
+                "line": 54,
+                "character": 20
             }]
         }
     },
@@ -27,22 +96,86 @@
         "action": "TypeDefinitionRequest",
         "uri": "./test.sol",
         "position": {
-            "line": 41,
-            "character": 16
+            "line": 26,
+            "character": 12
         },
         "expected": [
-                {
+            {
                 "uri": {
                     "$mid": 1,
                     "path": "./test/testdata/test.sol",
                     "scheme": "file"
                 },
                 "range": [{
-                    "line": 15,
+                    "line": 9,
                     "character": 11
                 }, {
-                    "line": 15,
+                    "line": 9,
+                    "character": 16
+                }]
+            }
+        ]
+    },
+    {
+        "title": "[Single file][Defined after usage] - Go to Type Definition",
+        "action": "TypeDefinitionRequest",
+        "uri": "./test.sol",
+        "position": {
+            "line": 21,
+            "character": 16
+        },
+        "expected": [
+            {
+                "uri": {
+                    "$mid": 1,
+                    "path": "./test/testdata/test.sol",
+                    "scheme": "file"
+                },
+                "range": [{
+                    "line": 53,
+                    "character": 11
+                }, {
+                    "line": 53,
                     "character": 19
+                }]
+            }
+        ]
+    },
+    {
+        "title": "[Single file][Multi types] - Go to Type Definition",
+        "action": "TypeDefinitionRequest",
+        "uri": "./test.sol",
+        "position": {
+            "line": 38,
+            "character": 25
+        },
+        "expected": [
+            {
+                "uri": {
+                    "$mid": 1,
+                    "path": "./test/testdata/test.sol",
+                    "scheme": "file"
+                },
+                "range": [{
+                    "line": 53,
+                    "character": 11
+                }, {
+                    "line": 53,
+                    "character": 19
+                }]
+            },
+            {
+                "uri": {
+                    "$mid": 1,
+                    "path": "./test/testdata/test.sol",
+                    "scheme": "file"
+                },
+                "range": [{
+                    "line": 9,
+                    "character": 11
+                }, {
+                    "line": 9,
+                    "character": 16
                 }]
             }
         ]
@@ -52,8 +185,8 @@
         "action": "ReferencesRequest",
         "uri": "./test.sol",
         "position": {
-            "line": 41,
-            "character": 16
+            "line": 9,
+            "character": 14
         },
         "expected": [
             {
@@ -63,76 +196,11 @@
                     "scheme": "file"
                 },
                 "range": [{
-                    "line": 27,
-                    "character": 22
+                    "line": 9,
+                    "character": 11
                 }, {
-                    "line": 27,
-                    "character": 31
-                }]
-            }, {
-                "uri": {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
-                },
-                "range": [{
-                    "line": 41,
-                    "character": 12
-                }, {
-                    "line": 41,
-                    "character": 21
-                }]
-            }, {
-                "uri": {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
-                },
-                "range": [{
-                    "line": 104,
-                    "character": 12
-                }, {
-                    "line": 104,
-                    "character": 21
-                }]
-            }, {
-                "uri": {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
-                },
-                "range": [{
-                    "line": 124,
-                    "character": 8
-                }, {
-                    "line": 124,
-                    "character": 17
-                }]
-            }, {
-                "uri": {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
-                },
-                "range": [{
-                    "line": 133,
-                    "character": 29
-                }, {
-                    "line": 133,
-                    "character": 38
-                }]
-            }, {
-                "uri": {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
-                },
-                "range": [{
-                    "line": 134,
+                    "line": 9,
                     "character": 16
-                }, {
-                    "line": 134,
-                    "character": 25
                 }]
             }, {
                 "uri": {
@@ -141,11 +209,11 @@
                     "scheme": "file"
                 },
                 "range": [{
-                    "line": 135,
-                    "character": 35
+                    "line": 14,
+                    "character": 23
                 }, {
-                    "line": 135,
-                    "character": 44
+                    "line": 14,
+                    "character": 28
                 }]
             }, {
                 "uri": {
@@ -154,11 +222,24 @@
                     "scheme": "file"
                 },
                 "range": [{
-                    "line": 147,
-                    "character": 22
+                    "line": 38,
+                    "character": 119
                 }, {
-                    "line": 147,
-                    "character": 31
+                    "line": 38,
+                    "character": 124
+                }]
+            }, {
+                "uri": {
+                    "$mid": 1,
+                    "path": "./test/testdata/test.sol",
+                    "scheme": "file"
+                },
+                "range": [{
+                    "line": 43,
+                    "character": 12
+                }, {
+                    "line": 43,
+                    "character": 17
                 }]
             }
         ]
@@ -166,62 +247,75 @@
     {
         "title": "[Single file] - Find All Implementations",
         "action": "ImplementationRequest",
-        "uri": "./test1.sol",
+        "uri": "./test.sol",
         "position": {
-            "line": 11,
-            "character": 10
+            "line": 53,
+            "character": 15
         },
         "expected": [
             {
                 "uri": {
                     "$mid": 1,
-                    "path": "./test/testdata/test1.sol",
+                    "path": "./test/testdata/test.sol",
                     "scheme": "file"
                 },
                 "range": [{
-                    "line": 11,
-                    "character": 9
+                    "line": 53,
+                    "character": 11
                 }, {
-                    "line": 11,
-                    "character": 10
+                    "line": 53,
+                    "character": 19
                 }]
             }, {
                 "uri": {
                     "$mid": 1,
-                    "path": "./test/testdata/test1.sol",
+                    "path": "./test/testdata/test.sol",
                     "scheme": "file"
                 },
                 "range": [{
-                    "line": 33,
-                    "character": 14
+                    "line": 15,
+                    "character": 4
                 }, {
-                    "line": 33,
-                    "character": 15
+                    "line": 15,
+                    "character": 12
                 }]
             }, {
                 "uri": {
                     "$mid": 1,
-                    "path": "./test/testdata/test1.sol",
+                    "path": "./test/testdata/test.sol",
                     "scheme": "file"
                 },
                 "range": [{
-                    "line": 48,
-                    "character": 14
+                    "line": 18,
+                    "character": 8
                 }, {
-                    "line": 48,
-                    "character": 15
+                    "line": 18,
+                    "character": 16
+                }]
+            }, {
+                "uri": {
+                    "$mid": 1,
+                    "path": "./test/testdata/test.sol",
+                    "scheme": "file"
+                },
+                "range": [{
+                    "line": 38,
+                    "character": 100
+                }, {
+                    "line": 38,
+                    "character": 108
                 }]
             }
         ]
     },
     {
-        "title": "[Single file] - Do Rename",
+        "title": "[Single file][Identifier] - Do Rename",
         "action": "RenameRequest",
-        "new_name": "newName",
+        "new_name": "identifier",
         "uri": "./test.sol",
         "position": {
-            "line": 41,
-            "character": 16
+            "line": 21,
+            "character": 17
         },
         "expected": [
             [
@@ -230,81 +324,90 @@
                     "path": "./test/testdata/test.sol",
                     "scheme": "file"
                 },
-                [
-                    {
-                        "range": [{
-                            "line": 27,
-                            "character": 22
-                        }, {
-                            "line": 27,
-                            "character": 31
-                        }],
-                        "newText": "newName"
+                [{
+                    "range": [{
+                        "line": 15,
+                        "character": 22
                     }, {
-                        "range": [{
-                            "line": 41,
-                            "character": 12
-                        }, {
-                            "line": 41,
-                            "character": 21
-                        }],
-                        "newText": "newName"
+                        "line": 15,
+                        "character": 31
+                    }],
+                    "newText": "identifier"
+                }, {
+                    "range": [{
+                        "line": 21,
+                        "character": 12
                     }, {
-                        "range": [{
-                            "line": 104,
-                            "character": 12
-                        }, {
-                            "line": 104,
-                            "character": 21
-                        }],
-                        "newText": "newName"
+                        "line": 21,
+                        "character": 21
+                    }],
+                    "newText": "identifier"
+                }, {
+                    "range": [{
+                        "line": 50,
+                        "character": 15
                     }, {
-                        "range": [{
-                            "line": 124,
-                            "character": 8
-                        }, {
-                            "line": 124,
-                            "character": 17
-                        }],
-                        "newText": "newName"
+                        "line": 50,
+                        "character": 24
+                    }],
+                    "newText": "identifier"
+                }, {
+                    "range": [{
+                        "line": 50,
+                        "character": 25
                     }, {
-                        "range": [{
-                            "line": 133,
-                            "character": 29
-                        }, {
-                            "line": 133,
-                            "character": 38
-                        }],
-                        "newText": "newName"
+                        "line": 50,
+                        "character": 34
+                    }],
+                    "newText": "identifier"
+                }]
+            ]
+        ]
+    },
+    {
+        "title": "[Single file][MemberAccess] - Do Rename",
+        "action": "RenameRequest",
+        "new_name": "memberAccess",
+        "uri": "./test.sol",
+        "position": {
+            "line": 35,
+            "character": 31
+        },
+        "expected": [
+            [
+                {
+                    "$mid": 1,
+                    "path": "./test/testdata/test.sol",
+                    "scheme": "file"
+                },
+                [{
+                    "range": [{
+                        "line": 11,
+                        "character": 16
                     }, {
-                        "range": [{
-                            "line": 134,
-                            "character": 16
-                        }, {
-                            "line": 134,
-                            "character": 25
-                        }],
-                        "newText": "newName"
+                        "line": 11,
+                        "character": 24
+                    }],
+                    "newText": "memberAccess"
+                }, {
+                    "range": [{
+                        "line": 35,
+                        "character": 27
                     }, {
-                        "range": [{
-                            "line": 135,
-                            "character": 35
-                        }, {
-                            "line": 135,
-                            "character": 44
-                        }],
-                        "newText": "newName"
+                        "line": 35,
+                        "character": 35
+                    }],
+                    "newText": "memberAccess"
+                }, {
+                    "range": [{
+                        "line": 45,
+                        "character": 12
                     }, {
-                        "range": [{
-                            "line": 147,
-                            "character": 22
-                        }, {
-                            "line": 147,
-                            "character": 31
-                        }],
-                        "newText": "newName"
-                    }
-                ]
+                        "line": 45,
+                        "character": 20
+                    }],
+                    "newText": "memberAccess"
+                }]
             ]
         ]
     }

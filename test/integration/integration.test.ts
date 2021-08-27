@@ -115,7 +115,7 @@ suite('Client integration', () => {
 	}
 });
 
-async function doDefinitionRequest(client: lsclient.LanguageClient, tokenSource: vscode.CancellationTokenSource, sample: any): Promise<void> {
+async function doDefinitionRequest(client: lsclient.LanguageClient, tokenSource: vscode.CancellationTokenSource, sample: IntegrationSamples): Promise<void> {
 	const provider = client.getFeature(lsclient.DefinitionRequest.method).getProvider(document);
 	isDefined(provider);
 
@@ -133,14 +133,14 @@ async function doDefinitionRequest(client: lsclient.LanguageClient, tokenSource:
 	);
 }
 
-async function doTypeDefinitionRequest(client: lsclient.LanguageClient, tokenSource: vscode.CancellationTokenSource, sample: any): Promise<void> {
+async function doTypeDefinitionRequest(client: lsclient.LanguageClient, tokenSource: vscode.CancellationTokenSource, sample: IntegrationSamples): Promise<void> {
 	const provider = client.getFeature(lsclient.TypeDefinitionRequest.method).getProvider(document);
 	isDefined(provider);
 
 	const position = new vscode.Position(sample.position.line, sample.position.character);
 	const results = (await provider.provideTypeDefinition(document, position, tokenSource.token)) as vscode.Location[];
 
-	isArray(results, vscode.Location, sample.expected.length);
+	isArray(results, sample.expected.length);
 	for (let i = 0; i < results.length; i++) {
 		const result = results[i];
 		const expected = sample.expected[i];
@@ -157,7 +157,7 @@ async function doTypeDefinitionRequest(client: lsclient.LanguageClient, tokenSou
 	}
 }
 
-async function doReferencesRequest(client: lsclient.LanguageClient, tokenSource: vscode.CancellationTokenSource, sample: any): Promise<void> {
+async function doReferencesRequest(client: lsclient.LanguageClient, tokenSource: vscode.CancellationTokenSource, sample: IntegrationSamples): Promise<void> {
 	const provider = client.getFeature(lsclient.ReferencesRequest.method).getProvider(document);
 	isDefined(provider);
 
@@ -170,8 +170,8 @@ async function doReferencesRequest(client: lsclient.LanguageClient, tokenSource:
 		},
 		tokenSource.token
 	)) as vscode.Location[];
-
-	isArray(results, vscode.Location, sample.expected.length);
+	
+	isArray(results, sample.expected.length);
 	for (let i = 0; i < results.length; i++) {
 		const result = results[i];
 		const expected = sample.expected[i];
@@ -188,7 +188,7 @@ async function doReferencesRequest(client: lsclient.LanguageClient, tokenSource:
 	}
 }
 
-async function doImplementationRequest(client: lsclient.LanguageClient, tokenSource: vscode.CancellationTokenSource, sample: any): Promise<void> {
+async function doImplementationRequest(client: lsclient.LanguageClient, tokenSource: vscode.CancellationTokenSource, sample: IntegrationSamples): Promise<void> {
 	const provider = client.getFeature(lsclient.ImplementationRequest.method).getProvider(document);
 	isDefined(provider);
 
@@ -198,8 +198,8 @@ async function doImplementationRequest(client: lsclient.LanguageClient, tokenSou
 		position,
 		tokenSource.token
 	)) as vscode.Location[];
-	
-	isArray(results, vscode.Location, sample.expected.length);
+
+	isArray(results, sample.expected.length);
 	for (let i = 0; i < results.length; i++) {
 		const result = results[i];
 		const expected = sample.expected[i];
@@ -216,13 +216,14 @@ async function doImplementationRequest(client: lsclient.LanguageClient, tokenSou
 	}
 }
 
-async function doRenameRequest(client: lsclient.LanguageClient, tokenSource: vscode.CancellationTokenSource, sample: any): Promise<void> {
+async function doRenameRequest(client: lsclient.LanguageClient, tokenSource: vscode.CancellationTokenSource, sample: IntegrationSamples): Promise<void> {
 	const provider = client.getFeature(lsclient.RenameRequest.method).getProvider(document);
 	isDefined(provider);
 
 	const position = new vscode.Position(sample.position.line, sample.position.character);
-	const renameResult = await provider.provideRenameEdits(document, position, 'newName', tokenSource.token);
+	const renameResult = await provider.provideRenameEdits(document, position, sample.new_name, tokenSource.token);
 
+	isArray(renameResult.entries(), sample.expected.length);
 	isInstanceOf(renameResult, vscode.WorkspaceEdit);
 	for (let i = 0; i < renameResult.entries().length; i++) {
 		const results = renameResult.entries()[i];
@@ -236,6 +237,8 @@ async function doRenameRequest(client: lsclient.LanguageClient, tokenSource: vsc
 		uriEqual(results[0], expected[0]);
 
 		const textEdits = results[1];
+
+		isArray(textEdits, expected[1].length);
 		for (let j = 0; j < textEdits.length; j++) {
 			isInstanceOf(textEdits[j], vscode.TextEdit);
 			assert.strictEqual(textEdits[j].newText, expected[1][j].newText);
