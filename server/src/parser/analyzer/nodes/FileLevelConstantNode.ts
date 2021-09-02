@@ -35,12 +35,16 @@ export class FileLevelConstantNode extends Node {
         }
 
         if (this.astNode.typeName) {
-            const typeNode = find(this.astNode.typeName, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
+            let typeNode = find(this.astNode.typeName, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         
             this.addTypeNode(typeNode);
-            typeNode.setDeclarationNode(this);
-
             this.updateLocationName(typeNode);
+
+            // Find Type of declaration skip MappingNode, ArrayTypeNameNode, FunctionTypeNameNode
+            while (![ "UserDefinedTypeName", "ElementaryTypeName" ].includes(typeNode.type)) {
+                typeNode = typeNode.typeNodes[0];
+            }
+            typeNode.setDeclarationNode(this);
         }
 
         if (this.astNode.initialValue) {

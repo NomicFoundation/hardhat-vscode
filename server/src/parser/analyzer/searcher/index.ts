@@ -119,6 +119,39 @@ export class Searcher implements ISearcher {
         }
     }
 
+     /**
+     * Searches children for definitionNode and if any exist adds them to the 
+     * children definitionNode list and sets their parent to definitionNode.
+     * 
+     * @param definitionNode A node that calls this function and which will be the parent Node of the found children.
+     * @param orphanNodes Place where we search for children.
+     */
+    public findAndAddChildrenShadowedByParent(definitionNode: Node, orphanNodes: Node[]): void {
+        const newOrphanNodes: Node[] = [];
+
+        let orphanNode = orphanNodes.shift();
+        while (orphanNode) {
+            if (
+                utils.isNodeShadowedByNode(orphanNode, definitionNode.parent) &&
+                utils.isNodeConnectable(definitionNode, orphanNode)
+            ) {
+                orphanNode.addTypeNode(definitionNode);
+
+                orphanNode.setParent(definitionNode);
+                definitionNode.addChild(orphanNode);
+            } else {
+                newOrphanNodes.push(orphanNode);
+            }
+
+            orphanNode = orphanNodes.shift();
+        }
+
+        // Return to orphanNodes array unhandled orphan nodes
+        for (const newOrphanNode of newOrphanNodes) {
+            orphanNodes.push(newOrphanNode);
+        }
+    }
+
     /**
      * Searches children for definitionNode and if any exist adds them to the 
      * children definitionNode list and sets their parent to definitionNode.

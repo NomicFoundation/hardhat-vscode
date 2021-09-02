@@ -97,6 +97,15 @@ export interface Searcher {
     findAndAddChildren(definitionNode: Node, orphanNodes: Node[], isShadowed?: boolean): void;
 
     /**
+     * Searches children for definitionNode and if any exist adds them to the 
+     * children definitionNode list and sets their parent to definitionNode.
+     * 
+     * @param definitionNode A node that calls this function and which will be the parent Node of the found children.
+     * @param orphanNodes Place where we search for children.
+     */
+    findAndAddChildrenShadowedByParent(definitionNode: Node, orphanNodes: Node[]): void;
+
+    /**
      * Searches export children for definitionNode and if any exist adds them to the 
      * children definitionNode list and sets their parent to definitionNode.
      * 
