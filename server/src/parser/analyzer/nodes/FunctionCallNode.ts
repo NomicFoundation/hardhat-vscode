@@ -22,20 +22,20 @@ export class FunctionCallNode extends Node {
             find(argument, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
         }
 
-        const definitionNodes = expressionNode.getTypeNodes();
+        const definitionTypes = expressionNode.getTypeNodes();
         for (const identifier of this.astNode.identifiers) {
             const identifierNode = find(identifier, this.uri, this.rootPath, this.documentsAnalyzer);
 
-            if (definitionNodes.length > 0) {
-                this.findParentInExpressionType(identifierNode, definitionNodes);
+            if (definitionTypes.length > 0) {
+                this.findParentInExpressionType(identifierNode, definitionTypes);
             }
         }
 
         return expressionNode;
     }
 
-    private findParentInExpressionType(identifierNode: Node, definitionNodes: Node[]): void {
-        for (const definitionNode of definitionNodes) {
+    private findParentInExpressionType(identifierNode: Node, expressionTypes: Node[]): void {
+        for (const definitionNode of expressionTypes) {
             for (const variableDeclarationNode of definitionNode.children) {
                 if (utils.isNodeConnectable(variableDeclarationNode, identifierNode)) {
                     identifierNode.addTypeNode(variableDeclarationNode);
