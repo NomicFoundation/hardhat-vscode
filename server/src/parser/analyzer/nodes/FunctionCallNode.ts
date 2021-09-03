@@ -1,6 +1,5 @@
-
-import { FunctionCall, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 import * as utils from "@common/utils";
+import { FunctionCall, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class FunctionCallNode extends Node {
     astNode: FunctionCall;

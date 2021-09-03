@@ -1,4 +1,4 @@
-import { isNodeConnectable, findSourceUnitNode } from "@common/utils";
+import * as utils from "@common/utils";
 import {
     Identifier, FinderType, DocumentsAnalyzerMap, Node, expressionNodeTypes
 } from "@common/types";
@@ -74,7 +74,7 @@ export class IdentifierNode extends Node {
     findMemberAccessParent(expressionNode: Node, definitionTypes: Node[]): void {
         for (const definitionType of definitionTypes) {
             for (const definitionChild of definitionType.children) {
-                if (isNodeConnectable(definitionChild, expressionNode)) {
+                if (utils.isNodeConnectable(definitionChild, expressionNode)) {
                     expressionNode.addTypeNode(definitionChild);
 
                     expressionNode.setParent(definitionChild);
@@ -82,8 +82,8 @@ export class IdentifierNode extends Node {
 
                     // If the parent uri and node uri are not the same, add the node to the exportNode field
                     if (definitionChild && definitionChild.uri !== expressionNode.uri) {
-                        const exportRootNode = findSourceUnitNode(definitionChild);
-                        const importRootNode = findSourceUnitNode(this.documentsAnalyzer[this.uri]?.analyzerTree.tree);
+                        const exportRootNode = utils.findSourceUnitNode(definitionChild);
+                        const importRootNode = utils.findSourceUnitNode(this.documentsAnalyzer[this.uri]?.analyzerTree.tree);
 
                         if (exportRootNode) {
                             exportRootNode.addExportNode(expressionNode);
