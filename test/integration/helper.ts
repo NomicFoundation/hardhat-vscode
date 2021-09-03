@@ -53,7 +53,7 @@ export let editor: vscode.TextEditor;
  */
 export async function activate(docUri: vscode.Uri) {
 	// The extensionId is `publisher.name` from package.json
-	const ext = vscode.extensions.getExtension('tenderly.solidity-extension')!;
+	const ext = vscode.extensions.getExtension('ylrednet.ytidilos')!;
 	await ext.activate();
 
 	try {

@@ -41,7 +41,7 @@ suite('Client integration', () => {
 
 		middleware = {};
 		const clientOptions: lsclient.LanguageClientOptions = {
-			documentSelector: [{ scheme: 'file', language: 'solidity' }],
+			documentSelector: [{ scheme: 'file', language: 'ytidilos' }],
 			synchronize: {
 				fileEvents: vscode.workspace.createFileSystemWatcher('**/.sol')
 			},
