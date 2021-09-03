@@ -9,9 +9,7 @@
         },
         "expected": {
             "uri": {
-                "$mid": 1,
-                "path": "./test/testdata/test.sol",
-                "scheme": "file"
+                "path": "./test/testdata/test.sol"
             },
             "range": [{
                 "line": 9,
@@ -32,9 +30,7 @@
         },
         "expected": {
             "uri": {
-                "$mid": 1,
-                "path": "./test/testdata/test.sol",
-                "scheme": "file"
+                "path": "./test/testdata/test.sol"
             },
             "range": [{
                 "line": 53,
@@ -55,9 +51,7 @@
         },
         "expected": {
             "uri": {
-                "$mid": 1,
-                "path": "./test/testdata/test.sol",
-                "scheme": "file"
+                "path": "./test/testdata/test.sol"
             },
             "range": [{
                 "line": 10,
@@ -78,9 +72,7 @@
         },
         "expected": {
             "uri": {
-                "$mid": 1,
-                "path": "./test/testdata/test.sol",
-                "scheme": "file"
+                "path": "./test/testdata/test.sol"
             },
             "range": [{
                 "line": 54,
@@ -102,9 +94,7 @@
         "expected": [
             {
                 "uri": {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
+                    "path": "./test/testdata/test.sol"
                 },
                 "range": [{
                     "line": 9,
@@ -127,9 +117,7 @@
         "expected": [
             {
                 "uri": {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
+                    "path": "./test/testdata/test.sol"
                 },
                 "range": [{
                     "line": 53,
@@ -152,9 +140,7 @@
         "expected": [
             {
                 "uri": {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
+                    "path": "./test/testdata/test.sol"
                 },
                 "range": [{
                     "line": 53,
@@ -166,9 +152,7 @@
             },
             {
                 "uri": {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
+                    "path": "./test/testdata/test.sol"
                 },
                 "range": [{
                     "line": 9,
@@ -191,9 +175,7 @@
         "expected": [
             {
                 "uri": {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
+                    "path": "./test/testdata/test.sol"
                 },
                 "range": [{
                     "line": 9,
@@ -204,9 +186,7 @@
                 }]
             }, {
                 "uri": {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
+                    "path": "./test/testdata/test.sol"
                 },
                 "range": [{
                     "line": 14,
@@ -217,9 +197,7 @@
                 }]
             }, {
                 "uri": {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
+                    "path": "./test/testdata/test.sol"
                 },
                 "range": [{
                     "line": 38,
@@ -230,9 +208,7 @@
                 }]
             }, {
                 "uri": {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
+                    "path": "./test/testdata/test.sol"
                 },
                 "range": [{
                     "line": 43,
@@ -255,9 +231,7 @@
         "expected": [
             {
                 "uri": {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
+                    "path": "./test/testdata/test.sol"
                 },
                 "range": [{
                     "line": 53,
@@ -268,9 +242,7 @@
                 }]
             }, {
                 "uri": {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
+                    "path": "./test/testdata/test.sol"
                 },
                 "range": [{
                     "line": 15,
@@ -281,9 +253,7 @@
                 }]
             }, {
                 "uri": {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
+                    "path": "./test/testdata/test.sol"
                 },
                 "range": [{
                     "line": 18,
@@ -294,9 +264,7 @@
                 }]
             }, {
                 "uri": {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
+                    "path": "./test/testdata/test.sol"
                 },
                 "range": [{
                     "line": 38,
@@ -320,9 +288,7 @@
         "expected": [
             [
                 {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
+                    "path": "./test/testdata/test.sol"
                 },
                 [{
                     "range": [{
@@ -376,9 +342,7 @@
         "expected": [
             [
                 {
-                    "$mid": 1,
-                    "path": "./test/testdata/test.sol",
-                    "scheme": "file"
+                    "path": "./test/testdata/test.sol"
                 },
                 [{
                     "range": [{
