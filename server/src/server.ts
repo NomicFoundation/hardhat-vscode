@@ -196,7 +196,7 @@ connection.onDefinition(params => {
 			if (documentAnalyzer.isAnalyzed) {
 				return languageServer.solidityNavigation.findDefinition(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
 			}
-		}	
+		}
 	} catch (err) {
 		console.error(err);
 	}

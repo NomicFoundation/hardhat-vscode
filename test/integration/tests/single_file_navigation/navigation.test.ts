@@ -7,10 +7,10 @@ import * as vscode from 'vscode';
 import * as lsclient from 'vscode-languageclient/node';
 
 import {
-	IndexFileData, IntegrationSamples, activate,
-	changeDocument, getDocUri, document, rangeEqual,
+	activate, changeDocument, getDocUri, document, rangeEqual,
 	uriEqual, isDefined, isInstanceOf, isArray
-} from './helper';
+} from '../../common/helper';
+import { IntegrationSamples, IndexFileData } from '../../common/types';
 
 suite('Client integration', () => {
 	let client!: lsclient.LanguageClient;

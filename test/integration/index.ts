@@ -10,10 +10,10 @@ export function run(): Promise<void> {
 		timeout: 20000
 	});
 
-	const testsRoot = __dirname;
+	const testsRoot = path.resolve(__dirname, "tests");
 
 	return new Promise((resolve, reject) => {
-		glob('**.test.js', { cwd: testsRoot }, (err, files) => {
+		glob('**/*.test.js', { cwd: testsRoot }, (err, files) => {
 			if (err) {
 				return reject(err);
 			}
