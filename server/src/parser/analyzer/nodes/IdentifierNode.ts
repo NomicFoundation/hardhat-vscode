@@ -39,10 +39,6 @@ export class IdentifierNode extends Node {
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
 
-        if (expression?.type === "AssemblyLocalDefinition") {
-            return this;
-        }
-
         if (expression?.type === "ImportDirective" && parent) {
             const definitionNode = parent.getDefinitionNode();
 

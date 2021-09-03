@@ -41,7 +41,7 @@ export class AssemblyLocalDefinitionNode extends Node {
         this.setExpressionNode(expression);
         
         for (const name of this.astNode.names || []) {
-            const identifierNode = find(name, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this, this);
+            const identifierNode = find(name, this.uri, this.rootPath, this.documentsAnalyzer);
 
             new AssemblyLocalDefinitionNode(this.astNode, identifierNode.uri, identifierNode.rootPath, identifierNode.documentsAnalyzer, parent, identifierNode);
         }

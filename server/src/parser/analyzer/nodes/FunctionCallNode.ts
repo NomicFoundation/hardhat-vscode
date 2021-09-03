@@ -1,5 +1,6 @@
 
 import { FunctionCall, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
+import * as utils from "@common/utils";
 
 export class FunctionCallNode extends Node {
     astNode: FunctionCall;
@@ -22,6 +23,29 @@ export class FunctionCallNode extends Node {
             find(argument, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
         }
 
+        const definitionNodes = expressionNode.getTypeNodes();
+        for (const identifier of this.astNode.identifiers) {
+            const identifierNode = find(identifier, this.uri, this.rootPath, this.documentsAnalyzer);
+
+            if (definitionNodes.length > 0) {
+                this.findParentInExpressionType(identifierNode, definitionNodes);
+            }
+        }
+
         return expressionNode;
+    }
+
+    private findParentInExpressionType(identifierNode: Node, definitionNodes: Node[]): void {
+        for (const definitionNode of definitionNodes) {
+            for (const variableDeclarationNode of definitionNode.children) {
+                if (utils.isNodeConnectable(variableDeclarationNode, identifierNode)) {
+                    identifierNode.addTypeNode(variableDeclarationNode);
+
+                    identifierNode.setParent(variableDeclarationNode);
+                    variableDeclarationNode.addChild(identifierNode);
+                    return;
+                }
+            }
+        }
     }
 }
