@@ -37,7 +37,6 @@ Thumbs.db
 
 # Ignore built ts files
 out/**/*
-dist/**/*
 
 # VS Code extension packages
 *.vsix

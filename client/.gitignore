@@ -38,4 +38,3 @@ Thumbs.db
 
 # Ignore built ts files
 out/**/*
-dist/**/*
