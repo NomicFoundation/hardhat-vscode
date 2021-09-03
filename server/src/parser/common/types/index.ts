@@ -599,6 +599,27 @@ export abstract class VariableDeclarationNode extends Node {
    }
 }
 
+export abstract class IdentifierNode extends Node {
+    /**
+    * AST Identifier interface.
+    */
+    abstract astNode: Identifier;
+
+    identifierFields: Node[] = []
+
+    getIdentifierFields(): Node[] {
+        return this.identifierFields;
+    }
+
+    /**
+     * This is the place for all nonhandled identifier fileds like FunctionCallNode identifiers,
+     * that we want to handle after when this node gets a parent.
+     */
+    addIdentifierField(identifierField: Node): void {
+        this.identifierFields.push(identifierField);
+    }
+}
+
 export const definitionNodeTypes = [ "ContractDefinition", "StructDefinition", "ModifierDefinition", "FunctionDefinition", "EventDefinition", "EnumDefinition", "AssemblyLocalDefinition", "LabelDefinition", "AssemblyFunctionDefinition", "UserDefinedTypeName", "FileLevelConstant" ];
 export const declarationNodeTypes = [ "StateVariableDeclaration", "UsingForDeclaration", "VariableDeclaration", "VariableDeclarationStatement" ];
 export const expressionNodeTypes = [ "IndexAccess", "IndexRangeAccess", "TupleExpression", "BinaryOperation", "Conditional", "MemberAccess", "FunctionCall", "UnaryOperation", "NewExpression", "NameValueExpression", "BooleanLiteral", "HexLiteral", "StringLiteral", "NumberLiteral", "Identifier", "TupleExpression", "TypeNameExpression" ];

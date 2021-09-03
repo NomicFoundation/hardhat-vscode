@@ -1,4 +1,4 @@
-import { FunctionCall, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
+import { FunctionCall, FinderType, DocumentsAnalyzerMap, Node, IdentifierNode } from "@common/types";
 
 export class FunctionCallNode extends Node {
     astNode: FunctionCall;
@@ -29,6 +29,8 @@ export class FunctionCallNode extends Node {
 
             if (definitionTypes.length > 0) {
                 searcher?.findAndAddParentInDefinitionTypeVarialbles(identifierNode, definitionTypes);
+            } else {
+                (expressionNode as IdentifierNode).addIdentifierField(identifierNode);
             }
         }
 
