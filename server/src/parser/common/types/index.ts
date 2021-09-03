@@ -115,6 +115,13 @@ export interface Searcher {
     findAndAddExportChildren(definitionNode: Node, exportNodes: Node[]): void;
 
     /**
+     * It searches for parents in the definitonType children and if it finds it, it sets it as the parent for childNode.
+     * 
+     * @param definiitonTypes Place where we search for parent.
+     */
+    findAndAddParentInDefinitionTypeVarialbles(childNode: Node, definiitonTypes: Node[]): void
+
+    /**
      * Searches for all definitionNodes in forwarded from Node and in its imports.
      * 
      * @param uri File where is cursor now. Uri needs to be decoded and without the "file://" prefix.

@@ -23,28 +23,16 @@ export class FunctionCallNode extends Node {
         }
 
         const definitionTypes = expressionNode.getTypeNodes();
+        const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+
         for (const identifier of this.astNode.identifiers) {
             const identifierNode = find(identifier, this.uri, this.rootPath, this.documentsAnalyzer);
 
             if (definitionTypes.length > 0) {
-                this.findParentInExpressionType(identifierNode, definitionTypes);
+                searcher?.findAndAddParentInDefinitionTypeVarialbles(identifierNode, definitionTypes);
             }
         }
 
         return expressionNode;
-    }
-
-    private findParentInExpressionType(identifierNode: Node, expressionTypes: Node[]): void {
-        for (const definitionNode of expressionTypes) {
-            for (const variableDeclarationNode of definitionNode.children) {
-                if (utils.isNodeConnectable(variableDeclarationNode, identifierNode)) {
-                    identifierNode.addTypeNode(variableDeclarationNode);
-
-                    identifierNode.setParent(variableDeclarationNode);
-                    variableDeclarationNode.addChild(identifierNode);
-                    return;
-                }
-            }
-        }
     }
 }

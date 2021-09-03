@@ -187,6 +187,20 @@ export class Searcher implements ISearcher {
         }
     }
 
+    public findAndAddParentInDefinitionTypeVarialbles(childNode: Node, definiitonTypes: Node[]): void {
+        for (const definitionNode of definiitonTypes) {
+            for (const variableDeclarationNode of definitionNode.children) {
+                if (utils.isNodeConnectable(variableDeclarationNode, childNode)) {
+                    childNode.addTypeNode(variableDeclarationNode);
+
+                    childNode.setParent(variableDeclarationNode);
+                    variableDeclarationNode.addChild(childNode);
+                    return;
+                }
+            }
+        }
+    }
+
     /**
      * Searches for all definitionNodes in forwarded from Node and in its imports.
      * 
