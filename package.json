@@ -15,7 +15,7 @@
 		"url": "https://github.com/Tenderly/vscode-solidity/issues"
 	},
 	"engines": {
-		"vscode": "^1.55.0"
+		"vscode": "^1.59.0"
 	},
 	"activationEvents": [
 		"*"
@@ -23,14 +23,23 @@
 	"scripts": {
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
-		"client-test": "cd client && tsc -b && yarn run test && cd .."
+		"test": "tsc -b && node ./out/test/runTests.js"
 	},
 	"devDependencies": {
+		"@types/glob": "^7.1.3",
+		"@types/mocha": "^8.2.2",
 		"@types/node": "^12.12.0",
+		"@types/vscode": "^1.59.0",
 		"@typescript-eslint/eslint-plugin": "^4.22.1",
 		"@typescript-eslint/parser": "^4.22.1",
-		"eslint": "^6.4.0",
-		"typescript": "^4.2.2"
+		"eslint": "^7.25.0",
+		"glob": "^7.1.6",
+		"mocha": "^8.4.0",
+		"typescript": "^4.2.2",
+		"vscode-test": "^1.5.2"
+	},
+	"dependencies": {
+		"vscode-languageclient": "^7.0.0"
 	},
 	"contributes": {
 		"configuration": {

@@ -1,5 +1,5 @@
 import { isNodeConnectable, findSourceUnitNode } from "@common/utils";
-import { UserDefinedTypeName, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
+import { UserDefinedTypeName, FinderType, DocumentsAnalyzerMap, Node , expressionNodeTypes} from "@common/types";
 
 export class UserDefinedTypeNameNode extends Node {
     astNode: UserDefinedTypeName;
@@ -23,12 +23,17 @@ export class UserDefinedTypeNameNode extends Node {
         const declarationNode = this.getDeclarationNode();
 
         for (const child of declarationNode?.children || []) {
-            const expressionNode = child.getExpressionNode();
+            let expressionNode = child.getExpressionNode();
+            if (parent && expressionNode && expressionNodeTypes.includes(expressionNode.type)) {
+                if (expressionNode.type !== "MemberAccess") {
+                    expressionNode = expressionNode.getExpressionNode();
+                }
 
-            if (parent && expressionNode && expressionNode.type === "MemberAccess") {
-                const definitionTypes = parent.getTypeNodes();
-    
-                this.findMemberAccessParent(expressionNode, definitionTypes);
+                if (expressionNode && expressionNode.type === "MemberAccess") {
+                    const definitionTypes = parent.getTypeNodes();
+        
+                    this.findMemberAccessParent(expressionNode, definitionTypes);
+                }
             }
         }
     }

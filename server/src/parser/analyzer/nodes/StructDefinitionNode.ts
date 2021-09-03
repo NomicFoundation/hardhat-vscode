@@ -53,7 +53,7 @@ export class StructDefinitionNode extends Node {
             searcher?.findAndAddExportChildren(this, exportNodes);
         }
 
-        searcher?.findAndAddChildren(this, orphanNodes);
+        searcher?.findAndAddChildrenShadowedByParent(this, orphanNodes);
 
         parent?.addChild(this);
 

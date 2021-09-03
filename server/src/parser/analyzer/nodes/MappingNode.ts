@@ -1,6 +1,3 @@
-
-
-
 import { Mapping, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class MappingNode extends Node {

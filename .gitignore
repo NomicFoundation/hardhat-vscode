@@ -36,7 +36,10 @@ bower_components
 Thumbs.db
 
 # Ignore built ts files
-dist/**/*
+out/**/*
 
 # VS Code extension packages
 *.vsix
+
+# vscode test
+.vscode-test

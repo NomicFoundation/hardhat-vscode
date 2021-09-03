@@ -7,16 +7,13 @@ lib-cov
 *.pid
 *.gz
 *.swp
-*.swp
+*.tsbuildinfo
 
 pids
 logs
 results
 tmp
 out
-
-# vscode test
-.vscode-test
 
 # Build
 public/css/main.css
@@ -40,4 +37,4 @@ bower_components
 Thumbs.db
 
 # Ignore built ts files
-dist/**/*
+out/**/*

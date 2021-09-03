@@ -1,11 +1,18 @@
 import * as path from 'path';
+import * as events from 'events';
 import {
 	workspace, window, ExtensionContext, TextDocument,
-	OutputChannel, WorkspaceFolder, Uri
+	OutputChannel, WorkspaceFolder, Uri, ProgressLocation,
 } from 'vscode';
 import {
 	LanguageClient, LanguageClientOptions, TransportKind
 } from 'vscode-languageclient/node';
+
+type IndexFileData = {
+	path: string,
+	current: number,
+	total: number,
+};
 
 const clients: Map<string, LanguageClient> = new Map();
 
@@ -48,10 +55,14 @@ function getOuterMostWorkspaceFolder(folder: WorkspaceFolder): WorkspaceFolder {
 	return folder;
 }
 
+function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export function activate(context: ExtensionContext) {
 	console.log('client started');
 
-	const module = context.asAbsolutePath(path.join('server', 'dist', 'server.js'));
+	const module = context.asAbsolutePath(path.join('server', 'out', 'server.js'));
 	const outputChannel: OutputChannel = window.createOutputChannel('solidity-language-server');
 
 	function didOpenTextDocument(document: TextDocument): void {
@@ -76,7 +87,7 @@ export function activate(context: ExtensionContext) {
 			// The debug options for the server.
 			// --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging.
 			const debugOptions = { execArgv: ["--nolazy", `--inspect=${6009 + clients.size}`] };
-			
+
 			// If the extension is launched in debug mode then the debug server options are used.
 			// Otherwise the run options are used.
 			const serverOptions = {
@@ -96,6 +107,48 @@ export function activate(context: ExtensionContext) {
 			// Create the language client and start the client.
 			// Start the client. This will also launch the server
 			const client = new LanguageClient('solidity-language-server', 'Solidity Language Server', serverOptions, clientOptions);
+
+			const em = new events.EventEmitter();
+
+			client.onReady().then(() => {
+				client.onNotification("custom/indexingFile", (data: IndexFileData) => {
+					em.emit('IndexingFile', data);
+				});
+			});
+
+			// Progress bar
+			window.withProgress({
+				cancellable: true,
+				location: ProgressLocation.Notification,
+				title: 'Indexing Project'
+			}, async (progress) => {
+				progress.report({
+					increment: 0,
+					message: 'Start indexing...'
+				});
+
+				const promise = new Promise<void>(resolve => {
+					em.on('IndexingFile', (data: IndexFileData) => {
+						progress.report({
+							increment: Math.round(data.total / data.current),
+							message: `Indexing ${data.path}`
+						});
+	
+						if (data.total === data.current) {
+							resolve();
+						}
+					});
+				});
+
+				await promise;
+
+				progress.report({
+					increment: 100,
+					message: `Project indexing is complete.`
+				});
+
+				await sleep(3000);
+			});
 
 			client.start();
 			clients.set(folder.uri.toString(), client);

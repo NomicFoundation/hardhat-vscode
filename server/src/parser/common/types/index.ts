@@ -97,6 +97,15 @@ export interface Searcher {
     findAndAddChildren(definitionNode: Node, orphanNodes: Node[], isShadowed?: boolean): void;
 
     /**
+     * Searches children for definitionNode and if any exist adds them to the 
+     * children definitionNode list and sets their parent to definitionNode.
+     * 
+     * @param definitionNode A node that calls this function and which will be the parent Node of the found children.
+     * @param orphanNodes Place where we search for children.
+     */
+    findAndAddChildrenShadowedByParent(definitionNode: Node, orphanNodes: Node[]): void;
+
+    /**
      * Searches export children for definitionNode and if any exist adds them to the 
      * children definitionNode list and sets their parent to definitionNode.
      * 
@@ -104,6 +113,13 @@ export interface Searcher {
      * @param exportNodes Place where we search for children.
      */
     findAndAddExportChildren(definitionNode: Node, exportNodes: Node[]): void;
+
+    /**
+     * It searches for parents in the definitonType children and if it finds it, it sets it as the parent for childNode.
+     * 
+     * @param definiitonTypes Place where we search for parent.
+     */
+    findAndAddParentInDefinitionTypeVarialbles(childNode: Node, definiitonTypes: Node[]): void
 
     /**
      * Searches for all definitionNodes in forwarded from Node and in its imports.
@@ -581,6 +597,27 @@ export abstract class VariableDeclarationNode extends Node {
    getVisibility(): string | undefined {
        return this.astNode.visibility;
    }
+}
+
+export abstract class IdentifierNode extends Node {
+    /**
+    * AST Identifier interface.
+    */
+    abstract astNode: Identifier;
+
+    identifierFields: Node[] = []
+
+    getIdentifierFields(): Node[] {
+        return this.identifierFields;
+    }
+
+    /**
+     * This is the place for all nonhandled identifier fileds like FunctionCallNode identifiers,
+     * that we want to handle after when this node gets a parent.
+     */
+    addIdentifierField(identifierField: Node): void {
+        this.identifierFields.push(identifierField);
+    }
 }
 
 export const definitionNodeTypes = [ "ContractDefinition", "StructDefinition", "ModifierDefinition", "FunctionDefinition", "EventDefinition", "EnumDefinition", "AssemblyLocalDefinition", "LabelDefinition", "AssemblyFunctionDefinition", "UserDefinedTypeName", "FileLevelConstant" ];

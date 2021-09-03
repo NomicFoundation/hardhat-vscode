@@ -6,6 +6,7 @@ import * as parser from "@solidity-parser/parser";
 
 import * as matcher from "@analyzer/matcher";
 import { Searcher } from "@analyzer/searcher";
+import { IndexFileData, eventEmitter as em } from '@common/event';
 import {
     Node, SourceUnitNode, DocumentsAnalyzerMap, 
     DocumentAnalyzer as IDocumentAnalyzer, ASTNode,
@@ -31,7 +32,16 @@ export class Analyzer {
         // We will initialize all DocumentAnalizers first, because when we analyze documents we enter to their imports and
         // if they are not analyzed we analyze them, in order to be able to analyze imports we need to have DocumentAnalizer and
         // therefore we initiate everything first. The isAnalyzed serves to check if the document was analyzed so we don't analyze the document twice.
-        for (const documentUri of documentsUri) {
+        for (let i = 0; i < documentsUri.length; i++) {
+            const documentUri = documentsUri[i];
+
+            const data: IndexFileData = {
+                path: documentUri,
+                current: i + 1,
+                total: documentsUri.length
+            };
+            em.emit('IndexingFile', data);
+
             const documentAnalyzer = this.getDocumentAnalyzer(documentUri);
 
             if (!documentAnalyzer.isAnalyzed) {
