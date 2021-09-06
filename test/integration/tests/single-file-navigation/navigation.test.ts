@@ -2,14 +2,27 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import * as lsclient from 'vscode-languageclient/node';
 
-import { getClient } from '../../client';
+import { getClient, Client } from '../../client';
 import { IntegrationSamples } from '../../common/types';
 
-suite('Navigation integration', async () => {
-	const client = await getClient();
+suite('Navigation integration', () => {
+	let client!: Client;
+	let vscodeClient!: lsclient.LanguageClient;
 
-	const integrationSamples: IntegrationSamples[] = JSON.parse(fs.readFileSync(path.join(__dirname, 'navigation.test.json'), 'utf8'));
+	let integrationSamples: IntegrationSamples[];
+
+	suiteSetup(async () => {
+		client = await getClient();
+		vscodeClient = client.getVSCodeClient();
+
+		integrationSamples = JSON.parse(fs.readFileSync(path.join(__dirname, 'navigation.test.json'), 'utf8'));
+	});
+
+	suiteTeardown(async () => {
+		await vscodeClient.stop();
+	});
 
 	for (const sample of integrationSamples) {
 		test(sample.title, async () => {
