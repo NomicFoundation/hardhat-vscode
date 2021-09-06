@@ -5,8 +5,7 @@ import * as vscode from 'vscode';
 import * as lsclient from 'vscode-languageclient/node';
 
 import {
-    document, rangeEqual, uriEqual,
-    isDefined, isInstanceOf, isArray
+    rangeEqual, uriEqual, isDefined, isInstanceOf, isArray
 } from '../common/helper';
 import { IntegrationSamples } from '../common/types';
 
@@ -19,7 +18,7 @@ export class NavigationProvider {
         this.tokenSource = tokenSource;
 	}
 
-    async doDefinitionRequest(sample: IntegrationSamples): Promise<void> {
+    async doDefinitionRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void> {
         const provider = this.client.getFeature(lsclient.DefinitionRequest.method).getProvider(document);
         isDefined(provider);
 
@@ -37,7 +36,7 @@ export class NavigationProvider {
         );
     }
     
-    async doTypeDefinitionRequest(sample: IntegrationSamples): Promise<void> {
+    async doTypeDefinitionRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void> {
         const provider = this.client.getFeature(lsclient.TypeDefinitionRequest.method).getProvider(document);
         isDefined(provider);
     
@@ -61,7 +60,7 @@ export class NavigationProvider {
         }
     }
     
-    async doReferencesRequest(sample: IntegrationSamples): Promise<void> {
+    async doReferencesRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void> {
         const provider = this.client.getFeature(lsclient.ReferencesRequest.method).getProvider(document);
         isDefined(provider);
     
@@ -92,7 +91,7 @@ export class NavigationProvider {
         }
     }
     
-    async doImplementationRequest(sample: IntegrationSamples): Promise<void> {
+    async doImplementationRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void> {
         const provider = this.client.getFeature(lsclient.ImplementationRequest.method).getProvider(document);
         isDefined(provider);
     
@@ -120,7 +119,7 @@ export class NavigationProvider {
         }
     }
     
-    async doRenameRequest(sample: IntegrationSamples): Promise<void> {
+    async doRenameRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void> {
         const provider = this.client.getFeature(lsclient.RenameRequest.method).getProvider(document);
         isDefined(provider);
     
