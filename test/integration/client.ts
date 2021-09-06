@@ -15,12 +15,17 @@ export async function getClient(): Promise<Client> {
     }
 
     client = new Client();
-    await client.activate();
+    try {
+        await client.activate();
+    } catch (err) {
+        console.error('err', err);
+        process.exit(1);
+    }
 
     return client;
 }
 
-class Client {
+export class Client {
     private client: lsclient.LanguageClient;
     private middleware: lsclient.Middleware;
     private tokenSource: vscode.CancellationTokenSource;
@@ -39,12 +44,9 @@ class Client {
         const ext = vscode.extensions.getExtension('tenderly.solidity-extension')!;
         await ext.activate();
     
-        const defaultFilePath = this.getDocPath(path.resolve(__dirname, 'tests', 'single-file-navigation'), 'test.sol');
-        console.log(defaultFilePath);
-        this.document = await vscode.workspace.openTextDocument(defaultFilePath);
-        console.log(this.document);
+        this.docUri = vscode.Uri.file(this.getDocPath(path.resolve(__dirname, 'tests', 'single-file-navigation'), 'test.sol'));
+        this.document = await vscode.workspace.openTextDocument(this.docUri);
         this.editor = await vscode.window.showTextDocument(this.document);
-        console.log(this.editor);
 
         await sleep(2000); // Wait for server activation
 
@@ -55,7 +57,7 @@ class Client {
             run: { module: serverModule, transport: lsclient.TransportKind.ipc },
             debug: { module: serverModule, transport: lsclient.TransportKind.ipc, options: { execArgv: ['--nolazy', '--inspect=6014'] } }
         };
-    
+
         this.middleware = {};
         const clientOptions: lsclient.LanguageClientOptions = {
             documentSelector: [{ scheme: 'file', language: 'solidity' }],
@@ -71,10 +73,12 @@ class Client {
             serverOptions,
             clientOptions
         );
-    
+
         this.client.start();
         await this.client.onReady();
     
+        this.navigationProvider = new NavigationProvider(this.client, this.tokenSource);
+
         // Wait for analyzer to indexing all files
         const promise = new Promise<void>(resolve => {
             this.client.onNotification("custom/indexingFile", (data: IndexFileData) => {
@@ -85,13 +89,11 @@ class Client {
         });
     
         await promise;
-
-        this.navigationProvider = new NavigationProvider(this.client, this.tokenSource);
     }
 
     getDocPath(dirname: string, p: string): string {
         // TO-DO: Refactor this
-        dirname = dirname.replace('out/', '');
+        dirname = dirname.replace('/out/', '/');
         return path.resolve(dirname, 'testdata', p);
     }
 
