@@ -1,12 +1,22 @@
 'use strict';
 
 import * as assert from 'assert';
+import * as lsclient from 'vscode-languageclient/node';
 
-import { getClient } from '../../client';
+import { getClient, Client } from '../../client';
 
 suite('Configuration', async () => {
-    const client = await getClient();
-    const vscodeClient = client.getVSCodeClient();
+    let client!: Client;
+    let vscodeClient!: lsclient.LanguageClient;
+
+	suiteSetup(async () => {
+		client = await getClient();
+		vscodeClient = client.getVSCodeClient();
+	});
+
+	suiteTeardown(async () => {
+		await vscodeClient.stop();
+	});
 
 	test('InitializeResult', () => {
         // TO-DO: Move this to JSON
