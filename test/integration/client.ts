@@ -24,10 +24,10 @@ class Client {
     private client: lsclient.LanguageClient;
     private middleware: lsclient.Middleware;
     private tokenSource: vscode.CancellationTokenSource;
-    private docUri: vscode.Uri;
-    
-    private document: vscode.TextDocument;
     private editor: vscode.TextEditor;
+
+    document: vscode.TextDocument;
+    docUri: vscode.Uri;
 
     navigationProvider: NavigationProvider;
 
@@ -39,11 +39,15 @@ class Client {
         const ext = vscode.extensions.getExtension('tenderly.solidity-extension')!;
         await ext.activate();
     
-        const defaultFilePath = this.getDocPath(path.resolve(__dirname, 'tests', 'single_file_navigation'), 'test.sol');
+        const defaultFilePath = this.getDocPath(path.resolve(__dirname, 'tests', 'single-file-navigation'), 'test.sol');
+        console.log(defaultFilePath);
         this.document = await vscode.workspace.openTextDocument(defaultFilePath);
+        console.log(this.document);
         this.editor = await vscode.window.showTextDocument(this.document);
+        console.log(this.editor);
+
         await sleep(2000); // Wait for server activation
-       
+
         this.tokenSource = new vscode.CancellationTokenSource();
     
         const serverModule = path.join(__dirname, '..', '..', '..', 'server', 'out', 'server.js');
@@ -69,7 +73,6 @@ class Client {
         );
     
         this.client.start();
-    
         await this.client.onReady();
     
         // Wait for analyzer to indexing all files
@@ -86,13 +89,26 @@ class Client {
         this.navigationProvider = new NavigationProvider(this.client, this.tokenSource);
     }
 
-    getDocPath(dirname: string, p: string) {
+    getDocPath(dirname: string, p: string): string {
         // TO-DO: Refactor this
         dirname = dirname.replace('out/', '');
         return path.resolve(dirname, 'testdata', p);
     }
 
-    getDocUri(dirname: string, p: string) {
+    getDocUri(dirname: string, p: string): vscode.Uri {
         return vscode.Uri.file(this.getDocPath(dirname, p));
+    }
+
+    async changeDocument(docUri: vscode.Uri): Promise<void> {
+        try {
+            this.document = await vscode.workspace.openTextDocument(docUri);
+            this.editor = await vscode.window.showTextDocument(this.document);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    getVSCodeClient(): lsclient.LanguageClient {
+        return this.client;
     }
 }
