@@ -4,14 +4,21 @@
 		"target": "es2019",
 		"lib": ["ES2019"],
 		"outDir": "out",
-		"sourceMap": true
+		"sourceMap": true,
+		"resolveJsonModule": true,
 	},
+	"include": [
+		"./client",
+		"./server",
+		"./test",
+		"./test/**/*.json",
+	],
 	"exclude": [
 		"node_modules",
 		".vscode-test"
 	],
 	"references": [
 		{ "path": "./client" },
-		{ "path": "./server" }
+		{ "path": "./server" },
 	]
 }
