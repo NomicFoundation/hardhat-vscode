@@ -15,8 +15,18 @@ export function rangeEqual(range: vscode.Range, sl: number, sc: number, el: numb
 }
 
 export function uriEqual(actual: vscode.Uri, expected: vscode.Uri): void {
-	const actualPath = actual.path.match(/testdata(.*)/)[0];
-	const expectedPath = expected.path.match(/testdata(.*)/)[0];
+    let actualPath: string = actual.path;
+    let expectedPath: string = expected.path;
+    
+    const actualPathExp = actual.path.match(/testdata\/(.*)/);
+	const expectedPathExp = expected.path.match(/.\/(.*)/);
+
+    if (actualPathExp && actualPathExp.length > 0) {
+        actualPath = actualPathExp[1];
+    }
+    if (expectedPathExp && expectedPathExp.length > 0) {
+        expectedPath = expectedPathExp[1];
+    }
 
     assert.strictEqual(actualPath, expectedPath);
 }
