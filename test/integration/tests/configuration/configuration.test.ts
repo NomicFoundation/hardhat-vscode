@@ -3,7 +3,8 @@
 import * as assert from 'assert';
 import * as lsclient from 'vscode-languageclient/node';
 
-import { getClient, Client } from '../../client';
+import { getClient } from '../../client';
+import { Client } from '../../common/types';
 
 suite('Configuration', async () => {
     let client!: Client;
@@ -12,10 +13,6 @@ suite('Configuration', async () => {
 	suiteSetup(async () => {
 		client = await getClient();
 		vscodeClient = client.getVSCodeClient();
-	});
-
-	suiteTeardown(async () => {
-		await vscodeClient.stop();
 	});
 
 	test('InitializeResult', () => {
