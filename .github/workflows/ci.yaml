@@ -16,8 +16,8 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 14.x
-    - run: npm install
-    - run: xvfb-run -a npm test
+    - run: yarn install
+    - run: xvfb-run -a yarn run test
       if: runner.os == 'Linux'
-    - run: npm test
+    - run: yarn run test
       if: runner.os != 'Linux'

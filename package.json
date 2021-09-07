@@ -3,7 +3,7 @@
 	"publisher": "tenderly",
 	"description": "The solidity-extension contains the language smarts behind the solidity editing experience of Visual Studio Code.",
 	"license": "MIT",
-	"version": "0.0.1-alpha",
+	"version": "0.0.1",
 	"main": "./client/out/extension.js",
 	"module": "./client/out/extension.js",
 	"icon": "docs/images/solidity-logo.png",
@@ -23,7 +23,8 @@
 	"scripts": {
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
-		"test": "tsc -b && node ./out/test/runTests.js"
+		"postinstall": "cd client && yarn install && cd ../server && yarn install && cd ..",
+		"test": "yarn run compile && node ./out/test/runTests.js"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.1.3",
