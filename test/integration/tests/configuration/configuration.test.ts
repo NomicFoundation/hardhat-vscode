@@ -18,7 +18,7 @@ suite('Configuration', () => {
 	});
 
 	test('InitializeResult', () => {
-        const expected = JSON.parse(fs.readFileSync(path.join(__dirname, 'configuration.test.json'), 'utf8'));
+		const expected = JSON.parse(fs.readFileSync(path.join(__dirname, 'configuration.test.json'), 'utf8'));
 		assert.deepStrictEqual(vscodeClient.initializeResult, expected);
 	});
 });
