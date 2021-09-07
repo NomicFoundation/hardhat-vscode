@@ -1,5 +1,7 @@
 'use strict';
 
+import * as fs from 'fs';
+import * as path from 'path';
 import * as assert from 'assert';
 import * as lsclient from 'vscode-languageclient/node';
 
@@ -16,28 +18,7 @@ suite('Configuration', async () => {
 	});
 
 	test('InitializeResult', () => {
-        // TO-DO: Move this to JSON
-		const expected = {
-			capabilities: {
-				textDocumentSync: 2,
-				completionProvider: {
-					triggerCharacters: [
-						'.', '/'
-					]
-				},
-				definitionProvider: true,
-				typeDefinitionProvider: true,
-				referencesProvider: true,
-				implementationProvider: true,
-				renameProvider: true,
-				workspace: {
-					workspaceFolders: {
-						supported: true
-					}
-				}
-			}
-		};
-
+        const expected = JSON.parse(fs.readFileSync(path.join(__dirname, 'configuration.test.json'), 'utf8'));
 		assert.deepStrictEqual(vscodeClient.initializeResult, expected);
 	});
 });

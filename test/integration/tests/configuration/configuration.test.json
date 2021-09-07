@@ -1,0 +1,20 @@
+{
+	"capabilities": {
+		"textDocumentSync": 2,
+		"completionProvider": {
+			"triggerCharacters": [
+				".", "/"
+			]
+		},
+		"definitionProvider": true,
+		"typeDefinitionProvider": true,
+		"referencesProvider": true,
+		"implementationProvider": true,
+		"renameProvider": true,
+		"workspace": {
+			"workspaceFolders": {
+				"supported": true
+			}
+		}
+	}
+}
