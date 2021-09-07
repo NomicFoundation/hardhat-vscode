@@ -71,11 +71,11 @@ export interface NavigationProvider {
 	client: lsclient.LanguageClient;
     tokenSource: vscode.CancellationTokenSource;
 
-    doDefinitionRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void>;
-    doTypeDefinitionRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void>;
-    doReferencesRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void>;
-    doImplementationRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void>;
-    doRenameRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void>;
+    doDefinitionRequest(document: vscode.TextDocument, action: Action): Promise<void>;
+    doTypeDefinitionRequest(document: vscode.TextDocument, action: Action): Promise<void>;
+    doReferencesRequest(document: vscode.TextDocument, action: Action): Promise<void>;
+    doImplementationRequest(document: vscode.TextDocument, action: Action): Promise<void>;
+    doRenameRequest(document: vscode.TextDocument, action: Action): Promise<void>;
 }
 
 export interface Client {

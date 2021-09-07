@@ -7,7 +7,7 @@ import * as lsclient from 'vscode-languageclient/node';
 import {
     rangeEqual, uriEqual, isDefined, isInstanceOf, isArray
 } from '../common/helper';
-import { IntegrationSamples, NavigationProvider as INavigationProvider} from '../common/types';
+import { Action, IntegrationSamples, NavigationProvider as INavigationProvider} from '../common/types';
 
 export class NavigationProvider implements INavigationProvider{
 	client: lsclient.LanguageClient;
@@ -18,35 +18,35 @@ export class NavigationProvider implements INavigationProvider{
         this.tokenSource = tokenSource;
 	}
 
-    async doDefinitionRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void> {
+    async doDefinitionRequest(document: vscode.TextDocument, action: Action): Promise<void> {
         const provider = this.client.getFeature(lsclient.DefinitionRequest.method).getProvider(document);
         isDefined(provider);
 
-        const position = new vscode.Position(sample.position.line, sample.position.character);
+        const position = new vscode.Position(action.params.position.line, action.params.position.character);
         const result = (await provider.provideDefinition(document, position, this.tokenSource.token)) as vscode.Location;
 
         isInstanceOf(result, vscode.Location);
-        uriEqual(result.uri, sample.expected.uri);
+        uriEqual(result.uri, action.expected[0].uri);
         rangeEqual(
             result.range,
-            sample.expected.range[0].line,
-            sample.expected.range[0].character,
-            sample.expected.range[1].line,
-            sample.expected.range[1].character
+            action.expected[0].range[0].line,
+            action.expected[0].range[0].character,
+            action.expected[0].range[1].line,
+            action.expected[0].range[1].character
         );
     }
     
-    async doTypeDefinitionRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void> {
+    async doTypeDefinitionRequest(document: vscode.TextDocument, action: Action): Promise<void> {
         const provider = this.client.getFeature(lsclient.TypeDefinitionRequest.method).getProvider(document);
         isDefined(provider);
     
-        const position = new vscode.Position(sample.position.line, sample.position.character);
+        const position = new vscode.Position(action.params.position.line, action.params.position.character);
         const results = (await provider.provideTypeDefinition(document, position, this.tokenSource.token)) as vscode.Location[];
     
-        isArray(results, sample.expected.length);
+        isArray(results, action.expected.length);
         for (let i = 0; i < results.length; i++) {
             const result = results[i];
-            const expected = sample.expected[i];
+            const expected = action.expected[i];
     
             isInstanceOf(result, vscode.Location);
             uriEqual(result.uri, expected.uri);
@@ -60,11 +60,11 @@ export class NavigationProvider implements INavigationProvider{
         }
     }
     
-    async doReferencesRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void> {
+    async doReferencesRequest(document: vscode.TextDocument, action: Action): Promise<void> {
         const provider = this.client.getFeature(lsclient.ReferencesRequest.method).getProvider(document);
         isDefined(provider);
     
-        const position = new vscode.Position(sample.position.line, sample.position.character);
+        const position = new vscode.Position(action.params.position.line, action.params.position.character);
         const results = (await provider.provideReferences(
             document,
             position,
@@ -74,10 +74,10 @@ export class NavigationProvider implements INavigationProvider{
             this.tokenSource.token
         )) as vscode.Location[];
         
-        isArray(results, sample.expected.length);
+        isArray(results, action.expected.length);
         for (let i = 0; i < results.length; i++) {
             const result = results[i];
-            const expected = sample.expected[i];
+            const expected = action.expected[i];
     
             isInstanceOf(result, vscode.Location);
             uriEqual(result.uri, expected.uri);
@@ -91,21 +91,21 @@ export class NavigationProvider implements INavigationProvider{
         }
     }
     
-    async doImplementationRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void> {
+    async doImplementationRequest(document: vscode.TextDocument, action: Action): Promise<void> {
         const provider = this.client.getFeature(lsclient.ImplementationRequest.method).getProvider(document);
         isDefined(provider);
     
-        const position = new vscode.Position(sample.position.line, sample.position.character);
+        const position = new vscode.Position(action.params.position.line, action.params.position.character);
         const results = (await provider.provideImplementation(
             document,
             position,
             this.tokenSource.token
         )) as vscode.Location[];
     
-        isArray(results, sample.expected.length);
+        isArray(results, action.expected.length);
         for (let i = 0; i < results.length; i++) {
             const result = results[i];
-            const expected = sample.expected[i];
+            const expected = action.expected[i];
     
             isInstanceOf(result, vscode.Location);
             uriEqual(result.uri, expected.uri);
@@ -119,18 +119,18 @@ export class NavigationProvider implements INavigationProvider{
         }
     }
     
-    async doRenameRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void> {
+    async doRenameRequest(document: vscode.TextDocument, action: Action): Promise<void> {
         const provider = this.client.getFeature(lsclient.RenameRequest.method).getProvider(document);
         isDefined(provider);
     
-        const position = new vscode.Position(sample.position.line, sample.position.character);
-        const renameResult = await provider.provideRenameEdits(document, position, sample.new_name, this.tokenSource.token);
+        const position = new vscode.Position(action.params.position.line, action.params.position.character);
+        const renameResult = await provider.provideRenameEdits(document, position, action.params.new_name, this.tokenSource.token);
     
-        isArray(renameResult.entries(), sample.expected.length);
+        isArray(renameResult.entries(), action.expected.length);
         isInstanceOf(renameResult, vscode.WorkspaceEdit);
         for (let i = 0; i < renameResult.entries().length; i++) {
             const results = renameResult.entries()[i];
-            const expected = sample.expected[i];
+            const expected = action.expected[i];
     
             if (results.length !== 2) {
                 throw new Error(`Result [vscode.Uri, vscode.TextEdit[]].length must be 2`);
