@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 import * as lsclient from 'vscode-languageclient/node';
 
 import { sleep } from './common/helper';
-import { IndexFileData } from './common/types';
+import { IndexFileData, Client as IClient } from './common/types';
 import { NavigationProvider } from './services/NavigationProvider';
 
 let client: Client;
@@ -25,7 +25,7 @@ export async function getClient(): Promise<Client> {
     return client;
 }
 
-export class Client {
+class Client implements IClient {
     private client: lsclient.LanguageClient;
     private middleware: lsclient.Middleware;
     private tokenSource: vscode.CancellationTokenSource;
