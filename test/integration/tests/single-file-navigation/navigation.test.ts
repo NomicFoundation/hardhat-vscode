@@ -19,15 +19,17 @@ suite('Navigation integration', () => {
 	const integrationSamples: IntegrationSamples[] = JSON.parse(fs.readFileSync(path.join(__dirname, 'navigation.test.json'), 'utf8'));
 	for (const sample of integrationSamples) {
 		test(sample.title, async () => {
-			client.docUri = client.getDocUri(__dirname, sample.uri);
-			await client.changeDocument(client.docUri);
-
-			const fn = client.navigationProvider[`do${sample.action}`].bind(client.navigationProvider);
-			if (!fn) {
-				throw new Error("Action request not implemented!");
+			for (const action of sample.actions) {
+				client.docUri = client.getDocUri(__dirname, action.uri);
+				await client.changeDocument(client.docUri);
+	
+				const fn = client.navigationProvider[`do${action.action}`].bind(client.navigationProvider);
+				if (!fn) {
+					throw new Error("Action request not implemented!");
+				}
+	
+				await fn(client.document, action);
 			}
-
-			await fn(client.document, sample);
 		});
 	}
 });
