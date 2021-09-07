@@ -7,9 +7,9 @@ import * as lsclient from 'vscode-languageclient/node';
 import {
     rangeEqual, uriEqual, isDefined, isInstanceOf, isArray
 } from '../common/helper';
-import { IntegrationSamples } from '../common/types';
+import { IntegrationSamples, NavigationProvider as INavigationProvider} from '../common/types';
 
-export class NavigationProvider {
+export class NavigationProvider implements INavigationProvider{
 	client: lsclient.LanguageClient;
     tokenSource: vscode.CancellationTokenSource;
 
