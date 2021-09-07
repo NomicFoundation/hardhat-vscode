@@ -8,7 +8,7 @@ import * as lsclient from 'vscode-languageclient/node';
 import { getClient } from '../../client';
 import { Client } from '../../common/types';
 
-suite('Configuration', async () => {
+suite('Configuration', () => {
     let client!: Client;
     let vscodeClient!: lsclient.LanguageClient;
 
