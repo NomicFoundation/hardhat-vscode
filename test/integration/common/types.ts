@@ -1,3 +1,8 @@
+'use strict';
+
+import * as vscode from 'vscode';
+import * as lsclient from 'vscode-languageclient/node';
+
 export type IntegrationSamples = {
 	/**
 	 * Test title.
@@ -40,3 +45,34 @@ export type IndexFileData = {
 	current: number,
 	total: number,
 };
+
+
+export interface NavigationProvider {
+	client: lsclient.LanguageClient;
+    tokenSource: vscode.CancellationTokenSource;
+
+    doDefinitionRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void>;
+    doTypeDefinitionRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void>;
+    doReferencesRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void>;
+    doImplementationRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void>;
+    doRenameRequest(document: vscode.TextDocument, sample: IntegrationSamples): Promise<void>;
+}
+
+export interface Client {
+    document: vscode.TextDocument;
+    docUri: vscode.Uri;
+
+    navigationProvider: NavigationProvider;
+
+    /**
+     * Activates the tenderly.solidity-extension extension
+     */
+    activate(): Promise<void>;
+
+    getDocPath(dirname: string, p: string): string;
+    getDocUri(dirname: string, p: string): vscode.Uri;
+
+    changeDocument(docUri: vscode.Uri): Promise<void>;
+
+    getVSCodeClient(): lsclient.LanguageClient;
+}
