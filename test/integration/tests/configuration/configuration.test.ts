@@ -9,8 +9,10 @@ import { getClient } from '../../client';
 import { Client } from '../../common/types';
 
 suite('Configuration', function () {
-    let client!: Client;
-    let vscodeClient!: lsclient.LanguageClient;
+	this.timeout(60000);
+
+	let client!: Client;
+	let vscodeClient!: lsclient.LanguageClient;
 
 	suiteSetup(async () => {
 		client = await getClient();

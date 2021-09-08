@@ -34,11 +34,11 @@
 		"@typescript-eslint/eslint-plugin": "^4.22.1",
 		"@typescript-eslint/parser": "^4.22.1",
 		"eslint": "^7.25.0",
-		"glob": "^7.1.6",
-		"mocha": "^7.1.1",
-		"yarn": "^1.22.4",
+		"glob": "^7.1.7",
+		"mocha": "^9.1.1",
 		"typescript": "^4.2.2",
-		"vscode-test": "^1.5.2"
+		"vscode-test": "^1.5.2",
+		"yarn": "^1.22.11"
 	},
 	"dependencies": {
 		"vscode-languageclient": "^7.0.0"

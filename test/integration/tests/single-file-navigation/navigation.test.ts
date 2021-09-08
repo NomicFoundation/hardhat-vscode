@@ -8,7 +8,7 @@ import { getClient } from '../../client';
 import { IntegrationSamples, Client } from '../../common/types';
 
 suite('Navigation integration', function () {
-	this.timeout(30 * 1000);
+	this.timeout(10000);
 
 	let client!: Client;
 	let vscodeClient!: lsclient.LanguageClient;

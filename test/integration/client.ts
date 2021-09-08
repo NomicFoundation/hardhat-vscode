@@ -18,7 +18,7 @@ export async function getClient(): Promise<Client> {
     try {
         await client.activate();
     } catch (err) {
-        console.error('err', err);
+        console.error(err);
         process.exit(1);
     }
 
