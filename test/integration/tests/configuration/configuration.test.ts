@@ -17,7 +17,7 @@ suite('Configuration', () => {
 	// 	vscodeClient = client.getVSCodeClient();
 	// });
 
-	test('InitializeResult', async () => {
+	test('InitializeResult', async function() {
 		const client = await getClient();
 		const vscodeClient = client.getVSCodeClient();
 
