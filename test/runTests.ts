@@ -23,7 +23,7 @@ import { runTests } from 'vscode-test';
 			]
 		});
 	} catch (err) {
-		console.error('Failed to run tests');
+		console.error('Failed to run tests, err: ', err);
 		process.exitCode = 1;
 	}
 })();
