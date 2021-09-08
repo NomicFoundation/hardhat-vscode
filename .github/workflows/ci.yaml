@@ -22,14 +22,12 @@ jobs:
           node-version: '14.x'
 
       - name: Install dependencies
-        run: |
-          yarn add yarn
-          yarn install
+        run: npm install
 
       - name: Run tests
         uses: GabrielBB/xvfb-action@v1.0
         with:
-          run: yarn run test
+          run: tsc -b && node ./out/test/runTests.js
         env:
           CODE_VERSION: ${{ matrix.version }}
           VSCODEGO_BEFORE_RELEASE_TESTS: true
