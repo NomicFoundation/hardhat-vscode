@@ -7,7 +7,7 @@ import * as lsclient from 'vscode-languageclient/node';
 import { getClient } from '../../client';
 import { IntegrationSamples, Client } from '../../common/types';
 
-suite('Navigation integration', () => {
+suite('Navigation integration', function () {
 	let client!: Client;
 	let vscodeClient!: lsclient.LanguageClient;
 
