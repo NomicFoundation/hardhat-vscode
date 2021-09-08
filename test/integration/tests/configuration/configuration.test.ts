@@ -9,22 +9,16 @@ import { getClient } from '../../client';
 import { Client } from '../../common/types';
 
 suite('Configuration', () => {
-    // let client!: Client;
-    // let vscodeClient!: lsclient.LanguageClient;
+    let client!: Client;
+    let vscodeClient!: lsclient.LanguageClient;
 
-	// suiteSetup(async () => {
-	// 	client = await getClient();
-	// 	vscodeClient = client.getVSCodeClient();
-	// });
+	suiteSetup(async () => {
+		client = await getClient();
+		vscodeClient = client.getVSCodeClient();
+	});
 
-	test('InitializeResult', function(done) {
-		getClient().then(client => {
-			const vscodeClient = client.getVSCodeClient();
-
-			const expected = JSON.parse(fs.readFileSync(path.join(__dirname, 'configuration.test.json'), 'utf8'));
-			assert.deepStrictEqual(vscodeClient.initializeResult, expected);
-
-			done();
-		}).catch(err => done(err));
+	test('InitializeResult', () => {
+		const expected = JSON.parse(fs.readFileSync(path.join(__dirname, 'configuration.test.json'), 'utf8'));
+		assert.deepStrictEqual(vscodeClient.initializeResult, expected);
 	});
 });
