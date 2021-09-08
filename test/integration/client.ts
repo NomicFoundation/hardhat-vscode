@@ -80,15 +80,16 @@ class Client implements IClient {
         this.navigationProvider = new NavigationProvider(this.client, this.tokenSource);
 
         // Wait for analyzer to indexing all files
-        const promise = new Promise<void>(resolve => {
-            this.client.onNotification("custom/indexingFile", (data: IndexFileData) => {
-                if (data.current === data.total) {
-                    resolve();
-                }
-            });
-        });
+        await sleep(10000);
+        // const promise = new Promise<void>(resolve => {
+        //     this.client.onNotification("custom/indexingFile", (data: IndexFileData) => {
+        //         if (data.current === data.total) {
+        //             resolve();
+        //         }
+        //     });
+        // });
     
-        await promise;
+        // await promise;
     }
 
     getDocPath(dirname: string, p: string): string {
