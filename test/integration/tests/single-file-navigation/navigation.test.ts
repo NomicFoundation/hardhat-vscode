@@ -16,10 +16,6 @@ suite('Navigation integration', () => {
 		vscodeClient = client.getVSCodeClient();
 	});
 
-	suiteTeardown(async () => {
-		await vscodeClient.stop();
-	});
-
 	const integrationSamples: IntegrationSamples[] = JSON.parse(fs.readFileSync(path.join(__dirname, 'navigation.test.json'), 'utf8'));
 	for (const sample of integrationSamples) {
 		test(sample.title, async () => {
