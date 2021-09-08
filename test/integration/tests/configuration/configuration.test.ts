@@ -17,11 +17,14 @@ suite('Configuration', () => {
 	// 	vscodeClient = client.getVSCodeClient();
 	// });
 
-	test('InitializeResult', async function() {
-		const client = await getClient();
-		const vscodeClient = client.getVSCodeClient();
+	test('InitializeResult', function(done) {
+		getClient().then(client => {
+			const vscodeClient = client.getVSCodeClient();
 
-		const expected = JSON.parse(fs.readFileSync(path.join(__dirname, 'configuration.test.json'), 'utf8'));
-		assert.deepStrictEqual(vscodeClient.initializeResult, expected);
+			const expected = JSON.parse(fs.readFileSync(path.join(__dirname, 'configuration.test.json'), 'utf8'));
+			assert.deepStrictEqual(vscodeClient.initializeResult, expected);
+
+			done();
+		}).catch(err => done(err));
 	});
 });
