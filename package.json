@@ -35,7 +35,8 @@
 		"@typescript-eslint/parser": "^4.22.1",
 		"eslint": "^7.25.0",
 		"glob": "^7.1.6",
-		"mocha": "^8.4.0",
+		"mocha": "^7.1.1",
+		"yarn": "^1.22.4",
 		"typescript": "^4.2.2",
 		"vscode-test": "^1.5.2"
 	},
