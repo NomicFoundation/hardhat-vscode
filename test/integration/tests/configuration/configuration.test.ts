@@ -12,6 +12,10 @@ suite('Configuration', function () {
     let client!: Client;
     let vscodeClient!: lsclient.LanguageClient;
 
+	this.beforeAll(() => {
+		console.log("Cao cao");
+	});
+
 	suiteSetup(async () => {
 		client = await getClient();
 		vscodeClient = client.getVSCodeClient();
