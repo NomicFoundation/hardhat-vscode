@@ -15,7 +15,12 @@ import { runTests } from 'vscode-test';
 		await runTests({
 			version: '1.59.0',
 			extensionDevelopmentPath,
-			extensionTestsPath
+			extensionTestsPath,
+			launchArgs: [
+				'--disable-extensions',
+				// https://github.com/microsoft/vscode/issues/115794#issuecomment-774283222
+				'--force-disable-user-env'
+			]
 		});
 	} catch (err) {
 		console.error('Failed to run tests');
