@@ -174,7 +174,7 @@ connection.onCompletion(
 
 				const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 				if (documentAnalyzer) {
-					return languageServer.solidityCompletion.doComplete(documentAnalyzer.rootPath, params.position, documentAnalyzer);
+					return languageServer.solidityCompletion.doComplete(params.position, documentAnalyzer);
 				}
 			}
 		} catch (err) {
@@ -196,7 +196,7 @@ connection.onDefinition(params => {
 			if (documentAnalyzer.isAnalyzed) {
 				return languageServer.solidityNavigation.findDefinition(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
 			}
-		}	
+		}
 	} catch (err) {
 		console.error(err);
 	}

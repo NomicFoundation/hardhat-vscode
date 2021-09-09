@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { Analyzer } from "@analyzer/index";
 
-import { getParserPositionFromVSCodePosition, findNodeModules } from "@common/utils";
+import { getParserPositionFromVSCodePosition } from "@common/utils";
 import {
     VSCodePosition, CompletionList, CompletionItem, CompletionItemKind, MarkupKind,
     DocumentAnalyzer, Node, TypeName, ImportDirectiveNode, ContractDefinitionNode,
@@ -17,7 +17,7 @@ export class SolidityCompletion {
 		this.analyzer = analyzer;
 	}
 
-    public doComplete(rootPath: string, position: VSCodePosition, documentAnalyzer: DocumentAnalyzer): CompletionList {
+    public doComplete(position: VSCodePosition, documentAnalyzer: DocumentAnalyzer): CompletionList {
         const analyzerTree = documentAnalyzer.analyzerTree.tree;
         const result: CompletionList = { isIncomplete: false, items: [] };
 
@@ -51,7 +51,7 @@ export class SolidityCompletion {
                 result.items = this.getGlobalVariableCompletions(definitionNodeName);
             }
             else if (definitionNode && definitionNode.type === "ImportDirective") {
-                result.items = this.getImportPathCompletion(rootPath, definitionNode as ImportDirectiveNode);
+                result.items = this.getImportPathCompletion(definitionNode as ImportDirectiveNode);
             }
             else if (definitionNode && expressionNodeTypes.includes(definitionNode.getExpressionNode()?.type || "")) {
                 result.items = this.getMemberAccessCompletions(documentAnalyzer.uri, position, definitionNode);
@@ -113,22 +113,15 @@ export class SolidityCompletion {
         return [];
     }
 
-    private getImportPathCompletion(rootPath: string, node: ImportDirectiveNode): CompletionItem[] {
+    private getImportPathCompletion(node: ImportDirectiveNode): CompletionItem[] {
         let completions: CompletionItem[] = [];
         const importPath = path.join(node.realUri, "..", node.astNode.path);
-        let nodeModulesPath = findNodeModules(node.realUri, rootPath);
 
         if (fs.existsSync(importPath)) {
             const files = fs.readdirSync(importPath);
             completions = this.getCompletionsFromFiles(importPath, files);
-        } else if (nodeModulesPath) {
-            nodeModulesPath = path.join(nodeModulesPath, node.astNode.path);
-
-            if (fs.existsSync(nodeModulesPath)) {
-                const files = fs.readdirSync(nodeModulesPath);
-                completions = this.getCompletionsFromFiles(nodeModulesPath, files);
-            }
         }
+        // TO-DO: Implement completion for dependency resolution
 
         return completions;
     }

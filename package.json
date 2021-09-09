@@ -23,7 +23,8 @@
 	"scripts": {
 		"compile": "tsc -b",
 		"watch": "tsc -b -w",
-		"test": "tsc -b && node ./out/test/runTests.js"
+		"postinstall": "cd client && yarn install && cd ../server && yarn install && cd ..",
+		"test": "yarn run compile && node ./out/test/runTests.js"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.1.3",
@@ -33,10 +34,11 @@
 		"@typescript-eslint/eslint-plugin": "^4.22.1",
 		"@typescript-eslint/parser": "^4.22.1",
 		"eslint": "^7.25.0",
-		"glob": "^7.1.6",
-		"mocha": "^8.4.0",
+		"glob": "^7.1.7",
+		"mocha": "^9.1.1",
 		"typescript": "^4.2.2",
-		"vscode-test": "^1.5.2"
+		"vscode-test": "^1.5.2",
+		"yarn": "^1.22.11"
 	},
 	"dependencies": {
 		"vscode-languageclient": "^7.0.0"

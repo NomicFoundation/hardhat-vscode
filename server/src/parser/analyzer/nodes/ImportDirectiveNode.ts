@@ -1,7 +1,5 @@
-import * as fs from "fs";
 import * as path from "path";
 
-import { findNodeModules } from "@common/utils";
 import {
     ImportDirective, FinderType, DocumentsAnalyzerMap, Node,
     SourceUnitNode, ImportDirectiveNode as AbstractImportDirectiveNode
@@ -16,15 +14,11 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
     constructor (importDirective: ImportDirective, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
         super(importDirective, uri, rootPath, documentsAnalyzer, importDirective.path);
         this.realUri = uri;
-        this.uri = path.join(uri, "..", importDirective.path);
-
-        // See if file exists
-        if (!fs.existsSync(this.uri)) {
-            const nodeModulesPath = findNodeModules(this.uri, this.rootPath);
-
-            if (nodeModulesPath) {
-                this.uri = path.join(nodeModulesPath, importDirective.path);
-            }
+        
+        try {
+            this.uri = require.resolve(importDirective.path, { paths: [ path.join(this.realUri, "..") ] });
+        } catch (err) {
+            this.uri = '';
         }
 
         if (importDirective.pathLiteral && importDirective.pathLiteral.loc) {

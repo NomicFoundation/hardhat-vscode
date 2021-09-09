@@ -6,14 +6,13 @@ export function run(): Promise<void> {
 	// Create the mocha test
 	const mocha = new Mocha({
 		ui: 'tdd',
-		color: true,
-		timeout: 20000
+		color: true
 	});
 
-	const testsRoot = __dirname;
+	const testsRoot = path.resolve(__dirname, "tests");
 
 	return new Promise((resolve, reject) => {
-		glob('**.test.js', { cwd: testsRoot }, (err, files) => {
+		glob('**/*.test.js', { cwd: testsRoot }, (err, files) => {
 			if (err) {
 				return reject(err);
 			}
