@@ -37,11 +37,11 @@ class Client implements IClient {
     navigationProvider: NavigationProvider;
 
     /**
-     * Activates the tenderly.solidity-extension extension
+     * Activates the ylrednet.ytidilos extension
      */
     async activate(): Promise<void> {
         // The extensionId is `publisher.name` from package.json
-        const ext = vscode.extensions.getExtension('tenderly.solidity-extension')!;
+        const ext = vscode.extensions.getExtension('ylrednet.ytidilos')!;
         await ext.activate();
     
         this.docUri = vscode.Uri.file(this.getDocPath(path.resolve(__dirname, 'tests', 'single-file-navigation'), 'test.sol'));
@@ -60,7 +60,7 @@ class Client implements IClient {
 
         this.middleware = {};
         const clientOptions: lsclient.LanguageClientOptions = {
-            documentSelector: [{ scheme: 'file', language: 'solidity' }],
+            documentSelector: [{ scheme: 'file', language: 'ytidilos' }],
             synchronize: {
                 fileEvents: vscode.workspace.createFileSystemWatcher('**/.sol')
             },
