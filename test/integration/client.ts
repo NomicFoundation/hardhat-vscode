@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 import * as lsclient from 'vscode-languageclient/node';
 
 import { sleep } from './common/helper';
-import { IndexFileData, Client as IClient } from './common/types';
+import { Client as IClient } from './common/types';
 import { NavigationProvider } from './services/NavigationProvider';
 
 let client: Client;
