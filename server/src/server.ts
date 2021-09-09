@@ -174,7 +174,7 @@ connection.onCompletion(
 
 				const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 				if (documentAnalyzer) {
-					return languageServer.solidityCompletion.doComplete(documentAnalyzer.rootPath, params.position, documentAnalyzer);
+					return languageServer.solidityCompletion.doComplete(params.position, documentAnalyzer);
 				}
 			}
 		} catch (err) {
