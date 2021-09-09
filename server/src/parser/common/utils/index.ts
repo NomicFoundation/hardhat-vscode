@@ -1,21 +1,4 @@
-import * as fs from "fs";
-import * as path from "path";
-
 import { Position, Location, Node, SourceUnitNode, Range, VSCodePosition } from "@common/types";
-
-export function findNodeModules(fromURI: string, rootPath: string): string | undefined {
-    let nodeModulesPath = path.join(fromURI, "..", "node_modules");
-
-    while (rootPath && nodeModulesPath.includes(rootPath) && !fs.existsSync(nodeModulesPath)) {
-        nodeModulesPath = path.join(nodeModulesPath, "..", "..", "node_modules");
-    }
-
-    if (fs.existsSync(nodeModulesPath)) {
-        return nodeModulesPath;
-    }
-
-    return undefined;
-}
 
 export function getParserPositionFromVSCodePosition(position: VSCodePosition): Position {
     return {
