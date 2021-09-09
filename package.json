@@ -3,7 +3,7 @@
 	"publisher": "ylrednet",
 	"description": "ytidilos extension for Visual Studio Code",
 	"license": "MIT",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"main": "./client/out/extension.js",
 	"module": "./client/out/extension.js",
 	"icon": "docs/images/random_shape.png",
