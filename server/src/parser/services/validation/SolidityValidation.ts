@@ -119,7 +119,7 @@ export class SolidityValidation {
 			return require("hardhat");
 		} catch (err) {
 			// Hardhat is not installed
-			console.error(err);
+			// console.error(err);
 			return undefined;
 		}
 	}
