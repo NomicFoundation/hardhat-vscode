@@ -13,11 +13,12 @@ import { runTests } from 'vscode-test';
 
 		// Download VS Code, unzip it and run the integration test
 		await runTests({
-			version: '1.56.0',
+			version: '1.59.0',
 			extensionDevelopmentPath,
 			extensionTestsPath,
 			launchArgs: [
 				'--disable-extensions',
+				'--no-sandbox',
 				// https://github.com/microsoft/vscode/issues/115794#issuecomment-774283222
 				'--force-disable-user-env'
 			]
