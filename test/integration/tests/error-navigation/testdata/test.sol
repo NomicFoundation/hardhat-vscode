@@ -15,7 +15,7 @@ contract TestToken {
     mapping(address => uint) balance;
 
     function transfer(address to, uint256 amount) public {
-        if (amount > balance[msg.sender])
+        if (amount > balance[msg.sender]) {
             // Error call using named parameters. Equivalent to
             // revert InsufficientBalance(balance[msg.sender], amount);
             revert InsufficientBalance({
@@ -24,6 +24,7 @@ contract TestToken {
                 }),
                 required: amount
             });
+        }
 
         balance[msg.sender] -= amount;
         balance[to] += amount;
