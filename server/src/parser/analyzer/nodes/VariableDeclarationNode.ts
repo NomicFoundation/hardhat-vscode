@@ -1,10 +1,10 @@
 import { findSourceUnitNode } from "@common/utils";
 import {
     VariableDeclaration, FinderType, Node, DocumentsAnalyzerMap,
-    VariableDeclarationNode as IVariableDeclarationNode
+    VariableDeclarationNode as AbstractVariableDeclarationNode
 } from "@common/types";
 
-export class VariableDeclarationNode extends IVariableDeclarationNode {
+export class VariableDeclarationNode extends AbstractVariableDeclarationNode {
     astNode: VariableDeclaration;
 
     connectionTypeRules: string[] = [ "Identifier", "MemberAccess", "AssemblyCall" ];

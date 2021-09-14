@@ -1,10 +1,10 @@
 import * as utils from "@common/utils";
 import {
     Identifier, FinderType, DocumentsAnalyzerMap, Node,
-    IdentifierNode as IIdentifierNode, expressionNodeTypes
+    IdentifierNode as AbstractIdentifierNode, expressionNodeTypes
 } from "@common/types";
 
-export class IdentifierNode extends IIdentifierNode {
+export class IdentifierNode extends AbstractIdentifierNode {
     astNode: Identifier;
 
     constructor (identifier: Identifier, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
@@ -41,7 +41,7 @@ export class IdentifierNode extends IIdentifierNode {
             const searcher = this.documentsAnalyzer[this.uri]?.searcher;
 
             for (const identifierField of this.getIdentifierFields()) {
-                searcher?.findAndAddParentInDefinitionTypeVarialbles(identifierField, definitionTypes);
+                searcher?.findAndAddParentInDefinitionTypeVarialbles(identifierField, definitionTypes, this.documentsAnalyzer[this.uri]?.analyzerTree.tree);
             }
 
             this.identifierFields = [];
