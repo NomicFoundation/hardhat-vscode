@@ -76,7 +76,7 @@
                         },
                         "range": [{
                             "line": 10,
-                            "character": 8
+                            "character": 13
                         }, {
                             "line": 10,
                             "character": 18
@@ -105,7 +105,7 @@
                         },
                         "range": [{
                             "line": 54,
-                            "character": 8
+                            "character": 16
                         }, {
                             "line": 54,
                             "character": 20
