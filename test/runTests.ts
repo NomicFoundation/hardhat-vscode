@@ -18,13 +18,12 @@ import { runTests } from 'vscode-test';
 			extensionTestsPath,
 			launchArgs: [
 				'--disable-extensions',
-				'--no-sandbox',
 				// https://github.com/microsoft/vscode/issues/115794#issuecomment-774283222
 				'--force-disable-user-env'
 			]
 		});
 	} catch (err) {
-		console.error('Failed to run tests, err: ', err);
+		console.error('Failed to run tests, err:', err);
 		process.exitCode = 1;
 	}
 })();
