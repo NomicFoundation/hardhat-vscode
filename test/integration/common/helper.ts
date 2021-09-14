@@ -42,6 +42,6 @@ export function isInstanceOf<T>(value: T, clazz: any): asserts value is Exclude<
 }
 
 export function isArray<T>(value: Array<T> | undefined | null, length = 1): asserts value is Array<T> {
-    assert.ok(Array.isArray(value), `value is array`);
-    assert.strictEqual(value!.length, length, 'value has given length');
+    assert.ok(Array.isArray(value), `value must be array`);
+    assert.strictEqual(value!.length, length, 'value invalid length');
 }
