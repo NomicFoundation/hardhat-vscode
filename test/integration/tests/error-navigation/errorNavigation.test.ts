@@ -5,10 +5,11 @@ import * as path from 'path';
 import * as lsclient from 'vscode-languageclient/node';
 
 import { getClient } from '../../client';
+import { sleep } from '../../common/helper';
 import { IntegrationSamples, Client } from '../../common/types';
 
 suite('Error Navigation', function () {
-	this.timeout(10000);
+	this.timeout(20000);
 
 	let client!: Client;
 	let vscodeClient!: lsclient.LanguageClient;
@@ -24,6 +25,7 @@ suite('Error Navigation', function () {
 			for (const action of sample.actions) {
 				client.docUri = client.getDocUri(__dirname, action.uri);
 				await client.changeDocument(client.docUri);
+				await sleep(1000);
 	
 				const fn = client.navigationProvider[`do${action.action}`].bind(client.navigationProvider);
 				if (!fn) {
