@@ -1,10 +1,21 @@
 'use strict';
 
+import * as path from 'path';
 import * as vscode from 'vscode';
 import * as assert from 'assert';
 
 export async function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export function getDocPath(dirname: string, p: string): string {
+    // TO-DO: Refactor this
+    dirname = dirname.replace('/out/', '/');
+    return path.resolve(dirname, 'testdata', p);
+}
+
+export function getDocUri(dirname: string, p: string): vscode.Uri {
+    return vscode.Uri.file(getDocPath(dirname, p));
 }
 
 export function rangeEqual(range: vscode.Range, sl: number, sc: number, el: number, ec: number): void {

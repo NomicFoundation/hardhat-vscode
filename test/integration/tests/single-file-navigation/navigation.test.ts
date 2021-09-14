@@ -5,6 +5,7 @@ import * as path from 'path';
 import * as lsclient from 'vscode-languageclient/node';
 
 import { getClient } from '../../client';
+import { getDocUri } from '../../common/helper';
 import { IntegrationSamples, Client } from '../../common/types';
 
 suite('Navigation integration', function () {
@@ -22,8 +23,11 @@ suite('Navigation integration', function () {
 	for (const sample of integrationSamples) {
 		test(sample.title, async () => {
 			for (const action of sample.actions) {
-				client.docUri = client.getDocUri(__dirname, action.uri);
-				await client.changeDocument(client.docUri);
+				const docUri = getDocUri(__dirname, action.uri);
+
+				if (client.docUri?.path !== docUri.path) {
+					await client.changeDocument(docUri);
+				}
 	
 				const fn = client.navigationProvider[`do${action.action}`].bind(client.navigationProvider);
 				if (!fn) {

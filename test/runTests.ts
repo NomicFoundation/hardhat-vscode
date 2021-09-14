@@ -11,16 +11,19 @@ import { runTests } from 'vscode-test';
 		// Passed to --extensionTestsPath
 		const extensionTestsPath = path.resolve(__dirname, 'integration', 'index');
 
+		const folder = path.resolve(__dirname, '..', '..', 'test', 'integration', 'tests');
+
 		// Download VS Code, unzip it and run the integration test
 		await runTests({
 			version: '1.59.0',
 			extensionDevelopmentPath,
 			extensionTestsPath,
 			launchArgs: [
+				folder,
 				'--disable-extensions',
 				// https://github.com/microsoft/vscode/issues/115794#issuecomment-774283222
 				'--force-disable-user-env'
-			]
+			],
 		});
 	} catch (err) {
 		console.error('Failed to run tests, err:', err);
