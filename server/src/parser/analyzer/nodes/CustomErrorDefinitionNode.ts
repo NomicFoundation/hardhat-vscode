@@ -22,6 +22,8 @@ export class CustomErrorDefinitionNode extends Node {
                 }
             };
         }
+
+        this.addTypeNode(this);
     }
 
     getTypeNodes(): Node[] {
@@ -41,9 +43,9 @@ export class CustomErrorDefinitionNode extends Node {
             this.setParent(parent);
         }
 
-        // for (const parameter of this.astNode.parameters) {
-        //     find(parameter, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
-        // }
+        for (const parameter of this.astNode.parameters) {
+            find(parameter, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
+        }
 
         const rootNode = findSourceUnitNode(parent);
         if (rootNode) {
