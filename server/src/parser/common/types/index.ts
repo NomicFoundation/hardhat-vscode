@@ -119,7 +119,7 @@ export interface Searcher {
      * 
      * @param definiitonTypes Place where we search for parent.
      */
-    findAndAddParentInDefinitionTypeVarialbles(childNode: Node, definiitonTypes: Node[]): void
+    findAndAddParentInDefinitionTypeVarialbles(childNode: Node, definiitonTypes: Node[], sourceUintNode?: Node): void
 
     /**
      * Searches for all definitionNodes in forwarded from Node and in its imports.
