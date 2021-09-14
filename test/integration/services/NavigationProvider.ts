@@ -35,7 +35,7 @@ export class NavigationProvider implements INavigationProvider{
             action.expected[0].range[1].character
         );
     }
-    
+
     async doTypeDefinitionRequest(document: vscode.TextDocument, action: Action): Promise<void> {
         const provider = this.client.getFeature(lsclient.TypeDefinitionRequest.method).getProvider(document);
         isDefined(provider);
@@ -59,7 +59,7 @@ export class NavigationProvider implements INavigationProvider{
             );
         }
     }
-    
+
     async doReferencesRequest(document: vscode.TextDocument, action: Action): Promise<void> {
         const provider = this.client.getFeature(lsclient.ReferencesRequest.method).getProvider(document);
         isDefined(provider);
@@ -90,7 +90,7 @@ export class NavigationProvider implements INavigationProvider{
             );
         }
     }
-    
+
     async doImplementationRequest(document: vscode.TextDocument, action: Action): Promise<void> {
         const provider = this.client.getFeature(lsclient.ImplementationRequest.method).getProvider(document);
         isDefined(provider);
@@ -118,7 +118,7 @@ export class NavigationProvider implements INavigationProvider{
             );
         }
     }
-    
+
     async doRenameRequest(document: vscode.TextDocument, action: Action): Promise<void> {
         const provider = this.client.getFeature(lsclient.RenameRequest.method).getProvider(document);
         isDefined(provider);

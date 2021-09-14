@@ -21,10 +21,10 @@
 		"onLanguage:solidity"
 	],
 	"scripts": {
-		"compile": "tsc -b",
+		"build": "tsc -b",
 		"watch": "tsc -b -w",
 		"postinstall": "cd client && yarn install && cd ../server && yarn install && cd ..",
-		"test": "yarn run compile && node ./out/test/runTests.js"
+		"test": "yarn run build && node ./out/test/runTests.js"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.1.3",

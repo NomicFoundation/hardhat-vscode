@@ -19,12 +19,12 @@ The _vscode-solidity_ extension contains the language smarts behind the solidity
 ### Setup
 
 1) Install [node](https://nodejs.org/en/).
-2) Clone the repository, run `yarn && yarn run compile`, and open VS Code:
+2) Clone the repository, run `yarn && yarn run build`, and open VS Code:
 
     ```bash
     git clone https://github.com/Tenderly/vscode-solidity.git
     cd vscode-solidity
-    yarn && yarn run compile
+    yarn && yarn run build
     code .
     ```
 
