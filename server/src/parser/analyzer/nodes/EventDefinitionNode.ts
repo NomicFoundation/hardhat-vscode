@@ -41,6 +41,7 @@ export class EventDefinitionNode extends Node {
             this.setParent(parent);
         }
 
+        // TO-DO: See why this is not implemented
         // for (const parameter of this.astNode.parameters) {
         //     find(parameter, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
         // }
