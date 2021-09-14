@@ -1,17 +1,60 @@
+import { findSourceUnitNode } from "@common/utils";
 import { CustomErrorDefinition, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class CustomErrorDefinitionNode extends Node {
     astNode: CustomErrorDefinition;
 
+    connectionTypeRules: string[] = [ "Identifier" ];
+
     constructor (customErrorDefinition: CustomErrorDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(customErrorDefinition, uri, rootPath, documentsAnalyzer, undefined);
+        super(customErrorDefinition, uri, rootPath, documentsAnalyzer, customErrorDefinition.name);
         this.astNode = customErrorDefinition;
-        // TO-DO: Implement name location for rename
+        
+        if (customErrorDefinition.loc && customErrorDefinition.name) {
+            this.nameLoc = {
+                start: {
+                    line: customErrorDefinition.loc.start.line,
+                    column: customErrorDefinition.loc.start.column + "error ".length
+                },
+                end: {
+                    line: customErrorDefinition.loc.start.line,
+                    column: customErrorDefinition.loc.start.column + "error ".length + (this.getName()?.length || 0)
+                }
+            };
+        }
+    }
+
+    getTypeNodes(): Node[] {
+        return this.typeNodes;
+    }
+
+    getDefinitionNode(): Node | undefined {
+        return this;
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+        
+        const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+
+        if (parent) {
+            this.setParent(parent);
+        }
+
+        // for (const parameter of this.astNode.parameters) {
+        //     find(parameter, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
+        // }
+
+        const rootNode = findSourceUnitNode(parent);
+        if (rootNode) {
+            const exportNodes = new Array(...rootNode.getExportNodes());
+            searcher?.findAndAddExportChildren(this, exportNodes);
+        }
+
+        searcher?.findAndAddChildren(this, orphanNodes);
+
+        parent?.addChild(this);
+
         return this;
     }
 }
