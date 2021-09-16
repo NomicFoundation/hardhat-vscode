@@ -8,7 +8,7 @@ import { getClient } from '../../client';
 import { getDocUri } from '../../common/helper';
 import { IntegrationSamples, Client } from '../../common/types';
 
-suite('Navigation integration', function () {
+suite('Error Navigation', function () {
 	this.timeout(10000);
 
 	let client!: Client;
@@ -19,7 +19,7 @@ suite('Navigation integration', function () {
 		vscodeClient = client.getVSCodeClient();
 	});
 
-	const integrationSamples: IntegrationSamples[] = JSON.parse(fs.readFileSync(path.join(__dirname, 'navigation.test.json'), 'utf8'));
+	const integrationSamples: IntegrationSamples[] = JSON.parse(fs.readFileSync(path.join(__dirname, 'errorNavigation.test.json'), 'utf8'));
 	for (const sample of integrationSamples) {
 		test(sample.title, async () => {
 			for (const action of sample.actions) {

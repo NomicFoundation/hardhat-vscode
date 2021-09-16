@@ -187,7 +187,7 @@ export class Searcher implements ISearcher {
         }
     }
 
-    public findAndAddParentInDefinitionTypeVarialbles(childNode: Node, definiitonTypes: Node[]): void {
+    public findAndAddParentInDefinitionTypeVarialbles(childNode: Node, definiitonTypes: Node[], sourceUintNode: Node): void {
         for (const definitionNode of definiitonTypes) {
             for (const variableDeclarationNode of definitionNode.children) {
                 if (utils.isNodeConnectable(variableDeclarationNode, childNode)) {
@@ -195,6 +195,21 @@ export class Searcher implements ISearcher {
 
                     childNode.setParent(variableDeclarationNode);
                     variableDeclarationNode.addChild(childNode);
+
+                    // If the parent uri and node uri are not the same, add the node to the exportNode field
+                    if (variableDeclarationNode && variableDeclarationNode.uri !== childNode.uri) {
+                        const exportRootNode = utils.findSourceUnitNode(variableDeclarationNode);
+                        const importRootNode = utils.findSourceUnitNode(sourceUintNode);
+
+                        if (exportRootNode) {
+                            exportRootNode.addExportNode(childNode);
+                        }
+
+                        if (importRootNode) {
+                            importRootNode.addImportNode(childNode);
+                        }
+                    }
+
                     return;
                 }
             }

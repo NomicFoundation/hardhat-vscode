@@ -2,10 +2,10 @@
 import { isNodeShadowedByNode, findSourceUnitNode } from "@common/utils";
 import {
     FunctionDefinition, FinderType, DocumentsAnalyzerMap, ContractDefinitionNode,
-    Node, FunctionDefinitionNode as IFunctionDefinitionNode
+    Node, FunctionDefinitionNode as AbstractFunctionDefinitionNode
 } from "@common/types";
 
-export class FunctionDefinitionNode extends IFunctionDefinitionNode {
+export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
     astNode: FunctionDefinition;
 
     connectionTypeRules: string[] = [ "FunctionCall" ];

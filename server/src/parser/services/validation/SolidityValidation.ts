@@ -117,8 +117,9 @@ export class SolidityValidation {
 	private getHardhatRuntimeEnvironment() {
 		try {
 			return require("hardhat");
-		} catch (e) {
+		} catch (err) {
 			// Hardhat is not installed
+			// console.error(err);
 			return undefined;
 		}
 	}

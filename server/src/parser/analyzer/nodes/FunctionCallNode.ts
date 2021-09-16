@@ -28,7 +28,7 @@ export class FunctionCallNode extends Node {
             const identifierNode = find(identifier, this.uri, this.rootPath, this.documentsAnalyzer);
 
             if (definitionTypes.length > 0) {
-                searcher?.findAndAddParentInDefinitionTypeVarialbles(identifierNode, definitionTypes);
+                searcher?.findAndAddParentInDefinitionTypeVarialbles(identifierNode, definitionTypes, this.documentsAnalyzer[this.uri]?.analyzerTree.tree);
             } else {
                 (expressionNode as IdentifierNode).addIdentifierField(identifierNode);
             }

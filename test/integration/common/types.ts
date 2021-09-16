@@ -87,10 +87,7 @@ export interface Client {
     /**
      * Activates the tenderly.solidity-extension extension
      */
-    activate(): Promise<void>;
-
-    getDocPath(dirname: string, p: string): string;
-    getDocUri(dirname: string, p: string): vscode.Uri;
+    activate(docUri: vscode.Uri): Promise<void>;
 
     changeDocument(docUri: vscode.Uri): Promise<void>;
 

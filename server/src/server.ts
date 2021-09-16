@@ -80,7 +80,6 @@ connection.onInitialized(() => {
 	if (hasWorkspaceFolderCapability) {
 		connection.workspace.onDidChangeWorkspaceFolders(_event => {
 			connection.console.log('Workspace folder change event received.');
-			console.log(_event);
 		});
 	}
 });
@@ -166,7 +165,7 @@ connection.onCompletion(
 				if (params.context?.triggerCharacter === ".") {
 					const cursorOffset = document.offsetAt(params.position);
 					const eofOffset = documentText.indexOf("\n", cursorOffset) > cursorOffset ? documentText.indexOf("\n", cursorOffset) : cursorOffset;
-					newDocumentText = documentText.slice(0, cursorOffset) + "_" + documentText.slice(cursorOffset, eofOffset) + ";";
+					newDocumentText = documentText.slice(0, cursorOffset) + "_;" + documentText.slice(cursorOffset, eofOffset) + ";";
 				}
 
 				const documentURI = getUriFromDocument(document);

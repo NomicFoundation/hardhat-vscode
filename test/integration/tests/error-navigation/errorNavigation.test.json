@@ -1,0 +1,133 @@
+[
+    {
+        "title": "[Single file] - Find All References for InsufficientBalance",
+        "actions": [
+            {
+                "action": "ReferencesRequest",
+                "uri": "./test.sol",
+                "params": {
+                    "position": {
+                        "line": 11,
+                        "character": 15
+                    }
+                },
+                "expected": [
+                    {
+                        "uri": {
+                            "path": "./test.sol"
+                        },
+                        "range": [{
+                            "line": 11,
+                            "character": 6
+                        }, {
+                            "line": 11,
+                            "character": 25
+                        }]
+                    }, {
+                        "uri": {
+                            "path": "./test.sol"
+                        },
+                        "range": [{
+                            "line": 20,
+                            "character": 19
+                        }, {
+                            "line": 20,
+                            "character": 38
+                        }]
+                    }, {
+                        "uri": {
+                            "path": "./importTest.sol"
+                        },
+                        "range": [{
+                            "line": 12,
+                            "character": 19
+                        }, {
+                            "line": 12,
+                            "character": 38
+                        }]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "[Single file] - Go to balance Type Definition",
+        "actions": [
+            {
+                "action": "TypeDefinitionRequest",
+                "uri": "./test.sol",
+                "params": {
+                    "position": {
+                        "line": 21,
+                        "character": 20
+                    }
+                },
+                "expected": [
+                    {
+                        "uri": {
+                            "path": "./test.sol"
+                        },
+                        "range": [{
+                            "line": 3,
+                            "character": 7
+                        }, {
+                            "line": 3,
+                            "character": 14
+                        }]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "[Single file] - Find All References for InsufficientBalance balance parameter",
+        "actions": [
+            {
+                "action": "ReferencesRequest",
+                "uri": "./test.sol",
+                "params": {
+                    "position": {
+                        "line": 11,
+                        "character": 38
+                    }
+                },
+                "expected": [
+                    {
+                        "uri": {
+                            "path": "./test.sol"
+                        },
+                        "range": [{
+                            "line": 11,
+                            "character": 34
+                        }, {
+                            "line": 11,
+                            "character": 41
+                        }]
+                    }, {
+                        "uri": {
+                            "path": "./test.sol"
+                        },
+                        "range": [{
+                            "line": 21,
+                            "character": 16
+                        }, {
+                            "line": 21,
+                            "character": 23
+                        }]
+                    }, {
+                        "uri": {
+                            "path": "./importTest.sol"
+                        },
+                        "range": [{
+                            "line": 13,
+                            "character": 16
+                        }, {
+                            "line": 13,
+                            "character": 23
+                        }]
+                    }
+                ]
+            }
+        ]
+    }
+]

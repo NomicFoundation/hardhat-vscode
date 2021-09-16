@@ -43,3 +43,4 @@ out/**/*
 
 # vscode test
 .vscode-test
+.user-data-dir-test

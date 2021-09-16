@@ -28,7 +28,7 @@ export async function getClient(): Promise<Client> {
 class Client implements IClient {
     private client: lsclient.LanguageClient;
     private middleware: lsclient.Middleware;
-    private tokenSource: vscode.CancellationTokenSource;
+    private tokenSource: vscode.CancellationTokenSource = new vscode.CancellationTokenSource();
     private editor: vscode.TextEditor;
 
     document: vscode.TextDocument;
@@ -43,15 +43,7 @@ class Client implements IClient {
         // The extensionId is `publisher.name` from package.json
         const ext = vscode.extensions.getExtension('ylrednet.ytidilos')!;
         await ext.activate();
-    
-        this.docUri = vscode.Uri.file(this.getDocPath(path.resolve(__dirname, 'tests', 'single-file-navigation'), 'test.sol'));
-        this.document = await vscode.workspace.openTextDocument(this.docUri);
-        this.editor = await vscode.window.showTextDocument(this.document);
 
-        await sleep(2000); // Wait for server activation
-
-        this.tokenSource = new vscode.CancellationTokenSource();
-    
         const serverModule = path.join(__dirname, '..', '..', '..', 'server', 'out', 'server.js');
         const serverOptions: lsclient.ServerOptions = {
             run: { module: serverModule, transport: lsclient.TransportKind.ipc },
@@ -83,23 +75,11 @@ class Client implements IClient {
         await sleep(5000);
     }
 
-    getDocPath(dirname: string, p: string): string {
-        // TO-DO: Refactor this
-        dirname = dirname.replace('/out/', '/');
-        return path.resolve(dirname, 'testdata', p);
-    }
-
-    getDocUri(dirname: string, p: string): vscode.Uri {
-        return vscode.Uri.file(this.getDocPath(dirname, p));
-    }
-
-    async changeDocument(docUri: vscode.Uri): Promise<void> {
-        try {
-            this.document = await vscode.workspace.openTextDocument(docUri);
-            this.editor = await vscode.window.showTextDocument(this.document);
-        } catch (err) {
-            console.error(err);
-        }
+    async changeDocument(docUri: vscode.Uri) {
+        this.docUri = docUri;
+    
+        this.document = await vscode.workspace.openTextDocument(this.docUri);
+        this.editor = await vscode.window.showTextDocument(this.document);
     }
 
     getVSCodeClient(): lsclient.LanguageClient {
