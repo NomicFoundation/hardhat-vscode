@@ -4,7 +4,7 @@
         "actions": [
             {
                 "action": "DefinitionRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 14,
@@ -14,7 +14,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 9,
@@ -33,7 +33,7 @@
         "actions": [
             {
                 "action": "DefinitionRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 15,
@@ -43,7 +43,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 53,
@@ -62,7 +62,7 @@
         "actions": [
             {
                 "action": "DefinitionRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 26,
@@ -72,7 +72,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 10,
@@ -91,7 +91,7 @@
         "actions": [
             {
                 "action": "DefinitionRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 50,
@@ -101,7 +101,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 54,
@@ -120,7 +120,7 @@
         "actions": [
             {
                 "action": "TypeDefinitionRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 26,
@@ -130,7 +130,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 9,
@@ -149,7 +149,7 @@
         "actions": [
             {
                 "action": "TypeDefinitionRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 21,
@@ -159,7 +159,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 53,
@@ -178,7 +178,7 @@
         "actions": [
             {
                 "action": "TypeDefinitionRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 38,
@@ -188,7 +188,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 53,
@@ -200,7 +200,7 @@
                     },
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 9,
@@ -219,7 +219,7 @@
         "actions": [
             {
                 "action": "ReferencesRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 9,
@@ -229,7 +229,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 9,
@@ -240,7 +240,7 @@
                         }]
                     }, {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 14,
@@ -251,7 +251,7 @@
                         }]
                     }, {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 38,
@@ -262,7 +262,7 @@
                         }]
                     }, {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 43,
@@ -281,7 +281,7 @@
         "actions": [
             {
                 "action": "ImplementationRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 53,
@@ -291,7 +291,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 53,
@@ -302,7 +302,7 @@
                         }]
                     }, {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 15,
@@ -313,7 +313,7 @@
                         }]
                     }, {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 18,
@@ -324,7 +324,7 @@
                         }]
                     }, {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 38,
@@ -343,7 +343,7 @@
         "actions": [
             {
                 "action": "RenameRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 21,
@@ -354,7 +354,7 @@
                 "expected": [
                     [
                         {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         [{
                             "range": [{
@@ -403,7 +403,7 @@
         "actions": [
             {
                 "action": "RenameRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 35,
@@ -414,7 +414,7 @@
                 "expected": [
                     [
                         {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         [{
                             "range": [{
