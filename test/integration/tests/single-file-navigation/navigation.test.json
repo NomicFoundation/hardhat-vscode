@@ -1,6 +1,6 @@
 [
     {
-        "title": "[Single file] - Go to Definition",
+        "title": "[Single-file] - Go to Definition",
         "actions": [
             {
                 "action": "DefinitionRequest",
@@ -29,7 +29,7 @@
         ]
     },
     {
-        "title": "[Single file][Defined after usage] - Go to Definition",
+        "title": "[Single-file][Defined after usage] - Go to Definition",
         "actions": [
             {
                 "action": "DefinitionRequest",
@@ -58,7 +58,7 @@
         ]
     },
     {
-        "title": "[Single file][MemberAccess] - Go to Definition",
+        "title": "[Single-file][MemberAccess] - Go to Definition",
         "actions": [
             {
                 "action": "DefinitionRequest",
@@ -87,7 +87,7 @@
         ]
     },
     {
-        "title": "[Single file][MemberAccess][Defined after usage] - Go to Definition",
+        "title": "[Single-file][MemberAccess][Defined after usage] - Go to Definition",
         "actions": [
             {
                 "action": "DefinitionRequest",
@@ -116,7 +116,7 @@
         ]
     },
     {
-        "title": "[Single file] - Go to Type Definition",
+        "title": "[Single-file] - Go to Type Definition",
         "actions": [
             {
                 "action": "TypeDefinitionRequest",
@@ -145,7 +145,7 @@
         ]
     },
     {
-        "title": "[Single file][Defined after usage] - Go to Type Definition",
+        "title": "[Single-file][Defined after usage] - Go to Type Definition",
         "actions": [
             {
                 "action": "TypeDefinitionRequest",
@@ -174,7 +174,7 @@
         ]
     },
     {
-        "title": "[Single file][Multi types] - Go to Type Definition",
+        "title": "[Single-file][Multi types] - Go to Type Definition",
         "actions": [
             {
                 "action": "TypeDefinitionRequest",
@@ -215,7 +215,7 @@
         ]
     },
     {
-        "title": "[Single file] - Find All References",
+        "title": "[Single-file] - Find All References",
         "actions": [
             {
                 "action": "ReferencesRequest",
@@ -277,7 +277,7 @@
         ]
     },
     {
-        "title": "[Single file] - Find All Implementations",
+        "title": "[Single-file] - Find All Implementations",
         "actions": [
             {
                 "action": "ImplementationRequest",
@@ -339,7 +339,7 @@
         ]
     },
     {
-        "title": "[Single file][Identifier] - Do Rename",
+        "title": "[Single-file][Identifier] - Do Rename",
         "actions": [
             {
                 "action": "RenameRequest",
@@ -399,7 +399,7 @@
         ]
     },
     {
-        "title": "[Single file][MemberAccess] - Do Rename",
+        "title": "[Single-file][MemberAccess] - Do Rename",
         "actions": [
             {
                 "action": "RenameRequest",

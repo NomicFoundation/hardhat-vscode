@@ -1,6 +1,6 @@
 [
     {
-        "title": "[Single file] - Find All References for InsufficientBalance",
+        "title": "[Single-file] - Find All References for InsufficientBalance",
         "actions": [
             {
                 "action": "ReferencesRequest",
@@ -51,7 +51,7 @@
         ]
     },
     {
-        "title": "[Single file] - Go to balance Type Definition",
+        "title": "[Single-file] - Go to balance Type Definition",
         "actions": [
             {
                 "action": "TypeDefinitionRequest",
@@ -80,7 +80,7 @@
         ]
     },
     {
-        "title": "[Single file] - Find All References for InsufficientBalance balance parameter",
+        "title": "[Single-file] - Find All References for InsufficientBalance balance parameter",
         "actions": [
             {
                 "action": "ReferencesRequest",
