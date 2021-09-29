@@ -1,4 +1,32 @@
+import * as fs from "fs";
+import * as path from "path";
+
 import { Position, Location, Node, SourceUnitNode, Range, VSCodePosition } from "@common/types";
+
+type FindUpOptions = {
+    cwd?: string
+    stopAt?: string
+}
+
+export function findUpSync(fileName: string, options?: FindUpOptions): string | undefined {
+    if (!options) {
+        options = {};
+    }
+
+    options.cwd = options.cwd ? path.resolve(options.cwd) : process.cwd();
+    options.stopAt = options.stopAt ? path.resolve(options.stopAt) : path.parse(process.cwd()).root;
+
+    let directory = options.cwd;
+    while (!fs.existsSync(path.resolve(directory, fileName))) {
+        if (directory === options.stopAt) {
+            return undefined;
+        }
+
+        directory = path.resolve(directory, "..");
+    }
+
+    return directory;
+}
 
 export function getParserPositionFromVSCodePosition(position: VSCodePosition): Position {
     return {
