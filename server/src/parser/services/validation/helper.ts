@@ -12,6 +12,7 @@
         let hre;
         const uri: string = data.uri;
         const documentText: string = data.documentText;
+        const unsavedDocuments: { uri: string, documentText: string }[] = data.unsavedDocuments;
 
         try {
             hre = require('hardhat');
@@ -75,6 +76,10 @@
         const modifiedFiles = {
             [uri]: documentText
         };
+
+        for (const unsavedDocument of unsavedDocuments) {
+            modifiedFiles[unsavedDocument.uri] = unsavedDocument.documentText;
+        }
 
         compilationJob.getResolvedFiles()
             .forEach((file: any) => {

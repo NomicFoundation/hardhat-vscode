@@ -12,7 +12,7 @@ export class SolidityValidation {
 		this.analyzer = analyzer;
 	}
 
-	public async doValidation(uri: string, document: TextDocument): Promise<{ [uri: string]: Diagnostic[] }> {
+	public async doValidation(uri: string, document: TextDocument, unsavedDocuments: TextDocument[]): Promise<{ [uri: string]: Diagnostic[] }> {
 		const projectRoot = utils.findUpSync("package.json", {
 			cwd: path.resolve(uri, ".."),
 			stopAt: this.analyzer.rootPath
@@ -23,7 +23,16 @@ export class SolidityValidation {
 			{ cwd: projectRoot }
 		);
 
-		child.send({ uri, documentText: document.getText() });
+		child.send({
+			uri,
+			documentText: document.getText(),
+			unsavedDocuments: unsavedDocuments.map(unsavedDocument => {
+				return {
+					uri: (unsavedDocument.uri as any).path,
+					documentText: unsavedDocument.getText()
+				};
+			})
+		});
 
 		const output: any = await new Promise(resolve => {
 			child.on('message', (output: any) => {

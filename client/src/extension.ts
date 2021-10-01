@@ -59,6 +59,54 @@ function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function getUnsavedDocuments(): TextDocument[] {
+	return workspace.textDocuments.filter(i => i.isDirty);
+}
+
+function showFileIndexingProggress(client: LanguageClient): void {
+	const em = new events.EventEmitter();
+
+	client.onReady().then(() => {
+		client.onNotification("custom/indexingFile", (data: IndexFileData) => {
+			em.emit('IndexingFile', data);
+		});
+	});
+
+	// Progress bar
+	window.withProgress({
+		cancellable: true,
+		location: ProgressLocation.Notification,
+		title: 'Indexing Project'
+	}, async (progress) => {
+		progress.report({
+			increment: 0,
+			message: 'Start indexing...'
+		});
+
+		const promise = new Promise<void>(resolve => {
+			em.on('IndexingFile', (data: IndexFileData) => {
+				progress.report({
+					increment: Math.round(data.total / data.current),
+					message: `Indexing ${data.path}`
+				});
+
+				if (data.total === data.current) {
+					resolve();
+				}
+			});
+		});
+
+		await promise;
+
+		progress.report({
+			increment: 100,
+			message: `Project indexing is complete.`
+		});
+
+		await sleep(3000);
+	});
+}
+
 export function activate(context: ExtensionContext) {
 	console.log('client started');
 
@@ -108,47 +156,22 @@ export function activate(context: ExtensionContext) {
 			// Start the client. This will also launch the server
 			const client = new LanguageClient('solidity-language-server', 'Solidity Language Server', serverOptions, clientOptions);
 
-			const em = new events.EventEmitter();
-
 			client.onReady().then(() => {
-				client.onNotification("custom/indexingFile", (data: IndexFileData) => {
-					em.emit('IndexingFile', data);
+				client.onNotification("custom/getUnsavedDocuments", () => {
+					const unsavedDocuments = getUnsavedDocuments();
+
+					client.sendNotification("custom/getUnsavedDocuments", unsavedDocuments.map(unsavedDocument => {
+						return {
+							uri: unsavedDocument.uri,
+							languageId: unsavedDocument.languageId,
+							version: unsavedDocument.version,
+							content: unsavedDocument.getText()
+						};
+					}));
 				});
 			});
 
-			// Progress bar
-			window.withProgress({
-				cancellable: true,
-				location: ProgressLocation.Notification,
-				title: 'Indexing Project'
-			}, async (progress) => {
-				progress.report({
-					increment: 0,
-					message: 'Start indexing...'
-				});
-
-				const promise = new Promise<void>(resolve => {
-					em.on('IndexingFile', (data: IndexFileData) => {
-						progress.report({
-							increment: Math.round(data.total / data.current),
-							message: `Indexing ${data.path}`
-						});
-	
-						if (data.total === data.current) {
-							resolve();
-						}
-					});
-				});
-
-				await promise;
-
-				progress.report({
-					increment: 100,
-					message: `Project indexing is complete.`
-				});
-
-				await sleep(3000);
-			});
+			showFileIndexingProggress(client);
 
 			client.start();
 			clients.set(folder.uri.toString(), client);
