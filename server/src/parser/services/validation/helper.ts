@@ -1,6 +1,4 @@
-import {
-	TextDocument, Diagnostic, DiagnosticSeverity, Range
-} from "../../common/types";
+'use strict';
 
 (async () => {
     // TypeScript forces to check send method on existence
