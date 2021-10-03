@@ -232,6 +232,57 @@ export class Searcher implements ISearcher {
     }
 
     /**
+     * Searches for all definitionNodes in inheritance Nodes and their inheritance Nodes.
+     * 
+     * @param uri File where is cursor now. Uri needs to be decoded and without the "file://" prefix.
+     * @param position Cursor position in file.
+     * @param from From which Node do we start searching.
+     * @returns Definition Nodes.
+     */
+    public findInheritanceDefinitionNodes(uri: string, position: Position, from: Node | undefined, definitionNodes?: Node[], visitedNodes?: Node[], visitedFiles?: string[]): Node[] {
+        if (!definitionNodes) {
+            definitionNodes = [];
+        }
+
+        if (!visitedNodes) {
+            visitedNodes = [];
+        }
+
+        if (!visitedFiles) {
+            visitedFiles = [];
+        }
+
+        if (!from) {
+            return [];
+        }
+
+        if (visitedNodes.includes(from)) {
+            return [];
+        }
+
+        // Add as visited node
+        visitedNodes.push(from);
+
+        const inheritanceNodes = (from as ContractDefinitionNode).getInheritanceNodes();
+        for (let i = inheritanceNodes.length - 1; i >= 0; i--) {
+            const inheritanceNode = inheritanceNodes[i];
+
+            for (const child of inheritanceNode.children) {
+                const childVisibility = this.getNodeVisibility(child);
+                const isVisible = this.checkIsNodeVisible(uri, position, child);
+
+                if (isVisible || childVisibility === "internal") {
+                    definitionNodes.push(child);
+                }
+            }
+
+            this.findInheritanceDefinitionNodes(uri, position, inheritanceNode, definitionNodes, visitedNodes, visitedFiles);
+        }
+
+        return definitionNodes;
+    }
+
+    /**
      * @param uri The path to the file. Uri needs to be decoded and without the "file://" prefix.
      * @param position Cursor position in file.
      * @param node That we will try to add in definitionNodes.
@@ -647,43 +698,6 @@ export class Searcher implements ISearcher {
 
         for (const child of from.children) {
             this._findDefinitionNodes(uri, position, child, definitionNodes, isShadowedByParent, visitedNodes, visitedFiles);
-        }
-    }
-
-    private findInheritanceDefinitionNodes(uri: string, position: Position, from: Node | undefined, definitionNodes: Node[], visitedNodes?: Node[], visitedFiles?: string[]): void {
-        if (!visitedNodes) {
-            visitedNodes = [];
-        }
-
-        if (!visitedFiles) {
-            visitedFiles = [];
-        }
-
-        if (!from) {
-            return;
-        }
-
-        if (visitedNodes.includes(from)) {
-            return;
-        }
-
-        // Add as visited node
-        visitedNodes.push(from);
-
-        const inheritanceNodes = (from as ContractDefinitionNode).getInheritanceNodes();
-        for (let i = inheritanceNodes.length - 1; i >= 0; i--) {
-            const inheritanceNode = inheritanceNodes[i];
-
-            for (const child of inheritanceNode.children) {
-                const childVisibility = this.getNodeVisibility(child);
-                const isVisible = this.checkIsNodeVisible(uri, position, child);
-
-                if (isVisible || childVisibility === "internal") {
-                    definitionNodes.push(child);
-                }
-            }
-
-            this.findInheritanceDefinitionNodes(uri, position, inheritanceNode, definitionNodes, visitedNodes, visitedFiles);
         }
     }
 }

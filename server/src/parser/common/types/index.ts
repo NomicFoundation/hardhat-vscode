@@ -132,6 +132,16 @@ export interface Searcher {
     findDefinitionNodes(uri: string, position: Position, from: Node): Node[];
 
     /**
+     * Searches for all definitionNodes in inheritance Nodes and their inheritance Nodes.
+     * 
+     * @param uri File where is cursor now. Uri needs to be decoded and without the "file://" prefix.
+     * @param position Cursor position in file.
+     * @param from From which Node do we start searching.
+     * @returns Definition Nodes.
+     */
+    findInheritanceDefinitionNodes(uri: string, position: Position, from: Node | undefined, definitionNodes?: Node[], visitedNodes?: Node[], visitedFiles?: string[]): Node[];
+
+    /**
      * @param uri The path to the file. Uri needs to be decoded and without the "file://" prefix.
      * @param position Cursor position in file.
      * @param node That we will try to add in definitionNodes.
