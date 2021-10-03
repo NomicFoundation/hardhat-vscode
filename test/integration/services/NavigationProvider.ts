@@ -7,7 +7,7 @@ import * as lsclient from 'vscode-languageclient/node';
 import {
     rangeEqual, uriEqual, isDefined, isInstanceOf, isArray
 } from '../common/helper';
-import { Action, IntegrationSamples, NavigationProvider as INavigationProvider } from '../common/types';
+import { Action, NavigationProvider as INavigationProvider } from '../common/types';
 
 export class NavigationProvider implements INavigationProvider {
     client: lsclient.LanguageClient;

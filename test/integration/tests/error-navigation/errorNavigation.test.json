@@ -1,10 +1,10 @@
 [
     {
-        "title": "[Single file] - Find All References for InsufficientBalance",
+        "title": "[Single-file] - Find All References for InsufficientBalance",
         "actions": [
             {
                 "action": "ReferencesRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 11,
@@ -14,7 +14,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 11,
@@ -25,7 +25,7 @@
                         }]
                     }, {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 20,
@@ -36,7 +36,7 @@
                         }]
                     }, {
                         "uri": {
-                            "path": "./importTest.sol"
+                            "path": "./ImportTest.sol"
                         },
                         "range": [{
                             "line": 12,
@@ -51,11 +51,11 @@
         ]
     },
     {
-        "title": "[Single file] - Go to balance Type Definition",
+        "title": "[Single-file] - Go to balance Type Definition",
         "actions": [
             {
                 "action": "TypeDefinitionRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 21,
@@ -65,7 +65,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 3,
@@ -80,11 +80,11 @@
         ]
     },
     {
-        "title": "[Single file] - Find All References for InsufficientBalance balance parameter",
+        "title": "[Single-file] - Find All References for InsufficientBalance balance parameter",
         "actions": [
             {
                 "action": "ReferencesRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 11,
@@ -94,7 +94,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 11,
@@ -105,7 +105,7 @@
                         }]
                     }, {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 21,
@@ -116,7 +116,7 @@
                         }]
                     }, {
                         "uri": {
-                            "path": "./importTest.sol"
+                            "path": "./ImportTest.sol"
                         },
                         "range": [{
                             "line": 13,

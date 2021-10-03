@@ -1,0 +1,110 @@
+[
+    {
+        "title": "[Multi-file] - Find All References",
+        "actions": [
+            {
+                "action": "ReferencesRequest",
+                "uri": "./Foo.sol",
+                "params": {
+                    "position": {
+                        "line": 6,
+                        "character": 20
+                    }
+                },
+                "expected": [
+                    {
+                        "uri": {
+                            "path": "./Foo.sol"
+                        },
+                        "range": [{
+                            "line": 6,
+                            "character": 18
+                        }, {
+                            "line": 6,
+                            "character": 22
+                        }]
+                    }, {
+                        "uri": {
+                            "path": "./ImportTest.sol"
+                        },
+                        "range": [{
+                            "line": 13,
+                            "character": 19
+                        }, {
+                            "line": 13,
+                            "character": 23
+                        }]
+                    }, {
+                        "uri": {
+                            "path": "./ImportTest.sol"
+                        },
+                        "range": [{
+                            "line": 17,
+                            "character": 40
+                        }, {
+                            "line": 17,
+                            "character": 44
+                        }]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "title": "[Multi-file][MemberAccess] - Do Rename",
+        "actions": [
+            {
+                "action": "RenameRequest",
+                "uri": "./ImportTest.sol",
+                "params": {
+                    "position": {
+                        "line": 17,
+                        "character": 42
+                    },
+                    "new_name": "name1"
+                },
+                "expected": [
+                    [
+                        {
+                            "path": "./Foo.sol"
+                        },
+                        [{
+                            "range": [{
+                                "line": 6,
+                                "character": 18
+                            }, {
+                                "line": 6,
+                                "character": 22
+                            }],
+                            "newText": "name1"
+                        }]
+                    ],
+                    [
+                        {
+                            "path": "./ImportTest.sol"
+                        },
+                        [{
+                            "range": [{
+                                "line": 13,
+                                "character": 19
+                            }, {
+                                "line": 13,
+                                "character": 23
+                            }],
+                            "newText": "name1"
+                        }, {
+                            "range": [{
+                                "line": 17,
+                                "character": 40
+                            }, {
+                                "line": 17,
+                                "character": 44
+                            }],
+                            "newText": "name1"
+                        }]
+                    ]
+                ]
+            }
+        ]
+    }
+]

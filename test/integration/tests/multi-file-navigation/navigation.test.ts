@@ -2,7 +2,7 @@
 
 import { runTestFromJSON } from '../utils';
 
-suite('Single-file Navigation', function () {
+suite('Multi-file navigation', function () {
 	this.timeout(10000);
 	runTestFromJSON(__dirname, 'navigation.test.json');
 });

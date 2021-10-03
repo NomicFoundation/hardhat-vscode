@@ -1,10 +1,10 @@
 [
     {
-        "title": "[Single file] - Go to Definition",
+        "title": "[Single-file] - Go to Definition",
         "actions": [
             {
                 "action": "DefinitionRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 14,
@@ -14,7 +14,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 9,
@@ -29,11 +29,11 @@
         ]
     },
     {
-        "title": "[Single file][Defined after usage] - Go to Definition",
+        "title": "[Single-file][Defined after usage] - Go to Definition",
         "actions": [
             {
                 "action": "DefinitionRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 15,
@@ -43,7 +43,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 53,
@@ -58,11 +58,11 @@
         ]
     },
     {
-        "title": "[Single file][MemberAccess] - Go to Definition",
+        "title": "[Single-file][MemberAccess] - Go to Definition",
         "actions": [
             {
                 "action": "DefinitionRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 26,
@@ -72,7 +72,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 10,
@@ -87,11 +87,11 @@
         ]
     },
     {
-        "title": "[Single file][MemberAccess][Defined after usage] - Go to Definition",
+        "title": "[Single-file][MemberAccess][Defined after usage] - Go to Definition",
         "actions": [
             {
                 "action": "DefinitionRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 50,
@@ -101,7 +101,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 54,
@@ -116,11 +116,11 @@
         ]
     },
     {
-        "title": "[Single file] - Go to Type Definition",
+        "title": "[Single-file] - Go to Type Definition",
         "actions": [
             {
                 "action": "TypeDefinitionRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 26,
@@ -130,7 +130,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 9,
@@ -145,11 +145,11 @@
         ]
     },
     {
-        "title": "[Single file][Defined after usage] - Go to Type Definition",
+        "title": "[Single-file][Defined after usage] - Go to Type Definition",
         "actions": [
             {
                 "action": "TypeDefinitionRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 21,
@@ -159,7 +159,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 53,
@@ -174,11 +174,11 @@
         ]
     },
     {
-        "title": "[Single file][Multi types] - Go to Type Definition",
+        "title": "[Single-file][Multi types] - Go to Type Definition",
         "actions": [
             {
                 "action": "TypeDefinitionRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 38,
@@ -188,7 +188,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 53,
@@ -200,7 +200,7 @@
                     },
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 9,
@@ -215,11 +215,11 @@
         ]
     },
     {
-        "title": "[Single file] - Find All References",
+        "title": "[Single-file] - Find All References",
         "actions": [
             {
                 "action": "ReferencesRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 9,
@@ -229,7 +229,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 9,
@@ -240,7 +240,7 @@
                         }]
                     }, {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 14,
@@ -251,7 +251,7 @@
                         }]
                     }, {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 38,
@@ -262,7 +262,7 @@
                         }]
                     }, {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 43,
@@ -277,11 +277,11 @@
         ]
     },
     {
-        "title": "[Single file] - Find All Implementations",
+        "title": "[Single-file] - Find All Implementations",
         "actions": [
             {
                 "action": "ImplementationRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 53,
@@ -291,7 +291,7 @@
                 "expected": [
                     {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 53,
@@ -302,7 +302,7 @@
                         }]
                     }, {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 15,
@@ -313,7 +313,7 @@
                         }]
                     }, {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 18,
@@ -324,7 +324,7 @@
                         }]
                     }, {
                         "uri": {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         "range": [{
                             "line": 38,
@@ -339,11 +339,11 @@
         ]
     },
     {
-        "title": "[Single file][Identifier] - Do Rename",
+        "title": "[Single-file][Identifier] - Do Rename",
         "actions": [
             {
                 "action": "RenameRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 21,
@@ -354,7 +354,7 @@
                 "expected": [
                     [
                         {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         [{
                             "range": [{
@@ -399,11 +399,11 @@
         ]
     },
     {
-        "title": "[Single file][MemberAccess] - Do Rename",
+        "title": "[Single-file][MemberAccess] - Do Rename",
         "actions": [
             {
                 "action": "RenameRequest",
-                "uri": "./test.sol",
+                "uri": "./Test.sol",
                 "params": {
                     "position": {
                         "line": 35,
@@ -414,7 +414,7 @@
                 "expected": [
                     [
                         {
-                            "path": "./test.sol"
+                            "path": "./Test.sol"
                         },
                         [{
                             "range": [{

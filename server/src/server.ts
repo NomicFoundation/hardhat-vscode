@@ -103,12 +103,34 @@ function analyzeFunc(uri: string): void {
 	}
 }
 
+type UnsavedDocumentType = { uri: string, languageId: string, version: number, content: string };
+async function getUnsavedDocuments(): Promise<TextDocument[]> {
+	connection.sendNotification("custom/getUnsavedDocuments");
+
+	return new Promise((resolve, reject) => {
+		// Set up the timeout
+		const timeout = setTimeout(() => {
+			reject("Timeout on getUnsavedDocuments");
+		}, 5000);
+
+		connection.onNotification("custom/getUnsavedDocuments", (unsavedDocuments: UnsavedDocumentType[]) => {
+			const unsavedTextDocuments = unsavedDocuments.map(ud => {
+				return TextDocument.create(ud.uri, ud.languageId, ud.version, ud.content);
+			});
+
+			clearTimeout(timeout);
+			resolve(unsavedTextDocuments);
+		});
+	});
+}
+
 async function validateTextDocument(document: TextDocument): Promise<void> {
 	console.log("validateTextDocument");
 
 	try {
+		const unsavedDocuments = await getUnsavedDocuments();
 		const documentURI = getUriFromDocument(document);
-		const diagnostics = await languageServer.solidityValidation.doValidation(documentURI, document);
+		const diagnostics = await languageServer.solidityValidation.doValidation(documentURI, document, unsavedDocuments);
 
 		// Send the calculated diagnostics to VSCode, but only for the file over which we called validation.
 		for (const diagnosticUri of Object.keys(diagnostics)) {
@@ -140,7 +162,6 @@ documents.onDidChangeContent(change => {
 		debounceAnalyzeDocument[change.document.uri] = debounce(analyzeFunc, 500);
 	}
 	debounceAnalyzeDocument[change.document.uri](change.document.uri);
-
 
 	if (!debounceValidateDocument[change.document.uri]) {
 		debounceValidateDocument[change.document.uri] = debounce(validateTextDocument, 500);

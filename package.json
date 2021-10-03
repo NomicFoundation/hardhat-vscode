@@ -24,7 +24,8 @@
 		"build": "tsc -b",
 		"watch": "tsc -b -w",
 		"postinstall": "cd client && yarn install && cd ../server && yarn install && cd ..",
-		"test": "yarn run build && node ./out/test/runTests.js"
+		"test-postinstall": "yarn --cwd ./test/integration/tests/import-navigation/testdata install",
+		"test": "yarn run test-postinstall && yarn run build && node ./out/test/runTests.js"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.1.3",

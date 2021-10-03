@@ -70,8 +70,14 @@ export class SolidityCompletion {
 
         const contractDefinitionNode = this.findContractDefinition(documentAnalyzer.analyzerTree.tree, cursorPosition);
 
-        for (const definitionNode of contractDefinitionNode?.children || []) {
-            if (contractDefinitionNode?.getName() !== definitionNode.getName()) {
+        const inheritanceDefinitionNodes: Node[] = documentAnalyzer.searcher.findInheritanceDefinitionNodes(
+            documentAnalyzer.uri,
+            getParserPositionFromVSCodePosition(position),
+            contractDefinitionNode
+        );
+
+        for (const definitionNode of inheritanceDefinitionNodes.concat(contractDefinitionNode?.children || [])) {
+            if (definitionNode.type === "FunctionDefinition") {
                 definitionNodes.push(definitionNode);
             }
         }

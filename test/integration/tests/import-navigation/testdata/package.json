@@ -1,0 +1,8 @@
+{
+  "name": "import-navigation",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.3.0"
+  }
+}
