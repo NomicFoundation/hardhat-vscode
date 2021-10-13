@@ -2,7 +2,6 @@
 The _vscode-solidity_ extension contains the language smarts behind the solidity editing experience of Visual Studio Code.
 
 ### Todo
- - *doValidation* analyses an input string and returns syntax and lint errors.
  - *doHover* provides a hover text for a given location.
  - *doCodeActions* evaluates code actions for the given location, typically to fix a problem.
 
@@ -13,6 +12,7 @@ The _vscode-solidity_ extension contains the language smarts behind the solidity
  - *findImplementation* finds all implementations to the symbol at the given location.
  - *doRename* renames all symbols connected to the given location.
  - *doComplete* provides completion proposals for a given location.
+ - *doValidation* analyses an input string and returns syntax and lint errors.
 
 ## Developing
 
