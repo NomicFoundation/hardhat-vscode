@@ -40,7 +40,7 @@ connection.onInitialize((params: InitializeParams) => {
 	}
 
 	const capabilities = params.capabilities;
-	
+
 	hasWorkspaceFolderCapability = !!(
 		capabilities.workspace && !!capabilities.workspace.workspaceFolders
 	);
@@ -50,10 +50,10 @@ connection.onInitialize((params: InitializeParams) => {
 			textDocumentSync: TextDocumentSyncKind.Incremental,
 			// Tell the client that this server supports code completion.
 			completionProvider: {
-                triggerCharacters: [
+				triggerCharacters: [
 					'.', '/'
 				]
-            },
+			},
 			// hoverProvider: true,
 			definitionProvider: true,
 			typeDefinitionProvider: true,
@@ -99,7 +99,7 @@ function analyzeFunc(uri: string): void {
 		if (document) {
 			const documentURI = getUriFromDocument(document);
 			languageServer.analyzer.analyzeDocument(document.getText(), documentURI);
-		}	
+		}
 	} catch (err) {
 		console.error(err);
 	}
@@ -144,7 +144,7 @@ async function validateTextDocument(validationJob: ValidationJob, uri: string, d
 				return;
 			}
 		}
-		
+
 		connection.sendDiagnostics({
 			uri: document.uri,
 			diagnostics: []
@@ -254,7 +254,7 @@ connection.onReferences(params => {
 
 	try {
 		const document = documents.get(params.textDocument.uri);
-	
+
 		if (document) {
 			const documentURI = getUriFromDocument(document);
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
@@ -274,7 +274,7 @@ connection.onImplementation(params => {
 
 	try {
 		const document = documents.get(params.textDocument.uri);
-	
+
 		if (document) {
 			const documentURI = getUriFromDocument(document);
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
