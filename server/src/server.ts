@@ -8,7 +8,9 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import { IndexFileData, eventEmitter as em } from '@common/event';
-import { getUriFromDocument, decodeUriAndRemoveFilePrefix, debounce } from './utils';
+import { ValidationJob } from "@services/validation/SolidityValidation";
+import { getUriFromDocument, decodeUriAndRemoveFilePrefix } from './utils';
+import { debounce } from './utils/debaunce';
 import { LanguageService } from './parser';
 
 // Create a connection for the server, using Node's IPC as a transport.
@@ -23,7 +25,7 @@ let hasWorkspaceFolderCapability = false;
 let languageServer: LanguageService;
 
 const debounceAnalyzeDocument: { [uri: string]: (uri: string) => void } = {};
-const debounceValidateDocument: { [uri: string]: (document: TextDocument) => void } = {};
+const debounceValidateDocument: { [uri: string]: (validationJob: ValidationJob, uri: string, document: TextDocument) => void } = {};
 
 connection.onInitialize((params: InitializeParams) => {
 	console.log('server onInitialize');
@@ -84,8 +86,8 @@ connection.onInitialized(() => {
 	}
 });
 
-em.on('IndexingFile', (data: IndexFileData) => {
-	connection.sendNotification("custom/indexingFile", data);
+em.on('indexing-file', (data: IndexFileData) => {
+	connection.sendNotification("custom/indexing-file", data);
 });
 
 function analyzeFunc(uri: string): void {
@@ -105,7 +107,7 @@ function analyzeFunc(uri: string): void {
 
 type UnsavedDocumentType = { uri: string, languageId: string, version: number, content: string };
 async function getUnsavedDocuments(): Promise<TextDocument[]> {
-	connection.sendNotification("custom/getUnsavedDocuments");
+	connection.sendNotification("custom/get-unsaved-documents");
 
 	return new Promise((resolve, reject) => {
 		// Set up the timeout
@@ -113,7 +115,7 @@ async function getUnsavedDocuments(): Promise<TextDocument[]> {
 			reject("Timeout on getUnsavedDocuments");
 		}, 5000);
 
-		connection.onNotification("custom/getUnsavedDocuments", (unsavedDocuments: UnsavedDocumentType[]) => {
+		connection.onNotification("custom/get-unsaved-documents", (unsavedDocuments: UnsavedDocumentType[]) => {
 			const unsavedTextDocuments = unsavedDocuments.map(ud => {
 				return TextDocument.create(ud.uri, ud.languageId, ud.version, ud.content);
 			});
@@ -124,17 +126,16 @@ async function getUnsavedDocuments(): Promise<TextDocument[]> {
 	});
 }
 
-async function validateTextDocument(document: TextDocument): Promise<void> {
+async function validateTextDocument(validationJob: ValidationJob, uri: string, document: TextDocument): Promise<void> {
 	console.log("validateTextDocument");
 
 	try {
 		const unsavedDocuments = await getUnsavedDocuments();
-		const documentURI = getUriFromDocument(document);
-		const diagnostics = await languageServer.solidityValidation.doValidation(documentURI, document, unsavedDocuments);
+		const diagnostics = await validationJob.run(uri, document, unsavedDocuments);
 
 		// Send the calculated diagnostics to VSCode, but only for the file over which we called validation.
 		for (const diagnosticUri of Object.keys(diagnostics)) {
-			if (documentURI.includes(diagnosticUri)) {
+			if (uri.includes(diagnosticUri)) {
 				connection.sendDiagnostics({
 					uri: document.uri,
 					diagnostics: diagnostics[diagnosticUri]
@@ -163,10 +164,16 @@ documents.onDidChangeContent(change => {
 	}
 	debounceAnalyzeDocument[change.document.uri](change.document.uri);
 
+	// ------------------------------------------------------------------------
+
 	if (!debounceValidateDocument[change.document.uri]) {
-		debounceValidateDocument[change.document.uri] = debounce(validateTextDocument, 500);
+		debounceValidateDocument[change.document.uri] = debounce(validateTextDocument, 200);
 	}
-	debounceValidateDocument[change.document.uri](change.document);
+
+	const documentURI = getUriFromDocument(change.document);
+	const validationJob = languageServer.solidityValidation.getValidationJob(documentURI);
+
+	debounceValidateDocument[change.document.uri](validationJob, documentURI, change.document);
 });
 
 // This handler provides the initial list of the completion items.

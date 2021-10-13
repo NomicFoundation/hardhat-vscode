@@ -40,7 +40,7 @@ export class Analyzer {
                 current: i + 1,
                 total: documentsUri.length
             };
-            em.emit('IndexingFile', data);
+            em.emit('indexing-file', data);
 
             const documentAnalyzer = this.getDocumentAnalyzer(documentUri);
 

@@ -67,8 +67,8 @@ function showFileIndexingProggress(client: LanguageClient): void {
 	const em = new events.EventEmitter();
 
 	client.onReady().then(() => {
-		client.onNotification("custom/indexingFile", (data: IndexFileData) => {
-			em.emit('IndexingFile', data);
+		client.onNotification("custom/indexing-file", (data: IndexFileData) => {
+			em.emit('indexing-file', data);
 		});
 	});
 
@@ -84,7 +84,7 @@ function showFileIndexingProggress(client: LanguageClient): void {
 		});
 
 		const promise = new Promise<void>(resolve => {
-			em.on('IndexingFile', (data: IndexFileData) => {
+			em.on('indexing-file', (data: IndexFileData) => {
 				progress.report({
 					increment: Math.round(data.total / data.current),
 					message: `Indexing ${data.path}`
@@ -157,10 +157,10 @@ export function activate(context: ExtensionContext) {
 			const client = new LanguageClient('solidity-language-server', 'Solidity Language Server', serverOptions, clientOptions);
 
 			client.onReady().then(() => {
-				client.onNotification("custom/getUnsavedDocuments", () => {
+				client.onNotification("custom/get-unsaved-documents", () => {
 					const unsavedDocuments = getUnsavedDocuments();
 
-					client.sendNotification("custom/getUnsavedDocuments", unsavedDocuments.map(unsavedDocument => {
+					client.sendNotification("custom/get-unsaved-documents", unsavedDocuments.map(unsavedDocument => {
 						return {
 							uri: unsavedDocument.uri,
 							languageId: unsavedDocument.languageId,

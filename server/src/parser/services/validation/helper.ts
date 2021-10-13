@@ -95,6 +95,7 @@
             }
         );
 
+        // download solc version and compile files
         const { output } = await hre.run(TASK_COMPILE_SOLIDITY_COMPILE, {
             solcVersion: compilationJob.getSolcConfig().version,
             input,
