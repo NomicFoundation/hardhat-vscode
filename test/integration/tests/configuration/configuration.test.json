@@ -6,6 +6,9 @@
 				".", "/"
 			]
 		},
+		"signatureHelpProvider" : {
+            "triggerCharacters": [ "(", "," ]
+        },
 		"definitionProvider": true,
 		"typeDefinitionProvider": true,
 		"referencesProvider": true,

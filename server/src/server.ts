@@ -2,7 +2,8 @@ import "module-alias/register";
 
 import {
 	createConnection, TextDocuments, ProposedFeatures, InitializeParams,
-	CompletionList, CompletionParams, TextDocumentSyncKind, InitializeResult
+	CompletionList, CompletionParams, TextDocumentSyncKind, InitializeResult,
+	SignatureHelpParams, SignatureHelp
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -54,7 +55,9 @@ connection.onInitialize((params: InitializeParams) => {
 					'.', '/'
 				]
 			},
-			// hoverProvider: true,
+			signatureHelpProvider : {
+				triggerCharacters: [ '(', ',' ]
+			},
 			definitionProvider: true,
 			typeDefinitionProvider: true,
 			referencesProvider: true,
@@ -176,6 +179,29 @@ documents.onDidChangeContent(change => {
 	debounceValidateDocument[change.document.uri](validationJob, documentURI, change.document);
 });
 
+connection.onSignatureHelp((params: SignatureHelpParams): SignatureHelp | undefined => {
+	console.log('server onSignatureHelp', params);
+
+	try {
+		const document = documents.get(params.textDocument.uri);
+
+		if (document) {
+			const documentURI = getUriFromDocument(document);
+
+			if (params.context?.triggerCharacter === '(') {
+				languageServer.analyzer.analyzeDocument(document.getText(), documentURI);
+			}
+
+			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
+			if (documentAnalyzer.isAnalyzed) {
+				return languageServer.soliditySignatureHelp.doSignatureHelp(document, params.position, documentAnalyzer);
+			}
+		}
+	} catch (err) {
+		console.error(err);
+	}
+});
+
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
 	(params: CompletionParams): CompletionList | undefined => {
@@ -246,7 +272,6 @@ connection.onTypeDefinition(params => {
 	} catch (err) {
 		console.error(err);
 	}
-
 });
 
 connection.onReferences(params => {
@@ -266,7 +291,6 @@ connection.onReferences(params => {
 	} catch (err) {
 		console.error(err);
 	}
-
 });
 
 connection.onImplementation(params => {

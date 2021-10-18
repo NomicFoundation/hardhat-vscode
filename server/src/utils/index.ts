@@ -16,3 +16,11 @@ export function decodeUriAndRemoveFilePrefix(uri: string): string {
 
     return uri;
 }
+
+export function isCharacterALetter(char: string): boolean {
+    return (/[a-zA-Z]/).test(char);
+}
+
+export function isCharacterANumber(char: string): boolean {
+    return (/[0-9]/).test(char);
+}
