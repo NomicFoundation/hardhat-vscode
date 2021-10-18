@@ -22,7 +22,8 @@ import {
 import { 
 	Position as VSCodePosition, WorkspaceEdit, DocumentHighlight, TextEdit, Range,
 	DocumentHighlightKind, MarkupKind, Definition, Hover, Location as VSCodeLocation,
-	CompletionList, CompletionItem, CompletionItemKind, Diagnostic, DiagnosticSeverity
+	CompletionList, CompletionItem, CompletionItemKind, Diagnostic, DiagnosticSeverity,
+    SignatureHelp, SignatureInformation, ParameterInformation
 } from 'vscode-languageserver-types';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
@@ -47,7 +48,8 @@ export {
     StateVariableDeclarationVariable, VariableDeclarationStatement, WhileStatement,
     TextDocument, VSCodePosition, WorkspaceEdit, DocumentHighlight, TextEdit,
 	Range, DocumentHighlightKind, MarkupKind, Definition, Hover, VSCodeLocation,
-	CompletionList, CompletionItem, CompletionItemKind, Diagnostic, DiagnosticSeverity
+	CompletionList, CompletionItem, CompletionItemKind, Diagnostic, DiagnosticSeverity,
+    SignatureHelp, SignatureInformation, ParameterInformation
 };
 
 export interface Searcher {

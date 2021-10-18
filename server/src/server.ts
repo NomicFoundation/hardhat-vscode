@@ -2,13 +2,16 @@ import "module-alias/register";
 
 import {
 	createConnection, TextDocuments, ProposedFeatures, InitializeParams,
-	CompletionList, CompletionParams, TextDocumentSyncKind, InitializeResult
+	CompletionList, CompletionParams, TextDocumentSyncKind, InitializeResult,
+	SignatureHelpParams, SignatureHelp
 } from 'vscode-languageserver/node';
 
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import { IndexFileData, eventEmitter as em } from '@common/event';
-import { getUriFromDocument, decodeUriAndRemoveFilePrefix, debounce } from './utils';
+import { ValidationJob } from "@services/validation/SolidityValidation";
+import { getUriFromDocument, decodeUriAndRemoveFilePrefix } from './utils';
+import { debounce } from './utils/debaunce';
 import { LanguageService } from './parser';
 
 // Create a connection for the server, using Node's IPC as a transport.
@@ -23,7 +26,7 @@ let hasWorkspaceFolderCapability = false;
 let languageServer: LanguageService;
 
 const debounceAnalyzeDocument: { [uri: string]: (uri: string) => void } = {};
-const debounceValidateDocument: { [uri: string]: (document: TextDocument) => void } = {};
+const debounceValidateDocument: { [uri: string]: (validationJob: ValidationJob, uri: string, document: TextDocument) => void } = {};
 
 connection.onInitialize((params: InitializeParams) => {
 	console.log('server onInitialize');
@@ -38,7 +41,7 @@ connection.onInitialize((params: InitializeParams) => {
 	}
 
 	const capabilities = params.capabilities;
-	
+
 	hasWorkspaceFolderCapability = !!(
 		capabilities.workspace && !!capabilities.workspace.workspaceFolders
 	);
@@ -48,11 +51,13 @@ connection.onInitialize((params: InitializeParams) => {
 			textDocumentSync: TextDocumentSyncKind.Incremental,
 			// Tell the client that this server supports code completion.
 			completionProvider: {
-                triggerCharacters: [
+				triggerCharacters: [
 					'.', '/'
 				]
-            },
-			// hoverProvider: true,
+			},
+			signatureHelpProvider : {
+				triggerCharacters: [ '(', ',' ]
+			},
 			definitionProvider: true,
 			typeDefinitionProvider: true,
 			referencesProvider: true,
@@ -84,8 +89,8 @@ connection.onInitialized(() => {
 	}
 });
 
-em.on('IndexingFile', (data: IndexFileData) => {
-	connection.sendNotification("custom/indexingFile", data);
+em.on('indexing-file', (data: IndexFileData) => {
+	connection.sendNotification("custom/indexing-file", data);
 });
 
 function analyzeFunc(uri: string): void {
@@ -97,7 +102,7 @@ function analyzeFunc(uri: string): void {
 		if (document) {
 			const documentURI = getUriFromDocument(document);
 			languageServer.analyzer.analyzeDocument(document.getText(), documentURI);
-		}	
+		}
 	} catch (err) {
 		console.error(err);
 	}
@@ -105,7 +110,7 @@ function analyzeFunc(uri: string): void {
 
 type UnsavedDocumentType = { uri: string, languageId: string, version: number, content: string };
 async function getUnsavedDocuments(): Promise<TextDocument[]> {
-	connection.sendNotification("custom/getUnsavedDocuments");
+	connection.sendNotification("custom/get-unsaved-documents");
 
 	return new Promise((resolve, reject) => {
 		// Set up the timeout
@@ -113,7 +118,7 @@ async function getUnsavedDocuments(): Promise<TextDocument[]> {
 			reject("Timeout on getUnsavedDocuments");
 		}, 5000);
 
-		connection.onNotification("custom/getUnsavedDocuments", (unsavedDocuments: UnsavedDocumentType[]) => {
+		connection.onNotification("custom/get-unsaved-documents", (unsavedDocuments: UnsavedDocumentType[]) => {
 			const unsavedTextDocuments = unsavedDocuments.map(ud => {
 				return TextDocument.create(ud.uri, ud.languageId, ud.version, ud.content);
 			});
@@ -124,17 +129,16 @@ async function getUnsavedDocuments(): Promise<TextDocument[]> {
 	});
 }
 
-async function validateTextDocument(document: TextDocument): Promise<void> {
+async function validateTextDocument(validationJob: ValidationJob, uri: string, document: TextDocument): Promise<void> {
 	console.log("validateTextDocument");
 
 	try {
 		const unsavedDocuments = await getUnsavedDocuments();
-		const documentURI = getUriFromDocument(document);
-		const diagnostics = await languageServer.solidityValidation.doValidation(documentURI, document, unsavedDocuments);
+		const diagnostics = await validationJob.run(uri, document, unsavedDocuments);
 
 		// Send the calculated diagnostics to VSCode, but only for the file over which we called validation.
 		for (const diagnosticUri of Object.keys(diagnostics)) {
-			if (documentURI.includes(diagnosticUri)) {
+			if (uri.includes(diagnosticUri)) {
 				connection.sendDiagnostics({
 					uri: document.uri,
 					diagnostics: diagnostics[diagnosticUri]
@@ -143,7 +147,7 @@ async function validateTextDocument(document: TextDocument): Promise<void> {
 				return;
 			}
 		}
-		
+
 		connection.sendDiagnostics({
 			uri: document.uri,
 			diagnostics: []
@@ -163,10 +167,39 @@ documents.onDidChangeContent(change => {
 	}
 	debounceAnalyzeDocument[change.document.uri](change.document.uri);
 
+	// ------------------------------------------------------------------------
+
 	if (!debounceValidateDocument[change.document.uri]) {
-		debounceValidateDocument[change.document.uri] = debounce(validateTextDocument, 500);
+		debounceValidateDocument[change.document.uri] = debounce(validateTextDocument, 200);
 	}
-	debounceValidateDocument[change.document.uri](change.document);
+
+	const documentURI = getUriFromDocument(change.document);
+	const validationJob = languageServer.solidityValidation.getValidationJob(documentURI);
+
+	debounceValidateDocument[change.document.uri](validationJob, documentURI, change.document);
+});
+
+connection.onSignatureHelp((params: SignatureHelpParams): SignatureHelp | undefined => {
+	console.log('server onSignatureHelp', params);
+
+	try {
+		const document = documents.get(params.textDocument.uri);
+
+		if (document) {
+			const documentURI = getUriFromDocument(document);
+
+			if (params.context?.triggerCharacter === '(') {
+				languageServer.analyzer.analyzeDocument(document.getText(), documentURI);
+			}
+
+			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
+			if (documentAnalyzer.isAnalyzed) {
+				return languageServer.soliditySignatureHelp.doSignatureHelp(document, params.position, documentAnalyzer);
+			}
+		}
+	} catch (err) {
+		console.error(err);
+	}
 });
 
 // This handler provides the initial list of the completion items.
@@ -239,7 +272,6 @@ connection.onTypeDefinition(params => {
 	} catch (err) {
 		console.error(err);
 	}
-
 });
 
 connection.onReferences(params => {
@@ -247,7 +279,7 @@ connection.onReferences(params => {
 
 	try {
 		const document = documents.get(params.textDocument.uri);
-	
+
 		if (document) {
 			const documentURI = getUriFromDocument(document);
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
@@ -259,7 +291,6 @@ connection.onReferences(params => {
 	} catch (err) {
 		console.error(err);
 	}
-
 });
 
 connection.onImplementation(params => {
@@ -267,7 +298,7 @@ connection.onImplementation(params => {
 
 	try {
 		const document = documents.get(params.textDocument.uri);
-	
+
 		if (document) {
 			const documentURI = getUriFromDocument(document);
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);

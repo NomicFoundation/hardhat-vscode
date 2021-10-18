@@ -17,17 +17,10 @@ export function decodeUriAndRemoveFilePrefix(uri: string): string {
     return uri;
 }
 
-export function debounce<Params extends any[]>(
-        func: (...args: Params) => any,
-        timeoutInMilliseconds: number
-    ): (...args: Params) => void {
-    let timer: NodeJS.Timeout;
+export function isCharacterALetter(char: string): boolean {
+    return (/[a-zA-Z]/).test(char);
+}
 
-    return (...args: Params) => {
-        clearTimeout(timer);
-
-        timer = setTimeout(() => {
-            func(...args);
-        }, timeoutInMilliseconds);
-    };
+export function isCharacterANumber(char: string): boolean {
+    return (/[0-9]/).test(char);
 }
