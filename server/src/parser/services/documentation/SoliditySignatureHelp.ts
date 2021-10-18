@@ -27,6 +27,9 @@ export class SoliditySignatureHelp {
         const analyzerTree = documentAnalyzer.analyzerTree.tree;
 
         const declarationSignature = this.getDeclarationSignature(vsCodePosition, document);
+        if (!declarationSignature) {
+            return undefined;
+        }
 
 		const definitionNode = documentAnalyzer.searcher.findDefinitionNodeByPosition(
             documentAnalyzer.uri,
@@ -49,7 +52,7 @@ export class SoliditySignatureHelp {
         };
     }
 
-    private getDeclarationSignature(vsCodePosition: VSCodePosition, document: TextDocument): DeclarationSignature {
+    private getDeclarationSignature(vsCodePosition: VSCodePosition, document: TextDocument): DeclarationSignature | undefined {
         let activeParameter = 0;
         let declarationNodePosition!: Position;
 
@@ -61,6 +64,11 @@ export class SoliditySignatureHelp {
                 activeParameter++;
                 continue;
             }
+
+            if (char === ';' || char === '}') {
+                return undefined;
+            }
+
             if (char === '(') {
                 declarationNodePosition = this.findDeclarationNodePosition(i, offsetDocument);
                 break;
