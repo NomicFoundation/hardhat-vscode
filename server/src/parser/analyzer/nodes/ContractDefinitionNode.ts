@@ -7,7 +7,7 @@ import {
 export class ContractDefinitionNode extends AbstractContractDefinitionNode {
     astNode: ContractDefinition;
 
-    connectionTypeRules: string[] = [ "Identifier", "UserDefinedTypeName", "FunctionCall", "UsingForDeclaration" ];
+    connectionTypeRules: string[] = [ "Identifier", "UserDefinedTypeName", "FunctionCall", "UsingForDeclaration", "ModifierInvocation" ];
 
     constructor (contractDefinition: ContractDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
         super(contractDefinition, uri, rootPath, documentsAnalyzer, contractDefinition.name);
