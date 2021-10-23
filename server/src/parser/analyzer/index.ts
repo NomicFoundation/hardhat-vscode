@@ -162,8 +162,7 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
 
             return this.analyzerTree.tree;
         } catch (err) {
-            console.error(err);
-
+            // console.error(err);
             return this.analyzerTree.tree;
         }
     }

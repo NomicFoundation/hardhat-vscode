@@ -30,7 +30,9 @@ export class FunctionCallNode extends Node {
             if (definitionTypes.length > 0) {
                 searcher?.findAndAddParentInDefinitionTypeVarialbles(identifierNode, definitionTypes, this.documentsAnalyzer[this.uri]?.analyzerTree.tree);
             } else {
-                (expressionNode as IdentifierNode).addIdentifierField(identifierNode);
+                if (expressionNode.type === "Identifier") {
+                    (expressionNode as IdentifierNode).addIdentifierField(identifierNode);
+                }
             }
         }
 

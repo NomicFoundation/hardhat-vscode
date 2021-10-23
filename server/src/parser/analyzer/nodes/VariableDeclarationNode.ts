@@ -46,10 +46,13 @@ export class VariableDeclarationNode extends AbstractVariableDeclarationNode {
             this.addTypeNode(typeNode);
 
             // Find Type of declaration skip MappingNode, ArrayTypeNameNode, FunctionTypeNameNode
-            while (![ "UserDefinedTypeName", "ElementaryTypeName" ].includes(typeNode.type)) {
+            while (typeNode && ![ "UserDefinedTypeName", "ElementaryTypeName" ].includes(typeNode.type)) {
                 typeNode = typeNode.typeNodes[0];
             }
-            typeNode.setDeclarationNode(this);
+
+            if (typeNode) {
+                typeNode.setDeclarationNode(this);
+            }
         }
 
         const rootNode = findSourceUnitNode(parent);
