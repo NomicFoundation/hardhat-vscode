@@ -82,17 +82,25 @@ export class SoliditySignatureHelp {
     }
 
     private getDefinitionSignature(definitionNode: Node): SignatureInformation | undefined {
-        if (definitionNode.type === 'FunctionDefinition') {
-            return this.getFunctionDefinitionSignature(definitionNode);
+        if (
+            definitionNode.type === 'FunctionDefinition' ||
+            definitionNode.type === 'EventDefinition' ||
+            definitionNode.type === 'ModifierDefinition' ||
+            definitionNode.type === 'CustomErrorDefinition'
+            ) {
+            return this.getNodeDefinitionSignature(definitionNode.type, definitionNode);
+        }
+        if (definitionNode.type === 'ContractDefinition') {
+            return undefined;
         }
 
         return undefined;
     }
 
-    private getFunctionDefinitionSignature(functionDefinitionNode: Node): SignatureInformation | undefined {
-        const documentAnalyzer = functionDefinitionNode.documentsAnalyzer[functionDefinitionNode.uri];
+    private getNodeDefinitionSignature(nodeType: string, definitionNode: Node): SignatureInformation | undefined {
+        const documentAnalyzer = definitionNode.documentsAnalyzer[definitionNode.uri];
         const document = documentAnalyzer?.document;
-        const nameLoc = functionDefinitionNode.nameLoc;
+        const nameLoc = definitionNode.nameLoc;
 
         if (!document || !nameLoc) {
             return undefined;
@@ -102,13 +110,25 @@ export class SoliditySignatureHelp {
 
         const documentation = this.getDefinitionNodeDocumentation(document, offset);
 
-        let functionSignature = `function ${document.substring(offset).split('{')[0]}`;
-        functionSignature = functionSignature.split(';')[0];
+        let signature = document.substring(offset).split('{')[0];
+        if (nodeType === 'FunctionDefinition') {
+            signature = 'function ' + signature;
+        }
+        else if (nodeType === 'EventDefinition') {
+            signature = 'event ' + signature;
+        }
+        else if (nodeType === 'ModifierDefinition') {
+            signature = 'modifier ' + signature;
+        }
+        else if (nodeType === 'CustomErrorDefinition') {
+            signature = 'error ' + signature;
+        }
 
-        const functionSignatureSplited = functionSignature.split('(');
-        const stringParameters = functionSignatureSplited[1].split(')')[0];
+        signature = signature.split(';')[0];
+        const signatureSplited = signature.split('(');
+        const stringParameters = signatureSplited[1].split(')')[0];
 
-        let argumentOffset = functionSignatureSplited[0].length + 1;
+        let argumentOffset = signatureSplited[0].length + 1;
 
         const parameters: ParameterInformation[] = [];
         for (const stringParameter of stringParameters.split(',')) {
@@ -124,10 +144,15 @@ export class SoliditySignatureHelp {
         }
 
         return {
-            label: functionSignature,
+            label: signature,
             documentation,
             parameters
         };
+    }
+
+    private getContractDefinitionSignature(nodeType: string, definitionNode: Node): SignatureInformation | undefined {
+        // TO-DO: Implement
+        return undefined;
     }
 
     private getDefinitionNodeDocumentation(document: string, limit: number): string | undefined {
