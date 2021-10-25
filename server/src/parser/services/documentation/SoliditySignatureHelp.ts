@@ -60,13 +60,13 @@ export class SoliditySignatureHelp {
         for (let i = offsetDocument.length - 1; i >= 0; i--) {
             const char = offsetDocument.charAt(i);
             
+            if (char === ';' || char === '}') {
+                return undefined;
+            }
+
             if (char === ',') {
                 activeParameter++;
                 continue;
-            }
-
-            if (char === ';' || char === '}') {
-                return undefined;
             }
 
             if (char === '(') {
@@ -99,6 +99,9 @@ export class SoliditySignatureHelp {
         }
 
         const offset = this.getOffsetFromPosition(nameLoc.start, document);
+
+        const documentation = this.getDefinitionNodeDocumentation(document, offset);
+
         let functionSignature = `function ${document.substring(offset).split('{')[0]}`;
         functionSignature = functionSignature.split(';')[0];
 
@@ -122,8 +125,50 @@ export class SoliditySignatureHelp {
 
         return {
             label: functionSignature,
+            documentation,
             parameters
         };
+    }
+
+    private getDefinitionNodeDocumentation(document: string, limit: number): string | undefined {
+        const newDocument = document.substring(0, limit);
+        const documentLines = newDocument.split('\n');
+        let documentation = '';
+        let isMultiLineComments = false;
+
+        // documentLines.length - 2. Because last element in the documentLines is the node definition,
+        // and we are looking one line above for the documentation.
+        for (let i = documentLines.length - 2; i >= 0; i--) {
+            const documentLine = documentLines[i];
+            
+            const trimmedLine = documentLine.trim();
+            if (!isMultiLineComments && trimmedLine[0] === '/' && trimmedLine[1] === '/') {
+                let singleComment = '//';
+                if (trimmedLine[2] === '/') {
+                    singleComment = '///';
+                }
+
+                // Remove comment prefix
+                const prettyDocumentLine = documentLine.split(singleComment, 2)[1];
+                documentation = (prettyDocumentLine + '\n') + documentation;
+                continue;
+            }
+            if (trimmedLine[0] === '*' && trimmedLine[1] === '/') {
+                isMultiLineComments = true;
+                continue;
+            }
+            if (isMultiLineComments && trimmedLine[0] === '*') {
+                // Remove comment prefix
+                const prettyDocumentLine = documentLine.split('*', 2)[1];
+                documentation = (prettyDocumentLine + '\n') + documentation;
+                continue;
+            }
+            
+            break;
+        }
+
+        // Remove last new line
+        return documentation.slice(0, -1);
     }
 
     private findDeclarationNodePosition(offset: number, document: string): Position {
@@ -136,7 +181,7 @@ export class SoliditySignatureHelp {
             }
         }
 
-        return this.getPositionFromOffset(i, document);
+        return this.getPositionFromOffset(i + 1, document);
     }
 
     private getOffsetFromPosition(position: Position, document: string): number {

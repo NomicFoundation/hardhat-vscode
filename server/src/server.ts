@@ -180,7 +180,7 @@ documents.onDidChangeContent(change => {
 });
 
 connection.onSignatureHelp((params: SignatureHelpParams): SignatureHelp | undefined => {
-	console.log('server onSignatureHelp', params);
+	console.log('server onSignatureHelp');
 
 	try {
 		const document = documents.get(params.textDocument.uri);
