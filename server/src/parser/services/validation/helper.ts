@@ -43,6 +43,7 @@ export const HARDHAT_CONFIG_FILE_EXIST_EVENT = "hardhat_config_file_exist";
         let hardhatBase = '';
         try {
             hardhatBase = path.resolve(require.resolve('hardhat', { paths: [ process.cwd() ] }), "..", "..", "..");
+            require(`${hardhatBase}/register.js`);
             hre = require(`${hardhatBase}/internal/lib/hardhat-lib.js`);
         } catch (err) {
             // Hardhat is not installed
