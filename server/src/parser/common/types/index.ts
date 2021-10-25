@@ -585,6 +585,8 @@ export abstract class FunctionDefinitionNode extends Node {
      */
     abstract astNode: FunctionDefinition;
 
+    isConstructor = false;
+
     /**
      * Visability can be 'default' | 'external' | 'internal' | 'public' | 'private'
      * 

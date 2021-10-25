@@ -3,7 +3,7 @@ import { Analyzer } from "@analyzer/index";
 import {
     VSCodePosition, DocumentAnalyzer, Position, Node,
     TextDocument, SignatureHelp, SignatureInformation,
-    ParameterInformation
+    ParameterInformation, FunctionDefinitionNode
 } from "@common/types";
 import { isCharacterALetter, isCharacterANumber } from "../../../utils";
 
@@ -82,45 +82,68 @@ export class SoliditySignatureHelp {
     }
 
     private getDefinitionSignature(definitionNode: Node): SignatureInformation | undefined {
+        if (definitionNode.type === 'ContractDefinition') {
+            const constructorNode = this.getContractDefinitionConstructorNode(definitionNode);
+            if (!constructorNode) {
+                return undefined;
+            }
+
+            definitionNode = constructorNode;
+        }
+
         if (
             definitionNode.type === 'FunctionDefinition' ||
             definitionNode.type === 'EventDefinition' ||
             definitionNode.type === 'ModifierDefinition' ||
             definitionNode.type === 'CustomErrorDefinition'
-            ) {
-            return this.getNodeDefinitionSignature(definitionNode.type, definitionNode);
-        }
-        if (definitionNode.type === 'ContractDefinition') {
-            return undefined;
+        ) {
+            return this.getNodeDefinitionSignature(definitionNode);
         }
 
         return undefined;
     }
 
-    private getNodeDefinitionSignature(nodeType: string, definitionNode: Node): SignatureInformation | undefined {
+    private getNodeDefinitionSignature(definitionNode: Node): SignatureInformation | undefined {
         const documentAnalyzer = definitionNode.documentsAnalyzer[definitionNode.uri];
         const document = documentAnalyzer?.document;
         const nameLoc = definitionNode.nameLoc;
 
-        if (!document || !nameLoc) {
+        if (!document) {
             return undefined;
         }
 
-        const offset = this.getOffsetFromPosition(nameLoc.start, document);
+        let offset: number;
+        if (nameLoc) {
+            offset = this.getOffsetFromPosition(nameLoc.start, document);
+        }
+        else if (definitionNode.astNode.loc) {
+            offset = this.getOffsetFromPosition({
+                line: definitionNode.astNode.loc.start.line,
+                column: definitionNode.astNode.loc.start.column,
+            }, document);
+        }
+        else {
+            return undefined;
+        }
 
         const documentation = this.getDefinitionNodeDocumentation(document, offset);
 
         let signature = document.substring(offset).split('{')[0];
-        if (nodeType === 'FunctionDefinition') {
-            signature = 'function ' + signature;
+        if (definitionNode.type === 'FunctionDefinition') {
+            if ((definitionNode as FunctionDefinitionNode).isConstructor) {
+                // Get contract name
+                signature = definitionNode.parent?.getName() + signature.slice('constructor'.length);
+            } else {
+                signature = 'function ' + signature;
+            }
         }
-        else if (nodeType === 'EventDefinition') {
+        else if (definitionNode.type === 'EventDefinition') {
             signature = 'event ' + signature;
         }
-        else if (nodeType === 'ModifierDefinition') {
+        else if (definitionNode.type === 'ModifierDefinition') {
             signature = 'modifier ' + signature;
         }
-        else if (nodeType === 'CustomErrorDefinition') {
+        else if (definitionNode.type === 'CustomErrorDefinition') {
             signature = 'error ' + signature;
         }
 
@@ -150,8 +173,13 @@ export class SoliditySignatureHelp {
         };
     }
 
-    private getContractDefinitionSignature(nodeType: string, definitionNode: Node): SignatureInformation | undefined {
-        // TO-DO: Implement
+    private getContractDefinitionConstructorNode(definitionNode: Node): Node | undefined {
+        for (const child of definitionNode.children) {
+            if (child.type === 'FunctionDefinition' && (child as FunctionDefinitionNode).isConstructor) {
+                return child;
+            }
+        }
+
         return undefined;
     }
 

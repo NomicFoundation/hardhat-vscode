@@ -13,6 +13,7 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
     constructor (functionDefinition: FunctionDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
         super(functionDefinition, uri, rootPath, documentsAnalyzer, functionDefinition.name || undefined);
         this.astNode = functionDefinition;
+        this.isConstructor = functionDefinition.isConstructor;
         
         if (!functionDefinition.isConstructor && functionDefinition.loc && functionDefinition.name) {
             this.nameLoc = {
