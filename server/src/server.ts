@@ -116,7 +116,7 @@ async function getUnsavedDocuments(): Promise<TextDocument[]> {
 		// Set up the timeout
 		const timeout = setTimeout(() => {
 			reject("Timeout on getUnsavedDocuments");
-		}, 5000);
+		}, 15000);
 
 		connection.onNotification("custom/get-unsaved-documents", (unsavedDocuments: UnsavedDocumentType[]) => {
 			const unsavedTextDocuments = unsavedDocuments.map(ud => {
