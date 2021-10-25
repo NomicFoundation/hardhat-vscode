@@ -205,7 +205,7 @@ connection.onSignatureHelp((params: SignatureHelpParams): SignatureHelp | undefi
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
 	(params: CompletionParams): CompletionList | undefined => {
-		console.log('server onCompletion', params);
+		console.log('server onCompletion');
 
 		try {
 			const document = documents.get(params.textDocument.uri);
