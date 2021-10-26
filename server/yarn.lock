@@ -371,10 +371,10 @@
   resolved "https://registry.yarnpkg.com/@solidity-parser/parser/-/parser-0.11.1.tgz#fa840af64840c930f24a9c82c08d4a092a068add"
   integrity sha512-H8BSBoKE8EubJa0ONqecA2TviT3TnHeC4NpgnAHSUiuhZoQBfPB4L2P9bs8R6AoTW10Endvh3vc+fomVMIDIYQ==
 
-"@solidity-parser/parser@^0.13.3-rc.1":
-  version "0.13.3-rc.1"
-  resolved "https://registry.yarnpkg.com/@solidity-parser/parser/-/parser-0.13.3-rc.1.tgz#c95518e995e86edba09ab50c6ca1d7647782b6d6"
-  integrity sha512-nc7zahAWH+iydtotc6E/UOO2+4D/P8eTOkxmFHwxbT5Nna9igBfsC0haPF31OjpfrefK468MWfHCF1uiqSpzZA==
+"@solidity-parser/parser@^0.14.0":
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/@solidity-parser/parser/-/parser-0.14.0.tgz#d51f074efb0acce0e953ec48133561ed710cebc0"
+  integrity sha512-cX0JJRcmPtNUJpzD2K7FdA7qQsTOk1UZnFx2k7qAg9ZRvuaH5NBe5IEdBMXGlmf2+FmjhqbygJ26H8l2SV7aKQ==
   dependencies:
     antlr4ts "^0.5.0-alpha.4"
 

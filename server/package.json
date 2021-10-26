@@ -19,7 +19,7 @@
 		"eslint": "^7.23.0"
 	},
 	"dependencies": {
-		"@solidity-parser/parser": "^0.13.3-rc.1",
+		"@solidity-parser/parser": "^0.14.0",
 		"hardhat": "^2.6.0",
 		"module-alias": "^2.2.2",
 		"vscode-languageserver": "^7.0.0",
