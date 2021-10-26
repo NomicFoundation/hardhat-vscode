@@ -10,7 +10,7 @@ interface DebouncedFunction {
 // be triggered. The function will be called after it stops being called for
 // N milliseconds. If `immediate` is passed, trigger the function on the
 // leading edge, instead of the trailing.
-// The first argument of the function will be used to run before clearTimeout the kill function if it exists
+// The first argument of the function will be used to run before clearTimeout the close function if it exists
 export const debounce = <F extends (...args: any[]) => ReturnType<F>>(
 	func: F,
 	wait: number,
@@ -32,8 +32,8 @@ export const debounce = <F extends (...args: any[]) => ReturnType<F>>(
 		const callNow = immediate && !timeout;
 
         if (timeout) {
-            if (previousArgs && previousArgs[0] && typeof previousArgs[0].kill == 'function') {
-				previousArgs[0].kill();
+            if (previousArgs && previousArgs[0] && typeof previousArgs[0].close == 'function') {
+				previousArgs[0].close();
 			}
 
             clearTimeout(timeout);
@@ -50,8 +50,8 @@ export const debounce = <F extends (...args: any[]) => ReturnType<F>>(
 	debounced.cancel = function () {
 		const args = arguments;
 
-		if (args[0] && typeof args[0].kill == 'function') {
-			args[0].kill();
+		if (args[0] && typeof args[0].close == 'function') {
+			args[0].close();
 		}
 
 		clearTimeout(timeout);

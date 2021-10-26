@@ -7,7 +7,7 @@ import { TextDocument, Diagnostic, Range, DiagnosticSeverity } from "@common/typ
 
 export interface ValidationJob {
 	run(uri: string, document: TextDocument, unsavedDocuments: TextDocument[]): Promise<{ [uri: string]: Diagnostic[] }>;
-	kill(): void;
+	close(): void;
 }
 
 export const GET_DOCUMENT_EVENT = "get_document";
@@ -66,62 +66,71 @@ export class SolidityValidation {
 			}
 		});
 
+		const _run = async (uri: string, document: TextDocument, unsavedDocuments: TextDocument[]): Promise<{ [uri: string]: Diagnostic[] }> => {
+			child.send({
+				type: GET_DOCUMENT_EVENT,
+				data: {
+					uri,
+					documentText: document.getText(),
+					unsavedDocuments: unsavedDocuments.map(unsavedDocument => {
+						return {
+							uri: (unsavedDocument.uri as any).path,
+							documentText: unsavedDocument.getText()
+						};
+					})
+				}
+			});
+	
+			const hardhatConfigFileExist = (await hardhatConfigFileExistPromise) as boolean;
+			if (!hardhatConfigFileExist) {
+				return {};
+			}
+	
+			isCompilerDownloaded = (await compilerDownloadedPromise) as boolean;
+			child.send({ type: SOLIDITY_COMPILE_CONFIRMATION_EVENT });
+	
+			const output: any = await solidityCompilePromise;
+	
+			const diagnostics: { [uri: string]: Diagnostic[] } = {};
+			if (output?.errors && output.errors.length > 0) {
+				for (const error of output.errors) {
+					if (!diagnostics[error.sourceLocation.file]) {
+						diagnostics[error.sourceLocation.file] = [];
+					}
+	
+					diagnostics[error.sourceLocation.file].push(<Diagnostic>{
+						code: error.errorCode,
+						source: document.languageId,
+						severity: error.severity === "error" ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
+						message: error.message,
+						range: Range.create(
+							document.positionAt(error.sourceLocation.start),
+							document.positionAt(error.sourceLocation.end)
+						)
+					});
+				}
+			}
+	
+			return diagnostics;
+		};
+
+		let canceledResolver: any;
+		const canceled = new Promise(resolve => { canceledResolver = resolve; });
+
 		return {
 			run: async (uri: string, document: TextDocument, unsavedDocuments: TextDocument[]): Promise<{ [uri: string]: Diagnostic[] }> => {
-				child.send({
-					type: GET_DOCUMENT_EVENT,
-					data: {
-						uri,
-						documentText: document.getText(),
-						unsavedDocuments: unsavedDocuments.map(unsavedDocument => {
-							return {
-								uri: (unsavedDocument.uri as any).path,
-								documentText: unsavedDocument.getText()
-							};
-						})
-					}
-				});
-
-				const hardhatConfigFileExist = (await hardhatConfigFileExistPromise) as boolean;
-				if (!hardhatConfigFileExist) {
-					return {};
-				}
-
-				isCompilerDownloaded = (await compilerDownloadedPromise) as boolean;
-				child.send({ type: SOLIDITY_COMPILE_CONFIRMATION_EVENT });
-
-				const output: any = await solidityCompilePromise;
-
-				const diagnostics: { [uri: string]: Diagnostic[] } = {};
-				if (output?.errors && output.errors.length > 0) {
-					for (const error of output.errors) {
-						if (!diagnostics[error.sourceLocation.file]) {
-							diagnostics[error.sourceLocation.file] = [];
-						}
-
-						diagnostics[error.sourceLocation.file].push(<Diagnostic>{
-							code: error.errorCode,
-							source: document.languageId,
-							severity: error.severity === "error" ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
-							message: error.message,
-							range: Range.create(
-								document.positionAt(error.sourceLocation.start),
-								document.positionAt(error.sourceLocation.end)
-							)
-						});
-					}
-				}
-
-				return diagnostics;
+				return Promise.race([
+					_run(uri, document, unsavedDocuments),
+					canceled
+				]) as Promise<{ [uri: string]: Diagnostic[] }>;
 			},
 
-			kill: async () => {
+			close: async () => {
 				if (!isCompilerDownloaded) {
 					return;
 				}
 
-				child.kill();
-
+				canceledResolver([]);
 			}
 		} as ValidationJob;
 	}

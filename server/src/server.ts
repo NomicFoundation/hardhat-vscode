@@ -147,14 +147,14 @@ async function validateTextDocument(validationJob: ValidationJob, uri: string, d
 				return;
 			}
 		}
-
-		connection.sendDiagnostics({
-			uri: document.uri,
-			diagnostics: []
-		});
 	} catch (err) {
-		console.error(err);
+		// console.error(err);
 	}
+
+	connection.sendDiagnostics({
+		uri: document.uri,
+		diagnostics: []
+	});
 }
 
 // The content of a text document has changed. This event is emitted
@@ -170,7 +170,7 @@ documents.onDidChangeContent(change => {
 	// ------------------------------------------------------------------------
 
 	if (!debounceValidateDocument[change.document.uri]) {
-		debounceValidateDocument[change.document.uri] = debounce(validateTextDocument, 200);
+		debounceValidateDocument[change.document.uri] = debounce(validateTextDocument, 500);
 	}
 
 	const documentURI = getUriFromDocument(change.document);
