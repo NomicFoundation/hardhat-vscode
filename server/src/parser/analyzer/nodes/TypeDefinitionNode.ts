@@ -14,7 +14,7 @@ export class TypeDefinitionNode extends Node {
             this.nameLoc = {
                 start: {
                     line: typeDefinition.loc.start.line,
-                    column: typeDefinition.loc.start.column + + "type ".length
+                    column: typeDefinition.loc.start.column + "type ".length
                 },
                 end: {
                     line: typeDefinition.loc.start.line,
