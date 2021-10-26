@@ -74,6 +74,7 @@ import { CatchClauseNode } from "@analyzer/nodes/CatchClauseNode";
 import { FileLevelConstantNode } from "@analyzer/nodes/FileLevelConstantNode";
 import { CustomErrorDefinitionNode } from "@analyzer/nodes/CustomErrorDefinitionNode";
 import { RevertStatementNode } from "@analyzer/nodes/RevertStatementNode";
+import { TypeDefinitionNode } from "@analyzer/nodes/TypeDefinitionNode";
 
 import { Node, DocumentsAnalyzerMap } from "@common/types";
 
@@ -179,4 +180,5 @@ export const find = matcher<Node>({
 	FileLevelConstant: (fileLevelConstant: astTypes.FileLevelConstant, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) => new FileLevelConstantNode(fileLevelConstant, uri, rootPath, documentsAnalyzer),
 	CustomErrorDefinition: (customErrorDefinition: astTypes.CustomErrorDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) => new CustomErrorDefinitionNode(customErrorDefinition, uri, rootPath, documentsAnalyzer),
 	RevertStatement: (revertStatement: astTypes.RevertStatement, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) => new RevertStatementNode(revertStatement, uri, rootPath, documentsAnalyzer),
+	TypeDefinition: (typeDefinition: astTypes.TypeDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) => new TypeDefinitionNode(typeDefinition, uri, rootPath, documentsAnalyzer),
 });

@@ -1,24 +1,24 @@
 import { findSourceUnitNode } from "@common/utils";
-import { CustomErrorDefinition, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
+import { TypeDefinition, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
-export class CustomErrorDefinitionNode extends Node {
-    astNode: CustomErrorDefinition;
+export class TypeDefinitionNode extends Node {
+    astNode: TypeDefinition;
 
     connectionTypeRules: string[] = [ "Identifier", "UserDefinedTypeName" ];
 
-    constructor (customErrorDefinition: CustomErrorDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(customErrorDefinition, uri, rootPath, documentsAnalyzer, customErrorDefinition.name);
-        this.astNode = customErrorDefinition;
+    constructor (typeDefinition: TypeDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+        super(typeDefinition, uri, rootPath, documentsAnalyzer, typeDefinition.name);
+        this.astNode = typeDefinition;
 
-        if (customErrorDefinition.loc) {
+        if (typeDefinition?.loc) {
             this.nameLoc = {
                 start: {
-                    line: customErrorDefinition.loc.start.line,
-                    column: customErrorDefinition.loc.start.column + "error ".length
+                    line: typeDefinition.loc.start.line,
+                    column: typeDefinition.loc.start.column + "type ".length
                 },
                 end: {
-                    line: customErrorDefinition.loc.start.line,
-                    column: customErrorDefinition.loc.start.column + "error ".length + customErrorDefinition.name.length
+                    line: typeDefinition.loc.start.line,
+                    column: typeDefinition.loc.start.column + "type ".length + typeDefinition.name.length
                 }
             };
         }
@@ -41,10 +41,6 @@ export class CustomErrorDefinitionNode extends Node {
 
         if (parent) {
             this.setParent(parent);
-        }
-
-        for (const parameter of this.astNode.parameters) {
-            find(parameter, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
         }
 
         const rootNode = findSourceUnitNode(parent);

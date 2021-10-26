@@ -116,7 +116,7 @@ async function getUnsavedDocuments(): Promise<TextDocument[]> {
 		// Set up the timeout
 		const timeout = setTimeout(() => {
 			reject("Timeout on getUnsavedDocuments");
-		}, 5000);
+		}, 15000);
 
 		connection.onNotification("custom/get-unsaved-documents", (unsavedDocuments: UnsavedDocumentType[]) => {
 			const unsavedTextDocuments = unsavedDocuments.map(ud => {
@@ -180,7 +180,7 @@ documents.onDidChangeContent(change => {
 });
 
 connection.onSignatureHelp((params: SignatureHelpParams): SignatureHelp | undefined => {
-	console.log('server onSignatureHelp', params);
+	console.log('server onSignatureHelp');
 
 	try {
 		const document = documents.get(params.textDocument.uri);
@@ -205,7 +205,7 @@ connection.onSignatureHelp((params: SignatureHelpParams): SignatureHelp | undefi
 // This handler provides the initial list of the completion items.
 connection.onCompletion(
 	(params: CompletionParams): CompletionList | undefined => {
-		console.log('server onCompletion', params);
+		console.log('server onCompletion');
 
 		try {
 			const document = documents.get(params.textDocument.uri);

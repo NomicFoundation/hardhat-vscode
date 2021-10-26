@@ -92,7 +92,7 @@ export class Analyzer {
 
                 if (fs.statSync(newBase).isDirectory()) {
                     this.findSolFiles(newBase, documentsUri);
-                } else if (newBase.slice(-4) === ".sol") {
+                } else if (newBase.slice(-4) === ".sol" && newBase.split("node_modules").length < 3) {
                     documentsUri.push(newBase);
                 }
             });
@@ -162,8 +162,7 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
 
             return this.analyzerTree.tree;
         } catch (err) {
-            console.error(err);
-
+            // console.error(err);
             return this.analyzerTree.tree;
         }
     }

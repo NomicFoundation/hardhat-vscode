@@ -40,12 +40,14 @@ export const HARDHAT_CONFIG_FILE_EXIST_EVENT = "hardhat_config_file_exist";
         const documentText: string = data.documentText;
         const unsavedDocuments: { uri: string, documentText: string }[] = data.unsavedDocuments;
 
-        const hardhatBase = path.resolve(require.resolve('hardhat', { paths: [ process.cwd() ] }), "..", "..", "..");
+        let hardhatBase = '';
         try {
+            hardhatBase = path.resolve(require.resolve('hardhat', { paths: [ process.cwd() ] }), "..", "..", "..");
+            require(`${hardhatBase}/register.js`);
             hre = require(`${hardhatBase}/internal/lib/hardhat-lib.js`);
         } catch (err) {
             // Hardhat is not installed
-            console.error("Hardhat Error:", err);
+            // console.error("Hardhat Error:", err);
             hre = undefined;
         }
 

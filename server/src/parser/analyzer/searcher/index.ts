@@ -545,6 +545,25 @@ export class Searcher implements ISearcher {
             return from;
         }
 
+        if (from.type === "SourceUnit") {
+            for (let i = from.children.length - 1; i >= 0; i--) {
+                const child = from.children[i];
+                const parent = this.walk(uri, position, child, searchInExpression, visitedNodes, visitedFiles);
+    
+                if (parent) {
+                    return parent;
+                }
+            }
+        } else {
+            for (const child of from.children) {
+                const parent = this.walk(uri, position, child, searchInExpression, visitedNodes, visitedFiles);
+    
+                if (parent) {
+                    return parent;
+                }
+            }
+        }
+
         // Handle import
         if (from.type === "ImportDirective") {
             const importPath = (from as ImportDirectiveNode).getImportPath();
@@ -576,14 +595,6 @@ export class Searcher implements ISearcher {
                 if (parent) {
                     return parent;
                 }
-            }
-        }
-
-        for (const child of from.children) {
-            const parent = this.walk(uri, position, child, searchInExpression, visitedNodes, visitedFiles);
-
-            if (parent) {
-                return parent;
             }
         }
 

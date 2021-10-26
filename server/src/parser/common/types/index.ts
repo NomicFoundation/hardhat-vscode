@@ -16,7 +16,7 @@ import {
     ThrowStatement, TryStatement, TupleExpression, TypeNameExpression, UnaryOperation,
     UncheckedStatement, UserDefinedTypeName, UsingForDeclaration, VariableDeclaration,
     StateVariableDeclarationVariable, VariableDeclarationStatement, WhileStatement,
-    BaseASTNode
+    BaseASTNode, TypeDefinition
 } from "@solidity-parser/parser/dist/src/ast-types";
 
 import { 
@@ -49,7 +49,7 @@ export {
     TextDocument, VSCodePosition, WorkspaceEdit, DocumentHighlight, TextEdit,
 	Range, DocumentHighlightKind, MarkupKind, Definition, Hover, VSCodeLocation,
 	CompletionList, CompletionItem, CompletionItemKind, Diagnostic, DiagnosticSeverity,
-    SignatureHelp, SignatureInformation, ParameterInformation
+    SignatureHelp, SignatureInformation, ParameterInformation, TypeDefinition
 };
 
 export interface Searcher {
@@ -585,6 +585,8 @@ export abstract class FunctionDefinitionNode extends Node {
      */
     abstract astNode: FunctionDefinition;
 
+    isConstructor = false;
+
     /**
      * Visability can be 'default' | 'external' | 'internal' | 'public' | 'private'
      * 
@@ -632,7 +634,7 @@ export abstract class IdentifierNode extends Node {
     }
 }
 
-export const definitionNodeTypes = [ "ContractDefinition", "StructDefinition", "ModifierDefinition", "FunctionDefinition", "EventDefinition", "EnumDefinition", "AssemblyLocalDefinition", "LabelDefinition", "AssemblyFunctionDefinition", "UserDefinedTypeName", "FileLevelConstant" ];
+export const definitionNodeTypes = [ "ContractDefinition", "StructDefinition", "ModifierDefinition", "FunctionDefinition", "EventDefinition", "EnumDefinition", "CustomErrorDefinition", "AssemblyLocalDefinition", "LabelDefinition", "AssemblyFunctionDefinition", "UserDefinedTypeName", "FileLevelConstant", "TypeDefinition" ];
 export const declarationNodeTypes = [ "StateVariableDeclaration", "UsingForDeclaration", "VariableDeclaration", "VariableDeclarationStatement" ];
 export const expressionNodeTypes = [ "IndexAccess", "IndexRangeAccess", "TupleExpression", "BinaryOperation", "Conditional", "MemberAccess", "FunctionCall", "UnaryOperation", "NewExpression", "NameValueExpression", "BooleanLiteral", "HexLiteral", "StringLiteral", "NumberLiteral", "Identifier", "TupleExpression", "TypeNameExpression" ];
 
