@@ -8,7 +8,7 @@ import {
 export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
     astNode: FunctionDefinition;
 
-    connectionTypeRules: string[] = [ "FunctionCall" ];
+    connectionTypeRules: string[] = [ "FunctionCall", "MemberAccess" ];
 
     constructor (functionDefinition: FunctionDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
         super(functionDefinition, uri, rootPath, documentsAnalyzer, functionDefinition.name || undefined);

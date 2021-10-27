@@ -6,12 +6,14 @@ export class NameValueExpressionNode extends Node {
     constructor (nameValueExpression: NameValueExpression, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
         super(nameValueExpression, uri, rootPath, documentsAnalyzer, undefined);
         this.astNode = nameValueExpression;
-        // TO-DO: Implement name location for rename
     }
 
     accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
         this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
+        
+        find(this.astNode.expression, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
+        find(this.astNode.arguments, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, parent);
+
         return this;
     }
 }
