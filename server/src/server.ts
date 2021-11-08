@@ -1,11 +1,11 @@
 import "module-alias/register";
 
+import * as Sentry from '@sentry/node';
 import {
 	createConnection, TextDocuments, ProposedFeatures, InitializeParams,
 	CompletionList, CompletionParams, TextDocumentSyncKind, InitializeResult,
 	SignatureHelpParams, SignatureHelp
 } from 'vscode-languageserver/node';
-
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
 import { IndexFileData, eventEmitter as em } from '@common/event';
@@ -13,6 +13,15 @@ import { ValidationJob } from "@services/validation/SolidityValidation";
 import { getUriFromDocument, decodeUriAndRemoveFilePrefix } from './utils';
 import { debounce } from './utils/debaunce';
 import { LanguageService } from './parser';
+
+Sentry.init({
+	dsn: "",
+
+	// Set tracesSampleRate to 1.0 to capture 100%
+	// of transactions for performance monitoring.
+	// We recommend adjusting this value in production
+	tracesSampleRate: 0.1,
+});
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -104,6 +113,7 @@ function analyzeFunc(uri: string): void {
 			languageServer.analyzer.analyzeDocument(document.getText(), documentURI);
 		}
 	} catch (err) {
+		Sentry.captureException(err);
 		console.error(err);
 	}
 }
@@ -198,6 +208,7 @@ connection.onSignatureHelp((params: SignatureHelpParams): SignatureHelp | undefi
 			}
 		}
 	} catch (err) {
+		Sentry.captureException(err);
 		console.error(err);
 	}
 });
@@ -231,6 +242,7 @@ connection.onCompletion(
 				}
 			}
 		} catch (err) {
+			Sentry.captureException(err);
 			console.error(err);
 		}
 	}
@@ -251,6 +263,7 @@ connection.onDefinition(params => {
 			}
 		}
 	} catch (err) {
+		Sentry.captureException(err);
 		console.error(err);
 	}
 });
@@ -270,6 +283,7 @@ connection.onTypeDefinition(params => {
 			}
 		}
 	} catch (err) {
+		Sentry.captureException(err);
 		console.error(err);
 	}
 });
@@ -289,6 +303,7 @@ connection.onReferences(params => {
 			}
 		}
 	} catch (err) {
+		Sentry.captureException(err);
 		console.error(err);
 	}
 });
@@ -308,6 +323,7 @@ connection.onImplementation(params => {
 			}
 		}
 	} catch (err) {
+		Sentry.captureException(err);
 		console.error(err);
 	}
 });
@@ -327,6 +343,7 @@ connection.onRenameRequest(params => {
 			}
 		}
 	} catch (err) {
+		Sentry.captureException(err);
 		console.error(err);
 	}
 });
