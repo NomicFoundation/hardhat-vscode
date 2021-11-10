@@ -588,9 +588,9 @@ export abstract class FunctionDefinitionNode extends Node {
     isConstructor = false;
 
     /**
-     * Visability can be 'default' | 'external' | 'internal' | 'public' | 'private'
+     * Visibility can be 'default' | 'external' | 'internal' | 'public' | 'private'
      * 
-     * @returns function visability.
+     * @returns function visibility.
      */
     getVisibility(): string {
         return this.astNode.visibility;
@@ -604,9 +604,9 @@ export abstract class VariableDeclarationNode extends Node {
    abstract astNode: VariableDeclaration;
 
    /**
-    * Visability can be 'public' | 'private' | 'internal' | 'default'
+    * Visibility can be 'public' | 'private' | 'internal' | 'default'
     * 
-    * @returns function visability.
+    * @returns function visibility.
     */
    getVisibility(): string | undefined {
        return this.astNode.visibility;
