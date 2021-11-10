@@ -58,7 +58,7 @@ class GoogleAnalytics implements Analytics {
 	private readonly _version: string;
 
 	// Tracking ID. I guess there's no other choice than keeping it here.
-	private readonly _trackingId: string = 'UA-212253355-1';
+	private readonly _trackingId: string = 'UA-117668706-4';
 
 	constructor(clientId: string, version?: string) {
 		this._clientId = clientId;
