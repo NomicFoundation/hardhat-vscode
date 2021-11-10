@@ -16,7 +16,8 @@ import { debounce } from './utils/debaunce';
 import { LanguageService } from './parser';
 
 Sentry.init({
-	dsn: "",
+	// Sentry DSN. I guess there's no other choice than keeping it here.
+	dsn: "https://9d1e887190db400791c77d9bb5a154fd@o385026.ingest.sentry.io/5469451",
 
 	// Set tracesSampleRate to 1.0 to capture 100%
 	// of transactions for performance monitoring.
@@ -130,7 +131,7 @@ connection.onInitialized(async () => {
 	languageServer = new LanguageService(rootUri);
 
 	analytics.sendTaskHit('indexing', {
-		cd2: Date.now() - startTime,
+		plt: Date.now() - startTime,
 	});
 
 	if (hasWorkspaceFolderCapability) {
@@ -308,7 +309,7 @@ connection.onDefinition(params => {
 				const result = languageServer.solidityNavigation.findDefinition(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
 
 				analytics.sendTaskHit('onDefinition', {
-					cd2: Date.now() - startTime,
+					plt: Date.now() - startTime,
 				});
 
 				return result;
@@ -335,7 +336,7 @@ connection.onTypeDefinition(params => {
 				const result = languageServer.solidityNavigation.findTypeDefinition(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
 
 				analytics.sendTaskHit('onTypeDefinition', {
-					cd2: Date.now() - startTime,
+					plt: Date.now() - startTime,
 				});
 
 				return result;
@@ -362,7 +363,7 @@ connection.onReferences(params => {
 				const result = languageServer.solidityNavigation.findReferences(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
 
 				analytics.sendTaskHit('onReferences', {
-					cd2: Date.now() - startTime,
+					plt: Date.now() - startTime,
 				});
 				
 				return result;
@@ -389,7 +390,7 @@ connection.onImplementation(params => {
 				const result = languageServer.solidityNavigation.findImplementation(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
 
 				analytics.sendTaskHit('onImplementation', {
-					cd2: Date.now() - startTime,
+					plt: Date.now() - startTime,
 				});
 
 				return result;
@@ -416,7 +417,7 @@ connection.onRenameRequest(params => {
 				const result = languageServer.solidityNavigation.doRename(documentURI, document, params.position, params.newName, documentAnalyzer.analyzerTree.tree);
 
 				analytics.sendTaskHit('onRenameRequest', {
-					cd2: Date.now() - startTime,
+					plt: Date.now() - startTime,
 				});
 
 				return result;

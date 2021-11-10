@@ -21,9 +21,8 @@ interface DefaultRawAnalyticsPayload {
 }
 
 interface RawAnalyticsPayload {
-	// Custom dimension 2: task delta time in ms
-	//	 Example: 123.
-	cd2?: number;
+	// Specifies the time it took for a page to load. The value is in milliseconds.
+	plt?: number;
 }
 
 type AnalyticsData = {
