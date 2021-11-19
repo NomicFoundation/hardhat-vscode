@@ -22,15 +22,17 @@ interface DefaultRawAnalyticsPayload {
 
 interface RawAnalyticsPayload {
 	// Specifies the time it took for a page to load. The value is in milliseconds.
-	plt?: number;
+	plt?: number
 }
+
+interface AnalyticsPayload extends DefaultRawAnalyticsPayload, RawAnalyticsPayload {}
 
 type AnalyticsData = {
 	clientId: string;
 	isAllowed?: boolean;
 }
 
-const googleAnalyticsUrl = 'https://www.google-analytics.com/collect';
+const GOOGLE_ANALYTICS_URL = 'https://www.google-analytics.com/collect';
 
 export interface Analytics {
 	sendTaskHit(taskName: string, more?: RawAnalyticsPayload): Promise<void>;
@@ -70,7 +72,7 @@ class GoogleAnalytics implements Analytics {
 		return this._sendHit(task);
 	}
 
-	private _taskHit(taskName: string, more?: RawAnalyticsPayload): RawAnalyticsPayload {
+	private _taskHit(taskName: string, more?: RawAnalyticsPayload): AnalyticsPayload {
 		const defaultAnalytics: DefaultRawAnalyticsPayload = {
 			// Measurement protocol version.
 			v: '1',
@@ -87,13 +89,13 @@ class GoogleAnalytics implements Analytics {
 			// Client Id.
 			cid: this._clientId,
 
-			// Hit type, we're only using pageviews for now.
-			t: 'pageview',
+			// Hit type, we're only using timing for now.
+			t: 'timing',
 
 			// Document page
 			dp: `/${taskName}`,
 
-			// Custom dimension 2: solidity-extension version
+			// Custom dimension 1: solidity-extension version
 			//	 Example: 'v1.0.0'.
 			cd1: `v${this._version}`,
 		};
@@ -101,13 +103,16 @@ class GoogleAnalytics implements Analytics {
 		return {...defaultAnalytics, ...(more || {})};
 	}
 
-	private _sendHit(hit: RawAnalyticsPayload): Promise<void> {
+	private async _sendHit(hit: AnalyticsPayload): Promise<void> {
 		const hitPayload = qs.stringify(hit);
-		const hitPromise = got.post(googleAnalyticsUrl, {
-			body: hitPayload,
-		}).then(() => {/** */});
-
-		return hitPromise;
+		await got.post(GOOGLE_ANALYTICS_URL, {
+            headers: {
+                'Accept': '*/*',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Content-Type': 'text/plain;charset=UTF-8'
+            },
+            body: hitPayload
+        }).then(data => console.log(data));
 	}
 }
 
