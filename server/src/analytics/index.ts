@@ -38,11 +38,11 @@ export interface Analytics {
 	sendTaskHit(taskName: string, more?: RawAnalyticsPayload): Promise<void>;
 }
 
-export async function getAnalytics(version?: string): Promise<Analytics> {
+export async function getAnalytics(): Promise<Analytics> {
 	const analyticsData = await getAnalyticsData();
 
 	if (analyticsData.isAllowed) {
-		return new GoogleAnalytics(analyticsData.clientId, version);
+		return new GoogleAnalytics(analyticsData.clientId);
 	}
 
 	return new EmptyAnalytics();
@@ -62,9 +62,9 @@ class GoogleAnalytics implements Analytics {
 	// Tracking ID. I guess there's no other choice than keeping it here.
 	private readonly _trackingId: string = 'UA-117668706-4';
 
-	constructor(clientId: string, version?: string) {
+	constructor(clientId: string) {
 		this._clientId = clientId;
-		this._version = version ? version : '0.0.0';
+		this._version = '0.0.1';
 	}
 
 	public async sendTaskHit(taskName: string, more?: RawAnalyticsPayload): Promise<void> {

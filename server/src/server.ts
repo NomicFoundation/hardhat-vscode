@@ -33,7 +33,6 @@ const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
 let rootUri: string;
-let clientVersion: string | undefined;
 let hasWorkspaceFolderCapability = false;
 
 let languageServer: LanguageService;
@@ -44,8 +43,6 @@ const debounceValidateDocument: { [uri: string]: (validationJob: ValidationJob, 
 
 connection.onInitialize((params: InitializeParams) => {
 	console.log('server onInitialize');
-
-	clientVersion = params.clientInfo?.version;
 
 	/**
 	 * We know that rootUri is deprecated but we need it.
@@ -125,7 +122,7 @@ connection.onInitialized(async () => {
 		await writeAnalytics(analyticsData);
 	}
 
-	analytics = await getAnalytics(clientVersion);
+	analytics = await getAnalytics();
 	const startTime = Date.now();
 
 	languageServer = new LanguageService(rootUri);
