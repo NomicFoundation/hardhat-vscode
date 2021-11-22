@@ -5,6 +5,8 @@ import * as fs from 'fs-extra';
 import got from 'got';
 import { v4 as uuid } from 'uuid';
 
+const pjson = require('../../../package.json');
+
 // VERY IMPORTANT:
 // The documentation doesn't say so, but the user-agent parameter is required (ua).
 // If you don't send it, you won't get an error or anything, Google will *silently* drop your hit.
@@ -64,7 +66,7 @@ class GoogleAnalytics implements Analytics {
 
 	constructor(clientId: string) {
 		this._clientId = clientId;
-		this._version = '0.0.1';
+		this._version = pjson.version;
 	}
 
 	public async sendTaskHit(taskName: string, more?: RawAnalyticsPayload): Promise<void> {
