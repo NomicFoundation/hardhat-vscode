@@ -1,18 +1,29 @@
 import "module-alias/register";
 
+import * as Sentry from '@sentry/node';
 import {
 	createConnection, TextDocuments, ProposedFeatures, InitializeParams,
 	CompletionList, CompletionParams, TextDocumentSyncKind, InitializeResult,
-	SignatureHelpParams, SignatureHelp
+	SignatureHelpParams, SignatureHelp,
 } from 'vscode-languageserver/node';
-
 import { TextDocument } from 'vscode-languageserver-textdocument';
 
+import { writeAnalytics, getAnalyticsData, getAnalytics, Analytics } from "./analytics";
 import { IndexFileData, eventEmitter as em } from '@common/event';
 import { ValidationJob } from "@services/validation/SolidityValidation";
 import { getUriFromDocument, decodeUriAndRemoveFilePrefix } from './utils';
 import { debounce } from './utils/debaunce';
 import { LanguageService } from './parser';
+
+Sentry.init({
+	// Sentry DSN. I guess there's no other choice than keeping it here.
+	dsn: "https://9d1e887190db400791c77d9bb5a154fd@o385026.ingest.sentry.io/5469451",
+
+	// Set tracesSampleRate to 1.0 to capture 100%
+	// of transactions for performance monitoring.
+	// We recommend adjusting this value in production
+	tracesSampleRate: 0.1,
+});
 
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
@@ -23,7 +34,9 @@ const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
 let rootUri: string;
 let hasWorkspaceFolderCapability = false;
+
 let languageServer: LanguageService;
+let analytics: Analytics;
 
 const debounceAnalyzeDocument: { [uri: string]: (uri: string) => void } = {};
 const debounceValidateDocument: { [uri: string]: (validationJob: ValidationJob, uri: string, document: TextDocument) => void } = {};
@@ -55,8 +68,8 @@ connection.onInitialize((params: InitializeParams) => {
 					'.', '/'
 				]
 			},
-			signatureHelpProvider : {
-				triggerCharacters: [ '(', ',' ]
+			signatureHelpProvider: {
+				triggerCharacters: ['(', ',']
 			},
 			definitionProvider: true,
 			typeDefinitionProvider: true,
@@ -77,10 +90,46 @@ connection.onInitialize((params: InitializeParams) => {
 	return result;
 });
 
-connection.onInitialized(() => {
+async function isAnalyticsAllowed(): Promise<boolean> {
+	connection.sendNotification("custom/analytics-allowed");
+
+	try {
+		const isAllowed: boolean = await new Promise((resolve, reject) => {
+			// Set up the timeout
+			const timeout = setTimeout(() => {
+				reject("Timeout on wait for analytics allowed event");
+			}, 30000);
+	
+			connection.onNotification("custom/analytics-allowed", (allowed: boolean) => {
+				clearTimeout(timeout);
+				resolve(allowed);
+			});
+		});
+
+		return isAllowed;
+	} catch (err) {
+		return false;
+	}
+}
+
+connection.onInitialized(async () => {
 	console.log('server onInitialized');
 
+	const analyticsData = await getAnalyticsData();
+	if (analyticsData.isAllowed === undefined) {
+		const isAllowed = await isAnalyticsAllowed();
+		analyticsData.isAllowed = isAllowed;		
+		await writeAnalytics(analyticsData);
+	}
+
+	analytics = await getAnalytics();
+	const startTime = Date.now();
+
 	languageServer = new LanguageService(rootUri);
+
+	analytics.sendTaskHit('indexing', {
+		plt: Date.now() - startTime,
+	});
 
 	if (hasWorkspaceFolderCapability) {
 		connection.workspace.onDidChangeWorkspaceFolders(_event => {
@@ -104,6 +153,7 @@ function analyzeFunc(uri: string): void {
 			languageServer.analyzer.analyzeDocument(document.getText(), documentURI);
 		}
 	} catch (err) {
+		Sentry.captureException(err);
 		console.error(err);
 	}
 }
@@ -161,6 +211,9 @@ async function validateTextDocument(validationJob: ValidationJob, uri: string, d
 // when the text document first opened or when its content has changed.
 documents.onDidChangeContent(change => {
 	console.log('server onDidChangeContent');
+	if (!languageServer || !languageServer.solidityValidation) {
+		return;
+	}
 
 	if (!debounceAnalyzeDocument[change.document.uri]) {
 		debounceAnalyzeDocument[change.document.uri] = debounce(analyzeFunc, 500);
@@ -198,6 +251,7 @@ connection.onSignatureHelp((params: SignatureHelpParams): SignatureHelp | undefi
 			}
 		}
 	} catch (err) {
+		Sentry.captureException(err);
 		console.error(err);
 	}
 });
@@ -231,6 +285,7 @@ connection.onCompletion(
 				}
 			}
 		} catch (err) {
+			Sentry.captureException(err);
 			console.error(err);
 		}
 	}
@@ -247,10 +302,18 @@ connection.onDefinition(params => {
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
 			if (documentAnalyzer.isAnalyzed) {
-				return languageServer.solidityNavigation.findDefinition(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
+				const startTime = Date.now();
+				const result = languageServer.solidityNavigation.findDefinition(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
+
+				analytics.sendTaskHit('onDefinition', {
+					plt: Date.now() - startTime,
+				});
+
+				return result;
 			}
 		}
 	} catch (err) {
+		Sentry.captureException(err);
 		console.error(err);
 	}
 });
@@ -266,10 +329,18 @@ connection.onTypeDefinition(params => {
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
 			if (documentAnalyzer.isAnalyzed) {
-				return languageServer.solidityNavigation.findTypeDefinition(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
+				const startTime = Date.now();
+				const result = languageServer.solidityNavigation.findTypeDefinition(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
+
+				analytics.sendTaskHit('onTypeDefinition', {
+					plt: Date.now() - startTime,
+				});
+
+				return result;
 			}
 		}
 	} catch (err) {
+		Sentry.captureException(err);
 		console.error(err);
 	}
 });
@@ -285,10 +356,18 @@ connection.onReferences(params => {
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
 			if (documentAnalyzer.isAnalyzed) {
-				return languageServer.solidityNavigation.findReferences(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
+				const startTime = Date.now();
+				const result = languageServer.solidityNavigation.findReferences(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
+
+				analytics.sendTaskHit('onReferences', {
+					plt: Date.now() - startTime,
+				});
+				
+				return result;
 			}
 		}
 	} catch (err) {
+		Sentry.captureException(err);
 		console.error(err);
 	}
 });
@@ -304,10 +383,18 @@ connection.onImplementation(params => {
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
 			if (documentAnalyzer.isAnalyzed) {
-				return languageServer.solidityNavigation.findImplementation(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
+				const startTime = Date.now();
+				const result = languageServer.solidityNavigation.findImplementation(documentURI, params.position, documentAnalyzer.analyzerTree.tree);
+
+				analytics.sendTaskHit('onImplementation', {
+					plt: Date.now() - startTime,
+				});
+
+				return result;
 			}
 		}
 	} catch (err) {
+		Sentry.captureException(err);
 		console.error(err);
 	}
 });
@@ -323,10 +410,18 @@ connection.onRenameRequest(params => {
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
 			if (documentAnalyzer.isAnalyzed) {
-				return languageServer.solidityNavigation.doRename(documentURI, document, params.position, params.newName, documentAnalyzer.analyzerTree.tree);
+				const startTime = Date.now();
+				const result = languageServer.solidityNavigation.doRename(documentURI, document, params.position, params.newName, documentAnalyzer.analyzerTree.tree);
+
+				analytics.sendTaskHit('onRenameRequest', {
+					plt: Date.now() - startTime,
+				});
+
+				return result;
 			}
 		}
 	} catch (err) {
+		Sentry.captureException(err);
 		console.error(err);
 	}
 });

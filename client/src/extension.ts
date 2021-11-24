@@ -107,6 +107,22 @@ function showFileIndexingProggress(client: LanguageClient): void {
 	});
 }
 
+function showAnalyticsAllowPopup(client: LanguageClient): void {
+	client.onReady().then(() => {
+		client.onNotification("custom/analytics-allowed", async () => {
+			const item = await window.showInformationMessage(
+				"Do you want to share analytics information with solidity-extension?",
+				{ modal: true },
+				"Accept",
+				"Decline"
+			);
+
+			const isAccepted = item === "Accept" ? true : false;
+			client.sendNotification("custom/analytics-allowed", isAccepted);
+		});
+	});
+}
+
 export function activate(context: ExtensionContext) {
 	console.log('client started');
 
@@ -155,6 +171,8 @@ export function activate(context: ExtensionContext) {
 			// Create the language client and start the client.
 			// Start the client. This will also launch the server
 			const client = new LanguageClient('solidity-language-server', 'Solidity Language Server', serverOptions, clientOptions);
+
+			showAnalyticsAllowPopup(client);
 
 			client.onReady().then(() => {
 				client.onNotification("custom/get-unsaved-documents", () => {

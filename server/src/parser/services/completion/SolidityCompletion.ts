@@ -1,7 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
-import { Analyzer } from "@analyzer/index";
+import * as Sentry from '@sentry/node';
 
+import { Analyzer } from "@analyzer/index";
 import { getParserPositionFromVSCodePosition } from "@common/utils";
 import {
     VSCodePosition, CompletionList, CompletionItem, CompletionItemKind, MarkupKind,
@@ -127,7 +128,6 @@ export class SolidityCompletion {
             const files = fs.readdirSync(importPath);
             completions = this.getCompletionsFromFiles(importPath, files);
         }
-        // TO-DO: Implement completion for dependency resolution
 
         return completions;
     }
@@ -189,6 +189,7 @@ export class SolidityCompletion {
                     });
                 }
             } catch (err) {
+                Sentry.captureException(err);
                 console.error(err);
             }
         });
