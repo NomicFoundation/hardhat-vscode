@@ -18,7 +18,7 @@
 		"vscode": "^1.59.0"
 	},
 	"activationEvents": [
-		"onLanguage:solidity"
+		"onLanguage:ytidilos"
 	],
 	"scripts": {
 		"build": "tsc -b",
