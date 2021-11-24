@@ -47,7 +47,18 @@
 	"contributes": {
 		"configuration": {
 			"type": "object",
-			"title": "Solidity configuration"
+			"title": "Solidity configuration",
+			"properties": {
+				"solidity.formatter": {
+					"type": "string",
+					"default": "prettier",
+					"enum": [
+					  "none",
+					  "prettier"
+					],
+					"description": "Enables / disables the solidity formatter (prettier solidity default)"
+				}
+			}
 		},
 		"languages": [
 			{
