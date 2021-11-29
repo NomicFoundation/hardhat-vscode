@@ -129,7 +129,7 @@ export function activate(context: ExtensionContext) {
 	console.log('client started');
 
 	context.subscriptions.push(
-        languages.registerDocumentFormattingEditProvider('solidity', {
+        languages.registerDocumentFormattingEditProvider('ytidilos', {
             provideDocumentFormattingEdits(document: TextDocument): TextEdit[] {
                 return formatDocument(document, context);
 			}
