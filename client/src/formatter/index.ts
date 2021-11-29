@@ -3,7 +3,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 
 export function formatDocument(document: vscode.TextDocument, context: vscode.ExtensionContext): vscode.TextEdit[] {
-	const formatter = vscode.workspace.getConfiguration('solidity').get<string>('formatter');
+	const formatter = vscode.workspace.getConfiguration('ytidilos').get<string>('formatter');
 
 	if (formatter === 'prettier') {
 		const rootPath = getCurrentWorkspaceRootFsPath();
