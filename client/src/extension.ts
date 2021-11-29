@@ -1,12 +1,14 @@
 import * as path from 'path';
 import * as events from 'events';
 import {
-	workspace, window, ExtensionContext, TextDocument,
-	OutputChannel, WorkspaceFolder, Uri, ProgressLocation,
+	workspace, window, languages, ExtensionContext, TextDocument,
+	OutputChannel, WorkspaceFolder, Uri, ProgressLocation, TextEdit,
 } from 'vscode';
 import {
 	LanguageClient, LanguageClientOptions, TransportKind
 } from 'vscode-languageclient/node';
+
+import { formatDocument } from './formatter';
 
 type IndexFileData = {
 	path: string,
@@ -125,6 +127,14 @@ function showAnalyticsAllowPopup(client: LanguageClient): void {
 
 export function activate(context: ExtensionContext) {
 	console.log('client started');
+
+	context.subscriptions.push(
+        languages.registerDocumentFormattingEditProvider('solidity', {
+            provideDocumentFormattingEdits(document: TextDocument): TextEdit[] {
+                return formatDocument(document, context);
+			}
+		})
+	);
 
 	const module = context.asAbsolutePath(path.join('server', 'out', 'server.js'));
 	const outputChannel: OutputChannel = window.createOutputChannel('solidity-language-server');
