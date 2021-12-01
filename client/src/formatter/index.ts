@@ -15,6 +15,7 @@ export function formatDocument(document: vscode.TextDocument, context: vscode.Ex
 
 			const pluginPath = path.join(context.extensionPath, 'client', 'node_modules', 'prettier-plugin-solidity');
 			const options = {
+				'useCache': false,
 				'parser': 'solidity-parse',
 				'pluginSearchDirs': [context.extensionPath],
 				'plugins': [pluginPath],
