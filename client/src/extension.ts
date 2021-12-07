@@ -113,7 +113,7 @@ function showAnalyticsAllowPopup(client: LanguageClient): void {
 	client.onReady().then(() => {
 		client.onNotification("custom/analytics-allowed", async () => {
 			const item = await window.showInformationMessage(
-				"Help us improve Hardhat with anonymous crash reports & basic usage data?",
+				"Help us improve Hardhat solidity extension with anonymous crash reports & basic usage data?",
 				{ modal: true },
 				"Accept",
 				"Decline"
