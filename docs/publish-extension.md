@@ -7,7 +7,7 @@ To publish `ytidilos` you need to do next steps:
 Due to the fast releases that `vsce` makes, it is recommended to update the package before running the `4.`\
 `npm install -g vsce`
 5.  We can test `.vsix` file by installing it manually in VSCode.\
-![image](https://github.com/Tenderly/vscode-solidity/blob/main/docs/images/publish_extension_step_1.png?raw=true)
+![image](images/publish_extension_step_1.png)
 6.  Go to https://marketplace.visualstudio.com/manage/publishers/ylrednet and click on 3 dots.\
-![image](https://github.com/Tenderly/vscode-solidity/blob/main/docs/images/publish_extension_step_2.png?raw=true)
+![image](images/publish_extension_step_2.png)
 7.  Click on `Update` and find `.vsix` you want to release and click on `Upload`, and that's it, the new version was published. 🎉🎉🎉
