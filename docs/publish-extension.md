@@ -1,6 +1,6 @@
 # Instruction how to publish extension
 To publish `ytidilos` you need to do next steps:
-1.  Run checkout to ytidilos [`git checkout ytidilos`]
+1.  Checkout to `ytidilos` [`git checkout ytidilos`]
 2.  Merge `main` to `ytidilos` [`git merge main`]
 3.  Increase version in `package.json` and push it.
 4.  Run `vsce package --yarn` that will generate you `.vsix` file in root of project.\
