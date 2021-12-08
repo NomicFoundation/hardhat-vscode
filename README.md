@@ -31,7 +31,7 @@ The _vscode-solidity_ extension contains the language smarts behind the solidity
 ### Run
 
 To run the extension with your patch, open the Run view (`Ctrl+Shift+D`), select `Launch Client`, and click the Play button (`F5`). \
-![image](https://github.com/Tenderly/vscode-solidity/blob/main/docs/images/run_launch_client.png?raw=true)
+![image](docs/images/run_launch_client.png?raw=true)
 
 This will open a new VS Code window with the title `[Extension Development Host]`. You can then open a folder that contains Solidity code and try out your changes.
 
@@ -47,7 +47,7 @@ Since the server is started by the `LanguageClient` running in the extension (cl
 
 To do this, you need:
 1. Go to the Run view and choose the `Attach to Server` configuration. \
-![image](https://github.com/Tenderly/vscode-solidity/blob/main/docs/images/run_attach_to_server.png?raw=true)
+![image](docs/images/run_attach_to_server.png?raw=true)
 2. Add breakpoints as needed.
 3. Before starting the `Attach to Server` configuration make sure that `Launch Client` is already started.
 4. Start debugging (`F5`) or play button.
@@ -62,6 +62,6 @@ Tests in [testdata](./test/testdata/) directory are End-to-End tests. The benefi
 You can run End-to-End tests in two way:
 
 1. Open the Run view (`Ctrl+Shift+D`), select `Language Server E2E Test`, and click the Play button (`F5`). \
-![image](https://github.com/Tenderly/vscode-solidity/blob/main/docs/images/run_e2e_test.png?raw=true)
+![image](docs/images/run_e2e_test.png?raw=true)
 
 2. Or run `yarn run test` in command-line.
