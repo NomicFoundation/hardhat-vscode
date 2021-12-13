@@ -1,5 +1,6 @@
 import * as path from "path";
 
+import { resolveDependency } from "@analyzer/resolver";
 import {
     ImportDirective, FinderType, DocumentsAnalyzerMap, Node,
     SourceUnitNode, ImportDirectiveNode as AbstractImportDirectiveNode
@@ -16,7 +17,7 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
         this.realUri = uri;
         
         try {
-            this.uri = require.resolve(importDirective.path, { paths: [ path.join(this.realUri, "..") ] });
+            this.uri = resolveDependency(path.resolve(this.realUri, ".."), this.rootPath, importDirective);
         } catch (err) {
             this.uri = '';
         }
