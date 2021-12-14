@@ -8,7 +8,7 @@ import * as matcher from "@analyzer/matcher";
 import { Searcher } from "@analyzer/searcher";
 import { IndexFileData, eventEmitter as em } from '@common/event';
 import {
-    Node, SourceUnitNode, DocumentsAnalyzerMap, 
+    Node, SourceUnitNode, DocumentsAnalyzerMap,
     DocumentAnalyzer as IDocumentAnalyzer, ASTNode,
     EmptyNode, Searcher as ISearcher
 } from "@common/types";
@@ -18,7 +18,7 @@ export class Analyzer {
 
     documentsAnalyzer: DocumentsAnalyzerMap = {};
 
-    constructor (rootPath: string) {
+    constructor(rootPath: string) {
         this.rootPath = rootPath;
 
         const documentsUri: string[] = [];
@@ -34,6 +34,10 @@ export class Analyzer {
         // therefore we initiate everything first. The isAnalyzed serves to check if the document was analyzed so we don't analyze the document twice.
         for (let i = 0; i < documentsUri.length; i++) {
             const documentUri = documentsUri[i];
+            const documentAnalyzer = this.getDocumentAnalyzer(documentUri);
+            // if (documentAnalyzer.uri.includes("node_modules")) {
+            //     continue;
+            // }
 
             const data: IndexFileData = {
                 path: documentUri,
@@ -41,8 +45,6 @@ export class Analyzer {
                 total: documentsUri.length
             };
             em.emit('indexing-file', data);
-
-            const documentAnalyzer = this.getDocumentAnalyzer(documentUri);
 
             if (!documentAnalyzer.isAnalyzed) {
                 documentAnalyzer.analyze(this.documentsAnalyzer);
@@ -84,15 +86,15 @@ export class Analyzer {
             const files = fs.readdirSync(base);
 
             files.forEach(file => {
-                // if (file === "node_modules") {
-                //     return;
-                // }
-
                 const newBase = path.join(base || "", file);
 
                 if (fs.statSync(newBase).isDirectory()) {
                     this.findSolFiles(newBase, documentsUri);
-                } else if (newBase.slice(-4) === ".sol" && newBase.split("node_modules").length < 3) {
+                } else if (
+                    newBase.slice(-4) === ".sol" &&
+                    newBase.split("node_modules").length < 3 &&
+                    !documentsUri.includes(newBase)
+                ) {
                     documentsUri.push(newBase);
                 }
             });
@@ -118,7 +120,7 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
 
     orphanNodes: Node[] = [];
 
-    constructor (rootPath: string, uri: string) {
+    constructor(rootPath: string, uri: string) {
         this.rootPath = rootPath;
         this.uri = uri;
 

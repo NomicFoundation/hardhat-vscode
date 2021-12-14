@@ -12,9 +12,12 @@ export function findUpSync(fileName: string, options?: FindUpOptions): string | 
     if (!options) {
         options = {};
     }
-
     options.cwd = options.cwd ? path.resolve(options.cwd) : process.cwd();
     options.stopAt = options.stopAt ? path.resolve(options.stopAt) : path.parse(process.cwd()).root;
+
+    if (!options.cwd.includes(options.stopAt)) {
+        return undefined;
+    }
 
     let directory = options.cwd;
     while (!fs.existsSync(path.resolve(directory, fileName))) {

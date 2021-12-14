@@ -12,10 +12,10 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
     uri: string;
     astNode: ImportDirective;
 
-    constructor (importDirective: ImportDirective, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
+    constructor(importDirective: ImportDirective, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
         super(importDirective, uri, rootPath, documentsAnalyzer, importDirective.path);
         this.realUri = uri;
-        
+
         try {
             this.uri = resolveDependency(path.resolve(this.realUri, ".."), this.rootPath, importDirective);
         } catch (err) {
