@@ -6,6 +6,7 @@ import * as parser from "@solidity-parser/parser";
 
 import * as matcher from "@analyzer/matcher";
 import { Searcher } from "@analyzer/searcher";
+import { BROWNIE_PACKAGE_PATH } from "@analyzer/resolver";
 import { IndexFileData, eventEmitter as em } from '@common/event';
 import {
     Node, SourceUnitNode, DocumentsAnalyzerMap,
@@ -23,6 +24,7 @@ export class Analyzer {
 
         const documentsUri: string[] = [];
         this.findSolFiles(this.rootPath, documentsUri);
+        this.findSolFiles(BROWNIE_PACKAGE_PATH, documentsUri);
 
         // Init all documentAnalyzers
         for (const documentUri of documentsUri) {

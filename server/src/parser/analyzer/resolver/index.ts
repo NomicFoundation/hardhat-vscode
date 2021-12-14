@@ -10,7 +10,7 @@ import { ImportDirective } from "@common/types";
 const DAPP_FILENAME = ".dapprc";
 const BROWNIE_FILENAME = "brownie-config";
 
-const BROWNIE_PACKAGE_PATH = path.resolve(os.homedir(), ".brownie", "packages");
+export const BROWNIE_PACKAGE_PATH = path.resolve(os.homedir(), ".brownie", "packages");
 
 const dappRemappingCache: { [path: string]: { [alias: string]: string } } = {};
 const brownieRemappingCache: { [path: string]: { [alias: string]: string } } = {};
