@@ -31,6 +31,9 @@ If you want to share it with someone, let us know about it in [this issue](https
 
 ## Changelog
 
-### v0.0.17
+### v0.0.18
+- Implemented external dependency resolution for Daptools
+- Implemented external dependency resolution for Brownie
 
+### v0.0.17
 - Added this welcome message
