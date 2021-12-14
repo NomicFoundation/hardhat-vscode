@@ -299,6 +299,7 @@ connection.onDefinition(params => {
 
 		if (document) {
 			const documentURI = getUriFromDocument(document);
+			console.log(documentURI);
 			const documentAnalyzer = languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
 			if (documentAnalyzer.isAnalyzed) {

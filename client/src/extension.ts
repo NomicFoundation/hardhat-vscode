@@ -172,7 +172,7 @@ export function activate(context: ExtensionContext) {
 			// Options to control the language client.
 			const clientOptions: LanguageClientOptions = {
 				// Register the server for solidity text documents.
-				documentSelector: [{ scheme: 'file', language: 'ytidilos', pattern: `${folder.uri.fsPath}/**/*.sol` }],
+				documentSelector: [{ scheme: 'file', language: 'ytidilos', pattern: `**/*.sol` }],
 				diagnosticCollectionName: 'solidity-language-server',
 				workspaceFolder: folder,
 				outputChannel: outputChannel
