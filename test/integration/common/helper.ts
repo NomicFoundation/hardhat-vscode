@@ -4,7 +4,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import * as assert from "assert";
 
-export async function sleep(ms: number) {
+export async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
@@ -58,6 +58,7 @@ export function isDefined<T>(
 
 export function isInstanceOf<T>(
   value: T,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/explicit-module-boundary-types
   clazz: any
 ): asserts value is Exclude<T, undefined | null> {
   assert.ok(value instanceof clazz);
@@ -68,5 +69,5 @@ export function isArray<T>(
   length = 1
 ): asserts value is Array<T> {
   assert.ok(Array.isArray(value), `value must be array`);
-  assert.strictEqual(value!.length, length, "value invalid length");
+  assert.strictEqual(value.length, length, "value invalid length");
 }

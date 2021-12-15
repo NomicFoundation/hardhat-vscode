@@ -45,6 +45,7 @@ export type Action = {
   /**
    * The expected result of the action.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   expected: any[];
 };
 

@@ -30,10 +30,13 @@ jobs:
       - name: Lint
         run: yarn lint
 
-      - name: Run tests
+      - name: Run server tests
+        run: yarn run test:coverage
+
+      - name: Run integration tests
         uses: GabrielBB/xvfb-action@v1.0
         with:
-          run: yarn run test
+          run: yarn run test:integration
         env:
           CODE_VERSION: ${{ matrix.version }}
           VSCODEGO_BEFORE_RELEASE_TESTS: true

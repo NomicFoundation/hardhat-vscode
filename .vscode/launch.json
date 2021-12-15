@@ -33,7 +33,24 @@
 				"${workspaceRoot}/test/integration/tests"
 			],
 			"outFiles": ["${workspaceRoot}/out/test/**/*.js"]
-		}
+		},
+		{
+			"name": "Debug server tests",
+			"internalConsoleOptions": "openOnSessionStart",
+			"program": "${workspaceFolder}/server/node_modules/mocha/bin/_mocha",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"type": "pwa-node",
+			"cwd": "${workspaceFolder}/server",
+			"args": [
+				"--colors",
+				"${workspaceFolder}/server/test/**/*.ts",
+				"-g",
+				"Documentation"
+			],
+		},
 	],
 	"compounds": [
 		{

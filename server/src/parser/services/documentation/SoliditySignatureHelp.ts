@@ -196,7 +196,7 @@ export class SoliditySignatureHelp {
 
     return {
       label: signature,
-      documentation,
+      documentation: documentation?.trim(),
       parameters,
     };
   }
