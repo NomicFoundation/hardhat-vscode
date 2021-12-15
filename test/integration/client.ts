@@ -60,7 +60,7 @@ class Client implements IClient {
       "..",
       "server",
       "out",
-      "server.js"
+      "index.js"
     );
     const serverOptions: lsclient.ServerOptions = {
       run: { module: serverModule, transport: lsclient.TransportKind.ipc },

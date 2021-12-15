@@ -44,3 +44,6 @@ out/**/*
 # vscode test
 .vscode-test
 .user-data-dir-test
+
+# nyc
+.nyc_output/

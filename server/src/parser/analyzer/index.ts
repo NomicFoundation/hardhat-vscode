@@ -1,5 +1,3 @@
-import "module-alias/register";
-
 import * as fs from "fs";
 import * as path from "path";
 import * as parser from "@solidity-parser/parser";
