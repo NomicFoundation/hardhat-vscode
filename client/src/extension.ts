@@ -3,12 +3,16 @@ import * as events from 'events';
 import {
 	workspace, window, languages, ExtensionContext, TextDocument,
 	OutputChannel, WorkspaceFolder, Uri, ProgressLocation, TextEdit,
+	extensions
 } from 'vscode';
 import {
 	LanguageClient, LanguageClientOptions, TransportKind
 } from 'vscode-languageclient/node';
 
 import { formatDocument } from './formatter';
+
+const CONFLICTING_EXTENSION_ID = 'juanblanco.solidity';
+const CONFLICTING_EXTENSION_NAME = 'solidity';
 
 type IndexFileData = {
 	path: string,
@@ -125,8 +129,26 @@ function showAnalyticsAllowPopup(client: LanguageClient): void {
 	});
 }
 
+async function warnOnOtherSolidityExtensions({ extension: { id: extensionId, packageJSON: { name: extensionName } } }: ExtensionContext) {
+	const conflictingExtension = extensions.getExtension(CONFLICTING_EXTENSION_ID);
+
+	if (conflictingExtension === undefined) {
+		return;
+	}
+
+	try {
+		await window.showWarningMessage(
+			`Both the \`${extensionName}\` (${extensionId}) and \`${CONFLICTING_EXTENSION_NAME}\` (${CONFLICTING_EXTENSION_ID}) extensions are enabled. They have conflicting functionality. Disable one of them.`, "Okay"
+		);
+	} catch(error: unknown) {
+		console.error(error);
+	}
+}
+
 export function activate(context: ExtensionContext) {
 	console.log('client started');
+
+	warnOnOtherSolidityExtensions(context);
 
 	context.subscriptions.push(
         languages.registerDocumentFormattingEditProvider('solidity', {
