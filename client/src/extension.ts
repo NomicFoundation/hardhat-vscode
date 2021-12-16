@@ -129,7 +129,7 @@ function showAnalyticsAllowPopup(client: LanguageClient): void {
 	});
 }
 
-async function warnOnOtherSolidityExtensions({ extension: { id: extensionId, packageJSON: { name: extensionName } } }: ExtensionContext) {
+async function warnOnOtherSolidityExtensions() {
 	const conflictingExtension = extensions.getExtension(CONFLICTING_EXTENSION_ID);
 
 	if (conflictingExtension === undefined) {
@@ -138,7 +138,7 @@ async function warnOnOtherSolidityExtensions({ extension: { id: extensionId, pac
 
 	try {
 		await window.showWarningMessage(
-			`Both the \`${extensionName}\` (${extensionId}) and \`${CONFLICTING_EXTENSION_NAME}\` (${CONFLICTING_EXTENSION_ID}) extensions are enabled. They have conflicting functionality. Disable one of them.`, "Okay"
+			`Both this extension and the \`${CONFLICTING_EXTENSION_NAME}\` (${CONFLICTING_EXTENSION_ID}) extension are enabled. They have conflicting functionality. Disable one of them.`, "Okay"
 		);
 	} catch(error: unknown) {
 		console.error(error);
@@ -148,7 +148,7 @@ async function warnOnOtherSolidityExtensions({ extension: { id: extensionId, pac
 export function activate(context: ExtensionContext) {
 	console.log('client started');
 
-	warnOnOtherSolidityExtensions(context);
+	warnOnOtherSolidityExtensions();
 
 	context.subscriptions.push(
         languages.registerDocumentFormattingEditProvider('solidity', {
