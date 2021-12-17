@@ -138,10 +138,11 @@ async function warnOnOtherSolidityExtensions() {
 
 	try {
 		await window.showWarningMessage(
-			`Both this extension and the \`${CONFLICTING_EXTENSION_NAME}\` (${CONFLICTING_EXTENSION_ID}) extension are enabled. They have conflicting functionality. Disable one of them.`, "Okay"
+			`Both this extension and the \`${CONFLICTING_EXTENSION_NAME}\` (${CONFLICTING_EXTENSION_ID}) extension are enabled. They have conflicting functionality. Disable one of them.`,
+			"Okay"
 		);
-	} catch(error: unknown) {
-		console.error(error);
+	} catch (err) {
+		console.error(err);
 	}
 }
 
@@ -151,9 +152,9 @@ export function activate(context: ExtensionContext) {
 	warnOnOtherSolidityExtensions();
 
 	context.subscriptions.push(
-        languages.registerDocumentFormattingEditProvider('solidity', {
-            provideDocumentFormattingEdits(document: TextDocument): TextEdit[] {
-                return formatDocument(document, context);
+		languages.registerDocumentFormattingEditProvider('solidity', {
+			provideDocumentFormattingEdits(document: TextDocument): TextEdit[] {
+				return formatDocument(document, context);
 			}
 		})
 	);
