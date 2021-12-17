@@ -3,12 +3,16 @@ import * as events from 'events';
 import {
 	workspace, window, languages, ExtensionContext, TextDocument,
 	OutputChannel, WorkspaceFolder, Uri, ProgressLocation, TextEdit,
+	extensions
 } from 'vscode';
 import {
 	LanguageClient, LanguageClientOptions, TransportKind
 } from 'vscode-languageclient/node';
 
 import { formatDocument } from './formatter';
+
+const CONFLICTING_EXTENSION_ID = 'juanblanco.solidity';
+const CONFLICTING_EXTENSION_NAME = 'solidity';
 
 type IndexFileData = {
 	path: string,
@@ -125,13 +129,32 @@ function showAnalyticsAllowPopup(client: LanguageClient): void {
 	});
 }
 
+async function warnOnOtherSolidityExtensions() {
+	const conflictingExtension = extensions.getExtension(CONFLICTING_EXTENSION_ID);
+
+	if (conflictingExtension === undefined) {
+		return;
+	}
+
+	try {
+		await window.showWarningMessage(
+			`Both this extension and the \`${CONFLICTING_EXTENSION_NAME}\` (${CONFLICTING_EXTENSION_ID}) extension are enabled. They have conflicting functionality. Disable one of them.`,
+			"Okay"
+		);
+	} catch (err) {
+		console.error(err);
+	}
+}
+
 export function activate(context: ExtensionContext) {
 	console.log('client started');
 
+	warnOnOtherSolidityExtensions();
+
 	context.subscriptions.push(
-        languages.registerDocumentFormattingEditProvider('solidity', {
-            provideDocumentFormattingEdits(document: TextDocument): TextEdit[] {
-                return formatDocument(document, context);
+		languages.registerDocumentFormattingEditProvider('solidity', {
+			provideDocumentFormattingEdits(document: TextDocument): TextEdit[] {
+				return formatDocument(document, context);
 			}
 		})
 	);
