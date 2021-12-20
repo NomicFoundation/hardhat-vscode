@@ -67,7 +67,12 @@ function resolveDappDependency(cwd: string, stopAt: string, importPath: string, 
             }
         }
 
-        const dappDefaultDependencyDirPath = utils.findUpSync(DAPP_DEFAULT_DEPENDENCIES_DIR, { cwd, stopAt, fullPath: true });
+        let dappDefaultDependencyDirPath;
+        try {
+            dappDefaultDependencyDirPath = path.resolve(stopAt, DAPP_DEFAULT_DEPENDENCIES_DIR);
+        } catch (err) {
+            dappDefaultDependencyDirPath = undefined;
+        }
         if (dappDefaultDependencyDirPath) {
             if (!dappRemappingCache[dappDefaultDependencyDirPath]) {
                 const dirs = fs.readdirSync(dappDefaultDependencyDirPath);
