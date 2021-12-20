@@ -6,6 +6,7 @@ import { Position, Location, Node, SourceUnitNode, Range, VSCodePosition } from 
 type FindUpOptions = {
     cwd?: string
     stopAt?: string
+    fullPath?: boolean
 }
 
 export function findUpSync(fileName: string, options?: FindUpOptions): string | undefined {
@@ -26,6 +27,10 @@ export function findUpSync(fileName: string, options?: FindUpOptions): string | 
         }
 
         directory = path.resolve(directory, "..");
+    }
+
+    if (options.fullPath) {
+        return path.join(directory, fileName);
     }
 
     return directory;
