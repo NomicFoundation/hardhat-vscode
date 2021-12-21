@@ -54,7 +54,7 @@ function getOuterMostWorkspaceFolder(folder: WorkspaceFolder): WorkspaceFolder {
 		}
 
 		if (uri.startsWith(element)) {
-			return workspace.getWorkspaceFolder(Uri.parse(element))!;
+			return workspace.getWorkspaceFolder(Uri.parse(element));
 		}
 	}
 

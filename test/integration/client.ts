@@ -49,7 +49,7 @@ class Client implements IClient {
      */
     async activate(): Promise<void> {
         // The extensionId is `publisher.name` from package.json
-        const ext = vscode.extensions.getExtension('tenderly.solidity-extension')!;
+        const ext = vscode.extensions.getExtension('tenderly.solidity-extension');
         await ext.activate();
 
         const serverModule = path.join(__dirname, '..', '..', '..', 'server', 'out', 'server.js');
