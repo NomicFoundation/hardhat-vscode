@@ -8,12 +8,18 @@ import * as utils from "@common/utils";
 import { ImportDirective } from "@common/types";
 
 const DAPP_FILENAME = ".dapprc";
+const DAPP_DEFAULT_DEPENDENCIES_DIR = "lib";
 const BROWNIE_FILENAME = "brownie-config";
 
 export const BROWNIE_PACKAGE_PATH = path.resolve(os.homedir(), ".brownie", "packages");
 
-const dappRemappingCache: { [path: string]: { [alias: string]: string } } = {};
-const brownieRemappingCache: { [path: string]: { [alias: string]: string } } = {};
+let dappRemappingCache: { [path: string]: { [alias: string]: string } } = {};
+let brownieRemappingCache: { [path: string]: { [alias: string]: string } } = {};
+
+setInterval(() => {
+    dappRemappingCache = {};
+    brownieRemappingCache = {};
+}, 5000);
 
 export function resolveDependency(cwd: string, stopAt: string, importDirective: ImportDirective): string {
     const paths = [cwd];
@@ -54,12 +60,36 @@ function resolveDappDependency(cwd: string, stopAt: string, importPath: string, 
             }
 
             for (const alias of Object.keys(dappRemappingCache[dappFilePath])) {
-                if (alias === importPath.slice(0, alias.length)) {
+                if (alias === importPath.slice(0, alias.length) && alias.length >= importPath.split("/")[0].length) {
                     paths.push(dappFileDir);
                     return `./${path.join(dappRemappingCache[dappFilePath][alias], importPath.slice(alias.length))}`;
                 }
             }
         }
+
+        let dappDefaultDependencyDirPath;
+        try {
+            dappDefaultDependencyDirPath = path.resolve(stopAt, DAPP_DEFAULT_DEPENDENCIES_DIR);
+        } catch (err) {
+            dappDefaultDependencyDirPath = undefined;
+        }
+        if (dappDefaultDependencyDirPath) {
+            if (!dappRemappingCache[dappDefaultDependencyDirPath]) {
+                const dirs = fs.readdirSync(dappDefaultDependencyDirPath);
+                dappRemappingCache[dappDefaultDependencyDirPath] = {};
+                for (const dir of dirs) {
+                    dappRemappingCache[dappDefaultDependencyDirPath][dir] = path.join(dir, "src");
+                }
+            }
+
+            for (const alias of Object.keys(dappRemappingCache[dappDefaultDependencyDirPath])) {
+                if (alias === importPath.slice(0, alias.length) && alias.length >= importPath.split("/")[0].length) {
+                    paths.push(dappDefaultDependencyDirPath);
+                    return `./${path.join(dappRemappingCache[dappDefaultDependencyDirPath][alias], importPath.slice(alias.length))}`;
+                }
+            }
+        }
+
         return undefined;
     } catch (err) {
         return undefined;
@@ -95,7 +125,7 @@ function resolveBrownieDependency(cwd: string, stopAt: string, importPath: strin
             }
 
             for (const alias of Object.keys(brownieRemappingCache[brownieFilePath])) {
-                if (alias === importPath.slice(0, alias.length)) {
+                if (alias === importPath.slice(0, alias.length) && alias.length >= importPath.split("/")[0].length) {
                     paths.push(BROWNIE_PACKAGE_PATH);
                     return `./${path.join(brownieRemappingCache[brownieFilePath][alias], importPath.slice(alias.length))}`;
                 }
