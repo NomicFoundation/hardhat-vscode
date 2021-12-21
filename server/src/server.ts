@@ -99,7 +99,7 @@ async function isAnalyticsAllowed(): Promise<boolean> {
 			const timeout = setTimeout(() => {
 				reject("Timeout on wait for analytics allowed event");
 			}, 30000);
-	
+
 			connection.onNotification("custom/analytics-allowed", (allowed: boolean) => {
 				clearTimeout(timeout);
 				resolve(allowed);
@@ -118,7 +118,7 @@ connection.onInitialized(async () => {
 	const analyticsData = await getAnalyticsData();
 	if (analyticsData.isAllowed === undefined) {
 		const isAllowed = await isAnalyticsAllowed();
-		analyticsData.isAllowed = isAllowed;		
+		analyticsData.isAllowed = isAllowed;
 		await writeAnalytics(analyticsData);
 	}
 
@@ -362,7 +362,7 @@ connection.onReferences(params => {
 				analytics.sendTaskHit('onReferences', {
 					plt: Date.now() - startTime,
 				});
-				
+
 				return result;
 			}
 		}
