@@ -31,7 +31,7 @@ If you want to share it with someone, let us know about it in [this issue](https
 
 ## Changelog
 
-### v0.0.19
+### v0.0.19 & v0.0.20
 - Improve external dependency resolution for Daptools
 - Added warning about potential conflicts with other .sol extension
 
