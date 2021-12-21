@@ -15,14 +15,17 @@ jobs:
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
-        
+
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: '14.x'
+          node-version: "14.x"
 
       - name: Install dependencies
         run: yarn install
+
+      - name: Lint
+        run: yarn lint
 
       - name: Run tests
         uses: GabrielBB/xvfb-action@v1.0
