@@ -28,6 +28,8 @@ The _vscode-solidity_ extension contains the language smarts behind the solidity
     code .
     ```
 
+VS Code will suggest some plugins that will help develop against the codebase in compliance with the styling and linting rules.
+
 ### Run
 
 To run the extension with your patch, open the Run view (`Ctrl+Shift+D`), select `Launch Client`, and click the Play button (`F5`). \
@@ -65,3 +67,21 @@ You can run End-to-End tests in two way:
 ![image](docs/images/run_e2e_test.png?raw=true)
 
 2. Or run `yarn run test` in command-line.
+
+## Lint
+
+`Prettier` and `eslint` are used to enforce formatting and code rules respectively.
+
+To run the lint check:
+
+```shell
+yarn lint
+```
+
+Both prettier and eslint can attempt to automatically resolve issues found in the code, to run the fix:
+
+```shell
+yarn lint:fix
+```
+
+The same command work in both the `./server` and `./client` subfolders.
