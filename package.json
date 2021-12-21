@@ -42,7 +42,7 @@
 		"eslint-config-prettier": "8.3.0",
 		"glob": "^7.1.7",
 		"mocha": "^9.1.1",
-		"prettier": "2.5.1",
+		"prettier": "^2.4.1",
 		"typescript": "^4.4.3",
 		"vscode-test": "^1.6.1",
 		"wsrun": "5.2.4",
