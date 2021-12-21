@@ -6,8 +6,10 @@
 	"main": "./out/extension.js",
 	"module": "./out/extension.js",
 	"scripts": {
-		"lint": "eslint ./src/**.ts",
-		"lint:fix": "yarn lint --fix"
+		"lint": "yarn prettier --check && yarn eslint",
+		"lint:fix": "yarn prettier --write && yarn lint --fix",
+		"eslint": "eslint ./src/**.ts",
+		"prettier": "prettier *.json \"src/**/*.{ts,js,md,json,yml}\""
 	},
 	"devDependencies": {
 		"eslint": "^7.23.0"
