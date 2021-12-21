@@ -31,6 +31,10 @@ If you want to share it with someone, let us know about it in [this issue](https
 
 ## Changelog
 
+### v0.0.19
+- Improve external dependency resolution for Daptools
+- Added warning about potential conflicts with other .sol extension
+
 ### v0.0.18
 - Implemented external dependency resolution for Daptools
 - Implemented external dependency resolution for Brownie
