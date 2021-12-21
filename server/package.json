@@ -9,6 +9,10 @@
 	"engines": {
 		"node": "*"
 	},
+	"scripts": {
+		"lint": "eslint ./src/**.ts",
+		"lint:fix": "yarn lint --fix"
+	},
 	"_moduleAliases": {
 		"@analyzer": "./out/parser/analyzer/",
 		"@common": "./out/parser/common/",
