@@ -10,8 +10,10 @@
 		"node": "*"
 	},
 	"scripts": {
-		"lint": "eslint ./src/**.ts",
-		"lint:fix": "yarn lint --fix"
+		"lint": "yarn prettier --check && yarn eslint",
+		"lint:fix": "yarn prettier --write && yarn lint --fix",
+		"eslint": "eslint ./src/**.ts",
+		"prettier": "prettier *.json \"src/**/*.{ts,js,md,json,yml}\""
 	},
 	"_moduleAliases": {
 		"@analyzer": "./out/parser/analyzer/",
@@ -24,7 +26,8 @@
 		"@types/node": "^14.14.37",
 		"@types/qs": "^6.9.7",
 		"@types/uuid": "^8.3.1",
-		"eslint": "^7.23.0"
+		"eslint": "^7.23.0",
+		"prettier": "2.5.1"
 	},
 	"dependencies": {
 		"@sentry/node": "^6.14.1",
