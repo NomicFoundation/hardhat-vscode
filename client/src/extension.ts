@@ -1,254 +1,291 @@
-import * as path from 'path';
-import * as events from 'events';
+import * as path from "path";
+import * as events from "events";
 import {
-	workspace, window, languages, ExtensionContext, TextDocument,
-	OutputChannel, WorkspaceFolder, Uri, ProgressLocation, TextEdit,
-	extensions
-} from 'vscode';
+  workspace,
+  window,
+  languages,
+  ExtensionContext,
+  TextDocument,
+  OutputChannel,
+  WorkspaceFolder,
+  Uri,
+  ProgressLocation,
+  TextEdit,
+  extensions,
+} from "vscode";
 import {
-	LanguageClient, LanguageClientOptions, TransportKind
-} from 'vscode-languageclient/node';
+  LanguageClient,
+  LanguageClientOptions,
+  TransportKind,
+} from "vscode-languageclient/node";
 
-import { formatDocument } from './formatter';
+import { formatDocument } from "./formatter";
 
-const CONFLICTING_EXTENSION_ID = 'juanblanco.solidity';
-const CONFLICTING_EXTENSION_NAME = 'solidity';
+const CONFLICTING_EXTENSION_ID = "juanblanco.solidity";
+const CONFLICTING_EXTENSION_NAME = "solidity";
 
 type IndexFileData = {
-	path: string,
-	current: number,
-	total: number,
+  path: string;
+  current: number;
+  total: number;
 };
 
 const clients: Map<string, LanguageClient> = new Map();
 
 let _sortedWorkspaceFolders: string[] | undefined;
 function sortedWorkspaceFolders(): string[] {
-	if (_sortedWorkspaceFolders === void 0) {
-		_sortedWorkspaceFolders = workspace.workspaceFolders ? workspace.workspaceFolders.map(folder => {
-			let result = folder.uri.toString();
+  if (_sortedWorkspaceFolders === void 0) {
+    _sortedWorkspaceFolders = workspace.workspaceFolders
+      ? workspace.workspaceFolders
+          .map((folder) => {
+            let result = folder.uri.toString();
 
-			if (result.charAt(result.length - 1) !== '/') {
-				result = result + '/';
-			}
+            if (result.charAt(result.length - 1) !== "/") {
+              result = result + "/";
+            }
 
-			return result;
-		}).sort((a, b) => {
-			return a.length - b.length;
-		}) : [];
-	}
+            return result;
+          })
+          .sort((a, b) => {
+            return a.length - b.length;
+          })
+      : [];
+  }
 
-	return _sortedWorkspaceFolders;
+  return _sortedWorkspaceFolders;
 }
 
-workspace.onDidChangeWorkspaceFolders(() => _sortedWorkspaceFolders = undefined);
+workspace.onDidChangeWorkspaceFolders(
+  () => (_sortedWorkspaceFolders = undefined)
+);
 
 function getOuterMostWorkspaceFolder(folder: WorkspaceFolder): WorkspaceFolder {
-	const sorted = sortedWorkspaceFolders();
+  const sorted = sortedWorkspaceFolders();
 
-	for (const element of sorted) {
-		let uri = folder.uri.toString();
+  for (const element of sorted) {
+    let uri = folder.uri.toString();
 
-		if (uri.charAt(uri.length - 1) !== '/') {
-			uri = uri + '/';
-		}
+    if (uri.charAt(uri.length - 1) !== "/") {
+      uri = uri + "/";
+    }
 
-		if (uri.startsWith(element)) {
-			return workspace.getWorkspaceFolder(Uri.parse(element));
-		}
-	}
+    if (uri.startsWith(element)) {
+      return workspace.getWorkspaceFolder(Uri.parse(element));
+    }
+  }
 
-	return folder;
+  return folder;
 }
 
 function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function getUnsavedDocuments(): TextDocument[] {
-	return workspace.textDocuments.filter(i => i.isDirty);
+  return workspace.textDocuments.filter((i) => i.isDirty);
 }
 
 function showFileIndexingProggress(client: LanguageClient): void {
-	const em = new events.EventEmitter();
+  const em = new events.EventEmitter();
 
-	client.onReady().then(() => {
-		client.onNotification("custom/indexing-file", (data: IndexFileData) => {
-			em.emit('indexing-file', data);
-		});
-	});
+  client.onReady().then(() => {
+    client.onNotification("custom/indexing-file", (data: IndexFileData) => {
+      em.emit("indexing-file", data);
+    });
+  });
 
-	// Progress bar
-	window.withProgress({
-		cancellable: true,
-		location: ProgressLocation.Notification,
-		title: 'Indexing Project'
-	}, async (progress) => {
-		progress.report({
-			increment: 0,
-			message: 'Start indexing...'
-		});
+  // Progress bar
+  window.withProgress(
+    {
+      cancellable: true,
+      location: ProgressLocation.Notification,
+      title: "Indexing Project",
+    },
+    async (progress) => {
+      progress.report({
+        increment: 0,
+        message: "Start indexing...",
+      });
 
-		const promise = new Promise<void>(resolve => {
-			em.on('indexing-file', (data: IndexFileData) => {
-				progress.report({
-					increment: Math.round(data.total / data.current),
-					message: `Indexing ${data.path}`
-				});
+      const promise = new Promise<void>((resolve) => {
+        em.on("indexing-file", (data: IndexFileData) => {
+          progress.report({
+            increment: Math.round(data.total / data.current),
+            message: `Indexing ${data.path}`,
+          });
 
-				if (data.total === data.current) {
-					resolve();
-				}
-			});
-		});
+          if (data.total === data.current) {
+            resolve();
+          }
+        });
+      });
 
-		await promise;
+      await promise;
 
-		progress.report({
-			increment: 100,
-			message: `Project indexing is complete.`
-		});
+      progress.report({
+        increment: 100,
+        message: `Project indexing is complete.`,
+      });
 
-		await sleep(3000);
-	});
+      await sleep(3000);
+    }
+  );
 }
 
 function showAnalyticsAllowPopup(client: LanguageClient): void {
-	client.onReady().then(() => {
-		client.onNotification("custom/analytics-allowed", async () => {
-			const item = await window.showInformationMessage(
-				"Help us improve Hardhat solidity extension with anonymous crash reports & basic usage data?",
-				{ modal: true },
-				"Accept",
-				"Decline"
-			);
+  client.onReady().then(() => {
+    client.onNotification("custom/analytics-allowed", async () => {
+      const item = await window.showInformationMessage(
+        "Help us improve Hardhat solidity extension with anonymous crash reports & basic usage data?",
+        { modal: true },
+        "Accept",
+        "Decline"
+      );
 
-			const isAccepted = item === "Accept" ? true : false;
-			client.sendNotification("custom/analytics-allowed", isAccepted);
-		});
-	});
+      const isAccepted = item === "Accept" ? true : false;
+      client.sendNotification("custom/analytics-allowed", isAccepted);
+    });
+  });
 }
 
 async function warnOnOtherSolidityExtensions() {
-	const conflictingExtension = extensions.getExtension(CONFLICTING_EXTENSION_ID);
+  const conflictingExtension = extensions.getExtension(
+    CONFLICTING_EXTENSION_ID
+  );
 
-	if (conflictingExtension === undefined) {
-		return;
-	}
+  if (conflictingExtension === undefined) {
+    return;
+  }
 
-	try {
-		await window.showWarningMessage(
-			`Both this extension and the \`${CONFLICTING_EXTENSION_NAME}\` (${CONFLICTING_EXTENSION_ID}) extension are enabled. They have conflicting functionality. Disable one of them.`,
-			"Okay"
-		);
-	} catch (err) {
-		console.error(err);
-	}
+  try {
+    await window.showWarningMessage(
+      `Both this extension and the \`${CONFLICTING_EXTENSION_NAME}\` (${CONFLICTING_EXTENSION_ID}) extension are enabled. They have conflicting functionality. Disable one of them.`,
+      "Okay"
+    );
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 export function activate(context: ExtensionContext) {
-	console.log('client started');
+  console.log("client started");
 
-	warnOnOtherSolidityExtensions();
+  warnOnOtherSolidityExtensions();
 
-	context.subscriptions.push(
-		languages.registerDocumentFormattingEditProvider('solidity', {
-			provideDocumentFormattingEdits(document: TextDocument): TextEdit[] {
-				return formatDocument(document, context);
-			}
-		})
-	);
+  context.subscriptions.push(
+    languages.registerDocumentFormattingEditProvider("solidity", {
+      provideDocumentFormattingEdits(document: TextDocument): TextEdit[] {
+        return formatDocument(document, context);
+      },
+    })
+  );
 
-	const module = context.asAbsolutePath(path.join('server', 'out', 'server.js'));
-	const outputChannel: OutputChannel = window.createOutputChannel('solidity-language-server');
+  const module = context.asAbsolutePath(
+    path.join("server", "out", "server.js")
+  );
+  const outputChannel: OutputChannel = window.createOutputChannel(
+    "solidity-language-server"
+  );
 
-	function didOpenTextDocument(document: TextDocument): void {
-		// We are only interested in solidity files
-		if (document.languageId !== 'solidity' || document.uri.scheme !== 'file') {
-			return;
-		}
+  function didOpenTextDocument(document: TextDocument): void {
+    // We are only interested in solidity files
+    if (document.languageId !== "solidity" || document.uri.scheme !== "file") {
+      return;
+    }
 
-		const uri = document.uri;
-		let folder = workspace.getWorkspaceFolder(uri);
+    const uri = document.uri;
+    let folder = workspace.getWorkspaceFolder(uri);
 
-		// Files outside a folder can't be handled. This might depend on the language.
-		// Single file languages like JSON might handle files outside the workspace folders.
-		if (!folder) {
-			return;
-		}
+    // Files outside a folder can't be handled. This might depend on the language.
+    // Single file languages like JSON might handle files outside the workspace folders.
+    if (!folder) {
+      return;
+    }
 
-		// If we have nested workspace folders we only start a server on the outer most workspace folder.
-		folder = getOuterMostWorkspaceFolder(folder);
+    // If we have nested workspace folders we only start a server on the outer most workspace folder.
+    folder = getOuterMostWorkspaceFolder(folder);
 
-		if (!clients.has(folder.uri.toString())) {
-			// The debug options for the server.
-			// --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging.
-			const debugOptions = { execArgv: ["--nolazy", `--inspect=${6009 + clients.size}`] };
+    if (!clients.has(folder.uri.toString())) {
+      // The debug options for the server.
+      // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging.
+      const debugOptions = {
+        execArgv: ["--nolazy", `--inspect=${6009 + clients.size}`],
+      };
 
-			// If the extension is launched in debug mode then the debug server options are used.
-			// Otherwise the run options are used.
-			const serverOptions = {
-				run: { module, transport: TransportKind.ipc },
-				debug: { module, transport: TransportKind.ipc, options: debugOptions }
-			};
+      // If the extension is launched in debug mode then the debug server options are used.
+      // Otherwise the run options are used.
+      const serverOptions = {
+        run: { module, transport: TransportKind.ipc },
+        debug: { module, transport: TransportKind.ipc, options: debugOptions },
+      };
 
-			// Options to control the language client.
-			const clientOptions: LanguageClientOptions = {
-				// Register the server for solidity text documents.
-				documentSelector: [{ scheme: 'file', language: 'solidity', pattern: `**/*.sol` }],
-				diagnosticCollectionName: 'solidity-language-server',
-				workspaceFolder: folder,
-				outputChannel: outputChannel
-			};
+      // Options to control the language client.
+      const clientOptions: LanguageClientOptions = {
+        // Register the server for solidity text documents.
+        documentSelector: [
+          { scheme: "file", language: "solidity", pattern: `**/*.sol` },
+        ],
+        diagnosticCollectionName: "solidity-language-server",
+        workspaceFolder: folder,
+        outputChannel: outputChannel,
+      };
 
-			// Create the language client and start the client.
-			// Start the client. This will also launch the server
-			const client = new LanguageClient('solidity-language-server', 'Solidity Language Server', serverOptions, clientOptions);
+      // Create the language client and start the client.
+      // Start the client. This will also launch the server
+      const client = new LanguageClient(
+        "solidity-language-server",
+        "Solidity Language Server",
+        serverOptions,
+        clientOptions
+      );
 
-			showAnalyticsAllowPopup(client);
+      showAnalyticsAllowPopup(client);
 
-			client.onReady().then(() => {
-				client.onNotification("custom/get-unsaved-documents", () => {
-					const unsavedDocuments = getUnsavedDocuments();
+      client.onReady().then(() => {
+        client.onNotification("custom/get-unsaved-documents", () => {
+          const unsavedDocuments = getUnsavedDocuments();
 
-					client.sendNotification("custom/get-unsaved-documents", unsavedDocuments.map(unsavedDocument => {
-						return {
-							uri: unsavedDocument.uri,
-							languageId: unsavedDocument.languageId,
-							version: unsavedDocument.version,
-							content: unsavedDocument.getText()
-						};
-					}));
-				});
-			});
+          client.sendNotification(
+            "custom/get-unsaved-documents",
+            unsavedDocuments.map((unsavedDocument) => {
+              return {
+                uri: unsavedDocument.uri,
+                languageId: unsavedDocument.languageId,
+                version: unsavedDocument.version,
+                content: unsavedDocument.getText(),
+              };
+            })
+          );
+        });
+      });
 
-			showFileIndexingProggress(client);
+      showFileIndexingProggress(client);
 
-			client.start();
-			clients.set(folder.uri.toString(), client);
-		}
-	}
+      client.start();
+      clients.set(folder.uri.toString(), client);
+    }
+  }
 
-	workspace.onDidOpenTextDocument(didOpenTextDocument);
-	workspace.textDocuments.forEach(didOpenTextDocument);
-	workspace.onDidChangeWorkspaceFolders(event => {
-		for (const folder of event.removed) {
-			const client = clients.get(folder.uri.toString());
+  workspace.onDidOpenTextDocument(didOpenTextDocument);
+  workspace.textDocuments.forEach(didOpenTextDocument);
+  workspace.onDidChangeWorkspaceFolders((event) => {
+    for (const folder of event.removed) {
+      const client = clients.get(folder.uri.toString());
 
-			if (client) {
-				clients.delete(folder.uri.toString());
-				client.stop();
-			}
-		}
-	});
+      if (client) {
+        clients.delete(folder.uri.toString());
+        client.stop();
+      }
+    }
+  });
 }
 
 export function deactivate(): Thenable<void> {
-	const promises: Thenable<void>[] = [];
+  const promises: Thenable<void>[] = [];
 
-	for (const client of clients.values()) {
-		promises.push(client.stop());
-	}
+  for (const client of clients.values()) {
+    promises.push(client.stop());
+  }
 
-	return Promise.all(promises).then(() => undefined);
+  return Promise.all(promises).then(() => undefined);
 }

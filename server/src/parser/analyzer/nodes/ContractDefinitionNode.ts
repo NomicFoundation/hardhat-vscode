@@ -1,117 +1,161 @@
 import { findSourceUnitNode } from "@common/utils";
 import {
-    ContractDefinition, FinderType, DocumentsAnalyzerMap, Node,
-    ContractDefinitionNode as AbstractContractDefinitionNode
+  ContractDefinition,
+  FinderType,
+  DocumentsAnalyzerMap,
+  Node,
+  ContractDefinitionNode as AbstractContractDefinitionNode,
 } from "@common/types";
 
 export class ContractDefinitionNode extends AbstractContractDefinitionNode {
-    astNode: ContractDefinition;
+  astNode: ContractDefinition;
 
-    connectionTypeRules: string[] = [ "Identifier", "UserDefinedTypeName", "FunctionCall", "UsingForDeclaration", "ModifierInvocation" ];
+  connectionTypeRules: string[] = [
+    "Identifier",
+    "UserDefinedTypeName",
+    "FunctionCall",
+    "UsingForDeclaration",
+    "ModifierInvocation",
+  ];
 
-    constructor (contractDefinition: ContractDefinition, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(contractDefinition, uri, rootPath, documentsAnalyzer, contractDefinition.name);
-        this.astNode = contractDefinition;
+  constructor(
+    contractDefinition: ContractDefinition,
+    uri: string,
+    rootPath: string,
+    documentsAnalyzer: DocumentsAnalyzerMap
+  ) {
+    super(
+      contractDefinition,
+      uri,
+      rootPath,
+      documentsAnalyzer,
+      contractDefinition.name
+    );
+    this.astNode = contractDefinition;
 
-        if (contractDefinition.loc) {
-            const escapePrefix = contractDefinition.kind === "abstract" ? "abstract contract ".length : contractDefinition.kind.length + 1;
-            this.nameLoc = {
-                start: {
-                    line: contractDefinition.loc.start.line,
-                    column: contractDefinition.loc.start.column + escapePrefix
-                },
-                end: {
-                    line: contractDefinition.loc.start.line,
-                    column: contractDefinition.loc.start.column + escapePrefix + contractDefinition.name.length
-                }
-            };
-        }
-
-        this.addTypeNode(this);
+    if (contractDefinition.loc) {
+      const escapePrefix =
+        contractDefinition.kind === "abstract"
+          ? "abstract contract ".length
+          : contractDefinition.kind.length + 1;
+      this.nameLoc = {
+        start: {
+          line: contractDefinition.loc.start.line,
+          column: contractDefinition.loc.start.column + escapePrefix,
+        },
+        end: {
+          line: contractDefinition.loc.start.line,
+          column:
+            contractDefinition.loc.start.column +
+            escapePrefix +
+            contractDefinition.name.length,
+        },
+      };
     }
 
-    getKind(): string {
-        return this.astNode.kind;
+    this.addTypeNode(this);
+  }
+
+  getKind(): string {
+    return this.astNode.kind;
+  }
+
+  getTypeNodes(): Node[] {
+    return this.typeNodes;
+  }
+
+  getDefinitionNode(): Node | undefined {
+    return this;
+  }
+
+  accept(
+    find: FinderType,
+    orphanNodes: Node[],
+    parent?: Node,
+    expression?: Node
+  ): Node {
+    this.setExpressionNode(expression);
+
+    const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+
+    if (parent) {
+      this.setParent(parent);
     }
 
-    getTypeNodes(): Node[] {
-        return this.typeNodes;
+    for (const baseContract of this.astNode.baseContracts) {
+      const inheritanceNode = find(
+        baseContract,
+        this.uri,
+        this.rootPath,
+        this.documentsAnalyzer
+      ).accept(find, orphanNodes, this);
+
+      const inheritanceNodeDefinition = inheritanceNode.getDefinitionNode();
+
+      if (
+        inheritanceNodeDefinition &&
+        inheritanceNodeDefinition instanceof ContractDefinitionNode
+      ) {
+        this.inheritanceNodes.push(inheritanceNodeDefinition);
+      }
     }
 
-    getDefinitionNode(): Node | undefined {
-        return this;
+    for (const subNode of this.astNode.subNodes) {
+      find(subNode, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+        find,
+        orphanNodes,
+        this
+      );
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
-        this.setExpressionNode(expression);
+    // Find parent for orphanNodes from this contract in inheritance Nodes
+    this.findParentForOrphanNodesInInheritanceNodes(orphanNodes);
 
-        const searcher = this.documentsAnalyzer[this.uri]?.searcher;
-
-        if (parent) {
-            this.setParent(parent);
-        }
-
-        for (const baseContract of this.astNode.baseContracts) {
-            const inheritanceNode = find(baseContract, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
-
-            const inheritanceNodeDefinition = inheritanceNode.getDefinitionNode();
-
-            if (inheritanceNodeDefinition && inheritanceNodeDefinition instanceof ContractDefinitionNode) {
-                this.inheritanceNodes.push(inheritanceNodeDefinition);
-            }
-        }
-
-        for (const subNode of this.astNode.subNodes) {
-            find(subNode, this.uri, this.rootPath, this.documentsAnalyzer).accept(find, orphanNodes, this);
-        }
-
-        // Find parent for orphanNodes from this contract in inheritance Nodes 
-        this.findParentForOrphanNodesInInheritanceNodes(orphanNodes);
-
-        const rootNode = findSourceUnitNode(parent);
-        if (rootNode) {
-            const exportNodes = new Array(...rootNode.getExportNodes());
-            searcher?.findAndAddExportChildren(this, exportNodes);
-        }
-
-        searcher?.findAndAddChildren(this, orphanNodes, false);
-
-        parent?.addChild(this);
-
-        return this;
+    const rootNode = findSourceUnitNode(parent);
+    if (rootNode) {
+      const exportNodes = new Array(...rootNode.getExportNodes());
+      searcher?.findAndAddExportChildren(this, exportNodes);
     }
 
-    findParentForOrphanNodesInInheritanceNodes(orphanNodes: Node[]): void {
-        const searcher = this.documentsAnalyzer[this.uri]?.searcher;
-        const newOrphanNodes: Node[] = [];
+    searcher?.findAndAddChildren(this, orphanNodes, false);
 
-        let orphanNode = orphanNodes.shift();
-        while (orphanNode) {
-            if (
-                this.astNode.loc && orphanNode.astNode.loc &&
-                this.astNode.loc.start.line <= orphanNode.astNode.loc.start.line &&
-                this.astNode.loc.end.line >= orphanNode.astNode.loc.end.line
-            ) {
-                const nodeParent = searcher?.findParent(orphanNode, this, true);
+    parent?.addChild(this);
 
-                if (nodeParent) {
-                    orphanNode.addTypeNode(nodeParent);
+    return this;
+  }
 
-                    orphanNode.setParent(nodeParent);
-                    nodeParent?.addChild(orphanNode);
-                } else {
-                    newOrphanNodes.push(orphanNode);
-                }
-            } else {
-                newOrphanNodes.push(orphanNode);
-            }
+  findParentForOrphanNodesInInheritanceNodes(orphanNodes: Node[]): void {
+    const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+    const newOrphanNodes: Node[] = [];
 
-            orphanNode = orphanNodes.shift();
+    let orphanNode = orphanNodes.shift();
+    while (orphanNode) {
+      if (
+        this.astNode.loc &&
+        orphanNode.astNode.loc &&
+        this.astNode.loc.start.line <= orphanNode.astNode.loc.start.line &&
+        this.astNode.loc.end.line >= orphanNode.astNode.loc.end.line
+      ) {
+        const nodeParent = searcher?.findParent(orphanNode, this, true);
+
+        if (nodeParent) {
+          orphanNode.addTypeNode(nodeParent);
+
+          orphanNode.setParent(nodeParent);
+          nodeParent?.addChild(orphanNode);
+        } else {
+          newOrphanNodes.push(orphanNode);
         }
+      } else {
+        newOrphanNodes.push(orphanNode);
+      }
 
-        // Return to orphanNodes array unhandled orphan nodes
-        for (const newOrphanNode of newOrphanNodes) {
-            orphanNodes.push(newOrphanNode);
-        }
+      orphanNode = orphanNodes.shift();
     }
+
+    // Return to orphanNodes array unhandled orphan nodes
+    for (const newOrphanNode of newOrphanNodes) {
+      orphanNodes.push(newOrphanNode);
+    }
+  }
 }

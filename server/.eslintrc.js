@@ -1,10 +1,9 @@
-/**@type {import('eslint').Linter.Config} */
-// eslint-disable-next-line no-undef
+/** @type {import('eslint').Linter.Config} */
 module.exports = {
-	root: true,
-	extends: [`../.eslintrc.js`],
+  root: true,
+  extends: [`../.eslintrc.js`],
   parserOptions: {
     project: `./tsconfig.json`,
-    sourceType: "module"
+    sourceType: "module",
   },
 };
