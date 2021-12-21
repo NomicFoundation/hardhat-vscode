@@ -1,22 +1,19 @@
-/**@type {import('eslint').Linter.Config} */
-
+/** @type {import('eslint').Linter.Config} */
 module.exports = {
-	root: true,
-	parser: '@typescript-eslint/parser',
+  root: true,
+  parser: "@typescript-eslint/parser",
   parserOptions: {
-    "ecmaVersion": 12,
-    "sourceType": "module"
+    ecmaVersion: 12,
+    sourceType: "module",
   },
-	plugins: [
-		'@typescript-eslint',
-	],
-	extends: [
-		'eslint:recommended',
-		'plugin:@typescript-eslint/recommended',
-    "prettier"
-	],
+  plugins: ["@typescript-eslint"],
+  extends: [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier",
+  ],
   env: {
-    node: true
+    node: true,
   },
-	rules: {}
+  rules: {},
 };

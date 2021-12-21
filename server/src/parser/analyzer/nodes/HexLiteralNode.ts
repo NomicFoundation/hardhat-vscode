@@ -1,17 +1,32 @@
-import { HexLiteral, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
+import {
+  HexLiteral,
+  FinderType,
+  DocumentsAnalyzerMap,
+  Node,
+} from "@common/types";
 
 export class HexLiteralNode extends Node {
-    astNode: HexLiteral;
+  astNode: HexLiteral;
 
-    constructor (hexLiteral: HexLiteral, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(hexLiteral, uri, rootPath, documentsAnalyzer, undefined);
-        this.astNode = hexLiteral;
-        // TO-DO: Implement name location for rename
-    }
+  constructor(
+    hexLiteral: HexLiteral,
+    uri: string,
+    rootPath: string,
+    documentsAnalyzer: DocumentsAnalyzerMap
+  ) {
+    super(hexLiteral, uri, rootPath, documentsAnalyzer, undefined);
+    this.astNode = hexLiteral;
+    // TO-DO: Implement name location for rename
+  }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
-        this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
-        return this;
-    }
+  accept(
+    find: FinderType,
+    orphanNodes: Node[],
+    parent?: Node,
+    expression?: Node
+  ): Node {
+    this.setExpressionNode(expression);
+    // TO-DO: Method not implemented
+    return this;
+  }
 }

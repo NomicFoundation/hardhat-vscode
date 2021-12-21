@@ -1,22 +1,22 @@
 {
-	"name": "solidity-lsp-client",
-	"description": "",
-	"license": "MIT",
-	"version": "0.0.1",
-	"main": "./out/extension.js",
-	"module": "./out/extension.js",
-	"scripts": {
-		"lint": "yarn prettier --check && yarn eslint",
-		"lint:fix": "yarn prettier --write && yarn lint --fix",
-		"eslint": "eslint ./src/**.ts",
-		"prettier": "prettier *.json \"src/**/*.{ts,js,md,json,yml}\""
-	},
-	"devDependencies": {
-		"eslint": "^7.23.0"
-	},
-	"dependencies": {
-		"prettier": "^2.4.1",
-		"prettier-plugin-solidity": "^1.0.0-beta.19",
-		"vscode-languageclient": "^7.0.0"
-	}
+  "name": "solidity-lsp-client",
+  "description": "",
+  "license": "MIT",
+  "version": "0.0.1",
+  "main": "./out/extension.js",
+  "module": "./out/extension.js",
+  "scripts": {
+    "lint": "yarn prettier --check && yarn eslint",
+    "lint:fix": "yarn prettier --write && yarn lint --fix",
+    "eslint": "eslint ./src/**.ts",
+    "prettier": "prettier *.json \"src/**/*.{ts,js,md,json,yml}\""
+  },
+  "devDependencies": {
+    "eslint": "^7.23.0"
+  },
+  "dependencies": {
+    "prettier": "^2.4.1",
+    "prettier-plugin-solidity": "^1.0.0-beta.19",
+    "vscode-languageclient": "^7.0.0"
+  }
 }

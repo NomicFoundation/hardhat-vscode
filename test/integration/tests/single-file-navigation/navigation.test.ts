@@ -1,8 +1,8 @@
-'use strict';
+"use strict";
 
-import { runTestFromJSON } from '../utils';
+import { runTestFromJSON } from "../utils";
 
-suite('Single-file Navigation', function () {
-	this.timeout(10000);
-	runTestFromJSON(__dirname, 'navigation.test.json');
+suite("Single-file Navigation", function () {
+  this.timeout(10000);
+  runTestFromJSON(__dirname, "navigation.test.json");
 });
