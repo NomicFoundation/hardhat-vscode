@@ -1,4 +1,4 @@
-import { isNodeConnectable, findSourceUnitNode } from "@common/utils";
+import {isNodeConnectable, findSourceUnitNode} from "@common/utils";
 import {
   UserDefinedTypeName,
   FinderType,

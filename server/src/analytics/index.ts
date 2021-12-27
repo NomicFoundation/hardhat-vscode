@@ -3,7 +3,7 @@ import * as qs from "qs";
 import * as path from "path";
 import * as fs from "fs-extra";
 import got from "got";
-import { v4 as uuid } from "uuid";
+import {v4 as uuid} from "uuid";
 
 const pjson = require("../../../package.json");
 
@@ -113,7 +113,7 @@ class GoogleAnalytics implements Analytics {
       cd1: `v${this._version}`,
     };
 
-    return { ...defaultAnalytics, ...(more || {}) };
+    return {...defaultAnalytics, ...(more || {})};
   }
 
   private async _sendHit(hit: AnalyticsPayload): Promise<void> {
@@ -169,12 +169,12 @@ function getUserAgent(): string {
 }
 
 async function generatePaths(packageName = "solidity-extension") {
-  const { default: envPaths } = await import("env-paths");
+  const {default: envPaths} = await import("env-paths");
   return envPaths(packageName);
 }
 
 async function getDataDir(packageName?: string): Promise<string> {
-  const { data } = await generatePaths(packageName);
+  const {data} = await generatePaths(packageName);
   await fs.ensureDir(data);
   return data;
 }
@@ -188,7 +188,7 @@ async function readAnalyticsData(): Promise<AnalyticsData | undefined> {
 async function read(idFile: string): Promise<AnalyticsData | undefined> {
   let data: AnalyticsData;
   try {
-    data = await fs.readJSON(idFile, { encoding: "utf8" });
+    data = await fs.readJSON(idFile, {encoding: "utf8"});
   } catch (error) {
     return undefined;
   }
@@ -205,6 +205,6 @@ export async function writeAnalytics(data: AnalyticsData) {
       clientId: data.clientId,
       isAllowed: data.isAllowed === true ? true : false,
     },
-    { encoding: "utf-8", spaces: 2 }
+    {encoding: "utf-8", spaces: 2}
   );
 }

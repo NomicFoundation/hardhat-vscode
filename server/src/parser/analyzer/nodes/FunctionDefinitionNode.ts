@@ -1,4 +1,4 @@
-import { isNodeShadowedByNode, findSourceUnitNode } from "@common/utils";
+import {isNodeShadowedByNode, findSourceUnitNode} from "@common/utils";
 import {
   FunctionDefinition,
   FinderType,

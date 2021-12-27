@@ -1,9 +1,9 @@
-import { Analyzer } from "@analyzer/index";
+import {Analyzer} from "@analyzer/index";
 
-import { SolidityNavigation } from "@services/navigation/SolidityNavigation";
-import { SolidityCompletion } from "@services/completion/SolidityCompletion";
-import { SolidityValidation } from "@services/validation/SolidityValidation";
-import { SoliditySignatureHelp } from "@services/documentation/SoliditySignatureHelp";
+import {SolidityNavigation} from "@services/navigation/SolidityNavigation";
+import {SolidityCompletion} from "@services/completion/SolidityCompletion";
+import {SolidityValidation} from "@services/validation/SolidityValidation";
+import {SoliditySignatureHelp} from "@services/documentation/SoliditySignatureHelp";
 
 export class LanguageService {
   analyzer: Analyzer;

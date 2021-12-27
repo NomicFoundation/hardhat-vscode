@@ -1,4 +1,4 @@
-import { Analyzer } from "@analyzer/index";
+import {Analyzer} from "@analyzer/index";
 import {
   TextDocument,
   VSCodePosition,
@@ -9,7 +9,7 @@ import {
   definitionNodeTypes,
 } from "@common/types";
 
-import { getParserPositionFromVSCodePosition, getRange } from "@common/utils";
+import {getParserPositionFromVSCodePosition, getRange} from "@common/utils";
 
 export class SolidityNavigation {
   analyzer: Analyzer;
@@ -84,7 +84,7 @@ export class SolidityNavigation {
     analyzerTree: Node
   ): WorkspaceEdit {
     const highlightNodes = this.findHighlightNodes(uri, position, analyzerTree);
-    const workspaceEdit: WorkspaceEdit = { changes: {} };
+    const workspaceEdit: WorkspaceEdit = {changes: {}};
 
     highlightNodes.forEach((highlightNode) => {
       if (highlightNode.nameLoc && workspaceEdit.changes) {

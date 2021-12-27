@@ -44,13 +44,13 @@ export const HARDHAT_CONFIG_FILE_EXIST_EVENT = "hardhat_config_file_exist";
       let hre;
       const uri: string = data.uri;
       const documentText: string = data.documentText;
-      const unsavedDocuments: { uri: string; documentText: string }[] =
+      const unsavedDocuments: {uri: string; documentText: string}[] =
         data.unsavedDocuments;
 
       let hardhatBase = "";
       try {
         hardhatBase = path.resolve(
-          require.resolve("hardhat", { paths: [process.cwd()] }),
+          require.resolve("hardhat", {paths: [process.cwd()]}),
           "..",
           "..",
           ".."
@@ -64,10 +64,10 @@ export const HARDHAT_CONFIG_FILE_EXIST_EVENT = "hardhat_config_file_exist";
       }
 
       if (!hre) {
-        process.send({ type: HARDHAT_CONFIG_FILE_EXIST_EVENT, exist: false });
+        process.send({type: HARDHAT_CONFIG_FILE_EXIST_EVENT, exist: false});
         process.exit(1);
       }
-      process.send({ type: HARDHAT_CONFIG_FILE_EXIST_EVENT, exist: true });
+      process.send({type: HARDHAT_CONFIG_FILE_EXIST_EVENT, exist: true});
 
       const {
         TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS,
@@ -152,11 +152,11 @@ export const HARDHAT_CONFIG_FILE_EXIST_EVENT = "hardhat_config_file_exist";
       const isCompilerDownloaded = await downloader.isCompilerDownloaded(
         solcVersion
       );
-      process.send({ type: COMPILER_DOWNLOADED_EVENT, isCompilerDownloaded });
+      process.send({type: COMPILER_DOWNLOADED_EVENT, isCompilerDownloaded});
       await solidityCompileConfirmationPromise;
 
       // download solc version and compile files
-      const { output } = await hre.run(TASK_COMPILE_SOLIDITY_COMPILE, {
+      const {output} = await hre.run(TASK_COMPILE_SOLIDITY_COMPILE, {
         solcVersion: solcVersion,
         input,
         quiet: true,
@@ -165,7 +165,7 @@ export const HARDHAT_CONFIG_FILE_EXIST_EVENT = "hardhat_config_file_exist";
         compilationJobIndex: 0,
       });
 
-      process.send({ type: SOLIDITY_COMPILE_EVENT, output });
+      process.send({type: SOLIDITY_COMPILE_EVENT, output});
       process.exit(0);
     }
   } catch (err) {

@@ -16,9 +16,9 @@ export class Searcher implements ISearcher {
   /**
    * Default analyzerTree. It is document we are analyzing.
    */
-  analyzerTree: { tree: Node };
+  analyzerTree: {tree: Node};
 
-  constructor(analyzerTree: { tree: Node }) {
+  constructor(analyzerTree: {tree: Node}) {
     this.analyzerTree = analyzerTree;
   }
 

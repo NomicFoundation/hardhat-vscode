@@ -1,9 +1,4 @@
-import {
-  HexNumber,
-  FinderType,
-  DocumentsAnalyzerMap,
-  Node,
-} from "@common/types";
+import {HexNumber, FinderType, DocumentsAnalyzerMap, Node} from "@common/types";
 
 export class HexNumberNode extends Node {
   astNode: HexNumber;

@@ -3,16 +3,21 @@ import * as fs from "fs";
 import * as childProcess from "child_process";
 
 import * as utils from "@common/utils";
-import { Analyzer } from "@analyzer/index";
-import { TextDocument, Diagnostic, Range, DiagnosticSeverity } from "@common/types";
-import { truffleValidator } from "./truffle";
+import {Analyzer} from "@analyzer/index";
+import {
+  TextDocument,
+  Diagnostic,
+  Range,
+  DiagnosticSeverity,
+} from "@common/types";
+import {truffleValidator} from "./truffle";
 
 export interface ValidationJob {
   run(
     uri: string,
     document: TextDocument,
     unsavedDocuments: TextDocument[]
-  ): Promise<{ [uri: string]: Diagnostic[] }>;
+  ): Promise<{[uri: string]: Diagnostic[]}>;
   close(): void;
 }
 
@@ -31,179 +36,210 @@ const TRUFFLE_CONFIG_FILE_JS = "truffle-config.js";
 const TRUFFLE_CONFIG_FILE_TS = "truffle-config.ts";
 
 type validationJobOptions = {
-	isCompilerDownloaded: boolean
-}
+  isCompilerDownloaded: boolean;
+};
 
 export class SolidityValidation {
-	analyzer: Analyzer;
+  analyzer: Analyzer;
 
-	constructor(analyzer: Analyzer) {
-		this.analyzer = analyzer;
-	}
+  constructor(analyzer: Analyzer) {
+    this.analyzer = analyzer;
+  }
 
-	public getValidationJob(uri: string): ValidationJob {
-		const options: validationJobOptions = {
-			isCompilerDownloaded: true
-		};
+  public getValidationJob(uri: string): ValidationJob {
+    const options: validationJobOptions = {
+      isCompilerDownloaded: true,
+    };
 
-		let canceledResolver: any;
-		const canceled = new Promise(resolve => { canceledResolver = resolve; });
+    let canceledResolver: any;
+    const canceled = new Promise((resolve) => {
+      canceledResolver = resolve;
+    });
 
-		return {
-			run: async (uri: string, document: TextDocument, unsavedDocuments: TextDocument[]): Promise<{ [uri: string]: Diagnostic[] }> => {
-				const projectRoot = utils.findUpSync("package.json", {
-					cwd: path.resolve(uri, ".."),
-					stopAt: this.analyzer.rootPath
-				});
-				if (!projectRoot) {
-					return Promise.resolve({});
-				}
+    return {
+      run: async (
+        uri: string,
+        document: TextDocument,
+        unsavedDocuments: TextDocument[]
+      ): Promise<{[uri: string]: Diagnostic[]}> => {
+        const projectRoot = utils.findUpSync("package.json", {
+          cwd: path.resolve(uri, ".."),
+          stopAt: this.analyzer.rootPath,
+        });
+        if (!projectRoot) {
+          return Promise.resolve({});
+        }
 
-				if (
-					fs.existsSync(path.resolve(projectRoot, HARDHAT_CONFIG_FILE_JS)) ||
-					fs.existsSync(path.resolve(projectRoot, HARDHAT_CONFIG_FILE_TS))
-				) {
-					return hardhatValidator(projectRoot, uri, document, unsavedDocuments, options, canceled);
-				}
+        if (
+          fs.existsSync(path.resolve(projectRoot, HARDHAT_CONFIG_FILE_JS)) ||
+          fs.existsSync(path.resolve(projectRoot, HARDHAT_CONFIG_FILE_TS))
+        ) {
+          return hardhatValidator(
+            projectRoot,
+            uri,
+            document,
+            unsavedDocuments,
+            options,
+            canceled
+          );
+        }
 
-				if (
-					fs.existsSync(path.resolve(projectRoot, TRUFFLE_CONFIG_FILE_JS)) ||
-					fs.existsSync(path.resolve(projectRoot, TRUFFLE_CONFIG_FILE_TS))
-				) {
-					return truffleValidator(uri, document);
-				}
+        if (
+          fs.existsSync(path.resolve(projectRoot, TRUFFLE_CONFIG_FILE_JS)) ||
+          fs.existsSync(path.resolve(projectRoot, TRUFFLE_CONFIG_FILE_TS))
+        ) {
+          return truffleValidator(uri, document);
+        }
 
-				return Promise.resolve({});
-			},
+        return Promise.resolve({});
+      },
 
-			close: async () => {
-				if (!options.isCompilerDownloaded) {
-					return;
-				}
+      close: async () => {
+        if (!options.isCompilerDownloaded) {
+          return;
+        }
 
-				canceledResolver([]);
-			}
-		} as ValidationJob;
-	}
+        canceledResolver([]);
+      },
+    } as ValidationJob;
+  }
 }
 
-async function hardhatValidator(projectRoot: string, uri: string, document: TextDocument, unsavedDocuments: TextDocument[], options: validationJobOptions, canceled: Promise<any>): Promise<{ [uri: string]: Diagnostic[] }> {
-	// We can start child processes with {detached: true} option so those processes will not be attached
-	// to main process but they will go to a new group of processes.
-	const child = childProcess.fork(
-		path.resolve(__dirname, "hardhat.js"),
-		{
-			cwd: projectRoot,
-			detached: true
-		}
-	);
+async function hardhatValidator(
+  projectRoot: string,
+  uri: string,
+  document: TextDocument,
+  unsavedDocuments: TextDocument[],
+  options: validationJobOptions,
+  canceled: Promise<any>
+): Promise<{[uri: string]: Diagnostic[]}> {
+  // We can start child processes with {detached: true} option so those processes will not be attached
+  // to main process but they will go to a new group of processes.
+  const child = childProcess.fork(path.resolve(__dirname, "hardhat.js"), {
+    cwd: projectRoot,
+    detached: true,
+  });
 
-	let hardhatConfigFileExistPromiseResolver: any;
-	const hardhatConfigFileExistPromise = new Promise(resolve => { hardhatConfigFileExistPromiseResolver = resolve; });
+  let hardhatConfigFileExistPromiseResolver: any;
+  const hardhatConfigFileExistPromise = new Promise((resolve) => {
+    hardhatConfigFileExistPromiseResolver = resolve;
+  });
 
-	let compilerDownloadedPromiseResolver: any;
-	const compilerDownloadedPromise = new Promise(resolve => { compilerDownloadedPromiseResolver = resolve; });
+  let compilerDownloadedPromiseResolver: any;
+  const compilerDownloadedPromise = new Promise((resolve) => {
+    compilerDownloadedPromiseResolver = resolve;
+  });
 
-	let solidityCompilePromiseResolver: any;
-	const solidityCompilePromise = new Promise(resolve => { solidityCompilePromiseResolver = resolve; });
+  let solidityCompilePromiseResolver: any;
+  const solidityCompilePromise = new Promise((resolve) => {
+    solidityCompilePromiseResolver = resolve;
+  });
 
-	child.on("message", (data: any) => {
-		switch (data.type) {
-			case HARDHAT_CONFIG_FILE_EXIST_EVENT:
-				hardhatConfigFileExistPromiseResolver(data.exist);
-				break;
-			
-			case COMPILER_DOWNLOADED_EVENT:
-				compilerDownloadedPromiseResolver(data.isCompilerDownloaded);
-				break;
-		
-			case SOLIDITY_COMPILE_EVENT:
-				solidityCompilePromiseResolver(data.output);
-				break;
+  child.on("message", (data: any) => {
+    switch (data.type) {
+      case HARDHAT_CONFIG_FILE_EXIST_EVENT:
+        hardhatConfigFileExistPromiseResolver(data.exist);
+        break;
 
-			default:
-				break;
-		}
-	});
+      case COMPILER_DOWNLOADED_EVENT:
+        compilerDownloadedPromiseResolver(data.isCompilerDownloaded);
+        break;
 
-	const _run = async (uri: string, document: TextDocument, unsavedDocuments: TextDocument[]): Promise<{ [uri: string]: Diagnostic[] }> => {
-		child.send({
-			type: GET_DOCUMENT_EVENT,
-			data: {
-				uri,
-				documentText: document.getText(),
-				unsavedDocuments: unsavedDocuments.map(unsavedDocument => {
-					return {
-						uri: (unsavedDocument.uri as any).path,
-						documentText: unsavedDocument.getText()
-					};
-				})
-			}
-		});
+      case SOLIDITY_COMPILE_EVENT:
+        solidityCompilePromiseResolver(data.output);
+        break;
 
-		const hardhatConfigFileExist = (await hardhatConfigFileExistPromise) as boolean;
-		if (!hardhatConfigFileExist) {
-			return {};
-		}
+      default:
+        break;
+    }
+  });
 
-		options.isCompilerDownloaded = (await compilerDownloadedPromise) as boolean;
-		child.send({ type: SOLIDITY_COMPILE_CONFIRMATION_EVENT });
+  const _run = async (
+    uri: string,
+    document: TextDocument,
+    unsavedDocuments: TextDocument[]
+  ): Promise<{[uri: string]: Diagnostic[]}> => {
+    child.send({
+      type: GET_DOCUMENT_EVENT,
+      data: {
+        uri,
+        documentText: document.getText(),
+        unsavedDocuments: unsavedDocuments.map((unsavedDocument) => {
+          return {
+            uri: (unsavedDocument.uri as any).path,
+            documentText: unsavedDocument.getText(),
+          };
+        }),
+      },
+    });
 
-		const output: any = await solidityCompilePromise;
+    const hardhatConfigFileExist =
+      (await hardhatConfigFileExistPromise) as boolean;
+    if (!hardhatConfigFileExist) {
+      return {};
+    }
 
-		const diagnostics: { [uri: string]: Diagnostic[] } = {};
-		if (output?.errors && output.errors.length > 0) {
-			for (const error of output.errors) {
-				if (!diagnostics[error.sourceLocation.file]) {
-					diagnostics[error.sourceLocation.file] = [];
-				}
+    options.isCompilerDownloaded = (await compilerDownloadedPromise) as boolean;
+    child.send({type: SOLIDITY_COMPILE_CONFIRMATION_EVENT});
 
-				diagnostics[error.sourceLocation.file].push(<Diagnostic>{
-					code: error.errorCode,
-					source: document.languageId,
-					severity: error.severity === "error" ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
-					message: error.message,
-					range: Range.create(
-						document.positionAt(error.sourceLocation.start),
-						document.positionAt(error.sourceLocation.end)
-					)
-				});
-			}
-		}
+    const output: any = await solidityCompilePromise;
 
-		return diagnostics;
-	};
+    const diagnostics: {[uri: string]: Diagnostic[]} = {};
+    if (output?.errors && output.errors.length > 0) {
+      for (const error of output.errors) {
+        if (!diagnostics[error.sourceLocation.file]) {
+          diagnostics[error.sourceLocation.file] = [];
+        }
 
-	try {
-		const timeout = new Promise((resolve, reject) => {
-			const id = setTimeout(() => {
-				clearTimeout(id);
-				reject("Validation timed out");
-			}, 60 * 1000);
-		});
+        diagnostics[error.sourceLocation.file].push(<Diagnostic>{
+          code: error.errorCode,
+          source: document.languageId,
+          severity:
+            error.severity === "error"
+              ? DiagnosticSeverity.Error
+              : DiagnosticSeverity.Warning,
+          message: error.message,
+          range: Range.create(
+            document.positionAt(error.sourceLocation.start),
+            document.positionAt(error.sourceLocation.end)
+          ),
+        });
+      }
+    }
 
-		const diagnostics = await Promise.race([
-			_run(uri, document, unsavedDocuments),
-			canceled,
-			timeout
-		]) as Promise<{ [uri: string]: Diagnostic[] }>;
+    return diagnostics;
+  };
 
-		// Then using process.kill(pid) method on main process we can kill all processes that are in
-		// the same group of a child process with the same pid group.
-		try {
-			child.kill(child.pid);	
-		} catch (err) {
-			// console.error(err);
-		}
-		
-		return diagnostics;
-	} catch (err) {
-		try {
-			child.kill(child.pid);	
-		} catch (err) {
-			// console.error(err);
-		}
+  try {
+    const timeout = new Promise((resolve, reject) => {
+      const id = setTimeout(() => {
+        clearTimeout(id);
+        reject("Validation timed out");
+      }, 60 * 1000);
+    });
 
-		return Promise.resolve({});
-	}
+    const diagnostics = (await Promise.race([
+      _run(uri, document, unsavedDocuments),
+      canceled,
+      timeout,
+    ])) as Promise<{[uri: string]: Diagnostic[]}>;
+
+    // Then using process.kill(pid) method on main process we can kill all processes that are in
+    // the same group of a child process with the same pid group.
+    try {
+      child.kill(child.pid);
+    } catch (err) {
+      // console.error(err);
+    }
+
+    return diagnostics;
+  } catch (err) {
+    try {
+      child.kill(child.pid);
+    } catch (err) {
+      // console.error(err);
+    }
+
+    return Promise.resolve({});
+  }
 }
