@@ -1,36 +1,52 @@
-import { EnumValue, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
+import {
+  EnumValue,
+  FinderType,
+  DocumentsAnalyzerMap,
+  Node,
+} from "@common/types";
 
 export class EnumValueNode extends Node {
-    astNode: EnumValue;
+  astNode: EnumValue;
 
-    connectionTypeRules: string[] = [ "MemberAccess" ];
+  connectionTypeRules: string[] = ["MemberAccess"];
 
-    constructor (enumValue: EnumValue, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(enumValue, uri, rootPath, documentsAnalyzer, enumValue.name);
+  constructor(
+    enumValue: EnumValue,
+    uri: string,
+    rootPath: string,
+    documentsAnalyzer: DocumentsAnalyzerMap
+  ) {
+    super(enumValue, uri, rootPath, documentsAnalyzer, enumValue.name);
 
-        if (enumValue.loc) {
-            // Bug in solidity parser doesn't give exact end location
-            enumValue.loc.end.column = enumValue.loc.end.column + enumValue.name.length;
+    if (enumValue.loc) {
+      // Bug in solidity parser doesn't give exact end location
+      enumValue.loc.end.column =
+        enumValue.loc.end.column + enumValue.name.length;
 
-            this.nameLoc = JSON.parse(JSON.stringify(enumValue.loc));
-        }
-
-        this.astNode = enumValue;
+      this.nameLoc = JSON.parse(JSON.stringify(enumValue.loc));
     }
 
-    getDefinitionNode(): Node | undefined {
-        return this;
+    this.astNode = enumValue;
+  }
+
+  getDefinitionNode(): Node | undefined {
+    return this;
+  }
+
+  accept(
+    find: FinderType,
+    orphanNodes: Node[],
+    parent?: Node,
+    expression?: Node
+  ): Node {
+    this.setExpressionNode(expression);
+
+    if (parent) {
+      this.setParent(parent);
     }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
-        this.setExpressionNode(expression);
+    parent?.addChild(this);
 
-        if (parent) {
-            this.setParent(parent);
-        }
-
-        parent?.addChild(this);
-
-        return this;
-    }
+    return this;
+  }
 }

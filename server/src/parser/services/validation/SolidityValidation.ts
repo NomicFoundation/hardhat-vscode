@@ -8,12 +8,17 @@ import { TextDocument, Diagnostic, Range, DiagnosticSeverity } from "@common/typ
 import { truffleValidator } from "./truffle";
 
 export interface ValidationJob {
-	run(uri: string, document: TextDocument, unsavedDocuments: TextDocument[]): Promise<{ [uri: string]: Diagnostic[] }>;
-	close(): void;
+  run(
+    uri: string,
+    document: TextDocument,
+    unsavedDocuments: TextDocument[]
+  ): Promise<{ [uri: string]: Diagnostic[] }>;
+  close(): void;
 }
 
 export const GET_DOCUMENT_EVENT = "get_document";
-export const SOLIDITY_COMPILE_CONFIRMATION_EVENT = "solidity_compile_confirmation";
+export const SOLIDITY_COMPILE_CONFIRMATION_EVENT =
+  "solidity_compile_confirmation";
 
 export const COMPILER_DOWNLOADED_EVENT = "compiler_downloaded";
 export const SOLIDITY_COMPILE_EVENT = "solidity_compile";

@@ -1,17 +1,32 @@
-import { BooleanLiteral, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
+import {
+  BooleanLiteral,
+  FinderType,
+  DocumentsAnalyzerMap,
+  Node,
+} from "@common/types";
 
 export class BooleanLiteralNode extends Node {
-    astNode: BooleanLiteral;
+  astNode: BooleanLiteral;
 
-    constructor (booleanLiteral: BooleanLiteral, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(booleanLiteral, uri, rootPath, documentsAnalyzer, undefined);
-        this.astNode = booleanLiteral;
-        // TO-DO: Implement name location for rename
-    }
+  constructor(
+    booleanLiteral: BooleanLiteral,
+    uri: string,
+    rootPath: string,
+    documentsAnalyzer: DocumentsAnalyzerMap
+  ) {
+    super(booleanLiteral, uri, rootPath, documentsAnalyzer, undefined);
+    this.astNode = booleanLiteral;
+    // TO-DO: Implement name location for rename
+  }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
-        this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
-        return this;
-    }
+  accept(
+    find: FinderType,
+    orphanNodes: Node[],
+    parent?: Node,
+    expression?: Node
+  ): Node {
+    this.setExpressionNode(expression);
+    // TO-DO: Method not implemented
+    return this;
+  }
 }

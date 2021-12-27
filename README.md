@@ -1,32 +1,37 @@
 # vscode-solidity
+
 The _vscode-solidity_ extension contains the language smarts behind the solidity editing experience of Visual Studio Code.
 
 ### Todo
- - *doHover* provides a hover text for a given location.
- - *doCodeActions* evaluates code actions for the given location, typically to fix a problem.
+
+- _doHover_ provides a hover text for a given location.
+- _doCodeActions_ evaluates code actions for the given location, typically to fix a problem.
 
 ### Done
- - *findDefinition* finds the definition of the symbol at the given location.
- - *findTypeDefinition* finds the type definition of the symbol at the given location.
- - *findReferences* finds all references to the symbol at the given location.
- - *findImplementation* finds all implementations to the symbol at the given location.
- - *doRename* renames all symbols connected to the given location.
- - *doComplete* provides completion proposals for a given location.
- - *doValidation* analyses an input string and returns syntax and lint errors.
+
+- _findDefinition_ finds the definition of the symbol at the given location.
+- _findTypeDefinition_ finds the type definition of the symbol at the given location.
+- _findReferences_ finds all references to the symbol at the given location.
+- _findImplementation_ finds all implementations to the symbol at the given location.
+- _doRename_ renames all symbols connected to the given location.
+- _doComplete_ provides completion proposals for a given location.
+- _doValidation_ analyses an input string and returns syntax and lint errors.
 
 ## Developing
 
 ### Setup
 
-1) Install [node](https://nodejs.org/en/).
-2) Clone the repository, run `yarn && yarn run build`, and open VS Code:
+1. Install [node](https://nodejs.org/en/).
+2. Clone the repository, run `yarn && yarn run build`, and open VS Code:
 
-    ```bash
-    git clone https://github.com/Tenderly/vscode-solidity.git
-    cd vscode-solidity
-    yarn && yarn run build
-    code .
-    ```
+   ```bash
+   git clone https://github.com/Tenderly/vscode-solidity.git
+   cd vscode-solidity
+   yarn && yarn run build
+   code .
+   ```
+
+VS Code will suggest some plugins that will help develop against the codebase in compliance with the styling and linting rules.
 
 ### Run
 
@@ -46,8 +51,9 @@ Debugging the client code is as easy as debugging a normal extension. Set a brea
 Since the server is started by the `LanguageClient` running in the extension (client), we need to attach a debugger to the running server.
 
 To do this, you need:
+
 1. Go to the Run view and choose the `Attach to Server` configuration. \
-![image](docs/images/run_attach_to_server.png?raw=true)
+   ![image](docs/images/run_attach_to_server.png?raw=true)
 2. Add breakpoints as needed.
 3. Before starting the `Attach to Server` configuration make sure that `Launch Client` is already started.
 4. Start debugging (`F5`) or play button.
@@ -62,6 +68,24 @@ Tests in [testdata](./test/testdata/) directory are End-to-End tests. The benefi
 You can run End-to-End tests in two way:
 
 1. Open the Run view (`Ctrl+Shift+D`), select `Language Server E2E Test`, and click the Play button (`F5`). \
-![image](docs/images/run_e2e_test.png?raw=true)
+   ![image](docs/images/run_e2e_test.png?raw=true)
 
 2. Or run `yarn run test` in command-line.
+
+## Lint
+
+`Prettier` and `eslint` are used to enforce formatting and code rules respectively.
+
+To run the lint check:
+
+```shell
+yarn lint
+```
+
+Both prettier and eslint can attempt to automatically resolve issues found in the code, to run the fix:
+
+```shell
+yarn lint:fix
+```
+
+The same command work in both the `./server` and `./client` subfolders.
