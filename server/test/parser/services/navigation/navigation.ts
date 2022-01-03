@@ -26,7 +26,6 @@ describe("Parser", () => {
 
     describe("Definition", () => {
       describe("within contract", () => {
-
         it("should navigate to the attribute", () =>
           assertDefinitionNavigation(
             definition,
@@ -91,10 +90,12 @@ describe("Parser", () => {
             typeDefinition,
             basicUri,
             { line: 13, character: 5 },
-            [{
-              start: { line: 4, character: 9 },
-              end: { line: 4, character: 13 },
-            }]
+            [
+              {
+                start: { line: 4, character: 9 },
+                end: { line: 4, character: 13 },
+              },
+            ]
           ));
 
         it("should navigate from mapping definition", () =>
@@ -102,10 +103,12 @@ describe("Parser", () => {
             typeDefinition,
             basicUri,
             { line: 15, character: 22 },
-            [{
-              start: { line: 4, character: 9 },
-              end: { line: 4, character: 13 },
-            }]
+            [
+              {
+                start: { line: 4, character: 9 },
+                end: { line: 4, character: 13 },
+              },
+            ]
           ));
 
         it("should navigate from type initialization", () =>
@@ -113,10 +116,12 @@ describe("Parser", () => {
             typeDefinition,
             basicUri,
             { line: 20, character: 12 },
-            [{
-              start: { line: 4, character: 9 },
-              end: { line: 4, character: 13 },
-            }]
+            [
+              {
+                start: { line: 4, character: 9 },
+                end: { line: 4, character: 13 },
+              },
+            ]
           ));
       });
     });
@@ -153,5 +158,8 @@ const assertTypeDefinitionNavigation = async (
 
   assert.exists(response);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  assert.deepStrictEqual(response.map((elem: any) => elem.range).filter(x => !!x), expectedRanges);
+  assert.deepStrictEqual(
+    response.map((elem: any) => elem.range).filter((x) => !!x),
+    expectedRanges
+  );
 };

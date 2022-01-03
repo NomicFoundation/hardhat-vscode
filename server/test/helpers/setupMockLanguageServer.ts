@@ -24,7 +24,9 @@ export type OnCompletion = (
 export type OnDefinition = (
   params: DefinitionParams
 ) => Definition | DefinitionLink[] | undefined | null;
-export type OnTypeDefinition = (params: TypeDefinitionParams) => Definition | DefinitionLink[] | null;
+export type OnTypeDefinition = (
+  params: TypeDefinitionParams
+) => Definition | DefinitionLink[] | null;
 
 export async function setupMockLanguageServer({
   documents,
@@ -55,7 +57,8 @@ export async function setupMockLanguageServer({
     mockConnection.onCompletion.getCall(0).firstArg;
   const definition: OnDefinition =
     mockConnection.onDefinition.getCall(0).firstArg;
-  const typeDefinition: OnTypeDefinition = mockConnection.onTypeDefinition.getCall(0).firstArg;
+  const typeDefinition: OnTypeDefinition =
+    mockConnection.onTypeDefinition.getCall(0).firstArg;
 
   const didOpenTextDocument =
     mockConnection.onDidOpenTextDocument.getCall(0).firstArg;
