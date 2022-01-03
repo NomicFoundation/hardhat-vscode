@@ -5,6 +5,7 @@ import * as fs from "fs-extra";
 import got from "got";
 import { v4 as uuid } from "uuid";
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const pjson = require("../../../package.json");
 
 // VERY IMPORTANT:
@@ -54,7 +55,9 @@ export async function getAnalytics(): Promise<Analytics> {
 
 class EmptyAnalytics implements Analytics {
   public async sendTaskHit(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     taskName: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     more?: RawAnalyticsPayload
   ): Promise<void> {
     // DO NOTHING

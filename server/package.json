@@ -15,8 +15,8 @@
     "test:coverage": "nyc mocha",
     "lint": "yarn prettier --check && yarn eslint",
     "lint:fix": "yarn prettier --write && yarn lint --fix",
-    "eslint": "eslint ./src/**.ts",
-    "prettier": "prettier *.json \"src/**/*.{ts,js,md,json,yml}\"",
+    "eslint": "eslint ./src/**/*.ts",
+    "prettier": "prettier *.json \"src/**/*.{ts,js,md,json,yml}\" \"test/**/*.{ts,js,md,json,yml}\"",
     "clean": "rimraf out .nyc_output coverage tsconfig.tsbuildinfo"
   },
   "_moduleAliases": {
