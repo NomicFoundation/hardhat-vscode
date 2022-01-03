@@ -1,9 +1,9 @@
-import * as assert from 'assert';
-import setupServer from '../src/server';
-import { setupMockConnection } from './helpers/setupMockConnection';
+import * as assert from "assert";
+import setupServer from "../src/server";
+import { setupMockConnection } from "./helpers/setupMockConnection";
 
 describe("Solidity Language Server", () => {
-  describe('initialization', () => {
+  describe("initialization", () => {
     describe("capability registration", () => {
       let mockConnection: ReturnType<typeof setupMockConnection>;
       let capabilities: any;
@@ -17,58 +17,72 @@ describe("Solidity Language Server", () => {
         const initialize = mockConnection.onInitialize.getCall(0).firstArg;
         assert(initialize);
 
-        const initializeResponse = initialize({ rootUri: null, capabilities: {} });
+        const initializeResponse = initialize({
+          rootUri: null,
+          capabilities: {},
+        });
         assert(initializeResponse);
         capabilities = initializeResponse.capabilities;
         assert(capabilities);
       });
 
       describe("completions", () => {
-        it("advertises capability", () => assert.deepStrictEqual(capabilities.completionProvider, {
-          triggerCharacters: [
-            '.', '/'
-          ]
-        }));
+        it("advertises capability", () =>
+          assert.deepStrictEqual(capabilities.completionProvider, {
+            triggerCharacters: [".", "/"],
+          }));
 
-        it("registers onCompletion", () => assert(mockConnection.onCompletion.calledOnce));
+        it("registers onCompletion", () =>
+          assert(mockConnection.onCompletion.calledOnce));
       });
 
       describe("signature help", () => {
-        it("advertises capability", () => assert.deepStrictEqual(capabilities.signatureHelpProvider, {
-          triggerCharacters: ['(', ',']
-        }));
+        it("advertises capability", () =>
+          assert.deepStrictEqual(capabilities.signatureHelpProvider, {
+            triggerCharacters: ["(", ","],
+          }));
 
-        it("registers onSignatureHelp", () => assert(mockConnection.onSignatureHelp.calledOnce));
+        it("registers onSignatureHelp", () =>
+          assert(mockConnection.onSignatureHelp.calledOnce));
       });
 
       describe("definition", () => {
-        it("advertises capability", () => assert(capabilities.definitionProvider));
+        it("advertises capability", () =>
+          assert(capabilities.definitionProvider));
 
-        it("registers onDefinition", () => assert(mockConnection.onDefinition.calledOnce));
+        it("registers onDefinition", () =>
+          assert(mockConnection.onDefinition.calledOnce));
       });
 
       describe("type definition", () => {
-        it("advertises capability", () => assert(capabilities.typeDefinitionProvider));
+        it("advertises capability", () =>
+          assert(capabilities.typeDefinitionProvider));
 
-        it("registers onTypeDefinition", () => assert(mockConnection.onTypeDefinition.calledOnce));
+        it("registers onTypeDefinition", () =>
+          assert(mockConnection.onTypeDefinition.calledOnce));
       });
 
       describe("references", () => {
-        it("advertises capability", () => assert(capabilities.referencesProvider));
+        it("advertises capability", () =>
+          assert(capabilities.referencesProvider));
 
-        it("registers onImplementation", () => assert(mockConnection.onReferences.calledOnce));
+        it("registers onImplementation", () =>
+          assert(mockConnection.onReferences.calledOnce));
       });
 
       describe("implementation", () => {
-        it("advertises capability", () => assert(capabilities.implementationProvider));
+        it("advertises capability", () =>
+          assert(capabilities.implementationProvider));
 
-        it("registers onImplementation", () => assert(mockConnection.onImplementation.calledOnce));
+        it("registers onImplementation", () =>
+          assert(mockConnection.onImplementation.calledOnce));
       });
 
       describe("rename", () => {
         it("advertises capability", () => assert(capabilities.renameProvider));
 
-        it("registers onRenameRequest", () => assert(mockConnection.onRenameRequest.calledOnce));
+        it("registers onRenameRequest", () =>
+          assert(mockConnection.onRenameRequest.calledOnce));
       });
     });
   });

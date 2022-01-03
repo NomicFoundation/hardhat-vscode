@@ -1,5 +1,4 @@
-/* eslint-disable prefer-rest-params */
-/* eslint-disable @typescript-eslint/no-this-alias */
+/* eslint-disable prefer-rest-params, @typescript-eslint/no-this-alias, @typescript-eslint/no-explicit-any */
 
 interface DebouncedFunction {
   (): any;

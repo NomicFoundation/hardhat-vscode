@@ -1,47 +1,77 @@
 import { assert } from "chai";
-import * as fs from 'fs';
-import { CompletionItem, CompletionList, CompletionParams, Definition, DefinitionLink, DefinitionParams, SignatureHelp, SignatureHelpParams, TextDocumentItem } from "vscode-languageserver/node";
+import * as fs from "fs";
+import {
+  CompletionItem,
+  CompletionList,
+  CompletionParams,
+  Definition,
+  DefinitionLink,
+  DefinitionParams,
+  SignatureHelp,
+  SignatureHelpParams,
+  TextDocumentItem,
+} from "vscode-languageserver/node";
 import setupServer from "../../src/server";
 import { setupMockConnection } from "./setupMockConnection";
 
-export type OnSignatureHelp = (params: SignatureHelpParams) => SignatureHelp | undefined | null;
-export type OnCompletion = (params: CompletionParams) => CompletionItem[] | CompletionList | undefined | null;
-export type OnDefinition = (params: DefinitionParams) => Definition | DefinitionLink[] | undefined | null;
+export type OnSignatureHelp = (
+  params: SignatureHelpParams
+) => SignatureHelp | undefined | null;
+export type OnCompletion = (
+  params: CompletionParams
+) => CompletionItem[] | CompletionList | undefined | null;
+export type OnDefinition = (
+  params: DefinitionParams
+) => Definition | DefinitionLink[] | undefined | null;
 
-export async function setupMockLanguageServer({ documents }: { documents: string[] }) {
-    const mockConnection = setupMockConnection();
+export async function setupMockLanguageServer({
+  documents,
+}: {
+  documents: string[];
+}) {
+  const mockConnection = setupMockConnection();
 
-    await setupServer(mockConnection as any);
+  await setupServer(mockConnection as any);
 
-    assert(mockConnection.onInitialize.called);
-    const initialize = mockConnection.onInitialize.getCall(0).firstArg;
-    assert(initialize);
-    const initializeResponse = await initialize({ rootUri: null, capabilities: {} });
-    assert(initializeResponse);
+  assert(mockConnection.onInitialize.called);
+  const initialize = mockConnection.onInitialize.getCall(0).firstArg;
+  assert(initialize);
+  const initializeResponse = await initialize({
+    rootUri: null,
+    capabilities: {},
+  });
+  assert(initializeResponse);
 
-    assert(mockConnection.onInitialized.called);
-    const initialized = mockConnection.onInitialized.getCall(0).firstArg;
-    assert(initialized);
-    await initialized({ rootUri: null, capabilities: {} });
+  assert(mockConnection.onInitialized.called);
+  const initialized = mockConnection.onInitialized.getCall(0).firstArg;
+  assert(initialized);
+  await initialized({ rootUri: null, capabilities: {} });
 
-    const signatureHelp: OnSignatureHelp = mockConnection.onSignatureHelp.getCall(0).firstArg;
-    const completion: OnCompletion = mockConnection.onCompletion.getCall(0).firstArg;
-    const definition: OnDefinition = mockConnection.onDefinition.getCall(0).firstArg;
+  const signatureHelp: OnSignatureHelp =
+    mockConnection.onSignatureHelp.getCall(0).firstArg;
+  const completion: OnCompletion =
+    mockConnection.onCompletion.getCall(0).firstArg;
+  const definition: OnDefinition =
+    mockConnection.onDefinition.getCall(0).firstArg;
 
-    const didOpenTextDocument = mockConnection.onDidOpenTextDocument.getCall(0).firstArg;
+  const didOpenTextDocument =
+    mockConnection.onDidOpenTextDocument.getCall(0).firstArg;
 
-    for (const documentUri of documents) {
-        const fileContent = await fs.promises.readFile(documentUri);
+  for (const documentUri of documents) {
+    const fileContent = await fs.promises.readFile(documentUri);
 
-        const textDocument: TextDocumentItem = {
-            uri: documentUri,
-            languageId: 'solidity',
-            version: 0,
-            text: fileContent.toString()
-        };
+    const textDocument: TextDocumentItem = {
+      uri: documentUri,
+      languageId: "solidity",
+      version: 0,
+      text: fileContent.toString(),
+    };
 
-        await didOpenTextDocument({ textDocument: textDocument });
-    }
+    await didOpenTextDocument({ textDocument: textDocument });
+  }
 
-    return { connection: mockConnection, server: { signatureHelp, completion, definition } };
+  return {
+    connection: mockConnection,
+    server: { signatureHelp, completion, definition },
+  };
 }

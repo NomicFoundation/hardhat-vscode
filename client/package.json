@@ -8,7 +8,7 @@
   "scripts": {
     "lint": "yarn prettier --check && yarn eslint",
     "lint:fix": "yarn prettier --write && yarn lint --fix",
-    "eslint": "eslint ./src/**.ts",
+    "eslint": "eslint ./src/**/*.ts",
     "prettier": "prettier *.json \"src/**/*.{ts,js,md,json,yml}\""
   },
   "devDependencies": {
