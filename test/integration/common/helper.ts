@@ -10,7 +10,7 @@ export async function sleep(ms: number): Promise<void> {
 
 export function getDocPath(dirname: string, p: string): string {
   // TO-DO: Refactor this
-  dirname = dirname.replace("/out/", "/");
+  dirname = dirname.replace("/out/", "/").replace("\\out\\", "\\");
   return path.resolve(dirname, "testdata", p);
 }
 
