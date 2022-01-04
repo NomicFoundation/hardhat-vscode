@@ -101,6 +101,7 @@ function matcher<T>(
 ) => T {
   return (ast, uri, rootPath, documentsAnalyzer) =>
     pattern[ast.type](
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ast as any,
       uri as string,
       rootPath as string,
