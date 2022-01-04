@@ -2,6 +2,7 @@ import "module-alias/register";
 import * as Sentry from "@sentry/node";
 import { createConnection, ProposedFeatures } from "vscode-languageserver/node";
 import setupServer from "./server";
+import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
 
 Sentry.init({
   // Sentry DSN. I guess there's no other choice than keeping it here.
@@ -17,7 +18,7 @@ Sentry.init({
 // Also include all preview / proposed LSP features.
 const connection = createConnection(ProposedFeatures.all);
 
-setupServer(connection);
+setupServer(connection, compilerProcessFactory);
 
 // Listen on the connection
 connection.listen();

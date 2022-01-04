@@ -21,5 +21,21 @@ export function setupMockConnection() {
     onWillSaveTextDocumentWaitUntil: sinon.spy(),
     onDidSaveTextDocument: sinon.spy(),
     sendNotification: sinon.spy(),
+    onNotification: sinon.fake(
+      (
+        _method: string,
+        handler: (
+          unsavedDocuments: {
+            uri: string;
+            languageId: string;
+            version: number;
+            content: string;
+          }[]
+        ) => void
+      ) => {
+        handler([]);
+      }
+    ),
+    sendDiagnostics: sinon.spy(),
   };
 }

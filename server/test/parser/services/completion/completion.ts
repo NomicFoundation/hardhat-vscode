@@ -33,6 +33,7 @@ describe("Parser", () => {
         memberAccessStructUri,
         memberAccessNestedStructUri,
       ],
+      errors: [],
     }));
   });
 
