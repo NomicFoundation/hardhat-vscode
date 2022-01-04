@@ -14,16 +14,19 @@ export const HARDHAT_CONFIG_FILE_EXIST_EVENT = "hardhat_config_file_exist";
   try {
     // TypeScript forces to check send method on existence
     if (process.send) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let getDocumentPromisePromiseResolver: any;
       const getDocumentPromisePromise = new Promise((resolve) => {
         getDocumentPromisePromiseResolver = resolve;
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let solidityCompileConfirmationPromiseResolver: any;
       const solidityCompileConfirmationPromise = new Promise((resolve) => {
         solidityCompileConfirmationPromiseResolver = resolve;
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       process.on("message", (data: any) => {
         switch (data.type) {
           case GET_DOCUMENT_EVENT:
@@ -39,6 +42,7 @@ export const HARDHAT_CONFIG_FILE_EXIST_EVENT = "hardhat_config_file_exist";
         }
       });
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data: any = await getDocumentPromisePromise;
 
       let hre;
@@ -76,11 +80,13 @@ export const HARDHAT_CONFIG_FILE_EXIST_EVENT = "hardhat_config_file_exist";
         TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE,
         TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT,
         TASK_COMPILE_SOLIDITY_COMPILE,
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
       } = require(`${hardhatBase}/builtin-tasks/task-names`);
 
       const {
         getSolidityFilesCachePath,
         SolidityFilesCache,
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
       } = require(`${hardhatBase}/builtin-tasks/utils/solidity-files-cache`);
 
       const sourcePaths = await hre.run(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS);
@@ -109,6 +115,7 @@ export const HARDHAT_CONFIG_FILE_EXIST_EVENT = "hardhat_config_file_exist";
 
       const resolvedFile = dependencyGraph
         .getResolvedFiles()
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .filter((f: any) => f.absolutePath === uri)[0];
 
       const compilationJob = await hre.run(
@@ -128,6 +135,7 @@ export const HARDHAT_CONFIG_FILE_EXIST_EVENT = "hardhat_config_file_exist";
         modifiedFiles[unsavedDocument.uri] = unsavedDocument.documentText;
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       compilationJob.getResolvedFiles().forEach((file: any) => {
         if (modifiedFiles[file.absolutePath]) {
           file.content.rawContent = modifiedFiles[file.absolutePath];
@@ -140,9 +148,11 @@ export const HARDHAT_CONFIG_FILE_EXIST_EVENT = "hardhat_config_file_exist";
 
       const {
         getCompilersDir,
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
       } = require(`${hardhatBase}/internal/util/global-dir`);
       const {
         CompilerDownloader,
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
       } = require(`${hardhatBase}/internal/solidity/compiler/downloader`);
 
       const compilersCache = await getCompilersDir();

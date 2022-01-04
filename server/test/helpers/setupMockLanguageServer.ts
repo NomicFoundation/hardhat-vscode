@@ -35,6 +35,7 @@ export async function setupMockLanguageServer({
 }) {
   const mockConnection = setupMockConnection();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await setupServer(mockConnection as any);
 
   assert(mockConnection.onInitialize.called);

@@ -157,8 +157,9 @@ const assertTypeDefinitionNavigation = async (
   }
 
   assert.exists(response);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   assert.deepStrictEqual(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     response.map((elem: any) => elem.range).filter((x) => !!x),
     expectedRanges
   );

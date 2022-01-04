@@ -6,11 +6,13 @@ describe("Solidity Language Server", () => {
   describe("initialization", () => {
     describe("capability registration", () => {
       let mockConnection: ReturnType<typeof setupMockConnection>;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let capabilities: any;
 
       before(async () => {
         mockConnection = setupMockConnection();
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         await setupServer(mockConnection as any);
 
         assert(mockConnection.onInitialize.called);

@@ -34,9 +34,11 @@ export class SolidityValidation {
     this.analyzer = analyzer;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public getValidationJob(uri: string): ValidationJob {
     let isCompilerDownloaded = true;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let canceledResolver: any;
     const canceled = new Promise((resolve) => {
       canceledResolver = resolve;
@@ -60,21 +62,25 @@ export class SolidityValidation {
           detached: true,
         });
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let hardhatConfigFileExistPromiseResolver: any;
         const hardhatConfigFileExistPromise = new Promise((resolve) => {
           hardhatConfigFileExistPromiseResolver = resolve;
         });
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let compilerDownloadedPromiseResolver: any;
         const compilerDownloadedPromise = new Promise((resolve) => {
           compilerDownloadedPromiseResolver = resolve;
         });
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let solidityCompilePromiseResolver: any;
         const solidityCompilePromise = new Promise((resolve) => {
           solidityCompilePromiseResolver = resolve;
         });
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         child.on("message", (data: any) => {
           switch (data.type) {
             case HARDHAT_CONFIG_FILE_EXIST_EVENT:
@@ -106,6 +112,7 @@ export class SolidityValidation {
               documentText: document.getText(),
               unsavedDocuments: unsavedDocuments.map((unsavedDocument) => {
                 return {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   uri: (unsavedDocument.uri as any).path,
                   documentText: unsavedDocument.getText(),
                 };
@@ -122,6 +129,7 @@ export class SolidityValidation {
           isCompilerDownloaded = (await compilerDownloadedPromise) as boolean;
           child.send({ type: SOLIDITY_COMPILE_CONFIRMATION_EVENT });
 
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const output: any = await solidityCompilePromise;
 
           const diagnostics: { [uri: string]: Diagnostic[] } = {};

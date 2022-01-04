@@ -167,6 +167,7 @@ function resolveBrownieDependency(
 
     if (brownieFilePath) {
       if (!brownieRemappingCache[brownieFilePath]) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const brownieConfig: any = yaml.load(
           fs.readFileSync(brownieFilePath, "utf8")
         );

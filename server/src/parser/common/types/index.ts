@@ -676,9 +676,13 @@ export class EmptyNode extends Node {
   }
 
   accept(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     find: FinderType,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     orphanNodes: Node[],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     parent?: Node,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     expression?: Node
   ): Node {
     return this;
