@@ -23,6 +23,7 @@ import { ValidationJob } from "@services/validation/SolidityValidation";
 import { getUriFromDocument, decodeUriAndRemoveFilePrefix } from "./utils";
 import { debounce } from "./utils/debaunce";
 import { LanguageService } from "./parser";
+import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
 
 let rootUri: string;
 let hasWorkspaceFolderCapability = false;
@@ -49,7 +50,10 @@ type UnsavedDocumentType = {
   content: string;
 };
 
-export default function setupServer(connection: Connection): Connection {
+export default function setupServer(
+  connection: Connection,
+  compProcessFactory: typeof compilerProcessFactory
+): Connection {
   connection.onInitialize(resolveOnInitialize(connection));
 
   connection.onInitialized(async () => {
@@ -65,7 +69,7 @@ export default function setupServer(connection: Connection): Connection {
     analytics = await getAnalytics();
     const startTime = Date.now();
 
-    languageServer = new LanguageService(rootUri);
+    languageServer = new LanguageService(rootUri, compProcessFactory);
 
     analytics.sendTaskHit("indexing", {
       plt: Date.now() - startTime,
@@ -351,8 +355,7 @@ export default function setupServer(connection: Connection): Connection {
     }
 
     const documentURI = getUriFromDocument(change.document);
-    const validationJob =
-      languageServer.solidityValidation.getValidationJob(documentURI);
+    const validationJob = languageServer.solidityValidation.getValidationJob();
 
     debounceValidateDocument[change.document.uri](
       connection,

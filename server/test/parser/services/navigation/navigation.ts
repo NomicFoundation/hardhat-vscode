@@ -16,7 +16,7 @@ describe("Parser", () => {
     before(async () => {
       ({
         server: { definition, typeDefinition },
-      } = await setupMockLanguageServer({ documents: [basicUri] }));
+      } = await setupMockLanguageServer({ documents: [basicUri], errors: [] }));
 
       // Hack, the anaylsing of text docs is debounced
       await new Promise((resolve) => {

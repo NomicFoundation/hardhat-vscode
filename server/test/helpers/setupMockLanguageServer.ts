@@ -13,6 +13,7 @@ import {
   TextDocumentItem,
 } from "vscode-languageserver/node";
 import setupServer from "../../src/server";
+import { setupMockCompilerProcessFactory } from "./setupMockCompilerProcessFactory";
 import { setupMockConnection } from "./setupMockConnection";
 
 export type OnSignatureHelp = (
@@ -30,13 +31,17 @@ export type OnTypeDefinition = (
 
 export async function setupMockLanguageServer({
   documents,
+  errors,
 }: {
   documents: string[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  errors: any[];
 }) {
   const mockConnection = setupMockConnection();
+  const mockCompilerProcessFactory = setupMockCompilerProcessFactory(errors);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await setupServer(mockConnection as any);
+  await setupServer(mockConnection as any, mockCompilerProcessFactory);
 
   assert(mockConnection.onInitialize.called);
   const initialize = mockConnection.onInitialize.getCall(0).firstArg;
@@ -79,6 +84,11 @@ export async function setupMockLanguageServer({
 
   return {
     connection: mockConnection,
-    server: { signatureHelp, completion, definition, typeDefinition },
+    server: {
+      signatureHelp,
+      completion,
+      definition,
+      typeDefinition,
+    },
   };
 }

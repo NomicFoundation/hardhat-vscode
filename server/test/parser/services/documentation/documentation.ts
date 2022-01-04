@@ -14,7 +14,7 @@ describe("Parser", () => {
     beforeEach(async () => {
       ({
         server: { signatureHelp },
-      } = await setupMockLanguageServer({ documents: [basicUri] }));
+      } = await setupMockLanguageServer({ documents: [basicUri], errors: [] }));
     });
 
     it("should return signature info", async () => {
