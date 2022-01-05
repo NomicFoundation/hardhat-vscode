@@ -11,39 +11,88 @@ describe("Parser", () => {
   describe("Navigation", () => {
     describe("References", () => {
       const basicUri = path.join(__dirname, "testData", "References.sol");
+      const twoContractUri = path.join(
+        __dirname,
+        "testData",
+        "TwoContracts.sol"
+      );
       let references: OnReferences;
 
       before(async () => {
         ({
           server: { references },
         } = await setupMockLanguageServer({
-          documents: [{ uri: basicUri, analyze: true }],
+          documents: [
+            { uri: basicUri, analyze: true },
+            { uri: twoContractUri, analyze: true },
+          ],
           errors: [],
         }));
       });
 
-      it("should navigate to the attribute", () =>
-        assertReferencesNavigation(
-          references,
-          basicUri,
-          { line: 23, character: 12 },
-          [
-            {
-              uri: basicUri,
-              range: {
-                start: { line: 23, character: 11 },
-                end: { line: 23, character: 23 },
-              },
-            },
+      describe("functions", () => {
+        it("should show usages of function", () =>
+          assertReferencesNavigation(
+            references,
+            basicUri,
+            { line: 23, character: 12 },
             {
               uri: basicUri,
               range: {
                 start: { line: 30, character: 4 },
                 end: { line: 30, character: 16 },
               },
-            },
-          ]
-        ));
+            }
+          ));
+      });
+
+      describe("contracts", () => {
+        describe("definition", () => {
+          it("should show usages of contract extension", () =>
+            assertReferencesNavigation(
+              references,
+              twoContractUri,
+              { line: 3, character: 10 },
+              {
+                uri: twoContractUri,
+                range: {
+                  start: { line: 10, character: 33 },
+                  end: { line: 10, character: 40 },
+                },
+              }
+            ));
+        });
+
+        describe("constructor", () => {
+          it("should show usages of itself", () =>
+            assertReferencesNavigation(
+              references,
+              twoContractUri,
+              { line: 14, character: 6 },
+              {
+                uri: twoContractUri,
+                range: {
+                  start: { line: 14, character: 4 },
+                  end: { line: 14, character: 28 },
+                },
+              }
+            ));
+
+          it("should show usages of contract extension", () =>
+            assertReferencesNavigation(
+              references,
+              twoContractUri,
+              { line: 14, character: 6 },
+              {
+                uri: twoContractUri,
+                range: {
+                  start: { line: 18, character: 33 },
+                  end: { line: 18, character: 36 },
+                },
+              }
+            ));
+        });
+      });
     });
   });
 });
@@ -52,7 +101,7 @@ const assertReferencesNavigation = async (
   references: OnReferences,
   uri: string,
   position: VSCodePosition,
-  expectedPositions: Location[]
+  expectedPositions: Location
 ) => {
   const response = await references({
     context: {
@@ -68,5 +117,5 @@ const assertReferencesNavigation = async (
 
   assert.exists(response);
 
-  assert.deepStrictEqual(response, expectedPositions);
+  assert.deepInclude(response, expectedPositions);
 };
