@@ -10,13 +10,21 @@ describe("Parser", () => {
   describe("Navigation", () => {
     describe("Definition", () => {
       const basicUri = path.join(__dirname, "testData", "Definition.sol");
+      const twoContractUri = path.join(
+        __dirname,
+        "testData",
+        "TwoContracts.sol"
+      );
       let definition: OnDefinition;
 
       before(async () => {
         ({
           server: { definition },
         } = await setupMockLanguageServer({
-          documents: [{ uri: basicUri, analyze: true }],
+          documents: [
+            { uri: basicUri, analyze: true },
+            { uri: twoContractUri, analyze: true },
+          ],
           errors: [],
         }));
       });
@@ -74,6 +82,28 @@ describe("Parser", () => {
             {
               start: { line: 33, character: 2 },
               end: { line: 35, character: 2 },
+            }
+          ));
+
+        it("should navigate from constructor extension to contract declaration if underlying constructor does not exist", () =>
+          assertDefinitionNavigation(
+            definition,
+            twoContractUri,
+            { line: 10, character: 34 },
+            {
+              start: { line: 3, character: 0 },
+              end: { line: 7, character: 0 },
+            }
+          ));
+
+        it("should navigate from constructor extension to underlying contracts constructor if it exists", () =>
+          assertDefinitionNavigation(
+            definition,
+            twoContractUri,
+            { line: 18, character: 34 },
+            {
+              start: { line: 14, character: 4 },
+              end: { line: 14, character: 26 },
             }
           ));
       });

@@ -4,6 +4,12 @@ import {
   DocumentsAnalyzerMap,
   Node,
 } from "@common/types";
+import {
+  isFunctionDefinition,
+  isContractDefinition,
+} from "@analyzer/utils/typeGuards";
+import { ContractDefinitionNode } from "./ContractDefinitionNode";
+import { FunctionDefinitionNode } from "./FunctionDefinitionNode";
 
 export class ModifierInvocationNode extends Node {
   astNode: ModifierInvocation;
@@ -55,22 +61,50 @@ export class ModifierInvocationNode extends Node {
       );
     }
 
-    if (parent) {
-      const searcher = this.documentsAnalyzer[this.uri]?.searcher;
-      const modifierInvocationParent = searcher?.findParent(this, parent);
+    if (!parent) {
+      orphanNodes.push(this);
+      return this;
+    }
 
-      if (modifierInvocationParent) {
+    const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+    const modifierInvocationParent = searcher?.findParent(this, parent);
+
+    if (!modifierInvocationParent) {
+      orphanNodes.push(this);
+      return this;
+    }
+
+    if (
+      isContractDefinition(modifierInvocationParent) &&
+      modifierInvocationParent.isAlive
+    ) {
+      const constructorNode = this.lookupConstructorFor(
+        modifierInvocationParent
+      );
+
+      if (constructorNode) {
         this.addTypeNode(modifierInvocationParent);
+        this.setParent(constructorNode);
 
-        this.setParent(modifierInvocationParent);
         modifierInvocationParent?.addChild(this);
+        constructorNode.addChild(this);
 
         return this;
       }
     }
 
-    orphanNodes.push(this);
+    this.addTypeNode(modifierInvocationParent);
+    this.setParent(modifierInvocationParent);
+    modifierInvocationParent?.addChild(this);
 
     return this;
+  }
+
+  private lookupConstructorFor(
+    contractDefinition: ContractDefinitionNode
+  ): FunctionDefinitionNode | undefined {
+    return contractDefinition.children
+      .filter(isFunctionDefinition)
+      .find((node) => node.isConstructor);
   }
 }

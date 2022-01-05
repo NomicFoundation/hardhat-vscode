@@ -29,25 +29,50 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
     this.astNode = functionDefinition;
     this.isConstructor = functionDefinition.isConstructor;
 
-    if (
-      !functionDefinition.isConstructor &&
-      functionDefinition.loc &&
-      functionDefinition.name
-    ) {
+    if (!functionDefinition.loc) {
+      return;
+    }
+
+    if (functionDefinition.isConstructor) {
       this.nameLoc = {
         start: {
           line: functionDefinition.loc.start.line,
-          column: functionDefinition.loc.start.column + "function ".length,
+          column: functionDefinition.loc.start.column,
         },
         end: {
           line: functionDefinition.loc.start.line,
           column:
             functionDefinition.loc.start.column +
             "function ".length +
-            functionDefinition.name.length,
+            functionDefinition.loc.start.column +
+            "constructor".length,
         },
       };
+
+      return;
     }
+
+    if (!functionDefinition.name) {
+      return;
+    }
+
+    this.nameLoc = {
+      start: {
+        line: functionDefinition.loc.start.line,
+        column: functionDefinition.loc.start.column + "function ".length,
+      },
+      end: {
+        line: functionDefinition.loc.start.line,
+        column:
+          functionDefinition.loc.start.column +
+          "function ".length +
+          functionDefinition.name.length,
+      },
+    };
+  }
+
+  getName(): string | undefined {
+    return this.isConstructor ? this.parent?.name : this.name;
   }
 
   getDefinitionNode(): Node | undefined {
