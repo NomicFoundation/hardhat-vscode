@@ -11,6 +11,8 @@ import {
   SignatureHelp,
   SignatureHelpParams,
   TextDocumentItem,
+  ReferenceParams,
+  Location,
 } from "vscode-languageserver/node";
 import setupServer from "../../src/server";
 import { setupMockCompilerProcessFactory } from "./setupMockCompilerProcessFactory";
@@ -28,6 +30,9 @@ export type OnDefinition = (
 export type OnTypeDefinition = (
   params: TypeDefinitionParams
 ) => Definition | DefinitionLink[] | null;
+export type OnReferences = (
+  params: ReferenceParams
+) => Location[] | undefined | null;
 
 export async function setupMockLanguageServer({
   documents,
@@ -65,6 +70,8 @@ export async function setupMockLanguageServer({
     mockConnection.onDefinition.getCall(0).firstArg;
   const typeDefinition: OnTypeDefinition =
     mockConnection.onTypeDefinition.getCall(0).firstArg;
+  const references: OnReferences =
+    mockConnection.onReferences.getCall(0).firstArg;
 
   const didOpenTextDocument =
     mockConnection.onDidOpenTextDocument.getCall(0).firstArg;
@@ -89,6 +96,7 @@ export async function setupMockLanguageServer({
       completion,
       definition,
       typeDefinition,
+      references,
     },
   };
 }
