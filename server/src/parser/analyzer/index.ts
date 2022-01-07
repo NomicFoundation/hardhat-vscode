@@ -5,9 +5,9 @@ import * as path from "path";
 import * as parser from "@solidity-parser/parser";
 
 import * as matcher from "@analyzer/matcher";
-import {Searcher} from "@analyzer/searcher";
-import {BROWNIE_PACKAGE_PATH} from "@analyzer/resolver";
-import {IndexFileData, eventEmitter as em} from "@common/event";
+import { Searcher } from "@analyzer/searcher";
+import { BROWNIE_PACKAGE_PATH } from "@analyzer/resolver";
+import { IndexFileData, eventEmitter as em } from "@common/event";
 import {
   Node,
   SourceUnitNode,
@@ -121,7 +121,7 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
 
   ast: ASTNode | undefined;
 
-  analyzerTree: {tree: Node};
+  analyzerTree: { tree: Node };
   isAnalyzed = false;
 
   searcher: ISearcher;
@@ -133,7 +133,7 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
     this.uri = uri;
 
     this.analyzerTree = {
-      tree: new EmptyNode({type: "Empty"}, this.uri, this.rootPath, {}),
+      tree: new EmptyNode({ type: "Empty" }, this.uri, this.rootPath, {}),
     };
     this.searcher = new Searcher(this.analyzerTree);
 

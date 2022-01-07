@@ -1,4 +1,9 @@
-import {EnumValue, FinderType, DocumentsAnalyzerMap, Node} from "@common/types";
+import {
+  EnumValue,
+  FinderType,
+  DocumentsAnalyzerMap,
+  Node,
+} from "@common/types";
 
 export class EnumValueNode extends Node {
   astNode: EnumValue;

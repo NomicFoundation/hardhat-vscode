@@ -7,17 +7,17 @@ import {
 } from "@common/types";
 
 const Resolver = require("@truffle/resolver");
-const {Compile} = require("@truffle/compile-solidity");
+const { Compile } = require("@truffle/compile-solidity");
 const Config = require("@truffle/config");
 
 export async function truffleValidator(
   uri: string,
   document: TextDocument
-): Promise<{[uri: string]: Diagnostic[]}> {
+): Promise<{ [uri: string]: Diagnostic[] }> {
   try {
     // TypeScript forces to check send method on existence
     if (process.send) {
-      const cfg = Config.detect({workingDirectory: path.resolve(uri, "..")});
+      const cfg = Config.detect({ workingDirectory: path.resolve(uri, "..") });
       cfg.resolver = new Resolver(cfg);
       try {
         await Compile.necessary(cfg);

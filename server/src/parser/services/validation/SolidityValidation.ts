@@ -3,21 +3,21 @@ import * as fs from "fs";
 import * as childProcess from "child_process";
 
 import * as utils from "@common/utils";
-import {Analyzer} from "@analyzer/index";
+import { Analyzer } from "@analyzer/index";
 import {
   TextDocument,
   Diagnostic,
   Range,
   DiagnosticSeverity,
 } from "@common/types";
-import {truffleValidator} from "./truffle";
+import { truffleValidator } from "./truffle";
 
 export interface ValidationJob {
   run(
     uri: string,
     document: TextDocument,
     unsavedDocuments: TextDocument[]
-  ): Promise<{[uri: string]: Diagnostic[]}>;
+  ): Promise<{ [uri: string]: Diagnostic[] }>;
   close(): void;
 }
 
@@ -61,7 +61,7 @@ export class SolidityValidation {
         uri: string,
         document: TextDocument,
         unsavedDocuments: TextDocument[]
-      ): Promise<{[uri: string]: Diagnostic[]}> => {
+      ): Promise<{ [uri: string]: Diagnostic[] }> => {
         const projectRoot = utils.findUpSync("package.json", {
           cwd: path.resolve(uri, ".."),
           stopAt: this.analyzer.rootPath,
@@ -112,7 +112,7 @@ async function hardhatValidator(
   unsavedDocuments: TextDocument[],
   options: validationJobOptions,
   canceled: Promise<any>
-): Promise<{[uri: string]: Diagnostic[]}> {
+): Promise<{ [uri: string]: Diagnostic[] }> {
   // We can start child processes with {detached: true} option so those processes will not be attached
   // to main process but they will go to a new group of processes.
   const child = childProcess.fork(path.resolve(__dirname, "hardhat.js"), {
@@ -158,7 +158,7 @@ async function hardhatValidator(
     uri: string,
     document: TextDocument,
     unsavedDocuments: TextDocument[]
-  ): Promise<{[uri: string]: Diagnostic[]}> => {
+  ): Promise<{ [uri: string]: Diagnostic[] }> => {
     child.send({
       type: GET_DOCUMENT_EVENT,
       data: {
@@ -180,11 +180,11 @@ async function hardhatValidator(
     }
 
     options.isCompilerDownloaded = (await compilerDownloadedPromise) as boolean;
-    child.send({type: SOLIDITY_COMPILE_CONFIRMATION_EVENT});
+    child.send({ type: SOLIDITY_COMPILE_CONFIRMATION_EVENT });
 
     const output: any = await solidityCompilePromise;
 
-    const diagnostics: {[uri: string]: Diagnostic[]} = {};
+    const diagnostics: { [uri: string]: Diagnostic[] } = {};
     if (output?.errors && output.errors.length > 0) {
       for (const error of output.errors) {
         if (!diagnostics[error.sourceLocation.file]) {
@@ -222,7 +222,7 @@ async function hardhatValidator(
       _run(uri, document, unsavedDocuments),
       canceled,
       timeout,
-    ])) as Promise<{[uri: string]: Diagnostic[]}>;
+    ])) as Promise<{ [uri: string]: Diagnostic[] }>;
 
     // Then using process.kill(pid) method on main process we can kill all processes that are in
     // the same group of a child process with the same pid group.

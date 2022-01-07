@@ -1,5 +1,5 @@
-import {TextDocument} from "vscode-languageserver-textdocument";
-import {TextDocumentIdentifier} from "vscode-languageserver-protocol";
+import { TextDocument } from "vscode-languageserver-textdocument";
+import { TextDocumentIdentifier } from "vscode-languageserver-protocol";
 
 export function getUriFromDocument(
   document: TextDocument | TextDocumentIdentifier

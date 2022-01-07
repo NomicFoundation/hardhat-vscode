@@ -1,4 +1,9 @@
-import {Continue, FinderType, DocumentsAnalyzerMap, Node} from "@common/types";
+import {
+  Continue,
+  FinderType,
+  DocumentsAnalyzerMap,
+  Node,
+} from "@common/types";
 
 export class ContinueNode extends Node {
   astNode: Continue;

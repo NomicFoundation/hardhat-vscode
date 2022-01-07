@@ -1,4 +1,4 @@
-import {Break, FinderType, DocumentsAnalyzerMap, Node} from "@common/types";
+import { Break, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class BreakNode extends Node {
   astNode: Break;

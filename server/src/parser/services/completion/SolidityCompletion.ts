@@ -2,8 +2,8 @@ import * as fs from "fs";
 import * as path from "path";
 import * as Sentry from "@sentry/node";
 
-import {Analyzer} from "@analyzer/index";
-import {getParserPositionFromVSCodePosition} from "@common/utils";
+import { Analyzer } from "@analyzer/index";
+import { getParserPositionFromVSCodePosition } from "@common/utils";
 import {
   VSCodePosition,
   CompletionList,
@@ -20,7 +20,7 @@ import {
   Position,
   expressionNodeTypes,
 } from "@common/types";
-import {globalVariables, defaultCompletion} from "./defaultCompletion";
+import { globalVariables, defaultCompletion } from "./defaultCompletion";
 
 export class SolidityCompletion {
   analyzer: Analyzer;
@@ -34,7 +34,7 @@ export class SolidityCompletion {
     documentAnalyzer: DocumentAnalyzer
   ): CompletionList {
     const analyzerTree = documentAnalyzer.analyzerTree.tree;
-    const result: CompletionList = {isIncomplete: false, items: []};
+    const result: CompletionList = { isIncomplete: false, items: [] };
 
     if (analyzerTree) {
       let definitionNode = this.findNodeByPosition(

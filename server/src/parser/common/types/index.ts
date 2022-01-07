@@ -102,7 +102,7 @@ import {
   ParameterInformation,
 } from "vscode-languageserver-types";
 
-import {TextDocument} from "vscode-languageserver-textdocument";
+import { TextDocument } from "vscode-languageserver-textdocument";
 
 export {
   ASTNode,
@@ -209,7 +209,7 @@ export interface Searcher {
   /**
    * Default analyzerTree. It is document we are analyzing.
    */
-  analyzerTree: {tree: Node};
+  analyzerTree: { tree: Node };
 
   /**
    * Searches for a parent definition for the forwarded Node.
@@ -367,7 +367,7 @@ export interface DocumentAnalyzer {
   /**
    * Analyzed tree.
    */
-  analyzerTree: {tree: Node};
+  analyzerTree: { tree: Node };
   /**
    * If the document is analyzed this will be true, otherwise false.
    */

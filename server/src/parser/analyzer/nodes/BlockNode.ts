@@ -1,4 +1,4 @@
-import {Block, FinderType, DocumentsAnalyzerMap, Node} from "@common/types";
+import { Block, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class BlockNode extends Node {
   astNode: Block;

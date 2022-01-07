@@ -1,4 +1,4 @@
-import {CompletionItemKind} from "@common/types";
+import { CompletionItemKind } from "@common/types";
 
 const elementaryTypeNames = ["address", "bool", "string", "var"];
 const ints = [
@@ -175,7 +175,7 @@ const globalFunctions = [
   "selfdestruct",
 ];
 
-type GlobalVariablesType = {[globalVariable: string]: string[]};
+type GlobalVariablesType = { [globalVariable: string]: string[] };
 export const globalVariables: GlobalVariablesType = {
   abi: [
     "decode",

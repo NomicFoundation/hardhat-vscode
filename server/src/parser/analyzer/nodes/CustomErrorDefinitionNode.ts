@@ -1,4 +1,4 @@
-import {findSourceUnitNode} from "@common/utils";
+import { findSourceUnitNode } from "@common/utils";
 import {
   CustomErrorDefinition,
   FinderType,

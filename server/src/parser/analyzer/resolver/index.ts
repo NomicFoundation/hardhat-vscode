@@ -1,11 +1,11 @@
-import {execSync} from "child_process";
+import { execSync } from "child_process";
 import * as path from "path";
 import * as os from "os";
 import * as fs from "fs";
 import * as yaml from "js-yaml";
 
 import * as utils from "@common/utils";
-import {ImportDirective} from "@common/types";
+import { ImportDirective } from "@common/types";
 
 const DAPP_FILENAME = ".dapprc";
 const DAPP_DEFAULT_DEPENDENCIES_DIR = "lib";
@@ -17,8 +17,8 @@ export const BROWNIE_PACKAGE_PATH = path.resolve(
   "packages"
 );
 
-let dappRemappingCache: {[path: string]: {[alias: string]: string}} = {};
-let brownieRemappingCache: {[path: string]: {[alias: string]: string}} = {};
+let dappRemappingCache: { [path: string]: { [alias: string]: string } } = {};
+let brownieRemappingCache: { [path: string]: { [alias: string]: string } } = {};
 
 setInterval(() => {
   dappRemappingCache = {};
@@ -40,7 +40,7 @@ export function resolveDependency(
   );
   if (resolvedPath) {
     importDirective.path = resolvedPath;
-    return require.resolve(importDirective.path, {paths});
+    return require.resolve(importDirective.path, { paths });
   }
 
   resolvedPath = resolveBrownieDependency(
@@ -51,10 +51,10 @@ export function resolveDependency(
   );
   if (resolvedPath) {
     importDirective.path = resolvedPath;
-    return require.resolve(importDirective.path, {paths});
+    return require.resolve(importDirective.path, { paths });
   }
 
-  return require.resolve(importDirective.path, {paths});
+  return require.resolve(importDirective.path, { paths });
 }
 
 function resolveDappDependency(
@@ -64,7 +64,7 @@ function resolveDappDependency(
   paths: string[]
 ): string | undefined {
   try {
-    const dappFileDir = utils.findUpSync(DAPP_FILENAME, {cwd, stopAt});
+    const dappFileDir = utils.findUpSync(DAPP_FILENAME, { cwd, stopAt });
 
     if (dappFileDir) {
       const dappFilePath = path.resolve(dappFileDir, DAPP_FILENAME);

@@ -1,4 +1,4 @@
-import {isNodeShadowedByNode} from "@common/utils";
+import { isNodeShadowedByNode } from "@common/utils";
 import {
   AssemblyFunctionDefinition,
   FinderType,

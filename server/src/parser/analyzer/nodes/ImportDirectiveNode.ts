@@ -1,6 +1,6 @@
 import * as path from "path";
 
-import {resolveDependency} from "@analyzer/resolver";
+import { resolveDependency } from "@analyzer/resolver";
 import {
   ImportDirective,
   FinderType,

@@ -13,7 +13,7 @@ import {
   SignatureHelpParams,
   SignatureHelp,
 } from "vscode-languageserver/node";
-import {TextDocument} from "vscode-languageserver-textdocument";
+import { TextDocument } from "vscode-languageserver-textdocument";
 
 import {
   writeAnalytics,
@@ -21,11 +21,11 @@ import {
   getAnalytics,
   Analytics,
 } from "./analytics";
-import {IndexFileData, eventEmitter as em} from "@common/event";
-import {ValidationJob} from "@services/validation/SolidityValidation";
-import {getUriFromDocument, decodeUriAndRemoveFilePrefix} from "./utils";
-import {debounce} from "./utils/debaunce";
-import {LanguageService} from "./parser";
+import { IndexFileData, eventEmitter as em } from "@common/event";
+import { ValidationJob } from "@services/validation/SolidityValidation";
+import { getUriFromDocument, decodeUriAndRemoveFilePrefix } from "./utils";
+import { debounce } from "./utils/debaunce";
+import { LanguageService } from "./parser";
 
 Sentry.init({
   // Sentry DSN. I guess there's no other choice than keeping it here.
@@ -50,7 +50,7 @@ let hasWorkspaceFolderCapability = false;
 let languageServer: LanguageService;
 let analytics: Analytics;
 
-const debounceAnalyzeDocument: {[uri: string]: (uri: string) => void} = {};
+const debounceAnalyzeDocument: { [uri: string]: (uri: string) => void } = {};
 const debounceValidateDocument: {
   [uri: string]: (
     validationJob: ValidationJob,
