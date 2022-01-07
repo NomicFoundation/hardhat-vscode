@@ -21,4 +21,9 @@ contract Test {
   function pointless() public {
       resetBalance(12, 34, msg.sender);
   }
+
+  function greet() public returns (string memory) {
+    string memory example = 'ignore';
+    return example;
+  }
 }
