@@ -1,15 +1,11 @@
 import { Analyzer } from "@analyzer/index";
-import {
-  TextDocument,
-  Diagnostic,
-  Range,
-  DiagnosticSeverity,
-} from "@common/types";
+import { TextDocument, Diagnostic } from "@common/types";
 import { CompilerProcess } from "./HardhatProcess";
 import {
   GET_DOCUMENT_EVENT,
   SOLIDITY_COMPILE_CONFIRMATION_EVENT,
 } from "./events";
+import { DiagnosticConverter } from "./DiagnosticConverter";
 
 export interface ValidationJob {
   run(
@@ -23,6 +19,7 @@ export interface ValidationJob {
 export class SolidityValidation {
   analyzer: Analyzer;
   compilerProcessFactory: (rootPath: string, uri: string) => CompilerProcess;
+  diagnosticConverter: DiagnosticConverter;
 
   constructor(
     analyzer: Analyzer,
@@ -30,6 +27,7 @@ export class SolidityValidation {
   ) {
     this.analyzer = analyzer;
     this.compilerProcessFactory = compilerProcessFactory;
+    this.diagnosticConverter = new DiagnosticConverter(this.analyzer);
   }
 
   public getValidationJob(): ValidationJob {
@@ -97,19 +95,12 @@ export class SolidityValidation {
                 diagnostics[error.sourceLocation.file] = [];
               }
 
-              diagnostics[error.sourceLocation.file].push(<Diagnostic>{
-                code: error.errorCode,
-                source: document.languageId,
-                severity:
-                  error.severity === "error"
-                    ? DiagnosticSeverity.Error
-                    : DiagnosticSeverity.Warning,
-                message: error.message,
-                range: Range.create(
-                  document.positionAt(error.sourceLocation.start),
-                  document.positionAt(error.sourceLocation.end)
-                ),
-              });
+              const diagnostic = this.diagnosticConverter.convert(
+                document,
+                error
+              );
+
+              diagnostics[error.sourceLocation.file].push(diagnostic);
             }
           }
 
