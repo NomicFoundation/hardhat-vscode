@@ -26,10 +26,13 @@ export async function hardhatValidator(
 ): Promise<{ [uri: string]: Diagnostic[] }> {
   // We can start child processes with {detached: true} option so those processes will not be attached
   // to main process but they will go to a new group of processes.
-  const child = childProcess.fork(path.resolve(__dirname, "hardhatCompile.js"), {
-    cwd: projectRoot,
-    detached: true,
-  });
+  const child = childProcess.fork(
+    path.resolve(__dirname, "hardhatCompile.js"),
+    {
+      cwd: projectRoot,
+      detached: true,
+    }
+  );
 
   let hardhatConfigFileExistPromiseResolver: any;
   const hardhatConfigFileExistPromise = new Promise((resolve) => {
