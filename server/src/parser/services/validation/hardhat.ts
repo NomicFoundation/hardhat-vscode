@@ -1,174 +1,156 @@
-"use strict";
-
 import * as path from "path";
+import * as childProcess from "child_process";
 
-export const GET_DOCUMENT_EVENT = "get_document";
-export const SOLIDITY_COMPILE_CONFIRMATION_EVENT =
-  "solidity_compile_confirmation";
+import {
+  TextDocument,
+  Diagnostic,
+  Range,
+  DiagnosticSeverity,
+} from "@common/types";
+import { validationJobOptions } from "./types";
 
-export const COMPILER_DOWNLOADED_EVENT = "compiler_downloaded";
-export const SOLIDITY_COMPILE_EVENT = "solidity_compile";
-export const HARDHAT_CONFIG_FILE_EXIST_EVENT = "hardhat_config_file_exist";
+const GET_DOCUMENT_EVENT = "get_document";
+const SOLIDITY_COMPILE_CONFIRMATION_EVENT = "solidity_compile_confirmation";
 
-(async () => {
-  try {
-    // TypeScript forces to check send method on existence
-    if (process.send) {
-      let getDocumentPromisePromiseResolver: any;
-      const getDocumentPromisePromise = new Promise((resolve) => {
-        getDocumentPromisePromiseResolver = resolve;
-      });
+const COMPILER_DOWNLOADED_EVENT = "compiler_downloaded";
+const SOLIDITY_COMPILE_EVENT = "solidity_compile";
+const HARDHAT_CONFIG_FILE_EXIST_EVENT = "hardhat_config_file_exist";
 
-      let solidityCompileConfirmationPromiseResolver: any;
-      const solidityCompileConfirmationPromise = new Promise((resolve) => {
-        solidityCompileConfirmationPromiseResolver = resolve;
-      });
+export async function hardhatValidator(
+  projectRoot: string,
+  uri: string,
+  document: TextDocument,
+  unsavedDocuments: TextDocument[],
+  options: validationJobOptions,
+  canceled: Promise<any>
+): Promise<{ [uri: string]: Diagnostic[] }> {
+  // We can start child processes with {detached: true} option so those processes will not be attached
+  // to main process but they will go to a new group of processes.
+  const child = childProcess.fork(path.resolve(__dirname, "hardhatCompile.js"), {
+    cwd: projectRoot,
+    detached: true,
+  });
 
-      process.on("message", (data: any) => {
-        switch (data.type) {
-          case GET_DOCUMENT_EVENT:
-            getDocumentPromisePromiseResolver(data.data);
-            break;
+  let hardhatConfigFileExistPromiseResolver: any;
+  const hardhatConfigFileExistPromise = new Promise((resolve) => {
+    hardhatConfigFileExistPromiseResolver = resolve;
+  });
 
-          case SOLIDITY_COMPILE_CONFIRMATION_EVENT:
-            solidityCompileConfirmationPromiseResolver(data);
-            break;
+  let compilerDownloadedPromiseResolver: any;
+  const compilerDownloadedPromise = new Promise((resolve) => {
+    compilerDownloadedPromiseResolver = resolve;
+  });
 
-          default:
-            break;
-        }
-      });
+  let solidityCompilePromiseResolver: any;
+  const solidityCompilePromise = new Promise((resolve) => {
+    solidityCompilePromiseResolver = resolve;
+  });
 
-      const data: any = await getDocumentPromisePromise;
+  child.on("message", (data: any) => {
+    switch (data.type) {
+      case HARDHAT_CONFIG_FILE_EXIST_EVENT:
+        hardhatConfigFileExistPromiseResolver(data.exist);
+        break;
 
-      let hre;
-      const uri: string = data.uri;
-      const documentText: string = data.documentText;
-      const unsavedDocuments: { uri: string; documentText: string }[] =
-        data.unsavedDocuments;
+      case COMPILER_DOWNLOADED_EVENT:
+        compilerDownloadedPromiseResolver(data.isCompilerDownloaded);
+        break;
 
-      let hardhatBase = "";
-      try {
-        hardhatBase = path.resolve(
-          require.resolve("hardhat", { paths: [process.cwd()] }),
-          "..",
-          "..",
-          ".."
-        );
-        require(`${hardhatBase}/register.js`);
-        hre = require(`${hardhatBase}/internal/lib/hardhat-lib.js`);
-      } catch (err) {
-        // Hardhat is not installed
-        // console.error("Hardhat Error:", err);
-        hre = undefined;
-      }
+      case SOLIDITY_COMPILE_EVENT:
+        solidityCompilePromiseResolver(data.output);
+        break;
 
-      if (!hre) {
-        process.send({ type: HARDHAT_CONFIG_FILE_EXIST_EVENT, exist: false });
-        process.exit(1);
-      }
-      process.send({ type: HARDHAT_CONFIG_FILE_EXIST_EVENT, exist: true });
-
-      const {
-        TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS,
-        TASK_COMPILE_SOLIDITY_GET_SOURCE_NAMES,
-        TASK_COMPILE_SOLIDITY_GET_DEPENDENCY_GRAPH,
-        TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE,
-        TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT,
-        TASK_COMPILE_SOLIDITY_COMPILE,
-      } = require(`${hardhatBase}/builtin-tasks/task-names`);
-
-      const {
-        getSolidityFilesCachePath,
-        SolidityFilesCache,
-      } = require(`${hardhatBase}/builtin-tasks/utils/solidity-files-cache`);
-
-      const sourcePaths = await hre.run(TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS);
-
-      const sourceNames = await hre.run(
-        TASK_COMPILE_SOLIDITY_GET_SOURCE_NAMES,
-        {
-          sourcePaths,
-        }
-      );
-
-      const solidityFilesCachePath = getSolidityFilesCachePath(
-        hre.config.paths
-      );
-      const solidityFilesCache = await SolidityFilesCache.readFromFile(
-        solidityFilesCachePath
-      );
-
-      const dependencyGraph = await hre.run(
-        TASK_COMPILE_SOLIDITY_GET_DEPENDENCY_GRAPH,
-        {
-          sourceNames,
-          solidityFilesCache,
-        }
-      );
-
-      const resolvedFile = dependencyGraph
-        .getResolvedFiles()
-        .filter((f: any) => f.absolutePath === uri)[0];
-
-      const compilationJob = await hre.run(
-        TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE,
-        {
-          file: resolvedFile,
-          dependencyGraph,
-          solidityFilesCache,
-        }
-      );
-
-      const modifiedFiles = {
-        [uri]: documentText,
-      };
-
-      for (const unsavedDocument of unsavedDocuments) {
-        modifiedFiles[unsavedDocument.uri] = unsavedDocument.documentText;
-      }
-
-      compilationJob.getResolvedFiles().forEach((file: any) => {
-        if (modifiedFiles[file.absolutePath]) {
-          file.content.rawContent = modifiedFiles[file.absolutePath];
-        }
-      });
-
-      const input = await hre.run(TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT, {
-        compilationJob,
-      });
-
-      const {
-        getCompilersDir,
-      } = require(`${hardhatBase}/internal/util/global-dir`);
-      const {
-        CompilerDownloader,
-      } = require(`${hardhatBase}/internal/solidity/compiler/downloader`);
-
-      const compilersCache = await getCompilersDir();
-      const downloader = new CompilerDownloader(compilersCache);
-
-      const solcVersion = compilationJob.getSolcConfig().version;
-      const isCompilerDownloaded = await downloader.isCompilerDownloaded(
-        solcVersion
-      );
-      process.send({ type: COMPILER_DOWNLOADED_EVENT, isCompilerDownloaded });
-      await solidityCompileConfirmationPromise;
-
-      // download solc version and compile files
-      const { output } = await hre.run(TASK_COMPILE_SOLIDITY_COMPILE, {
-        solcVersion: solcVersion,
-        input,
-        quiet: true,
-        compilationJob,
-        compilationJobs: [compilationJob],
-        compilationJobIndex: 0,
-      });
-
-      process.send({ type: SOLIDITY_COMPILE_EVENT, output });
-      process.exit(0);
+      default:
+        break;
     }
+  });
+
+  const _run = async (
+    uri: string,
+    document: TextDocument,
+    unsavedDocuments: TextDocument[]
+  ): Promise<{ [uri: string]: Diagnostic[] }> => {
+    child.send({
+      type: GET_DOCUMENT_EVENT,
+      data: {
+        uri,
+        documentText: document.getText(),
+        unsavedDocuments: unsavedDocuments.map((unsavedDocument) => {
+          return {
+            uri: (unsavedDocument.uri as any).path,
+            documentText: unsavedDocument.getText(),
+          };
+        }),
+      },
+    });
+
+    const hardhatConfigFileExist =
+      (await hardhatConfigFileExistPromise) as boolean;
+    if (!hardhatConfigFileExist) {
+      return {};
+    }
+
+    options.isCompilerDownloaded = (await compilerDownloadedPromise) as boolean;
+    child.send({ type: SOLIDITY_COMPILE_CONFIRMATION_EVENT });
+
+    const output: any = await solidityCompilePromise;
+
+    const diagnostics: { [uri: string]: Diagnostic[] } = {};
+    if (output?.errors && output.errors.length > 0) {
+      for (const error of output.errors) {
+        if (!diagnostics[error.sourceLocation.file]) {
+          diagnostics[error.sourceLocation.file] = [];
+        }
+
+        diagnostics[error.sourceLocation.file].push(<Diagnostic>{
+          code: error.errorCode,
+          source: document.languageId,
+          severity:
+            error.severity === "error"
+              ? DiagnosticSeverity.Error
+              : DiagnosticSeverity.Warning,
+          message: error.message,
+          range: Range.create(
+            document.positionAt(error.sourceLocation.start),
+            document.positionAt(error.sourceLocation.end)
+          ),
+        });
+      }
+    }
+
+    return diagnostics;
+  };
+
+  try {
+    const timeout = new Promise((resolve, reject) => {
+      const id = setTimeout(() => {
+        clearTimeout(id);
+        reject("Validation timed out");
+      }, 60 * 1000);
+    });
+
+    const diagnostics = (await Promise.race([
+      _run(uri, document, unsavedDocuments),
+      canceled,
+      timeout,
+    ])) as Promise<{ [uri: string]: Diagnostic[] }>;
+
+    // Then using process.kill(pid) method on main process we can kill all processes that are in
+    // the same group of a child process with the same pid group.
+    try {
+      child.kill(child.pid);
+    } catch (err) {
+      // console.error(err);
+    }
+
+    return diagnostics;
   } catch (err) {
-    process.exit(1);
+    try {
+      child.kill(child.pid);
+    } catch (err) {
+      // console.error(err);
+    }
+
+    return Promise.resolve({});
   }
-})();
+}

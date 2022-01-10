@@ -22,7 +22,7 @@ import {
   Analytics,
 } from "./analytics";
 import { IndexFileData, eventEmitter as em } from "@common/event";
-import { ValidationJob } from "@services/validation/SolidityValidation";
+import { ValidationJob } from "@services/validation/types";
 import { getUriFromDocument, decodeUriAndRemoveFilePrefix } from "./utils";
 import { debounce } from "./utils/debaunce";
 import { LanguageService } from "./parser";
