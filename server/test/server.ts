@@ -87,6 +87,14 @@ describe("Solidity Language Server", () => {
         it("registers onRenameRequest", () =>
           assert(mockConnection.onRenameRequest.calledOnce));
       });
+
+      describe("code actions", () => {
+        it("advertises capability", () =>
+          assert(capabilities.codeActionProvider));
+
+        it("registers onCodeActionRequest", () =>
+          assert(mockConnection.onCodeAction.calledOnce));
+      });
     });
   });
 });

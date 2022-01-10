@@ -21,6 +21,7 @@ export function setupMockConnection() {
     onWillSaveTextDocumentWaitUntil: sinon.spy(),
     onDidSaveTextDocument: sinon.spy(),
     sendNotification: sinon.spy(),
+    onCodeAction: sinon.spy(),
     onNotification: sinon.fake(
       (
         _method: string,

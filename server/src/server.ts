@@ -24,6 +24,7 @@ import { getUriFromDocument, decodeUriAndRemoveFilePrefix } from "./utils";
 import { debounce } from "./utils/debaunce";
 import { LanguageService } from "./parser";
 import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
+import { buildOnCodeAction } from "./codeactions/buildOnCodeAction";
 
 type ServerState = {
   connection: Connection;
@@ -364,6 +365,13 @@ export default function setupServer(
     }
   });
 
+  // Create a simple text document manager.
+  const documents: TextDocuments<TextDocument> = new TextDocuments(
+    TextDocument
+  );
+
+  connection.onCodeAction(buildOnCodeAction(connection, documents));
+
   // The content of a text document has changed. This event is emitted
   // when the text document first opened or when its content has changed.
   serverState.documents.onDidChangeContent((change) => {
@@ -571,6 +579,7 @@ const resolveOnInitialize = (serverState: ServerState) => {
         referencesProvider: true,
         implementationProvider: true,
         renameProvider: true,
+        codeActionProvider: true,
       },
     };
 
