@@ -5,6 +5,7 @@ import { SolidityCompletion } from "@services/completion/SolidityCompletion";
 import { SolidityValidation } from "@services/validation/SolidityValidation";
 import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
 import { SoliditySignatureHelp } from "@services/documentation/SoliditySignatureHelp";
+import { Logger } from "@common/types";
 
 export class LanguageService {
   analyzer: Analyzer;
@@ -15,9 +16,10 @@ export class LanguageService {
 
   constructor(
     rootPath: string,
-    compProcessFactory: typeof compilerProcessFactory
+    compProcessFactory: typeof compilerProcessFactory,
+    logger: Logger
   ) {
-    this.analyzer = new Analyzer(rootPath);
+    this.analyzer = new Analyzer(rootPath, logger);
     this.solidityNavigation = new SolidityNavigation(this.analyzer);
     this.solidityCompletion = new SolidityCompletion(this.analyzer);
     this.solidityValidation = new SolidityValidation(

@@ -10,21 +10,16 @@ import { Location } from "vscode-languageserver/node";
 describe("Parser", () => {
   describe("Navigation", () => {
     describe("References", () => {
-      const basicUri = path.join(__dirname, "testData", "Basic.sol");
+      const basicUri = path.join(__dirname, "testData", "References.sol");
       let references: OnReferences;
 
       before(async () => {
         ({
           server: { references },
         } = await setupMockLanguageServer({
-          documents: [basicUri],
+          documents: [{ uri: basicUri, analyze: true }],
           errors: [],
         }));
-
-        // Hack, the anaylsing of text docs is debounced
-        await new Promise((resolve) => {
-          setTimeout(resolve, 1000);
-        });
       });
 
       it("should navigate to the attribute", () =>

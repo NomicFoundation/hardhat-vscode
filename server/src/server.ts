@@ -25,15 +25,24 @@ import { debounce } from "./utils/debaunce";
 import { LanguageService } from "./parser";
 import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
 
-let rootUri: string;
-let hasWorkspaceFolderCapability = false;
-
-let languageServer: LanguageService;
-let analytics: Analytics;
+type ServerState = {
+  connection: Connection;
+  documents: TextDocuments<TextDocument>;
+  rootUri: string | null;
+  hasWorkspaceFolderCapability: boolean;
+  languageServer: LanguageService | null;
+  analytics: Analytics | null;
+};
 
 const debounceAnalyzeDocument: {
-  [uri: string]: (documents: TextDocuments<TextDocument>, uri: string) => void;
+  [uri: string]: (
+    documents: TextDocuments<TextDocument>,
+    uri: string,
+    languageServer: LanguageService,
+    connection: Connection
+  ) => void;
 } = {};
+
 const debounceValidateDocument: {
   [uri: string]: (
     connection: Connection,
@@ -53,29 +62,47 @@ type UnsavedDocumentType = {
 export default function setupServer(
   connection: Connection,
   compProcessFactory: typeof compilerProcessFactory
-): Connection {
-  connection.onInitialize(resolveOnInitialize(connection));
+): ServerState {
+  const serverState: ServerState = {
+    connection,
+    documents: new TextDocuments(TextDocument),
+    languageServer: null,
+    analytics: null,
+    rootUri: null,
+    hasWorkspaceFolderCapability: false,
+  };
+
+  connection.onInitialize(resolveOnInitialize(serverState));
 
   connection.onInitialized(async () => {
-    console.log("server onInitialized");
+    connection.console.log("server onInitialized");
 
     const analyticsData = await getAnalyticsData();
+
     if (analyticsData.isAllowed === undefined) {
       const isAllowed = await isAnalyticsAllowed(connection);
       analyticsData.isAllowed = isAllowed;
       await writeAnalytics(analyticsData);
     }
 
-    analytics = await getAnalytics();
+    serverState.analytics = await getAnalytics();
     const startTime = Date.now();
 
-    languageServer = new LanguageService(rootUri, compProcessFactory);
+    if (!serverState.rootUri) {
+      throw new Error("Root Uri not set");
+    }
 
-    analytics.sendTaskHit("indexing", {
+    serverState.languageServer = new LanguageService(
+      serverState.rootUri,
+      compProcessFactory,
+      connection.console
+    );
+
+    serverState.analytics.sendTaskHit("indexing", {
       plt: Date.now() - startTime,
     });
 
-    if (hasWorkspaceFolderCapability) {
+    if (serverState.hasWorkspaceFolderCapability) {
       connection.workspace.onDidChangeWorkspaceFolders(() => {
         connection.console.log("Workspace folder change event received.");
       });
@@ -84,25 +111,28 @@ export default function setupServer(
 
   connection.onSignatureHelp(
     (params: SignatureHelpParams): SignatureHelp | undefined => {
-      console.log("server onSignatureHelp");
+      connection.console.log("server onSignatureHelp");
 
       try {
-        const document = documents.get(params.textDocument.uri);
+        const document = serverState.documents.get(params.textDocument.uri);
 
-        if (document) {
+        if (document && serverState.languageServer) {
           const documentURI = getUriFromDocument(document);
 
           if (params.context?.triggerCharacter === "(") {
-            languageServer.analyzer.analyzeDocument(
+            serverState.languageServer.analyzer.analyzeDocument(
               document.getText(),
               documentURI
             );
           }
 
           const documentAnalyzer =
-            languageServer.analyzer.getDocumentAnalyzer(documentURI);
+            serverState.languageServer.analyzer.getDocumentAnalyzer(
+              documentURI
+            );
+
           if (documentAnalyzer.isAnalyzed) {
-            return languageServer.soliditySignatureHelp.doSignatureHelp(
+            return serverState.languageServer.soliditySignatureHelp.doSignatureHelp(
               document,
               params.position,
               documentAnalyzer
@@ -119,12 +149,12 @@ export default function setupServer(
   // This handler provides the initial list of the completion items.
   connection.onCompletion(
     (params: CompletionParams): CompletionList | undefined => {
-      console.log("server onCompletion");
+      connection.console.log("server onCompletion");
 
       try {
-        const document = documents.get(params.textDocument.uri);
+        const document = serverState.documents.get(params.textDocument.uri);
 
-        if (document) {
+        if (document && serverState.languageServer) {
           const documentText = document.getText();
           let newDocumentText = documentText;
 
@@ -144,12 +174,18 @@ export default function setupServer(
           }
 
           const documentURI = getUriFromDocument(document);
-          languageServer.analyzer.analyzeDocument(newDocumentText, documentURI);
+          serverState.languageServer.analyzer.analyzeDocument(
+            newDocumentText,
+            documentURI
+          );
 
           const documentAnalyzer =
-            languageServer.analyzer.getDocumentAnalyzer(documentURI);
+            serverState.languageServer.analyzer.getDocumentAnalyzer(
+              documentURI
+            );
+
           if (documentAnalyzer) {
-            return languageServer.solidityCompletion.doComplete(
+            return serverState.languageServer.solidityCompletion.doComplete(
               params.position,
               documentAnalyzer
             );
@@ -163,25 +199,26 @@ export default function setupServer(
   );
 
   connection.onDefinition((params) => {
-    console.log("onDefinition");
+    connection.console.log("onDefinition");
 
     try {
-      const document = documents.get(params.textDocument.uri);
+      const document = serverState.documents.get(params.textDocument.uri);
 
-      if (document) {
+      if (document && serverState.languageServer) {
         const documentURI = getUriFromDocument(document);
         const documentAnalyzer =
-          languageServer.analyzer.getDocumentAnalyzer(documentURI);
+          serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
         if (documentAnalyzer.isAnalyzed) {
           const startTime = Date.now();
-          const result = languageServer.solidityNavigation.findDefinition(
-            documentURI,
-            params.position,
-            documentAnalyzer.analyzerTree.tree
-          );
+          const result =
+            serverState.languageServer.solidityNavigation.findDefinition(
+              documentURI,
+              params.position,
+              documentAnalyzer.analyzerTree.tree
+            );
 
-          analytics.sendTaskHit("onDefinition", {
+          serverState.analytics?.sendTaskHit("onDefinition", {
             plt: Date.now() - startTime,
           });
 
@@ -195,25 +232,26 @@ export default function setupServer(
   });
 
   connection.onTypeDefinition((params) => {
-    console.log("onTypeDefinition");
+    connection.console.log("onTypeDefinition");
 
     try {
-      const document = documents.get(params.textDocument.uri);
+      const document = serverState.documents.get(params.textDocument.uri);
 
-      if (document) {
+      if (document && serverState.languageServer) {
         const documentURI = getUriFromDocument(document);
         const documentAnalyzer =
-          languageServer.analyzer.getDocumentAnalyzer(documentURI);
+          serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
         if (documentAnalyzer.isAnalyzed) {
           const startTime = Date.now();
-          const result = languageServer.solidityNavigation.findTypeDefinition(
-            documentURI,
-            params.position,
-            documentAnalyzer.analyzerTree.tree
-          );
+          const result =
+            serverState.languageServer.solidityNavigation.findTypeDefinition(
+              documentURI,
+              params.position,
+              documentAnalyzer.analyzerTree.tree
+            );
 
-          analytics.sendTaskHit("onTypeDefinition", {
+          serverState.analytics?.sendTaskHit("onTypeDefinition", {
             plt: Date.now() - startTime,
           });
 
@@ -227,25 +265,26 @@ export default function setupServer(
   });
 
   connection.onReferences((params) => {
-    console.log("onReferences");
+    connection.console.log("onReferences");
 
     try {
-      const document = documents.get(params.textDocument.uri);
+      const document = serverState.documents.get(params.textDocument.uri);
 
-      if (document) {
+      if (document && serverState.languageServer) {
         const documentURI = getUriFromDocument(document);
         const documentAnalyzer =
-          languageServer.analyzer.getDocumentAnalyzer(documentURI);
+          serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
         if (documentAnalyzer.isAnalyzed) {
           const startTime = Date.now();
-          const result = languageServer.solidityNavigation.findReferences(
-            documentURI,
-            params.position,
-            documentAnalyzer.analyzerTree.tree
-          );
+          const result =
+            serverState.languageServer.solidityNavigation.findReferences(
+              documentURI,
+              params.position,
+              documentAnalyzer.analyzerTree.tree
+            );
 
-          analytics.sendTaskHit("onReferences", {
+          serverState.analytics?.sendTaskHit("onReferences", {
             plt: Date.now() - startTime,
           });
 
@@ -259,25 +298,26 @@ export default function setupServer(
   });
 
   connection.onImplementation((params) => {
-    console.log("onImplementation");
+    connection.console.log("onImplementation");
 
     try {
-      const document = documents.get(params.textDocument.uri);
+      const document = serverState.documents.get(params.textDocument.uri);
 
-      if (document) {
+      if (document && serverState.languageServer) {
         const documentURI = getUriFromDocument(document);
         const documentAnalyzer =
-          languageServer.analyzer.getDocumentAnalyzer(documentURI);
+          serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
         if (documentAnalyzer.isAnalyzed) {
           const startTime = Date.now();
-          const result = languageServer.solidityNavigation.findImplementation(
-            documentURI,
-            params.position,
-            documentAnalyzer.analyzerTree.tree
-          );
+          const result =
+            serverState.languageServer.solidityNavigation.findImplementation(
+              documentURI,
+              params.position,
+              documentAnalyzer.analyzerTree.tree
+            );
 
-          analytics.sendTaskHit("onImplementation", {
+          serverState.analytics?.sendTaskHit("onImplementation", {
             plt: Date.now() - startTime,
           });
 
@@ -291,19 +331,19 @@ export default function setupServer(
   });
 
   connection.onRenameRequest((params) => {
-    console.log("onRenameRequest");
+    connection.console.log("onRenameRequest");
 
     try {
-      const document = documents.get(params.textDocument.uri);
+      const document = serverState.documents.get(params.textDocument.uri);
 
-      if (document) {
+      if (document && serverState.languageServer) {
         const documentURI = getUriFromDocument(document);
         const documentAnalyzer =
-          languageServer.analyzer.getDocumentAnalyzer(documentURI);
+          serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
         if (documentAnalyzer.isAnalyzed) {
           const startTime = Date.now();
-          const result = languageServer.solidityNavigation.doRename(
+          const result = serverState.languageServer.solidityNavigation.doRename(
             documentURI,
             document,
             params.position,
@@ -311,7 +351,7 @@ export default function setupServer(
             documentAnalyzer.analyzerTree.tree
           );
 
-          analytics.sendTaskHit("onRenameRequest", {
+          serverState.analytics?.sendTaskHit("onRenameRequest", {
             plt: Date.now() - startTime,
           });
 
@@ -324,25 +364,31 @@ export default function setupServer(
     }
   });
 
-  // Create a simple text document manager.
-  const documents: TextDocuments<TextDocument> = new TextDocuments(
-    TextDocument
-  );
-
   // The content of a text document has changed. This event is emitted
   // when the text document first opened or when its content has changed.
-  documents.onDidChangeContent((change) => {
-    console.log("server onDidChangeContent");
-    if (!languageServer || !languageServer.solidityValidation) {
+  serverState.documents.onDidChangeContent((change) => {
+    connection.console.log("server onDidChangeContent");
+
+    if (
+      !serverState.languageServer ||
+      !serverState.languageServer.solidityValidation
+    ) {
       return;
     }
 
     if (!debounceAnalyzeDocument[change.document.uri]) {
-      debounceAnalyzeDocument[change.document.uri] = debounce(analyzeFunc, 500);
+      debounceAnalyzeDocument[change.document.uri] = debounce(
+        analyzeFunc,
+        500,
+        true
+      );
     }
+
     debounceAnalyzeDocument[change.document.uri](
-      documents,
-      change.document.uri
+      serverState.documents,
+      change.document.uri,
+      serverState.languageServer,
+      serverState.connection
     );
 
     // ------------------------------------------------------------------------
@@ -350,12 +396,14 @@ export default function setupServer(
     if (!debounceValidateDocument[change.document.uri]) {
       debounceValidateDocument[change.document.uri] = debounce(
         validateTextDocument,
-        500
+        500,
+        true
       );
     }
 
     const documentURI = getUriFromDocument(change.document);
-    const validationJob = languageServer.solidityValidation.getValidationJob();
+    const validationJob =
+      serverState.languageServer.solidityValidation.getValidationJob();
 
     debounceValidateDocument[change.document.uri](
       connection,
@@ -367,13 +415,13 @@ export default function setupServer(
 
   // Make the text document manager listen on the connection
   // for open, change and close text document events
-  documents.listen(connection);
+  serverState.documents.listen(connection);
 
   em.on("indexing-file", (data: IndexFileData) => {
     connection.sendNotification("custom/indexing-file", data);
   });
 
-  return connection;
+  return serverState;
 }
 
 async function isAnalyticsAllowed(connection: Connection): Promise<boolean> {
@@ -403,9 +451,11 @@ async function isAnalyticsAllowed(connection: Connection): Promise<boolean> {
 
 function analyzeFunc(
   documents: TextDocuments<TextDocument>,
-  uri: string
+  uri: string,
+  languageServer: LanguageService,
+  connection: Connection
 ): void {
-  console.log("debounced onDidChangeContent");
+  connection.console.log("debounced onDidChangeContent");
 
   try {
     const document = documents.get(uri);
@@ -456,7 +506,7 @@ async function validateTextDocument(
   uri: string,
   document: TextDocument
 ): Promise<void> {
-  console.log("validateTextDocument");
+  connection.console.log("validateTextDocument");
 
   try {
     const unsavedDocuments = await getUnsavedDocuments(connection);
@@ -487,9 +537,9 @@ async function validateTextDocument(
   });
 }
 
-const resolveOnInitialize = (connection: Connection) => {
+const resolveOnInitialize = (serverState: ServerState) => {
   return (params: InitializeParams) => {
-    connection.console.log("server onInitialize");
+    serverState.connection.console.log("server onInitialize");
 
     /**
      * We know that rootUri is deprecated but we need it.
@@ -497,12 +547,12 @@ const resolveOnInitialize = (connection: Connection) => {
      * so when it will be resolved we can update how we get rootUri.
      */
     if (params.rootUri) {
-      rootUri = decodeUriAndRemoveFilePrefix(params.rootUri);
+      serverState.rootUri = decodeUriAndRemoveFilePrefix(params.rootUri);
     }
 
     const capabilities = params.capabilities;
 
-    hasWorkspaceFolderCapability = !!(
+    serverState.hasWorkspaceFolderCapability = !!(
       capabilities.workspace && !!capabilities.workspace.workspaceFolders
     );
 
@@ -524,7 +574,7 @@ const resolveOnInitialize = (connection: Connection) => {
       },
     };
 
-    if (hasWorkspaceFolderCapability) {
+    if (serverState.hasWorkspaceFolderCapability) {
       result.capabilities.workspace = {
         workspaceFolders: {
           supported: true,
