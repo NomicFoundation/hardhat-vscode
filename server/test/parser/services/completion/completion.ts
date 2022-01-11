@@ -29,9 +29,9 @@ describe("Parser", () => {
       server: { completion },
     } = await setupMockLanguageServer({
       documents: [
-        globalVariablesUri,
-        memberAccessStructUri,
-        memberAccessNestedStructUri,
+        { uri: globalVariablesUri, analyze: true },
+        { uri: memberAccessStructUri, analyze: false },
+        { uri: memberAccessNestedStructUri, analyze: false },
       ],
       errors: [],
     }));
@@ -47,6 +47,7 @@ describe("Parser", () => {
             { line: 18, character: 13 },
             ["charisma", "intelligence", "strength", "wisdom"]
           ));
+
         it("should provide completions when nested", () =>
           assertCompletion(
             completion,
@@ -65,6 +66,7 @@ describe("Parser", () => {
           { line: 5, character: 19 },
           ["data", "sender", "value"]
         ));
+
       it("should provide block completions", () =>
         assertCompletion(
           completion,
@@ -79,6 +81,7 @@ describe("Parser", () => {
             "timestamp",
           ]
         ));
+
       it("should provide tx completions", () =>
         assertCompletion(
           completion,
@@ -86,6 +89,7 @@ describe("Parser", () => {
           { line: 13, character: 18 },
           ["gasprice", "origin"]
         ));
+
       it("should provide abi completions", () =>
         assertCompletion(
           completion,

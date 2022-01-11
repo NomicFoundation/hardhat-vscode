@@ -14,15 +14,18 @@ import {
   ASTNode,
   EmptyNode,
   Searcher as ISearcher,
+  Logger,
 } from "@common/types";
 
 export class Analyzer {
   rootPath: string;
+  logger: Logger;
 
   documentsAnalyzer: DocumentsAnalyzerMap = {};
 
-  constructor(rootPath: string) {
+  constructor(rootPath: string, logger: Logger) {
     this.rootPath = rootPath;
+    this.logger = logger;
 
     const documentsUri: string[] = [];
     this.findSolFiles(this.rootPath, documentsUri);
@@ -106,7 +109,7 @@ export class Analyzer {
         }
       });
     } catch (err) {
-      console.error("Unable to scan directory: " + err);
+      this.logger.log("Unable to scan directory: " + err);
     }
   }
 }

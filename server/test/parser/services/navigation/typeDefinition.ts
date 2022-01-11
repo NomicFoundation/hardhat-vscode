@@ -9,21 +9,16 @@ import {
 describe("Parser", () => {
   describe("Navigation", () => {
     describe("Type Definition", () => {
-      const basicUri = path.join(__dirname, "testData", "Basic.sol");
+      const basicUri = path.join(__dirname, "testData", "TypeDefinition.sol");
       let typeDefinition: OnTypeDefinition;
 
       before(async () => {
         ({
           server: { typeDefinition },
         } = await setupMockLanguageServer({
-          documents: [basicUri],
+          documents: [{ uri: basicUri, analyze: true }],
           errors: [],
         }));
-
-        // Hack, the anaylsing of text docs is debounced
-        await new Promise((resolve) => {
-          setTimeout(resolve, 1000);
-        });
       });
 
       describe("within contract", () => {

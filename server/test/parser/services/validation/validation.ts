@@ -2,12 +2,13 @@ import { assert } from "chai";
 import * as path from "path";
 import { setupMockConnection } from "../../../helpers/setupMockConnection";
 import { setupMockLanguageServer } from "../../../helpers/setupMockLanguageServer";
+import { waitUntil } from "../../../helpers/waitUntil";
 
 describe("Parser", () => {
   describe("Validation", function () {
-    this.timeout(40000);
     const basicUri = path.join(__dirname, "testData", "Basic.sol");
     let mockConnection: ReturnType<typeof setupMockConnection>;
+
     const exampleError = {
       sourceLocation: {
         file: basicUri,
@@ -21,14 +22,19 @@ describe("Parser", () => {
 
     beforeEach(async () => {
       ({ connection: mockConnection } = await setupMockLanguageServer({
-        documents: [basicUri],
+        documents: [{ uri: basicUri, analyze: true }],
         errors: [exampleError],
       }));
 
-      // Hack, the anaylsing of text docs is debounced
-      await new Promise((resolve) => {
-        setTimeout(resolve, 1000);
-      });
+      try {
+        await waitUntil(
+          () => mockConnection.sendDiagnostics.calledOnce,
+          100,
+          1000
+        );
+      } catch {
+        assert.fail("Send diagnostics not called");
+      }
     });
 
     it("should pick up compile errors", async () => {

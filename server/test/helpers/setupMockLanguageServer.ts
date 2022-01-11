@@ -1,5 +1,6 @@
 import { assert } from "chai";
 import * as fs from "fs";
+import { getUriFromDocument } from "../../src/utils/index";
 import {
   CompletionItem,
   CompletionList,
@@ -17,6 +18,7 @@ import {
 import setupServer from "../../src/server";
 import { setupMockCompilerProcessFactory } from "./setupMockCompilerProcessFactory";
 import { setupMockConnection } from "./setupMockConnection";
+import { waitUntil } from "./waitUntil";
 
 export type OnSignatureHelp = (
   params: SignatureHelpParams
@@ -38,21 +40,25 @@ export async function setupMockLanguageServer({
   documents,
   errors,
 }: {
-  documents: string[];
+  documents: { uri: string; analyze: boolean }[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errors: any[];
 }) {
+  const exampleRootUri = __dirname;
   const mockConnection = setupMockConnection();
   const mockCompilerProcessFactory = setupMockCompilerProcessFactory(errors);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await setupServer(mockConnection as any, mockCompilerProcessFactory);
+  const serverState = await setupServer(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockConnection as any,
+    mockCompilerProcessFactory
+  );
 
   assert(mockConnection.onInitialize.called);
   const initialize = mockConnection.onInitialize.getCall(0).firstArg;
   assert(initialize);
   const initializeResponse = await initialize({
-    rootUri: null,
+    rootUri: exampleRootUri,
     capabilities: {},
   });
   assert(initializeResponse);
@@ -60,7 +66,7 @@ export async function setupMockLanguageServer({
   assert(mockConnection.onInitialized.called);
   const initialized = mockConnection.onInitialized.getCall(0).firstArg;
   assert(initialized);
-  await initialized({ rootUri: null, capabilities: {} });
+  await initialized({ rootUri: exampleRootUri, capabilities: {} });
 
   const signatureHelp: OnSignatureHelp =
     mockConnection.onSignatureHelp.getCall(0).firstArg;
@@ -76,7 +82,7 @@ export async function setupMockLanguageServer({
   const didOpenTextDocument =
     mockConnection.onDidOpenTextDocument.getCall(0).firstArg;
 
-  for (const documentUri of documents) {
+  for (const { uri: documentUri, analyze } of documents) {
     const fileContent = await fs.promises.readFile(documentUri);
 
     const textDocument: TextDocumentItem = {
@@ -87,6 +93,35 @@ export async function setupMockLanguageServer({
     };
 
     await didOpenTextDocument({ textDocument: textDocument });
+
+    if (!analyze) {
+      continue;
+    }
+
+    try {
+      await waitUntil(
+        () => {
+          const doc = serverState.documents.get(documentUri);
+
+          if (!doc || !serverState.languageServer) {
+            return false;
+          }
+
+          const localUri = getUriFromDocument(doc);
+
+          const documentAnalyzer =
+            serverState.languageServer.analyzer.getDocumentAnalyzer(localUri);
+
+          return documentAnalyzer && documentAnalyzer.isAnalyzed;
+        },
+        100,
+        1600
+      );
+    } catch (err) {
+      throw new Error(
+        `Timeout waiting for doc analysis for ${documentUri} - error ${err}`
+      );
+    }
   }
 
   return {
