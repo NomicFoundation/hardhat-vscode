@@ -18,27 +18,12 @@
             },
             "range": [
               {
-                "line": 3,
-                "character": 18
+                "line": 5,
+                "character": 4
               },
               {
-                "line": 3,
-                "character": 31
-              }
-            ]
-          },
-          {
-            "uri": {
-              "path": "./Test.sol"
-            },
-            "range": [
-              {
-                "line": 14,
-                "character": 18
-              },
-              {
-                "line": 14,
-                "character": 31
+                "line": 5,
+                "character": 15
               }
             ]
           },
