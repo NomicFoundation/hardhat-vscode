@@ -84,7 +84,9 @@ describe("Parser", () => {
               end: { line: 35, character: 2 },
             }
           ));
+      });
 
+      describe("between inheriting contracts", () => {
         it("should navigate from constructor extension to contract declaration if underlying constructor does not exist", () =>
           assertDefinitionNavigation(
             definition,
@@ -104,6 +106,19 @@ describe("Parser", () => {
             {
               start: { line: 14, character: 4 },
               end: { line: 14, character: 26 },
+            }
+          ));
+
+        // This is a guard against a bug where modifiers on constructors with no params jumped to the starting constructor
+        // rather than the parent constructor
+        it("should navigate from constructor extension to underlying contracts constructor even when start constructor has no args", () =>
+          assertDefinitionNavigation(
+            definition,
+            twoContractUri,
+            { line: 26, character: 19 },
+            {
+              start: { line: 22, character: 4 },
+              end: { line: 22, character: 19 },
             }
           ));
       });

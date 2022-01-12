@@ -41,11 +41,7 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
         },
         end: {
           line: functionDefinition.loc.start.line,
-          column:
-            functionDefinition.loc.start.column +
-            "function ".length +
-            functionDefinition.loc.start.column +
-            "constructor".length,
+          column: functionDefinition.loc.start.column + "constructor".length,
         },
       };
 

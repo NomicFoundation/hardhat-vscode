@@ -73,7 +73,7 @@ describe("Parser", () => {
                 uri: twoContractUri,
                 range: {
                   start: { line: 14, character: 4 },
-                  end: { line: 14, character: 28 },
+                  end: { line: 14, character: 15 },
                 },
               }
             ));
