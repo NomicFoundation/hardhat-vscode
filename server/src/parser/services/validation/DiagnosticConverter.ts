@@ -7,7 +7,7 @@ import {
 } from "@common/types";
 
 type CompilerError = {
-  errorCode: "string";
+  errorCode: string;
   severity: "error" | "warning";
   message: string;
   sourceLocation: {
@@ -25,7 +25,9 @@ export class DiagnosticConverter {
 
   convert(document: TextDocument, error: CompilerError): Diagnostic {
     switch (error.errorCode) {
-      case <string>"2018":
+      case "2018":
+        return this.attemptConstrainToFunctionName(document, error);
+      case "4937":
         return this.attemptConstrainToFunctionName(document, error);
       default:
         return this.passThroughConversion(document, error);
@@ -35,7 +37,7 @@ export class DiagnosticConverter {
   private attemptConstrainToFunctionName(
     document: TextDocument,
     error: CompilerError
-  ) {
+  ): Diagnostic {
     const range = Range.create(
       document.positionAt(error.sourceLocation.start),
       document.positionAt(error.sourceLocation.end)
@@ -69,6 +71,12 @@ export class DiagnosticConverter {
           : DiagnosticSeverity.Warning,
       message: error.message,
       range: updatedRange,
+      data: {
+        functionSourceLocation: {
+          start: error.sourceLocation.start,
+          end: error.sourceLocation.end,
+        },
+      },
     };
   }
 
