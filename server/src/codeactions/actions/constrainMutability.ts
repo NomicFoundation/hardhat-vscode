@@ -4,11 +4,12 @@ import {
   Diagnostic,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { CodeActionResolver } from "../types";
 
-export function constrainMutability(
+const constrainMutability: CodeActionResolver = (
   diagnostic: Diagnostic,
   { document, uri }: { document: TextDocument; uri: string }
-): CodeAction[] {
+): CodeAction[] => {
   const constrainMutability = diagnostic;
 
   const modifier = constrainMutability.message.includes("pure")
@@ -73,4 +74,6 @@ export function constrainMutability(
   };
 
   return [action];
-}
+};
+
+export { constrainMutability };

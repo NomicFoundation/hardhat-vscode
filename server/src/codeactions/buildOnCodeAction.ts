@@ -8,6 +8,7 @@ import {
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { constrainMutability } from "./actions/constrainMutability";
+import { specifyVisibility } from "./actions/specifyVisibility";
 
 export function buildOnCodeAction(
   connection: Connection,
@@ -55,6 +56,11 @@ function resolveActionsFor(
   switch (diagnostic.code) {
     case "2018":
       return constrainMutability(diagnostic, {
+        document,
+        uri,
+      });
+    case "4937":
+      return specifyVisibility(diagnostic, {
         document,
         uri,
       });

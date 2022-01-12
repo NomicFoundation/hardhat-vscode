@@ -129,6 +129,12 @@ describe("Parser", () => {
                 character: 16,
               },
             },
+            data: {
+              functionSourceLocation: {
+                start: 445,
+                end: 556,
+              },
+            },
           },
         ]);
       });
