@@ -18,3 +18,11 @@ contract Foo {
 contract Bar is Foo {
     constructor (uint x, uint y) Foo(x) {}
 }
+
+abstract contract EmptyConstructorExample {
+    constructor() {}
+}
+
+contract UsesEmptyConstructorExample is EmptyConstructorExample {
+    constructor() EmptyConstructorExample() {}
+}
