@@ -13,12 +13,6 @@ export function assertCodeAction(
     isPreferred: boolean;
     edits: TextEdit[];
   }[]
-  // {
-  //   title,
-  //   kind,
-  //   isPreferred,
-  //   edits,
-  // }: { title: string; kind: string; isPreferred: boolean; edits: TextEdit[] }
 ) {
   const exampleUri = "/example";
 

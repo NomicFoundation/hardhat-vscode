@@ -2,70 +2,94 @@ import {
   CodeAction,
   CodeActionKind,
   Diagnostic,
+  Range,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { CodeActionResolver } from "../types";
+import * as parser from "@solidity-parser/parser";
 
 const constrainMutability: CodeActionResolver = (
   diagnostic: Diagnostic,
   { document, uri }: { document: TextDocument; uri: string }
 ): CodeAction[] => {
+  if (!diagnostic.data) {
+    return [];
+  }
+
   const modifier = diagnostic.message.includes("pure") ? "pure" : "view";
 
-  const range = diagnostic.range;
+  const { functionSourceLocation } = diagnostic.data as {
+    functionSourceLocation: { start: number; end: number };
+  };
 
-  const functionLine = document.getText({
-    start: {
-      line: range.start.line,
-      character: 0,
-    },
-    end: {
-      line: range.start.line + 1,
-      character: 0,
-    },
+  const functionText = document.getText(
+    Range.create(
+      document.positionAt(functionSourceLocation.start),
+      document.positionAt(functionSourceLocation.end)
+    )
+  );
+
+  const ast = parser.parse(functionText, {
+    range: true,
+    tolerant: true,
+    tokens: true,
   });
 
-  let startChar,
-    endChar = 0;
-  let title: string;
+  if (
+    ast.children.length === 0 ||
+    ast.children[0].type !== "FunctionDefinition"
+  ) {
+    return [];
+  }
 
-  let index = functionLine.indexOf("view");
+  const functionDefinitionNode = ast.children[0];
+  const mutability = functionDefinitionNode.stateMutability;
 
-  if (index >= 0) {
-    startChar = index;
-    endChar = index + 5;
-    title = "Change view modifier to pure";
+  if (mutability === "view") {
+    return modifyViewToPureAction(document, ast, functionSourceLocation, uri);
   } else {
-    index = functionLine.indexOf("returns");
+    return addMutabilityAction(
+      document,
+      ast,
+      functionSourceLocation,
+      uri,
+      functionDefinitionNode.visibility,
+      modifier
+    );
+  }
+};
 
-    if (index < 0) {
-      return [];
-    }
+function modifyViewToPureAction(
+  document: TextDocument,
+  ast: ReturnType<typeof parser.parse>,
+  functionSourceLocation: { start: number; end: number },
+  uri: string
+): CodeAction[] {
+  const viewKeyword = ast.tokens?.find(
+    (t) => t.type === "Keyword" && t.value === "view"
+  );
 
-    startChar = index;
-    endChar = index;
-    title = `Add ${modifier} modifier`;
+  if (!viewKeyword || !viewKeyword.range) {
+    throw new Error("Unable to find keyword `view`");
   }
 
   const action: CodeAction = {
-    title: title,
+    title: "Change view modifier to pure",
     kind: CodeActionKind.QuickFix,
     isPreferred: true,
     edit: {
       changes: {
         [uri]: [
           {
-            range: {
-              start: {
-                line: range.start.line,
-                character: startChar,
-              },
-              end: {
-                line: range.start.line,
-                character: endChar,
-              },
-            },
-            newText: `${modifier} `,
+            range: Range.create(
+              document.positionAt(
+                functionSourceLocation.start + viewKeyword.range[0]
+              ),
+              document.positionAt(
+                functionSourceLocation.start + viewKeyword.range[1]
+              )
+            ),
+            newText: "pure",
           },
         ],
       },
@@ -73,6 +97,46 @@ const constrainMutability: CodeActionResolver = (
   };
 
   return [action];
-};
+}
 
+function addMutabilityAction(
+  document: TextDocument,
+  ast: ReturnType<typeof parser.parse>,
+  functionSourceLocation: { start: number; end: number },
+  uri: string,
+  visibilty: string,
+  modifier: string
+): CodeAction[] {
+  const visibilityKeyword = ast.tokens?.find(
+    (t) => t.type === "Keyword" && t.value === visibilty
+  );
+
+  if (!visibilityKeyword || !visibilityKeyword.range) {
+    return [];
+  }
+
+  const endOfVisibilityChar =
+    functionSourceLocation.start + visibilityKeyword.range[1] + 1;
+
+  const addMutabilityAction: CodeAction = {
+    title: `Add ${modifier} modifier`,
+    kind: CodeActionKind.QuickFix,
+    isPreferred: true,
+    edit: {
+      changes: {
+        [uri]: [
+          {
+            range: Range.create(
+              document.positionAt(endOfVisibilityChar),
+              document.positionAt(endOfVisibilityChar)
+            ),
+            newText: `${modifier} `,
+          },
+        ],
+      },
+    },
+  };
+
+  return [addMutabilityAction];
+}
 export { constrainMutability };
