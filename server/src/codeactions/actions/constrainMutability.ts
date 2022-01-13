@@ -10,33 +10,31 @@ const constrainMutability: CodeActionResolver = (
   diagnostic: Diagnostic,
   { document, uri }: { document: TextDocument; uri: string }
 ): CodeAction[] => {
-  const constrainMutability = diagnostic;
+  const modifier = diagnostic.message.includes("pure") ? "pure" : "view";
 
-  const modifier = constrainMutability.message.includes("pure")
-    ? "pure"
-    : "view";
-
-  const constrainMutabilityRange = constrainMutability.range;
+  const range = diagnostic.range;
 
   const functionLine = document.getText({
     start: {
-      line: constrainMutabilityRange.start.line,
+      line: range.start.line,
       character: 0,
     },
     end: {
-      line: constrainMutabilityRange.start.line + 1,
+      line: range.start.line + 1,
       character: 0,
     },
   });
 
   let startChar,
     endChar = 0;
+  let title: string;
 
   let index = functionLine.indexOf("view");
 
   if (index >= 0) {
     startChar = index;
     endChar = index + 5;
+    title = "Change view modifier to pure";
   } else {
     index = functionLine.indexOf("returns");
 
@@ -46,10 +44,11 @@ const constrainMutability: CodeActionResolver = (
 
     startChar = index;
     endChar = index;
+    title = `Add ${modifier} modifier`;
   }
 
   const action: CodeAction = {
-    title: `Add ${modifier} modifier`,
+    title: title,
     kind: CodeActionKind.QuickFix,
     isPreferred: true,
     edit: {
@@ -58,11 +57,11 @@ const constrainMutability: CodeActionResolver = (
           {
             range: {
               start: {
-                line: constrainMutabilityRange.start.line,
+                line: range.start.line,
                 character: startChar,
               },
               end: {
-                line: constrainMutabilityRange.start.line,
+                line: range.start.line,
                 character: endChar,
               },
             },
