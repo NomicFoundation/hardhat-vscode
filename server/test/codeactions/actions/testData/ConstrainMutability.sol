@@ -30,6 +30,7 @@ contract ConstrainMutability {
 
   function getPureWithModifier()
     private
+    view
     onlyHappy
     returns (string memory input)
   {

@@ -63,13 +63,19 @@ describe("Code Actions", () => {
         );
       });
 
-      it.skip("should provide option to functions with modifiers", () => {
+      it("should provide view option to functions with modifiers", () => {
         const diagnostic = {
           code: "2018",
           message: "Function state mutability can be restricted to view",
           range: {
             start: { line: 22, character: 11 },
             end: { line: 22, character: 33 },
+          },
+          data: {
+            functionSourceLocation: {
+              start: 446,
+              end: 567,
+            },
           },
         };
 
@@ -84,15 +90,15 @@ describe("Code Actions", () => {
               isPreferred: true,
               edits: [
                 {
-                  newText: " view",
+                  newText: "    view\n",
                   range: {
                     start: {
-                      line: 23,
-                      character: 12,
+                      line: 24,
+                      character: 0,
                     },
                     end: {
-                      line: 23,
-                      character: 12,
+                      line: 24,
+                      character: 0,
                     },
                   },
                 },
@@ -185,6 +191,48 @@ describe("Code Actions", () => {
                     end: {
                       line: 18,
                       character: 36,
+                    },
+                  },
+                },
+              ],
+            },
+          ]
+        );
+      });
+
+      it("should provide pure option to functions with modifiers", () => {
+        const diagnostic = {
+          code: "2018",
+          message: "Function state mutability can be restricted to pure",
+          range: {
+            start: { line: 30, character: 11 },
+            end: { line: 30, character: 30 },
+          },
+          data: {
+            functionSourceLocation: { start: 571, end: 697 },
+          },
+        };
+
+        assertCodeAction(
+          constrainMutability,
+          constrainMutabilityText,
+          diagnostic,
+          [
+            {
+              title: "Change view modifier to pure",
+              kind: "quickfix",
+              isPreferred: true,
+              edits: [
+                {
+                  newText: "pure",
+                  range: {
+                    start: {
+                      line: 32,
+                      character: 4,
+                    },
+                    end: {
+                      line: 32,
+                      character: 8,
                     },
                   },
                 },

@@ -107,13 +107,38 @@ function addMutabilityAction(
   visibilty: string,
   modifier: string
 ): CodeAction[] {
-  const visibilityKeyword = ast.tokens?.find(
+  if (!ast.tokens) {
+    return [];
+  }
+
+  const visibilityKeywordIndex = ast.tokens.findIndex(
     (t) => t.type === "Keyword" && t.value === visibilty
   );
 
-  if (!visibilityKeyword || !visibilityKeyword.range) {
+  const visibilityKeyword = ast.tokens[visibilityKeywordIndex];
+  const nextToken = ast.tokens[visibilityKeywordIndex + 1];
+
+  if (
+    !visibilityKeyword ||
+    !visibilityKeyword.range ||
+    !nextToken ||
+    !nextToken.range
+  ) {
     return [];
   }
+
+  const visibilityKeywordPosition = document.positionAt(
+    functionSourceLocation.start + visibilityKeyword.range[0] + 1
+  );
+  const visibilityKeywordLine = visibilityKeywordPosition.line;
+  const nextTokenLine = document.positionAt(
+    functionSourceLocation.start + nextToken.range[0] + 1
+  ).line;
+
+  const newText =
+    visibilityKeywordLine === nextTokenLine
+      ? `${modifier} `
+      : `${"".padStart(visibilityKeywordPosition.character - 1)}${modifier}\n`;
 
   const endOfVisibilityChar =
     functionSourceLocation.start + visibilityKeyword.range[1] + 1;
@@ -130,7 +155,7 @@ function addMutabilityAction(
               document.positionAt(endOfVisibilityChar),
               document.positionAt(endOfVisibilityChar)
             ),
-            newText: `${modifier} `,
+            newText,
           },
         ],
       },
