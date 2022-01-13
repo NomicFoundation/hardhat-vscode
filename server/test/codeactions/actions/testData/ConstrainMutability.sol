@@ -13,10 +13,31 @@ contract ConstrainMutability {
   }
 
   function getPure() private returns (string memory input) {
-    return "another";
+    return "pure";
   }
 
   function modifyPure() private view returns (string memory input) {
-    return "another";
+    return "pure";
+  }
+
+  function getMessageWithModifier()
+    private
+    onlyHappy
+    returns (string memory input)
+  {
+    return message;
+  }
+
+  function getPureWithModifier()
+    private
+    onlyHappy
+    returns (string memory input)
+  {
+    return "pure";
+  }
+
+  modifier onlyHappy() {
+    require(25 == 25, "happy");
+    _;
   }
 }

@@ -26,6 +26,12 @@ describe("Code Actions", () => {
             start: { line: 10, character: 11 },
             end: { line: 10, character: 21 },
           },
+          data: {
+            functionSourceLocation: {
+              start: 179,
+              end: 264,
+            },
+          },
         };
 
         assertCodeAction(
@@ -56,6 +62,45 @@ describe("Code Actions", () => {
           ]
         );
       });
+
+      it.skip("should provide option to functions with modifiers", () => {
+        const diagnostic = {
+          code: "2018",
+          message: "Function state mutability can be restricted to view",
+          range: {
+            start: { line: 22, character: 11 },
+            end: { line: 22, character: 33 },
+          },
+        };
+
+        assertCodeAction(
+          constrainMutability,
+          constrainMutabilityText,
+          diagnostic,
+          [
+            {
+              title: "Add view modifier",
+              kind: "quickfix",
+              isPreferred: true,
+              edits: [
+                {
+                  newText: " view",
+                  range: {
+                    start: {
+                      line: 23,
+                      character: 12,
+                    },
+                    end: {
+                      line: 23,
+                      character: 12,
+                    },
+                  },
+                },
+              ],
+            },
+          ]
+        );
+      });
     });
 
     describe("to pure", () => {
@@ -66,6 +111,12 @@ describe("Code Actions", () => {
           range: {
             start: { line: 14, character: 11 },
             end: { line: 14, character: 18 },
+          },
+          data: {
+            functionSourceLocation: {
+              start: 268,
+              end: 349,
+            },
           },
         };
 
@@ -106,6 +157,12 @@ describe("Code Actions", () => {
             start: { line: 18, character: 11 },
             end: { line: 18, character: 21 },
           },
+          data: {
+            functionSourceLocation: {
+              start: 353,
+              end: 442,
+            },
+          },
         };
 
         assertCodeAction(
@@ -119,7 +176,7 @@ describe("Code Actions", () => {
               isPreferred: true,
               edits: [
                 {
-                  newText: "pure ",
+                  newText: "pure",
                   range: {
                     start: {
                       line: 18,
@@ -127,7 +184,7 @@ describe("Code Actions", () => {
                     },
                     end: {
                       line: 18,
-                      character: 37,
+                      character: 36,
                     },
                   },
                 },
@@ -147,6 +204,9 @@ describe("Code Actions", () => {
           range: {
             start: { line: 1, character: 6 },
             end: { line: 1, character: 25 },
+          },
+          data: {
+            functionSourceLocation: { start: 0, end: 25 },
           },
         };
 
