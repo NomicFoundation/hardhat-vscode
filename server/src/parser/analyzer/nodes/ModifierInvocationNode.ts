@@ -4,12 +4,7 @@ import {
   DocumentsAnalyzerMap,
   Node,
 } from "@common/types";
-import {
-  isFunctionDefinition,
-  isContractDefinition,
-} from "@analyzer/utils/typeGuards";
-import { ContractDefinitionNode } from "./ContractDefinitionNode";
-import { FunctionDefinitionNode } from "./FunctionDefinitionNode";
+import { isContractDefinition } from "@analyzer/utils/typeGuards";
 import { lookupConstructorFor } from "@analyzer/utils/lookupConstructorFor";
 
 export class ModifierInvocationNode extends Node {
