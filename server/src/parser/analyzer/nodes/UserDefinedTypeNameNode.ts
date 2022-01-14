@@ -10,7 +10,7 @@ import {
   isContractDefinition,
   isFunctionDefinition,
 } from "@analyzer/utils/typeGuards";
-import { lookupConstructorFor } from "@analyzer/utils/lookupConstructorFor";
+import { lookupConstructorFor } from "@analyzer/utils/lookups";
 
 export class UserDefinedTypeNameNode extends Node {
   astNode: UserDefinedTypeName;
