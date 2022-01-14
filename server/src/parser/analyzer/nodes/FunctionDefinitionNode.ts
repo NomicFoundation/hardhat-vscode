@@ -11,7 +11,11 @@ import {
 export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
   astNode: FunctionDefinition;
 
-  connectionTypeRules: string[] = ["FunctionCall", "MemberAccess"];
+  connectionTypeRules: string[] = [
+    "FunctionCall",
+    "MemberAccess",
+    "ModifierInvocation",
+  ];
 
   constructor(
     functionDefinition: FunctionDefinition,
