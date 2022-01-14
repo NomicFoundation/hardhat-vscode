@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { ConstrainMutability } from "../../../../src/compilerDiagnostics/diagnostics/ConstrainMutability";
-import { assertCodeAction } from "./assertCodeAction";
+import { assertCodeAction } from "./asserts/assertCodeAction";
 
 describe("Code Actions", () => {
   const constrainMutability = new ConstrainMutability();
