@@ -10,6 +10,7 @@ import {
 } from "@analyzer/utils/typeGuards";
 import { ContractDefinitionNode } from "./ContractDefinitionNode";
 import { FunctionDefinitionNode } from "./FunctionDefinitionNode";
+import { lookupConstructorFor } from "@analyzer/utils/lookupConstructorFor";
 
 export class ModifierInvocationNode extends Node {
   astNode: ModifierInvocation;
@@ -78,9 +79,7 @@ export class ModifierInvocationNode extends Node {
       isContractDefinition(modifierInvocationParent) &&
       modifierInvocationParent.isAlive
     ) {
-      const constructorNode = this.lookupConstructorFor(
-        modifierInvocationParent
-      );
+      const constructorNode = lookupConstructorFor(modifierInvocationParent);
 
       if (constructorNode) {
         this.addTypeNode(modifierInvocationParent);
@@ -98,13 +97,5 @@ export class ModifierInvocationNode extends Node {
     modifierInvocationParent?.addChild(this);
 
     return this;
-  }
-
-  private lookupConstructorFor(
-    contractDefinition: ContractDefinitionNode
-  ): FunctionDefinitionNode | undefined {
-    return contractDefinition.children
-      .filter(isFunctionDefinition)
-      .find((node) => node.isConstructor);
   }
 }

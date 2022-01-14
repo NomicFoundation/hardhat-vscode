@@ -94,7 +94,7 @@ describe("Parser", () => {
             assertDefinitionNavigation(
               definition,
               twoContractUri,
-              { line: 10, character: 34 },
+              { line: 10, character: 31 },
               {
                 start: { line: 3, character: 0 },
                 end: { line: 7, character: 0 },
@@ -105,10 +105,10 @@ describe("Parser", () => {
             assertDefinitionNavigation(
               definition,
               twoContractUri,
-              { line: 18, character: 34 },
+              { line: 18, character: 31 },
               {
-                start: { line: 14, character: 4 },
-                end: { line: 14, character: 26 },
+                start: { line: 14, character: 2 },
+                end: { line: 14, character: 24 },
               }
             ));
 
@@ -118,10 +118,34 @@ describe("Parser", () => {
             assertDefinitionNavigation(
               definition,
               twoContractUri,
-              { line: 26, character: 19 },
+              { line: 26, character: 16 },
               {
-                start: { line: 22, character: 4 },
-                end: { line: 22, character: 19 },
+                start: { line: 22, character: 2 },
+                end: { line: 22, character: 17 },
+              }
+            ));
+        });
+
+        describe("between unrelated contracts", () => {
+          it("should navigate from constructor invocation to contract declaration if constructor does not exist", () =>
+            assertDefinitionNavigation(
+              definition,
+              twoContractUri,
+              { line: 38, character: 8 },
+              {
+                start: { line: 29, character: 0 },
+                end: { line: 30, character: 0 },
+              }
+            ));
+
+          it("should navigate from constructor invocation to constructor if it exists", () =>
+            assertDefinitionNavigation(
+              definition,
+              twoContractUri,
+              { line: 42, character: 8 },
+              {
+                start: { line: 33, character: 2 },
+                end: { line: 33, character: 17 },
               }
             ));
         });
@@ -167,6 +191,17 @@ describe("Parser", () => {
             definition,
             childUri,
             { line: 6, character: 16 },
+            {
+              start: { line: 4, character: 2 },
+              end: { line: 4, character: 17 },
+            }
+          ));
+
+        it("should navigate from constructor extension to underlying contracts constructor across files", () =>
+          assertDefinitionNavigation(
+            definition,
+            childUri,
+            { line: 11, character: 8 },
             {
               start: { line: 4, character: 2 },
               end: { line: 4, character: 17 },

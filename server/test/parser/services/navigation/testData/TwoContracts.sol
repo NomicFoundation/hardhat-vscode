@@ -8,21 +8,38 @@ contract Without {
 }
 
 contract WithoutExtended is Without {
-    constructor (uint x, uint y) Without() {}
+  constructor (uint x, uint y) Without() {}
 }
 
 contract Foo {
-    constructor (uint x) {}
+  constructor (uint x) {}
 }
 
 contract Bar is Foo {
-    constructor (uint x, uint y) Foo(x) {}
+  constructor (uint x, uint y) Foo(x) {}
 }
 
 abstract contract EmptyConstructorExample {
-    constructor() {}
+  constructor() {}
 }
 
 contract UsesEmptyConstructorExample is EmptyConstructorExample {
-    constructor() EmptyConstructorExample() {}
+  constructor() EmptyConstructorExample() {}
+}
+
+contract WithoutConstructor {
+}
+
+contract WithConstructor {
+  constructor() {}
+}
+
+contract User {
+  function createWithoutConstructor() public {
+    new WithoutConstructor();
+  }
+
+  function createWithConstructor() public {
+    new WithConstructor();
+  }
 }
