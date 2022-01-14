@@ -56,8 +56,22 @@ describe("Parser", () => {
               {
                 uri: twoContractUri,
                 range: {
-                  start: { line: 10, character: 33 },
-                  end: { line: 10, character: 40 },
+                  start: { line: 10, character: 31 },
+                  end: { line: 10, character: 38 },
+                },
+              }
+            ));
+
+          it("should show usages of contract invocation (new keyword)", () =>
+            assertReferencesNavigation(
+              references,
+              twoContractUri,
+              { line: 29, character: 9 },
+              {
+                uri: twoContractUri,
+                range: {
+                  start: { line: 38, character: 8 },
+                  end: { line: 38, character: 26 },
                 },
               }
             ));
@@ -68,12 +82,12 @@ describe("Parser", () => {
             assertReferencesNavigation(
               references,
               twoContractUri,
-              { line: 14, character: 6 },
+              { line: 14, character: 2 },
               {
                 uri: twoContractUri,
                 range: {
-                  start: { line: 14, character: 4 },
-                  end: { line: 14, character: 15 },
+                  start: { line: 14, character: 2 },
+                  end: { line: 14, character: 13 },
                 },
               }
             ));
@@ -82,12 +96,26 @@ describe("Parser", () => {
             assertReferencesNavigation(
               references,
               twoContractUri,
-              { line: 14, character: 6 },
+              { line: 14, character: 2 },
               {
                 uri: twoContractUri,
                 range: {
-                  start: { line: 18, character: 33 },
-                  end: { line: 18, character: 36 },
+                  start: { line: 18, character: 31 },
+                  end: { line: 18, character: 34 },
+                },
+              }
+            ));
+
+          it("should show usages of contract invocation (new keyword)", () =>
+            assertReferencesNavigation(
+              references,
+              twoContractUri,
+              { line: 33, character: 2 },
+              {
+                uri: twoContractUri,
+                range: {
+                  start: { line: 42, character: 8 },
+                  end: { line: 42, character: 23 },
                 },
               }
             ));

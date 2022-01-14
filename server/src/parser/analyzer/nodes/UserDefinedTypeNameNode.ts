@@ -6,6 +6,11 @@ import {
   Node,
   expressionNodeTypes,
 } from "@common/types";
+import {
+  isContractDefinition,
+  isFunctionDefinition,
+} from "@analyzer/utils/typeGuards";
+import { lookupConstructorFor } from "@analyzer/utils/lookupConstructorFor";
 
 export class UserDefinedTypeNameNode extends Node {
   astNode: UserDefinedTypeName;
@@ -69,21 +74,40 @@ export class UserDefinedTypeNameNode extends Node {
   ): Node {
     this.setExpressionNode(expression);
 
-    if (parent) {
-      const searcher = this.documentsAnalyzer[this.uri]?.searcher;
-      const definitionParent = searcher?.findParent(this, parent);
+    if (!parent) {
+      orphanNodes.push(this);
+      return this;
+    }
 
-      if (definitionParent) {
+    const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+    const definitionParent = searcher?.findParent(this, parent);
+
+    if (!definitionParent) {
+      orphanNodes.push(this);
+      return this;
+    }
+
+    if (
+      isContractDefinition(definitionParent) &&
+      definitionParent.isAlive &&
+      isFunctionDefinition(parent)
+    ) {
+      const constructorNode = lookupConstructorFor(definitionParent);
+
+      if (constructorNode) {
         this.addTypeNode(definitionParent);
+        this.setParent(constructorNode);
 
-        this.setParent(definitionParent);
         definitionParent?.addChild(this);
+        constructorNode.addChild(this);
 
         return this;
       }
     }
 
-    orphanNodes.push(this);
+    this.addTypeNode(definitionParent);
+    this.setParent(definitionParent);
+    definitionParent?.addChild(this);
 
     return this;
   }

@@ -6,3 +6,9 @@ import "./Parent.sol";
 contract Child is Parent {
   constructor() Parent() {}
 }
+
+contract Another {
+  function createParent() public {
+    new Parent();
+  }
+}

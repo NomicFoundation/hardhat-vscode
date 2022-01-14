@@ -15,6 +15,7 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
     "FunctionCall",
     "MemberAccess",
     "ModifierInvocation",
+    "UserDefinedTypeName",
   ];
 
   constructor(
