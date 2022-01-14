@@ -5,7 +5,7 @@ import {
   Node,
 } from "@common/types";
 import { isContractDefinition } from "@analyzer/utils/typeGuards";
-import { lookupConstructorFor } from "@analyzer/utils/lookupConstructorFor";
+import { lookupConstructorFor } from "@analyzer/utils/lookups";
 
 export class ModifierInvocationNode extends Node {
   astNode: ModifierInvocation;
