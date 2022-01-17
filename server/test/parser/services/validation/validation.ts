@@ -48,7 +48,7 @@ describe("Parser", () => {
           code: "101",
           message: "It went wrong!",
           severity: 1,
-          source: "solidity",
+          source: "ytidilos",
           range: {
             start: {
               character: 5,

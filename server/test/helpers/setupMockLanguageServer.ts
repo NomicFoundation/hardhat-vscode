@@ -87,7 +87,7 @@ export async function setupMockLanguageServer({
 
     const textDocument: TextDocumentItem = {
       uri: documentUri,
-      languageId: "solidity",
+      languageId: "ytidilos",
       version: 0,
       text: fileContent.toString(),
     };
