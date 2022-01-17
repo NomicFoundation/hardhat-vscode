@@ -1,23 +1,23 @@
 {
-	"compilerOptions": {
-		"target": "es2019",
-		"lib": ["ES2019"],
-		"module": "commonjs",
-		"moduleResolution": "node",
-		"outDir": "out",
-		"rootDir": "src",
-		"allowJs": true,
-		"sourceMap": true,
-		"strict": true,
-		"composite": true,
-		"declaration": true,
-		"baseUrl": "./src",
-		"paths": {
-			"@analyzer/*": ["./parser/analyzer/*"],
-			"@common/*": ["./parser/common/*"],
-			"@services/*": ["./parser/services/*"],
-		}
-	},
-	"include": ["src"],
-	"exclude": ["node_modules", ".vscode-test"],
+  "compilerOptions": {
+    "target": "es2019",
+    "lib": ["ES2019"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "out",
+    "rootDir": "src",
+    "allowJs": true,
+    "sourceMap": true,
+    "strict": true,
+    "composite": true,
+    "declaration": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@analyzer/*": ["./parser/analyzer/*"],
+      "@common/*": ["./parser/common/*"],
+      "@services/*": ["./parser/services/*"]
+    }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", ".vscode-test"]
 }

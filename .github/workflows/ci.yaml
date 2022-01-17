@@ -2,6 +2,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - "*"
 
 jobs:
   build:
@@ -10,24 +13,31 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [macos-latest, ubuntu-latest, windows-latest]
 
     steps:
       - name: Clone repository
         uses: actions/checkout@v2
-        
+
       - name: Setup Node
         uses: actions/setup-node@v1
         with:
-          node-version: '14.x'
+          node-version: "14.x"
 
       - name: Install dependencies
         run: yarn install
 
-      - name: Run tests
+      - name: Lint
+        run: yarn lint
+
+      - name: Run server tests
+        run: yarn run test:coverage
+
+      - name: Run integration tests
         uses: GabrielBB/xvfb-action@v1.0
+        if: matrix.os != 'windows-latest'
         with:
-          run: yarn run test
+          run: yarn run test:integration
         env:
           CODE_VERSION: ${{ matrix.version }}
           VSCODEGO_BEFORE_RELEASE_TESTS: true

@@ -24,9 +24,9 @@ If you want to share it with someone, let us know about it in [this issue](https
 
 ## Known issues/limitations
 
-- Truffle support is incomplete: external dependencies may be resolved correctly, but compilation errors are not shown.
-- Brownie support is incomplete: external dependencies are not resolved correctly, and compilation errors are not shown.
-- Daptools support is incomplete: external dependencies are not resolved correctly, and compilation errors are not shown.
+- Truffle support is incomplete: compilation errors are not shown.
+- Brownie support is incomplete: compilation errors are not shown.
+- Daptools support is incomplete: compilation errors are not shown.
 - Foundry support is incomplete: external dependencies are not resolved correctly, and compilation errors are not shown.
 
 ## Changelog

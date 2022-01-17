@@ -1,174 +1,190 @@
 [
-    {
-        "title": "[Single-file] - Find All References for AbstractVault",
-        "actions": [
-            {
-                "action": "ReferencesRequest",
-                "uri": "./Test.sol",
-                "params": {
-                    "position": {
-                        "line": 16,
-                        "character": 26
-                    }
-                },
-                "expected": [
-                    {
-                        "uri": {
-                            "path": "./Test.sol"
-                        },
-                        "range": [{
-                            "line": 3,
-                            "character": 18
-                        }, {
-                            "line": 3,
-                            "character": 31
-                        }]
-                    }, {
-                        "uri": {
-                            "path": "./Test.sol"
-                        },
-                        "range": [{
-                            "line": 14,
-                            "character": 18
-                        }, {
-                            "line": 14,
-                            "character": 31
-                        }]
-                    }, {
-                        "uri": {
-                            "path": "./Test.sol"
-                        },
-                        "range": [{
-                            "line": 16,
-                            "character": 19
-                        }, {
-                            "line": 16,
-                            "character": 32
-                        }]
-                    }
-                ]
-            }
+  {
+    "title": "[Single-file] - Find All References for AbstractVault",
+    "actions": [
+      {
+        "action": "ReferencesRequest",
+        "uri": "./Test.sol",
+        "params": {
+          "position": {
+            "line": 16,
+            "character": 26
+          }
+        },
+        "expected": [
+          {
+            "uri": {
+              "path": "./Test.sol"
+            },
+            "range": [
+              {
+                "line": 5,
+                "character": 4
+              },
+              {
+                "line": 5,
+                "character": 15
+              }
+            ]
+          },
+          {
+            "uri": {
+              "path": "./Test.sol"
+            },
+            "range": [
+              {
+                "line": 16,
+                "character": 19
+              },
+              {
+                "line": 16,
+                "character": 32
+              }
+            ]
+          }
         ]
-    },
-    {
-        "title": "[Single-file] - Find All References for 'fee' modifier",
-        "actions": [
-            {
-                "action": "ReferencesRequest",
-                "uri": "./Test.sol",
-                "params": {
-                    "position": {
-                        "line": 24,
-                        "character": 55
-                    }
-                },
-                "expected": [
-                    {
-                        "uri": {
-                            "path": "./Test.sol"
-                        },
-                        "range": [{
-                            "line": 9,
-                            "character": 13
-                        }, {
-                            "line": 9,
-                            "character": 16
-                        }]
-                    }, {
-                        "uri": {
-                            "path": "./Test.sol"
-                        },
-                        "range": [{
-                            "line": 24,
-                            "character": 53
-                        }, {
-                            "line": 24,
-                            "character": 56
-                        }]
-                    }
-                ]
-            }
+      }
+    ]
+  },
+  {
+    "title": "[Single-file] - Find All References for 'fee' modifier",
+    "actions": [
+      {
+        "action": "ReferencesRequest",
+        "uri": "./Test.sol",
+        "params": {
+          "position": {
+            "line": 24,
+            "character": 55
+          }
+        },
+        "expected": [
+          {
+            "uri": {
+              "path": "./Test.sol"
+            },
+            "range": [
+              {
+                "line": 9,
+                "character": 13
+              },
+              {
+                "line": 9,
+                "character": 16
+              }
+            ]
+          },
+          {
+            "uri": {
+              "path": "./Test.sol"
+            },
+            "range": [
+              {
+                "line": 24,
+                "character": 53
+              },
+              {
+                "line": 24,
+                "character": 56
+              }
+            ]
+          }
         ]
-    },
-    {
-        "title": "[Single-file] - Find All References for 'fee1' modifier",
-        "actions": [
-            {
-                "action": "ReferencesRequest",
-                "uri": "./Test.sol",
-                "params": {
-                    "position": {
-                        "line": 24,
-                        "character": 72
-                    }
-                },
-                "expected": [
-                    {
-                        "uri": {
-                            "path": "./Test.sol"
-                        },
-                        "range": [{
-                            "line": 20,
-                            "character": 13
-                        }, {
-                            "line": 20,
-                            "character": 17
-                        }]
-                    }, {
-                        "uri": {
-                            "path": "./Test.sol"
-                        },
-                        "range": [{
-                            "line": 24,
-                            "character": 70
-                        }, {
-                            "line": 24,
-                            "character": 74
-                        }]
-                    }
-                ]
-            }
+      }
+    ]
+  },
+  {
+    "title": "[Single-file] - Find All References for 'fee1' modifier",
+    "actions": [
+      {
+        "action": "ReferencesRequest",
+        "uri": "./Test.sol",
+        "params": {
+          "position": {
+            "line": 24,
+            "character": 72
+          }
+        },
+        "expected": [
+          {
+            "uri": {
+              "path": "./Test.sol"
+            },
+            "range": [
+              {
+                "line": 20,
+                "character": 13
+              },
+              {
+                "line": 20,
+                "character": 17
+              }
+            ]
+          },
+          {
+            "uri": {
+              "path": "./Test.sol"
+            },
+            "range": [
+              {
+                "line": 24,
+                "character": 70
+              },
+              {
+                "line": 24,
+                "character": 74
+              }
+            ]
+          }
         ]
-    },
-    {
-        "title": "[Single-file] - Find All References for 'fee2' modifier",
-        "actions": [
-            {
-                "action": "ReferencesRequest",
-                "uri": "./Test.sol",
-                "params": {
-                    "position": {
-                        "line": 24,
-                        "character": 90
-                    }
-                },
-                "expected": [
-                    {
-                        "uri": {
-                            "path": "./Test.sol"
-                        },
-                        "range": [{
-                            "line": 28,
-                            "character": 13
-                        }, {
-                            "line": 28,
-                            "character": 17
-                        }]
-                    },
-                    {
-                        "uri": {
-                            "path": "./Test.sol"
-                        },
-                        "range": [{
-                            "line": 24,
-                            "character": 88
-                        }, {
-                            "line": 24,
-                            "character": 92
-                        }]
-                    }
-                ]
-            }
+      }
+    ]
+  },
+  {
+    "title": "[Single-file] - Find All References for 'fee2' modifier",
+    "actions": [
+      {
+        "action": "ReferencesRequest",
+        "uri": "./Test.sol",
+        "params": {
+          "position": {
+            "line": 24,
+            "character": 90
+          }
+        },
+        "expected": [
+          {
+            "uri": {
+              "path": "./Test.sol"
+            },
+            "range": [
+              {
+                "line": 28,
+                "character": 13
+              },
+              {
+                "line": 28,
+                "character": 17
+              }
+            ]
+          },
+          {
+            "uri": {
+              "path": "./Test.sol"
+            },
+            "range": [
+              {
+                "line": 24,
+                "character": 88
+              },
+              {
+                "line": 24,
+                "character": 92
+              }
+            ]
+          }
         ]
-    }
+      }
+    ]
+  }
 ]

@@ -1,24 +1,13 @@
 {
-	"compilerOptions": {
-		"module": "commonjs",
-		"target": "es2019",
-		"lib": ["ES2019"],
-		"outDir": "out",
-		"sourceMap": true,
-		"resolveJsonModule": true,
-	},
-	"include": [
-		"./client",
-		"./server",
-		"./test",
-		"./test/**/*.json",
-	],
-	"exclude": [
-		"node_modules",
-		".vscode-test"
-	],
-	"references": [
-		{ "path": "./client" },
-		{ "path": "./server" },
-	]
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2019",
+    "lib": ["ES2019"],
+    "outDir": "out",
+    "sourceMap": true,
+    "resolveJsonModule": true
+  },
+  "include": ["./client", "./server", "./test", "./test/**/*.json"],
+  "exclude": ["node_modules", ".vscode-test", "./server/test"],
+  "references": [{ "path": "./client" }, { "path": "./server" }]
 }

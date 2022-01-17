@@ -1,17 +1,32 @@
-import { AssemblyLiteral, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
+import {
+  AssemblyLiteral,
+  FinderType,
+  DocumentsAnalyzerMap,
+  Node,
+} from "@common/types";
 
 export class AssemblyLiteralNode extends Node {
-    astNode: AssemblyLiteral;
+  astNode: AssemblyLiteral;
 
-    constructor (assemblyLiteral: AssemblyLiteral, uri: string, rootPath: string, documentsAnalyzer: DocumentsAnalyzerMap) {
-        super(assemblyLiteral, uri, rootPath, documentsAnalyzer, undefined);
-        this.astNode = assemblyLiteral;
-        // TO-DO: Implement name location for rename
-    }
+  constructor(
+    assemblyLiteral: AssemblyLiteral,
+    uri: string,
+    rootPath: string,
+    documentsAnalyzer: DocumentsAnalyzerMap
+  ) {
+    super(assemblyLiteral, uri, rootPath, documentsAnalyzer, undefined);
+    this.astNode = assemblyLiteral;
+    // TO-DO: Implement name location for rename
+  }
 
-    accept(find: FinderType, orphanNodes: Node[], parent?: Node, expression?: Node): Node {
-        this.setExpressionNode(expression);
-        // TO-DO: Method not implemented
-        return this;
-    }
+  accept(
+    find: FinderType,
+    orphanNodes: Node[],
+    parent?: Node,
+    expression?: Node
+  ): Node {
+    this.setExpressionNode(expression);
+    // TO-DO: Method not implemented
+    return this;
+  }
 }
