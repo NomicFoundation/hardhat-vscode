@@ -6,9 +6,9 @@ import {
   CodeAction,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { CompilerDiagnosticResolver } from "./CompilerDiagnosticResolver";
+import { QuickFixResolver } from "./QuickFixResolver";
 
-export function buildOnCodeAction(
+export function onCodeAction(
   connection: Connection,
   documents: TextDocuments<TextDocument>
 ) {
@@ -16,7 +16,7 @@ export function buildOnCodeAction(
     connection.console.log("onCodeAction");
 
     try {
-      const actionResolver = new CompilerDiagnosticResolver(connection.console);
+      const quickFixResolver = new QuickFixResolver(connection.console);
 
       const document = documents.get(params.textDocument.uri);
 
@@ -24,7 +24,7 @@ export function buildOnCodeAction(
         return [];
       }
 
-      return actionResolver.resolve(
+      return quickFixResolver.resolve(
         params.textDocument.uri,
         document,
         params.context.diagnostics

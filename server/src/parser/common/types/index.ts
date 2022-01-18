@@ -889,6 +889,7 @@ export const expressionNodeTypes = [
 
 export type Logger = {
   log: (arg: string) => void;
+  error: (arg: string) => void;
 };
 
 /**

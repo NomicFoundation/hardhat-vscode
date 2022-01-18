@@ -2,7 +2,7 @@ import { assert } from "chai";
 import * as fs from "fs";
 import * as path from "path";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { ConstrainMutability } from "../../../src/codeactions/diagnostics/ConstrainMutability";
+import { ConstrainMutability } from "../../../../src/compilerDiagnostics/diagnostics/ConstrainMutability";
 import { assertCodeAction } from "./assertCodeAction";
 
 describe("Code Actions", () => {

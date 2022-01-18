@@ -24,7 +24,7 @@ import { getUriFromDocument, decodeUriAndRemoveFilePrefix } from "./utils";
 import { debounce } from "./utils/debaunce";
 import { LanguageService } from "./parser";
 import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
-import { buildOnCodeAction } from "./codeactions/buildOnCodeAction";
+import { onCodeAction } from "./parser/services/codeactions/onCodeAction";
 
 type ServerState = {
   connection: Connection;
@@ -365,7 +365,7 @@ export default function setupServer(
     }
   });
 
-  connection.onCodeAction(buildOnCodeAction(connection, serverState.documents));
+  connection.onCodeAction(onCodeAction(connection, serverState.documents));
 
   // The content of a text document has changed. This event is emitted
   // when the text document first opened or when its content has changed.
