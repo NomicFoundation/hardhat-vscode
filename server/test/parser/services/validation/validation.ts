@@ -66,20 +66,6 @@ describe("Parser", () => {
     });
 
     describe("enhancement", () => {
-      // const unusedLocalVariableWarning = {
-      //   "component": "general",
-      //   "errorCode": "2072",
-      //   "formattedMessage": "Warning: Unused local variable.\n  --> contracts/Greeter.sol:15:3:\n   |\n15 | \t\tstring memory example = '';\n   | \t\t^^^^^^^^^^^^^^^^^^^^^\n\n",
-      //   "message": "Unused local variable.",
-      //   "severity": "warning",
-      //   "sourceLocation": {
-      //     "end": 345,
-      //     "file": "contracts/Greeter.sol",
-      //     "start": 324
-      //   },
-      //   "type": "Warning"
-      // }
-
       const mutabliltyRestrictToViewWarning = {
         component: "general",
         errorCode: "2018",
@@ -101,10 +87,15 @@ describe("Parser", () => {
           errors: [mutabliltyRestrictToViewWarning],
         }));
 
-        // Hack, the anaylsing of text docs is debounced
-        await new Promise((resolve) => {
-          setTimeout(resolve, 1000);
-        });
+        try {
+          await waitUntil(
+            () => mockConnection.sendDiagnostics.calledOnce,
+            100,
+            1000
+          );
+        } catch {
+          assert.fail("Send diagnostics not called");
+        }
       });
 
       it("should convert constrain range of mutability warning", async () => {
