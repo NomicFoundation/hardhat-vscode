@@ -5,6 +5,7 @@ import {
   Range,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { HardhatCompilerError } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
 
 export class SpecifyVisibility {
@@ -12,12 +13,7 @@ export class SpecifyVisibility {
 
   fromHardhatCompilerError(
     document: TextDocument,
-    error: {
-      errorCode: string;
-      severity: "error" | "warning";
-      message: string;
-      sourceLocation: { start: number; end: number };
-    }
+    error: HardhatCompilerError
   ): Diagnostic {
     return attemptConstrainToFunctionName(document, error);
   }

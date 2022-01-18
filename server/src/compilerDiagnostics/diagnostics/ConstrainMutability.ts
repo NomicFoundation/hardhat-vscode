@@ -6,7 +6,7 @@ import {
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import * as parser from "@solidity-parser/parser";
-import { CompilerDiagnostic } from "../types";
+import { CompilerDiagnostic, HardhatCompilerError } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
 
 export class ConstrainMutability implements CompilerDiagnostic {
@@ -14,12 +14,7 @@ export class ConstrainMutability implements CompilerDiagnostic {
 
   fromHardhatCompilerError(
     document: TextDocument,
-    error: {
-      errorCode: string;
-      severity: "error" | "warning";
-      message: string;
-      sourceLocation: { start: number; end: number };
-    }
+    error: HardhatCompilerError
   ): Diagnostic {
     return attemptConstrainToFunctionName(document, error);
   }
