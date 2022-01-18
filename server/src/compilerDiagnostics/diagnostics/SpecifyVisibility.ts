@@ -7,6 +7,8 @@ import {
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { HardhatCompilerError } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
+import { parseFunctionDefinition } from "./parsing/parseFunctionDefinition";
+import { lookupToken } from "./parsing/lookupToken";
 
 export class SpecifyVisibility {
   public code = "4937";
@@ -22,41 +24,46 @@ export class SpecifyVisibility {
     diagnostic: Diagnostic,
     { document, uri }: { document: TextDocument; uri: string }
   ): CodeAction[] {
-    const range = diagnostic.range;
+    const parseResult = parseFunctionDefinition(diagnostic, document);
 
-    const functionLine = document.getText({
-      start: {
-        line: range.start.line,
-        character: 0,
-      },
-      end: {
-        line: range.start.line + 1,
-        character: 0,
-      },
-    });
-
-    const index = functionLine.indexOf(")");
-
-    if (index < 0) {
+    if (parseResult === null) {
       return [];
     }
 
-    const startChar = index + 1;
+    const { tokens, functionSourceLocation } = parseResult;
+
+    const lookupResult = lookupToken(
+      tokens,
+      document,
+      functionSourceLocation,
+      (t) => t.type === "Punctuator" && t.value === ")"
+    );
+
+    if (lookupResult === null) {
+      return [];
+    }
+
+    const { token: closingParamListToken } = lookupResult;
+
+    if (closingParamListToken.range === undefined) {
+      return [];
+    }
+
+    const startChar =
+      functionSourceLocation.start + closingParamListToken.range[0] + 1;
 
     const addPublic = this.constructVisibilityCodeActionFor(
       "public",
-      startChar,
-      functionLine,
+      document,
       uri,
-      range
+      startChar
     );
 
     const addPrivate = this.constructVisibilityCodeActionFor(
       "private",
-      startChar,
-      functionLine,
+      document,
       uri,
-      range
+      startChar
     );
 
     return [addPublic, addPrivate];
@@ -64,13 +71,19 @@ export class SpecifyVisibility {
 
   private constructVisibilityCodeActionFor(
     visibility: "public" | "private" | "external" | "internal",
-    startChar: number,
-    functionLine: string,
+    document: TextDocument,
     uri: string,
-    range: Range
+    startChar: number
   ): CodeAction {
     const newText =
-      functionLine[startChar] === " " ? ` ${visibility}` : ` ${visibility} `;
+      document.getText(
+        Range.create(
+          document.positionAt(startChar + 0),
+          document.positionAt(startChar + 1)
+        )
+      ) === " "
+        ? ` ${visibility}`
+        : ` ${visibility} `;
 
     return {
       title: `Add ${visibility} visibilty to function declaration`,
@@ -80,16 +93,10 @@ export class SpecifyVisibility {
         changes: {
           [uri]: [
             {
-              range: {
-                start: {
-                  line: range.start.line,
-                  character: startChar,
-                },
-                end: {
-                  line: range.start.line,
-                  character: startChar,
-                },
-              },
+              range: Range.create(
+                document.positionAt(startChar),
+                document.positionAt(startChar)
+              ),
               newText,
             },
           ],
