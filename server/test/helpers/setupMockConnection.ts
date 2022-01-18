@@ -4,6 +4,7 @@ export function setupMockConnection() {
   return {
     console: {
       log: sinon.spy(),
+      error: sinon.spy(),
     },
     onInitialize: sinon.spy(),
     onInitialized: sinon.spy(),

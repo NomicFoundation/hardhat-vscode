@@ -2,9 +2,9 @@ import { CodeAction, Diagnostic } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import * as Sentry from "@sentry/node";
 import { Logger } from "@common/types";
-import { compilerDiagnostics } from "./compilerDiagnostics";
+import { compilerDiagnostics } from "../../../compilerDiagnostics/compilerDiagnostics";
 
-export class CompilerDiagnosticResolver {
+export class QuickFixResolver {
   private logger: Logger;
 
   constructor(logger: Logger) {
@@ -27,7 +27,7 @@ export class CompilerDiagnosticResolver {
         actions = [...actions, ...diagnosticActions];
       } catch (err) {
         Sentry.captureException(err);
-        this.logger.log(err as string);
+        this.logger.error(err as string);
       }
     }
 

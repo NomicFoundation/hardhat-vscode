@@ -1,7 +1,7 @@
 import { assert } from "chai";
 import { Diagnostic, TextEdit } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { CompilerDiagnostic } from "../../../src/codeactions/types";
+import { CompilerDiagnostic } from "../../../../src/compilerDiagnostics/types";
 
 export function assertCodeAction(
   compilerDiagnostic: CompilerDiagnostic,
