@@ -1,10 +1,12 @@
 import { assert } from "chai";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { specifyVisibility } from "../../../src/codeactions/actions/specifyVisibility";
+import { SpecifyVisibility } from "../../../src/codeactions/diagnostics/SpecifyVisibility";
 import { assertCodeAction } from "./assertCodeAction";
 
 describe("Code Actions", () => {
   describe("Specify Visibility", () => {
+    const specifyVisibility = new SpecifyVisibility();
+
     it("should provide code actions", () => {
       const fileText = `  
       function greet() returns (string memory input) {
@@ -140,7 +142,7 @@ describe("Code Actions", () => {
 
       const document = TextDocument.create(exampleUri, "solidity", 0, fileText);
 
-      const actions = specifyVisibility(diagnostic, {
+      const actions = specifyVisibility.resolveActions(diagnostic, {
         document,
         uri: exampleUri,
       });

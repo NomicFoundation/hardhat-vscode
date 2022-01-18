@@ -2,10 +2,11 @@ import { assert } from "chai";
 import * as fs from "fs";
 import * as path from "path";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { constrainMutability } from "../../../src/codeactions/actions/constrainMutability";
+import { ConstrainMutability } from "../../../src/codeactions/diagnostics/ConstrainMutability";
 import { assertCodeAction } from "./assertCodeAction";
 
 describe("Code Actions", () => {
+  const constrainMutability = new ConstrainMutability();
   let constrainMutabilityText: string;
 
   before(async () => {
@@ -267,7 +268,7 @@ describe("Code Actions", () => {
           fileText
         );
 
-        const actions = constrainMutability(diagnostic, {
+        const actions = constrainMutability.resolveActions(diagnostic, {
           document,
           uri: exampleUri,
         });
