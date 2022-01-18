@@ -20,6 +20,9 @@ describe("Code Actions", () => {
           start: { line: 1, character: 6 },
           end: { line: 3, character: 6 },
         },
+        data: {
+          functionSourceLocation: { start: 9, end: 90 },
+        },
       };
 
       assertCodeAction(specifyVisibility, fileText, diagnostic, [
@@ -79,6 +82,9 @@ describe("Code Actions", () => {
           start: { line: 1, character: 6 },
           end: { line: 3, character: 6 },
         },
+        data: {
+          functionSourceLocation: { start: 9, end: 90 },
+        },
       };
 
       assertCodeAction(specifyVisibility, fileText, diagnostic, [
@@ -135,6 +141,9 @@ describe("Code Actions", () => {
         range: {
           start: { line: 1, character: 6 },
           end: { line: 1, character: 25 },
+        },
+        data: {
+          functionSourceLocation: { start: 9, end: 27 },
         },
       };
 

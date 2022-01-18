@@ -5,9 +5,13 @@ import {
   Range,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import * as parser from "@solidity-parser/parser";
 import { CompilerDiagnostic, HardhatCompilerError } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
+import {
+  parseFunctionDefinition,
+  ParseFunctionDefinitionResult,
+} from "./parsing/parseFunctionDefinition";
+import { lookupToken } from "./parsing/lookupToken";
 
 export class ConstrainMutability implements CompilerDiagnostic {
   public code = "2018";
@@ -27,66 +31,30 @@ export class ConstrainMutability implements CompilerDiagnostic {
       return [];
     }
 
-    const modifier = diagnostic.message.includes("pure") ? "pure" : "view";
+    const parseResult = parseFunctionDefinition(diagnostic, document);
 
-    const { functionSourceLocation } = diagnostic.data as {
-      functionSourceLocation: { start: number; end: number };
-    };
-
-    const functionText = document.getText(
-      Range.create(
-        document.positionAt(functionSourceLocation.start),
-        document.positionAt(functionSourceLocation.end)
-      )
-    );
-
-    const ast = parser.parse(functionText, {
-      range: true,
-      tolerant: true,
-      tokens: true,
-    });
-
-    if (
-      ast.children.length === 0 ||
-      ast.children[0].type !== "FunctionDefinition"
-    ) {
+    if (parseResult === null) {
       return [];
     }
 
-    const functionDefinitionNode = ast.children[0];
-    const mutability = functionDefinitionNode.stateMutability;
-
-    if (mutability === "view") {
-      return this.modifyViewToPureAction(
-        document,
-        ast,
-        functionSourceLocation,
-        uri
-      );
+    if (parseResult.functionDefinition.stateMutability === "view") {
+      return this.modifyViewToPureAction(document, uri, parseResult);
     } else {
-      return this.addMutabilityAction(
-        document,
-        ast,
-        functionSourceLocation,
-        uri,
-        functionDefinitionNode.visibility,
-        modifier
-      );
+      return this.addMutabilityAction(diagnostic, document, uri, parseResult);
     }
   }
 
   private modifyViewToPureAction(
     document: TextDocument,
-    ast: ReturnType<typeof parser.parse>,
-    functionSourceLocation: { start: number; end: number },
-    uri: string
+    uri: string,
+    { functionSourceLocation, tokens }: ParseFunctionDefinitionResult
   ): CodeAction[] {
-    const viewKeyword = ast.tokens?.find(
+    const viewKeyword = tokens.find(
       (t) => t.type === "Keyword" && t.value === "view"
     );
 
     if (!viewKeyword || !viewKeyword.range) {
-      throw new Error("Unable to find keyword `view`");
+      return [];
     }
 
     const action: CodeAction = {
@@ -116,47 +84,42 @@ export class ConstrainMutability implements CompilerDiagnostic {
   }
 
   private addMutabilityAction(
+    diagnostic: Diagnostic,
     document: TextDocument,
-    ast: ReturnType<typeof parser.parse>,
-    functionSourceLocation: { start: number; end: number },
     uri: string,
-    visibilty: string,
-    modifier: string
+    {
+      functionSourceLocation,
+      tokens,
+      functionDefinition,
+    }: ParseFunctionDefinitionResult
   ): CodeAction[] {
-    if (!ast.tokens) {
+    const modifier = diagnostic.message.includes("pure") ? "pure" : "view";
+    const visibility = functionDefinition.visibility;
+
+    const lookupResult = lookupToken(
+      tokens,
+      document,
+      functionSourceLocation,
+      (t) => t.type === "Keyword" && t.value === visibility
+    );
+
+    if (lookupResult === null) {
       return [];
     }
 
-    const visibilityKeywordIndex = ast.tokens.findIndex(
-      (t) => t.type === "Keyword" && t.value === visibilty
-    );
+    const { token: visibilityKeyword, isSameLine } = lookupResult;
 
-    const visibilityKeyword = ast.tokens[visibilityKeywordIndex];
-    const nextToken = ast.tokens[visibilityKeywordIndex + 1];
-
-    if (
-      !visibilityKeyword ||
-      !visibilityKeyword.range ||
-      !nextToken ||
-      !nextToken.range
-    ) {
+    if (visibilityKeyword.range === undefined) {
       return [];
     }
 
     const visibilityKeywordPosition = document.positionAt(
       functionSourceLocation.start + visibilityKeyword.range[0] + 1
     );
-    const visibilityKeywordLine = visibilityKeywordPosition.line;
-    const nextTokenLine = document.positionAt(
-      functionSourceLocation.start + nextToken.range[0] + 1
-    ).line;
 
-    const newText =
-      visibilityKeywordLine === nextTokenLine
-        ? `${modifier} `
-        : `${"".padStart(
-            visibilityKeywordPosition.character - 1
-          )}${modifier}\n`;
+    const newText = isSameLine
+      ? `${modifier} `
+      : `${"".padStart(visibilityKeywordPosition.character - 1)}${modifier}\n`;
 
     const endOfVisibilityChar =
       functionSourceLocation.start + visibilityKeyword.range[1] + 1;
