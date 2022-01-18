@@ -58,7 +58,7 @@ export class ConstrainMutability implements CompilerDiagnostic {
     }
 
     const action: CodeAction = {
-      title: "Change view modifier to pure",
+      title: "Change view modifier to pure in function declaration",
       kind: CodeActionKind.QuickFix,
       isPreferred: true,
       edit: {
@@ -125,7 +125,7 @@ export class ConstrainMutability implements CompilerDiagnostic {
       functionSourceLocation.start + visibilityKeyword.range[1] + 1;
 
     const addMutabilityAction: CodeAction = {
-      title: `Add ${modifier} modifier`,
+      title: `Add ${modifier} modifier to function declaration`,
       kind: CodeActionKind.QuickFix,
       isPreferred: true,
       edit: {

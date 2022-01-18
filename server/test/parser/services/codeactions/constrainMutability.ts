@@ -19,7 +19,7 @@ describe("Code Actions", () => {
 
   describe("Constrain Mutability", () => {
     describe("to view", () => {
-      it('should provide option to "Add view modifier"', () => {
+      it('should provide option to "Add view modifier to function declaration"', () => {
         const diagnostic = {
           code: "2018",
           message: "Function state mutability can be restricted to view",
@@ -41,7 +41,7 @@ describe("Code Actions", () => {
           diagnostic,
           [
             {
-              title: "Add view modifier",
+              title: "Add view modifier to function declaration",
               kind: "quickfix",
               isPreferred: true,
               edits: [
@@ -86,7 +86,7 @@ describe("Code Actions", () => {
           diagnostic,
           [
             {
-              title: "Add view modifier",
+              title: "Add view modifier to function declaration",
               kind: "quickfix",
               isPreferred: true,
               edits: [
@@ -111,7 +111,7 @@ describe("Code Actions", () => {
     });
 
     describe("to pure", () => {
-      it('should provide option to "Add pure modifier"', () => {
+      it('should provide option to "Add pure modifier to function declaration"', () => {
         const diagnostic = {
           code: "2018",
           message: "Function state mutability can be restricted to pure",
@@ -133,7 +133,7 @@ describe("Code Actions", () => {
           diagnostic,
           [
             {
-              title: "Add pure modifier",
+              title: "Add pure modifier to function declaration",
               kind: "quickfix",
               isPreferred: true,
               edits: [
@@ -156,7 +156,7 @@ describe("Code Actions", () => {
         );
       });
 
-      it('should provide option to "Change view modifier to pure"', () => {
+      it('should provide option to "Change view modifier to pure in function declaration"', () => {
         const diagnostic = {
           code: "2018",
           message: "Function state mutability can be restricted to pure",
@@ -178,7 +178,7 @@ describe("Code Actions", () => {
           diagnostic,
           [
             {
-              title: "Change view modifier to pure",
+              title: "Change view modifier to pure in function declaration",
               kind: "quickfix",
               isPreferred: true,
               edits: [
@@ -220,7 +220,7 @@ describe("Code Actions", () => {
           diagnostic,
           [
             {
-              title: "Change view modifier to pure",
+              title: "Change view modifier to pure in function declaration",
               kind: "quickfix",
               isPreferred: true,
               edits: [
