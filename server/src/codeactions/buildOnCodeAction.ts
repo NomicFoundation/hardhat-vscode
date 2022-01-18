@@ -4,11 +4,9 @@ import {
   CodeActionParams,
   TextDocuments,
   CodeAction,
-  Diagnostic,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { constrainMutability } from "./actions/constrainMutability";
-import { specifyVisibility } from "./actions/specifyVisibility";
+import { CompilerDiagnosticResolver } from "./CompilerDiagnosticResolver";
 
 export function buildOnCodeAction(
   connection: Connection,
@@ -18,28 +16,19 @@ export function buildOnCodeAction(
     connection.console.log("onCodeAction");
 
     try {
+      const actionResolver = new CompilerDiagnosticResolver(connection.console);
+
       const document = documents.get(params.textDocument.uri);
 
       if (!document || params.context.diagnostics.length === 0) {
         return [];
       }
 
-      let actions: CodeAction[] = [];
-      for (const diagnostic of params.context.diagnostics) {
-        try {
-          const diagnosticActions = resolveActionsFor(diagnostic, {
-            document,
-            uri: params.textDocument.uri,
-          });
-
-          actions = [...actions, ...diagnosticActions];
-        } catch (err) {
-          Sentry.captureException(err);
-          connection.console.error(err as string);
-        }
-      }
-
-      return actions;
+      return actionResolver.resolve(
+        params.textDocument.uri,
+        document,
+        params.context.diagnostics
+      );
     } catch (err) {
       Sentry.captureException(err);
       connection.console.error(err as string);
@@ -47,24 +36,4 @@ export function buildOnCodeAction(
       return [];
     }
   };
-}
-
-function resolveActionsFor(
-  diagnostic: Diagnostic,
-  { document, uri }: { document: TextDocument; uri: string }
-): CodeAction[] {
-  switch (diagnostic.code) {
-    case "2018":
-      return constrainMutability(diagnostic, {
-        document,
-        uri,
-      });
-    case "4937":
-      return specifyVisibility(diagnostic, {
-        document,
-        uri,
-      });
-    default:
-      return [];
-  }
 }

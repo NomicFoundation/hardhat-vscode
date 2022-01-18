@@ -1,10 +1,10 @@
 import { assert } from "chai";
 import { Diagnostic, TextEdit } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { CodeActionResolver } from "../../../src/codeactions/types";
+import { CompilerDiagnostic } from "../../../src/codeactions/types";
 
 export function assertCodeAction(
-  codeAction: CodeActionResolver,
+  compilerDiagnostic: CompilerDiagnostic,
   docText: string,
   diagnostic: Diagnostic,
   expectedActions: {
@@ -18,7 +18,7 @@ export function assertCodeAction(
 
   const document = TextDocument.create(exampleUri, "solidity", 0, docText);
 
-  const actions = codeAction(diagnostic, {
+  const actions = compilerDiagnostic.resolveActions(diagnostic, {
     document,
     uri: exampleUri,
   });
