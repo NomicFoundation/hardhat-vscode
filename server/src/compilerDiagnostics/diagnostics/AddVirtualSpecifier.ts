@@ -4,8 +4,8 @@ import { CompilerDiagnostic, HardhatCompilerError } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
 import { resolveInsertSpecifierQuickFix } from "./common/resolveInsertSpecifierQuickFix";
 
-export class AddOverrideSpecifier implements CompilerDiagnostic {
-  public code = "9456";
+export class AddVirtualSpecifier implements CompilerDiagnostic {
+  public code = "4334";
 
   fromHardhatCompilerError(
     document: TextDocument,
@@ -18,6 +18,6 @@ export class AddOverrideSpecifier implements CompilerDiagnostic {
     diagnostic: Diagnostic,
     context: { document: TextDocument; uri: string }
   ): CodeAction[] {
-    return resolveInsertSpecifierQuickFix("override", diagnostic, context);
+    return resolveInsertSpecifierQuickFix("virtual", diagnostic, context);
   }
 }

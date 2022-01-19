@@ -14,6 +14,10 @@ export function parseFunctionDefinition(
   diagnostic: Diagnostic,
   document: TextDocument
 ): ParseFunctionDefinitionResult | null {
+  if (!diagnostic.data) {
+    return null;
+  }
+
   const { functionSourceLocation } = diagnostic.data as {
     functionSourceLocation: { start: number; end: number };
   };
