@@ -26,6 +26,10 @@ export class SolidityNavigation {
     const definitionNode = this.findNodeByPosition(uri, position, analyzerTree);
 
     if (definitionNode && definitionNode.astNode.loc) {
+      if (definitionNode.astNode.loc.start.line < definitionNode.astNode.loc.end.line) {
+        definitionNode.astNode.loc.end.column += 1;
+      }
+
       return {
         uri: definitionNode.uri,
         range: getRange(definitionNode.astNode.loc),
