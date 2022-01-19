@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { SpecifyVisibility } from "../../../../src/compilerDiagnostics/diagnostics/SpecifyVisibility";
+import { SpecifyVisibility } from "@compilerDiagnostics/diagnostics/SpecifyVisibility";
 import { assertCodeAction } from "./asserts/assertCodeAction";
 
 describe("Code Actions", () => {

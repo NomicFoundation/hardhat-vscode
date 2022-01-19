@@ -7,6 +7,17 @@ export type LookupResult = {
   offset: number;
 };
 
+const HEADER_KEYWORDS = [
+  "public",
+  "private",
+  "internal",
+  "external",
+  "view",
+  "pure",
+  "payable",
+  "returns",
+];
+
 export function lookupToken(
   tokens: Token[],
   document: TextDocument,
@@ -42,17 +53,6 @@ export function lookupToken(
   };
 }
 
-const headerKeywords = [
-  "public",
-  "private",
-  "internal",
-  "external",
-  "view",
-  "pure",
-  "payable",
-  "returns",
-];
-
 function determineIsFunctionHeaderOnSameLine(
   functionToken: Token,
   tokens: Token[],
@@ -63,12 +63,7 @@ function determineIsFunctionHeaderOnSameLine(
     (t) => t.type === "Punctuator" && t.value === "{"
   );
 
-  if (
-    !functionToken ||
-    !functionToken.range ||
-    !openBodyParen ||
-    !openBodyParen.range
-  ) {
+  if (!functionToken?.range || !openBodyParen?.range) {
     return true;
   }
 
@@ -87,7 +82,9 @@ function determineIsFunctionHeaderOnSameLine(
   const allKeywordsOnSameLineAsFn = tokens
     .filter(
       (t) =>
-        (t.type === "Keyword" && t.value && headerKeywords.includes(t.value)) ||
+        (t.type === "Keyword" &&
+          t.value &&
+          HEADER_KEYWORDS.includes(t.value)) ||
         t.type === "Modifier"
     )
     .map((t) => t.range)
