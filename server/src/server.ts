@@ -45,8 +45,8 @@ const debounceAnalyzeDocument: {
 
 const debounceValidateDocument: {
   [uri: string]: (
-    connection: Connection,
     validationJob: ValidationJob,
+    connection: Connection,
     uri: string,
     document: TextDocument
   ) => void;
@@ -380,7 +380,6 @@ export default function setupServer(
       debounceAnalyzeDocument[change.document.uri] = debounce(
         analyzeFunc,
         500,
-        false
       );
     }
 
@@ -397,7 +396,6 @@ export default function setupServer(
       debounceValidateDocument[change.document.uri] = debounce(
         validateTextDocument,
         500,
-        false
       );
     }
 
@@ -406,8 +404,8 @@ export default function setupServer(
       serverState.languageServer.solidityValidation.getValidationJob();
 
     debounceValidateDocument[change.document.uri](
-      connection,
       validationJob,
+      connection,
       documentURI,
       change.document
     );
@@ -501,8 +499,8 @@ async function getUnsavedDocuments(
 }
 
 async function validateTextDocument(
-  connection: Connection,
   validationJob: ValidationJob,
+  connection: Connection,
   uri: string,
   document: TextDocument
 ): Promise<void> {
