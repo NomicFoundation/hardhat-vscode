@@ -7,16 +7,27 @@ import {
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { QuickFixResolver } from "./QuickFixResolver";
+import { LanguageService } from "parser";
 
-export function onCodeAction(
-  connection: Connection,
-  documents: TextDocuments<TextDocument>
-) {
+export function onCodeAction(state: {
+  connection: Connection;
+  documents: TextDocuments<TextDocument>;
+  languageServer: LanguageService | null;
+}) {
   return (params: CodeActionParams): CodeAction[] => {
+    const { connection, documents, languageServer } = state;
+
     connection.console.log("onCodeAction");
 
     try {
-      const quickFixResolver = new QuickFixResolver(connection.console);
+      if (!languageServer) {
+        return [];
+      }
+
+      const quickFixResolver = new QuickFixResolver(
+        languageServer,
+        connection.console
+      );
 
       const document = documents.get(params.textDocument.uri);
 

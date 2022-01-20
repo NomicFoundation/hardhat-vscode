@@ -1,5 +1,6 @@
 import { CodeAction, Diagnostic } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { Analyzer } from "@analyzer/index";
 
 export type HardhatCompilerError = {
   errorCode: string;
@@ -11,13 +12,19 @@ export type HardhatCompilerError = {
   };
 };
 
+export type ResolveActionsContext = {
+  document: TextDocument;
+  uri: string;
+  analyzer: Analyzer;
+};
+
 export interface CompilerDiagnostic {
   code: string;
   blocks: string[];
 
   resolveActions: (
     diagnostic: Diagnostic,
-    { document, uri }: { document: TextDocument; uri: string }
+    { document, uri, analyzer }: ResolveActionsContext
   ) => CodeAction[];
 
   fromHardhatCompilerError: (

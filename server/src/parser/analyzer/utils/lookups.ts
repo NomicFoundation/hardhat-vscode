@@ -1,4 +1,4 @@
-import { isFunctionDefinition } from "./typeGuards";
+import { isFunctionDefinitionNode } from "./typeGuards";
 import { ContractDefinitionNode } from "../nodes/ContractDefinitionNode";
 import { FunctionDefinitionNode } from "../nodes/FunctionDefinitionNode";
 
@@ -6,6 +6,6 @@ export function lookupConstructorFor(
   contractDefinition: ContractDefinitionNode
 ): FunctionDefinitionNode | undefined {
   return contractDefinition.children
-    .filter(isFunctionDefinition)
+    .filter(isFunctionDefinitionNode)
     .find((node) => node.isConstructor);
 }

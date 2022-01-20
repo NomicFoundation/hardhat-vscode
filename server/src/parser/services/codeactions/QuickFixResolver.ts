@@ -3,11 +3,15 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import * as Sentry from "@sentry/node";
 import { Logger } from "@common/types";
 import { compilerDiagnostics } from "@compilerDiagnostics/compilerDiagnostics";
+import { LanguageService } from "parser";
+import { Analyzer } from "@analyzer/index";
 
 export class QuickFixResolver {
+  private languageService: LanguageService;
   private logger: Logger;
 
-  constructor(logger: Logger) {
+  constructor(languageService: LanguageService, logger: Logger) {
+    this.languageService = languageService;
     this.logger = logger;
   }
 
@@ -23,6 +27,7 @@ export class QuickFixResolver {
         const diagnosticActions = this.resolveActionsFor(diagnostic, {
           document,
           uri,
+          analyzer: this.languageService.analyzer,
         });
 
         actions = [...actions, ...diagnosticActions];
@@ -37,7 +42,11 @@ export class QuickFixResolver {
 
   private resolveActionsFor(
     diagnostic: Diagnostic,
-    { document, uri }: { document: TextDocument; uri: string }
+    {
+      document,
+      uri,
+      analyzer,
+    }: { document: TextDocument; uri: string; analyzer: Analyzer }
   ): CodeAction[] {
     if (
       diagnostic &&
@@ -47,6 +56,7 @@ export class QuickFixResolver {
       return compilerDiagnostics[diagnostic.code].resolveActions(diagnostic, {
         document,
         uri,
+        analyzer,
       });
     } else {
       return [];
