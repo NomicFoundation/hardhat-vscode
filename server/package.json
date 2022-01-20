@@ -20,6 +20,7 @@
     "clean": "rimraf out .nyc_output coverage tsconfig.tsbuildinfo"
   },
   "_moduleAliases": {
+    "@compilerDiagnostics": "./out/compilerDiagnostics",
     "@analyzer": "./out/parser/analyzer/",
     "@common": "./out/parser/common/",
     "@services": "./out/parser/services/"
