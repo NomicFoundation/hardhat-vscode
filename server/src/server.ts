@@ -377,10 +377,7 @@ export default function setupServer(
     }
 
     if (!debounceAnalyzeDocument[change.document.uri]) {
-      debounceAnalyzeDocument[change.document.uri] = debounce(
-        analyzeFunc,
-        500,
-      );
+      debounceAnalyzeDocument[change.document.uri] = debounce(analyzeFunc, 500);
     }
 
     debounceAnalyzeDocument[change.document.uri](
@@ -395,7 +392,7 @@ export default function setupServer(
     if (!debounceValidateDocument[change.document.uri]) {
       debounceValidateDocument[change.document.uri] = debounce(
         validateTextDocument,
-        500,
+        500
       );
     }
 
