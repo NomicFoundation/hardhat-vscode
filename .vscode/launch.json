@@ -42,7 +42,14 @@
       "skipFiles": ["<node_internals>/**"],
       "type": "pwa-node",
       "cwd": "${workspaceFolder}/server",
-      "args": ["--colors", "${workspaceFolder}/server/test/**/*.ts"]
+      "args": [
+        "--no-timeouts",
+        "--colors",
+        "${workspaceFolder}/server/test/**/*.ts"
+      ],
+      "env": {
+        "TS_NODE_FILES": "true"
+      }
     }
   ],
   "compounds": [

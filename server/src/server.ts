@@ -365,7 +365,7 @@ export default function setupServer(
     }
   });
 
-  connection.onCodeAction(onCodeAction(connection, serverState.documents));
+  connection.onCodeAction(onCodeAction(serverState));
 
   // The content of a text document has changed. This event is emitted
   // when the text document first opened or when its content has changed.

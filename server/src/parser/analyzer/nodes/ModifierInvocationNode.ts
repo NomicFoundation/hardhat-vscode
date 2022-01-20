@@ -4,7 +4,7 @@ import {
   DocumentsAnalyzerMap,
   Node,
 } from "@common/types";
-import { isContractDefinition } from "@analyzer/utils/typeGuards";
+import { isContractDefinitionNode } from "@analyzer/utils/typeGuards";
 import { lookupConstructorFor } from "@analyzer/utils/lookups";
 
 export class ModifierInvocationNode extends Node {
@@ -71,7 +71,7 @@ export class ModifierInvocationNode extends Node {
     }
 
     if (
-      isContractDefinition(modifierInvocationParent) &&
+      isContractDefinitionNode(modifierInvocationParent) &&
       modifierInvocationParent.isAlive
     ) {
       const constructorNode = lookupConstructorFor(modifierInvocationParent);

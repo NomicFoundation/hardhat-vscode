@@ -3,11 +3,13 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import * as parser from "@solidity-parser/parser";
 import { ContractDefinition } from "@common/types";
 import { Token } from "@solidity-parser/parser/dist/src/types";
+import { isContractDefinition } from "@analyzer/utils/typeGuards";
 
 export type ParseContractDefinitionResult = {
   contractDefinition: ContractDefinition;
   tokens: Token[];
   functionSourceLocation: { start: number; end: number };
+  contractText: string;
 };
 
 export function parseContractDefinition(
@@ -39,7 +41,7 @@ export function parseContractDefinition(
     if (
       ast.tokens === undefined ||
       ast.children.length === 0 ||
-      ast.children[0].type !== "ContractDefinition"
+      !isContractDefinition(ast.children[0])
     ) {
       return null;
     }
@@ -50,6 +52,7 @@ export function parseContractDefinition(
       contractDefinition: definition,
       tokens: ast.tokens,
       functionSourceLocation,
+      contractText,
     };
   } catch {
     return null;
