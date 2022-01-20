@@ -10,6 +10,10 @@ import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainT
 import { parseFunctionDefinition } from "./parsing/parseFunctionDefinition";
 import { lookupToken } from "./parsing/lookupToken";
 
+type Visibility = "public" | "private" | "external" | "internal";
+
+const QUICK_FIX_VISIBILITIES: Visibility[] = ["public", "private"];
+
 export class SpecifyVisibility {
   public code = "4937";
 
@@ -52,25 +56,18 @@ export class SpecifyVisibility {
     const startChar =
       functionSourceLocation.start + closingParamListToken.range[0] + 1;
 
-    const addPublic = this.constructVisibilityCodeActionFor(
-      "public",
-      document,
-      uri,
-      startChar
+    return QUICK_FIX_VISIBILITIES.map((visibility) =>
+      this.constructVisibilityCodeActionFor(
+        visibility,
+        document,
+        uri,
+        startChar
+      )
     );
-
-    const addPrivate = this.constructVisibilityCodeActionFor(
-      "private",
-      document,
-      uri,
-      startChar
-    );
-
-    return [addPublic, addPrivate];
   }
 
   private constructVisibilityCodeActionFor(
-    visibility: "public" | "private" | "external" | "internal",
+    visibility: Visibility,
     document: TextDocument,
     uri: string,
     startChar: number

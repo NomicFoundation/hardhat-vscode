@@ -13,6 +13,7 @@
     "declaration": true,
     "baseUrl": "./src",
     "paths": {
+      "@compilerDiagnostics/*": ["./compilerDiagnostics/*"],
       "@analyzer/*": ["./parser/analyzer/*"],
       "@common/*": ["./parser/common/*"],
       "@services/*": ["./parser/services/*"]
