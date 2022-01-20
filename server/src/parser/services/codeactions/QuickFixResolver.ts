@@ -2,7 +2,7 @@ import { CodeAction, Diagnostic } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import * as Sentry from "@sentry/node";
 import { Logger } from "@common/types";
-import { compilerDiagnostics } from "../../../compilerDiagnostics/compilerDiagnostics";
+import { compilerDiagnostics } from "@compilerDiagnostics/compilerDiagnostics";
 
 export class QuickFixResolver {
   private logger: Logger;

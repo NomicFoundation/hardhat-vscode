@@ -12,7 +12,7 @@ export function lookupToken(
   const lookupToken = tokens[lookupTokenIndex];
   const nextToken = tokens[lookupTokenIndex + 1];
 
-  if (!lookupToken || !lookupToken.range || !nextToken || !nextToken.range) {
+  if (!lookupToken?.range || !nextToken?.range) {
     return null;
   }
 

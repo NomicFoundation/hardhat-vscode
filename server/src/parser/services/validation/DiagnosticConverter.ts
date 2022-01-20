@@ -1,7 +1,7 @@
 import { Analyzer } from "@analyzer/index";
 import { TextDocument, Diagnostic } from "@common/types";
-import { passThroughConversion } from "../../../compilerDiagnostics/conversions/passThroughConversion";
-import { compilerDiagnostics } from "../../../compilerDiagnostics/compilerDiagnostics";
+import { passThroughConversion } from "@compilerDiagnostics/conversions/passThroughConversion";
+import { compilerDiagnostics } from "@compilerDiagnostics/compilerDiagnostics";
 
 type HardhatCompilerError = {
   errorCode: string;
