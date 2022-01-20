@@ -10,7 +10,11 @@ describe("Parser", () => {
   describe("Navigation", () => {
     describe("Definition", () => {
       describe("within single file", () => {
-        const basicUri = path.join(__dirname, "testData", "Definition.sol");
+        const definitionUri = path.join(
+          __dirname,
+          "testData",
+          "Definition.sol"
+        );
         const twoContractUri = path.join(
           __dirname,
           "testData",
@@ -23,7 +27,7 @@ describe("Parser", () => {
             server: { definition },
           } = await setupMockLanguageServer({
             documents: [
-              { uri: basicUri, analyze: true },
+              { uri: definitionUri, analyze: true },
               { uri: twoContractUri, analyze: true },
             ],
             errors: [],
@@ -36,7 +40,7 @@ describe("Parser", () => {
           it("should navigate to the attribute", () =>
             assertDefinitionNavigation(
               definition,
-              basicUri,
+              definitionUri,
               { line: 19, character: 9 },
               {
                 start: { line: 11, character: 17 },
@@ -47,7 +51,7 @@ describe("Parser", () => {
           it("should navigate to a nested struct attribute", () =>
             assertDefinitionNavigation(
               definition,
-              basicUri,
+              definitionUri,
               { line: 28, character: 14 },
               {
                 start: { line: 5, character: 12 },
@@ -58,33 +62,33 @@ describe("Parser", () => {
           it("should navigate to local function", () =>
             assertDefinitionNavigation(
               definition,
-              basicUri,
+              definitionUri,
               { line: 30, character: 9 },
               {
-                start: { line: 23, character: 2 },
-                end: { line: 25, character: 2 },
+                start: { line: 23, character: 11 },
+                end: { line: 23, character: 23 },
               }
             ));
 
           it("should navigate to type via map property", () =>
             assertDefinitionNavigation(
               definition,
-              basicUri,
+              definitionUri,
               { line: 15, character: 24 },
               {
-                start: { line: 4, character: 2 },
-                end: { line: 9, character: 1 },
+                start: { line: 4, character: 9 },
+                end: { line: 4, character: 13 },
               }
             ));
 
           it("should navigate to type via array declaration", () =>
             assertDefinitionNavigation(
               definition,
-              basicUri,
+              definitionUri,
               { line: 16, character: 5 },
               {
-                start: { line: 33, character: 2 },
-                end: { line: 35, character: 2 },
+                start: { line: 33, character: 9 },
+                end: { line: 33, character: 12 },
               }
             ));
         });
@@ -96,8 +100,8 @@ describe("Parser", () => {
               twoContractUri,
               { line: 10, character: 31 },
               {
-                start: { line: 3, character: 0 },
-                end: { line: 7, character: 0 },
+                start: { line: 3, character: 9 },
+                end: { line: 3, character: 16 },
               }
             ));
 
@@ -108,7 +112,7 @@ describe("Parser", () => {
               { line: 18, character: 31 },
               {
                 start: { line: 14, character: 2 },
-                end: { line: 14, character: 24 },
+                end: { line: 14, character: 13 },
               }
             ));
 
@@ -121,7 +125,7 @@ describe("Parser", () => {
               { line: 26, character: 16 },
               {
                 start: { line: 22, character: 2 },
-                end: { line: 22, character: 17 },
+                end: { line: 22, character: 13 },
               }
             ));
         });
@@ -133,8 +137,8 @@ describe("Parser", () => {
               twoContractUri,
               { line: 38, character: 8 },
               {
-                start: { line: 29, character: 0 },
-                end: { line: 30, character: 0 },
+                start: { line: 29, character: 9 },
+                end: { line: 29, character: 27 },
               }
             ));
 
@@ -145,7 +149,7 @@ describe("Parser", () => {
               { line: 42, character: 8 },
               {
                 start: { line: 33, character: 2 },
-                end: { line: 33, character: 17 },
+                end: { line: 33, character: 13 },
               }
             ));
         });
@@ -193,7 +197,7 @@ describe("Parser", () => {
             { line: 6, character: 16 },
             {
               start: { line: 4, character: 2 },
-              end: { line: 4, character: 17 },
+              end: { line: 4, character: 13 },
             }
           ));
 
@@ -204,7 +208,18 @@ describe("Parser", () => {
             { line: 11, character: 8 },
             {
               start: { line: 4, character: 2 },
-              end: { line: 4, character: 17 },
+              end: { line: 4, character: 13 },
+            }
+          ));
+
+        it("should navigate from import statment to linked file (source unit)", () =>
+          assertDefinitionNavigation(
+            definition,
+            childUri,
+            { line: 3, character: 10 },
+            {
+              start: { line: 1, character: 0 },
+              end: { line: 6, character: 0 },
             }
           ));
       });
