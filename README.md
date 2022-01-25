@@ -25,8 +25,8 @@ The _vscode-solidity_ extension contains the language smarts behind the solidity
 2. Clone the repository, run `yarn && yarn run build`, and open VS Code:
 
    ```bash
-   git clone https://github.com/Tenderly/vscode-solidity.git
-   cd vscode-solidity
+   git clone https://github.com/nomiclabs/hardhat-vscode.git
+   cd hardhat-vscode
    yarn && yarn run build
    code .
    ```
