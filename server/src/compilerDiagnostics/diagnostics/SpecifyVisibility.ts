@@ -16,6 +16,7 @@ const QUICK_FIX_VISIBILITIES: Visibility[] = ["public", "private"];
 
 export class SpecifyVisibility {
   public code = "4937";
+  public blocks: string[] = [];
 
   fromHardhatCompilerError(
     document: TextDocument,

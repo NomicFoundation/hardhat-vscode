@@ -12,7 +12,23 @@ import {
 import { LookupResult, lookupToken } from "../parsing/lookupToken";
 import { Token } from "@solidity-parser/parser/dist/src/types";
 
-type Specifier = "virtual" | "override";
+export class Multioverride {
+  contractIdentifiers: string[];
+
+  constructor(contractIdentifiers: string[]) {
+    this.contractIdentifiers = contractIdentifiers;
+  }
+
+  toDisplayName(): string {
+    return "override(...)";
+  }
+
+  toString(): string {
+    return `override(${this.contractIdentifiers.join(", ")})`;
+  }
+}
+
+type Specifier = "virtual" | "override" | Multioverride;
 
 export function resolveInsertSpecifierQuickFix(
   specifier: Specifier,
@@ -30,6 +46,16 @@ export function resolveInsertSpecifierQuickFix(
   }
 
   const { functionDefinition } = parseResult;
+
+  if (functionDefinition.isVirtual) {
+    return buildActionFrom(
+      specifier,
+      document,
+      uri,
+      parseResult,
+      (t) => t.type === "Keyword" && t.value === "virtual"
+    );
+  }
 
   if (
     functionDefinition.visibility === "default" &&
@@ -109,7 +135,7 @@ function buildActionFrom(
   );
 
   const action: CodeAction = {
-    title: "Add override specifier to function definition",
+    title: buildTitle(specifier),
     kind: CodeActionKind.QuickFix,
     isPreferred: true,
     edit: {
@@ -141,4 +167,11 @@ function buildChangeFrom(
       : `${"".padStart(offset)}${specifier}\n`,
     range: Range.create(position, position),
   };
+}
+
+function buildTitle(specifier: Specifier | Multioverride) {
+  const specifierText =
+    specifier instanceof Multioverride ? specifier.toDisplayName() : specifier;
+
+  return `Add ${specifierText} specifier to function definition`;
 }

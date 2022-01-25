@@ -1,3 +1,4 @@
+import { AddMultiOverrideSpecifier } from "./diagnostics/AddMultiOverrideSpecifier";
 import { AddOverrideSpecifier } from "./diagnostics/AddOverrideSpecifier";
 import { AddVirtualSpecifier } from "./diagnostics/AddVirtualSpecifier";
 import { ConstrainMutability } from "./diagnostics/ConstrainMutability";
@@ -6,6 +7,7 @@ import { CompilerDiagnostic } from "./types";
 
 export const compilerDiagnostics: { [key: string]: CompilerDiagnostic } = [
   new AddOverrideSpecifier(),
+  new AddMultiOverrideSpecifier(),
   new AddVirtualSpecifier(),
   new ConstrainMutability(),
   new SpecifyVisibility(),

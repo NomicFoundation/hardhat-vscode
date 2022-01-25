@@ -37,7 +37,7 @@ describe("Code Actions", () => {
           diagnostic,
           [
             {
-              title: "Add override specifier to function definition",
+              title: "Add virtual specifier to function definition",
               kind: "quickfix",
               isPreferred: true,
               edits: [
@@ -80,7 +80,7 @@ describe("Code Actions", () => {
           diagnostic,
           [
             {
-              title: "Add override specifier to function definition",
+              title: "Add virtual specifier to function definition",
               kind: "quickfix",
               isPreferred: true,
               edits: [
@@ -123,7 +123,7 @@ describe("Code Actions", () => {
           diagnostic,
           [
             {
-              title: "Add override specifier to function definition",
+              title: "Add virtual specifier to function definition",
               kind: "quickfix",
               isPreferred: true,
               edits: [
@@ -166,7 +166,7 @@ describe("Code Actions", () => {
           diagnostic,
           [
             {
-              title: "Add override specifier to function definition",
+              title: "Add virtual specifier to function definition",
               kind: "quickfix",
               isPreferred: true,
               edits: [
@@ -211,7 +211,7 @@ describe("Code Actions", () => {
           diagnostic,
           [
             {
-              title: "Add override specifier to function definition",
+              title: "Add virtual specifier to function definition",
               kind: "quickfix",
               isPreferred: true,
               edits: [
@@ -254,7 +254,7 @@ describe("Code Actions", () => {
           diagnostic,
           [
             {
-              title: "Add override specifier to function definition",
+              title: "Add virtual specifier to function definition",
               kind: "quickfix",
               isPreferred: true,
               edits: [
@@ -297,7 +297,7 @@ describe("Code Actions", () => {
           diagnostic,
           [
             {
-              title: "Add override specifier to function definition",
+              title: "Add virtual specifier to function definition",
               kind: "quickfix",
               isPreferred: true,
               edits: [
@@ -340,7 +340,7 @@ describe("Code Actions", () => {
           diagnostic,
           [
             {
-              title: "Add override specifier to function definition",
+              title: "Add virtual specifier to function definition",
               kind: "quickfix",
               isPreferred: true,
               edits: [

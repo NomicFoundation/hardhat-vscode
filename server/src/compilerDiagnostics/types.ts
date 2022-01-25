@@ -13,6 +13,7 @@ export type HardhatCompilerError = {
 
 export interface CompilerDiagnostic {
   code: string;
+  blocks: string[];
 
   resolveActions: (
     diagnostic: Diagnostic,

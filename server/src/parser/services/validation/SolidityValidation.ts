@@ -88,21 +88,12 @@ export class SolidityValidation {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const output: any = await solidityCompilePromise;
 
-          const diagnostics: { [uri: string]: Diagnostic[] } = {};
-          if (output?.errors && output.errors.length > 0) {
-            for (const error of output.errors) {
-              if (!diagnostics[error.sourceLocation.file]) {
-                diagnostics[error.sourceLocation.file] = [];
-              }
-
-              const diagnostic = this.diagnosticConverter.convert(
-                document,
-                error
-              );
-
-              diagnostics[error.sourceLocation.file].push(diagnostic);
-            }
+          if (!output || output.errors.length === 0) {
+            return {};
           }
+
+          const diagnostics: { [uri: string]: Diagnostic[] } =
+            this.diagnosticConverter.convertErrors(document, output.errors);
 
           return diagnostics;
         };
