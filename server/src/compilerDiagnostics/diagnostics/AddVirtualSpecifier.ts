@@ -6,6 +6,7 @@ import { resolveInsertSpecifierQuickFix } from "./common/resolveInsertSpecifierQ
 
 export class AddVirtualSpecifier implements CompilerDiagnostic {
   public code = "4334";
+  public blocks: string[] = [];
 
   fromHardhatCompilerError(
     document: TextDocument,

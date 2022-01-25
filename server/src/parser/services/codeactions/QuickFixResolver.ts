@@ -17,6 +17,7 @@ export class QuickFixResolver {
     diagnostics: Diagnostic[]
   ): CodeAction[] {
     let actions: CodeAction[] = [];
+
     for (const diagnostic of diagnostics) {
       try {
         const diagnosticActions = this.resolveActionsFor(diagnostic, {

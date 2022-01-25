@@ -7,6 +7,7 @@ import { waitUntil } from "../../../helpers/waitUntil";
 describe("Parser", () => {
   describe("Validation", function () {
     const basicUri = path.join(__dirname, "testData", "Basic.sol");
+    const blockedUri = path.join(__dirname, "testData", "Blocked.sol");
     let mockConnection: ReturnType<typeof setupMockConnection>;
 
     describe("pass through", () => {
@@ -124,6 +125,129 @@ describe("Parser", () => {
               functionSourceLocation: {
                 start: 445,
                 end: 556,
+              },
+            },
+          },
+        ]);
+      });
+    });
+
+    describe("blocking", () => {
+      const addOverrideErrorFoo = {
+        component: "general",
+        errorCode: "9456",
+        formattedMessage: "Error: ...",
+        message: 'Overriding function is missing "override" specifier.',
+        severity: "error",
+        sourceLocation: {
+          file: blockedUri,
+          start: 248,
+          end: 272,
+        },
+        type: "Error",
+      };
+
+      const addMultioverrideErrorFoo = {
+        component: "general",
+        errorCode: "4327",
+        formattedMessage: "Error: ...",
+        message:
+          'Function needs to specify overridden contracts "Alpha" and "Gamma".',
+        severity: "error",
+        sourceLocation: {
+          file: blockedUri,
+          start: 248,
+          end: 272,
+        },
+        type: "Error",
+      };
+
+      const addOverrideErrorBar = {
+        component: "general",
+        errorCode: "9456",
+        formattedMessage: "Error: ...",
+        message: 'Overriding function is missing "override" specifier.',
+        severity: "error",
+        sourceLocation: {
+          file: blockedUri,
+          start: 276,
+          end: 300,
+        },
+        type: "Error",
+      };
+
+      beforeEach(async () => {
+        ({ connection: mockConnection } = await setupMockLanguageServer({
+          documents: [{ uri: blockedUri, analyze: true }],
+          errors: [
+            addOverrideErrorFoo,
+            addMultioverrideErrorFoo,
+            addOverrideErrorBar,
+          ],
+        }));
+
+        try {
+          await waitUntil(
+            () => mockConnection.sendDiagnostics.calledOnce,
+            100,
+            1000
+          );
+        } catch {
+          assert.fail("Send diagnostics not called");
+        }
+      });
+
+      it("should remove diagnostics blocked by more important diagnostics", async () => {
+        assert(mockConnection.sendDiagnostics.calledOnce);
+        const { uri, diagnostics } =
+          mockConnection.sendDiagnostics.firstCall.firstArg;
+
+        assert.equal(uri, blockedUri);
+        assert.deepStrictEqual(diagnostics, [
+          // only the multi-override survives on foo
+          {
+            code: "4327",
+            message:
+              'Function needs to specify overridden contracts "Alpha" and "Gamma".',
+            severity: 1,
+            source: "solidity",
+            range: {
+              start: {
+                line: 14,
+                character: 11,
+              },
+              end: {
+                line: 14,
+                character: 14,
+              },
+            },
+            data: {
+              functionSourceLocation: {
+                start: 248,
+                end: 272,
+              },
+            },
+          },
+          // only the single override on bar is unaffected
+          {
+            code: "9456",
+            message: 'Overriding function is missing "override" specifier.',
+            severity: 1,
+            source: "solidity",
+            range: {
+              start: {
+                line: 16,
+                character: 11,
+              },
+              end: {
+                line: 16,
+                character: 14,
+              },
+            },
+            data: {
+              functionSourceLocation: {
+                start: 276,
+                end: 300,
               },
             },
           },

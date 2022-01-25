@@ -6,6 +6,7 @@ import { resolveInsertSpecifierQuickFix } from "./common/resolveInsertSpecifierQ
 
 export class AddOverrideSpecifier implements CompilerDiagnostic {
   public code = "9456";
+  public blocks: string[] = [];
 
   fromHardhatCompilerError(
     document: TextDocument,

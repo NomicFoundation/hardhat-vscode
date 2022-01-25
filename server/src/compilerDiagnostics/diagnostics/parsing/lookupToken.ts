@@ -79,21 +79,27 @@ function determineIsFunctionHeaderOnSameLine(
     return true;
   }
 
-  const allKeywordsOnSameLineAsFn = tokens
-    .filter(
-      (t) =>
-        (t.type === "Keyword" &&
-          t.value &&
-          HEADER_KEYWORDS.includes(t.value)) ||
-        t.type === "Modifier"
-    )
+  const keywordLines = tokens
+    .filter(isHeaderKeyword)
     .map((t) => t.range)
     .filter((r): r is [number, number] => r !== undefined)
-    .map(
-      (r) => document.positionAt(functionSourceLocation.start + r[0] + 1).line
-    )
+    .map((r) => findLineGivenRange(document, functionSourceLocation, r));
+
+  const allKeywordsOnSameLineAsFn = keywordLines
     .map((l) => l === fnLine)
     .reduce((acc, l) => acc && l, true);
 
   return allKeywordsOnSameLineAsFn;
+}
+
+function isHeaderKeyword(t: Token) {
+  return t.type === "Keyword" && t.value && HEADER_KEYWORDS.includes(t.value);
+}
+
+function findLineGivenRange(
+  document: TextDocument,
+  functionSourceLocation: { start: number; end: number },
+  range: [number, number]
+) {
+  return document.positionAt(functionSourceLocation.start + range[0] + 1).line;
 }

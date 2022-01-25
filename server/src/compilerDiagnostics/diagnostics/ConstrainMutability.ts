@@ -15,6 +15,7 @@ import { lookupToken } from "./parsing/lookupToken";
 
 export class ConstrainMutability implements CompilerDiagnostic {
   public code = "2018";
+  public blocks: string[] = [];
 
   fromHardhatCompilerError(
     document: TextDocument,
