@@ -78,11 +78,13 @@ export class NavigationProvider implements INavigationProvider {
     )) as vscode.Location[];
 
     isArray(results, action.expected.length);
+
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
       const expected = action.expected[i];
 
       isInstanceOf(result, vscode.Location);
+
       uriEqual(result.uri, expected.uri);
       rangeEqual(
         result.range,
@@ -117,9 +119,28 @@ export class NavigationProvider implements INavigationProvider {
     )) as vscode.Location[];
 
     isArray(results, action.expected.length);
-    for (let i = 0; i < results.length; i++) {
-      const result = results[i];
-      const expected = action.expected[i];
+
+    const sortedResults = results.sort(
+      (l, r) =>
+        l.uri.path.localeCompare(r.uri.path) ||
+        l.range.start.line - r.range.start.line ||
+        l.range.start.character - r.range.start.character ||
+        l.range.end.line - r.range.end.line ||
+        l.range.end.character - r.range.end.character
+    );
+
+    const sortedExpected = action.expected.sort(
+      (l, r) =>
+        l.uri.path.localeCompare(r.uri.path) ||
+        l.range[0].line - r.range[0].line ||
+        l.range[0].character - r.range[0].character ||
+        l.range[1].line - r.range[1].line ||
+        l.range[1].character - r.range[1].character
+    );
+
+    for (let i = 0; i < sortedResults.length; i++) {
+      const result = sortedResults[i];
+      const expected = sortedExpected[i];
 
       isInstanceOf(result, vscode.Location);
       uriEqual(result.uri, expected.uri);
