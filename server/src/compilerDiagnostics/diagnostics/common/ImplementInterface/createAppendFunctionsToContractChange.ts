@@ -18,11 +18,11 @@ export function createAppendFunctionsToContractChange(
   const originalText = document.getText(range);
 
   const functionsAppendText = functions
-    .map((fun) => prettyPrinter.formatAst(fun, "-"))
+    .map((fun) => prettyPrinter.formatAst(fun, "-", { document }))
     .join("\n\n");
 
   const newText = prettyPrinter
-    .format(originalText.slice(0, -1) + functionsAppendText + "}")
+    .format(originalText.slice(0, -1) + functionsAppendText + "}", { document })
     .slice(0, -1);
 
   return {
