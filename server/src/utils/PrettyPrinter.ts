@@ -1,34 +1,66 @@
 import * as prettier from "prettier";
 import * as prettierPluginSolidity from "prettier-plugin-solidity";
-import { ASTNode } from "@common/types";
+import { ASTNode, TextDocument } from "@common/types";
 
 export class PrettyPrinter {
   options: prettier.Options;
 
   constructor() {
     this.options = {
-      ...this.defaultConfig(),
       parser: "solidity-parse",
       plugins: [prettierPluginSolidity],
     };
   }
 
-  format(text: string) {
-    return prettier.format(text, this.options);
+  format(text: string, { document }: { document: TextDocument }) {
+    const options = this.mergeOptions(document);
+
+    return prettier.format(text, options);
   }
 
-  formatAst(ast: ASTNode, originalText: string): string {
+  formatAst(
+    ast: ASTNode,
+    originalText: string,
+    { document }: { document: TextDocument }
+  ): string {
+    const options = this.mergeOptions(document);
+
     // @ts-expect-error you bet __debug isn't on the type
     const { formatted } = prettier.__debug.formatAST(
       ast,
       {
-        ...this.options,
+        ...options,
         originalText,
       },
       2
     );
 
     return formatted;
+  }
+
+  private mergeOptions(document: TextDocument) {
+    const options = {
+      parser: "solidity-parse",
+      plugins: [prettierPluginSolidity],
+    };
+
+    try {
+      const config =
+        prettier.resolveConfig.sync(document.uri, {
+          useCache: false,
+          editorconfig: true,
+        }) ?? this.defaultConfig();
+
+      return {
+        ...config,
+        ...options,
+      };
+    } catch (err) {
+      return {
+        ...this.defaultConfig(),
+        ...options,
+      };
+    }
   }
 
   private defaultConfig() {
