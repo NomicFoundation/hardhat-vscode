@@ -16,6 +16,8 @@ This document contains details on how to collaborate and develop on the Hardhat 
   - [Code Formatting](#code-formatting)
   - [Linting](#linting)
   - [Packaging](#packaging)
+    - [Extension README](#extension-readme)
+  - [Publishing](#publishing)
 
 ## Project structure
 
@@ -137,7 +139,7 @@ The linter is always run in the CI, so make sure it passes before pushing code. 
 
 ## Packaging
 
-VSCode extensions are distributed through a file format called `vsix` (really a zip file with a defined internal struture and metadata files). To build a `vsix` file for local testing or to upload to the VSCode Marketplace, run:
+VSCode extensions are distributed through a file format called `vsix` (really a zip file with a defined internal struture and metadata files). To build a `vsix` file for local testing or to upload to the [VSCode Marketplace](https://marketplace.visualstudio.com/vscode), run:
 
 ```shell
 yarn package
@@ -146,3 +148,13 @@ yarn package
 This will clean the `/out` directories, then create bundled, minified versions of the client, and server files (index.js and helper.js) using [esbuild](https://esbuild.github.io/), and pull them together in the vsix file using `vsce`. The output vsix file will be in the project root.
 
 The `vsix` will contain all files in the repo at the time of packaging, but this is reduced down to only the key files via our [.vscodeignore](./.vscodeignore) file.
+
+### Extension README
+
+The [VSCode Marketplace](https://marketplace.visualstudio.com/vscode) displays the `README.md` file as the landing page for the extension, the same readme is used in the extensions tab.
+
+To separate out the repo readme from the marketing readme, we have two. The repo readme is our actual [README.md](./README.md), while the extension readme is contained in [EXTENSION.md](./EXTENSION.md). During packaging [EXTENSION.md](./EXTENSION.md) is swapped in for [README.md](./README.md). Changes to test displayed on the extensions landing page/extension tab should be made to [EXTENSION.md](./EXTENSION.md).
+
+## Publishing
+
+The extension is published via the [VSCode Marketplace](https://marketplace.visualstudio.com/vscode), see [publish-extension.md](./docs/publish-extension.md) for detailed instructions in making a release.

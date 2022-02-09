@@ -3,7 +3,7 @@
   "publisher": "ylrednet",
   "description": "The solidity-extension contains the language smarts behind the solidity editing experience of Visual Studio Code.",
   "license": "MIT",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "main": "./client/out/extension.js",
   "module": "./client/out/extension.js",
   "icon": "docs/images/solidity-logo.png",
@@ -34,7 +34,7 @@
     "eslint": "eslint ./test/**/*.ts",
     "clean": "rimraf ./dist ./out && yarn --cwd ./client clean && yarn --cwd ./server clean",
     "prepackage": "yarn clean && node ./scripts/bundle.js",
-    "package": "vsce package --yarn",
+    "package": "node ./scripts/package.js",
     "postpackage": "yarn clean && yarn build",
     "prefullcheck": "yarn clean",
     "fullcheck": "yarn lint && yarn build && yarn test && yarn package"
