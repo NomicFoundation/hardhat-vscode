@@ -31,7 +31,7 @@
     "test:coverage": "yarn --cwd ./server run test:coverage",
     "lint": "yarn prettier --check && yarn eslint && yarn --cwd ./client lint && yarn --cwd ./server lint",
     "lint:fix": "yarn prettier --write && yarn eslint --fix && yarn --cwd ./client lint:fix && yarn --cwd ./server lint:fix",
-    "prettier": "prettier *.md *.json \"{docs,.github,.vscode}/**/*.{md,yml}\" \"test/**/*.{ts,json}\"",
+    "prettier": "prettier *.md *.json \"{docs,syntaxes,.github,.vscode}/**/*.{md,yml,json}\" \"test/**/*.{ts,json}\"",
     "eslint": "eslint ./test/**/*.ts"
   },
   "devDependencies": {
