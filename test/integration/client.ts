@@ -39,7 +39,7 @@ class Client implements IClient {
   navigationProvider: NavigationProvider;
 
   /**
-   * Activates the ylrednet.solidity-extension extension
+   * Activates the extension
    */
   async activate(): Promise<void> {
     // The extensionId is `publisher.name` from package.json

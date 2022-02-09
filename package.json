@@ -3,7 +3,7 @@
   "publisher": "ylrednet",
   "description": "The solidity-extension contains the language smarts behind the solidity editing experience of Visual Studio Code.",
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "0.0.21",
   "main": "./client/out/extension.js",
   "module": "./client/out/extension.js",
   "icon": "docs/images/solidity-logo.png",

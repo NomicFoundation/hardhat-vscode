@@ -1,11 +1,10 @@
 import { assert } from "chai";
 import * as path from "path";
-import { VSCodePosition } from "@common/types";
+import { VSCodePosition, VSCodeLocation } from "@common/types";
 import {
   OnReferences,
   setupMockLanguageServer,
 } from "../../../helpers/setupMockLanguageServer";
-import { Location } from "vscode-languageserver/node";
 import { convertHardhatUriToVscodeUri } from "../../../../src/utils/index";
 import { forceToUnixStyle } from "../../../helpers/forceToUnixStyle";
 
@@ -131,7 +130,7 @@ const assertReferencesNavigation = async (
   references: OnReferences,
   uri: string,
   position: VSCodePosition,
-  expectedPositions: Location
+  expectedPositions: VSCodeLocation
 ) => {
   const response = await references({
     context: {
