@@ -7,8 +7,8 @@ import {
   expressionNodeTypes,
 } from "@common/types";
 import {
-  isContractDefinition,
-  isFunctionDefinition,
+  isContractDefinitionNode,
+  isFunctionDefinitionNode,
 } from "@analyzer/utils/typeGuards";
 import { lookupConstructorFor } from "@analyzer/utils/lookups";
 
@@ -88,9 +88,9 @@ export class UserDefinedTypeNameNode extends Node {
     }
 
     if (
-      isContractDefinition(definitionParent) &&
+      isContractDefinitionNode(definitionParent) &&
       definitionParent.isAlive &&
-      isFunctionDefinition(parent)
+      isFunctionDefinitionNode(parent)
     ) {
       const constructorNode = lookupConstructorFor(definitionParent);
 

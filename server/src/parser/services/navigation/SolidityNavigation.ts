@@ -7,6 +7,7 @@ import {
   TextEdit,
   Node,
   definitionNodeTypes,
+  Location,
 } from "@common/types";
 
 import { getParserPositionFromVSCodePosition, getRange } from "@common/utils";
@@ -25,14 +26,20 @@ export class SolidityNavigation {
   ): VSCodeLocation | undefined {
     const definitionNode = this.findNodeByPosition(uri, position, analyzerTree);
 
-    if (definitionNode && definitionNode.astNode.loc) {
-      return {
-        uri: definitionNode.uri,
-        range: getRange(definitionNode.astNode.loc),
-      };
+    if (!definitionNode) {
+      return undefined;
     }
 
-    return undefined;
+    const location = this.resolveLocationFrom(definitionNode);
+
+    if (!location) {
+      return undefined;
+    }
+
+    return {
+      uri: definitionNode.uri,
+      range: getRange(location),
+    };
   }
 
   public findTypeDefinition(
@@ -180,5 +187,13 @@ export class SolidityNavigation {
         visitedNodes
       );
     }
+  }
+
+  private resolveLocationFrom(definitionNode: Node): Location | undefined {
+    if (definitionNode.type === "ImportDirective") {
+      return definitionNode.astNode.loc;
+    }
+
+    return definitionNode.nameLoc ?? definitionNode.astNode.loc;
   }
 }

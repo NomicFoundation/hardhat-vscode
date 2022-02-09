@@ -46,7 +46,7 @@ class Client implements IClient {
   navigationProvider: NavigationProvider;
 
   /**
-   * Activates the ylrednet.ytidilos extension
+   * Activates the extension
    */
   async activate(): Promise<void> {
     // The extensionId is `publisher.name` from package.json

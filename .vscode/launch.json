@@ -43,11 +43,13 @@
       "type": "pwa-node",
       "cwd": "${workspaceFolder}/server",
       "args": [
+        "--no-timeouts",
         "--colors",
-        "${workspaceFolder}/server/test/**/*.ts",
-        "-g",
-        "Validation"
-      ]
+        "${workspaceFolder}/server/test/**/*.ts"
+      ],
+      "env": {
+        "TS_NODE_FILES": "true"
+      }
     }
   ],
   "compounds": [

@@ -889,6 +889,7 @@ export const expressionNodeTypes = [
 
 export type Logger = {
   log: (arg: string) => void;
+  error: (arg: string) => void;
 };
 
 /**
@@ -917,3 +918,27 @@ function isNodeEqual(
 
   return false;
 }
+
+export type AstMutability = "pure" | "constant" | "payable" | "view" | null;
+export type AstVisibility =
+  | "default"
+  | "external"
+  | "internal"
+  | "public"
+  | "private";
+
+export const mutabliltyPrecedence: AstMutability[] = [
+  null,
+  "payable",
+  "view",
+  "constant",
+  "pure",
+];
+
+export const visibilityPrecedence: AstVisibility[] = [
+  "default",
+  "private",
+  "internal",
+  "external",
+  "public",
+];

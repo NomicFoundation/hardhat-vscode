@@ -4,6 +4,7 @@ export function setupMockConnection() {
   return {
     console: {
       log: sinon.spy(),
+      error: sinon.spy(),
     },
     onInitialize: sinon.spy(),
     onInitialized: sinon.spy(),
@@ -21,6 +22,7 @@ export function setupMockConnection() {
     onWillSaveTextDocumentWaitUntil: sinon.spy(),
     onDidSaveTextDocument: sinon.spy(),
     sendNotification: sinon.spy(),
+    onCodeAction: sinon.spy(),
     onNotification: sinon.fake(
       (
         _method: string,

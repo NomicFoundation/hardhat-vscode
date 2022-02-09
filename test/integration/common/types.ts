@@ -97,7 +97,7 @@ export interface Client {
   navigationProvider: NavigationProvider;
 
   /**
-   * Activates the tenderly.solidity-extension extension
+   * Activates the ylrednet.solidity-extension extension
    */
   activate(docUri: vscode.Uri): Promise<void>;
 

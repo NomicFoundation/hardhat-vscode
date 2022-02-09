@@ -12,7 +12,7 @@ The extension should work without any kind of configuration, just make sure you 
 
 ## Sharing your feedback
 
-If you want to report an issue, suggest an improvement, ask a question about the extension, or request a new feature, please open an issue in [this repository](https://github.com/nomiclabs/hardhat-vscode-feedback). 
+If you want to report an issue, suggest an improvement, ask a question about the extension, or request a new feature, please open an issue in [this repository](https://github.com/nomiclabs/hardhat-vscode-feedback).
 
 Including clear instructions to reproduce your issue and example code (preferably a link to a repository) would be much appreciated.
 
@@ -31,13 +31,27 @@ If you want to share it with someone, let us know about it in [this issue](https
 
 ## Changelog
 
+### v0.0.21
+
+- Add quickfixes for:
+  - implementing interfaces in response to `solidity error 3656`
+  - constraining mutability (adding the view/pure keyword) in response to `solidity warning 2018`
+  - specifying the visibility in response to `solidity error 4937`
+  - adding virtual keyword in response to `solidity error 4334`
+  - adding override keyword in response to `solidity error 9456` or `solidity error 4327`
+- bug fix for compiler warnings/errors not appearing
+- bump minimum version of vscode to 1.63 and depend on node 14
+
 ### v0.0.19 & v0.0.20
+
 - Improve external dependency resolution for Daptools
 - Added warning about potential conflicts with other .sol extension
 
 ### v0.0.18
+
 - Implemented external dependency resolution for Daptools
 - Implemented external dependency resolution for Brownie
 
 ### v0.0.17
+
 - Added this welcome message
