@@ -31,7 +31,7 @@ If you want to share it with someone, let us know about it in [this issue](https
 
 ## Changelog
 
-### v0.0.21
+### v0.0.22
 
 - Add quickfixes for:
   - implementing interfaces in response to `solidity error 3656`
@@ -41,6 +41,11 @@ If you want to share it with someone, let us know about it in [this issue](https
   - adding override keyword in response to `solidity error 9456` or `solidity error 4327`
 - bug fix for compiler warnings/errors not appearing
 - bump minimum version of vscode to 1.63 and depend on node 14
+
+### v0.0.21
+
+- Fix the implementation of go to definition for constructors
+- Update bundled version of prettier
 
 ### v0.0.19 & v0.0.20
 
