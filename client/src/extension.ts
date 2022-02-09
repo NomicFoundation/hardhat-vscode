@@ -22,7 +22,7 @@ import {
 import { formatDocument } from "./formatter";
 
 const CONFLICTING_EXTENSION_ID = "juanblanco.solidity";
-const CONFLICTING_EXTENSION_NAME = "ytidilos";
+const CONFLICTING_EXTENSION_NAME = "solidity";
 
 type IndexFileData = {
   path: string;
