@@ -1,10 +1,9 @@
 import { CodeAction, Diagnostic } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import * as Sentry from "@sentry/node";
-import { Logger } from "@common/types";
 import { compilerDiagnostics } from "@compilerDiagnostics/compilerDiagnostics";
 import { LanguageService } from "parser";
 import { Analyzer } from "@analyzer/index";
+import { Logger } from "@utils/Logger";
 
 export class QuickFixResolver {
   private languageService: LanguageService;
@@ -32,8 +31,7 @@ export class QuickFixResolver {
 
         actions = [...actions, ...diagnosticActions];
       } catch (err) {
-        Sentry.captureException(err);
-        this.logger.error(err as string);
+        this.logger.error(err);
       }
     }
 
@@ -57,6 +55,7 @@ export class QuickFixResolver {
         document,
         uri,
         analyzer,
+        logger: this.logger,
       });
     } else {
       return [];

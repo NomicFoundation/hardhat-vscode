@@ -1,9 +1,9 @@
 import { Diagnostic, Range } from "vscode-languageserver/node";
-import { TextDocument } from "vscode-languageserver-textdocument";
 import * as parser from "@solidity-parser/parser";
 import { ContractDefinition } from "@common/types";
 import { Token } from "@solidity-parser/parser/dist/src/types";
 import { isContractDefinition } from "@analyzer/utils/typeGuards";
+import { ResolveActionsContext } from "@compilerDiagnostics/types";
 
 export type ParseContractDefinitionResult = {
   contractDefinition: ContractDefinition;
@@ -14,7 +14,7 @@ export type ParseContractDefinitionResult = {
 
 export function parseContractDefinition(
   diagnostic: Diagnostic,
-  document: TextDocument
+  { document, logger }: ResolveActionsContext
 ): ParseContractDefinitionResult | null {
   if (!diagnostic.data) {
     return null;
@@ -54,7 +54,8 @@ export function parseContractDefinition(
       functionSourceLocation,
       contractText,
     };
-  } catch {
+  } catch (err) {
+    logger.error(err);
     return null;
   }
 }

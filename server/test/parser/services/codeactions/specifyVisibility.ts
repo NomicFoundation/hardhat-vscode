@@ -2,6 +2,7 @@ import { assert } from "chai";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { SpecifyVisibility } from "@compilerDiagnostics/diagnostics/SpecifyVisibility";
 import { assertCodeAction } from "./asserts/assertCodeAction";
+import { setupMockLogger } from "../../../helpers/setupMockLogger";
 
 describe("Code Actions", () => {
   describe("Specify Visibility", () => {
@@ -151,9 +152,14 @@ describe("Code Actions", () => {
 
       const document = TextDocument.create(exampleUri, "solidity", 0, fileText);
 
+      const mockLogger = setupMockLogger();
+
       const actions = specifyVisibility.resolveActions(diagnostic, {
         document,
         uri: exampleUri,
+        logger: mockLogger,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        analyzer: null as any,
       });
 
       assert.deepStrictEqual(actions, []);

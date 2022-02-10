@@ -6,6 +6,7 @@ import {
   SOLIDITY_COMPILE_CONFIRMATION_EVENT,
 } from "./events";
 import { DiagnosticConverter } from "./DiagnosticConverter";
+import { Logger } from "@utils/Logger";
 
 export interface ValidationJob {
   run(
@@ -30,7 +31,7 @@ export class SolidityValidation {
     this.diagnosticConverter = new DiagnosticConverter(this.analyzer);
   }
 
-  public getValidationJob(): ValidationJob {
+  public getValidationJob(logger: Logger): ValidationJob {
     let isCompilerDownloaded = true;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -115,7 +116,7 @@ export class SolidityValidation {
           try {
             hardhatProcess.kill();
           } catch (err) {
-            // console.error(err);
+            logger.error(err);
           }
 
           return diagnostics;
@@ -123,7 +124,7 @@ export class SolidityValidation {
           try {
             hardhatProcess.kill();
           } catch (err) {
-            // console.error(err);
+            logger.error(err);
           }
 
           return Promise.resolve({});

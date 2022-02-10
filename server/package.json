@@ -23,7 +23,8 @@
     "@compilerDiagnostics": "./out/compilerDiagnostics",
     "@analyzer": "./out/parser/analyzer/",
     "@common": "./out/parser/common/",
-    "@services": "./out/parser/services/"
+    "@services": "./out/parser/services/",
+    "@utils": "./out/utils"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "1.0.2",

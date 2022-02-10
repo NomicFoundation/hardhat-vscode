@@ -1,10 +1,10 @@
 import { assert } from "chai";
-import * as sinon from "sinon";
 import { Diagnostic, TextEdit } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { CompilerDiagnostic } from "@compilerDiagnostics/types";
 import { Analyzer } from "@analyzer/index";
 import { getUriFromDocument } from "../../../../../src/utils";
+import { setupMockLogger } from "../../../../helpers/setupMockLogger";
 
 export function assertCodeAction(
   compilerDiagnostic: CompilerDiagnostic,
@@ -21,10 +21,9 @@ export function assertCodeAction(
 
   const document = TextDocument.create(exampleUri, "solidity", 0, docText);
 
-  const analyzer = new Analyzer(exampleUri, {
-    log: sinon.spy(),
-    error: sinon.spy(),
-  });
+  const mockLogger = setupMockLogger();
+
+  const analyzer = new Analyzer(exampleUri, mockLogger);
 
   const documentURI = getUriFromDocument(document);
   analyzer.analyzeDocument(document.getText(), documentURI);
@@ -33,6 +32,7 @@ export function assertCodeAction(
     document,
     uri: exampleUri,
     analyzer: analyzer,
+    logger: mockLogger,
   });
 
   assert(actions);

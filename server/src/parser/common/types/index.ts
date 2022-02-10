@@ -887,11 +887,6 @@ export const expressionNodeTypes = [
   "TypeNameExpression",
 ];
 
-export type Logger = {
-  log: (arg: string) => void;
-  error: (arg: string) => void;
-};
-
 /**
  * Checks if 2 nodes have the same {@link Node.getName name}, {@link Node.nameLoc location name} and {@link Node.uri URI}.
  * @returns true if the Nodes are equal, otherwise false.
