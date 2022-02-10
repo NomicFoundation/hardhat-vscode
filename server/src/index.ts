@@ -3,6 +3,7 @@ import * as Sentry from "@sentry/node";
 import { createConnection, ProposedFeatures } from "vscode-languageserver/node";
 import setupServer from "./server";
 import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
+import { ConnectionLogger } from "@utils/Logger";
 
 Sentry.init({
   // Sentry DSN. I guess there's no other choice than keeping it here.
@@ -18,7 +19,11 @@ Sentry.init({
 // Also include all preview / proposed LSP features.
 const connection = createConnection(ProposedFeatures.all);
 
-setupServer(connection, compilerProcessFactory);
+const logger = new ConnectionLogger(connection, (err) =>
+  Sentry.captureException(err)
+);
+
+setupServer(connection, compilerProcessFactory, logger);
 
 // Listen on the connection
 connection.listen();

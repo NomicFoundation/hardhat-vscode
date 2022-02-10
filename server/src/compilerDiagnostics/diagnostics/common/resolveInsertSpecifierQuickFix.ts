@@ -11,6 +11,7 @@ import {
 } from "../parsing/parseFunctionDefinition";
 import { LookupResult, lookupToken } from "../parsing/lookupToken";
 import { Token } from "@solidity-parser/parser/dist/src/types";
+import { ResolveActionsContext } from "@compilerDiagnostics/types";
 
 export class Multioverride {
   contractIdentifiers: string[];
@@ -33,13 +34,15 @@ type Specifier = "virtual" | "override" | Multioverride;
 export function resolveInsertSpecifierQuickFix(
   specifier: Specifier,
   diagnostic: Diagnostic,
-  { document, uri }: { document: TextDocument; uri: string }
+  context: ResolveActionsContext
 ) {
+  const { document, uri } = context;
+
   if (!diagnostic.data) {
     return [];
   }
 
-  const parseResult = parseFunctionDefinition(diagnostic, document);
+  const parseResult = parseFunctionDefinition(diagnostic, context);
 
   if (parseResult === null) {
     return [];

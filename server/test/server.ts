@@ -2,6 +2,7 @@ import * as assert from "assert";
 import setupServer from "../src/server";
 import { setupMockCompilerProcessFactory } from "./helpers/setupMockCompilerProcessFactory";
 import { setupMockConnection } from "./helpers/setupMockConnection";
+import { setupMockLogger } from "./helpers/setupMockLogger";
 
 describe("Solidity Language Server", () => {
   describe("initialization", () => {
@@ -13,8 +14,14 @@ describe("Solidity Language Server", () => {
       before(async () => {
         mockConnection = setupMockConnection();
         const mockCompilerProcessFactory = setupMockCompilerProcessFactory();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await setupServer(mockConnection as any, mockCompilerProcessFactory);
+        const mockLogger = setupMockLogger();
+
+        await setupServer(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          mockConnection as any,
+          mockCompilerProcessFactory,
+          mockLogger
+        );
 
         assert(mockConnection.onInitialize.called);
         const initialize = mockConnection.onInitialize.getCall(0).firstArg;

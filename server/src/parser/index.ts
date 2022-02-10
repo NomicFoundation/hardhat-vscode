@@ -5,7 +5,7 @@ import { SolidityCompletion } from "@services/completion/SolidityCompletion";
 import { SolidityValidation } from "@services/validation/SolidityValidation";
 import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
 import { SoliditySignatureHelp } from "@services/documentation/SoliditySignatureHelp";
-import { Logger } from "@common/types";
+import { Logger } from "@utils/Logger";
 
 export class LanguageService {
   analyzer: Analyzer;

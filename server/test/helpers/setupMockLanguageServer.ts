@@ -20,6 +20,7 @@ import setupServer from "../../src/server";
 import { setupMockCompilerProcessFactory } from "./setupMockCompilerProcessFactory";
 import { setupMockConnection } from "./setupMockConnection";
 import { waitUntil } from "./waitUntil";
+import { setupMockLogger } from "./setupMockLogger";
 
 export type OnSignatureHelp = (
   params: SignatureHelpParams
@@ -52,10 +53,13 @@ export async function setupMockLanguageServer({
   const mockConnection = setupMockConnection();
   const mockCompilerProcessFactory = setupMockCompilerProcessFactory(errors);
 
+  const mockLogger = setupMockLogger();
+
   const serverState = await setupServer(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockConnection as any,
-    mockCompilerProcessFactory
+    mockCompilerProcessFactory,
+    mockLogger
   );
 
   assert(mockConnection.onInitialize.called);

@@ -1,6 +1,5 @@
 import * as fs from "fs";
 import * as path from "path";
-import * as Sentry from "@sentry/node";
 
 import { Analyzer } from "@analyzer/index";
 import { getParserPositionFromVSCodePosition } from "@common/utils";
@@ -21,6 +20,7 @@ import {
   expressionNodeTypes,
 } from "@common/types";
 import { globalVariables, defaultCompletion } from "./defaultCompletion";
+import { Logger } from "@utils/Logger";
 
 export class SolidityCompletion {
   analyzer: Analyzer;
@@ -31,7 +31,8 @@ export class SolidityCompletion {
 
   public doComplete(
     position: VSCodePosition,
-    documentAnalyzer: DocumentAnalyzer
+    documentAnalyzer: DocumentAnalyzer,
+    logger: Logger
   ): CompletionList {
     const analyzerTree = documentAnalyzer.analyzerTree.tree;
     const result: CompletionList = { isIncomplete: false, items: [] };
@@ -71,7 +72,8 @@ export class SolidityCompletion {
         result.items = this.getGlobalVariableCompletions(definitionNodeName);
       } else if (definitionNode && definitionNode.type === "ImportDirective") {
         result.items = this.getImportPathCompletion(
-          definitionNode as ImportDirectiveNode
+          definitionNode as ImportDirectiveNode,
+          logger
         );
       } else if (
         definitionNode &&
@@ -173,13 +175,16 @@ export class SolidityCompletion {
     return [];
   }
 
-  private getImportPathCompletion(node: ImportDirectiveNode): CompletionItem[] {
+  private getImportPathCompletion(
+    node: ImportDirectiveNode,
+    logger: Logger
+  ): CompletionItem[] {
     let completions: CompletionItem[] = [];
     const importPath = path.join(node.realUri, "..", node.astNode.path);
 
     if (fs.existsSync(importPath)) {
       const files = fs.readdirSync(importPath);
-      completions = this.getCompletionsFromFiles(importPath, files);
+      completions = this.getCompletionsFromFiles(importPath, files, logger);
     }
 
     return completions;
@@ -238,7 +243,8 @@ export class SolidityCompletion {
 
   private getCompletionsFromFiles(
     importPath: string,
-    files: string[]
+    files: string[],
+    logger: Logger
   ): CompletionItem[] {
     const completions: CompletionItem[] = [];
 
@@ -261,8 +267,7 @@ export class SolidityCompletion {
           });
         }
       } catch (err) {
-        Sentry.captureException(err);
-        console.error(err);
+        logger.error(err);
       }
     });
 
