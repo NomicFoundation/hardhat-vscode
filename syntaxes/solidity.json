@@ -70,9 +70,6 @@
     "natspec-tags": {
       "patterns": [
         {
-          "include": "#comment-todo"
-        },
-        {
           "include": "#natspec-tag-title"
         },
         {
@@ -133,29 +130,15 @@
         }
       ]
     },
-    "comment-todo": {
-      "match": "(?i)\\b(FIXME|TODO|CHANGED|XXX|IDEA|HACK|NOTE|REVIEW|NB|BUG|QUESTION|COMBAK|TEMP|SUPPRESS|LINT|\\w+-disable|\\w+-suppress)\\b(?-i)",
-      "name": "keyword.comment.todo"
-    },
     "comment-line": {
       "begin": "(?<!tp:)//",
       "end": "$",
-      "name": "comment.line",
-      "patterns": [
-        {
-          "include": "#comment-todo"
-        }
-      ]
+      "name": "comment.line"
     },
     "comment-block": {
       "begin": "/\\*",
       "end": "\\*/",
-      "name": "comment.block",
-      "patterns": [
-        {
-          "include": "#comment-todo"
-        }
-      ]
+      "name": "comment.block"
     },
     "operator": {
       "patterns": [
