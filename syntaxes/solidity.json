@@ -70,9 +70,6 @@
     "natspec-tags": {
       "patterns": [
         {
-          "include": "#comment-todo"
-        },
-        {
           "include": "#natspec-tag-title"
         },
         {
