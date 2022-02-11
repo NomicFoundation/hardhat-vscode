@@ -13,6 +13,7 @@ import {
   SignatureHelpParams,
   TextDocumentItem,
   ReferenceParams,
+  ImplementationParams,
   Location,
 } from "vscode-languageserver/node";
 import setupServer from "../../src/server";
@@ -34,6 +35,9 @@ export type OnTypeDefinition = (
 ) => Definition | DefinitionLink[] | null;
 export type OnReferences = (
   params: ReferenceParams
+) => Location[] | undefined | null;
+export type OnImplementation = (
+  params: ImplementationParams
 ) => Location[] | undefined | null;
 
 export async function setupMockLanguageServer({
@@ -78,6 +82,8 @@ export async function setupMockLanguageServer({
     mockConnection.onTypeDefinition.getCall(0).firstArg;
   const references: OnReferences =
     mockConnection.onReferences.getCall(0).firstArg;
+  const implementation: OnImplementation =
+    mockConnection.onImplementation.getCall(0).firstArg;
 
   const didOpenTextDocument =
     mockConnection.onDidOpenTextDocument.getCall(0).firstArg;
@@ -132,6 +138,7 @@ export async function setupMockLanguageServer({
       definition,
       typeDefinition,
       references,
+      implementation,
     },
   };
 }
