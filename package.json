@@ -68,6 +68,16 @@
             "prettier"
           ],
           "description": "Enables / disables the solidity formatter (prettier solidity default)"
+        },
+        "solidity-language-server.trace.server.verbosity": {
+          "type": "string",
+          "description": "Traces the communication between VS Code and the solidity language server.",
+          "enum": [
+            "off",
+            "message",
+            "verbose"
+          ],
+          "default": "off"
         }
       }
     },
