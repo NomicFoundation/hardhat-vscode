@@ -21,6 +21,8 @@ import {
 } from "@common/types";
 import { globalVariables, defaultCompletion } from "./defaultCompletion";
 import { Logger } from "@utils/Logger";
+import { isImportDirectiveNode } from "@analyzer/utils/typeGuards";
+import { CompletionContext } from "vscode-languageserver/node";
 
 export class SolidityCompletion {
   analyzer: Analyzer;
@@ -32,67 +34,74 @@ export class SolidityCompletion {
   public doComplete(
     position: VSCodePosition,
     documentAnalyzer: DocumentAnalyzer,
+    context: CompletionContext | undefined,
     logger: Logger
-  ): CompletionList {
+  ): CompletionList | undefined {
     const analyzerTree = documentAnalyzer.analyzerTree.tree;
     const result: CompletionList = { isIncomplete: false, items: [] };
 
-    if (analyzerTree) {
-      let definitionNode = this.findNodeByPosition(
+    if (!analyzerTree) {
+      return result;
+    }
+
+    let definitionNode = this.findNodeByPosition(
+      documentAnalyzer.uri,
+      position,
+      analyzerTree
+    );
+
+    // Check if the definitionNode exists and if not, we will check if maybe Node exists in orphan Nodes.
+    // This is important for "this", "super" and global variables because they exist only in orphanNodes.
+    if (!definitionNode) {
+      const newPosition = {
+        line: position.line + 1,
+        column: position.character - 1, // -1 because we want to get the element before "."
+      };
+
+      for (const orphanNode of documentAnalyzer.orphanNodes) {
+        if (this.isNodePosition(orphanNode, newPosition)) {
+          definitionNode = orphanNode;
+          break;
+        }
+      }
+    }
+
+    if (
+      context?.triggerCharacter === '"' &&
+      (!definitionNode || !isImportDirectiveNode(definitionNode))
+    ) {
+      return undefined;
+    }
+
+    const definitionNodeName = definitionNode?.getName();
+    if (definitionNodeName === "this") {
+      result.items = this.getThisCompletions(documentAnalyzer, position);
+    } else if (definitionNodeName === "super") {
+      result.items = this.getSuperCompletions(documentAnalyzer, position);
+    } else if (
+      definitionNodeName &&
+      Object.keys(globalVariables).includes(definitionNodeName)
+    ) {
+      result.items = this.getGlobalVariableCompletions(definitionNodeName);
+    } else if (definitionNode && isImportDirectiveNode(definitionNode)) {
+      result.items = this.getImportPathCompletion(definitionNode, logger);
+    } else if (
+      definitionNode &&
+      expressionNodeTypes.includes(
+        definitionNode.getExpressionNode()?.type || ""
+      )
+    ) {
+      result.items = this.getMemberAccessCompletions(
+        documentAnalyzer.uri,
+        position,
+        definitionNode
+      );
+    } else {
+      result.items = this.getDefaultCompletions(
         documentAnalyzer.uri,
         position,
         analyzerTree
       );
-
-      // Check if the definitionNode exists and if not, we will check if maybe Node exists in orphan Nodes.
-      // This is important for "this", "super" and global variables because they exist only in orphanNodes.
-      if (!definitionNode) {
-        const newPosition = {
-          line: position.line + 1,
-          column: position.character - 1, // -1 because we want to get the element before "."
-        };
-
-        for (const orphanNode of documentAnalyzer.orphanNodes) {
-          if (this.isNodePosition(orphanNode, newPosition)) {
-            definitionNode = orphanNode;
-            break;
-          }
-        }
-      }
-
-      const definitionNodeName = definitionNode?.getName();
-      if (definitionNodeName === "this") {
-        result.items = this.getThisCompletions(documentAnalyzer, position);
-      } else if (definitionNodeName === "super") {
-        result.items = this.getSuperCompletions(documentAnalyzer, position);
-      } else if (
-        definitionNodeName &&
-        Object.keys(globalVariables).includes(definitionNodeName)
-      ) {
-        result.items = this.getGlobalVariableCompletions(definitionNodeName);
-      } else if (definitionNode && definitionNode.type === "ImportDirective") {
-        result.items = this.getImportPathCompletion(
-          definitionNode as ImportDirectiveNode,
-          logger
-        );
-      } else if (
-        definitionNode &&
-        expressionNodeTypes.includes(
-          definitionNode.getExpressionNode()?.type || ""
-        )
-      ) {
-        result.items = this.getMemberAccessCompletions(
-          documentAnalyzer.uri,
-          position,
-          definitionNode
-        );
-      } else {
-        result.items = this.getDefaultCompletions(
-          documentAnalyzer.uri,
-          position,
-          analyzerTree
-        );
-      }
     }
 
     return result;
@@ -179,15 +188,23 @@ export class SolidityCompletion {
     node: ImportDirectiveNode,
     logger: Logger
   ): CompletionItem[] {
-    let completions: CompletionItem[] = [];
-    const importPath = path.join(node.realUri, "..", node.astNode.path);
+    const currentImport = node.astNode.path.replace("_;", "");
+    const importPath = path.join(node.realUri, "..", currentImport);
 
-    if (fs.existsSync(importPath)) {
-      const files = fs.readdirSync(importPath);
-      completions = this.getCompletionsFromFiles(importPath, files, logger);
+    if (!fs.existsSync(importPath) || /[.^\w]\/\.$/.test(currentImport)) {
+      return [];
     }
 
-    return completions;
+    const files = fs
+      .readdirSync(importPath)
+      .filter((f) => !node.realUri.endsWith(f));
+
+    return this.getCompletionsFromFiles(
+      currentImport,
+      importPath,
+      files,
+      logger
+    );
   }
 
   private getMemberAccessCompletions(
@@ -242,36 +259,98 @@ export class SolidityCompletion {
   }
 
   private getCompletionsFromFiles(
+    currentImport: string,
     importPath: string,
     files: string[],
     logger: Logger
   ): CompletionItem[] {
-    const completions: CompletionItem[] = [];
+    const prefixes = this.resolveImportPrefixes(currentImport);
 
-    files.forEach((file) => {
-      try {
-        const absolutePath = path.join(importPath, file);
-        const fileStat = fs.lstatSync(absolutePath);
+    return files
+      .map((file) => {
+        return this.convertFileToCompletion(
+          file,
+          { ...prefixes, importPath },
+          logger
+        );
+      })
+      .filter((x): x is CompletionItem => x !== null);
+  }
 
-        if (fileStat.isFile() && file.slice(-4) === ".sol") {
-          completions.push({
-            label: file,
-            kind: CompletionItemKind.File,
-            documentation: "Imports the package",
-          });
-        } else if (fileStat.isDirectory() && file !== "node_modules") {
-          completions.push({
-            label: file,
-            kind: CompletionItemKind.Folder,
-            documentation: "Imports the package",
-          });
-        }
-      } catch (err) {
-        logger.error(err);
+  private resolveImportPrefixes(currentImport: string) {
+    let prefix = "";
+    let displayPrefix = "";
+
+    switch (currentImport) {
+      case "":
+        prefix = "./";
+        displayPrefix = "./";
+        break;
+      case ".":
+        prefix = "/";
+        displayPrefix = "./";
+        break;
+      case "./":
+        prefix = "";
+        displayPrefix = "./";
+        break;
+      case "..":
+        prefix = "/";
+        displayPrefix = "../";
+        break;
+      case "../":
+        prefix = "";
+        displayPrefix = "../";
+        break;
+      default:
+        prefix = currentImport.endsWith("..") ? "/" : "";
+        break;
+    }
+
+    return { prefix, displayPrefix };
+  }
+
+  private convertFileToCompletion(
+    file: string,
+    {
+      importPath,
+      displayPrefix,
+      prefix,
+    }: { importPath: string; displayPrefix: string; prefix: string },
+    logger: Logger
+  ) {
+    try {
+      const absolutePath = path.join(importPath, file);
+      const fileStat = fs.lstatSync(absolutePath);
+
+      const label = `${displayPrefix}${file}`;
+      const insertText = `${prefix}${file}`;
+
+      if (fileStat.isFile() && file.slice(-4) === ".sol") {
+        const completionItem: CompletionItem = {
+          label,
+          insertText,
+          kind: CompletionItemKind.File,
+          documentation: "Imports the package",
+        };
+
+        return completionItem;
+      } else if (fileStat.isDirectory() && file !== "node_modules") {
+        const completionItem: CompletionItem = {
+          label,
+          insertText,
+          kind: CompletionItemKind.Folder,
+          documentation: "Imports the package",
+        };
+
+        return completionItem;
       }
-    });
 
-    return completions;
+      return null;
+    } catch (err) {
+      logger.error(err);
+      return null;
+    }
   }
 
   private getCompletionsFromNodes(nodes: Node[]): CompletionItem[] {

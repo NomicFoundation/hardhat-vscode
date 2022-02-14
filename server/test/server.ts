@@ -39,7 +39,7 @@ describe("Solidity Language Server", () => {
       describe("completions", () => {
         it("advertises capability", () =>
           assert.deepStrictEqual(capabilities.completionProvider, {
-            triggerCharacters: [".", "/"],
+            triggerCharacters: [".", "/", '"'],
           }));
 
         it("registers onCompletion", () =>
