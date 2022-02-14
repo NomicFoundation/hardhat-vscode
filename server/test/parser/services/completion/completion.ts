@@ -5,6 +5,7 @@ import {
   OnCompletion,
   setupMockLanguageServer,
 } from "../../../helpers/setupMockLanguageServer";
+import { CompletionContext } from "vscode-languageserver/node";
 
 describe("Parser", () => {
   const globalVariablesUri = path.join(
@@ -12,16 +13,19 @@ describe("Parser", () => {
     "testData",
     "GlobalVariables.sol"
   );
+
   const memberAccessStructUri = path.join(
     __dirname,
     "testData",
     "MemberAccessStruct.sol"
   );
+
   const memberAccessNestedStructUri = path.join(
     __dirname,
     "testData",
     "MemberAccessNestedStruct.sol"
   );
+
   let completion: OnCompletion;
 
   before(async () => {
@@ -112,12 +116,16 @@ const assertCompletion = async (
   completion: OnCompletion,
   documentUri: string,
   position: VSCodePosition,
-  completionLabels: string[]
+  completionLabels: string[],
+  context: CompletionContext = {
+    triggerKind: 2,
+    triggerCharacter: ".",
+  }
 ) => {
   const response = await completion({
     position,
     textDocument: { uri: documentUri },
-    context: { triggerKind: 2, triggerCharacter: "." },
+    context,
   });
 
   if (!response || Array.isArray(response)) {

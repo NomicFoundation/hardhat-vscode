@@ -3,6 +3,7 @@ import {
   ContractDefinition,
   FunctionDefinition,
   FunctionCall,
+  ImportDirectiveNode,
   Node,
 } from "@common/types";
 import { ContractDefinitionNode } from "../nodes/ContractDefinitionNode";
@@ -34,14 +35,18 @@ export function isFunctionDefinitionNode(
   return node.type === "FunctionDefinition";
 }
 
-export function isMemberAccessNode(node: Node): node is MemberAccessNode {
-  return node.type === "MemberAccess";
-}
-
 export function isFunctionCall(node: ASTNode): node is FunctionCall {
   return node.type === "FunctionCall";
 }
 
 export function isFunctionCallNode(node: Node): node is FunctionCallNode {
   return node.type === "FunctionCall";
+}
+
+export function isMemberAccessNode(node: Node): node is MemberAccessNode {
+  return node.type === "MemberAccess";
+}
+
+export function isImportDirectiveNode(node: Node): node is ImportDirectiveNode {
+  return node.type === "ImportDirective";
 }

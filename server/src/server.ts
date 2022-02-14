@@ -196,13 +196,16 @@ export default function setupServer(
               documentURI
             );
 
-          if (documentAnalyzer) {
-            return serverState.languageServer.solidityCompletion.doComplete(
-              params.position,
-              documentAnalyzer,
-              logger
-            );
+          if (!documentAnalyzer) {
+            return;
           }
+
+          return serverState.languageServer.solidityCompletion.doComplete(
+            params.position,
+            documentAnalyzer,
+            params.context,
+            logger
+          );
         }
       } catch (err) {
         logger.error(err);
@@ -593,7 +596,7 @@ const resolveOnInitialize = (serverState: ServerState) => {
         textDocumentSync: TextDocumentSyncKind.Incremental,
         // Tell the client that this server supports code completion.
         completionProvider: {
-          triggerCharacters: [".", "/"],
+          triggerCharacters: [".", "/", '"'],
         },
         signatureHelpProvider: {
           triggerCharacters: ["(", ","],
