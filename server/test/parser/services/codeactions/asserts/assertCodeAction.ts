@@ -4,6 +4,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { CompilerDiagnostic } from "@compilerDiagnostics/types";
 import { Analyzer } from "@analyzer/index";
 import { getUriFromDocument } from "../../../../../src/utils";
+import { setupMockWorkspaceFileRetriever } from "../../../../helpers/setupMockWorkspaceFileRetriever";
 import { setupMockLogger } from "../../../../helpers/setupMockLogger";
 
 export function assertCodeAction(
@@ -22,8 +23,13 @@ export function assertCodeAction(
   const document = TextDocument.create(exampleUri, "solidity", 0, docText);
 
   const mockLogger = setupMockLogger();
+  const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
 
-  const analyzer = new Analyzer(exampleUri, mockLogger);
+  const analyzer = new Analyzer(
+    exampleUri,
+    mockWorkspaceFileRetriever,
+    mockLogger
+  );
 
   const documentURI = getUriFromDocument(document);
   analyzer.analyzeDocument(document.getText(), documentURI);

@@ -1,6 +1,5 @@
 import * as fs from "fs";
 import * as path from "path";
-
 import { Analyzer } from "@analyzer/index";
 import { getParserPositionFromVSCodePosition } from "@common/utils";
 import {
@@ -12,7 +11,6 @@ import {
   DocumentAnalyzer,
   Node,
   TypeName,
-  ImportDirectiveNode,
   ContractDefinitionNode,
   VariableDeclaration,
   FileLevelConstant,
@@ -23,6 +21,7 @@ import { globalVariables, defaultCompletion } from "./defaultCompletion";
 import { Logger } from "@utils/Logger";
 import { isImportDirectiveNode } from "@analyzer/utils/typeGuards";
 import { CompletionContext } from "vscode-languageserver/node";
+import { getImportPathCompletion } from "./getImportPathCompletion";
 
 export class SolidityCompletion {
   analyzer: Analyzer;
@@ -84,7 +83,10 @@ export class SolidityCompletion {
     ) {
       result.items = this.getGlobalVariableCompletions(definitionNodeName);
     } else if (definitionNode && isImportDirectiveNode(definitionNode)) {
-      result.items = this.getImportPathCompletion(definitionNode, logger);
+      result.items = getImportPathCompletion(position, definitionNode, {
+        analyzer: this.analyzer,
+        logger,
+      });
     } else if (
       definitionNode &&
       expressionNodeTypes.includes(
@@ -182,29 +184,6 @@ export class SolidityCompletion {
     }
 
     return [];
-  }
-
-  private getImportPathCompletion(
-    node: ImportDirectiveNode,
-    logger: Logger
-  ): CompletionItem[] {
-    const currentImport = node.astNode.path.replace("_;", "");
-    const importPath = path.join(node.realUri, "..", currentImport);
-
-    if (!fs.existsSync(importPath) || /[.^\w]\/\.$/.test(currentImport)) {
-      return [];
-    }
-
-    const files = fs
-      .readdirSync(importPath)
-      .filter((f) => !node.realUri.endsWith(f));
-
-    return this.getCompletionsFromFiles(
-      currentImport,
-      importPath,
-      files,
-      logger
-    );
   }
 
   private getMemberAccessCompletions(

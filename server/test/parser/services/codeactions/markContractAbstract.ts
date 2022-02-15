@@ -5,6 +5,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { assertCodeAction } from "./asserts/assertCodeAction";
 import { MarkContractAbstract } from "@compilerDiagnostics/diagnostics/MarkContractAbstract";
 import { Analyzer } from "@analyzer/index";
+import { setupMockWorkspaceFileRetriever } from "../../../helpers/setupMockWorkspaceFileRetriever";
 import { setupMockLogger } from "../../../helpers/setupMockLogger";
 
 describe("Code Actions", () => {
@@ -134,9 +135,14 @@ describe("Code Actions", () => {
             fileText
           );
 
+          const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
           const mockLogger = setupMockLogger();
 
-          const analyzer = new Analyzer(exampleUri, mockLogger);
+          const analyzer = new Analyzer(
+            exampleUri,
+            mockWorkspaceFileRetriever,
+            mockLogger
+          );
 
           const actions = markContractAbstract.resolveActions(diagnostic, {
             document,
