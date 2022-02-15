@@ -1,7 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as parser from "@solidity-parser/parser";
-
 import * as matcher from "@analyzer/matcher";
 import { Searcher } from "@analyzer/searcher";
 import { BROWNIE_PACKAGE_PATH } from "@analyzer/resolver";
@@ -15,17 +14,24 @@ import {
   EmptyNode,
   Searcher as ISearcher,
 } from "@common/types";
+import { WorkspaceFileRetriever } from "./WorkspaceFileRetriever";
 import { Logger } from "@utils/Logger";
 
 export class Analyzer {
   rootPath: string;
   logger: Logger;
+  workspaceFileRetriever: WorkspaceFileRetriever;
 
   documentsAnalyzer: DocumentsAnalyzerMap = {};
 
-  constructor(rootPath: string, logger: Logger) {
+  constructor(
+    rootPath: string,
+    workspaceFileRetriever: WorkspaceFileRetriever,
+    logger: Logger
+  ) {
     this.rootPath = rootPath;
     this.logger = logger;
+    this.workspaceFileRetriever = workspaceFileRetriever;
 
     const documentsUri: string[] = [];
 

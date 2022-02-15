@@ -24,6 +24,7 @@ import { debounce } from "./utils/debaunce";
 import { LanguageService } from "./parser";
 import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
 import { onCodeAction } from "./parser/services/codeactions/onCodeAction";
+import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { Logger } from "@utils/Logger";
 
 type ServerState = {
@@ -65,6 +66,7 @@ type UnsavedDocumentType = {
 export default function setupServer(
   connection: Connection,
   compProcessFactory: typeof compilerProcessFactory,
+  workspaceFileRetriever: WorkspaceFileRetriever,
   logger: Logger
 ): ServerState {
   const serverState: ServerState = {
@@ -102,6 +104,7 @@ export default function setupServer(
     serverState.languageServer = new LanguageService(
       serverState.rootUri,
       compProcessFactory,
+      workspaceFileRetriever,
       logger
     );
 

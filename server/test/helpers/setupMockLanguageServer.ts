@@ -1,5 +1,6 @@
 import { assert } from "chai";
 import * as fs from "fs";
+import * as path from "path";
 import { getUriFromDocument } from "../../src/utils/index";
 import {
   CompletionItem,
@@ -21,6 +22,7 @@ import { setupMockCompilerProcessFactory } from "./setupMockCompilerProcessFacto
 import { setupMockConnection } from "./setupMockConnection";
 import { waitUntil } from "./waitUntil";
 import { setupMockLogger } from "./setupMockLogger";
+import { setupMockWorkspaceFileRetriever } from "./setupMockWorkspaceFileRetriever";
 
 export type OnSignatureHelp = (
   params: SignatureHelpParams
@@ -45,13 +47,14 @@ export async function setupMockLanguageServer({
   documents,
   errors,
 }: {
-  documents: { uri: string; analyze: boolean }[];
+  documents: { uri: string; content?: string; analyze: boolean }[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errors: any[];
 }) {
-  const exampleRootUri = __dirname;
+  const exampleRootUri = path.join(__dirname, "..");
   const mockConnection = setupMockConnection();
   const mockCompilerProcessFactory = setupMockCompilerProcessFactory(errors);
+  const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
 
   const mockLogger = setupMockLogger();
 
@@ -59,6 +62,7 @@ export async function setupMockLanguageServer({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockConnection as any,
     mockCompilerProcessFactory,
+    mockWorkspaceFileRetriever,
     mockLogger
   );
 
@@ -92,8 +96,8 @@ export async function setupMockLanguageServer({
   const didOpenTextDocument =
     mockConnection.onDidOpenTextDocument.getCall(0).firstArg;
 
-  for (const { uri: documentUri, analyze } of documents) {
-    const fileContent = await fs.promises.readFile(documentUri);
+  for (const { uri: documentUri, content, analyze } of documents) {
+    const fileContent = content ?? (await fs.promises.readFile(documentUri));
 
     const textDocument: TextDocumentItem = {
       uri: documentUri,
