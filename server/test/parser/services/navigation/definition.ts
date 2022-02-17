@@ -15,28 +15,27 @@ describe("Parser", () => {
           "testData",
           "Definition.sol"
         );
+
         const twoContractUri = path.join(
           __dirname,
           "testData",
           "TwoContracts.sol"
         );
+
         let definition: OnDefinition;
 
-        before(async () => {
-          ({
-            server: { definition },
-          } = await setupMockLanguageServer({
-            documents: [
-              { uri: definitionUri, analyze: true },
-              { uri: twoContractUri, analyze: true },
-            ],
-            errors: [],
-          }));
-
-          await new Promise((resolve) => setTimeout(resolve, 500));
-        });
-
         describe("within contract", () => {
+          before(async () => {
+            ({
+              server: { definition },
+            } = await setupMockLanguageServer({
+              documents: [{ uri: definitionUri, analyze: true }],
+              errors: [],
+            }));
+
+            await new Promise((resolve) => setTimeout(resolve, 500));
+          });
+
           it("should navigate to the attribute", () =>
             assertDefinitionNavigation(
               definition,
@@ -91,9 +90,57 @@ describe("Parser", () => {
                 end: { line: 33, character: 12 },
               }
             ));
+
+          describe("function overloads", () => {
+            it("should navigate to function with overloads", () =>
+              assertDefinitionNavigation(
+                definition,
+                definitionUri,
+                { line: 70, character: 9 },
+                {
+                  start: { line: 39, character: 11 },
+                  end: { line: 39, character: 22 },
+                }
+              ));
+
+            it("should distinguish between overloads based on parameter cardinality", () =>
+              assertDefinitionNavigation(
+                definition,
+                definitionUri,
+                { line: 71, character: 9 },
+                {
+                  start: { line: 43, character: 11 },
+                  end: { line: 43, character: 22 },
+                }
+              ));
+
+            // Differentiating functions based on parameter list types has
+            // still to be done
+            it.skip("should distinguish between overloads based on parameter types", () =>
+              assertDefinitionNavigation(
+                definition,
+                definitionUri,
+                { line: 72, character: 9 },
+                {
+                  start: { line: 51, character: 11 },
+                  end: { line: 51, character: 22 },
+                }
+              ));
+          });
         });
 
         describe("between inheriting contracts", () => {
+          before(async () => {
+            ({
+              server: { definition },
+            } = await setupMockLanguageServer({
+              documents: [{ uri: twoContractUri, analyze: true }],
+              errors: [],
+            }));
+
+            await new Promise((resolve) => setTimeout(resolve, 500));
+          });
+
           it("should navigate from constructor extension to contract declaration if underlying constructor does not exist", () =>
             assertDefinitionNavigation(
               definition,
@@ -131,6 +178,17 @@ describe("Parser", () => {
         });
 
         describe("between unrelated contracts", () => {
+          before(async () => {
+            ({
+              server: { definition },
+            } = await setupMockLanguageServer({
+              documents: [{ uri: twoContractUri, analyze: true }],
+              errors: [],
+            }));
+
+            await new Promise((resolve) => setTimeout(resolve, 500));
+          });
+
           it("should navigate from constructor invocation to contract declaration if constructor does not exist", () =>
             assertDefinitionNavigation(
               definition,
