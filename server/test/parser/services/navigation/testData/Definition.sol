@@ -35,3 +35,43 @@ contract Test {
     bytes32 name;
   }
 }
+
+contract Overloaded {
+  function forOverload() public pure returns (string memory) {
+    return "first";
+  }
+
+  function forOverload(string memory input)
+    public
+    pure
+    returns (string memory)
+  {
+    return input;
+  }
+
+  function forOverload(uint120 input) public pure returns (string memory) {
+    if (input == 1) {
+      return "third";
+    }
+
+    return "third";
+  }
+}
+
+contract User {
+  Overloaded base;
+
+  constructor(address o) {
+    base = Overloaded(o);
+  }
+
+  function getString() public view returns (string memory) {
+    uint120 aNumber = 5;
+
+    base.forOverload();
+    base.forOverload("example2");
+    base.forOverload(aNumber);
+
+    return "a string";
+  }
+}
