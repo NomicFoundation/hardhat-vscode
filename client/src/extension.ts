@@ -215,6 +215,7 @@ async function warnOnOtherSolidityExtensions(logger: Logger) {
 
 export function activate(context: ExtensionContext) {
   const module = context.asAbsolutePath(path.join("server", "out", "index.js"));
+
   const outputChannel: OutputChannel = window.createOutputChannel(
     "solidity-language-server"
   );
