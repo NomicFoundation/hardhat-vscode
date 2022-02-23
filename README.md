@@ -89,3 +89,13 @@ yarn lint:fix
 ```
 
 The same command work in both the `./server` and `./client` subfolders.
+
+## Creating the extension package
+
+To build the `vsix` file of the package, run:
+
+```shell
+yarn package
+```
+
+This will clean the out directories, then create bundled, minified versions of the client, and server files (index.js and helper.js) using [esbuild](https://esbuild.github.io/), and pull them together in the vsix file using `vsce`. The output vsix file will be in the project root.
