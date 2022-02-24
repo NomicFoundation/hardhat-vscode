@@ -31,6 +31,18 @@ If you want to share it with someone, let us know about it in [this issue](https
 
 ## Changelog
 
+### v0.0.23
+
+- Fix for memory leak in compilation
+- Import completion improvements and fixes, including direct imports based on `node_module` indexing
+- Syntax fixes
+  - include missing operators in highlighting (modulo and not equal)
+  - remove comment todo tags special highlighting
+- Function navigation fixes
+  - find implementation for functions now excludes function definitions that are on interfaces or are abstract in an abstract class
+  - when finding the defining function, use the cardinality of the parameter list
+- Validation fix to trigger validation on open docs at vscode startup
+
 ### v0.0.22
 
 - Add quickfixes for:
