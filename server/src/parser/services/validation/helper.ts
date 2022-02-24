@@ -176,7 +176,9 @@ export const HARDHAT_CONFIG_FILE_EXIST_EVENT = "hardhat_config_file_exist";
         compilationJobIndex: 0,
       });
 
-      process.send({ type: SOLIDITY_COMPILE_EVENT, output });
+      process.send({ type: SOLIDITY_COMPILE_EVENT, output }, () => {
+        process.exit();
+      });
     }
   } catch (err) {
     process.exit(1);
