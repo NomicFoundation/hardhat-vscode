@@ -1,4 +1,5 @@
 import { Analyzer } from "@analyzer/index";
+import { isFunctionDefinitionNode } from "@analyzer/utils/typeGuards";
 import {
   TextDocument,
   VSCodePosition,
@@ -71,14 +72,15 @@ export class SolidityNavigation {
     position: VSCodePosition,
     analyzerTree: Node
   ): VSCodeLocation[] {
-    const highlightNodes = this.findHighlightNodes(uri, position, analyzerTree);
+    const potentialImplNodes = this.findHighlightNodes(
+      uri,
+      position,
+      analyzerTree
+    );
 
-    const implementationNodes: Node[] = [];
-    for (const highlightNode of highlightNodes) {
-      if (definitionNodeTypes.includes(highlightNode.type)) {
-        implementationNodes.push(highlightNode);
-      }
-    }
+    const implementationNodes: Node[] = potentialImplNodes
+      .filter(this.isDefinitionNode)
+      .filter(this.isNotAbstractFunction);
 
     return this.getHighlightLocations(implementationNodes);
   }
@@ -195,5 +197,13 @@ export class SolidityNavigation {
     }
 
     return definitionNode.nameLoc ?? definitionNode.astNode.loc;
+  }
+
+  private isDefinitionNode(node: Node): boolean {
+    return definitionNodeTypes.includes(node.type);
+  }
+
+  private isNotAbstractFunction(node: Node): boolean {
+    return !(isFunctionDefinitionNode(node) && node.astNode.body === null);
   }
 }

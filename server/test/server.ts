@@ -2,6 +2,8 @@ import * as assert from "assert";
 import setupServer from "../src/server";
 import { setupMockCompilerProcessFactory } from "./helpers/setupMockCompilerProcessFactory";
 import { setupMockConnection } from "./helpers/setupMockConnection";
+import { setupMockLogger } from "./helpers/setupMockLogger";
+import { setupMockWorkspaceFileRetriever } from "./helpers/setupMockWorkspaceFileRetriever";
 
 describe("Solidity Language Server", () => {
   describe("initialization", () => {
@@ -13,8 +15,16 @@ describe("Solidity Language Server", () => {
       before(async () => {
         mockConnection = setupMockConnection();
         const mockCompilerProcessFactory = setupMockCompilerProcessFactory();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await setupServer(mockConnection as any, mockCompilerProcessFactory);
+        const mockLogger = setupMockLogger();
+        const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
+
+        await setupServer(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          mockConnection as any,
+          mockCompilerProcessFactory,
+          mockWorkspaceFileRetriever,
+          mockLogger
+        );
 
         assert(mockConnection.onInitialize.called);
         const initialize = mockConnection.onInitialize.getCall(0).firstArg;
@@ -32,7 +42,7 @@ describe("Solidity Language Server", () => {
       describe("completions", () => {
         it("advertises capability", () =>
           assert.deepStrictEqual(capabilities.completionProvider, {
-            triggerCharacters: [".", "/"],
+            triggerCharacters: [".", "/", '"'],
           }));
 
         it("registers onCompletion", () =>

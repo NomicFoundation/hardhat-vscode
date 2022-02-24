@@ -9,6 +9,11 @@ import {
   Range,
   VSCodePosition,
 } from "@common/types";
+import {
+  isFunctionCallNode,
+  isFunctionDefinitionNode,
+  isMemberAccessNode,
+} from "@analyzer/utils/typeGuards";
 
 type FindUpOptions = {
   cwd?: string;
@@ -144,24 +149,47 @@ export function isNodeConnectable(
   parent: Node | undefined,
   child: Node | undefined
 ): boolean {
+  if (!parent || !child || !parent.isAlive || !child.isAlive) {
+    return false;
+  }
+
+  const parentName = parent.getName();
+  const childName = child.getName();
+  const childAlias = child.getAliasName();
+
+  if (!parentName || !childName) {
+    return false;
+  }
+
+  if (parentName !== childName && parentName !== childAlias) {
+    return false;
+  }
+
   if (
-    parent &&
-    child &&
-    parent.isAlive &&
-    child.isAlive &&
-    parent.getName() &&
-    child.getName() &&
-    (parent.getName() === child.getName() ||
-      parent.getName() === child.getAliasName()) &&
-    (parent.connectionTypeRules.includes(child.type) ||
-      parent.connectionTypeRules.includes(
-        child.getExpressionNode()?.type || ""
-      ))
+    !parent.connectionTypeRules.includes(child.type) &&
+    !parent.connectionTypeRules.includes(child.getExpressionNode()?.type || "")
   ) {
+    return false;
+  }
+
+  if (
+    isFunctionDefinitionNode(parent) &&
+    isMemberAccessNode(child) &&
+    child.expressionNode &&
+    isFunctionCallNode(child.expressionNode)
+  ) {
+    if (
+      parent.astNode.parameters.length !==
+      child.expressionNode.astNode.arguments.length
+    ) {
+      return false;
+    }
+
+    // TODO: check types of parameters against types of arguments
     return true;
   }
 
-  return false;
+  return true;
 }
 
 /**

@@ -3,6 +3,8 @@ import * as Sentry from "@sentry/node";
 import { createConnection, ProposedFeatures } from "vscode-languageserver/node";
 import setupServer from "./server";
 import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
+import { ConnectionLogger } from "@utils/Logger";
+import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 
 Sentry.init({
   // Sentry DSN. I guess there's no other choice than keeping it here.
@@ -17,8 +19,13 @@ Sentry.init({
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 const connection = createConnection(ProposedFeatures.all);
+const workspaceFileRetriever = new WorkspaceFileRetriever();
 
-setupServer(connection, compilerProcessFactory);
+const logger = new ConnectionLogger(connection, (err) =>
+  Sentry.captureException(err)
+);
+
+setupServer(connection, compilerProcessFactory, workspaceFileRetriever, logger);
 
 // Listen on the connection
 connection.listen();

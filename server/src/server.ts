@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/node";
 import { Connection } from "vscode-languageserver";
 import {
   TextDocuments,
@@ -25,9 +24,12 @@ import { debounce } from "./utils/debaunce";
 import { LanguageService } from "./parser";
 import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
 import { onCodeAction } from "./parser/services/codeactions/onCodeAction";
+import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
+import { Logger } from "@utils/Logger";
 
 type ServerState = {
   connection: Connection;
+  logger: Logger;
   documents: TextDocuments<TextDocument>;
   rootUri: string | null;
   hasWorkspaceFolderCapability: boolean;
@@ -40,7 +42,7 @@ const debounceAnalyzeDocument: {
     documents: TextDocuments<TextDocument>,
     uri: string,
     languageServer: LanguageService,
-    connection: Connection
+    logger: Logger
   ) => void;
 } = {};
 
@@ -49,7 +51,8 @@ const debounceValidateDocument: {
     validationJob: ValidationJob,
     connection: Connection,
     uri: string,
-    document: TextDocument
+    document: TextDocument,
+    logger: Logger
   ) => void;
 } = {};
 
@@ -62,10 +65,13 @@ type UnsavedDocumentType = {
 
 export default function setupServer(
   connection: Connection,
-  compProcessFactory: typeof compilerProcessFactory
+  compProcessFactory: typeof compilerProcessFactory,
+  workspaceFileRetriever: WorkspaceFileRetriever,
+  logger: Logger
 ): ServerState {
   const serverState: ServerState = {
     connection,
+    logger,
     documents: new TextDocuments(TextDocument),
     languageServer: null,
     analytics: null,
@@ -76,12 +82,14 @@ export default function setupServer(
   connection.onInitialize(resolveOnInitialize(serverState));
 
   connection.onInitialized(async () => {
-    connection.console.log("server onInitialized");
+    const { logger } = serverState;
+
+    logger.trace("server onInitialized");
 
     const analyticsData = await getAnalyticsData();
 
     if (analyticsData.isAllowed === undefined) {
-      const isAllowed = await isAnalyticsAllowed(connection);
+      const isAllowed = await isAnalyticsAllowed(connection, logger);
       analyticsData.isAllowed = isAllowed;
       await writeAnalytics(analyticsData);
     }
@@ -96,7 +104,8 @@ export default function setupServer(
     serverState.languageServer = new LanguageService(
       serverState.rootUri,
       compProcessFactory,
-      connection.console
+      workspaceFileRetriever,
+      logger
     );
 
     serverState.analytics.sendTaskHit("indexing", {
@@ -105,14 +114,18 @@ export default function setupServer(
 
     if (serverState.hasWorkspaceFolderCapability) {
       connection.workspace.onDidChangeWorkspaceFolders(() => {
-        connection.console.log("Workspace folder change event received.");
+        logger.trace("Workspace folder change event received.");
       });
     }
+
+    logger.info("Language server ready");
   });
 
   connection.onSignatureHelp(
     (params: SignatureHelpParams): SignatureHelp | undefined => {
-      connection.console.log("server onSignatureHelp");
+      const { logger } = serverState;
+
+      logger.trace("server onSignatureHelp");
 
       try {
         const document = serverState.documents.get(params.textDocument.uri);
@@ -141,8 +154,7 @@ export default function setupServer(
           }
         }
       } catch (err) {
-        Sentry.captureException(err);
-        console.error(err);
+        logger.error(err);
       }
     }
   );
@@ -150,7 +162,9 @@ export default function setupServer(
   // This handler provides the initial list of the completion items.
   connection.onCompletion(
     (params: CompletionParams): CompletionList | undefined => {
-      connection.console.log("server onCompletion");
+      const { logger } = serverState;
+
+      logger.trace("server onCompletion");
 
       try {
         const document = serverState.documents.get(params.textDocument.uri);
@@ -185,22 +199,27 @@ export default function setupServer(
               documentURI
             );
 
-          if (documentAnalyzer) {
-            return serverState.languageServer.solidityCompletion.doComplete(
-              params.position,
-              documentAnalyzer
-            );
+          if (!documentAnalyzer) {
+            return;
           }
+
+          return serverState.languageServer.solidityCompletion.doComplete(
+            params.position,
+            documentAnalyzer,
+            params.context,
+            logger
+          );
         }
       } catch (err) {
-        Sentry.captureException(err);
-        console.error(err);
+        logger.error(err);
       }
     }
   );
 
   connection.onDefinition((params) => {
-    connection.console.log("onDefinition");
+    const { logger } = serverState;
+
+    logger.trace("onDefinition");
 
     try {
       const document = serverState.documents.get(params.textDocument.uri);
@@ -227,13 +246,14 @@ export default function setupServer(
         }
       }
     } catch (err) {
-      Sentry.captureException(err);
-      console.error(err);
+      logger.error(err);
     }
   });
 
   connection.onTypeDefinition((params) => {
-    connection.console.log("onTypeDefinition");
+    const { logger } = serverState;
+
+    logger.trace("onTypeDefinition");
 
     try {
       const document = serverState.documents.get(params.textDocument.uri);
@@ -260,13 +280,14 @@ export default function setupServer(
         }
       }
     } catch (err) {
-      Sentry.captureException(err);
-      console.error(err);
+      logger.error(err);
     }
   });
 
   connection.onReferences((params) => {
-    connection.console.log("onReferences");
+    const { logger } = serverState;
+
+    logger.trace("onReferences");
 
     try {
       const document = serverState.documents.get(params.textDocument.uri);
@@ -293,13 +314,14 @@ export default function setupServer(
         }
       }
     } catch (err) {
-      Sentry.captureException(err);
-      console.error(err);
+      logger.error(err);
     }
   });
 
   connection.onImplementation((params) => {
-    connection.console.log("onImplementation");
+    const { logger } = serverState;
+
+    logger.trace("onImplementation");
 
     try {
       const document = serverState.documents.get(params.textDocument.uri);
@@ -326,13 +348,14 @@ export default function setupServer(
         }
       }
     } catch (err) {
-      Sentry.captureException(err);
-      console.error(err);
+      logger.error(err);
     }
   });
 
   connection.onRenameRequest((params) => {
-    connection.console.log("onRenameRequest");
+    const { logger } = serverState;
+
+    logger.trace("onRenameRequest");
 
     try {
       const document = serverState.documents.get(params.textDocument.uri);
@@ -360,8 +383,7 @@ export default function setupServer(
         }
       }
     } catch (err) {
-      Sentry.captureException(err);
-      console.error(err);
+      logger.error(err);
     }
   });
 
@@ -370,45 +392,55 @@ export default function setupServer(
   // The content of a text document has changed. This event is emitted
   // when the text document first opened or when its content has changed.
   serverState.documents.onDidChangeContent((change) => {
-    connection.console.log("server onDidChangeContent");
+    const { logger } = serverState;
 
-    if (
-      !serverState.languageServer ||
-      !serverState.languageServer.solidityValidation
-    ) {
-      return;
-    }
+    logger.trace("server onDidChangeContent");
 
-    if (!debounceAnalyzeDocument[change.document.uri]) {
-      debounceAnalyzeDocument[change.document.uri] = debounce(analyzeFunc, 500);
-    }
+    try {
+      if (
+        !serverState.languageServer ||
+        !serverState.languageServer.solidityValidation
+      ) {
+        return;
+      }
 
-    debounceAnalyzeDocument[change.document.uri](
-      serverState.documents,
-      change.document.uri,
-      serverState.languageServer,
-      serverState.connection
-    );
+      if (!debounceAnalyzeDocument[change.document.uri]) {
+        debounceAnalyzeDocument[change.document.uri] = debounce(
+          analyzeFunc,
+          500
+        );
+      }
 
-    // ------------------------------------------------------------------------
-
-    if (!debounceValidateDocument[change.document.uri]) {
-      debounceValidateDocument[change.document.uri] = debounce(
-        validateTextDocument,
-        500
+      debounceAnalyzeDocument[change.document.uri](
+        serverState.documents,
+        change.document.uri,
+        serverState.languageServer,
+        serverState.logger
       );
+
+      // ------------------------------------------------------------------------
+
+      if (!debounceValidateDocument[change.document.uri]) {
+        debounceValidateDocument[change.document.uri] = debounce(
+          validateTextDocument,
+          500
+        );
+      }
+
+      const documentURI = getUriFromDocument(change.document);
+      const validationJob =
+        serverState.languageServer.solidityValidation.getValidationJob(logger);
+
+      debounceValidateDocument[change.document.uri](
+        validationJob,
+        connection,
+        documentURI,
+        change.document,
+        logger
+      );
+    } catch (err) {
+      logger.error(err);
     }
-
-    const documentURI = getUriFromDocument(change.document);
-    const validationJob =
-      serverState.languageServer.solidityValidation.getValidationJob();
-
-    debounceValidateDocument[change.document.uri](
-      validationJob,
-      connection,
-      documentURI,
-      change.document
-    );
   });
 
   // Make the text document manager listen on the connection
@@ -422,7 +454,10 @@ export default function setupServer(
   return serverState;
 }
 
-async function isAnalyticsAllowed(connection: Connection): Promise<boolean> {
+async function isAnalyticsAllowed(
+  connection: Connection,
+  logger: Logger
+): Promise<boolean> {
   connection.sendNotification("custom/analytics-allowed");
 
   try {
@@ -443,6 +478,7 @@ async function isAnalyticsAllowed(connection: Connection): Promise<boolean> {
 
     return isAllowed;
   } catch (err) {
+    logger.error(err);
     return false;
   }
 }
@@ -451,9 +487,9 @@ function analyzeFunc(
   documents: TextDocuments<TextDocument>,
   uri: string,
   languageServer: LanguageService,
-  connection: Connection
+  logger: Logger
 ): void {
-  connection.console.log("debounced onDidChangeContent");
+  logger.trace("debounced onDidChangeContent");
 
   try {
     const document = documents.get(uri);
@@ -463,8 +499,7 @@ function analyzeFunc(
       languageServer.analyzer.analyzeDocument(document.getText(), documentURI);
     }
   } catch (err) {
-    Sentry.captureException(err);
-    console.error(err);
+    logger.error(err);
   }
 }
 
@@ -502,9 +537,10 @@ async function validateTextDocument(
   validationJob: ValidationJob,
   connection: Connection,
   uri: string,
-  document: TextDocument
+  document: TextDocument,
+  logger: Logger
 ): Promise<void> {
-  connection.console.log("validateTextDocument");
+  logger.trace("validateTextDocument");
 
   try {
     const unsavedDocuments = await getUnsavedDocuments(connection);
@@ -525,20 +561,20 @@ async function validateTextDocument(
         return;
       }
     }
-  } catch (err) {
-    // console.error(err);
-  }
 
-  connection.sendDiagnostics({
-    uri: document.uri,
-    diagnostics: [],
-  });
+    connection.sendDiagnostics({
+      uri: document.uri,
+      diagnostics: [],
+    });
+  } catch (err) {
+    logger.error(err);
+  }
 }
 
 const resolveOnInitialize = (serverState: ServerState) => {
-  return (params: InitializeParams) => {
-    serverState.connection.console.log("server onInitialize");
+  const { logger } = serverState;
 
+  return (params: InitializeParams) => {
     /**
      * We know that rootUri is deprecated but we need it.
      * We will monitor https://github.com/microsoft/vscode-extension-samples/issues/207 issue,
@@ -546,7 +582,11 @@ const resolveOnInitialize = (serverState: ServerState) => {
      */
     if (params.rootUri) {
       serverState.rootUri = decodeUriAndRemoveFilePrefix(params.rootUri);
+      logger.setWorkspace(serverState.rootUri);
     }
+
+    logger.trace("server onInitialize");
+    logger.info("Language server starting");
 
     const capabilities = params.capabilities;
 
@@ -559,7 +599,7 @@ const resolveOnInitialize = (serverState: ServerState) => {
         textDocumentSync: TextDocumentSyncKind.Incremental,
         // Tell the client that this server supports code completion.
         completionProvider: {
-          triggerCharacters: [".", "/"],
+          triggerCharacters: [".", "/", '"'],
         },
         signatureHelpProvider: {
           triggerCharacters: ["(", ","],

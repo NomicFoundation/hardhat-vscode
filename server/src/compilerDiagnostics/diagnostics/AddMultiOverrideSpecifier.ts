@@ -1,6 +1,10 @@
 import { CodeAction, Diagnostic } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { CompilerDiagnostic, HardhatCompilerError } from "../types";
+import {
+  CompilerDiagnostic,
+  HardhatCompilerError,
+  ResolveActionsContext,
+} from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
 import {
   Multioverride,
@@ -20,7 +24,7 @@ export class AddMultiOverrideSpecifier implements CompilerDiagnostic {
 
   resolveActions(
     diagnostic: Diagnostic,
-    context: { document: TextDocument; uri: string }
+    context: ResolveActionsContext
   ): CodeAction[] {
     const missingContractIdentifiers = this.parseContractIdentifiersFromMessage(
       diagnostic.message

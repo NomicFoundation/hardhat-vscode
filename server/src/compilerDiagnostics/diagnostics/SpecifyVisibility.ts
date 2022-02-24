@@ -5,7 +5,7 @@ import {
   Range,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { HardhatCompilerError } from "../types";
+import { HardhatCompilerError, ResolveActionsContext } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
 import { parseFunctionDefinition } from "./parsing/parseFunctionDefinition";
 import { lookupToken } from "./parsing/lookupToken";
@@ -27,9 +27,11 @@ export class SpecifyVisibility {
 
   resolveActions(
     diagnostic: Diagnostic,
-    { document, uri }: { document: TextDocument; uri: string }
+    context: ResolveActionsContext
   ): CodeAction[] {
-    const parseResult = parseFunctionDefinition(diagnostic, document);
+    const { document, uri } = context;
+
+    const parseResult = parseFunctionDefinition(diagnostic, context);
 
     if (parseResult === null) {
       return [];

@@ -1,11 +1,12 @@
 import { assert } from "chai";
-import * as sinon from "sinon";
 import * as fs from "fs";
 import * as path from "path";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { assertCodeAction } from "./asserts/assertCodeAction";
 import { MarkContractAbstract } from "@compilerDiagnostics/diagnostics/MarkContractAbstract";
 import { Analyzer } from "@analyzer/index";
+import { setupMockWorkspaceFileRetriever } from "../../../helpers/setupMockWorkspaceFileRetriever";
+import { setupMockLogger } from "../../../helpers/setupMockLogger";
 
 describe("Code Actions", () => {
   describe("Mark Contract Abstract", () => {
@@ -134,15 +135,20 @@ describe("Code Actions", () => {
             fileText
           );
 
-          const analyzer = new Analyzer(exampleUri, {
-            log: sinon.spy(),
-            error: sinon.spy(),
-          });
+          const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
+          const mockLogger = setupMockLogger();
+
+          const analyzer = new Analyzer(
+            exampleUri,
+            mockWorkspaceFileRetriever,
+            mockLogger
+          );
 
           const actions = markContractAbstract.resolveActions(diagnostic, {
             document,
             uri: exampleUri,
             analyzer,
+            logger: mockLogger,
           });
 
           assert.deepStrictEqual(actions, []);

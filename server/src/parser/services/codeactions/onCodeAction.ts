@@ -1,4 +1,3 @@
-import * as Sentry from "@sentry/node";
 import { Connection } from "vscode-languageserver";
 import {
   CodeActionParams,
@@ -8,16 +7,18 @@ import {
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { QuickFixResolver } from "./QuickFixResolver";
 import { LanguageService } from "parser";
+import { Logger } from "@utils/Logger";
 
-export function onCodeAction(state: {
+export function onCodeAction(serverState: {
   connection: Connection;
   documents: TextDocuments<TextDocument>;
   languageServer: LanguageService | null;
+  logger: Logger;
 }) {
   return (params: CodeActionParams): CodeAction[] => {
-    const { connection, documents, languageServer } = state;
+    const { documents, languageServer, logger } = serverState;
 
-    connection.console.log("onCodeAction");
+    logger.trace("onCodeAction");
 
     try {
       if (!languageServer) {
@@ -26,7 +27,7 @@ export function onCodeAction(state: {
 
       const quickFixResolver = new QuickFixResolver(
         languageServer,
-        connection.console
+        serverState.logger
       );
 
       const document = documents.get(params.textDocument.uri);
@@ -41,8 +42,7 @@ export function onCodeAction(state: {
         params.context.diagnostics
       );
     } catch (err) {
-      Sentry.captureException(err);
-      connection.console.error(err as string);
+      logger.error(err);
 
       return [];
     }

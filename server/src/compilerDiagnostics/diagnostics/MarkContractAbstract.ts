@@ -28,7 +28,7 @@ export class MarkContractAbstract {
     diagnostic: Diagnostic,
     context: ResolveActionsContext
   ): CodeAction[] {
-    const parseResult = parseContractDefinition(diagnostic, context.document);
+    const parseResult = parseContractDefinition(diagnostic, context);
 
     if (parseResult === null) {
       return [];

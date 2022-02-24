@@ -1,7 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as parser from "@solidity-parser/parser";
-
 import * as matcher from "@analyzer/matcher";
 import { Searcher } from "@analyzer/searcher";
 import { BROWNIE_PACKAGE_PATH } from "@analyzer/resolver";
@@ -14,51 +13,83 @@ import {
   ASTNode,
   EmptyNode,
   Searcher as ISearcher,
-  Logger,
 } from "@common/types";
+import { WorkspaceFileRetriever } from "./WorkspaceFileRetriever";
+import { Logger } from "@utils/Logger";
 
 export class Analyzer {
   rootPath: string;
   logger: Logger;
+  workspaceFileRetriever: WorkspaceFileRetriever;
 
   documentsAnalyzer: DocumentsAnalyzerMap = {};
 
-  constructor(rootPath: string, logger: Logger) {
+  constructor(
+    rootPath: string,
+    workspaceFileRetriever: WorkspaceFileRetriever,
+    logger: Logger
+  ) {
     this.rootPath = rootPath;
     this.logger = logger;
+    this.workspaceFileRetriever = workspaceFileRetriever;
 
     const documentsUri: string[] = [];
-    this.findSolFiles(this.rootPath, documentsUri);
-    this.findSolFiles(BROWNIE_PACKAGE_PATH, documentsUri);
 
-    // Init all documentAnalyzers
-    for (const documentUri of documentsUri) {
-      this.documentsAnalyzer[documentUri] = new DocumentAnalyzer(
-        this.rootPath,
-        documentUri
-      );
-    }
+    this.indexSolFiles(documentsUri);
+  }
 
-    // We will initialize all DocumentAnalizers first, because when we analyze documents we enter to their imports and
-    // if they are not analyzed we analyze them, in order to be able to analyze imports we need to have DocumentAnalizer and
-    // therefore we initiate everything first. The isAnalyzed serves to check if the document was analyzed so we don't analyze the document twice.
-    for (let i = 0; i < documentsUri.length; i++) {
-      const documentUri = documentsUri[i];
-      const documentAnalyzer = this.getDocumentAnalyzer(documentUri);
-      // if (documentAnalyzer.uri.includes("node_modules")) {
-      //     continue;
-      // }
+  private indexSolFiles(documentsUri: string[]) {
+    try {
+      this.logger.info("Starting workspace indexing ...");
 
-      const data: IndexFileData = {
-        path: documentUri,
-        current: i + 1,
-        total: documentsUri.length,
-      };
-      em.emit("indexing-file", data);
+      this.logger.info("Scanning workspace for sol files");
+      this.findSolFiles(this.rootPath, documentsUri);
+      this.findSolFiles(BROWNIE_PACKAGE_PATH, documentsUri);
+      this.logger.info(`Scan complete, ${documentsUri.length} sol files found`);
 
-      if (!documentAnalyzer.isAnalyzed) {
-        documentAnalyzer.analyze(this.documentsAnalyzer);
+      // Init all documentAnalyzers
+      for (const documentUri of documentsUri) {
+        this.documentsAnalyzer[documentUri] = new DocumentAnalyzer(
+          this.rootPath,
+          documentUri,
+          this.logger
+        );
       }
+
+      this.logger.info("File indexing starting");
+      // We will initialize all DocumentAnalizers first, because when we analyze documents we enter to their imports and
+      // if they are not analyzed we analyze them, in order to be able to analyze imports we need to have DocumentAnalizer and
+      // therefore we initiate everything first. The isAnalyzed serves to check if the document was analyzed so we don't analyze the document twice.
+      for (let i = 0; i < documentsUri.length; i++) {
+        const documentUri = documentsUri[i];
+
+        try {
+          const documentAnalyzer = this.getDocumentAnalyzer(documentUri);
+          // if (documentAnalyzer.uri.includes("node_modules")) {
+          //     continue;
+          // }
+
+          const data: IndexFileData = {
+            path: documentUri,
+            current: i + 1,
+            total: documentsUri.length,
+          };
+
+          em.emit("indexing-file", data);
+          this.logger.trace("Indexing file", data);
+
+          if (!documentAnalyzer.isAnalyzed) {
+            documentAnalyzer.analyze(this.documentsAnalyzer);
+          }
+        } catch (err) {
+          this.logger.error(err);
+          this.logger.trace("Analysis of file failed", { documentUri });
+        }
+      }
+
+      this.logger.info("File indexing complete");
+    } catch (err) {
+      this.logger.error(err);
     }
   }
 
@@ -68,11 +99,11 @@ export class Analyzer {
    * @param uri The path to the file with the document.
    * Uri needs to be decoded and without the "file://" prefix.
    */
-  public getDocumentAnalyzer(uri: string): DocumentAnalyzer {
+  public getDocumentAnalyzer(uri: string): IDocumentAnalyzer {
     let documentAnalyzer = this.documentsAnalyzer[uri];
 
     if (!documentAnalyzer) {
-      documentAnalyzer = new DocumentAnalyzer(this.rootPath, uri);
+      documentAnalyzer = new DocumentAnalyzer(this.rootPath, uri, this.logger);
       this.documentsAnalyzer[uri] = documentAnalyzer;
     }
 
@@ -93,6 +124,14 @@ export class Analyzer {
     }
 
     try {
+      if (!fs.existsSync(base)) {
+        this.logger.trace("Sol file scan could not find directory", {
+          directory: base,
+        });
+
+        return;
+      }
+
       const files = fs.readdirSync(base);
 
       files.forEach((file) => {
@@ -109,12 +148,13 @@ export class Analyzer {
         }
       });
     } catch (err) {
-      this.logger.log("Unable to scan directory: " + err);
+      this.logger.error(err);
     }
   }
 }
 
 class DocumentAnalyzer implements IDocumentAnalyzer {
+  private logger: Logger;
   rootPath: string;
 
   document: string | undefined;
@@ -129,13 +169,15 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
 
   orphanNodes: Node[] = [];
 
-  constructor(rootPath: string, uri: string) {
+  constructor(rootPath: string, uri: string, logger: Logger) {
     this.rootPath = rootPath;
     this.uri = uri;
+    this.logger = logger;
 
     this.analyzerTree = {
       tree: new EmptyNode({ type: "Empty" }, this.uri, this.rootPath, {}),
     };
+
     this.searcher = new Searcher(this.analyzerTree);
 
     if (fs.existsSync(uri)) {
@@ -172,8 +214,6 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
         }
       }
 
-      // console.log(this.uri, JSON.stringify(this.ast));
-
       this.isAnalyzed = true;
       this.analyzerTree.tree = matcher
         .find(this.ast, this.uri, this.rootPath, documentsAnalyzer)
@@ -181,7 +221,8 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
 
       return this.analyzerTree.tree;
     } catch (err) {
-      // console.error(err);
+      this.logger.error(err);
+
       return this.analyzerTree.tree;
     }
   }

@@ -5,7 +5,11 @@ import {
   Range,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { CompilerDiagnostic, HardhatCompilerError } from "../types";
+import {
+  CompilerDiagnostic,
+  HardhatCompilerError,
+  ResolveActionsContext,
+} from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
 import {
   parseFunctionDefinition,
@@ -26,13 +30,15 @@ export class ConstrainMutability implements CompilerDiagnostic {
 
   resolveActions(
     diagnostic: Diagnostic,
-    { document, uri }: { document: TextDocument; uri: string }
+    context: ResolveActionsContext
   ): CodeAction[] {
+    const { document, uri } = context;
+
     if (!diagnostic.data) {
       return [];
     }
 
-    const parseResult = parseFunctionDefinition(diagnostic, document);
+    const parseResult = parseFunctionDefinition(diagnostic, context);
 
     if (parseResult === null) {
       return [];
