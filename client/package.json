@@ -9,10 +9,12 @@
     "lint": "yarn prettier --check && yarn eslint",
     "lint:fix": "yarn prettier --write && yarn lint --fix",
     "eslint": "eslint ./src/**/*.ts",
-    "prettier": "prettier *.json \"src/**/*.{ts,js,md,json,yml}\""
+    "prettier": "prettier *.json \"src/**/*.{ts,js,md,json,yml}\"",
+    "clean": "rimraf out tsconfig.tsbuildinfo"
   },
   "devDependencies": {
-    "eslint": "^7.23.0"
+    "eslint": "^7.23.0",
+    "rimraf": "3.0.2"
   },
   "dependencies": {
     "prettier": "2.5.1",
