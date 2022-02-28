@@ -8,6 +8,18 @@
   "main": "./client/out/extension.js",
   "module": "./client/out/extension.js",
   "icon": "docs/images/solidity-logo.png",
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Linters",
+    "Formatters"
+  ],
+  "keywords": [
+    "solidity",
+    "ethereum",
+    "hardhat",
+    "evm"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/NomicFoundation/hardhat-vscode"
