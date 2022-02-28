@@ -1,7 +1,8 @@
 {
-  "name": "solidity-extension",
-  "publisher": "ylrednet",
-  "description": "The solidity-extension contains the language smarts behind the solidity editing experience of Visual Studio Code.",
+  "name": "hardhat-for-vscode",
+  "publisher": "nomicfoundation",
+  "displayName": "Hardhat for VSCode",
+  "description": "Rich Solidity language and Hardhat project support for Visual Studio Code.",
   "license": "MIT",
   "version": "0.0.23",
   "main": "./client/out/extension.js",
@@ -9,10 +10,10 @@
   "icon": "docs/images/solidity-logo.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nomiclabs/hardhat-vscode-feedback"
+    "url": "https://github.com/NomicFoundation/hardhat-vscode"
   },
   "bugs": {
-    "url": "https://github.com/nomiclabs/hardhat-vscode-feedback/issues"
+    "url": "https://github.com/NomicFoundation/hardhat-vscode/issues"
   },
   "engines": {
     "vscode": "^1.63.0"
@@ -66,7 +67,7 @@
   "contributes": {
     "configuration": {
       "type": "object",
-      "title": "Solidity configuration",
+      "title": "Hardhat",
       "properties": {
         "solidity.formatter": {
           "type": "string",
@@ -77,7 +78,7 @@
           ],
           "description": "Enables / disables the solidity formatter (prettier solidity default)"
         },
-        "solidity-language-server.trace.server.verbosity": {
+        "hardhat-language-server.trace.server.verbosity": {
           "type": "string",
           "description": "Traces the communication between VS Code and the solidity language server.",
           "enum": [
