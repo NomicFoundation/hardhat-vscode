@@ -20,6 +20,7 @@
     "hardhat",
     "evm"
   ],
+  "homepage": "https://hardhat.org/",
   "repository": {
     "type": "git",
     "url": "https://github.com/NomicFoundation/hardhat-vscode"
