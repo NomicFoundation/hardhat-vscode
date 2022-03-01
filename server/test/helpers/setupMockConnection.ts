@@ -39,5 +39,6 @@ export function setupMockConnection() {
       }
     ),
     sendDiagnostics: sinon.spy(),
+    onExit: sinon.spy(),
   };
 }

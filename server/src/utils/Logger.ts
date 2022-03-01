@@ -1,5 +1,6 @@
 import * as path from "path";
 import { Connection } from "vscode-languageserver/node";
+import type { Telemetry } from "../telemetry/types";
 
 export interface Logger {
   setWorkspace(rootUri: string): void;
@@ -13,12 +14,12 @@ export type ExceptionCapturer = (err: unknown) => void;
 
 export class ConnectionLogger implements Logger {
   private connection: Connection;
-  private exceptionCapturer: ExceptionCapturer;
+  private telemetry: Telemetry;
   private workspaceName: string | null;
 
-  constructor(connection: Connection, exceptionCapturer: ExceptionCapturer) {
+  constructor(connection: Connection, telemetry: Telemetry) {
     this.connection = connection;
-    this.exceptionCapturer = exceptionCapturer;
+    this.telemetry = telemetry;
     this.workspaceName = null;
   }
 
@@ -43,7 +44,7 @@ export class ConnectionLogger implements Logger {
   }
 
   error(err: unknown): void {
-    this.exceptionCapturer(err);
+    this.telemetry.captureException(err);
 
     if (err instanceof Error) {
       this.connection.console.error(this.tryPrepend(err.message));

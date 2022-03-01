@@ -12,15 +12,19 @@ import {
   ProgressLocation,
   TextEdit,
   extensions,
+  env,
 } from "vscode";
 import {
+  Disposable,
   LanguageClient,
   LanguageClientOptions,
+  ServerOptions,
   TransportKind,
 } from "vscode-languageclient/node";
 
 import { formatDocument } from "./formatter";
 import { Logger } from "./Logger";
+import { HardhatVSCodeConfig } from "./types";
 
 const CONFLICTING_EXTENSION_ID = "juanblanco.solidity";
 const CONFLICTING_EXTENSION_NAME = "solidity";
@@ -32,6 +36,7 @@ type IndexFileData = {
 };
 
 const clients: Map<string, LanguageClient> = new Map();
+const telemetryChangeDisposables: Disposable[] = [];
 
 let _sortedWorkspaceFolders: string[] | undefined;
 function sortedWorkspaceFolders(): string[] {
@@ -214,6 +219,15 @@ async function warnOnOtherSolidityExtensions(logger: Logger) {
 }
 
 export function activate(context: ExtensionContext) {
+  const config: HardhatVSCodeConfig = {
+    env:
+      process.env.NODE_ENV === "development"
+        ? process.env.NODE_ENV
+        : "production",
+    version: context.extension.packageJSON.version,
+    name: context.extension.packageJSON.name,
+  };
+
   const module = context.asAbsolutePath(path.join("server", "out", "index.js"));
 
   const outputChannel: OutputChannel = window.createOutputChannel(
@@ -223,6 +237,7 @@ export function activate(context: ExtensionContext) {
   const logger = new Logger(outputChannel);
 
   logger.info("Hardhat VSCode Starting ...");
+  logger.info(`env: ${config.env}`);
 
   warnOnOtherSolidityExtensions(logger);
 
@@ -261,9 +276,16 @@ export function activate(context: ExtensionContext) {
 
       // If the extension is launched in debug mode then the debug server options are used.
       // Otherwise the run options are used.
-      const serverOptions = {
-        run: { module, transport: TransportKind.ipc },
-        debug: { module, transport: TransportKind.ipc, options: debugOptions },
+      const serverOptions: ServerOptions = {
+        run: {
+          module,
+          transport: TransportKind.ipc,
+        },
+        debug: {
+          module,
+          transport: TransportKind.ipc,
+          options: debugOptions,
+        },
       };
 
       // Options to control the language client.
@@ -275,6 +297,12 @@ export function activate(context: ExtensionContext) {
         diagnosticCollectionName: "solidity-language-server",
         workspaceFolder: folder,
         outputChannel: outputChannel,
+        initializationOptions: {
+          release: `${config.name}@${config.version}`,
+          env: config.env,
+          telemetryLevel: env.isTelemetryEnabled,
+          trackingId: env.machineId,
+        },
       };
 
       logger.info(`[LS: ${folder.name}] Client starting`);
@@ -312,6 +340,16 @@ export function activate(context: ExtensionContext) {
 
       showFileIndexingProgress(client);
 
+      const telemetryChangeDisposable = env.onDidChangeTelemetryEnabled(
+        (enabled: boolean) => {
+          client.sendNotification("custom/didChangeTelemetryEnabled", {
+            enabled,
+          });
+        }
+      );
+
+      telemetryChangeDisposables.push(telemetryChangeDisposable);
+
       client.start();
       clients.set(folder.uri.toString(), client);
     }
@@ -333,6 +371,8 @@ export function activate(context: ExtensionContext) {
 
 export function deactivate(): Thenable<void> {
   const promises: Thenable<void>[] = [];
+
+  telemetryChangeDisposables.forEach((disposable) => disposable.dispose());
 
   for (const client of clients.values()) {
     promises.push(client.stop());
