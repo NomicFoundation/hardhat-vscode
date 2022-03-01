@@ -10,13 +10,7 @@ import {
   SignatureHelp,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-
-import {
-  writeAnalytics,
-  getAnalyticsData,
-  getAnalytics,
-  Analytics,
-} from "./analytics";
+import { writeAnalytics, getAnalyticsData, getAnalytics } from "./analytics";
 import { IndexFileData, eventEmitter as em } from "@common/event";
 import { ValidationJob } from "@services/validation/SolidityValidation";
 import { getUriFromDocument, decodeUriAndRemoveFilePrefix } from "./utils";
@@ -26,16 +20,8 @@ import { compilerProcessFactory } from "@services/validation/compilerProcessFact
 import { onCodeAction } from "./parser/services/codeactions/onCodeAction";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { Logger } from "@utils/Logger";
-
-type ServerState = {
-  connection: Connection;
-  logger: Logger;
-  documents: TextDocuments<TextDocument>;
-  rootUri: string | null;
-  hasWorkspaceFolderCapability: boolean;
-  languageServer: LanguageService | null;
-  analytics: Analytics | null;
-};
+import { Telemetry } from "telemetry/types";
+import { ServerState } from "./types";
 
 const debounceAnalyzeDocument: {
   [uri: string]: (
@@ -67,16 +53,21 @@ export default function setupServer(
   connection: Connection,
   compProcessFactory: typeof compilerProcessFactory,
   workspaceFileRetriever: WorkspaceFileRetriever,
+  telemetry: Telemetry,
   logger: Logger
 ): ServerState {
   const serverState: ServerState = {
+    env: "production",
+    rootUri: null,
+    hasWorkspaceFolderCapability: false,
+    telemetryEnabled: false,
+
     connection,
-    logger,
     documents: new TextDocuments(TextDocument),
     languageServer: null,
     analytics: null,
-    rootUri: null,
-    hasWorkspaceFolderCapability: false,
+    telemetry,
+    logger,
   };
 
   connection.onInitialize(resolveOnInitialize(serverState));
@@ -389,6 +380,24 @@ export default function setupServer(
 
   connection.onCodeAction(onCodeAction(serverState));
 
+  connection.onExit(() => {
+    logger.info("Server closing down");
+    return telemetry.close();
+  });
+
+  connection.onNotification(
+    "custom/didChangeTelemetryEnabled",
+    ({ enabled }: { enabled: boolean }) => {
+      if (enabled) {
+        logger.info(`Telemetry enabled`);
+      } else {
+        logger.info(`Telemetry disabled`);
+      }
+
+      serverState.telemetryEnabled = enabled;
+    }
+  );
+
   // The content of a text document has changed. This event is emitted
   // when the text document first opened or when its content has changed.
   serverState.documents.onDidChangeContent((change) => {
@@ -588,11 +597,35 @@ const resolveOnInitialize = (serverState: ServerState) => {
     logger.trace("server onInitialize");
     logger.info("Language server starting");
 
-    const capabilities = params.capabilities;
+    serverState.env = params.initializationOptions?.env ?? "production";
+
+    serverState.telemetryEnabled =
+      params.initializationOptions?.telemetryLevel ?? "off";
+
+    const trackingId: string | undefined =
+      params.initializationOptions?.trackingId;
+
+    const release: string | undefined = params.initializationOptions?.release;
 
     serverState.hasWorkspaceFolderCapability = !!(
-      capabilities.workspace && !!capabilities.workspace.workspaceFolders
+      params.capabilities.workspace &&
+      !!params.capabilities.workspace.workspaceFolders
     );
+
+    logger.info(`  Release: ${release}`);
+    logger.info(`  Environment: ${serverState.env}`);
+    logger.info(`  Telemetry Enabled: ${serverState.telemetryEnabled}`);
+    if (trackingId) {
+      logger.info(
+        `  Telemetry Tracking Id: ${
+          trackingId.length > 10
+            ? trackingId.substring(0, 10) + "..."
+            : trackingId
+        }`
+      );
+    }
+
+    serverState.telemetry.init(trackingId, release, serverState);
 
     const result: InitializeResult = {
       capabilities: {

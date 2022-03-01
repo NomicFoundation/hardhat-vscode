@@ -13,6 +13,7 @@
     "clean": "rimraf out tsconfig.tsbuildinfo"
   },
   "devDependencies": {
+    "@types/vscode": "^1.63.0",
     "eslint": "^7.23.0",
     "rimraf": "3.0.2"
   },

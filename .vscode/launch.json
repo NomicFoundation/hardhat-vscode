@@ -9,6 +9,7 @@
       "runtimeExecutable": "${execPath}",
       "args": ["--extensionDevelopmentPath=${workspaceRoot}"],
       "outFiles": ["${workspaceRoot}/client/out/**/*.js"],
+      "env": { "NODE_ENV": "development" },
       "preLaunchTask": {
         "type": "npm",
         "script": "watch"
