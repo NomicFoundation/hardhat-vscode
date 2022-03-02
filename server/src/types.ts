@@ -1,3 +1,4 @@
+import * as events from "events";
 import { Connection } from "vscode-languageserver";
 import { TextDocuments } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
@@ -15,6 +16,7 @@ export type ServerState = {
 
   connection: Connection;
   documents: TextDocuments<TextDocument>;
+  em: events.EventEmitter;
   languageServer: LanguageService;
   analytics: Analytics;
   telemetry: Telemetry;
