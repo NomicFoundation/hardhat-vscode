@@ -14,22 +14,23 @@ export class SentryTelemetry implements Telemetry {
   }
 
   init(
-    trackingId: string | undefined,
-    release: string | undefined,
+    machineId: string | undefined,
+    extensionName: string | undefined,
+    extensionVersion: string | undefined,
     serverState: ServerState
   ) {
     this.serverState = serverState;
 
     Sentry.init({
       dsn: this.dsn,
-      // Set tracesSampleRate to 1.0 to capture 100%
-      // of transactions for performance monitoring.
-      // We recommend adjusting this value in production
       tracesSampleRate: 0.1,
-      release: release,
+      release:
+        extensionName && extensionVersion
+          ? `${extensionName}@${extensionVersion}`
+          : undefined,
       environment: serverState.env,
       initialScope: {
-        user: { id: trackingId },
+        user: { id: machineId },
       },
       beforeSend: (event) => (serverState.telemetryEnabled ? event : null),
     });

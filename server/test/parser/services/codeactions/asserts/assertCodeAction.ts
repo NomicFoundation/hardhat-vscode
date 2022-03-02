@@ -25,10 +25,8 @@ export function assertCodeAction(
   const mockLogger = setupMockLogger();
   const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
 
-  const analyzer = new Analyzer(
-    exampleUri,
-    mockWorkspaceFileRetriever,
-    mockLogger
+  const analyzer = new Analyzer(mockWorkspaceFileRetriever, mockLogger).init(
+    exampleUri
   );
 
   const documentURI = getUriFromDocument(document);

@@ -46,10 +46,14 @@ export class SolidityValidation {
         document: TextDocument,
         unsavedDocuments: TextDocument[]
       ): Promise<{ [uri: string]: Diagnostic[] }> => {
-        const hardhatProcess = this.compilerProcessFactory(
-          this.analyzer.rootPath,
-          uri
-        );
+        const rootPath = this.analyzer.rootPath;
+
+        if (!rootPath) {
+          logger.error(new Error("Validation failed, no rootPath specified"));
+          return {};
+        }
+
+        const hardhatProcess = this.compilerProcessFactory(rootPath, uri);
 
         const {
           hardhatConfigFileExistPromise,

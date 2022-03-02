@@ -2,8 +2,9 @@ import { ServerState } from "../types";
 
 export interface Telemetry {
   init(
-    trackingId: string | undefined,
-    release: string | undefined,
+    machineId: string | undefined,
+    extensionName: string | undefined,
+    extensionVersion: string | undefined,
     serverState: ServerState
   ): void;
   captureException(err: unknown): void;

@@ -183,22 +183,6 @@ function showFileIndexingProgress(client: LanguageClient): void {
   );
 }
 
-function showAnalyticsAllowPopup(client: LanguageClient): void {
-  client.onReady().then(() => {
-    client.onNotification("custom/analytics-allowed", async () => {
-      const item = await window.showInformationMessage(
-        "Help us improve Hardhat solidity extension with anonymous crash reports & basic usage data?",
-        { modal: true },
-        "Accept",
-        "Decline"
-      );
-
-      const isAccepted = item === "Accept" ? true : false;
-      client.sendNotification("custom/analytics-allowed", isAccepted);
-    });
-  });
-}
-
 async function warnOnOtherSolidityExtensions(logger: Logger) {
   const conflictingExtension = extensions.getExtension(
     CONFLICTING_EXTENSION_ID
@@ -298,10 +282,11 @@ export function activate(context: ExtensionContext) {
         workspaceFolder: folder,
         outputChannel: outputChannel,
         initializationOptions: {
-          release: `${config.name}@${config.version}`,
+          extensionName: config.name,
+          extensionVersion: config.version,
           env: config.env,
-          telemetryLevel: env.isTelemetryEnabled,
-          trackingId: env.machineId,
+          telemetryEnabled: env.isTelemetryEnabled,
+          machineId: env.machineId,
         },
       };
 
@@ -315,8 +300,6 @@ export function activate(context: ExtensionContext) {
         serverOptions,
         clientOptions
       );
-
-      showAnalyticsAllowPopup(client);
 
       client.onReady().then(() => {
         logger.info(`[LS: ${folder.name}] Client ready`);

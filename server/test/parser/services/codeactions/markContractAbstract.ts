@@ -139,10 +139,9 @@ describe("Code Actions", () => {
           const mockLogger = setupMockLogger();
 
           const analyzer = new Analyzer(
-            exampleUri,
             mockWorkspaceFileRetriever,
             mockLogger
-          );
+          ).init(exampleUri);
 
           const actions = markContractAbstract.resolveActions(diagnostic, {
             document,
