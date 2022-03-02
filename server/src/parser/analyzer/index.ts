@@ -18,39 +18,40 @@ import { WorkspaceFileRetriever } from "./WorkspaceFileRetriever";
 import { Logger } from "@utils/Logger";
 
 export class Analyzer {
-  rootPath: string;
+  rootPath: string | null;
   logger: Logger;
   workspaceFileRetriever: WorkspaceFileRetriever;
 
   documentsAnalyzer: DocumentsAnalyzerMap = {};
 
-  constructor(
-    rootPath: string,
-    workspaceFileRetriever: WorkspaceFileRetriever,
-    logger: Logger
-  ) {
-    this.rootPath = rootPath;
+  constructor(workspaceFileRetriever: WorkspaceFileRetriever, logger: Logger) {
+    this.rootPath = null;
     this.logger = logger;
     this.workspaceFileRetriever = workspaceFileRetriever;
-
-    const documentsUri: string[] = [];
-
-    this.indexSolFiles(documentsUri);
   }
 
-  private indexSolFiles(documentsUri: string[]) {
+  public init(rootPath: string): Analyzer {
+    this.rootPath = rootPath;
+
+    this.indexSolFiles(rootPath);
+
+    return this;
+  }
+
+  private indexSolFiles(rootPath: string) {
     try {
+      const documentsUri: string[] = [];
       this.logger.info("Starting workspace indexing ...");
 
       this.logger.info("Scanning workspace for sol files");
-      this.findSolFiles(this.rootPath, documentsUri);
+      this.findSolFiles(rootPath, documentsUri);
       this.findSolFiles(BROWNIE_PACKAGE_PATH, documentsUri);
       this.logger.info(`Scan complete, ${documentsUri.length} sol files found`);
 
       // Init all documentAnalyzers
       for (const documentUri of documentsUri) {
         this.documentsAnalyzer[documentUri] = new DocumentAnalyzer(
-          this.rootPath,
+          rootPath,
           documentUri,
           this.logger
         );
@@ -101,6 +102,12 @@ export class Analyzer {
    */
   public getDocumentAnalyzer(uri: string): IDocumentAnalyzer {
     let documentAnalyzer = this.documentsAnalyzer[uri];
+
+    if (!this.rootPath) {
+      throw new Error(
+        "Document analyzer can't be retrieved as root path not set."
+      );
+    }
 
     if (!documentAnalyzer) {
       documentAnalyzer = new DocumentAnalyzer(this.rootPath, uri, this.logger);

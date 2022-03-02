@@ -1,20 +1,8 @@
-import { Connection } from "vscode-languageserver";
-import {
-  CodeActionParams,
-  TextDocuments,
-  CodeAction,
-} from "vscode-languageserver/node";
-import { TextDocument } from "vscode-languageserver-textdocument";
+import { CodeActionParams, CodeAction } from "vscode-languageserver/node";
 import { QuickFixResolver } from "./QuickFixResolver";
-import { LanguageService } from "parser";
-import { Logger } from "@utils/Logger";
+import { ServerState } from "../../../types";
 
-export function onCodeAction(serverState: {
-  connection: Connection;
-  documents: TextDocuments<TextDocument>;
-  languageServer: LanguageService | null;
-  logger: Logger;
-}) {
+export function onCodeAction(serverState: ServerState) {
   return (params: CodeActionParams): CodeAction[] => {
     const { documents, languageServer, logger } = serverState;
 
@@ -36,10 +24,12 @@ export function onCodeAction(serverState: {
         return [];
       }
 
-      return quickFixResolver.resolve(
-        params.textDocument.uri,
-        document,
-        params.context.diagnostics
+      return serverState.analytics.trackTiming("onCodeAction", () =>
+        quickFixResolver.resolve(
+          params.textDocument.uri,
+          document,
+          params.context.diagnostics
+        )
       );
     } catch (err) {
       logger.error(err);

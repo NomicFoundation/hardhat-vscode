@@ -5,6 +5,7 @@ import * as lsp from "vscode-languageserver/node";
 import {
   CompletionItem,
   CompletionItemKind,
+  DocumentsAnalyzerMap,
   ImportDirectiveNode,
   VSCodePosition,
 } from "@common/types";
@@ -92,7 +93,16 @@ function getRelativeImportPathCompletions(
 function getIndexedNodeModuleFolderCompletions(
   analyzer: Analyzer
 ): CompletionItem[] {
-  const uniqueFolders = findNodeModulePackagesInIndex(analyzer);
+  const { rootPath, documentsAnalyzer } = analyzer;
+
+  if (!rootPath) {
+    return [];
+  }
+
+  const uniqueFolders = findNodeModulePackagesInIndex({
+    rootPath,
+    documentsAnalyzer,
+  });
 
   return uniqueFolders.map(
     (p): CompletionItem => ({
@@ -124,10 +134,19 @@ function getDirectImportPathCompletions(
   currentImport: string,
   analyzer: Analyzer
 ): CompletionItem[] {
+  const { rootPath, documentsAnalyzer } = analyzer;
+
+  if (!rootPath) {
+    return [];
+  }
+
   const contractFilePaths =
     currentImport.includes("/") || currentImport.includes(path.sep)
-      ? findNodeModulesContractFilesInIndex(analyzer, currentImport)
-      : findNodeModulePackagesInIndex(analyzer);
+      ? findNodeModulesContractFilesInIndex(
+          { rootPath, documentsAnalyzer },
+          currentImport
+        )
+      : findNodeModulePackagesInIndex({ rootPath, documentsAnalyzer });
 
   return contractFilePaths.map((pathFromNodeModules): CompletionItem => {
     const normalizedPath = normalizeSlashes(pathFromNodeModules);
@@ -263,7 +282,10 @@ function convertFileToCompletion(
 function findNodeModulePackagesInIndex({
   rootPath,
   documentsAnalyzer,
-}: Analyzer): string[] {
+}: {
+  rootPath: string;
+  documentsAnalyzer: DocumentsAnalyzerMap;
+}): string[] {
   const basePath = path.join(rootPath, "node_modules");
 
   const allNodeModulePaths = Object.keys(documentsAnalyzer)
@@ -278,7 +300,13 @@ function findNodeModulePackagesInIndex({
 }
 
 function findNodeModulesContractFilesInIndex(
-  { rootPath, documentsAnalyzer }: Analyzer,
+  {
+    rootPath,
+    documentsAnalyzer,
+  }: {
+    rootPath: string;
+    documentsAnalyzer: DocumentsAnalyzerMap;
+  },
   currentImport: string
 ): string[] {
   const basePath = path.join(rootPath, "node_modules", path.sep);

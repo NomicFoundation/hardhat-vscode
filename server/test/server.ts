@@ -1,5 +1,6 @@
 import * as assert from "assert";
 import setupServer from "../src/server";
+import { setupMockAnalytics } from "./helpers/setupMockAnalytics";
 import { setupMockCompilerProcessFactory } from "./helpers/setupMockCompilerProcessFactory";
 import { setupMockConnection } from "./helpers/setupMockConnection";
 import { setupMockLogger } from "./helpers/setupMockLogger";
@@ -18,6 +19,7 @@ describe("Solidity Language Server", () => {
         const mockCompilerProcessFactory = setupMockCompilerProcessFactory();
         const mockLogger = setupMockLogger();
         const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
+        const mockAnalytics = setupMockAnalytics();
         const mockTelemetry = setupMockTelemetry();
 
         await setupServer(
@@ -25,6 +27,7 @@ describe("Solidity Language Server", () => {
           mockConnection as any,
           mockCompilerProcessFactory,
           mockWorkspaceFileRetriever,
+          mockAnalytics,
           mockTelemetry,
           mockLogger
         );
