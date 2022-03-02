@@ -1,3 +1,4 @@
+import * as events from "events";
 import { Analyzer } from "@analyzer/index";
 import { SolidityNavigation } from "@services/navigation/SolidityNavigation";
 import { SolidityCompletion } from "@services/completion/SolidityCompletion";
@@ -17,9 +18,10 @@ export class LanguageService {
   constructor(
     compProcessFactory: typeof compilerProcessFactory,
     workspaceFileRetriever: WorkspaceFileRetriever,
+    em: events.EventEmitter,
     logger: Logger
   ) {
-    this.analyzer = new Analyzer(workspaceFileRetriever, logger);
+    this.analyzer = new Analyzer(workspaceFileRetriever, em, logger);
     this.solidityNavigation = new SolidityNavigation(this.analyzer);
     this.solidityCompletion = new SolidityCompletion(this.analyzer);
     this.solidityValidation = new SolidityValidation(

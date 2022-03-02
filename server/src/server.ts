@@ -1,3 +1,4 @@
+import * as events from "events";
 import { Connection } from "vscode-languageserver";
 import {
   TextDocuments,
@@ -10,7 +11,7 @@ import {
   SignatureHelp,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { IndexFileData, eventEmitter as em } from "@common/event";
+import { IndexFileData } from "@common/event";
 import { ValidationJob } from "@services/validation/SolidityValidation";
 import { getUriFromDocument, decodeUriAndRemoveFilePrefix } from "./utils";
 import { debounce } from "./utils/debaunce";
@@ -57,6 +58,8 @@ export default function setupServer(
   telemetry: Telemetry,
   logger: Logger
 ): ServerState {
+  const em = new events.EventEmitter();
+
   const serverState: ServerState = {
     env: "production",
     rootUri: "-",
@@ -66,9 +69,11 @@ export default function setupServer(
 
     connection,
     documents: new TextDocuments(TextDocument),
+    em,
     languageServer: new LanguageService(
       compProcessFactory,
       workspaceFileRetriever,
+      em,
       logger
     ),
     analytics,
@@ -432,7 +437,7 @@ export default function setupServer(
   // for open, change and close text document events
   serverState.documents.listen(connection);
 
-  em.on("indexing-file", (data: IndexFileData) => {
+  serverState.em.on("indexing-file", (data: IndexFileData) => {
     connection.sendNotification("custom/indexing-file", data);
   });
 

@@ -1,3 +1,4 @@
+import * as events from "events";
 import { assert } from "chai";
 import { Diagnostic, TextEdit } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
@@ -25,9 +26,13 @@ export function assertCodeAction(
   const mockLogger = setupMockLogger();
   const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
 
-  const analyzer = new Analyzer(mockWorkspaceFileRetriever, mockLogger).init(
-    exampleUri
-  );
+  const em = new events.EventEmitter();
+
+  const analyzer = new Analyzer(
+    mockWorkspaceFileRetriever,
+    em,
+    mockLogger
+  ).init(exampleUri);
 
   const documentURI = getUriFromDocument(document);
   analyzer.analyzeDocument(document.getText(), documentURI);
