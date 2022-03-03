@@ -5,11 +5,14 @@ import {
   OnTypeDefinition,
   setupMockLanguageServer,
 } from "../../../helpers/setupMockLanguageServer";
+import { forceToUnixStyle } from "../../../helpers/forceToUnixStyle";
 
 describe("Parser", () => {
   describe("Navigation", () => {
     describe("Type Definition", () => {
-      const basicUri = path.join(__dirname, "testData", "TypeDefinition.sol");
+      const basicUri = forceToUnixStyle(
+        path.join(__dirname, "testData", "TypeDefinition.sol")
+      );
       let typeDefinition: OnTypeDefinition;
 
       before(async () => {

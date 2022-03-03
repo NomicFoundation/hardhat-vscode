@@ -1,6 +1,7 @@
 import { assert } from "chai";
 import * as path from "path";
 import { SignatureHelp } from "vscode-languageserver/node";
+import { forceToUnixStyle } from "../../../helpers/forceToUnixStyle";
 import {
   setupMockLanguageServer,
   OnSignatureHelp,
@@ -8,7 +9,9 @@ import {
 
 describe("Parser", () => {
   describe("Documentation", () => {
-    const basicUri = path.join(__dirname, "testData", "Basic.sol");
+    const basicUri = forceToUnixStyle(
+      path.join(__dirname, "testData", "Basic.sol")
+    );
     let signatureHelp: OnSignatureHelp;
 
     beforeEach(async () => {

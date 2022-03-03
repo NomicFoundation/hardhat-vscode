@@ -6,15 +6,17 @@ import {
   setupMockLanguageServer,
 } from "../../../helpers/setupMockLanguageServer";
 import { Location } from "vscode-languageserver/node";
+import { convertHardhatUriToVscodeUri } from "../../../../src/utils/index";
+import { forceToUnixStyle } from "../../../helpers/forceToUnixStyle";
 
 describe("Parser", () => {
   describe("Navigation", () => {
     describe("References", () => {
-      const basicUri = path.join(__dirname, "testData", "References.sol");
-      const twoContractUri = path.join(
-        __dirname,
-        "testData",
-        "TwoContracts.sol"
+      const basicUri = forceToUnixStyle(
+        path.join(__dirname, "testData", "References.sol")
+      );
+      const twoContractUri = forceToUnixStyle(
+        path.join(__dirname, "testData", "TwoContracts.sol")
       );
       let references: OnReferences;
 
@@ -145,5 +147,8 @@ const assertReferencesNavigation = async (
 
   assert.exists(response);
 
-  assert.deepInclude(response, expectedPositions);
+  assert.deepInclude(response, {
+    ...expectedPositions,
+    uri: convertHardhatUriToVscodeUri(expectedPositions.uri),
+  });
 };

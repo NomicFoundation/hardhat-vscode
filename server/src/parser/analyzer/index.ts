@@ -37,6 +37,10 @@ export class Analyzer {
   }
 
   public init(rootPath: string): Analyzer {
+    if (rootPath.includes("\\")) {
+      throw new Error("Unexpect windows style path");
+    }
+
     this.rootPath = rootPath;
 
     this.indexSolFiles(rootPath);

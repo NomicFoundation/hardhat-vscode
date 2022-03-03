@@ -10,23 +10,24 @@ import {
   CompletionItem,
   CompletionItemKind,
 } from "vscode-languageserver/node";
+import { forceToUnixStyle } from "../../../helpers/forceToUnixStyle";
 
 describe("Parser", () => {
-  const importsUri = path.join(__dirname, "testData", "imports", "Imports.sol");
-  const importsSubUri = path.join(
-    __dirname,
-    "testData",
-    "imports",
-    "sub",
-    "SubImport.sol"
+  const importsUri = forceToUnixStyle(
+    path.join(__dirname, "testData", "imports", "Imports.sol")
   );
-  const importsSubSubUri = path.join(
-    __dirname,
-    "testData",
-    "imports",
-    "sub",
-    "subsub",
-    "SubSubImport.sol"
+  const importsSubUri = forceToUnixStyle(
+    path.join(__dirname, "testData", "imports", "sub", "SubImport.sol")
+  );
+  const importsSubSubUri = forceToUnixStyle(
+    path.join(
+      __dirname,
+      "testData",
+      "imports",
+      "sub",
+      "subsub",
+      "SubSubImport.sol"
+    )
   );
 
   let completion: OnCompletion;
@@ -55,13 +56,14 @@ describe("Parser", () => {
 
       describe("empty (neither relative/direct)", () => {
         before(async () => {
-          const openzepplinUri = path.join(
-            __dirname,
-            "../../../node_modules/@openzeppelin/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.sol"
+          const openzepplinUri = forceToUnixStyle(
+            path.join(
+              __dirname,
+              "../../../node_modules/@openzeppelin/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.sol"
+            )
           );
-          const ensUri = path.join(
-            __dirname,
-            "../../../node_modules/@ens/contracts/ENS.sol"
+          const ensUri = forceToUnixStyle(
+            path.join(__dirname, "../../../node_modules/@ens/contracts/ENS.sol")
           );
 
           ({
@@ -567,13 +569,17 @@ describe("Parser", () => {
         this.timeout(5000);
 
         before(async () => {
-          const openzepplinUri1 = path.join(
-            __dirname,
-            "../../../node_modules/@openzeppelin/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.sol"
+          const openzepplinUri1 = forceToUnixStyle(
+            path.join(
+              __dirname,
+              "../../../node_modules/@openzeppelin/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.sol"
+            )
           );
-          const openzepplinUri2 = path.join(
-            __dirname,
-            "../../../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol"
+          const openzepplinUri2 = forceToUnixStyle(
+            path.join(
+              __dirname,
+              "../../../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol"
+            )
           );
 
           ({

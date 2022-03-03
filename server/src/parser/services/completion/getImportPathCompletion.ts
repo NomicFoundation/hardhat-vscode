@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as lsp from "vscode-languageserver/node";
+import { toUnixStyle } from "../../../utils/index";
 
 import {
   CompletionItem,
@@ -18,7 +19,7 @@ export function getImportPathCompletion(
   { analyzer, logger }: { analyzer: Analyzer; logger: Logger }
 ): CompletionItem[] {
   const currentImport = node.astNode.path.replace("_;", "");
-  const importPath = path.join(node.realUri, "..", currentImport);
+  const importPath = toUnixStyle(path.join(node.realUri, "..", currentImport));
 
   if (currentImport === "") {
     const relativeImports = getRelativeImportPathCompletions(
@@ -68,7 +69,7 @@ function getRelativeImportPathCompletions(
     partial = "";
   } else {
     importDir = path.dirname(importPath);
-    partial = importPath.replace(importDir + path.sep, "");
+    partial = importPath.replace(importDir + "/", "");
 
     if (!fs.existsSync(importDir)) {
       return [];
@@ -239,7 +240,7 @@ function convertFileToCompletion(
   logger: Logger
 ) {
   try {
-    const absolutePath = path.join(importDir, file);
+    const absolutePath = toUnixStyle(path.join(importDir, file));
     const fileStat = fs.lstatSync(absolutePath);
 
     const label = `${displayPrefix}${file}`;
@@ -286,14 +287,14 @@ function findNodeModulePackagesInIndex({
   rootPath: string;
   documentsAnalyzer: DocumentsAnalyzerMap;
 }): string[] {
-  const basePath = path.join(rootPath, "node_modules");
+  const basePath = toUnixStyle(path.join(rootPath, "node_modules"));
 
   const allNodeModulePaths = Object.keys(documentsAnalyzer)
     .filter((p) => p.startsWith(basePath))
     .map((p) => p.replace(basePath, ""));
 
   const uniqueFolders = Array.from(
-    new Set(allNodeModulePaths.map((p) => p.split(path.sep)[1]))
+    new Set(allNodeModulePaths.map((p) => p.split("/")[1]))
   );
 
   return uniqueFolders;
@@ -309,8 +310,10 @@ function findNodeModulesContractFilesInIndex(
   },
   currentImport: string
 ): string[] {
-  const basePath = path.join(rootPath, "node_modules", path.sep);
-  const basePathWithCurrentImport = path.join(basePath, currentImport);
+  const basePath = toUnixStyle(path.join(rootPath, "node_modules", path.sep));
+  const basePathWithCurrentImport = toUnixStyle(
+    path.join(basePath, currentImport)
+  );
 
   const contractFilePaths = Object.keys(documentsAnalyzer)
     .filter((fullPath) => fullPath.startsWith(basePathWithCurrentImport))

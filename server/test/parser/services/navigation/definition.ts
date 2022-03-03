@@ -5,21 +5,18 @@ import {
   OnDefinition,
   setupMockLanguageServer,
 } from "../../../helpers/setupMockLanguageServer";
+import { forceToUnixStyle } from "../../../helpers/forceToUnixStyle";
 
 describe("Parser", () => {
   describe("Navigation", () => {
     describe("Definition", () => {
       describe("within single file", () => {
-        const definitionUri = path.join(
-          __dirname,
-          "testData",
-          "Definition.sol"
+        const definitionUri = forceToUnixStyle(
+          path.join(__dirname, "testData", "Definition.sol")
         );
 
-        const twoContractUri = path.join(
-          __dirname,
-          "testData",
-          "TwoContracts.sol"
+        const twoContractUri = forceToUnixStyle(
+          path.join(__dirname, "testData", "TwoContracts.sol")
         );
 
         let definition: OnDefinition;
@@ -214,17 +211,11 @@ describe("Parser", () => {
       });
 
       describe("across multiple files", () => {
-        const parentUri = path.join(
-          __dirname,
-          "testData",
-          "multi-file",
-          "Parent.sol"
+        const parentUri = forceToUnixStyle(
+          path.join(__dirname, "testData", "multi-file", "Parent.sol")
         );
-        const childUri = path.join(
-          __dirname,
-          "testData",
-          "multi-file",
-          "Child.sol"
+        const childUri = forceToUnixStyle(
+          path.join(__dirname, "testData", "multi-file", "Child.sol")
         );
         let definition: OnDefinition;
 

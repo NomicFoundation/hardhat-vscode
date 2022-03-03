@@ -6,24 +6,19 @@ import {
   setupMockLanguageServer,
 } from "../../../helpers/setupMockLanguageServer";
 import { CompletionContext } from "vscode-languageserver/node";
+import { forceToUnixStyle } from "../../../helpers/forceToUnixStyle";
 
 describe("Parser", () => {
-  const globalVariablesUri = path.join(
-    __dirname,
-    "testData",
-    "GlobalVariables.sol"
+  const globalVariablesUri = forceToUnixStyle(
+    path.join(__dirname, "testData", "GlobalVariables.sol")
   );
 
-  const memberAccessStructUri = path.join(
-    __dirname,
-    "testData",
-    "MemberAccessStruct.sol"
+  const memberAccessStructUri = forceToUnixStyle(
+    path.join(__dirname, "testData", "MemberAccessStruct.sol")
   );
 
-  const memberAccessNestedStructUri = path.join(
-    __dirname,
-    "testData",
-    "MemberAccessNestedStruct.sol"
+  const memberAccessNestedStructUri = forceToUnixStyle(
+    path.join(__dirname, "testData", "MemberAccessNestedStruct.sol")
   );
 
   let completion: OnCompletion;
