@@ -10,7 +10,8 @@ export type ServerState = {
   env: "production" | "development";
   rootUri: string;
   hasWorkspaceFolderCapability: boolean;
-  telemetryEnabled: boolean;
+  globalTelemetryEnabled: boolean;
+  hardhatTelemetryEnabled: boolean;
 
   connection: Connection;
   documents: TextDocuments<TextDocument>;

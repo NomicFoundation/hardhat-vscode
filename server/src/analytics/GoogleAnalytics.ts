@@ -8,6 +8,7 @@ import {
   DefaultRawAnalyticsPayload,
   RawAnalyticsPayload,
 } from "./types";
+import { isTelemetryEnabled } from "@utils/serverStateUtils";
 
 const GOOGLE_ANALYTICS_URL = "https://www.google-analytics.com/collect";
 
@@ -53,7 +54,7 @@ export class GoogleAnalytics implements Analytics {
   ): Promise<void> {
     if (
       this.serverState?.env !== "production" ||
-      this.serverState?.telemetryEnabled !== true ||
+      !isTelemetryEnabled(this.serverState) ||
       !this.machineId
     ) {
       return;
