@@ -13,6 +13,7 @@ import {
   TextEdit,
   extensions,
   env,
+  ConfigurationTarget,
 } from "vscode";
 import {
   Disposable,
@@ -36,7 +37,7 @@ type IndexFileData = {
 };
 
 const clients: Map<string, LanguageClient> = new Map();
-const telemetryChangeDisposables: Disposable[] = [];
+const listenerDisposables: Disposable[] = [];
 
 let _sortedWorkspaceFolders: string[] | undefined;
 function sortedWorkspaceFolders(): string[] {
@@ -202,6 +203,33 @@ async function warnOnOtherSolidityExtensions(logger: Logger) {
   }
 }
 
+async function showAnalyticsAllowPopup(
+  context: ExtensionContext
+): Promise<void> {
+  const shownTelemetryMessage = context.globalState.get<boolean>(
+    "shownTelemetryMessage"
+  );
+
+  if (shownTelemetryMessage) {
+    return;
+  }
+
+  const item = await window.showInformationMessage(
+    "Help us improve the Hardhat for Visual Studio Code extension with anonymous crash reports & basic usage data?",
+    { modal: true },
+    "Accept",
+    "Decline"
+  );
+
+  const isAccepted = item === "Accept" ? true : false;
+
+  const config = workspace.getConfiguration("hardhat");
+
+  config.update("telemetry", isAccepted, ConfigurationTarget.Global);
+
+  context.globalState.update("shownTelemetryMessage", true);
+}
+
 export function activate(context: ExtensionContext) {
   const config: HardhatVSCodeConfig = {
     env:
@@ -210,6 +238,9 @@ export function activate(context: ExtensionContext) {
         : "production",
     version: context.extension.packageJSON.version,
     name: context.extension.packageJSON.name,
+    hardhatTelemetryEnabled: workspace
+      .getConfiguration("hardhat")
+      .get<boolean>("telemetry"),
   };
 
   const module = context.asAbsolutePath(path.join("server", "out", "index.js"));
@@ -285,7 +316,8 @@ export function activate(context: ExtensionContext) {
           extensionName: config.name,
           extensionVersion: config.version,
           env: config.env,
-          telemetryEnabled: env.isTelemetryEnabled,
+          globalTelemetryEnabled: env.isTelemetryEnabled,
+          hardhatTelemetryEnabled: config.hardhatTelemetryEnabled,
           machineId: env.machineId,
         },
       };
@@ -300,6 +332,8 @@ export function activate(context: ExtensionContext) {
         serverOptions,
         clientOptions
       );
+
+      showAnalyticsAllowPopup(context);
 
       client.onReady().then(() => {
         logger.info(`[LS: ${folder.name}] Client ready`);
@@ -325,13 +359,27 @@ export function activate(context: ExtensionContext) {
 
       const telemetryChangeDisposable = env.onDidChangeTelemetryEnabled(
         (enabled: boolean) => {
-          client.sendNotification("custom/didChangeTelemetryEnabled", {
+          client.sendNotification("custom/didChangeGlobalTelemetryEnabled", {
             enabled,
           });
         }
       );
 
-      telemetryChangeDisposables.push(telemetryChangeDisposable);
+      const hardhatTelemetryChangeDisposable =
+        workspace.onDidChangeConfiguration((e) => {
+          if (!e.affectsConfiguration("hardhat.telemetry")) {
+            return;
+          }
+
+          client.sendNotification("custom/didChangeHardhatTelemetryEnabled", {
+            enabled: workspace
+              .getConfiguration("hardhat")
+              .get<boolean>("telemetry"),
+          });
+        });
+
+      listenerDisposables.push(telemetryChangeDisposable);
+      listenerDisposables.push(hardhatTelemetryChangeDisposable);
 
       client.start();
       clients.set(folder.uri.toString(), client);
@@ -355,7 +403,7 @@ export function activate(context: ExtensionContext) {
 export function deactivate(): Thenable<void> {
   const promises: Thenable<void>[] = [];
 
-  telemetryChangeDisposables.forEach((disposable) => disposable.dispose());
+  listenerDisposables.forEach((disposable) => disposable.dispose());
 
   for (const client of clients.values()) {
     promises.push(client.stop());

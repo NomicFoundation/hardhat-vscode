@@ -61,7 +61,8 @@ export default function setupServer(
     env: "production",
     rootUri: "-",
     hasWorkspaceFolderCapability: false,
-    telemetryEnabled: false,
+    globalTelemetryEnabled: false,
+    hardhatTelemetryEnabled: false,
 
     connection,
     documents: new TextDocuments(TextDocument),
@@ -348,15 +349,28 @@ export default function setupServer(
   });
 
   connection.onNotification(
-    "custom/didChangeTelemetryEnabled",
+    "custom/didChangeGlobalTelemetryEnabled",
     ({ enabled }: { enabled: boolean }) => {
       if (enabled) {
-        logger.info(`Telemetry enabled`);
+        logger.info(`Global telemetry enabled`);
       } else {
-        logger.info(`Telemetry disabled`);
+        logger.info(`Global telemetry disabled`);
       }
 
-      serverState.telemetryEnabled = enabled;
+      serverState.globalTelemetryEnabled = enabled;
+    }
+  );
+
+  connection.onNotification(
+    "custom/didChangeHardhatTelemetryEnabled",
+    ({ enabled }: { enabled: boolean }) => {
+      if (enabled) {
+        logger.info(`Hardhat telemetry enabled`);
+      } else {
+        logger.info(`Hardhat telemetry disabled`);
+      }
+
+      serverState.hardhatTelemetryEnabled = enabled;
     }
   );
 
@@ -532,8 +546,10 @@ const resolveOnInitialize = (serverState: ServerState) => {
 
     serverState.env = params.initializationOptions?.env ?? "production";
 
-    serverState.telemetryEnabled =
-      params.initializationOptions?.telemetryEnabled ?? false;
+    serverState.globalTelemetryEnabled =
+      params.initializationOptions?.globalTelemetryEnabled ?? false;
+    serverState.hardhatTelemetryEnabled =
+      params.initializationOptions?.hardhatTelemetryEnabled ?? false;
 
     const machineId: string | undefined =
       params.initializationOptions?.machineId;
@@ -549,7 +565,7 @@ const resolveOnInitialize = (serverState: ServerState) => {
 
     logger.info(`  Release: ${extensionName}@${extensionVersion}`);
     logger.info(`  Environment: ${serverState.env}`);
-    logger.info(`  Telemetry Enabled: ${serverState.telemetryEnabled}`);
+    logger.info(`  Telemetry Enabled: ${serverState.globalTelemetryEnabled}`);
     if (machineId) {
       logger.info(
         `  Telemetry Tracking Id: ${

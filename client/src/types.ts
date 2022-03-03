@@ -4,4 +4,5 @@ export type HardhatVSCodeConfig = {
   name: string;
   version: string;
   env: Environment;
+  hardhatTelemetryEnabled: boolean;
 };

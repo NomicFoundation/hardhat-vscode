@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/node";
+import { isTelemetryEnabled } from "@utils/serverStateUtils";
 import { ServerState } from "../types";
 import { Telemetry } from "./types";
 
@@ -32,15 +33,11 @@ export class SentryTelemetry implements Telemetry {
       initialScope: {
         user: { id: machineId },
       },
-      beforeSend: (event) => (serverState.telemetryEnabled ? event : null),
+      beforeSend: (event) => (isTelemetryEnabled(serverState) ? event : null),
     });
   }
 
   captureException(err: unknown) {
-    if (this.serverState?.telemetryEnabled !== true) {
-      return;
-    }
-
     Sentry.captureException(err);
   }
 
