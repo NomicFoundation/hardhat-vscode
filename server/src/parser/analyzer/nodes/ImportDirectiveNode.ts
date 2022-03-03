@@ -9,6 +9,7 @@ import {
   SourceUnitNode,
   ImportDirectiveNode as AbstractImportDirectiveNode,
 } from "@common/types";
+import { toUnixStyle } from "../../../utils/index";
 
 export class ImportDirectiveNode extends AbstractImportDirectiveNode {
   realUri: string;
@@ -29,7 +30,7 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
       documentsAnalyzer,
       importDirective.path
     );
-    this.realUri = uri;
+    this.realUri = toUnixStyle(uri);
 
     try {
       this.uri = resolveDependency(
@@ -68,7 +69,7 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
       this.setParent(parent);
     }
 
-    const documentAnalyzer = this.documentsAnalyzer[this.uri];
+    const documentAnalyzer = this.documentsAnalyzer[toUnixStyle(this.uri)];
     if (documentAnalyzer && !documentAnalyzer.isAnalyzed) {
       documentAnalyzer.analyze(this.documentsAnalyzer);
 

@@ -1,13 +1,18 @@
 import { assert } from "chai";
 import * as path from "path";
+import { forceToUnixStyle } from "../../../helpers/forceToUnixStyle";
 import { setupMockConnection } from "../../../helpers/setupMockConnection";
 import { setupMockLanguageServer } from "../../../helpers/setupMockLanguageServer";
 import { waitUntil } from "../../../helpers/waitUntil";
 
 describe("Parser", () => {
   describe("Validation", function () {
-    const basicUri = path.join(__dirname, "testData", "Basic.sol");
-    const blockedUri = path.join(__dirname, "testData", "Blocked.sol");
+    const basicUri = forceToUnixStyle(
+      path.join(__dirname, "testData", "Basic.sol")
+    );
+    const blockedUri = forceToUnixStyle(
+      path.join(__dirname, "testData", "Blocked.sol")
+    );
     let mockConnection: ReturnType<typeof setupMockConnection>;
 
     describe("pass through", () => {
@@ -134,10 +139,8 @@ describe("Parser", () => {
       });
 
       describe("contract level error/warning", () => {
-        const interfacesUri = path.join(
-          __dirname,
-          "testData",
-          "Interfaces.sol"
+        const interfacesUri = forceToUnixStyle(
+          path.join(__dirname, "testData", "Interfaces.sol")
         );
 
         const markAsAbstractError = {

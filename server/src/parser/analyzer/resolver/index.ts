@@ -6,6 +6,7 @@ import * as yaml from "js-yaml";
 
 import * as utils from "@common/utils";
 import { ImportDirective } from "@common/types";
+import { toUnixStyle } from "../../../utils";
 
 const DAPP_FILENAME = ".dapprc";
 const DAPP_DEFAULT_DEPENDENCIES_DIR = "lib";
@@ -38,9 +39,10 @@ export function resolveDependency(
     importDirective.path,
     paths
   );
+
   if (resolvedPath) {
     importDirective.path = resolvedPath;
-    return require.resolve(importDirective.path, { paths });
+    return toUnixStyle(require.resolve(importDirective.path, { paths }));
   }
 
   resolvedPath = resolveBrownieDependency(
@@ -49,12 +51,13 @@ export function resolveDependency(
     importDirective.path,
     paths
   );
+
   if (resolvedPath) {
     importDirective.path = resolvedPath;
-    return require.resolve(importDirective.path, { paths });
+    return toUnixStyle(require.resolve(importDirective.path, { paths }));
   }
 
-  return require.resolve(importDirective.path, { paths });
+  return toUnixStyle(require.resolve(importDirective.path, { paths }));
 }
 
 function resolveDappDependency(

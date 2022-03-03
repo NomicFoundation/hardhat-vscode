@@ -12,6 +12,7 @@ import {
 } from "@common/types";
 
 import { getParserPositionFromVSCodePosition, getRange } from "@common/utils";
+import { convertHardhatUriToVscodeUri } from "../../../utils/index";
 
 export class SolidityNavigation {
   analyzer: Analyzer;
@@ -122,7 +123,7 @@ export class SolidityNavigation {
     highlightNodes.forEach((highlightNode) => {
       if (highlightNode.nameLoc) {
         locations.push({
-          uri: highlightNode.uri,
+          uri: convertHardhatUriToVscodeUri(highlightNode.uri),
           range: getRange(highlightNode.nameLoc),
         });
       }

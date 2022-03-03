@@ -25,6 +25,7 @@ import { setupMockLogger } from "./setupMockLogger";
 import { setupMockWorkspaceFileRetriever } from "./setupMockWorkspaceFileRetriever";
 import { setupMockTelemetry } from "./setupMockTelemetry";
 import { setupMockAnalytics } from "./setupMockAnalytics";
+import { forceToUnixStyle } from "./forceToUnixStyle";
 
 export type OnSignatureHelp = (
   params: SignatureHelpParams
@@ -53,7 +54,7 @@ export async function setupMockLanguageServer({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errors: any[];
 }) {
-  const exampleRootUri = path.join(__dirname, "..");
+  const exampleRootUri = forceToUnixStyle(path.join(__dirname, ".."));
   const mockConnection = setupMockConnection();
   const mockCompilerProcessFactory = setupMockCompilerProcessFactory(errors);
   const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
@@ -101,8 +102,9 @@ export async function setupMockLanguageServer({
   const didOpenTextDocument =
     mockConnection.onDidOpenTextDocument.getCall(0).firstArg;
 
-  for (const { uri: documentUri, content, analyze } of documents) {
-    const fileContent = content ?? (await fs.promises.readFile(documentUri));
+  for (const { uri, content, analyze } of documents) {
+    const documentUri = forceToUnixStyle(uri);
+    const fileContent = content ?? (await fs.promises.readFile(uri));
 
     const textDocument: TextDocumentItem = {
       uri: documentUri,

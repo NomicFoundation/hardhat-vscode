@@ -5,14 +5,13 @@ import {
   OnImplementation,
   setupMockLanguageServer,
 } from "../../../helpers/setupMockLanguageServer";
+import { forceToUnixStyle } from "../../../helpers/forceToUnixStyle";
 
 describe("Parser", () => {
   describe("Navigation", () => {
     describe("Implementation", () => {
-      const implementationUri = path.join(
-        __dirname,
-        "testData",
-        "Implementation.sol"
+      const implementationUri = forceToUnixStyle(
+        path.join(__dirname, "testData", "Implementation.sol")
       );
       let implementation: OnImplementation;
 

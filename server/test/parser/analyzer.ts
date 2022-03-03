@@ -4,10 +4,11 @@ import { Analyzer } from "@analyzer/index";
 import { assert } from "chai";
 import { setupMockLogger } from "../helpers/setupMockLogger";
 import { IndexFileData } from "@common/event";
+import { forceToUnixStyle } from "../helpers/forceToUnixStyle";
 
 describe("Analyzer", () => {
   describe("indexing", () => {
-    const exampleRootPath = __dirname;
+    const exampleRootPath = forceToUnixStyle(__dirname);
     let collectedData: IndexFileData[];
     let foundSolFiles: string[];
 

@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { Logger } from "@utils/Logger";
+import { decodeUriAndRemoveFilePrefix } from "@utils/index";
 
 export class WorkspaceFileRetriever {
   public findSolFiles(
@@ -25,7 +26,7 @@ export class WorkspaceFileRetriever {
           newBase.split("node_modules").length < 3 &&
           !documentsUri.includes(newBase)
         ) {
-          documentsUri.push(newBase);
+          documentsUri.push(decodeUriAndRemoveFilePrefix(newBase));
         }
       });
     } catch (err) {
