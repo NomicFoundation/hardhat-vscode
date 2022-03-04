@@ -7,7 +7,7 @@
   "version": "0.0.24",
   "main": "./client/out/extension.js",
   "module": "./client/out/extension.js",
-  "icon": "docs/images/solidity-logo.png",
+  "icon": "docs/images/hardhat-vscode-logo.png",
   "categories": [
     "Programming Languages",
     "Snippets",
