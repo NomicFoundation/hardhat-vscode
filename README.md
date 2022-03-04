@@ -33,9 +33,9 @@ If you want to share it with someone, let us know about it in [this issue](https
 
 ### v0.0.24
 
-- fix for indexing popup not going away when there are no sol files found
 - Expose the telemetry enable/disable switch in the extension settings
 - Smaller extension install size due to the inclusion of bundling and minification
+- Fix for indexing popup not going away when there are no sol files found
 
 ### v0.0.23
 
