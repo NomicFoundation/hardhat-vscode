@@ -41,3 +41,6 @@ jobs:
         env:
           CODE_VERSION: ${{ matrix.version }}
           VSCODEGO_BEFORE_RELEASE_TESTS: true
+
+      - name: Package the extension
+        run: yarn run package

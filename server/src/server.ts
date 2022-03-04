@@ -1,3 +1,4 @@
+import * as events from "events";
 import { Connection } from "vscode-languageserver";
 import {
   TextDocuments,
@@ -10,14 +11,7 @@ import {
   SignatureHelp,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-
-import {
-  writeAnalytics,
-  getAnalyticsData,
-  getAnalytics,
-  Analytics,
-} from "./analytics";
-import { IndexFileData, eventEmitter as em } from "@common/event";
+import { IndexFileData } from "@common/event";
 import { ValidationJob } from "@services/validation/SolidityValidation";
 import { getUriFromDocument, decodeUriAndRemoveFilePrefix } from "./utils";
 import { debounce } from "./utils/debaunce";
@@ -26,16 +20,9 @@ import { compilerProcessFactory } from "@services/validation/compilerProcessFact
 import { onCodeAction } from "./parser/services/codeactions/onCodeAction";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { Logger } from "@utils/Logger";
-
-type ServerState = {
-  connection: Connection;
-  logger: Logger;
-  documents: TextDocuments<TextDocument>;
-  rootUri: string | null;
-  hasWorkspaceFolderCapability: boolean;
-  languageServer: LanguageService | null;
-  analytics: Analytics | null;
-};
+import { Analytics } from "./analytics/types";
+import { Telemetry } from "./telemetry/types";
+import { ServerState } from "./types";
 
 const debounceAnalyzeDocument: {
   [uri: string]: (
@@ -67,16 +54,31 @@ export default function setupServer(
   connection: Connection,
   compProcessFactory: typeof compilerProcessFactory,
   workspaceFileRetriever: WorkspaceFileRetriever,
+  analytics: Analytics,
+  telemetry: Telemetry,
   logger: Logger
 ): ServerState {
+  const em = new events.EventEmitter();
+
   const serverState: ServerState = {
-    connection,
-    logger,
-    documents: new TextDocuments(TextDocument),
-    languageServer: null,
-    analytics: null,
-    rootUri: null,
+    env: "production",
+    rootUri: "-",
     hasWorkspaceFolderCapability: false,
+    globalTelemetryEnabled: false,
+    hardhatTelemetryEnabled: false,
+
+    connection,
+    documents: new TextDocuments(TextDocument),
+    em,
+    languageServer: new LanguageService(
+      compProcessFactory,
+      workspaceFileRetriever,
+      em,
+      logger
+    ),
+    analytics,
+    telemetry,
+    logger,
   };
 
   connection.onInitialize(resolveOnInitialize(serverState));
@@ -84,32 +86,14 @@ export default function setupServer(
   connection.onInitialized(async () => {
     const { logger } = serverState;
 
-    logger.trace("server onInitialized");
-
-    const analyticsData = await getAnalyticsData();
-
-    if (analyticsData.isAllowed === undefined) {
-      const isAllowed = await isAnalyticsAllowed(connection, logger);
-      analyticsData.isAllowed = isAllowed;
-      await writeAnalytics(analyticsData);
-    }
-
-    serverState.analytics = await getAnalytics();
-    const startTime = Date.now();
+    logger.trace("onInitialized");
 
     if (!serverState.rootUri) {
       throw new Error("Root Uri not set");
     }
 
-    serverState.languageServer = new LanguageService(
-      serverState.rootUri,
-      compProcessFactory,
-      workspaceFileRetriever,
-      logger
-    );
-
-    serverState.analytics.sendTaskHit("indexing", {
-      plt: Date.now() - startTime,
+    serverState.analytics.trackTiming("indexing", () => {
+      serverState.languageServer.init(serverState.rootUri);
     });
 
     if (serverState.hasWorkspaceFolderCapability) {
@@ -125,12 +109,12 @@ export default function setupServer(
     (params: SignatureHelpParams): SignatureHelp | undefined => {
       const { logger } = serverState;
 
-      logger.trace("server onSignatureHelp");
+      logger.trace("onSignatureHelp");
 
       try {
         const document = serverState.documents.get(params.textDocument.uri);
 
-        if (document && serverState.languageServer) {
+        if (document) {
           const documentURI = getUriFromDocument(document);
 
           if (params.context?.triggerCharacter === "(") {
@@ -146,10 +130,12 @@ export default function setupServer(
             );
 
           if (documentAnalyzer.isAnalyzed) {
-            return serverState.languageServer.soliditySignatureHelp.doSignatureHelp(
-              document,
-              params.position,
-              documentAnalyzer
+            return serverState.analytics.trackTiming("onSignatureHelp", () =>
+              serverState.languageServer.soliditySignatureHelp.doSignatureHelp(
+                document,
+                params.position,
+                documentAnalyzer
+              )
             );
           }
         }
@@ -164,12 +150,12 @@ export default function setupServer(
     (params: CompletionParams): CompletionList | undefined => {
       const { logger } = serverState;
 
-      logger.trace("server onCompletion");
+      logger.trace("onCompletion");
 
       try {
         const document = serverState.documents.get(params.textDocument.uri);
 
-        if (document && serverState.languageServer) {
+        if (document) {
           const documentText = document.getText();
           let newDocumentText = documentText;
 
@@ -203,11 +189,13 @@ export default function setupServer(
             return;
           }
 
-          return serverState.languageServer.solidityCompletion.doComplete(
-            params.position,
-            documentAnalyzer,
-            params.context,
-            logger
+          return serverState.analytics.trackTiming("onCompletion", () =>
+            serverState.languageServer.solidityCompletion.doComplete(
+              params.position,
+              documentAnalyzer,
+              params.context,
+              logger
+            )
           );
         }
       } catch (err) {
@@ -224,25 +212,19 @@ export default function setupServer(
     try {
       const document = serverState.documents.get(params.textDocument.uri);
 
-      if (document && serverState.languageServer) {
+      if (document) {
         const documentURI = getUriFromDocument(document);
         const documentAnalyzer =
           serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
         if (documentAnalyzer.isAnalyzed) {
-          const startTime = Date.now();
-          const result =
+          return serverState.analytics.trackTiming("onDefinition", () =>
             serverState.languageServer.solidityNavigation.findDefinition(
               documentURI,
               params.position,
               documentAnalyzer.analyzerTree.tree
-            );
-
-          serverState.analytics?.sendTaskHit("onDefinition", {
-            plt: Date.now() - startTime,
-          });
-
-          return result;
+            )
+          );
         }
       }
     } catch (err) {
@@ -258,25 +240,19 @@ export default function setupServer(
     try {
       const document = serverState.documents.get(params.textDocument.uri);
 
-      if (document && serverState.languageServer) {
+      if (document) {
         const documentURI = getUriFromDocument(document);
         const documentAnalyzer =
           serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
         if (documentAnalyzer.isAnalyzed) {
-          const startTime = Date.now();
-          const result =
-            serverState.languageServer.solidityNavigation.findTypeDefinition(
+          return serverState.analytics.trackTiming("onTypeDefinition", () => {
+            return serverState.languageServer.solidityNavigation.findTypeDefinition(
               documentURI,
               params.position,
               documentAnalyzer.analyzerTree.tree
             );
-
-          serverState.analytics?.sendTaskHit("onTypeDefinition", {
-            plt: Date.now() - startTime,
           });
-
-          return result;
         }
       }
     } catch (err) {
@@ -292,25 +268,19 @@ export default function setupServer(
     try {
       const document = serverState.documents.get(params.textDocument.uri);
 
-      if (document && serverState.languageServer) {
+      if (document) {
         const documentURI = getUriFromDocument(document);
         const documentAnalyzer =
           serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
         if (documentAnalyzer.isAnalyzed) {
-          const startTime = Date.now();
-          const result =
+          return serverState.analytics.trackTiming("onReferences", () =>
             serverState.languageServer.solidityNavigation.findReferences(
               documentURI,
               params.position,
               documentAnalyzer.analyzerTree.tree
-            );
-
-          serverState.analytics?.sendTaskHit("onReferences", {
-            plt: Date.now() - startTime,
-          });
-
-          return result;
+            )
+          );
         }
       }
     } catch (err) {
@@ -326,25 +296,19 @@ export default function setupServer(
     try {
       const document = serverState.documents.get(params.textDocument.uri);
 
-      if (document && serverState.languageServer) {
+      if (document) {
         const documentURI = getUriFromDocument(document);
         const documentAnalyzer =
           serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
         if (documentAnalyzer.isAnalyzed) {
-          const startTime = Date.now();
-          const result =
+          return serverState.analytics.trackTiming("onImplementation", () =>
             serverState.languageServer.solidityNavigation.findImplementation(
               documentURI,
               params.position,
               documentAnalyzer.analyzerTree.tree
-            );
-
-          serverState.analytics?.sendTaskHit("onImplementation", {
-            plt: Date.now() - startTime,
-          });
-
-          return result;
+            )
+          );
         }
       }
     } catch (err) {
@@ -360,26 +324,21 @@ export default function setupServer(
     try {
       const document = serverState.documents.get(params.textDocument.uri);
 
-      if (document && serverState.languageServer) {
+      if (document) {
         const documentURI = getUriFromDocument(document);
         const documentAnalyzer =
           serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
         if (documentAnalyzer.isAnalyzed) {
-          const startTime = Date.now();
-          const result = serverState.languageServer.solidityNavigation.doRename(
-            documentURI,
-            document,
-            params.position,
-            params.newName,
-            documentAnalyzer.analyzerTree.tree
+          return serverState.analytics.trackTiming("onRenameRequest", () =>
+            serverState.languageServer.solidityNavigation.doRename(
+              documentURI,
+              document,
+              params.position,
+              params.newName,
+              documentAnalyzer.analyzerTree.tree
+            )
           );
-
-          serverState.analytics?.sendTaskHit("onRenameRequest", {
-            plt: Date.now() - startTime,
-          });
-
-          return result;
         }
       }
     } catch (err) {
@@ -389,12 +348,43 @@ export default function setupServer(
 
   connection.onCodeAction(onCodeAction(serverState));
 
+  connection.onExit(() => {
+    logger.info("Server closing down");
+    return telemetry.close();
+  });
+
+  connection.onNotification(
+    "custom/didChangeGlobalTelemetryEnabled",
+    ({ enabled }: { enabled: boolean }) => {
+      if (enabled) {
+        logger.info(`Global telemetry enabled`);
+      } else {
+        logger.info(`Global telemetry disabled`);
+      }
+
+      serverState.globalTelemetryEnabled = enabled;
+    }
+  );
+
+  connection.onNotification(
+    "custom/didChangeHardhatTelemetryEnabled",
+    ({ enabled }: { enabled: boolean }) => {
+      if (enabled) {
+        logger.info(`Hardhat telemetry enabled`);
+      } else {
+        logger.info(`Hardhat telemetry disabled`);
+      }
+
+      serverState.hardhatTelemetryEnabled = enabled;
+    }
+  );
+
   // The content of a text document has changed. This event is emitted
   // when the text document first opened or when its content has changed.
   serverState.documents.onDidChangeContent((change) => {
     const { logger } = serverState;
 
-    logger.trace("server onDidChangeContent");
+    logger.trace("onDidChangeContent");
 
     try {
       if (
@@ -447,40 +437,11 @@ export default function setupServer(
   // for open, change and close text document events
   serverState.documents.listen(connection);
 
-  em.on("indexing-file", (data: IndexFileData) => {
+  serverState.em.on("indexing-file", (data: IndexFileData) => {
     connection.sendNotification("custom/indexing-file", data);
   });
 
   return serverState;
-}
-
-async function isAnalyticsAllowed(
-  connection: Connection,
-  logger: Logger
-): Promise<boolean> {
-  connection.sendNotification("custom/analytics-allowed");
-
-  try {
-    const isAllowed: boolean = await new Promise((resolve, reject) => {
-      // Set up the timeout
-      const timeout = setTimeout(() => {
-        reject("Timeout on wait for analytics allowed event");
-      }, 30000);
-
-      connection.onNotification(
-        "custom/analytics-allowed",
-        (allowed: boolean) => {
-          clearTimeout(timeout);
-          resolve(allowed);
-        }
-      );
-    });
-
-    return isAllowed;
-  } catch (err) {
-    logger.error(err);
-    return false;
-  }
 }
 
 function analyzeFunc(
@@ -585,13 +546,45 @@ const resolveOnInitialize = (serverState: ServerState) => {
       logger.setWorkspace(serverState.rootUri);
     }
 
-    logger.trace("server onInitialize");
+    logger.trace("onInitialize");
     logger.info("Language server starting");
 
-    const capabilities = params.capabilities;
+    serverState.env = params.initializationOptions?.env ?? "production";
+
+    serverState.globalTelemetryEnabled =
+      params.initializationOptions?.globalTelemetryEnabled ?? false;
+    serverState.hardhatTelemetryEnabled =
+      params.initializationOptions?.hardhatTelemetryEnabled ?? false;
+
+    const machineId: string | undefined =
+      params.initializationOptions?.machineId;
+    const extensionName: string | undefined =
+      params.initializationOptions?.extensionName;
+    const extensionVersion: string | undefined =
+      params.initializationOptions?.extensionVersion;
 
     serverState.hasWorkspaceFolderCapability = !!(
-      capabilities.workspace && !!capabilities.workspace.workspaceFolders
+      params.capabilities.workspace &&
+      !!params.capabilities.workspace.workspaceFolders
+    );
+
+    logger.info(`  Release: ${extensionName}@${extensionVersion}`);
+    logger.info(`  Environment: ${serverState.env}`);
+    logger.info(`  Telemetry Enabled: ${serverState.globalTelemetryEnabled}`);
+    if (machineId) {
+      logger.info(
+        `  Telemetry Tracking Id: ${
+          machineId.length > 10 ? machineId.substring(0, 10) + "..." : machineId
+        }`
+      );
+    }
+
+    serverState.analytics.init(machineId, extensionVersion, serverState);
+    serverState.telemetry.init(
+      machineId,
+      extensionName,
+      extensionVersion,
+      serverState
     );
 
     const result: InitializeResult = {

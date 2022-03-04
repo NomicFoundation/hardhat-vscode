@@ -23,6 +23,8 @@ import { setupMockConnection } from "./setupMockConnection";
 import { waitUntil } from "./waitUntil";
 import { setupMockLogger } from "./setupMockLogger";
 import { setupMockWorkspaceFileRetriever } from "./setupMockWorkspaceFileRetriever";
+import { setupMockTelemetry } from "./setupMockTelemetry";
+import { setupMockAnalytics } from "./setupMockAnalytics";
 
 export type OnSignatureHelp = (
   params: SignatureHelpParams
@@ -55,7 +57,8 @@ export async function setupMockLanguageServer({
   const mockConnection = setupMockConnection();
   const mockCompilerProcessFactory = setupMockCompilerProcessFactory(errors);
   const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
-
+  const mockAnalytics = setupMockAnalytics();
+  const mockTelemetry = setupMockTelemetry();
   const mockLogger = setupMockLogger();
 
   const serverState = await setupServer(
@@ -63,6 +66,8 @@ export async function setupMockLanguageServer({
     mockConnection as any,
     mockCompilerProcessFactory,
     mockWorkspaceFileRetriever,
+    mockAnalytics,
+    mockTelemetry,
     mockLogger
   );
 

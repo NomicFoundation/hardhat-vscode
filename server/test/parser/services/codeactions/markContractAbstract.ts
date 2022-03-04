@@ -1,3 +1,4 @@
+import * as events from "events";
 import { assert } from "chai";
 import * as fs from "fs";
 import * as path from "path";
@@ -138,11 +139,13 @@ describe("Code Actions", () => {
           const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
           const mockLogger = setupMockLogger();
 
+          const em = new events.EventEmitter();
+
           const analyzer = new Analyzer(
-            exampleUri,
             mockWorkspaceFileRetriever,
+            em,
             mockLogger
-          );
+          ).init(exampleUri);
 
           const actions = markContractAbstract.resolveActions(diagnostic, {
             document,

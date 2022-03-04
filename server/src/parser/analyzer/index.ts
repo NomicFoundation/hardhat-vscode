@@ -1,10 +1,10 @@
+import * as events from "events";
 import * as fs from "fs";
-import * as path from "path";
 import * as parser from "@solidity-parser/parser";
 import * as matcher from "@analyzer/matcher";
 import { Searcher } from "@analyzer/searcher";
 import { BROWNIE_PACKAGE_PATH } from "@analyzer/resolver";
-import { IndexFileData, eventEmitter as em } from "@common/event";
+import { IndexFileData } from "@common/event";
 import {
   Node,
   SourceUnitNode,
@@ -18,73 +18,100 @@ import { WorkspaceFileRetriever } from "./WorkspaceFileRetriever";
 import { Logger } from "@utils/Logger";
 
 export class Analyzer {
-  rootPath: string;
-  logger: Logger;
+  rootPath: string | null;
+  em: events.EventEmitter;
   workspaceFileRetriever: WorkspaceFileRetriever;
+  logger: Logger;
 
   documentsAnalyzer: DocumentsAnalyzerMap = {};
 
   constructor(
-    rootPath: string,
     workspaceFileRetriever: WorkspaceFileRetriever,
+    em: events.EventEmitter,
     logger: Logger
   ) {
-    this.rootPath = rootPath;
-    this.logger = logger;
+    this.rootPath = null;
+    this.em = em;
     this.workspaceFileRetriever = workspaceFileRetriever;
-
-    const documentsUri: string[] = [];
-
-    this.indexSolFiles(documentsUri);
+    this.logger = logger;
   }
 
-  private indexSolFiles(documentsUri: string[]) {
+  public init(rootPath: string): Analyzer {
+    this.rootPath = rootPath;
+
+    this.indexSolFiles(rootPath);
+
+    return this;
+  }
+
+  private indexSolFiles(rootPath: string) {
     try {
+      const documentsUri: string[] = [];
       this.logger.info("Starting workspace indexing ...");
 
       this.logger.info("Scanning workspace for sol files");
-      this.findSolFiles(this.rootPath, documentsUri);
-      this.findSolFiles(BROWNIE_PACKAGE_PATH, documentsUri);
+      this.workspaceFileRetriever.findSolFiles(
+        rootPath,
+        documentsUri,
+        this.logger
+      );
+      this.workspaceFileRetriever.findSolFiles(
+        BROWNIE_PACKAGE_PATH,
+        documentsUri,
+        this.logger
+      );
       this.logger.info(`Scan complete, ${documentsUri.length} sol files found`);
 
       // Init all documentAnalyzers
       for (const documentUri of documentsUri) {
         this.documentsAnalyzer[documentUri] = new DocumentAnalyzer(
-          this.rootPath,
+          rootPath,
           documentUri,
           this.logger
         );
       }
 
       this.logger.info("File indexing starting");
-      // We will initialize all DocumentAnalizers first, because when we analyze documents we enter to their imports and
-      // if they are not analyzed we analyze them, in order to be able to analyze imports we need to have DocumentAnalizer and
-      // therefore we initiate everything first. The isAnalyzed serves to check if the document was analyzed so we don't analyze the document twice.
-      for (let i = 0; i < documentsUri.length; i++) {
-        const documentUri = documentsUri[i];
 
-        try {
-          const documentAnalyzer = this.getDocumentAnalyzer(documentUri);
-          // if (documentAnalyzer.uri.includes("node_modules")) {
-          //     continue;
-          // }
+      if (documentsUri.length > 0) {
+        // We will initialize all DocumentAnalizers first, because when we analyze documents we enter to their imports and
+        // if they are not analyzed we analyze them, in order to be able to analyze imports we need to have DocumentAnalizer and
+        // therefore we initiate everything first. The isAnalyzed serves to check if the document was analyzed so we don't analyze the document twice.
+        for (let i = 0; i < documentsUri.length; i++) {
+          const documentUri = documentsUri[i];
 
-          const data: IndexFileData = {
-            path: documentUri,
-            current: i + 1,
-            total: documentsUri.length,
-          };
+          try {
+            const documentAnalyzer = this.getDocumentAnalyzer(documentUri);
+            // if (documentAnalyzer.uri.includes("node_modules")) {
+            //     continue;
+            // }
 
-          em.emit("indexing-file", data);
-          this.logger.trace("Indexing file", data);
+            const data: IndexFileData = {
+              path: documentUri,
+              current: i + 1,
+              total: documentsUri.length,
+            };
 
-          if (!documentAnalyzer.isAnalyzed) {
-            documentAnalyzer.analyze(this.documentsAnalyzer);
+            this.em.emit("indexing-file", data);
+            this.logger.trace("Indexing file", data);
+
+            if (!documentAnalyzer.isAnalyzed) {
+              documentAnalyzer.analyze(this.documentsAnalyzer);
+            }
+          } catch (err) {
+            this.logger.error(err);
+            this.logger.trace("Analysis of file failed", { documentUri });
           }
-        } catch (err) {
-          this.logger.error(err);
-          this.logger.trace("Analysis of file failed", { documentUri });
         }
+      } else {
+        const data: IndexFileData = {
+          path: "",
+          current: 0,
+          total: 0,
+        };
+
+        this.em.emit("indexing-file", data);
+        this.logger.trace("No files to index", data);
       }
 
       this.logger.info("File indexing complete");
@@ -102,6 +129,12 @@ export class Analyzer {
   public getDocumentAnalyzer(uri: string): IDocumentAnalyzer {
     let documentAnalyzer = this.documentsAnalyzer[uri];
 
+    if (!this.rootPath) {
+      throw new Error(
+        "Document analyzer can't be retrieved as root path not set."
+      );
+    }
+
     if (!documentAnalyzer) {
       documentAnalyzer = new DocumentAnalyzer(this.rootPath, uri, this.logger);
       this.documentsAnalyzer[uri] = documentAnalyzer;
@@ -116,40 +149,6 @@ export class Analyzer {
   public analyzeDocument(document: string, uri: string): Node | undefined {
     const documentAnalyzer = this.getDocumentAnalyzer(uri);
     return documentAnalyzer.analyze(this.documentsAnalyzer, document);
-  }
-
-  private findSolFiles(base: string | undefined, documentsUri: string[]): void {
-    if (!base) {
-      return;
-    }
-
-    try {
-      if (!fs.existsSync(base)) {
-        this.logger.trace("Sol file scan could not find directory", {
-          directory: base,
-        });
-
-        return;
-      }
-
-      const files = fs.readdirSync(base);
-
-      files.forEach((file) => {
-        const newBase = path.join(base || "", file);
-
-        if (fs.statSync(newBase).isDirectory()) {
-          this.findSolFiles(newBase, documentsUri);
-        } else if (
-          newBase.slice(-4) === ".sol" &&
-          newBase.split("node_modules").length < 3 &&
-          !documentsUri.includes(newBase)
-        ) {
-          documentsUri.push(newBase);
-        }
-      });
-    } catch (err) {
-      this.logger.error(err);
-    }
   }
 }
 

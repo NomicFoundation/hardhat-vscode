@@ -31,6 +31,12 @@ If you want to share it with someone, let us know about it in [this issue](https
 
 ## Changelog
 
+### v0.0.24
+
+- fix for indexing popup not going away when there are no sol files found
+- Expose the telemetry enable/disable switch in the extension settings
+- Smaller extension install size due to the inclusion of bundling and minification
+
 ### v0.0.23
 
 - Fix for memory leak in compilation

@@ -1,3 +1,4 @@
+import * as events from "events";
 import { Analyzer } from "@analyzer/index";
 import { SolidityNavigation } from "@services/navigation/SolidityNavigation";
 import { SolidityCompletion } from "@services/completion/SolidityCompletion";
@@ -15,12 +16,12 @@ export class LanguageService {
   soliditySignatureHelp: SoliditySignatureHelp;
 
   constructor(
-    rootPath: string,
     compProcessFactory: typeof compilerProcessFactory,
     workspaceFileRetriever: WorkspaceFileRetriever,
+    em: events.EventEmitter,
     logger: Logger
   ) {
-    this.analyzer = new Analyzer(rootPath, workspaceFileRetriever, logger);
+    this.analyzer = new Analyzer(workspaceFileRetriever, em, logger);
     this.solidityNavigation = new SolidityNavigation(this.analyzer);
     this.solidityCompletion = new SolidityCompletion(this.analyzer);
     this.solidityValidation = new SolidityValidation(
@@ -28,5 +29,9 @@ export class LanguageService {
       compProcessFactory
     );
     this.soliditySignatureHelp = new SoliditySignatureHelp(this.analyzer);
+  }
+
+  async init(rootPath: string): Promise<void> {
+    this.analyzer.init(rootPath);
   }
 }

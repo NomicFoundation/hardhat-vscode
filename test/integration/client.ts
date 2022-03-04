@@ -26,14 +26,6 @@ export async function getClient(): Promise<Client> {
   return client;
 }
 
-function showAnalyticsAllowPopup(client: lsclient.LanguageClient): void {
-  client.onReady().then(() => {
-    client.onNotification("custom/analytics-allowed", async () => {
-      client.sendNotification("custom/analytics-allowed", false);
-    });
-  });
-}
-
 class Client implements IClient {
   private client: lsclient.LanguageClient;
   private middleware: lsclient.Middleware;
@@ -89,8 +81,6 @@ class Client implements IClient {
     );
 
     this.client.start();
-
-    showAnalyticsAllowPopup(this.client);
 
     await this.client.onReady();
 
