@@ -1,6 +1,7 @@
 import * as prettier from "prettier";
 import * as vscode from "vscode";
 import * as path from "path";
+import * as prettierPluginSolidity from "prettier-plugin-solidity";
 
 export function formatDocument(
   document: vscode.TextDocument,
@@ -31,18 +32,11 @@ export function formatDocument(
 
   const source = document.getText();
 
-  const pluginPath = path.join(
-    context.extensionPath,
-    "client",
-    "node_modules",
-    "prettier-plugin-solidity"
-  );
-
   const options = {
     useCache: false,
     parser: "solidity-parse",
     pluginSearchDirs: [context.extensionPath],
-    plugins: [pluginPath],
+    plugins: [prettierPluginSolidity],
   };
 
   const config =
