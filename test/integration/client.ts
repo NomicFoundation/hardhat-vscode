@@ -44,8 +44,9 @@ class Client implements IClient {
   async activate(): Promise<void> {
     // The extensionId is `publisher.name` from package.json
     const ext = vscode.extensions.getExtension(
-      "nomicfoundation.hardhat-for-vscode"
+      "nomicfoundation.hardhat-for-visual-studio-code"
     );
+
     await ext.activate();
 
     const serverModule = path.join(

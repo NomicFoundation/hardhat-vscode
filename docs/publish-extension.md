@@ -1,6 +1,6 @@
 # Instruction how to publish extension
 
-To publish `hardhat-for-vscode` you need to do next steps:
+To publish `hardhat-for-visual-studio-code` you need to do next steps:
 
 1.  Checkout out `main`
 2.  Run install, build, lint and test: `yarn && yarn build && yarn lint && yarn test`, stop on failure

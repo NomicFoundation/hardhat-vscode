@@ -111,7 +111,7 @@ class GoogleAnalytics implements Analytics {
       // Document page
       dp: `/${taskName}`,
 
-      // Custom dimension 1: hardhat-for-vscode version
+      // Custom dimension 1: extension version
       //	 Example: 'v1.0.0'.
       cd1: `v${this._version}`,
     };
@@ -171,7 +171,7 @@ function getUserAgent(): string {
   return `Node/${process.version} ${getOperatingSystem()}`;
 }
 
-async function generatePaths(packageName = "hardhat-for-vscode") {
+async function generatePaths(packageName = "hardhat-for-visual-studio-code") {
   const { default: envPaths } = await import("env-paths");
   return envPaths(packageName);
 }

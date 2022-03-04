@@ -1,6 +1,6 @@
-# Hardhat VSCode
+# Hardhat for Visual Studio Code
 
-Hardhat VSCode is a [Visual Studio Code](https://code.visualstudio.com/) extension that provides enhanced [Solidity language](https://soliditylang.org/) features, particularly for [Hardhat projects](https://hardhat.org/).
+**Hardhat for Visual Studio Code** is a [Visual Studio Code](https://code.visualstudio.com/) extension that provides enhanced [Solidity language](https://soliditylang.org/) features, particularly for [Hardhat projects](https://hardhat.org/).
 
 Built by the [Nomic Foundation](https://nomic.foundation/) for the Ethereum community.
 
@@ -17,13 +17,13 @@ Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay u
 
 ## Installation
 
-Hardhat VSCode can be installed by searching for `hardhat` within the `visual studio code` extension tab or via the [marketplace](https://marketplace.visualstudio.com/VSCode).
+**Hardhat for Visual Studio Code** can be installed by searching for `hardhat` within the `visual studio code` extension tab or via the [marketplace](https://marketplace.visualstudio.com/VSCode).
 
 ## Contributing
 
 Contributions are always welcome! Feel free to [open any issue](https://github.com/NomicFoundation/hardhat-vscode/issues) or send a pull request.
 
-Go to [CONTRIBUTING.md](./CONTRIBUTING.md) to learn about how to set up Hardhat VSCode's development environment.
+Go to [CONTRIBUTING.md](./CONTRIBUTING.md) to learn about how to set up **Hardhat for Visual Studio Code's** development environment.
 
 ## Feedback, help and news
 

@@ -1,4 +1,4 @@
-# Welcome to the Hardhat VSCode beta!
+# Welcome to the **Hardhat for Visual Studio** Code beta!
 
 Thanks for helping us improve the extension before its initial release.
 

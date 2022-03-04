@@ -1,8 +1,8 @@
-# How to contribute to Hardhat VSCode
+# How to contribute to Hardhat for Visual Studio Code
 
-This document contains details on how to collaborate and develop on the Hardhat VSCode project.
+This document contains details on how to collaborate and develop on the **Hardhat for Visual Studio Code** project.
 
-- [How to contribute to Hardhat VSCode](#how-to-contribute-to-hardhat-vscode)
+- [How to contribute to Hardhat for Visual Studio Code](#how-to-contribute-to-hardhat-for-visual-studio-code)
   - [Project structure](#project-structure)
   - [Installing](#installing)
   - [Running Locally](#running-locally)
@@ -21,7 +21,7 @@ This document contains details on how to collaborate and develop on the Hardhat 
 
 ## Project structure
 
-**Hardhat VSCode** is a typescript vscode extension and language server. The code is organised into:
+**Hardhat for Visual Studio Code** is a typescript vscode extension and language server. The code is organised into:
 
 - `./client` - the vscode extension, which mainly delegates onto the language server for functionality
 - `./server` - the Hardhat language server, which supports the validation, quickfixes and other solidity language features of the extension
@@ -31,7 +31,7 @@ This document contains details on how to collaborate and develop on the Hardhat 
 
 ## Installing
 
-[node](https://nodejs.org/en/) and [yarn](https://yarnpkg.com/) are required for **Hardhat VSCode** development.
+[node](https://nodejs.org/en/) and [yarn](https://yarnpkg.com/) are required for **Hardhat for Visual Studio Code** development.
 
 To install the project's dependencies, run `yarn` in the root directory of the repository. This will install node dependencies at the top level, and in both the `./server` and `./client` package directories.
 
@@ -86,7 +86,7 @@ To do this, you need:
 
 ## Testing
 
-**Hardhat VSCode** has both unit and integration tests. Components of the server should be tested with unit tests, with a small set of integration tests providing confidence that component interactions work.
+**Hardhat for Visual Studio Code** has both unit and integration tests. Components of the server should be tested with unit tests, with a small set of integration tests providing confidence that component interactions work.
 
 A complete test run involves both test suites and can be run, from repo root, with:
 

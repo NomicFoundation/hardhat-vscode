@@ -1,7 +1,7 @@
 {
-  "name": "hardhat-for-vscode",
+  "name": "hardhat-for-visual-studio-code",
   "publisher": "nomicfoundation",
-  "displayName": "Hardhat for VSCode",
+  "displayName": "Hardhat for Visual Studio Code",
   "description": "Rich Solidity language and Hardhat project support for Visual Studio Code.",
   "license": "MIT",
   "version": "0.0.24",
