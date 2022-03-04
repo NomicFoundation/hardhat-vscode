@@ -13,6 +13,7 @@ const SOLIDITY_LEXER_TOKENS = "SolidityLexer.tokens";
 
 const clientOutDir = "./client/out";
 const serverOutDir = "./server/out";
+const clientAntlrDir = path.join(clientOutDir, "antlr");
 const serverAntlrDir = path.join(serverOutDir, "antlr");
 
 function ensureDirExists(dir) {
@@ -25,11 +26,21 @@ async function main() {
   // Ensure output directories exist
   ensureDirExists(clientOutDir);
   ensureDirExists(serverOutDir);
+  ensureDirExists(clientAntlrDir);
   ensureDirExists(serverAntlrDir);
 
   // Copy across the two token files that
   // solidity-parser pulls via readFile (is there
   // a way of doing this with the bundler?)
+  // We have to do this for both server and client
+  fs.copyFileSync(
+    path.join(ANTLR_MODULE_PATH, SOLIDITY_TOKENS),
+    path.join(clientAntlrDir, SOLIDITY_TOKENS)
+  );
+  fs.copyFileSync(
+    path.join(ANTLR_MODULE_PATH, SOLIDITY_LEXER_TOKENS),
+    path.join(clientAntlrDir, SOLIDITY_LEXER_TOKENS)
+  );
   fs.copyFileSync(
     path.join(ANTLR_MODULE_PATH, SOLIDITY_TOKENS),
     path.join(serverAntlrDir, SOLIDITY_TOKENS)
