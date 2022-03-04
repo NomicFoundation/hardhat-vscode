@@ -4,7 +4,7 @@
   "displayName": "Hardhat for VSCode",
   "description": "Rich Solidity language and Hardhat project support for Visual Studio Code.",
   "license": "MIT",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "main": "./client/out/extension.js",
   "module": "./client/out/extension.js",
   "icon": "docs/images/solidity-logo.png",

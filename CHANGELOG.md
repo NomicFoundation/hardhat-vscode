@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## v0.0.24 - 2022-03-04
+
+### Added
+
+- Expose the telemetry enable/disable switch in the extension settings
+
+### Changed
+
+- Smaller extension install size due to the inclusion of bundling and minification
+
+### Fixed
+
+- Fix for indexing popup not going away when there are no sol files found
+
 ## v0.0.23 - 2022-02-24
 
 ### Added
