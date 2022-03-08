@@ -1,6 +1,6 @@
 # Hardhat for Visual Studio Code
 
-**Hardhat for Visual Studio Code** is a [Visual Studio Code](https://code.visualstudio.com/) extension that provides enhanced [Solidity language](https://soliditylang.org/) features, particularly for [Hardhat projects](https://hardhat.org/).
+**Hardhat for Visual Studio Code** is a [Visual Studio Code](https://code.visualstudio.com/) extension that provides enhanced [Solidity language](https://soliditylang.org/) features.
 
 Built by the [Nomic Foundation](https://nomic.foundation/) for the Ethereum community.
 
