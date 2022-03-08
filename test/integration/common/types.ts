@@ -97,7 +97,7 @@ export interface Client {
   navigationProvider: NavigationProvider;
 
   /**
-   * Activates the ylrednet.solidity-extension extension
+   * Activates the extension
    */
   activate(docUri: vscode.Uri): Promise<void>;
 

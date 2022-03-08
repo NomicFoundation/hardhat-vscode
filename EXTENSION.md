@@ -1,12 +1,6 @@
 # Hardhat for Visual Studio Code
 
-**Hardhat for Visual Studio Code** is a [Visual Studio Code](https://code.visualstudio.com/) extension that provides enhanced [Solidity language](https://soliditylang.org/) features.
-
-Built by the [Nomic Foundation](https://nomic.foundation/) for the Ethereum community.
-
-Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay up to date on new releases, plugins and tutorials.
-
-## Features
+This extension adds language support for [Solidity](https://soliditylang.org/) to Visual Studio Code, and provides editor integration for [Hardhat projects](https://hardhat.org/). Integrations for [truffle](https://trufflesuite.com/), [brownie](https://eth-brownie.readthedocs.io/en/stable/) and [foundry](https://github.com/gakonst/foundry) are coming in the near future. It supports:
 
 - Code completion
 - Go to definition, type definition and references
@@ -15,15 +9,13 @@ Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay u
 - Code actions (quickfixes) suggested from compiler errors/warnings
 - Solidity code formatting through [prettier-plugin-solidity](https://github.com/prettier-solidity/prettier-plugin-solidity)
 
+Built by the [Nomic Foundation](https://nomic.foundation/) - [we’re hiring](https://nomic.foundation/hiring).
+
 ## Installation
 
 **Hardhat for Visual Studio Code** can be installed by searching for `hardhat` within the `visual studio code` extension tab or via the [marketplace](https://marketplace.visualstudio.com/VSCode).
 
-## Contributing
-
-Contributions are always welcome! Feel free to [open any issue](https://github.com/NomicFoundation/hardhat-vscode/issues) or send a pull request.
-
-Go to [CONTRIBUTING.md](./CONTRIBUTING.md) to learn about how to set up Hardhat VSCode's development environment.
+Some features (e.g. inline validation) are still experimental and are only enabled within a [Hardhat](https://hardhat.org/) project, this is a limitation that will be lifted with future releases.
 
 ## Feedback, help and news
 

@@ -39,11 +39,14 @@ class Client implements IClient {
   navigationProvider: NavigationProvider;
 
   /**
-   * Activates the ylrednet.solidity-extension extension
+   * Activates the extension
    */
   async activate(): Promise<void> {
     // The extensionId is `publisher.name` from package.json
-    const ext = vscode.extensions.getExtension("ylrednet.solidity-extension");
+    const ext = vscode.extensions.getExtension(
+      "nomicfoundation.hardhat-for-visual-studio-code"
+    );
+
     await ext.activate();
 
     const serverModule = path.join(

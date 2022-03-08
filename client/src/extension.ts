@@ -245,13 +245,11 @@ export function activate(context: ExtensionContext) {
 
   const module = context.asAbsolutePath(path.join("server", "out", "index.js"));
 
-  const outputChannel: OutputChannel = window.createOutputChannel(
-    "solidity-language-server"
-  );
+  const outputChannel: OutputChannel = window.createOutputChannel("Hardhat");
 
   const logger = new Logger(outputChannel);
 
-  logger.info("Hardhat VSCode Starting ...");
+  logger.info("Hardhat for Visual Studio Code Starting ...");
   logger.info(`env: ${config.env}`);
 
   warnOnOtherSolidityExtensions(logger);
@@ -309,7 +307,7 @@ export function activate(context: ExtensionContext) {
         documentSelector: [
           { scheme: "file", language: "solidity", pattern: `**/*.sol` },
         ],
-        diagnosticCollectionName: "solidity-language-server",
+        diagnosticCollectionName: "hardhat-language-server",
         workspaceFolder: folder,
         outputChannel: outputChannel,
         initializationOptions: {
@@ -327,8 +325,8 @@ export function activate(context: ExtensionContext) {
       // Create the language client and start the client.
       // Start the client. This will also launch the server
       const client = new LanguageClient(
-        "solidity-language-server",
-        "Solidity Language Server",
+        "hardhat-language-server",
+        "Hardhat Language Server",
         serverOptions,
         clientOptions
       );
