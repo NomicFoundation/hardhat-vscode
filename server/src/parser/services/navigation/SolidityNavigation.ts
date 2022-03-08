@@ -39,7 +39,7 @@ export class SolidityNavigation {
     }
 
     return {
-      uri: definitionNode.uri,
+      uri: convertHardhatUriToVscodeUri(definitionNode.uri),
       range: getRange(location),
     };
   }
@@ -98,17 +98,14 @@ export class SolidityNavigation {
 
     highlightNodes.forEach((highlightNode) => {
       if (highlightNode.nameLoc && workspaceEdit.changes) {
-        if (
-          workspaceEdit.changes &&
-          !workspaceEdit.changes[highlightNode.uri]
-        ) {
-          workspaceEdit.changes[highlightNode.uri] = [];
+        const uri = convertHardhatUriToVscodeUri(highlightNode.uri);
+
+        if (workspaceEdit.changes && !workspaceEdit.changes[uri]) {
+          workspaceEdit.changes[uri] = [];
         }
 
         const range = getRange(highlightNode.nameLoc);
-        workspaceEdit.changes[highlightNode.uri].push(
-          TextEdit.replace(range, newName)
-        );
+        workspaceEdit.changes[uri].push(TextEdit.replace(range, newName));
 
         highlightNode.isAlive = false;
       }

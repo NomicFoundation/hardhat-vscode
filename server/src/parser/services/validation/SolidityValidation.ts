@@ -1,3 +1,4 @@
+import * as path from "path";
 import { Analyzer } from "@analyzer/index";
 import { TextDocument, Diagnostic } from "@common/types";
 import { CompilerProcess } from "./HardhatProcess";
@@ -69,7 +70,7 @@ export class SolidityValidation {
           hardhatProcess.send({
             type: GET_DOCUMENT_EVENT,
             data: {
-              uri,
+              uri: path.normalize(uri),
               documentText: document.getText(),
               unsavedDocuments: unsavedDocuments.map((unsavedDocument) => {
                 return {
