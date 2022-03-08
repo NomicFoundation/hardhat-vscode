@@ -1,6 +1,7 @@
-module.exports = {  
-  file: ['./test/setup.ts'],
+module.exports = {
+  file: ["./test/setup.ts"],
   require: "ts-node/register",
   spec: "test/**/*.ts",
-  exit: true
-}
+  timeout: 5000,
+  exit: true,
+};
