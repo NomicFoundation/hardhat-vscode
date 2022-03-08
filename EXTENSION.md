@@ -17,7 +17,6 @@ Built by the [Nomic Foundation](https://nomic.foundation/) - [we’re hiring](ht
 
 Some features (e.g. inline validation) are still experimental and are only enabled within a [Hardhat](https://hardhat.org/) project, this is a limitation that will be lifted with future releases.
 
-
 ## Feedback, help and news
 
 [Hardhat Support Discord server](https://hardhat.org/discord): for questions and feedback.
