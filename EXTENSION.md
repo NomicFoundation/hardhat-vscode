@@ -1,6 +1,6 @@
 # Hardhat for Visual Studio Code
 
-This extension adds language support for [Solidity language](https://soliditylang.org/) to Visual Studio Code, and provides editor integration for [Hardhat projects](https://hardhat.org/), with support for [truffle](https://trufflesuite.com/), [brownie](https://eth-brownie.readthedocs.io/en/stable/) and [foundry](https://github.com/gakonst/foundry) in the near future. It supports:
+This extension adds language support for [Solidity](https://soliditylang.org/) to Visual Studio Code, and provides editor integration for [Hardhat projects](https://hardhat.org/). Integrations for [truffle](https://trufflesuite.com/), [brownie](https://eth-brownie.readthedocs.io/en/stable/) and [foundry](https://github.com/gakonst/foundry) are coming in the near future. It supports:
 
 - Code completion
 - Go to definition, type definition and references
