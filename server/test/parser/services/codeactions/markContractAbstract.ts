@@ -92,7 +92,7 @@ describe("Code Actions", () => {
                 edits: [
                   {
                     newText:
-                      "contract Counter is ICounter {\n  function increment() external pure override {}\n}",
+                      "contract Counter is ICounter {\n    function increment() external pure override {}\n}",
                     range: {
                       start: {
                         line: 7,
@@ -195,7 +195,7 @@ describe("Code Actions", () => {
                 edits: [
                   {
                     newText:
-                      "contract ImplementingContract is ExtendingInterface {\n  //   function inBase() external override {}\n  //   function inExtender() external override {}\n  function inBase() external override {}\n\n  function inExtender() external override {}\n}",
+                      "contract ImplementingContract is ExtendingInterface {\n    //   function inBase() external override {}\n    //   function inExtender() external override {}\n    function inBase() external override {}\n\n    function inExtender() external override {}\n}",
                     range: {
                       start: {
                         line: 11,
@@ -256,7 +256,7 @@ describe("Code Actions", () => {
                 edits: [
                   {
                     newText:
-                      "contract DiamondCounter is IDiamondIncrement, IDiamondDecrement {\n  uint120 public balance = 0;\n\n  function getBalance()\n    external\n    view\n    override(IDiamondCounter, IDiamondIncrement)\n    returns (uint120)\n  {}\n\n  function increment()\n    external\n    view\n    override(IDiamondDecrement, IDiamondIncrement)\n  {}\n\n  function decrement() external override {}\n}",
+                      "contract DiamondCounter is IDiamondIncrement, IDiamondDecrement {\n    uint120 public balance = 0;\n\n    function getBalance()\n        external\n        view\n        override(IDiamondCounter, IDiamondIncrement)\n        returns (uint120)\n    {}\n\n    function increment()\n        external\n        view\n        override(IDiamondDecrement, IDiamondIncrement)\n    {}\n\n    function decrement() external override {}\n}",
                     range: {
                       start: {
                         line: 19,
@@ -317,7 +317,7 @@ describe("Code Actions", () => {
                 edits: [
                   {
                     newText:
-                      "contract I is D, E, F, G, H {\n  function getBalance() external override(B, D, F) returns (uint120) {}\n}",
+                      "contract I is D, E, F, G, H {\n    function getBalance() external override(B, D, F) returns (uint120) {}\n}",
                     range: {
                       start: {
                         line: 33,
@@ -380,7 +380,7 @@ describe("Code Actions", () => {
                 edits: [
                   {
                     newText:
-                      "contract Child is IExample, Parent {\n  //   function first() public virtual override(IExample, Parent) {}\n  //   function second() external override {}\n  function first() public override(IExample, Parent) {}\n\n  function second() external override {}\n}",
+                      "contract Child is IExample, Parent {\n    //   function first() public virtual override(IExample, Parent) {}\n    //   function second() external override {}\n    function first() public override(IExample, Parent) {}\n\n    function second() external override {}\n}",
                     range: {
                       start: {
                         line: 13,
@@ -443,7 +443,7 @@ describe("Code Actions", () => {
                 edits: [
                   {
                     newText:
-                      "contract Child is IExample, Parent {\n  // function second() external override {}\n  function second() external override {}\n}",
+                      "contract Child is IExample, Parent {\n    // function second() external override {}\n    function second() external override {}\n}",
                     range: {
                       start: {
                         line: 13,
@@ -506,7 +506,7 @@ describe("Code Actions", () => {
                 edits: [
                   {
                     newText:
-                      "contract C is ID, CH {\n  // function top() external override(CE, IA) returns (uint120) {}\n  // function topFromInterface() external override returns (uint120) {}\n  // function left() external override(CF, IB) returns (uint120) {}\n  // function right() external override(CG, IC) returns (uint120) {}\n  // function bottom() external override(CH, ID) returns (uint120) {}\n  function top() external override(CE, IA) returns (uint120) {}\n\n  function topFromInterface() external override returns (uint120) {}\n\n  function left() external override(CF, IB) returns (uint120) {}\n\n  function right() external override(CG, IC) returns (uint120) {}\n\n  function bottom() external override(CH, ID) returns (uint120) {}\n}",
+                      "contract C is ID, CH {\n    // function top() external override(CE, IA) returns (uint120) {}\n    // function topFromInterface() external override returns (uint120) {}\n    // function left() external override(CF, IB) returns (uint120) {}\n    // function right() external override(CG, IC) returns (uint120) {}\n    // function bottom() external override(CH, ID) returns (uint120) {}\n    function top() external override(CE, IA) returns (uint120) {}\n\n    function topFromInterface() external override returns (uint120) {}\n\n    function left() external override(CF, IB) returns (uint120) {}\n\n    function right() external override(CG, IC) returns (uint120) {}\n\n    function bottom() external override(CH, ID) returns (uint120) {}\n}",
                     range: {
                       start: {
                         line: 45,

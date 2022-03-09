@@ -66,21 +66,21 @@ export class PrettyPrinter {
   private defaultConfig() {
     return {
       printWidth: 80,
-      tabWidth: 2,
+      tabWidth: 4,
       useTabs: false,
       singleQuote: false,
       bracketSpacing: false,
-      explicitTypes: "always",
+      explicitTypes: "preserve",
       overrides: [
         {
           files: "*.sol",
           options: {
             printWidth: 80,
-            tabWidth: 2,
+            tabWidth: 4,
             useTabs: false,
             singleQuote: false,
             bracketSpacing: false,
-            explicitTypes: "always",
+            explicitTypes: "preserve",
           },
         },
       ],
