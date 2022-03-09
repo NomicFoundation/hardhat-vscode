@@ -71,29 +71,22 @@ function getCurrentWorkspaceRootFolder(): vscode.WorkspaceFolder | undefined {
 
 function defaultConfig() {
   return {
-    bracketSpacing: true,
-    explicitTypes: "always",
-    "newline-before-return": true,
-    "no-duplicate-variable": [true, "check-parameters"],
-    "no-var-keyword": true,
-    printWidth: 120,
-    semi: true,
-    singleQuote: true,
+    printWidth: 80,
     tabWidth: 4,
-    trailingComma: "es5",
-    useTabs: true,
+    useTabs: false,
+    singleQuote: false,
+    bracketSpacing: false,
+    explicitTypes: "preserve",
     overrides: [
       {
         files: "*.sol",
         options: {
-          singleQuote: false,
-          tabWidth: 4,
-        },
-      },
-      {
-        files: "*.md",
-        options: {
           printWidth: 80,
+          tabWidth: 4,
+          useTabs: false,
+          singleQuote: false,
+          bracketSpacing: false,
+          explicitTypes: "preserve",
         },
       },
     ],
