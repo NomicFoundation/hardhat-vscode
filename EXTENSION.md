@@ -17,7 +17,7 @@ Built by the [Nomic Foundation](https://nomic.foundation/). [We’re hiring](htt
 
 ## Installation
 
-**Hardhat for Visual Studio Code** can be installed by searching for `hardhat` within the `visual studio code` extension tab or via the [marketplace](https://marketplace.visualstudio.com/VSCode).
+**Hardhat for Visual Studio Code** can be installed by searching for `hardhat` within the `visual studio code` extension tab or via the [marketplace](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity).
 
 Some features (e.g. inline validation) are still experimental and are only enabled within a [Hardhat](https://hardhat.org/) project, this is a limitation that will be lifted with future releases.
 
