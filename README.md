@@ -11,9 +11,13 @@ Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay u
 - Code completion
 - Go to definition, type definition and references
 - Symbol renames
+- Solidity code formatting through [prettier-plugin-solidity](https://github.com/prettier-solidity/prettier-plugin-solidity)
 - Inline validation for Hardhat projects
 - Code actions (quickfixes) suggested from compiler errors/warnings
-- Solidity code formatting through [prettier-plugin-solidity](https://github.com/prettier-solidity/prettier-plugin-solidity)
+  - Implement missing functions on interface with stubs
+  - Constrain mutability by adding `view`/`pure` to function signature
+  - Meet inheritance requirements by adding `virtual`/`override` on function signature
+  - Provide accessibility by adding `public`/`private` to function signature
 
 ## Installation
 

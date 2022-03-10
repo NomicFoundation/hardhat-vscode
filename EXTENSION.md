@@ -5,9 +5,13 @@ This extension adds language support for [Solidity](https://soliditylang.org/) t
 - Code completion
 - Go to definition, type definition and references
 - Symbol renames
+- Solidity code formatting through [prettier-plugin-solidity](https://github.com/prettier-solidity/prettier-plugin-solidity)
 - Inline validation for Hardhat projects
 - Code actions (quickfixes) suggested from compiler errors/warnings
-- Solidity code formatting through [prettier-plugin-solidity](https://github.com/prettier-solidity/prettier-plugin-solidity)
+  - Implement missing functions on interface with stubs
+  - Constrain mutability by adding `view`/`pure` to function signature
+  - Meet inheritance requirements by adding `virtual`/`override` on function signature
+  - Provide accessibility by adding `public`/`private` to function signature
 
 Built by the [Nomic Foundation](https://nomic.foundation/) - [we’re hiring](https://nomic.foundation/hiring).
 
