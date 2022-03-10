@@ -171,7 +171,7 @@ function getUserAgent(): string {
   return `Node/${process.version} ${getOperatingSystem()}`;
 }
 
-async function generatePaths(packageName = "hardhat-for-visual-studio-code") {
+async function generatePaths(packageName = "hardhat-solidity") {
   const { default: envPaths } = await import("env-paths");
   return envPaths(packageName);
 }
