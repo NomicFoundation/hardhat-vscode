@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## v0.1.0 - 2022-03-10
+
+### Changed
+
+- Update docs and extension page to list features and public contact points
+
+### Fixed
+
+- Multiple fixes to validation, quick fixes and navigation on windows
+
 ## v0.0.24 - 2022-03-04
 
 ### Added
