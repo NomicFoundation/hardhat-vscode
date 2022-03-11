@@ -21,7 +21,7 @@ Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay u
 
 ## Installation
 
-**Hardhat for Visual Studio Code** can be installed by searching for `hardhat` within the `visual studio code` extension tab or via the [marketplace](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity).
+**Hardhat for Visual Studio Code** can be installed by [using the Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity).
 
 ## Contributing
 
