@@ -256,6 +256,11 @@ export function activate(context: ExtensionContext) {
 
   warnOnOtherSolidityExtensions(logger);
 
+  window.showWarningMessage(
+    `The [Hardhat VSCode](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity) private beta is now complete. Please uninstall "ytidilos" and switch to the public [Hardhat VSCode extension](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity). Thanks for helping us test it!`,
+    "Okay"
+  );
+
   context.subscriptions.push(
     languages.registerDocumentFormattingEditProvider("ytidilos", {
       provideDocumentFormattingEdits(document: TextDocument): TextEdit[] {
