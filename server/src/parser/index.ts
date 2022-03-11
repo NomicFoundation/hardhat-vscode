@@ -7,6 +7,7 @@ import { compilerProcessFactory } from "@services/validation/compilerProcessFact
 import { SoliditySignatureHelp } from "@services/documentation/SoliditySignatureHelp";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { Logger } from "@utils/Logger";
+import { SolidityRename } from "@services/rename/SolidityRename";
 
 export class LanguageService {
   analyzer: Analyzer;
@@ -14,6 +15,7 @@ export class LanguageService {
   solidityCompletion: SolidityCompletion;
   solidityValidation: SolidityValidation;
   soliditySignatureHelp: SoliditySignatureHelp;
+  solidityRename: SolidityRename;
 
   constructor(
     compProcessFactory: typeof compilerProcessFactory,
@@ -29,6 +31,7 @@ export class LanguageService {
       compProcessFactory
     );
     this.soliditySignatureHelp = new SoliditySignatureHelp(this.analyzer);
+    this.solidityRename = new SolidityRename(this.analyzer);
   }
 
   async init(rootPath: string): Promise<void> {

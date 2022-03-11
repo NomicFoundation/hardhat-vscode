@@ -331,9 +331,8 @@ export default function setupServer(
 
         if (documentAnalyzer.isAnalyzed) {
           return serverState.analytics.trackTiming("onRenameRequest", () =>
-            serverState.languageServer.solidityNavigation.doRename(
+            serverState.languageServer.solidityRename.doRename(
               documentURI,
-              document,
               params.position,
               params.newName,
               documentAnalyzer.analyzerTree.tree
