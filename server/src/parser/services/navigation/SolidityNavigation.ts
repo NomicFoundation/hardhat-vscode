@@ -1,11 +1,8 @@
 import { Analyzer } from "@analyzer/index";
 import { isFunctionDefinitionNode } from "@analyzer/utils/typeGuards";
 import {
-  TextDocument,
   VSCodePosition,
   VSCodeLocation,
-  WorkspaceEdit,
-  TextEdit,
   Node,
   definitionNodeTypes,
   Location,
@@ -84,34 +81,6 @@ export class SolidityNavigation {
       .filter(this.isNotAbstractFunction);
 
     return this.getHighlightLocations(implementationNodes);
-  }
-
-  public doRename(
-    uri: string,
-    document: TextDocument,
-    position: VSCodePosition,
-    newName: string,
-    analyzerTree: Node
-  ): WorkspaceEdit {
-    const highlightNodes = this.findHighlightNodes(uri, position, analyzerTree);
-    const workspaceEdit: WorkspaceEdit = { changes: {} };
-
-    highlightNodes.forEach((highlightNode) => {
-      if (highlightNode.nameLoc && workspaceEdit.changes) {
-        const uri = convertHardhatUriToVscodeUri(highlightNode.uri);
-
-        if (workspaceEdit.changes && !workspaceEdit.changes[uri]) {
-          workspaceEdit.changes[uri] = [];
-        }
-
-        const range = getRange(highlightNode.nameLoc);
-        workspaceEdit.changes[uri].push(TextEdit.replace(range, newName));
-
-        highlightNode.isAlive = false;
-      }
-    });
-
-    return workspaceEdit;
   }
 
   private getHighlightLocations(highlightNodes: Node[]): VSCodeLocation[] {

@@ -91,6 +91,14 @@ export class Searcher implements ISearcher {
     return this._findNodeByPosition(uri, position, from, true, false);
   }
 
+  public findRenameNodeByPosition(
+    uri: string,
+    position: Position,
+    from?: Node
+  ): Node | undefined {
+    return this._findNodeByPosition(uri, position, from, false, false);
+  }
+
   /**
    * @param uri Path to the file. Uri needs to be decoded and without the "file://" prefix.
    * @param position Position in the file.

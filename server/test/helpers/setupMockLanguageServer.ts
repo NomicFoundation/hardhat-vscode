@@ -16,6 +16,8 @@ import {
   ReferenceParams,
   ImplementationParams,
   Location,
+  RenameParams,
+  WorkspaceEdit,
 } from "vscode-languageserver/node";
 import setupServer from "../../src/server";
 import { setupMockCompilerProcessFactory } from "./setupMockCompilerProcessFactory";
@@ -45,6 +47,9 @@ export type OnReferences = (
 export type OnImplementation = (
   params: ImplementationParams
 ) => Location[] | undefined | null;
+export type OnRenameRequest = (
+  params: RenameParams
+) => WorkspaceEdit | undefined | null;
 
 export async function setupMockLanguageServer({
   documents,
@@ -98,6 +103,8 @@ export async function setupMockLanguageServer({
     mockConnection.onReferences.getCall(0).firstArg;
   const implementation: OnImplementation =
     mockConnection.onImplementation.getCall(0).firstArg;
+  const renameRequest: OnRenameRequest =
+    mockConnection.onRenameRequest.getCall(0).firstArg;
 
   const didOpenTextDocument =
     mockConnection.onDidOpenTextDocument.getCall(0).firstArg;
@@ -154,6 +161,7 @@ export async function setupMockLanguageServer({
       typeDefinition,
       references,
       implementation,
+      renameRequest,
     },
   };
 }
