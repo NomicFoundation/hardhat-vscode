@@ -237,6 +237,12 @@ export interface Searcher {
     from?: Node
   ): Node | undefined;
 
+  findRenameNodeByPosition(
+    uri: string,
+    position: Position,
+    from?: Node
+  ): Node | undefined;
+
   /**
    * @param uri Path to the file. Uri needs to be decoded and without the "file://" prefix.
    * @param position Position in the file.
