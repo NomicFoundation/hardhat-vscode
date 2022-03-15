@@ -12,8 +12,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          repository: 'NomicFoundation/github-linear-bridge'
-          path: '.github/github-linear-bridge'
+          repository: "NomicFoundation/github-linear-bridge"
+          path: ".github/github-linear-bridge"
+          ref: "main"
       - uses: actions/setup-node@v1
         with:
           node-version: 14
