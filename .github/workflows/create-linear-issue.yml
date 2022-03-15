@@ -15,6 +15,7 @@ jobs:
           repository: "NomicFoundation/github-linear-bridge"
           path: ".github/github-linear-bridge"
           ref: "main"
+          token: ${{ secrets.AUTOMATION_HELPER_PAT }}
       - uses: actions/setup-node@v1
         with:
           node-version: 14
