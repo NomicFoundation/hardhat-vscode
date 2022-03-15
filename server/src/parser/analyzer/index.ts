@@ -201,11 +201,15 @@ class DocumentAnalyzer implements IDocumentAnalyzer {
         this.document = document;
       }
 
-      this.ast = parser.parse(this.document || "", {
-        loc: true,
-        range: true,
-        tolerant: true,
-      });
+      try {
+        this.ast = parser.parse(this.document || "", {
+          loc: true,
+          range: true,
+          tolerant: true,
+        });
+      } catch {
+        return this.analyzerTree.tree;
+      }
 
       if (this.isAnalyzed) {
         const oldDocumentsAnalyzerTree = this.analyzerTree
