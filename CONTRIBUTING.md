@@ -15,6 +15,7 @@ This document contains details on how to collaborate and develop on the **Hardha
     - [Integration](#integration)
   - [Code Formatting](#code-formatting)
   - [Linting](#linting)
+  - [Changeset](#changeset)
   - [Packaging](#packaging)
     - [Extension README](#extension-readme)
   - [Publishing](#publishing)
@@ -136,6 +137,18 @@ We use Prettier to format all the code (and supporting json config files and mar
 We also have eslint running on `./server`, `./client` and `./test`. It forbids some dangerous patterns.
 
 The linter is always run in the CI, so make sure it passes before pushing code. You can use `yarn lint` and `yarn lint:fix` both at the root of the repository and within `./server` and `./client`.
+
+## Changeset
+
+We use [changset](https://github.com/changesets/changesets) to include text that explains to users (via the changelog) what features/fixes/changes have occurred.
+
+Each PR should include a changeset to aid putting together a changelog during release.
+
+To add a changeset to your PR, run:
+
+```shell
+yarn changeset add
+```
 
 ## Packaging
 
