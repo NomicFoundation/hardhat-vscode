@@ -1,9 +1,11 @@
 import * as path from "path";
 import * as childProcess from "child_process";
 import * as utils from "@common/utils";
+import { Logger } from "@utils/Logger";
 import {
   COMPILER_DOWNLOADED_EVENT,
   HARDHAT_CONFIG_FILE_EXIST_EVENT,
+  HARDHAT_PROCESS_ERROR,
   SOLIDITY_COMPILE_EVENT,
 } from "./events";
 
@@ -22,11 +24,13 @@ export class HardhatProcess implements CompilerProcess {
   private rootPath: string;
   private uri: string;
   private child: null | childProcess.ChildProcess;
+  private logger: Logger;
 
-  constructor(rootPath: string, uri: string) {
+  constructor(rootPath: string, uri: string, logger: Logger) {
     this.rootPath = rootPath;
     this.uri = uri;
     this.child = null;
+    this.logger = logger;
   }
 
   init() {
@@ -73,6 +77,10 @@ export class HardhatProcess implements CompilerProcess {
           solidityCompilePromiseResolver(data.output);
           break;
 
+        case HARDHAT_PROCESS_ERROR:
+          this.logError(data.err);
+          break;
+
         default:
           break;
       }
@@ -93,5 +101,19 @@ export class HardhatProcess implements CompilerProcess {
     // Then using process.kill(pid) method on main process we can kill all processes that are in
     // the same group of a child process with the same pid group.
     this.child?.kill(this.child.pid);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private logError(err: any) {
+    if (!err) {
+      return;
+    }
+
+    if (err._isHardhatError) {
+      this.logger.error(new Error(err.errorDescriptor?.title));
+      return;
+    }
+
+    this.logger.error(err);
   }
 }
