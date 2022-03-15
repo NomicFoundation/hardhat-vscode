@@ -20,12 +20,20 @@ export interface ValidationJob {
 
 export class SolidityValidation {
   analyzer: Analyzer;
-  compilerProcessFactory: (rootPath: string, uri: string) => CompilerProcess;
+  compilerProcessFactory: (
+    rootPath: string,
+    uri: string,
+    logger: Logger
+  ) => CompilerProcess;
   diagnosticConverter: DiagnosticConverter;
 
   constructor(
     analyzer: Analyzer,
-    compilerProcessFactory: (rootPath: string, uri: string) => CompilerProcess
+    compilerProcessFactory: (
+      rootPath: string,
+      uri: string,
+      logger: Logger
+    ) => CompilerProcess
   ) {
     this.analyzer = analyzer;
     this.compilerProcessFactory = compilerProcessFactory;
@@ -54,7 +62,11 @@ export class SolidityValidation {
           return {};
         }
 
-        const hardhatProcess = this.compilerProcessFactory(rootPath, uri);
+        const hardhatProcess = this.compilerProcessFactory(
+          rootPath,
+          uri,
+          logger
+        );
 
         const {
           hardhatConfigFileExistPromise,
