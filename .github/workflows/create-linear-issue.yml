@@ -1,4 +1,4 @@
-name: Create Linear.app issue and autoassign
+name: Create Linear issue and autoassign
 
 on:
   issues:
@@ -7,7 +7,7 @@ on:
     types: [opened]
 
 jobs:
-  my-action:
+  create-linear-issue:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
