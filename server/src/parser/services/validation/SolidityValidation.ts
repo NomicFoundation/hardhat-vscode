@@ -120,16 +120,18 @@ export class SolidityValidation {
 
           try {
             hardhatProcess.kill();
-          } catch (err) {
-            logger.error(err);
+          } catch {
+            // suppress the kill signal error
           }
 
           return diagnostics;
         } catch (err) {
+          logger.error(err);
+
           try {
             hardhatProcess.kill();
           } catch (err) {
-            logger.error(err);
+            // suppress the kill signal error
           }
 
           return Promise.resolve({});
