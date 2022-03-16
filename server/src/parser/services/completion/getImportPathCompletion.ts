@@ -62,6 +62,10 @@ function getRelativeImportPathCompletions(
     return [];
   }
 
+  if (currentImport.endsWith(".sol")) {
+    return [];
+  }
+
   let importDir: string;
   let partial: string;
   if (fs.existsSync(importPath)) {
