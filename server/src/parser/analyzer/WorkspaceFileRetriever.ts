@@ -30,7 +30,7 @@ export class WorkspaceFileRetriever {
         }
       });
     } catch (err) {
-      logger.log("Unable to scan directory: " + err);
+      logger.trace("Unable to scan directory: " + err);
     }
   }
 }
