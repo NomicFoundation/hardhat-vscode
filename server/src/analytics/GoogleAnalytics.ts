@@ -52,17 +52,22 @@ export class GoogleAnalytics implements Analytics {
     taskName: string,
     more?: RawAnalyticsPayload
   ): Promise<void> {
-    if (
-      this.serverState?.env !== "production" ||
-      !isTelemetryEnabled(this.serverState) ||
-      !this.machineId
-    ) {
+    try {
+      if (
+        this.serverState?.env !== "production" ||
+        !isTelemetryEnabled(this.serverState) ||
+        !this.machineId
+      ) {
+        return;
+      }
+
+      const payload = this.buildPayloadFrom(taskName, this.machineId, more);
+
+      return this.sendHit(payload);
+    } catch {
+      // continue on failed analytics send
       return;
     }
-
-    const payload = this.buildPayloadFrom(taskName, this.machineId, more);
-
-    return this.sendHit(payload);
   }
 
   private buildPayloadFrom(
