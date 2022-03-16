@@ -9,6 +9,7 @@ import "./sub/subsub/";
 import "./sub/subsub/.";
 import "./Sec";
 import "./Second.so";
+import "./Second.sol";
 import "./sub/subsu";
 import "@openzeppelin/";
 import "@ope";

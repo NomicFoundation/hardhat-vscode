@@ -43,7 +43,7 @@ describe("Parser", () => {
         }));
 
         const response = await completion({
-          position: { line: 16, character: 12 },
+          position: { line: 17, character: 12 },
           textDocument: { uri: importsUri },
           context: {
             triggerKind: 2,
@@ -341,11 +341,22 @@ describe("Parser", () => {
               }
             ));
 
+          it("should provide no completions for full file names that include extension", () =>
+            assertImportCompletion(
+              completion,
+              importsUri,
+              { line: 11, character: 20 },
+              [],
+              {
+                triggerKind: 1,
+              }
+            ));
+
           it("should provide completions for partial folder names", () =>
             assertImportCompletion(
               completion,
               importsUri,
-              { line: 11, character: 19 },
+              { line: 12, character: 19 },
               [
                 {
                   label: "subsub",
@@ -598,7 +609,7 @@ describe("Parser", () => {
           assertImportCompletion(
             completion,
             importsUri,
-            { line: 12, character: 22 },
+            { line: 13, character: 22 },
             [
               {
                 label:
@@ -609,11 +620,11 @@ describe("Parser", () => {
                     "@openzeppelin/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.sol",
                   range: {
                     start: {
-                      line: 12,
+                      line: 13,
                       character: 8,
                     },
                     end: {
-                      line: 12,
+                      line: 13,
                       character: 22,
                     },
                   },
@@ -626,11 +637,11 @@ describe("Parser", () => {
                   newText: "@openzeppelin/contracts/token/ERC20/IERC20.sol",
                   range: {
                     start: {
-                      line: 12,
+                      line: 13,
                       character: 8,
                     },
                     end: {
-                      line: 12,
+                      line: 13,
                       character: 22,
                     },
                   },
@@ -647,7 +658,7 @@ describe("Parser", () => {
           assertImportCompletion(
             completion,
             importsUri,
-            { line: 13, character: 12 },
+            { line: 14, character: 12 },
             [
               {
                 label: "@openzeppelin",
@@ -656,11 +667,11 @@ describe("Parser", () => {
                   newText: "@openzeppelin",
                   range: {
                     start: {
-                      line: 13,
+                      line: 14,
                       character: 8,
                     },
                     end: {
-                      line: 13,
+                      line: 14,
                       character: 12,
                     },
                   },
@@ -676,7 +687,7 @@ describe("Parser", () => {
           assertImportCompletion(
             completion,
             importsUri,
-            { line: 14, character: 54 },
+            { line: 15, character: 54 },
             [
               {
                 label:
@@ -687,11 +698,11 @@ describe("Parser", () => {
                     "@openzeppelin/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.sol",
                   range: {
                     start: {
-                      line: 14,
+                      line: 15,
                       character: 8,
                     },
                     end: {
-                      line: 14,
+                      line: 15,
                       character: 54,
                     },
                   },
@@ -708,7 +719,7 @@ describe("Parser", () => {
           assertImportCompletion(
             completion,
             importsUri,
-            { line: 15, character: 49 },
+            { line: 16, character: 49 },
             [
               {
                 label:
@@ -719,11 +730,11 @@ describe("Parser", () => {
                     "@openzeppelin/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.sol",
                   range: {
                     start: {
-                      line: 15,
+                      line: 16,
                       character: 8,
                     },
                     end: {
-                      line: 15,
+                      line: 16,
                       character: 49,
                     },
                   },
