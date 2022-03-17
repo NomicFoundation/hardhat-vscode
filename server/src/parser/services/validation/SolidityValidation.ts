@@ -106,7 +106,7 @@ export class SolidityValidation {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const output: any = await solidityCompilePromise;
 
-          if (!output || output.errors.length === 0) {
+          if (!output || !output.errors || output.errors.length === 0) {
             return {};
           }
 
