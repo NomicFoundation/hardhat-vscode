@@ -23,6 +23,7 @@ import { Logger } from "@utils/Logger";
 import { Analytics } from "./analytics/types";
 import { Telemetry } from "./telemetry/types";
 import { ServerState } from "./types";
+import { onHover } from "@services/hover/onHover";
 
 const debounceAnalyzeDocument: {
   [uri: string]: (
@@ -351,6 +352,8 @@ export default function setupServer(
 
   connection.onCodeAction(onCodeAction(serverState));
 
+  connection.onHover(onHover(serverState));
+
   telemetry.enableHeartbeat();
 
   connection.onExit(() => {
@@ -610,6 +613,7 @@ const resolveOnInitialize = (serverState: ServerState) => {
         implementationProvider: true,
         renameProvider: true,
         codeActionProvider: true,
+        hoverProvider: true,
       },
     };
 
