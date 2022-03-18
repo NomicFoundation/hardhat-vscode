@@ -36,7 +36,5 @@ export interface Analytics {
     serverState: ServerState
   ): void;
 
-  sendTaskHit(taskName: string, more?: RawAnalyticsPayload): Promise<void>;
-
-  trackTiming<T>(taskName: string, action: () => T): T;
+  sendPageView(taskName: string, more?: RawAnalyticsPayload): Promise<void>;
 }

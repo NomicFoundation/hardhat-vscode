@@ -36,19 +36,7 @@ export class GoogleAnalytics implements Analytics {
     this.serverState = serverState;
   }
 
-  public trackTiming<T>(taskName: string, action: () => T): T {
-    const startTime = Date.now();
-
-    const result = action();
-
-    this.sendTaskHit(taskName, {
-      plt: Date.now() - startTime,
-    });
-
-    return result;
-  }
-
-  public async sendTaskHit(
+  public async sendPageView(
     taskName: string,
     more?: RawAnalyticsPayload
   ): Promise<void> {
@@ -92,7 +80,7 @@ export class GoogleAnalytics implements Analytics {
       cid: machineId,
 
       // Hit type, we're only using timing for now.
-      t: "timing",
+      t: "pageview",
 
       // Document page
       dp: `/${taskName}`,
