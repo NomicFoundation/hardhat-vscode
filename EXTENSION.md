@@ -7,6 +7,7 @@ This extension adds language support for [Solidity](https://soliditylang.org/) t
 - Symbol renames
 - Solidity code formatting through [prettier-plugin-solidity](https://github.com/prettier-solidity/prettier-plugin-solidity)
 - Inline code validation from compiler errors/warnings for Hardhat projects
+- Hover help for variables, function calls, errors, events etc.
 - Code actions (quickfixes) suggested from compiler errors/warnings for Hardhat projects
   - Implement missing functions on interface with stubs
   - Constrain mutability by adding `view`/`pure` to function signature
@@ -17,7 +18,7 @@ Built by the [Nomic Foundation](https://nomic.foundation/). [We’re hiring](htt
 
 ## Installation
 
-**Hardhat for Visual Studio Code** can be installed by searching for `hardhat` within the `visual studio code` extension tab or via the [marketplace](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity).
+**Hardhat for Visual Studio Code** can be installed by [using the Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity).
 
 Some features (e.g. inline validation) are still experimental and are only enabled within a [Hardhat](https://hardhat.org/) project, this is a limitation that will be lifted with future releases.
 

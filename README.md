@@ -13,6 +13,7 @@ Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay u
 - Symbol renames
 - Solidity code formatting through [prettier-plugin-solidity](https://github.com/prettier-solidity/prettier-plugin-solidity)
 - Inline validation for Hardhat projects
+- Hover help for variables, function calls, errors, events etc.
 - Code actions (quickfixes) suggested from compiler errors/warnings
   - Implement missing functions on interface with stubs
   - Constrain mutability by adding `view`/`pure` to function signature
