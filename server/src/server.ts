@@ -76,7 +76,6 @@ export default function setupServer(
       em,
       logger
     ),
-    analytics,
     telemetry,
     logger,
   };
@@ -92,7 +91,7 @@ export default function setupServer(
       throw new Error("Root Uri not set");
     }
 
-    serverState.analytics.trackTiming("indexing", () => {
+    serverState.telemetry.trackTimingSync("indexing", () => {
       serverState.languageServer.init(serverState.rootUri);
     });
 
@@ -130,12 +129,14 @@ export default function setupServer(
             );
 
           if (documentAnalyzer.isAnalyzed) {
-            return serverState.analytics.trackTiming("onSignatureHelp", () =>
-              serverState.languageServer.soliditySignatureHelp.doSignatureHelp(
-                document,
-                params.position,
-                documentAnalyzer
-              )
+            return serverState.telemetry.trackTimingSync(
+              "onSignatureHelp",
+              () =>
+                serverState.languageServer.soliditySignatureHelp.doSignatureHelp(
+                  document,
+                  params.position,
+                  documentAnalyzer
+                )
             );
           }
         }
@@ -189,7 +190,7 @@ export default function setupServer(
             return;
           }
 
-          return serverState.analytics.trackTiming("onCompletion", () =>
+          return serverState.telemetry.trackTimingSync("onCompletion", () =>
             serverState.languageServer.solidityCompletion.doComplete(
               params.position,
               documentAnalyzer,
@@ -218,7 +219,7 @@ export default function setupServer(
           serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
         if (documentAnalyzer.isAnalyzed) {
-          return serverState.analytics.trackTiming("onDefinition", () =>
+          return serverState.telemetry.trackTimingSync("onDefinition", () =>
             serverState.languageServer.solidityNavigation.findDefinition(
               documentURI,
               params.position,
@@ -246,13 +247,16 @@ export default function setupServer(
           serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
         if (documentAnalyzer.isAnalyzed) {
-          return serverState.analytics.trackTiming("onTypeDefinition", () => {
-            return serverState.languageServer.solidityNavigation.findTypeDefinition(
-              documentURI,
-              params.position,
-              documentAnalyzer.analyzerTree.tree
-            );
-          });
+          return serverState.telemetry.trackTimingSync(
+            "onTypeDefinition",
+            () => {
+              return serverState.languageServer.solidityNavigation.findTypeDefinition(
+                documentURI,
+                params.position,
+                documentAnalyzer.analyzerTree.tree
+              );
+            }
+          );
         }
       }
     } catch (err) {
@@ -274,7 +278,7 @@ export default function setupServer(
           serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
         if (documentAnalyzer.isAnalyzed) {
-          return serverState.analytics.trackTiming("onReferences", () =>
+          return serverState.telemetry.trackTimingSync("onReferences", () =>
             serverState.languageServer.solidityNavigation.findReferences(
               documentURI,
               params.position,
@@ -302,7 +306,7 @@ export default function setupServer(
           serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
         if (documentAnalyzer.isAnalyzed) {
-          return serverState.analytics.trackTiming("onImplementation", () =>
+          return serverState.telemetry.trackTimingSync("onImplementation", () =>
             serverState.languageServer.solidityNavigation.findImplementation(
               documentURI,
               params.position,
@@ -330,7 +334,7 @@ export default function setupServer(
           serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
 
         if (documentAnalyzer.isAnalyzed) {
-          return serverState.analytics.trackTiming("onRenameRequest", () =>
+          return serverState.telemetry.trackTimingSync("onRenameRequest", () =>
             serverState.languageServer.solidityRename.doRename(
               documentURI,
               params.position,
@@ -346,6 +350,8 @@ export default function setupServer(
   });
 
   connection.onCodeAction(onCodeAction(serverState));
+
+  telemetry.enableHeartbeat();
 
   connection.onExit(() => {
     logger.info("Server closing down");
@@ -418,7 +424,10 @@ export default function setupServer(
 
       const documentURI = getUriFromDocument(change.document);
       const validationJob =
-        serverState.languageServer.solidityValidation.getValidationJob(logger);
+        serverState.languageServer.solidityValidation.getValidationJob(
+          telemetry,
+          logger
+        );
 
       debounceValidateDocument[change.document.uri](
         validationJob,
@@ -578,7 +587,6 @@ const resolveOnInitialize = (serverState: ServerState) => {
       );
     }
 
-    serverState.analytics.init(machineId, extensionVersion, serverState);
     serverState.telemetry.init(
       machineId,
       extensionName,

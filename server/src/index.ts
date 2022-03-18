@@ -12,13 +12,16 @@ const GOOGLE_TRACKING_ID = "UA-117668706-4";
 const SENTRY_DSN =
   "https://9d1e887190db400791c77d9bb5a154fd@o385026.ingest.sentry.io/5469451";
 
+// every 10 mins (ga sessions stop with 30mins inactivty)
+const HEARTBEAT_PERIOD = 10 * 60 * 1000;
+
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 const connection = createConnection(ProposedFeatures.all);
 
 const workspaceFileRetriever = new WorkspaceFileRetriever();
-const telemetry = new SentryTelemetry(SENTRY_DSN);
 const analytics = new GoogleAnalytics(GOOGLE_TRACKING_ID);
+const telemetry = new SentryTelemetry(SENTRY_DSN, HEARTBEAT_PERIOD, analytics);
 const logger = new ConnectionLogger(connection, telemetry);
 
 setupServer(

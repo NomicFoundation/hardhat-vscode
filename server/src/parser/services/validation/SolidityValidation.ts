@@ -8,6 +8,7 @@ import {
 } from "./events";
 import { DiagnosticConverter } from "./DiagnosticConverter";
 import { Logger } from "@utils/Logger";
+import { Telemetry } from "telemetry/types";
 
 export interface ValidationJob {
   run(
@@ -40,7 +41,7 @@ export class SolidityValidation {
     this.diagnosticConverter = new DiagnosticConverter(this.analyzer);
   }
 
-  public getValidationJob(logger: Logger): ValidationJob {
+  public getValidationJob(telemetry: Telemetry, logger: Logger): ValidationJob {
     let isCompilerDownloaded = true;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -61,6 +62,11 @@ export class SolidityValidation {
           logger.error(new Error("Validation failed, no rootPath specified"));
           return {};
         }
+
+        const transaction = telemetry.startTransaction({
+          op: "task",
+          name: "validation",
+        });
 
         const hardhatProcess = this.compilerProcessFactory(
           rootPath,
@@ -94,17 +100,42 @@ export class SolidityValidation {
             },
           });
 
+          const configFileExistsSpan = transaction.startChild({
+            op: "task",
+            description: `Find hardhat config file`,
+          });
+
           const hardhatConfigFileExist =
             (await hardhatConfigFileExistPromise) as boolean;
+
           if (!hardhatConfigFileExist) {
+            configFileExistsSpan.setStatus("failed_precondition");
+            configFileExistsSpan.finish();
             return {};
+          } else {
+            configFileExistsSpan.finish();
           }
 
+          const compilerDownloadSpan = transaction.startChild({
+            op: "task",
+            description: `Download compiler`,
+          });
+
           isCompilerDownloaded = (await compilerDownloadedPromise) as boolean;
+
+          compilerDownloadSpan.finish();
+
           hardhatProcess.send({ type: SOLIDITY_COMPILE_CONFIRMATION_EVENT });
+
+          const hardhatCompileSpan = transaction.startChild({
+            op: "task",
+            description: `Hardhat compile`,
+          });
 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const output: any = await solidityCompilePromise;
+
+          hardhatCompileSpan.finish();
 
           if (!output || !output.errors || output.errors.length === 0) {
             return {};
@@ -139,6 +170,7 @@ export class SolidityValidation {
           return diagnostics;
         } catch (err) {
           logger.error(err);
+          transaction.setStatus("unknown_error");
 
           try {
             hardhatProcess.kill();
@@ -147,6 +179,8 @@ export class SolidityValidation {
           }
 
           return Promise.resolve({});
+        } finally {
+          transaction.finish();
         }
       },
 
