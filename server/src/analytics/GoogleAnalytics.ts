@@ -63,7 +63,7 @@ export class GoogleAnalytics implements Analytics {
 
       const payload = this.buildPayloadFrom(taskName, this.machineId, more);
 
-      return this.sendHit(payload);
+      await this.sendHit(payload);
     } catch {
       // continue on failed analytics send
       return;
@@ -105,10 +105,10 @@ export class GoogleAnalytics implements Analytics {
     return { ...defaultAnalytics, ...(more || {}) };
   }
 
-  private async sendHit(hit: AnalyticsPayload): Promise<void> {
+  private sendHit(hit: AnalyticsPayload) {
     const hitPayload = qs.stringify(hit);
 
-    await got.post(GOOGLE_ANALYTICS_URL, {
+    return got.post(GOOGLE_ANALYTICS_URL, {
       headers: {
         Accept: "*/*",
         "Accept-Language": "en-US,en;q=0.5",
