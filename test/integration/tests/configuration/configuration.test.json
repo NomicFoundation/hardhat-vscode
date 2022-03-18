@@ -9,6 +9,7 @@
       "triggerCharacters": ["(", ","]
     },
     "definitionProvider": true,
+    "hoverProvider": true,
     "typeDefinitionProvider": true,
     "referencesProvider": true,
     "implementationProvider": true,
