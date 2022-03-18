@@ -24,7 +24,7 @@ export function onCodeAction(serverState: ServerState) {
         return [];
       }
 
-      return serverState.analytics.trackTiming("onCodeAction", () =>
+      return serverState.telemetry.trackTimingSync("onCodeAction", () =>
         quickFixResolver.resolve(
           params.textDocument.uri,
           document,
