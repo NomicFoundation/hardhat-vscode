@@ -139,71 +139,144 @@ describe("Parser", () => {
       });
 
       describe("contract level error/warning", () => {
-        const interfacesUri = forceToUnixStyle(
-          path.join(__dirname, "testData", "Interfaces.sol")
-        );
+        describe('3656 - Contract "Counter" should be marked as abstract', () => {
+          const interfacesUri = forceToUnixStyle(
+            path.join(__dirname, "testData", "Interfaces.sol")
+          );
 
-        const markAsAbstractError = {
-          component: "general",
-          errorCode: "3656",
-          formattedMessage: "",
-          message: 'Contract "Counter" should be marked as abstract.',
-          severity: "error",
-          sourceLocation: {
-            file: interfacesUri,
-            start: 131,
-            end: 162,
-          },
-          type: "Error",
-        };
+          const markAsAbstractError = {
+            component: "general",
+            errorCode: "3656",
+            formattedMessage: "",
+            message: 'Contract "Counter" should be marked as abstract.',
+            severity: "error",
+            sourceLocation: {
+              file: interfacesUri,
+              start: 131,
+              end: 162,
+            },
+            type: "Error",
+          };
 
-        beforeEach(async () => {
-          ({ connection: mockConnection } = await setupMockLanguageServer({
-            documents: [{ uri: interfacesUri, analyze: true }],
-            errors: [markAsAbstractError],
-          }));
+          beforeEach(async () => {
+            ({ connection: mockConnection } = await setupMockLanguageServer({
+              documents: [{ uri: interfacesUri, analyze: true }],
+              errors: [markAsAbstractError],
+            }));
 
-          try {
-            await waitUntil(
-              () => mockConnection.sendDiagnostics.calledOnce,
-              100,
-              1000
-            );
-          } catch {
-            assert.fail("Send diagnostics not called");
-          }
+            try {
+              await waitUntil(
+                () => mockConnection.sendDiagnostics.calledOnce,
+                100,
+                1000
+              );
+            } catch {
+              assert.fail("Send diagnostics not called");
+            }
+          });
+
+          it("should convert constrain range of mark as abstract error", async () => {
+            assert(mockConnection.sendDiagnostics.calledOnce);
+            const { uri, diagnostics } =
+              mockConnection.sendDiagnostics.firstCall.firstArg;
+
+            assert.equal(uri, interfacesUri);
+            assert.deepStrictEqual(diagnostics, [
+              {
+                code: "3656",
+                message: 'Contract "Counter" should be marked as abstract.',
+                severity: 1,
+                source: "solidity",
+                range: {
+                  start: {
+                    line: 7,
+                    character: 9,
+                  },
+                  end: {
+                    line: 7,
+                    character: 16,
+                  },
+                },
+                data: {
+                  functionSourceLocation: {
+                    start: 131,
+                    end: 162,
+                  },
+                },
+              },
+            ]);
+          });
         });
 
-        it("should convert constrain range of mark as abstract error", async () => {
-          assert(mockConnection.sendDiagnostics.calledOnce);
-          const { uri, diagnostics } =
-            mockConnection.sendDiagnostics.firstCall.firstArg;
+        describe("5574 - Contract Size", () => {
+          const contractCodeSizeUri = forceToUnixStyle(
+            path.join(__dirname, "testData", "ContractCodeSize.sol")
+          );
 
-          assert.equal(uri, interfacesUri);
-          assert.deepStrictEqual(diagnostics, [
-            {
-              code: "3656",
-              message: 'Contract "Counter" should be marked as abstract.',
-              severity: 1,
-              source: "solidity",
-              range: {
-                start: {
-                  line: 7,
-                  character: 9,
-                },
-                end: {
-                  line: 7,
-                  character: 16,
-                },
-              },
-              data: {
-                functionSourceLocation: {
-                  start: 131,
-                  end: 162,
-                },
-              },
+          const contractSizeError = {
+            component: "general",
+            errorCode: "5574",
+            formattedMessage: "",
+            message:
+              'Contract code size exceeds 24576 bytes (a limit introduced in Spurious Dragon). This contract may not be deployable on mainnet. Consider enabling the optimizer (with a low "runs" value!), turning off revert strings, or using libraries.',
+            severity: "warning",
+            sourceLocation: {
+              file: contractCodeSizeUri,
+              start: 62,
+              end: 249,
             },
-          ]);
+            type: "Warning",
+          };
+
+          beforeEach(async () => {
+            ({ connection: mockConnection } = await setupMockLanguageServer({
+              documents: [{ uri: contractCodeSizeUri, analyze: true }],
+              errors: [contractSizeError],
+            }));
+
+            try {
+              await waitUntil(
+                () => mockConnection.sendDiagnostics.calledOnce,
+                100,
+                1000
+              );
+            } catch {
+              assert.fail("Send diagnostics not called");
+            }
+          });
+
+          it("should convert constrain range of mark as abstract error", async () => {
+            assert(mockConnection.sendDiagnostics.calledOnce);
+            const { uri, diagnostics } =
+              mockConnection.sendDiagnostics.firstCall.firstArg;
+
+            assert.equal(uri, contractCodeSizeUri);
+            assert.deepStrictEqual(diagnostics, [
+              {
+                code: "5574",
+                message:
+                  'Contract code size exceeds 24576 bytes (a limit introduced in Spurious Dragon). This contract may not be deployable on mainnet. Consider enabling the optimizer (with a low "runs" value!), turning off revert strings, or using libraries.',
+                severity: 2,
+                source: "solidity",
+                range: {
+                  start: {
+                    line: 3,
+                    character: 9,
+                  },
+                  end: {
+                    line: 3,
+                    character: 14,
+                  },
+                },
+                data: {
+                  functionSourceLocation: {
+                    start: 62,
+                    end: 249,
+                  },
+                },
+              },
+            ]);
+          });
         });
       });
     });
