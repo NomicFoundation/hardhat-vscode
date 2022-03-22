@@ -4,7 +4,7 @@
   "displayName": "Solidity + Hardhat",
   "description": "Solidity and Hardhat support for Visual Studio Code",
   "license": "MIT",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "main": "./client/out/extension.js",
   "module": "./client/out/extension.js",
