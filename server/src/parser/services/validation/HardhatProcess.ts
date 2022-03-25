@@ -98,9 +98,7 @@ export class HardhatProcess implements CompilerProcess {
   }
 
   kill() {
-    // Then using process.kill(pid) method on main process we can kill all processes that are in
-    // the same group of a child process with the same pid group.
-    this.child?.kill(this.child.pid);
+    this.child?.kill();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
