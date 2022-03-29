@@ -19,7 +19,7 @@ export class SentryTelemetry implements Telemetry {
 
   constructor(dsn: string, heartbeatPeriod: number, analytics: Analytics) {
     this.dsn = dsn;
-    this.heartbeatPeriod = 5;
+    this.heartbeatPeriod = heartbeatPeriod;
     this.serverState = null;
     this.analytics = analytics;
 
