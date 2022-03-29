@@ -32,11 +32,16 @@ export function parseContractDefinition(
       )
     );
 
-    const ast = parser.parse(contractText, {
-      range: true,
-      tolerant: true,
-      tokens: true,
-    });
+    let ast: ReturnType<typeof parser.parse>;
+    try {
+      ast = parser.parse(contractText, {
+        range: true,
+        tolerant: true,
+        tokens: true,
+      });
+    } catch {
+      return null;
+    }
 
     if (
       ast.tokens === undefined ||
