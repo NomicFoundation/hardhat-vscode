@@ -84,15 +84,6 @@
       "type": "object",
       "title": "Hardhat",
       "properties": {
-        "solidity.formatter": {
-          "type": "string",
-          "default": "prettier",
-          "enum": [
-            "none",
-            "prettier"
-          ],
-          "description": "Enables / disables the solidity formatter (prettier solidity default)"
-        },
         "hardhat-language-server.trace.server.verbosity": {
           "type": "string",
           "description": "Traces the communication between VS Code and the solidity language server.",

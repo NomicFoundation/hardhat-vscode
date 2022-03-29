@@ -7,14 +7,6 @@ export function formatDocument(
   document: vscode.TextDocument,
   context: vscode.ExtensionContext
 ): vscode.TextEdit[] {
-  const formatter = vscode.workspace
-    .getConfiguration("solidity")
-    .get<string>("formatter");
-
-  if (formatter !== "prettier") {
-    return null;
-  }
-
   const rootPath = getCurrentWorkspaceRootFsPath();
 
   const ignoreOptions = {
