@@ -8,6 +8,12 @@
     "resolveJsonModule": true
   },
   "include": ["./client", "./server", "./test", "./test/**/*.json"],
-  "exclude": ["node_modules", ".vscode-test", "./server/test"],
+  "exclude": [
+    "node_modules",
+    ".vscode-test",
+    "./server/test",
+    "./client/out",
+    "./server/out"
+  ],
   "references": [{ "path": "./client" }, { "path": "./server" }]
 }
