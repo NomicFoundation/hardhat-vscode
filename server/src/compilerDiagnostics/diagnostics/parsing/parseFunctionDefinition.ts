@@ -30,11 +30,16 @@ export function parseFunctionDefinition(
       )
     );
 
-    const ast = parser.parse(functionText, {
-      range: true,
-      tolerant: true,
-      tokens: true,
-    });
+    let ast: ReturnType<typeof parser.parse>;
+    try {
+      ast = parser.parse(functionText, {
+        range: true,
+        tolerant: true,
+        tokens: true,
+      });
+    } catch {
+      return null;
+    }
 
     if (
       ast.tokens === undefined ||
