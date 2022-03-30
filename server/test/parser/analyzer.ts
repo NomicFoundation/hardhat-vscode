@@ -24,7 +24,7 @@ describe("Analyzer", () => {
         );
 
         // trigger the indexing
-        analyzer.init(exampleRootPath);
+        analyzer.init([{ name: "example", uri: exampleRootPath }]);
       });
 
       it("should emit an indexing event for each", () => {
@@ -61,7 +61,7 @@ describe("Analyzer", () => {
         );
 
         // trigger the indexing
-        analyzer.init(exampleRootPath);
+        analyzer.init([{ name: "example", uri: exampleRootPath }]);
       });
 
       it("should emit an indexing event for each", () => {

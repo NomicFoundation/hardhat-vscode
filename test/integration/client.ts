@@ -58,6 +58,7 @@ class Client implements IClient {
       "out",
       "index.js"
     );
+
     const serverOptions: lsclient.ServerOptions = {
       run: { module: serverModule, transport: lsclient.TransportKind.ipc },
       debug: {
@@ -74,6 +75,14 @@ class Client implements IClient {
         fileEvents: vscode.workspace.createFileSystemWatcher("**/.sol"),
       },
       middleware: this.middleware,
+      initializationOptions: {
+        extensionName: "nomicfoundation.hardhat-solidity",
+        extensionVersion: "0.0.0",
+        env: "development",
+        globalTelemetryEnabled: false,
+        hardhatTelemetryEnabled: false,
+        machineId: "fake-interagtion-machine-id",
+      },
     };
 
     this.client = new lsclient.LanguageClient(

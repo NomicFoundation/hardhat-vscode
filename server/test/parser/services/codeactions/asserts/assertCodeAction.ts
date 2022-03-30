@@ -32,7 +32,7 @@ export function assertCodeAction(
     mockWorkspaceFileRetriever,
     em,
     mockLogger
-  ).init(exampleUri);
+  ).init([{ name: "example", uri: exampleUri }]);
 
   const documentURI = getUriFromDocument(document);
   analyzer.analyzeDocument(document.getText(), documentURI);

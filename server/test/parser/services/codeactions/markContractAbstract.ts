@@ -145,7 +145,7 @@ describe("Code Actions", () => {
             mockWorkspaceFileRetriever,
             em,
             mockLogger
-          ).init(exampleUri);
+          ).init([{ name: "example", uri: exampleUri }]);
 
           const actions = markContractAbstract.resolveActions(diagnostic, {
             document,

@@ -28,7 +28,6 @@ import { waitUntil } from "./waitUntil";
 import { setupMockLogger } from "./setupMockLogger";
 import { setupMockWorkspaceFileRetriever } from "./setupMockWorkspaceFileRetriever";
 import { setupMockTelemetry } from "./setupMockTelemetry";
-import { setupMockAnalytics } from "./setupMockAnalytics";
 import { forceToUnixStyle } from "./forceToUnixStyle";
 
 export type OnSignatureHelp = (
@@ -66,7 +65,6 @@ export async function setupMockLanguageServer({
   const mockConnection = setupMockConnection();
   const mockCompilerProcessFactory = setupMockCompilerProcessFactory(errors);
   const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
-  const mockAnalytics = setupMockAnalytics();
   const mockTelemetry = setupMockTelemetry();
   const mockLogger = setupMockLogger();
 
@@ -75,7 +73,6 @@ export async function setupMockLanguageServer({
     mockConnection as any,
     mockCompilerProcessFactory,
     mockWorkspaceFileRetriever,
-    mockAnalytics,
     mockTelemetry,
     mockLogger
   );
@@ -85,6 +82,7 @@ export async function setupMockLanguageServer({
   assert(initialize);
   const initializeResponse = await initialize({
     rootUri: exampleRootUri,
+    workspaceFolders: [{ name: "example", uri: exampleRootUri }],
     capabilities: {},
   });
   assert(initializeResponse);

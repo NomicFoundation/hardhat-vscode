@@ -33,7 +33,8 @@
     "vscode": "^1.65.0"
   },
   "activationEvents": [
-    "onLanguage:solidity"
+    "onLanguage:solidity",
+    "workspaceContains:**/hardhat.config.ts"
   ],
   "scripts": {
     "build": "tsc -b",

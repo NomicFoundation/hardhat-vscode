@@ -30,8 +30,10 @@ export function getImportPathCompletion(
       logger
     );
 
-    const indexNodeModuleFolders =
-      getIndexedNodeModuleFolderCompletions(analyzer);
+    const indexNodeModuleFolders = getIndexedNodeModuleFolderCompletions(
+      analyzer,
+      importPath
+    );
 
     return relativeImports.concat(indexNodeModuleFolders);
   } else if (isRelativeImport(currentImport)) {
@@ -43,7 +45,12 @@ export function getImportPathCompletion(
       logger
     );
   } else {
-    return getDirectImportPathCompletions(position, currentImport, analyzer);
+    return getDirectImportPathCompletions(
+      position,
+      currentImport,
+      importPath,
+      analyzer
+    );
   }
 }
 
@@ -96,9 +103,11 @@ function getRelativeImportPathCompletions(
 }
 
 function getIndexedNodeModuleFolderCompletions(
-  analyzer: Analyzer
+  analyzer: Analyzer,
+  importPath: string
 ): CompletionItem[] {
-  const { rootPath, documentsAnalyzer } = analyzer;
+  const { documentsAnalyzer } = analyzer;
+  const rootPath = analyzer.resolveRootPath(importPath);
 
   if (!rootPath) {
     return [];
@@ -137,9 +146,11 @@ function replaceFor(
 function getDirectImportPathCompletions(
   position: VSCodePosition,
   currentImport: string,
+  importPath: string,
   analyzer: Analyzer
 ): CompletionItem[] {
-  const { rootPath, documentsAnalyzer } = analyzer;
+  const { documentsAnalyzer } = analyzer;
+  const rootPath = analyzer.resolveRootPath(importPath);
 
   if (!rootPath) {
     return [];
