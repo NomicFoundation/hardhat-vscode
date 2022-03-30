@@ -129,7 +129,7 @@ function buildDidOpenTextDocument(
         });
       });
 
-      showFileIndexingProgress(client);
+      showFileIndexingProgress(client, folder.name);
 
       const telemetryChangeDisposable = env.onDidChangeTelemetryEnabled(
         (enabled: boolean) => {

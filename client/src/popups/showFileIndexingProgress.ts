@@ -1,5 +1,10 @@
 import * as events from "events";
-import { workspace, window, TextDocument, ProgressLocation } from "vscode";
+import {
+  workspace,
+  TextDocument,
+  languages,
+  LanguageStatusSeverity,
+} from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 
 type IndexFileData = {
@@ -8,7 +13,10 @@ type IndexFileData = {
   total: number;
 };
 
-export function showFileIndexingProgress(client: LanguageClient): void {
+export function showFileIndexingProgress(
+  client: LanguageClient,
+  folderName
+): void {
   const em = new events.EventEmitter();
 
   client.onReady().then(() => {
@@ -17,49 +25,8 @@ export function showFileIndexingProgress(client: LanguageClient): void {
     });
   });
 
-  // Progress bar
-  window.withProgress(
-    {
-      cancellable: true,
-      location: ProgressLocation.Notification,
-      title: "Indexing Project",
-    },
-    async (progress) => {
-      progress.report({
-        increment: 0,
-        message: "Start indexing...",
-      });
-
-      const promise = new Promise<void>((resolve) => {
-        em.on("indexing-file", (data: IndexFileData) => {
-          progress.report({
-            increment: Math.round(data.total / data.current),
-            message: `Indexing ${data.path}`,
-          });
-
-          // Files that were open on vscode load, will
-          // have swallowed the `didChange` event as the
-          // language server wasn't intialized yet. We
-          // revalidate open editor files after indexing
-          // to ensure warning and errors appear on startup.
-          triggerValidationForOpenDoc(client, data.path);
-
-          if (data.total === data.current) {
-            resolve();
-          }
-        });
-      });
-
-      await promise;
-
-      progress.report({
-        increment: 100,
-        message: `Project indexing is complete.`,
-      });
-
-      await sleep(3000);
-    }
-  );
+  // Show the language status item
+  displayLanguageStatusItem(client, folderName, em);
 }
 
 /**
@@ -73,6 +40,46 @@ function triggerValidationForOpenDoc(client: LanguageClient, path: string) {
   }
 
   notifyOfNoopChange(client, textDoc);
+}
+
+async function displayLanguageStatusItem(
+  client: LanguageClient,
+  folderName: string,
+  em: events
+) {
+  const statusItem = languages.createLanguageStatusItem("indexing", {
+    language: "solidity",
+  });
+
+  statusItem.severity = LanguageStatusSeverity.Information;
+  statusItem.name = `Indexing-${folderName}`;
+  statusItem.text = `Scanning ${folderName} for sol files`;
+  statusItem.detail = undefined;
+  statusItem.busy = true;
+
+  const promise = new Promise<void>((resolve) => {
+    em.on("indexing-file", (data: IndexFileData) => {
+      if (statusItem.detail === undefined) {
+        statusItem.detail = `${data.total} files`;
+      }
+
+      // Files that were open on vscode load, will
+      // have swallowed the `didChange` event as the
+      // language server wasn't intialized yet. We
+      // revalidate open editor files after indexing
+      // to ensure warning and errors appear on startup.
+      triggerValidationForOpenDoc(client, data.path);
+
+      if (data.total === data.current) {
+        resolve();
+      }
+    });
+  });
+
+  await promise;
+
+  statusItem.busy = false;
+  statusItem.dispose();
 }
 
 /**
@@ -98,8 +105,4 @@ function notifyOfNoopChange(client: LanguageClient, textDoc: TextDocument) {
       },
     ],
   });
-}
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
