@@ -2,28 +2,26 @@ import * as events from "events";
 import { Connection } from "vscode-languageserver";
 import {
   TextDocuments,
-  InitializeParams,
   CompletionList,
   CompletionParams,
-  TextDocumentSyncKind,
-  InitializeResult,
   SignatureHelpParams,
   SignatureHelp,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { IndexFileData } from "@common/event";
 import { ValidationJob } from "@services/validation/SolidityValidation";
-import { getUriFromDocument, decodeUriAndRemoveFilePrefix } from "./utils";
+import { getUriFromDocument } from "./utils";
 import { debounce } from "./utils/debaunce";
 import { LanguageService } from "./parser";
 import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
 import { onCodeAction } from "./parser/services/codeactions/onCodeAction";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { Logger } from "@utils/Logger";
-import { Analytics } from "./analytics/types";
 import { Telemetry } from "./telemetry/types";
 import { ServerState } from "./types";
 import { onHover } from "@services/hover/onHover";
+import { onInitialize } from "@services/initialization/onInitialize";
+import { onInitialized } from "@services/initialization/onInitialized";
 
 const debounceAnalyzeDocument: {
   [uri: string]: (
@@ -55,7 +53,6 @@ export default function setupServer(
   connection: Connection,
   compProcessFactory: typeof compilerProcessFactory,
   workspaceFileRetriever: WorkspaceFileRetriever,
-  analytics: Analytics,
   telemetry: Telemetry,
   logger: Logger
 ): ServerState {
@@ -63,13 +60,13 @@ export default function setupServer(
 
   const serverState: ServerState = {
     env: "production",
-    rootUri: "-",
     hasWorkspaceFolderCapability: false,
     globalTelemetryEnabled: false,
     hardhatTelemetryEnabled: false,
 
     connection,
     documents: new TextDocuments(TextDocument),
+    workspaceFolders: [],
     em,
     languageServer: new LanguageService(
       compProcessFactory,
@@ -81,29 +78,9 @@ export default function setupServer(
     logger,
   };
 
-  connection.onInitialize(resolveOnInitialize(serverState));
+  connection.onInitialize(onInitialize(serverState));
 
-  connection.onInitialized(async () => {
-    const { logger } = serverState;
-
-    logger.trace("onInitialized");
-
-    if (!serverState.rootUri) {
-      throw new Error("Root Uri not set");
-    }
-
-    serverState.telemetry.trackTimingSync("indexing", () => {
-      serverState.languageServer.init(serverState.rootUri);
-    });
-
-    if (serverState.hasWorkspaceFolderCapability) {
-      connection.workspace.onDidChangeWorkspaceFolders(() => {
-        logger.trace("Workspace folder change event received.");
-      });
-    }
-
-    logger.info("Language server ready");
-  });
+  connection.onInitialized(onInitialized(serverState));
 
   connection.onSignatureHelp(
     (params: SignatureHelpParams): SignatureHelp | undefined => {
@@ -147,7 +124,6 @@ export default function setupServer(
     }
   );
 
-  // This handler provides the initial list of the completion items.
   connection.onCompletion(
     (params: CompletionParams): CompletionList | undefined => {
       const { logger } = serverState;
@@ -542,89 +518,3 @@ async function validateTextDocument(
     logger.error(err);
   }
 }
-
-const resolveOnInitialize = (serverState: ServerState) => {
-  const { logger } = serverState;
-
-  return (params: InitializeParams) => {
-    /**
-     * We know that rootUri is deprecated but we need it.
-     * We will monitor https://github.com/microsoft/vscode-extension-samples/issues/207 issue,
-     * so when it will be resolved we can update how we get rootUri.
-     */
-    if (params.rootUri) {
-      serverState.rootUri = decodeUriAndRemoveFilePrefix(params.rootUri);
-      logger.setWorkspace(serverState.rootUri);
-    }
-
-    logger.trace("onInitialize");
-    logger.info("Language server starting");
-
-    serverState.env = params.initializationOptions?.env ?? "production";
-
-    serverState.globalTelemetryEnabled =
-      params.initializationOptions?.globalTelemetryEnabled ?? false;
-    serverState.hardhatTelemetryEnabled =
-      params.initializationOptions?.hardhatTelemetryEnabled ?? false;
-
-    const machineId: string | undefined =
-      params.initializationOptions?.machineId;
-    const extensionName: string | undefined =
-      params.initializationOptions?.extensionName;
-    const extensionVersion: string | undefined =
-      params.initializationOptions?.extensionVersion;
-
-    serverState.hasWorkspaceFolderCapability = !!(
-      params.capabilities.workspace &&
-      !!params.capabilities.workspace.workspaceFolders
-    );
-
-    logger.info(`  Release: ${extensionName}@${extensionVersion}`);
-    logger.info(`  Environment: ${serverState.env}`);
-    logger.info(`  Telemetry Enabled: ${serverState.globalTelemetryEnabled}`);
-    if (machineId) {
-      logger.info(
-        `  Telemetry Tracking Id: ${
-          machineId.length > 10 ? machineId.substring(0, 10) + "..." : machineId
-        }`
-      );
-    }
-
-    serverState.telemetry.init(
-      machineId,
-      extensionName,
-      extensionVersion,
-      serverState
-    );
-
-    const result: InitializeResult = {
-      capabilities: {
-        textDocumentSync: TextDocumentSyncKind.Incremental,
-        // Tell the client that this server supports code completion.
-        completionProvider: {
-          triggerCharacters: [".", "/", '"'],
-        },
-        signatureHelpProvider: {
-          triggerCharacters: ["(", ","],
-        },
-        definitionProvider: true,
-        typeDefinitionProvider: true,
-        referencesProvider: true,
-        implementationProvider: true,
-        renameProvider: true,
-        codeActionProvider: true,
-        hoverProvider: true,
-      },
-    };
-
-    if (serverState.hasWorkspaceFolderCapability) {
-      result.capabilities.workspace = {
-        workspaceFolders: {
-          supported: true,
-        },
-      };
-    }
-
-    return result;
-  };
-};

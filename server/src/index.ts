@@ -32,7 +32,6 @@ setupServer(
   connection,
   compilerProcessFactory,
   workspaceFileRetriever,
-  analytics,
   telemetry,
   logger
 );

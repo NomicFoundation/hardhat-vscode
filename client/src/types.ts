@@ -14,7 +14,7 @@ export type ExtensionState = {
   machineId: string;
   serverModulePath: string;
 
-  clients: Map<string, LanguageClient>;
+  client: LanguageClient | null;
   listenerDisposables: Disposable[];
 
   globalTelemetryEnabled: boolean;
