@@ -34,7 +34,7 @@ export function setupExtensionState(
     serverModulePath,
     machineId: env.machineId,
 
-    clients: new Map(),
+    client: null,
     listenerDisposables: [],
     hardhatTelemetryEnabled: workspace
       .getConfiguration("hardhat")

@@ -16,9 +16,11 @@ import {
 } from "@common/types";
 import { WorkspaceFileRetriever } from "./WorkspaceFileRetriever";
 import { Logger } from "@utils/Logger";
+import { WorkspaceFolder } from "vscode-languageserver-protocol";
+import { decodeUriAndRemoveFilePrefix } from "../../utils/index";
 
 export class Analyzer {
-  rootPath: string | null;
+  workspaceFolders: WorkspaceFolder[];
   em: events.EventEmitter;
   workspaceFileRetriever: WorkspaceFileRetriever;
   logger: Logger;
@@ -30,26 +32,28 @@ export class Analyzer {
     em: events.EventEmitter,
     logger: Logger
   ) {
-    this.rootPath = null;
+    this.workspaceFolders = [];
     this.em = em;
     this.workspaceFileRetriever = workspaceFileRetriever;
     this.logger = logger;
   }
 
-  public init(rootPath: string): Analyzer {
-    if (rootPath.includes("\\")) {
+  public init(workspaceFolders: WorkspaceFolder[]): Analyzer {
+    if (workspaceFolders.some((wf) => wf.uri.includes("\\"))) {
       throw new Error("Unexpect windows style path");
     }
 
-    this.rootPath = rootPath;
+    this.workspaceFolders = workspaceFolders;
 
-    this.indexSolFiles(rootPath);
+    this.indexSolFiles(this.workspaceFolders[0]);
 
     return this;
   }
 
-  private indexSolFiles(rootPath: string) {
+  private indexSolFiles(workspaceFolder: WorkspaceFolder) {
     try {
+      const rootPath = workspaceFolder.uri;
+
       const documentsUri: string[] = [];
       this.logger.info("Starting workspace indexing ...");
 
@@ -86,9 +90,6 @@ export class Analyzer {
 
           try {
             const documentAnalyzer = this.getDocumentAnalyzer(documentUri);
-            // if (documentAnalyzer.uri.includes("node_modules")) {
-            //     continue;
-            // }
 
             const data: IndexFileData = {
               path: documentUri,
@@ -133,14 +134,16 @@ export class Analyzer {
   public getDocumentAnalyzer(uri: string): IDocumentAnalyzer {
     let documentAnalyzer = this.documentsAnalyzer[uri];
 
-    if (!this.rootPath) {
-      throw new Error(
-        "Document analyzer can't be retrieved as root path not set."
-      );
-    }
-
     if (!documentAnalyzer) {
-      documentAnalyzer = new DocumentAnalyzer(this.rootPath, uri, this.logger);
+      const rootPath = this.resolveRootPath(uri);
+
+      if (!rootPath) {
+        throw new Error(
+          "Document analyzer can't be retrieved as root path not set."
+        );
+      }
+
+      documentAnalyzer = new DocumentAnalyzer(rootPath, uri, this.logger);
       this.documentsAnalyzer[uri] = documentAnalyzer;
     }
 
@@ -153,6 +156,16 @@ export class Analyzer {
   public analyzeDocument(document: string, uri: string): Node | undefined {
     const documentAnalyzer = this.getDocumentAnalyzer(uri);
     return documentAnalyzer.analyze(this.documentsAnalyzer, document);
+  }
+
+  public resolveRootPath(uri: string): string | null {
+    for (const workspaceFolder of this.workspaceFolders) {
+      if (uri.startsWith(decodeUriAndRemoveFilePrefix(workspaceFolder.uri))) {
+        return workspaceFolder.uri;
+      }
+    }
+
+    return null;
   }
 }
 

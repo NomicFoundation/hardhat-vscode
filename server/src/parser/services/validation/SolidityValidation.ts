@@ -57,7 +57,7 @@ export class SolidityValidation {
         document: TextDocument,
         unsavedDocuments: TextDocument[]
       ): Promise<{ [uri: string]: Diagnostic[] }> => {
-        const rootPath = this.analyzer.rootPath;
+        const rootPath = this.analyzer.resolveRootPath(uri);
 
         if (!rootPath) {
           logger.error(new Error("Validation failed, no rootPath specified"));

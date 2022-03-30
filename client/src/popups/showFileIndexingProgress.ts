@@ -13,10 +13,7 @@ type IndexFileData = {
   total: number;
 };
 
-export function showFileIndexingProgress(
-  client: LanguageClient,
-  folderName
-): void {
+export function showFileIndexingProgress(client: LanguageClient): void {
   const em = new events.EventEmitter();
 
   client.onReady().then(() => {
@@ -26,7 +23,7 @@ export function showFileIndexingProgress(
   });
 
   // Show the language status item
-  displayLanguageStatusItem(client, folderName, em);
+  displayLanguageStatusItem(client, em);
 }
 
 /**
@@ -42,18 +39,14 @@ function triggerValidationForOpenDoc(client: LanguageClient, path: string) {
   notifyOfNoopChange(client, textDoc);
 }
 
-async function displayLanguageStatusItem(
-  client: LanguageClient,
-  folderName: string,
-  em: events
-) {
+async function displayLanguageStatusItem(client: LanguageClient, em: events) {
   const statusItem = languages.createLanguageStatusItem("indexing", {
     language: "solidity",
   });
 
   statusItem.severity = LanguageStatusSeverity.Information;
-  statusItem.name = `Indexing-${folderName}`;
-  statusItem.text = `Scanning ${folderName} for sol files`;
+  statusItem.name = `Indexing`;
+  statusItem.text = `Scanning for sol files`;
   statusItem.detail = undefined;
   statusItem.busy = true;
 

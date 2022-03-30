@@ -8,6 +8,7 @@ import { SoliditySignatureHelp } from "@services/documentation/SoliditySignature
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { Logger } from "@utils/Logger";
 import { SolidityRename } from "@services/rename/SolidityRename";
+import { WorkspaceFolder } from "vscode-languageserver-protocol";
 
 export class LanguageService {
   analyzer: Analyzer;
@@ -35,7 +36,7 @@ export class LanguageService {
     this.solidityRename = new SolidityRename(this.analyzer);
   }
 
-  async init(rootPath: string): Promise<void> {
-    this.analyzer.init(rootPath);
+  async init(workspaceFolders: WorkspaceFolder[]): Promise<void> {
+    this.analyzer.init(workspaceFolders);
   }
 }
