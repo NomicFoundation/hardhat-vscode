@@ -34,11 +34,12 @@ export class SolidityValidation {
       rootPath: string,
       uri: string,
       logger: Logger
-    ) => CompilerProcess
+    ) => CompilerProcess,
+    logger: Logger
   ) {
     this.analyzer = analyzer;
     this.compilerProcessFactory = compilerProcessFactory;
-    this.diagnosticConverter = new DiagnosticConverter(this.analyzer);
+    this.diagnosticConverter = new DiagnosticConverter(logger);
   }
 
   public getValidationJob(telemetry: Telemetry, logger: Logger): ValidationJob {

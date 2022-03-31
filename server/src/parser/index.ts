@@ -28,7 +28,8 @@ export class LanguageService {
     this.solidityCompletion = new SolidityCompletion(this.analyzer);
     this.solidityValidation = new SolidityValidation(
       this.analyzer,
-      compProcessFactory
+      compProcessFactory,
+      logger
     );
     this.soliditySignatureHelp = new SoliditySignatureHelp(this.analyzer);
     this.solidityRename = new SolidityRename(this.analyzer);

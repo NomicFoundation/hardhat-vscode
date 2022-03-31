@@ -1,8 +1,8 @@
-import { Analyzer } from "@analyzer/index";
 import { TextDocument, Diagnostic } from "@common/types";
 import { passThroughConversion } from "@compilerDiagnostics/conversions/passThroughConversion";
 import { compilerDiagnostics } from "@compilerDiagnostics/compilerDiagnostics";
 import { CompilerDiagnostic } from "@compilerDiagnostics/types";
+import { Logger } from "@utils/Logger";
 
 type HardhatCompilerError = {
   errorCode: string;
@@ -16,10 +16,10 @@ type HardhatCompilerError = {
 };
 
 export class DiagnosticConverter {
-  private analyzer: Analyzer;
+  private logger: Logger;
 
-  constructor(analyzer: Analyzer) {
-    this.analyzer = analyzer;
+  constructor(logger: Logger) {
+    this.logger = logger;
   }
 
   public convertErrors(
@@ -71,7 +71,7 @@ export class DiagnosticConverter {
         acc: { [key: string]: HardhatCompilerError[] },
         error: HardhatCompilerError
       ) => {
-        const key = `${error.sourceLocation.file}::${error.sourceLocation.start}::${error.sourceLocation.end}`;
+        const key = this.resolveErrorFileKey(error);
 
         if (!(key in acc)) {
           acc[key] = [];
@@ -82,6 +82,20 @@ export class DiagnosticConverter {
       },
       {}
     );
+  }
+
+  private resolveErrorFileKey(error: HardhatCompilerError) {
+    if (!error.sourceLocation) {
+      this.logger.error(
+        new Error(
+          `Unattached error found: ${error.message} (${error.errorCode})`
+        )
+      );
+
+      return "unattached";
+    }
+
+    return `${error.sourceLocation.file}::${error.sourceLocation.start}::${error.sourceLocation.end}`;
   }
 
   private filterBlockedErrorsWithinGroup(
