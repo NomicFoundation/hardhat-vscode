@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.2.1 - 2022-03-31
+
+### Removed
+
+- Remove unnecessary setting for turning off formatting, use vscode formatting config if you want to turn Hardhat VSCode formatting off ((#102)[https://github.com/NomicFoundation/hardhat-vscode/issues/102])
+
+### Fixed
+
+- Fix for validation child_process cancelling ((#89)[https://github.com/NomicFoundation/hardhat-vscode/issues/89])
+- Fix to suppress parser errors in quickfixes ((#146)[https://github.com/NomicFoundation/hardhat-vscode/issues/146])
+- Fix to not throw on hh error objects with no source location ((#147)[https://github.com/NomicFoundation/hardhat-vscode/issues/147])
+
 ## 0.2.0 - 2022-03-24
 
 ### Added
