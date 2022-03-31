@@ -80,7 +80,10 @@ export function getRange(loc: Location): Range {
  */
 export function isNodePosition(node: Node, position: Position): boolean {
   if (
+    position &&
     node.nameLoc &&
+    node.nameLoc.start &&
+    node.nameLoc.end &&
     node.nameLoc.start.line === position.line &&
     node.nameLoc.end.line === position.line &&
     node.nameLoc.start.column <= position.column &&
