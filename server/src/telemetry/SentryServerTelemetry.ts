@@ -9,7 +9,7 @@ import { Analytics } from "analytics/types";
 
 const SENTRY_CLOSE_TIMEOUT = 2000;
 
-export class SentryTelemetry implements Telemetry {
+export class SentryServerTelemetry implements Telemetry {
   dsn: string;
   serverState: ServerState | null;
   analytics: Analytics;
@@ -50,6 +50,9 @@ export class SentryTelemetry implements Telemetry {
       environment: serverState.env,
       initialScope: {
         user: { id: machineId },
+        tags: {
+          component: "lsp",
+        },
       },
       beforeSend: (event) => (isTelemetryEnabled(serverState) ? event : null),
     });
