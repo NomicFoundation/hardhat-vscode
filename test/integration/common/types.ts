@@ -91,6 +91,9 @@ export interface NavigationProvider {
 }
 
 export interface Client {
+  client: lsclient.LanguageClient;
+  tokenSource: vscode.CancellationTokenSource;
+
   document: vscode.TextDocument;
   docUri: vscode.Uri;
 

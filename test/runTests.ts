@@ -1,5 +1,5 @@
 import * as path from "path";
-import { runTests } from "vscode-test";
+import { runTests } from "@vscode/test-electron";
 
 (async () => {
   try {
@@ -25,6 +25,7 @@ import { runTests } from "vscode-test";
       version: "1.65.0",
       extensionDevelopmentPath,
       extensionTestsPath,
+
       launchArgs: [
         folder,
         "--disable-extensions",
