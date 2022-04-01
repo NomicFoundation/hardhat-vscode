@@ -52,7 +52,7 @@ export class Analyzer {
 
   private indexSolFiles(workspaceFolder: WorkspaceFolder) {
     try {
-      const rootPath = workspaceFolder.uri;
+      const rootPath = decodeUriAndRemoveFilePrefix(workspaceFolder.uri);
 
       const documentsUri: string[] = [];
       this.logger.info("Starting workspace indexing ...");

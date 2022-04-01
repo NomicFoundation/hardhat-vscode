@@ -35,12 +35,14 @@ export class NavigationProvider implements INavigationProvider {
     const provider = this.client
       .getFeature(lsclient.DefinitionRequest.method)
       .getProvider(document);
+
     isDefined(provider);
 
     const position = new vscode.Position(
       action.params.position.line,
       action.params.position.character
     );
+
     const result = (await provider.provideDefinition(
       document,
       position,
@@ -48,7 +50,9 @@ export class NavigationProvider implements INavigationProvider {
     )) as vscode.Location;
 
     isInstanceOf(result, vscode.Location);
+
     uriEqual(result.uri, action.expected[0].uri);
+
     rangeEqual(
       result.range,
       action.expected[0].range[0].line,

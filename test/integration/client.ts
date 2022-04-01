@@ -27,10 +27,11 @@ export async function getClient(): Promise<Client> {
 }
 
 class Client implements IClient {
-  private client: lsclient.LanguageClient;
-  private middleware: lsclient.Middleware;
-  private tokenSource: vscode.CancellationTokenSource =
+  public client: lsclient.LanguageClient;
+  public tokenSource: vscode.CancellationTokenSource =
     new vscode.CancellationTokenSource();
+
+  private middleware: lsclient.Middleware;
   private editor: vscode.TextEditor;
 
   document: vscode.TextDocument;
