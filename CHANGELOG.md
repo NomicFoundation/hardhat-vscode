@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.2.2 - 2022-04-01
+
+### Changed
+
+- Change to telemetry, to stop capturing unhandled exceptions on the client ((#156)[https://github.com/NomicFoundation/hardhat-vscode/issues/156])
+
 ## 0.2.1 - 2022-03-31
 
 ### Removed
