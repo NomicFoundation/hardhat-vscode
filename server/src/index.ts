@@ -4,7 +4,7 @@ import setupServer from "./server";
 import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
 import { ConnectionLogger } from "@utils/Logger";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
-import { SentryTelemetry } from "./telemetry/SentryTelemetry";
+import { SentryServerTelemetry } from "./telemetry/SentryServerTelemetry";
 import { GoogleAnalytics } from "./analytics/GoogleAnalytics";
 
 const GOOGLE_TRACKING_ID = "UA-117668706-4";
@@ -21,7 +21,11 @@ const connection = createConnection(ProposedFeatures.all);
 
 const workspaceFileRetriever = new WorkspaceFileRetriever();
 const analytics = new GoogleAnalytics(GOOGLE_TRACKING_ID);
-const telemetry = new SentryTelemetry(SENTRY_DSN, HEARTBEAT_PERIOD, analytics);
+const telemetry = new SentryServerTelemetry(
+  SENTRY_DSN,
+  HEARTBEAT_PERIOD,
+  analytics
+);
 const logger = new ConnectionLogger(connection, telemetry);
 
 setupServer(
