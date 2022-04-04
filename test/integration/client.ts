@@ -6,7 +6,6 @@ import * as lsclient from "vscode-languageclient/node";
 
 import { sleep } from "./common/helper";
 import { Client as IClient } from "./common/types";
-import { NavigationProvider } from "./services/NavigationProvider";
 
 let client: Client;
 export async function getClient(): Promise<Client> {
@@ -15,6 +14,7 @@ export async function getClient(): Promise<Client> {
   }
 
   client = new Client();
+
   try {
     await client.activate();
   } catch (err) {
@@ -36,8 +36,6 @@ class Client implements IClient {
 
   document: vscode.TextDocument;
   docUri: vscode.Uri;
-
-  navigationProvider: NavigationProvider;
 
   /**
    * Activates the extension
@@ -96,11 +94,6 @@ class Client implements IClient {
     this.client.start();
 
     await this.client.onReady();
-
-    this.navigationProvider = new NavigationProvider(
-      this.client,
-      this.tokenSource
-    );
 
     // Wait for analyzer to indexing all files
     await sleep(5000);

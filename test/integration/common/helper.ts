@@ -31,7 +31,11 @@ export function rangeEqual(
   assert.strictEqual(range.end.character, ec);
 }
 
-export function uriEqual(actual: vscode.Uri, expected: vscode.Uri): void {
+export function uriEqual(
+  actual: vscode.Uri,
+  expected: vscode.Uri,
+  message?: string
+): void {
   let actualPath: string = actual.path;
   let expectedPath: string = expected.path;
 
@@ -45,7 +49,7 @@ export function uriEqual(actual: vscode.Uri, expected: vscode.Uri): void {
     expectedPath = expectedPathExp[1];
   }
 
-  assert.strictEqual(actualPath, expectedPath);
+  assert.strictEqual(actualPath, expectedPath, message);
 }
 
 export function isDefined<T>(
