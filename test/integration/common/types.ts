@@ -97,8 +97,6 @@ export interface Client {
   document: vscode.TextDocument;
   docUri: vscode.Uri;
 
-  navigationProvider: NavigationProvider;
-
   /**
    * Activates the extension
    */
