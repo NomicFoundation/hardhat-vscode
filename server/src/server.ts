@@ -1,27 +1,28 @@
 import * as events from "events";
 import { Connection } from "vscode-languageserver";
-import {
-  TextDocuments,
-  CompletionList,
-  CompletionParams,
-  SignatureHelpParams,
-  SignatureHelp,
-} from "vscode-languageserver/node";
+import { TextDocuments } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { IndexFileData } from "@common/event";
-import { ValidationJob } from "./services/validation/SolidityValidation";
 import { getUriFromDocument } from "./utils";
 import { debounce } from "./utils/debaunce";
 import { LanguageService } from "./parser";
-import { compilerProcessFactory } from "./services/validation/compilerProcessFactory";
-import { onCodeAction } from "./services/codeactions/onCodeAction";
-import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { Logger } from "@utils/Logger";
 import { Telemetry } from "./telemetry/types";
 import { ServerState } from "./types";
-import { onHover } from "./services/hover/onHover";
-import { onInitialize } from "./services/initialization/onInitialize";
-import { onInitialized } from "./services/initialization/onInitialized";
+import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
+import { onHover } from "@services/hover/onHover";
+import { onInitialize } from "@services/initialization/onInitialize";
+import { onInitialized } from "@services/initialization/onInitialized";
+import { onSignatureHelp } from "@services/signaturehelp/onSignatureHelp";
+import { onCompletion } from "@services/completion/onCompletion";
+import { onCodeAction } from "@services/codeactions/onCodeAction";
+import { ValidationJob } from "@services/validation/SolidityValidation";
+import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
+import { onDefinition } from "@services/definition/onDefinition";
+import { onTypeDefinition } from "@services/typeDefinition/onTypeDefinition";
+import { onReferences } from "@services/references/onReferences";
+import { onImplementation } from "@services/implementation/onImplementation";
+import { onRename } from "@services/rename/onRename";
 
 const debounceAnalyzeDocument: {
   [uri: string]: (
@@ -82,260 +83,23 @@ export default function setupServer(
 
   connection.onInitialized(onInitialized(serverState));
 
-  connection.onSignatureHelp(
-    (params: SignatureHelpParams): SignatureHelp | undefined => {
-      const { logger } = serverState;
+  connection.onSignatureHelp(onSignatureHelp(serverState));
 
-      logger.trace("onSignatureHelp");
+  connection.onCompletion(onCompletion(serverState));
 
-      try {
-        const document = serverState.documents.get(params.textDocument.uri);
+  connection.onDefinition(onDefinition(serverState));
 
-        if (document) {
-          const documentURI = getUriFromDocument(document);
+  connection.onTypeDefinition(onTypeDefinition(serverState));
 
-          if (params.context?.triggerCharacter === "(") {
-            serverState.languageServer.analyzer.analyzeDocument(
-              document.getText(),
-              documentURI
-            );
-          }
+  connection.onReferences(onReferences(serverState));
 
-          const documentAnalyzer =
-            serverState.languageServer.analyzer.getDocumentAnalyzer(
-              documentURI
-            );
+  connection.onImplementation(onImplementation(serverState));
 
-          if (documentAnalyzer.isAnalyzed) {
-            return serverState.telemetry.trackTimingSync(
-              "onSignatureHelp",
-              () =>
-                serverState.languageServer.soliditySignatureHelp.doSignatureHelp(
-                  document,
-                  params.position,
-                  documentAnalyzer
-                )
-            );
-          }
-        }
-      } catch (err) {
-        logger.error(err);
-      }
-    }
-  );
-
-  connection.onCompletion(
-    (params: CompletionParams): CompletionList | undefined => {
-      const { logger } = serverState;
-
-      logger.trace("onCompletion");
-
-      try {
-        const document = serverState.documents.get(params.textDocument.uri);
-
-        if (document) {
-          const documentText = document.getText();
-          let newDocumentText = documentText;
-
-          // Hack if triggerCharacter was "." then we insert ";" because the tolerance mode @solidity-parser/parser crashes as we type.
-          // This only happens if there is no ";" at the end of the line.
-          if (params.context?.triggerCharacter === ".") {
-            const cursorOffset = document.offsetAt(params.position);
-            const eofOffset =
-              documentText.indexOf("\n", cursorOffset) > cursorOffset
-                ? documentText.indexOf("\n", cursorOffset)
-                : cursorOffset;
-            newDocumentText =
-              documentText.slice(0, cursorOffset) +
-              "_;" +
-              documentText.slice(cursorOffset, eofOffset) +
-              ";";
-          }
-
-          const documentURI = getUriFromDocument(document);
-          serverState.languageServer.analyzer.analyzeDocument(
-            newDocumentText,
-            documentURI
-          );
-
-          const documentAnalyzer =
-            serverState.languageServer.analyzer.getDocumentAnalyzer(
-              documentURI
-            );
-
-          if (!documentAnalyzer) {
-            return;
-          }
-
-          return serverState.telemetry.trackTimingSync("onCompletion", () =>
-            serverState.languageServer.solidityCompletion.doComplete(
-              params.position,
-              documentAnalyzer,
-              params.context,
-              logger
-            )
-          );
-        }
-      } catch (err) {
-        logger.error(err);
-      }
-    }
-  );
-
-  connection.onDefinition((params) => {
-    const { logger } = serverState;
-
-    logger.trace("onDefinition");
-
-    try {
-      const document = serverState.documents.get(params.textDocument.uri);
-
-      if (document) {
-        const documentURI = getUriFromDocument(document);
-        const documentAnalyzer =
-          serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
-
-        if (documentAnalyzer.isAnalyzed) {
-          return serverState.telemetry.trackTimingSync("onDefinition", () =>
-            serverState.languageServer.solidityNavigation.findDefinition(
-              documentURI,
-              params.position,
-              documentAnalyzer.analyzerTree.tree
-            )
-          );
-        }
-      }
-    } catch (err) {
-      logger.error(err);
-    }
-  });
-
-  connection.onTypeDefinition((params) => {
-    const { logger } = serverState;
-
-    logger.trace("onTypeDefinition");
-
-    try {
-      const document = serverState.documents.get(params.textDocument.uri);
-
-      if (document) {
-        const documentURI = getUriFromDocument(document);
-        const documentAnalyzer =
-          serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
-
-        if (documentAnalyzer.isAnalyzed) {
-          return serverState.telemetry.trackTimingSync(
-            "onTypeDefinition",
-            () => {
-              return serverState.languageServer.solidityNavigation.findTypeDefinition(
-                documentURI,
-                params.position,
-                documentAnalyzer.analyzerTree.tree
-              );
-            }
-          );
-        }
-      }
-    } catch (err) {
-      logger.error(err);
-    }
-  });
-
-  connection.onReferences((params) => {
-    const { logger } = serverState;
-
-    logger.trace("onReferences");
-
-    try {
-      const document = serverState.documents.get(params.textDocument.uri);
-
-      if (document) {
-        const documentURI = getUriFromDocument(document);
-        const documentAnalyzer =
-          serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
-
-        if (documentAnalyzer.isAnalyzed) {
-          return serverState.telemetry.trackTimingSync("onReferences", () =>
-            serverState.languageServer.solidityNavigation.findReferences(
-              documentURI,
-              params.position,
-              documentAnalyzer.analyzerTree.tree
-            )
-          );
-        }
-      }
-    } catch (err) {
-      logger.error(err);
-    }
-  });
-
-  connection.onImplementation((params) => {
-    const { logger } = serverState;
-
-    logger.trace("onImplementation");
-
-    try {
-      const document = serverState.documents.get(params.textDocument.uri);
-
-      if (document) {
-        const documentURI = getUriFromDocument(document);
-        const documentAnalyzer =
-          serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
-
-        if (documentAnalyzer.isAnalyzed) {
-          return serverState.telemetry.trackTimingSync("onImplementation", () =>
-            serverState.languageServer.solidityNavigation.findImplementation(
-              documentURI,
-              params.position,
-              documentAnalyzer.analyzerTree.tree
-            )
-          );
-        }
-      }
-    } catch (err) {
-      logger.error(err);
-    }
-  });
-
-  connection.onRenameRequest((params) => {
-    const { logger } = serverState;
-
-    logger.trace("onRenameRequest");
-
-    try {
-      const document = serverState.documents.get(params.textDocument.uri);
-
-      if (document) {
-        const documentURI = getUriFromDocument(document);
-        const documentAnalyzer =
-          serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
-
-        if (documentAnalyzer.isAnalyzed) {
-          return serverState.telemetry.trackTimingSync("onRenameRequest", () =>
-            serverState.languageServer.solidityRename.doRename(
-              documentURI,
-              params.position,
-              params.newName,
-              documentAnalyzer.analyzerTree.tree
-            )
-          );
-        }
-      }
-    } catch (err) {
-      logger.error(err);
-    }
-  });
+  connection.onRenameRequest(onRename(serverState));
 
   connection.onCodeAction(onCodeAction(serverState));
 
   connection.onHover(onHover(serverState));
-
-  telemetry.enableHeartbeat();
-
-  connection.onExit(() => {
-    logger.info("Server closing down");
-    return telemetry.close();
-  });
 
   connection.onNotification(
     "custom/didChangeGlobalTelemetryEnabled",
@@ -362,6 +126,13 @@ export default function setupServer(
       serverState.hardhatTelemetryEnabled = enabled;
     }
   );
+
+  connection.onExit(() => {
+    logger.info("Server closing down");
+    return telemetry.close();
+  });
+
+  telemetry.enableHeartbeat();
 
   // The content of a text document has changed. This event is emitted
   // when the text document first opened or when its content has changed.
