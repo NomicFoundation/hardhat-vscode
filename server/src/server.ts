@@ -9,19 +9,19 @@ import {
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { IndexFileData } from "@common/event";
-import { ValidationJob } from "@services/validation/SolidityValidation";
+import { ValidationJob } from "./services/validation/SolidityValidation";
 import { getUriFromDocument } from "./utils";
 import { debounce } from "./utils/debaunce";
 import { LanguageService } from "./parser";
-import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
-import { onCodeAction } from "./parser/services/codeactions/onCodeAction";
+import { compilerProcessFactory } from "./services/validation/compilerProcessFactory";
+import { onCodeAction } from "./services/codeactions/onCodeAction";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { Logger } from "@utils/Logger";
 import { Telemetry } from "./telemetry/types";
 import { ServerState } from "./types";
-import { onHover } from "@services/hover/onHover";
-import { onInitialize } from "@services/initialization/onInitialize";
-import { onInitialized } from "@services/initialization/onInitialized";
+import { onHover } from "./services/hover/onHover";
+import { onInitialize } from "./services/initialization/onInitialize";
+import { onInitialized } from "./services/initialization/onInitialized";
 
 const debounceAnalyzeDocument: {
   [uri: string]: (

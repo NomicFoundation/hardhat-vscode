@@ -13,7 +13,8 @@
     ".vscode-test",
     "./server/test",
     "./client/out",
-    "./server/out"
+    "./server/out",
+    "./out"
   ],
   "references": [{ "path": "./client" }, { "path": "./server" }]
 }
