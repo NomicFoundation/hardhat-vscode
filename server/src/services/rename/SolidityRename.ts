@@ -3,7 +3,7 @@ import { isFunctionDefinitionNode } from "@analyzer/utils/typeGuards";
 import { VSCodePosition, WorkspaceEdit, TextEdit, Node } from "@common/types";
 
 import { getParserPositionFromVSCodePosition, getRange } from "@common/utils";
-import { convertHardhatUriToVscodeUri } from "../../../utils/index";
+import { convertHardhatUriToVscodeUri } from "../../utils/index";
 
 export class SolidityRename {
   analyzer: Analyzer;

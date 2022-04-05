@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as lsp from "vscode-languageserver/node";
-import { toUnixStyle } from "../../../utils/index";
+import { toUnixStyle } from "../../utils/index";
 
 import {
   CompletionItem,

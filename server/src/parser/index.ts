@@ -1,13 +1,13 @@
 import * as events from "events";
 import { Analyzer } from "@analyzer/index";
-import { SolidityNavigation } from "@services/navigation/SolidityNavigation";
-import { SolidityCompletion } from "@services/completion/SolidityCompletion";
-import { SolidityValidation } from "@services/validation/SolidityValidation";
-import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
-import { SoliditySignatureHelp } from "@services/documentation/SoliditySignatureHelp";
+import { SolidityNavigation } from "../services/navigation/SolidityNavigation";
+import { SolidityCompletion } from "../services/completion/SolidityCompletion";
+import { SolidityValidation } from "../services/validation/SolidityValidation";
+import { compilerProcessFactory } from "../services/validation/compilerProcessFactory";
+import { SoliditySignatureHelp } from "../services/documentation/SoliditySignatureHelp";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { Logger } from "@utils/Logger";
-import { SolidityRename } from "@services/rename/SolidityRename";
+import { SolidityRename } from "../services/rename/SolidityRename";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
 
 export class LanguageService {

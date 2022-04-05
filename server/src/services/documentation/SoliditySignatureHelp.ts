@@ -11,7 +11,7 @@ import {
   ParameterInformation,
   FunctionDefinitionNode,
 } from "@common/types";
-import { isCharacterALetter, isCharacterANumber } from "../../../utils";
+import { isCharacterALetter, isCharacterANumber } from "../../utils";
 
 type DeclarationSignature = {
   declarationNodePosition: Position;

@@ -9,7 +9,7 @@ import {
 } from "@common/types";
 
 import { getParserPositionFromVSCodePosition, getRange } from "@common/utils";
-import { convertHardhatUriToVscodeUri } from "../../../utils/index";
+import { convertHardhatUriToVscodeUri } from "../../utils/index";
 
 export class SolidityNavigation {
   analyzer: Analyzer;
