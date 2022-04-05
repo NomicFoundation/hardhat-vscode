@@ -58,6 +58,8 @@ export class SentryServerTelemetry implements Telemetry {
     });
 
     this.analytics.init(machineId, extensionVersion, serverState);
+
+    this.enableHeartbeat();
   }
 
   captureException(err: unknown) {

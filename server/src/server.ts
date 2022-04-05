@@ -86,8 +86,6 @@ function setupUninitializedServerState(
 function attachLanguageServerLifeCycleHooks(serverState: ServerState) {
   const { connection } = serverState;
 
-  serverState.telemetry.enableHeartbeat();
-
   connection.onInitialize(onInitialize(serverState));
   connection.onInitialized(onInitialized(serverState));
 
