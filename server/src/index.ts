@@ -1,7 +1,7 @@
 import "module-alias/register";
 import { createConnection, ProposedFeatures } from "vscode-languageserver/node";
 import setupServer from "./server";
-import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
+import { compilerProcessFactory } from "./services/validation/compilerProcessFactory";
 import { ConnectionLogger } from "@utils/Logger";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { SentryServerTelemetry } from "./telemetry/SentryServerTelemetry";

@@ -3,9 +3,9 @@ import {
   isMemberAccessNode,
 } from "@analyzer/utils/typeGuards";
 import { getParserPositionFromVSCodePosition } from "@common/utils";
-import { getUriFromDocument } from "../../../utils/index";
+import { getUriFromDocument } from "../../utils/index";
 import { HoverParams, Hover } from "vscode-languageserver/node";
-import { ServerState } from "../../../types";
+import { ServerState } from "../../types";
 import {
   DocumentAnalyzer,
   IdentifierNode,

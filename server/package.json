@@ -23,7 +23,7 @@
     "@compilerDiagnostics": "./out/compilerDiagnostics",
     "@analyzer": "./out/parser/analyzer/",
     "@common": "./out/parser/common/",
-    "@services": "./out/parser/services/",
+    "@services": "./out/services/",
     "@utils": "./out/utils"
   },
   "devDependencies": {

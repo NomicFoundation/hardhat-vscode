@@ -16,7 +16,7 @@
       "@compilerDiagnostics/*": ["./compilerDiagnostics/*"],
       "@analyzer/*": ["./parser/analyzer/*"],
       "@common/*": ["./parser/common/*"],
-      "@services/*": ["./parser/services/*"],
+      "@services/*": ["./services/*"],
       "@utils/*": ["./utils/*"]
     }
   },

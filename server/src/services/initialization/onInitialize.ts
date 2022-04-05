@@ -3,7 +3,7 @@ import {
   TextDocumentSyncKind,
   InitializeResult,
 } from "vscode-languageserver/node";
-import { ServerState } from "../../../types";
+import { ServerState } from "../../types";
 
 export const onInitialize = (serverState: ServerState) => {
   const { logger } = serverState;

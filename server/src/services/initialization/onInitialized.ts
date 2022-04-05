@@ -1,4 +1,4 @@
-import { ServerState } from "../../../types";
+import { ServerState } from "../../types";
 
 export const onInitialized = (serverState: ServerState) => {
   const { logger } = serverState;
