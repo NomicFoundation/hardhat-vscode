@@ -1,8 +1,6 @@
-import * as events from "events";
 import { Connection } from "vscode-languageserver";
 import { TextDocuments } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { IndexFileData } from "@common/event";
 
 import { LanguageService } from "./parser";
 import { Logger } from "@utils/Logger";
@@ -44,10 +42,6 @@ export default function setupServer(
 
   listenForDocumentChanges(serverState);
 
-  serverState.em.on("indexing-file", (data: IndexFileData) => {
-    connection.sendNotification("custom/indexing-file", data);
-  });
-
   return serverState;
 }
 
@@ -58,22 +52,18 @@ function setupUninitializedServerState(
   telemetry: Telemetry,
   logger: Logger
 ) {
-  const em = new events.EventEmitter();
-
   const serverState: ServerState = {
     env: "production",
     hasWorkspaceFolderCapability: false,
     globalTelemetryEnabled: false,
     hardhatTelemetryEnabled: false,
-
     connection,
-    documents: new TextDocuments(TextDocument),
     workspaceFolders: [],
-    em,
+    documents: new TextDocuments(TextDocument),
     languageServer: new LanguageService(
       compProcessFactory,
       workspaceFileRetriever,
-      em,
+      connection,
       logger
     ),
     telemetry,

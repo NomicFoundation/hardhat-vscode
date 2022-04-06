@@ -1,4 +1,3 @@
-import * as events from "events";
 import { Analyzer } from "@analyzer/index";
 import { SolidityNavigation } from "../services/navigation/SolidityNavigation";
 import { SolidityCompletion } from "../services/completion/SolidityCompletion";
@@ -9,6 +8,7 @@ import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { Logger } from "@utils/Logger";
 import { SolidityRename } from "../services/rename/SolidityRename";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
+import { Connection } from "vscode-languageserver";
 
 export class LanguageService {
   analyzer: Analyzer;
@@ -21,10 +21,10 @@ export class LanguageService {
   constructor(
     compProcessFactory: typeof compilerProcessFactory,
     workspaceFileRetriever: WorkspaceFileRetriever,
-    em: events.EventEmitter,
+    connection: Connection,
     logger: Logger
   ) {
-    this.analyzer = new Analyzer(workspaceFileRetriever, em, logger);
+    this.analyzer = new Analyzer(workspaceFileRetriever, connection, logger);
     this.solidityNavigation = new SolidityNavigation(this.analyzer);
     this.solidityCompletion = new SolidityCompletion(this.analyzer);
     this.solidityValidation = new SolidityValidation(
