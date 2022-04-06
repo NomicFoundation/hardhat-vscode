@@ -37,6 +37,6 @@ export class LanguageService {
   }
 
   async init(workspaceFolders: WorkspaceFolder[]): Promise<void> {
-    this.analyzer.init(workspaceFolders);
+    await this.analyzer.init(workspaceFolders);
   }
 }
