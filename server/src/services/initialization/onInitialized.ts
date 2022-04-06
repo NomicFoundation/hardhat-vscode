@@ -11,7 +11,7 @@ export const onInitialized = (serverState: ServerState) => {
     }
 
     serverState.telemetry.trackTimingSync("indexing", () => {
-      serverState.languageServer.init(serverState.workspaceFolders);
+      serverState.analyzer.init(serverState.workspaceFolders);
     });
 
     if (serverState.hasWorkspaceFolderCapability) {

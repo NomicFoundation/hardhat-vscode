@@ -3,9 +3,9 @@ import * as childProcess from "child_process";
 import { TextDocuments } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Telemetry } from "telemetry/types";
-import { LanguageService } from "./parser";
 import { Logger } from "@utils/Logger";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
+import { Analyzer } from "@analyzer/index";
 
 export interface CompilerProcess {
   init: () => {
@@ -34,8 +34,8 @@ export type ServerState = {
   connection: Connection;
   documents: TextDocuments<TextDocument>;
   workspaceFolders: WorkspaceFolder[];
+  analyzer: Analyzer;
 
-  languageServer: LanguageService;
   telemetry: Telemetry;
   logger: Logger;
 };

@@ -16,12 +16,12 @@ import { textToHover } from "./utils/textTohover";
 
 export function onHover(serverState: ServerState) {
   return (params: HoverParams): Hover | null => {
-    const { languageServer, logger } = serverState;
+    const { analyzer, logger } = serverState;
 
     logger.trace("onHover");
 
     try {
-      if (!languageServer) {
+      if (!analyzer) {
         return null;
       }
 
@@ -32,8 +32,7 @@ export function onHover(serverState: ServerState) {
       }
 
       const documentURI = getUriFromDocument(document);
-      const documentAnalyzer =
-        serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
+      const documentAnalyzer = analyzer.getDocumentAnalyzer(documentURI);
 
       if (!documentAnalyzer.isAnalyzed) {
         return null;

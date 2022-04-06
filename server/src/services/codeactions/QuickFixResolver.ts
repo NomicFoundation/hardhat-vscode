@@ -1,16 +1,15 @@
 import { CodeAction, Diagnostic } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { compilerDiagnostics } from "@compilerDiagnostics/compilerDiagnostics";
-import { LanguageService } from "parser";
 import { Analyzer } from "@analyzer/index";
 import { Logger } from "@utils/Logger";
 
 export class QuickFixResolver {
-  private languageService: LanguageService;
+  private analyzer: Analyzer;
   private logger: Logger;
 
-  constructor(languageService: LanguageService, logger: Logger) {
-    this.languageService = languageService;
+  constructor(analyzer: Analyzer, logger: Logger) {
+    this.analyzer = analyzer;
     this.logger = logger;
   }
 
@@ -26,7 +25,7 @@ export class QuickFixResolver {
         const diagnosticActions = this.resolveActionsFor(diagnostic, {
           document,
           uri,
-          analyzer: this.languageService.analyzer,
+          analyzer: this.analyzer,
         });
 
         actions = [...actions, ...diagnosticActions];

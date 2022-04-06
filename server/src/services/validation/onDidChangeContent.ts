@@ -4,15 +4,15 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { getUriFromDocument } from "../../utils/index";
 import { debounce } from "../../utils/debounce";
 import { ServerState } from "../../types";
-import { LanguageService } from "parser";
 import { Logger } from "@utils/Logger";
 import { SolidityValidation, ValidationJob } from "./SolidityValidation";
+import { Analyzer } from "@analyzer/index";
 
 const debounceAnalyzeDocument: {
   [uri: string]: (
     documents: TextDocuments<TextDocument>,
     uri: string,
-    languageServer: LanguageService,
+    analyzer: Analyzer,
     logger: Logger
   ) => void;
 } = {};
@@ -41,7 +41,7 @@ export function onDidChangeContent(serverState: ServerState) {
     logger.trace("onDidChangeContent");
 
     try {
-      if (!serverState.languageServer) {
+      if (!serverState.analyzer) {
         return;
       }
 
@@ -55,7 +55,7 @@ export function onDidChangeContent(serverState: ServerState) {
       debounceAnalyzeDocument[change.document.uri](
         serverState.documents,
         change.document.uri,
-        serverState.languageServer,
+        serverState.analyzer,
         serverState.logger
       );
 
@@ -70,7 +70,7 @@ export function onDidChangeContent(serverState: ServerState) {
 
       const documentURI = getUriFromDocument(change.document);
       const validationJob = new SolidityValidation(
-        serverState.languageServer.analyzer,
+        serverState.analyzer,
         serverState.compProcessFactory,
         logger
       ).getValidationJob(serverState.telemetry, logger);
@@ -91,7 +91,7 @@ export function onDidChangeContent(serverState: ServerState) {
 function analyzeFunc(
   documents: TextDocuments<TextDocument>,
   uri: string,
-  languageServer: LanguageService,
+  analyzer: Analyzer,
   logger: Logger
 ): void {
   logger.trace("debounced onDidChangeContent");
@@ -101,7 +101,7 @@ function analyzeFunc(
 
     if (document) {
       const documentURI = getUriFromDocument(document);
-      languageServer.analyzer.analyzeDocument(document.getText(), documentURI);
+      analyzer.analyzeDocument(document.getText(), documentURI);
     }
   } catch (err) {
     logger.error(err);

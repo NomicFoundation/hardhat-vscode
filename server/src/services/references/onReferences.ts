@@ -18,16 +18,14 @@ export const onReferences = (serverState: ServerState) => {
 
       const documentURI = getUriFromDocument(document);
       const documentAnalyzer =
-        serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
+        serverState.analyzer.getDocumentAnalyzer(documentURI);
 
       if (!documentAnalyzer.isAnalyzed) {
         return;
       }
 
       return serverState.telemetry.trackTimingSync("onReferences", () =>
-        new SolidityNavigation(
-          serverState.languageServer.analyzer
-        ).findReferences(
+        new SolidityNavigation(serverState.analyzer).findReferences(
           documentURI,
           params.position,
           documentAnalyzer.analyzerTree.tree

@@ -32,22 +32,17 @@ export const onCompletion = (serverState: ServerState) => {
         }
 
         const documentURI = getUriFromDocument(document);
-        serverState.languageServer.analyzer.analyzeDocument(
-          newDocumentText,
-          documentURI
-        );
+        serverState.analyzer.analyzeDocument(newDocumentText, documentURI);
 
         const documentAnalyzer =
-          serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
+          serverState.analyzer.getDocumentAnalyzer(documentURI);
 
         if (!documentAnalyzer) {
           return;
         }
 
         return serverState.telemetry.trackTimingSync("onCompletion", () =>
-          new SolidityCompletion(
-            serverState.languageServer.analyzer
-          ).doComplete(
+          new SolidityCompletion(serverState.analyzer).doComplete(
             params.position,
             documentAnalyzer,
             params.context,
