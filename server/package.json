@@ -54,6 +54,7 @@
     "@solidity-parser/parser": "^0.14.0",
     "@types/prettier": "2.4.3",
     "c3-linearization": "0.3.0",
+    "fast-glob": "3.2.11",
     "fs-extra": "^10.0.0",
     "got": "^11.8.2",
     "hardhat": "^2.6.0",

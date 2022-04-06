@@ -1,9 +1,17 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as fg from "fast-glob";
 import { Logger } from "@utils/Logger";
 import { decodeUriAndRemoveFilePrefix } from "@utils/index";
 
 export class WorkspaceFileRetriever {
+  public async findFiles(
+    baseUri: string,
+    globPattern: string
+  ): Promise<string[]> {
+    return fg(globPattern, { cwd: baseUri, ignore: ["**/node_modules/**"] });
+  }
+
   public findSolFiles(
     base: string | undefined,
     documentsUri: string[],

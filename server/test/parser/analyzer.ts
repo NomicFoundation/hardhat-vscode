@@ -13,7 +13,7 @@ describe("Analyzer", () => {
     let foundSolFiles: string[];
 
     describe("with multiple files", () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         collectedData = [];
         foundSolFiles = ["example1.sol", "example2.sol", "example3.sol"];
 
@@ -24,7 +24,7 @@ describe("Analyzer", () => {
         );
 
         // trigger the indexing
-        analyzer.init([{ name: "example", uri: exampleRootPath }]);
+        await analyzer.init([{ name: "example", uri: exampleRootPath }]);
       });
 
       it("should emit an indexing event for each", () => {
@@ -50,7 +50,7 @@ describe("Analyzer", () => {
     });
 
     describe("with no files found", () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         collectedData = [];
         foundSolFiles = [];
 
@@ -61,7 +61,7 @@ describe("Analyzer", () => {
         );
 
         // trigger the indexing
-        analyzer.init([{ name: "example", uri: exampleRootPath }]);
+        await analyzer.init([{ name: "example", uri: exampleRootPath }]);
       });
 
       it("should emit an indexing event for each", () => {
@@ -89,6 +89,9 @@ function setupAnalyzer(
   em.on("indexing-file", (data) => collectedData.push(data));
 
   const mockWorkspaceFileRetriever = {
+    findFiles: async (): Promise<string[]> => {
+      return [];
+    },
     findSolFiles: (base: string | undefined, documentsUri: string[]) => {
       if (base !== rootPath) {
         return;

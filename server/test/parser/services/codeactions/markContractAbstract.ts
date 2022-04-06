@@ -111,7 +111,7 @@ describe("Code Actions", () => {
           );
         });
 
-        it("should provide no action if it cannot parse the contract", () => {
+        it("should provide no action if it cannot parse the contract", async () => {
           const fileText = `  
           xcontract bad {`;
 
@@ -141,7 +141,7 @@ describe("Code Actions", () => {
 
           const em = new events.EventEmitter();
 
-          const analyzer = new Analyzer(
+          const analyzer = await new Analyzer(
             mockWorkspaceFileRetriever,
             em,
             mockLogger

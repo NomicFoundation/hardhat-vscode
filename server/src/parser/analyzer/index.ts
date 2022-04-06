@@ -1,23 +1,15 @@
 import * as events from "events";
-import * as fs from "fs";
-import * as parser from "@solidity-parser/parser";
-import * as matcher from "@analyzer/matcher";
-import { Searcher } from "@analyzer/searcher";
-import { BROWNIE_PACKAGE_PATH } from "@analyzer/resolver";
 import { IndexFileData } from "@common/event";
 import {
   Node,
-  SourceUnitNode,
   DocumentsAnalyzerMap,
   DocumentAnalyzer as IDocumentAnalyzer,
-  ASTNode,
-  EmptyNode,
-  Searcher as ISearcher,
 } from "@common/types";
 import { WorkspaceFileRetriever } from "./WorkspaceFileRetriever";
 import { Logger } from "@utils/Logger";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
 import { decodeUriAndRemoveFilePrefix } from "../../utils/index";
+import { DocumentAnalyzer } from "./DocumentAnalyzer";
 
 export class Analyzer {
   workspaceFolders: WorkspaceFolder[];
@@ -38,16 +30,37 @@ export class Analyzer {
     this.logger = logger;
   }
 
-  public init(workspaceFolders: WorkspaceFolder[]): Analyzer {
+  public async init(workspaceFolders: WorkspaceFolder[]): Promise<Analyzer> {
     if (workspaceFolders.some((wf) => wf.uri.includes("\\"))) {
       throw new Error("Unexpect windows style path");
     }
 
     this.workspaceFolders = workspaceFolders;
 
-    this.indexSolFiles(this.workspaceFolders[0]);
+    this.logger.info("Starting workspace indexing ...");
+
+    this.logger.info("Scanning workspace for sol files");
+
+    for (const workspaceFolder of workspaceFolders) {
+      await this.scanForHardhatProjects(workspaceFolder);
+
+      this.indexSolFiles(workspaceFolder);
+    }
+
+    this.logger.info("File indexing complete");
 
     return this;
+  }
+
+  private async scanForHardhatProjects(workspaceFolder: WorkspaceFolder) {
+    const uri = decodeUriAndRemoveFilePrefix(workspaceFolder.uri);
+
+    const hardhatConfigFiles = await this.workspaceFileRetriever.findFiles(
+      uri,
+      "**/hardhat.config.{ts,js}"
+    );
+
+    return hardhatConfigFiles;
   }
 
   private indexSolFiles(workspaceFolder: WorkspaceFolder) {
@@ -55,19 +68,17 @@ export class Analyzer {
       const rootPath = decodeUriAndRemoveFilePrefix(workspaceFolder.uri);
 
       const documentsUri: string[] = [];
-      this.logger.info("Starting workspace indexing ...");
 
-      this.logger.info("Scanning workspace for sol files");
       this.workspaceFileRetriever.findSolFiles(
         rootPath,
         documentsUri,
         this.logger
       );
-      this.workspaceFileRetriever.findSolFiles(
-        BROWNIE_PACKAGE_PATH,
-        documentsUri,
-        this.logger
-      );
+      // this.workspaceFileRetriever.findSolFiles(
+      //   BROWNIE_PACKAGE_PATH,
+      //   documentsUri,
+      //   this.logger
+      // );
       this.logger.info(`Scan complete, ${documentsUri.length} sol files found`);
 
       // Init all documentAnalyzers
@@ -118,8 +129,6 @@ export class Analyzer {
         this.em.emit("indexing-file", data);
         this.logger.trace("No files to index", data);
       }
-
-      this.logger.info("File indexing complete");
     } catch (err) {
       this.logger.error(err);
     }
@@ -166,84 +175,5 @@ export class Analyzer {
     }
 
     return null;
-  }
-}
-
-class DocumentAnalyzer implements IDocumentAnalyzer {
-  private logger: Logger;
-  rootPath: string;
-
-  document: string | undefined;
-  uri: string;
-
-  ast: ASTNode | undefined;
-
-  analyzerTree: { tree: Node };
-  isAnalyzed = false;
-
-  searcher: ISearcher;
-
-  orphanNodes: Node[] = [];
-
-  constructor(rootPath: string, uri: string, logger: Logger) {
-    this.rootPath = rootPath;
-    this.uri = uri;
-    this.logger = logger;
-
-    this.analyzerTree = {
-      tree: new EmptyNode({ type: "Empty" }, this.uri, this.rootPath, {}),
-    };
-
-    this.searcher = new Searcher(this.analyzerTree);
-
-    if (fs.existsSync(uri)) {
-      this.document = "" + fs.readFileSync(uri);
-    } else {
-      this.document = "";
-    }
-  }
-
-  public analyze(
-    documentsAnalyzer: DocumentsAnalyzerMap,
-    document?: string
-  ): Node | undefined {
-    try {
-      this.orphanNodes = [];
-
-      if (document) {
-        this.document = document;
-      }
-
-      try {
-        this.ast = parser.parse(this.document || "", {
-          loc: true,
-          range: true,
-          tolerant: true,
-        });
-      } catch {
-        return this.analyzerTree.tree;
-      }
-
-      if (this.isAnalyzed) {
-        const oldDocumentsAnalyzerTree = this.analyzerTree
-          .tree as SourceUnitNode;
-
-        for (const importNode of oldDocumentsAnalyzerTree.getImportNodes()) {
-          importNode.getParent()?.removeChild(importNode);
-          importNode.setParent(undefined);
-        }
-      }
-
-      this.isAnalyzed = true;
-      this.analyzerTree.tree = matcher
-        .find(this.ast, this.uri, this.rootPath, documentsAnalyzer)
-        .accept(matcher.find, this.orphanNodes);
-
-      return this.analyzerTree.tree;
-    } catch (err) {
-      this.logger.error(err);
-
-      return this.analyzerTree.tree;
-    }
   }
 }
