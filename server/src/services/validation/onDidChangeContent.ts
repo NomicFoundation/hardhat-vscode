@@ -99,10 +99,12 @@ function analyzeFunc(
   try {
     const document = documents.get(uri);
 
-    if (document) {
-      const documentURI = getUriFromDocument(document);
-      analyzer.analyzeDocument(document.getText(), documentURI);
+    if (!document) {
+      return;
     }
+
+    const documentURI = getUriFromDocument(document);
+    analyzer.analyzeDocument(document.getText(), documentURI);
   } catch (err) {
     logger.error(err);
   }

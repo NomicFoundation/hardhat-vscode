@@ -72,6 +72,9 @@ export function isArray<T>(
   value: Array<T> | undefined | null,
   length = 1
 ): asserts value is Array<T> {
-  assert.ok(Array.isArray(value), `value must be array`);
+  assert.ok(
+    Array.isArray(value),
+    `value must be array ${JSON.stringify(value, null, 2)}`
+  );
   assert.strictEqual(value.length, length, "value invalid length");
 }

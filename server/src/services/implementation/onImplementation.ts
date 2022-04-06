@@ -1,38 +1,68 @@
-import { SolidityNavigation } from "@services/navigation/SolidityNavigation";
+import { isFunctionDefinitionNode } from "@analyzer/utils/typeGuards";
+import {
+  DocumentAnalyzer,
+  VSCodePosition,
+  Location,
+  Node,
+  definitionNodeTypes,
+  Overwrite,
+  VSCodeLocation,
+} from "@common/types";
+import { getParserPositionFromVSCodePosition, getRange } from "@common/utils";
+import { findReferencesFor } from "@utils/findReferencesFor";
+import { convertHardhatUriToVscodeUri } from "@utils/index";
+import { onCommand } from "@utils/onCommand";
 import { ImplementationParams } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
-import { getUriFromDocument } from "../../utils/index";
 
 export const onImplementation = (serverState: ServerState) => {
   return (params: ImplementationParams) => {
-    const { logger } = serverState;
-
-    logger.trace("onImplementation");
-
     try {
-      const document = serverState.documents.get(params.textDocument.uri);
-
-      if (!document) {
-        return;
-      }
-
-      const documentURI = getUriFromDocument(document);
-      const documentAnalyzer =
-        serverState.analyzer.getDocumentAnalyzer(documentURI);
-
-      if (!documentAnalyzer.isAnalyzed) {
-        return;
-      }
-
-      return serverState.telemetry.trackTimingSync("onImplementation", () =>
-        new SolidityNavigation(serverState.analyzer).findImplementation(
-          documentURI,
-          params.position,
-          documentAnalyzer.analyzerTree.tree
-        )
+      return onCommand(
+        serverState,
+        "onImplementation",
+        params.textDocument.uri,
+        (documentAnalyzer) =>
+          findImplementation(serverState, documentAnalyzer, params.position)
       );
     } catch (err) {
-      logger.error(err);
+      serverState.logger.error(err);
     }
   };
 };
+
+function findImplementation(
+  serverState: ServerState,
+  documentAnalyzer: DocumentAnalyzer,
+  position: VSCodePosition
+): VSCodeLocation[] {
+  const definitionNode = documentAnalyzer.searcher.findDefinitionNodeByPosition(
+    documentAnalyzer.uri,
+    getParserPositionFromVSCodePosition(position),
+    documentAnalyzer.analyzerTree.tree
+  );
+
+  const referenceNodes: Node[] = findReferencesFor(definitionNode);
+
+  const implementationNodes: Node[] = referenceNodes
+    .filter(isDefinitionNode)
+    .filter(isNotAbstractFunction);
+
+  return implementationNodes
+    .filter(
+      (implNode): implNode is Overwrite<Node, { nameLoc: Location }> =>
+        implNode.nameLoc !== undefined
+    )
+    .map((refNode) => ({
+      uri: convertHardhatUriToVscodeUri(refNode.uri),
+      range: getRange(refNode.nameLoc),
+    }));
+}
+
+function isDefinitionNode(node: Node): boolean {
+  return definitionNodeTypes.includes(node.type);
+}
+
+function isNotAbstractFunction(node: Node): boolean {
+  return !(isFunctionDefinitionNode(node) && node.astNode.body === null);
+}

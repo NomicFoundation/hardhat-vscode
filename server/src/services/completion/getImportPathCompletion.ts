@@ -2,21 +2,20 @@ import * as fs from "fs";
 import * as path from "path";
 import * as lsp from "vscode-languageserver/node";
 import { toUnixStyle } from "../../utils/index";
-
 import {
   CompletionItem,
   CompletionItemKind,
-  DocumentsAnalyzerMap,
   ImportDirectiveNode,
   VSCodePosition,
 } from "@common/types";
-import { Analyzer } from "@analyzer/index";
 import { Logger } from "@utils/Logger";
+import { ProjectContext } from "./types";
 
 export function getImportPathCompletion(
   position: VSCodePosition,
   node: ImportDirectiveNode,
-  { analyzer, logger }: { analyzer: Analyzer; logger: Logger }
+  projCtx: ProjectContext,
+  { logger }: { logger: Logger }
 ): CompletionItem[] {
   const currentImport = node.astNode.path.replace("_;", "");
   const importPath = toUnixStyle(path.join(node.realUri, "..", currentImport));
@@ -30,10 +29,8 @@ export function getImportPathCompletion(
       logger
     );
 
-    const indexNodeModuleFolders = getIndexedNodeModuleFolderCompletions(
-      analyzer,
-      importPath
-    );
+    const indexNodeModuleFolders =
+      getIndexedNodeModuleFolderCompletions(projCtx);
 
     return relativeImports.concat(indexNodeModuleFolders);
   } else if (isRelativeImport(currentImport)) {
@@ -45,12 +42,7 @@ export function getImportPathCompletion(
       logger
     );
   } else {
-    return getDirectImportPathCompletions(
-      position,
-      currentImport,
-      importPath,
-      analyzer
-    );
+    return getDirectImportPathCompletions(position, currentImport, projCtx);
   }
 }
 
@@ -103,20 +95,13 @@ function getRelativeImportPathCompletions(
 }
 
 function getIndexedNodeModuleFolderCompletions(
-  analyzer: Analyzer,
-  importPath: string
+  projCtx: ProjectContext
 ): CompletionItem[] {
-  const { documentsAnalyzer } = analyzer;
-  const rootPath = analyzer.resolveRootPath(importPath);
-
-  if (!rootPath) {
+  if (!projCtx.projectBasePath) {
     return [];
   }
 
-  const uniqueFolders = findNodeModulePackagesInIndex({
-    rootPath,
-    documentsAnalyzer,
-  });
+  const uniqueFolders = findNodeModulePackagesInIndex(projCtx);
 
   return uniqueFolders.map(
     (p): CompletionItem => ({
@@ -146,23 +131,12 @@ function replaceFor(
 function getDirectImportPathCompletions(
   position: VSCodePosition,
   currentImport: string,
-  importPath: string,
-  analyzer: Analyzer
+  projCtx: ProjectContext
 ): CompletionItem[] {
-  const { documentsAnalyzer } = analyzer;
-  const rootPath = analyzer.resolveRootPath(importPath);
-
-  if (!rootPath) {
-    return [];
-  }
-
   const contractFilePaths =
     currentImport.includes("/") || currentImport.includes(path.sep)
-      ? findNodeModulesContractFilesInIndex(
-          { rootPath, documentsAnalyzer },
-          currentImport
-        )
-      : findNodeModulePackagesInIndex({ rootPath, documentsAnalyzer });
+      ? findNodeModulesContractFilesInIndex(projCtx, currentImport)
+      : findNodeModulePackagesInIndex(projCtx);
 
   return contractFilePaths.map((pathFromNodeModules): CompletionItem => {
     const normalizedPath = normalizeSlashes(pathFromNodeModules);
@@ -296,15 +270,12 @@ function convertFileToCompletion(
 }
 
 function findNodeModulePackagesInIndex({
-  rootPath,
-  documentsAnalyzer,
-}: {
-  rootPath: string;
-  documentsAnalyzer: DocumentsAnalyzerMap;
-}): string[] {
-  const basePath = toUnixStyle(path.join(rootPath, "node_modules"));
+  projectBasePath,
+  solFileIndex,
+}: ProjectContext): string[] {
+  const basePath = toUnixStyle(path.join(projectBasePath, "node_modules"));
 
-  const allNodeModulePaths = Object.keys(documentsAnalyzer)
+  const allNodeModulePaths = Object.keys(solFileIndex)
     .filter((p) => p.startsWith(basePath))
     .map((p) => p.replace(basePath, ""));
 
@@ -316,21 +287,17 @@ function findNodeModulePackagesInIndex({
 }
 
 function findNodeModulesContractFilesInIndex(
-  {
-    rootPath,
-    documentsAnalyzer,
-  }: {
-    rootPath: string;
-    documentsAnalyzer: DocumentsAnalyzerMap;
-  },
+  { projectBasePath, solFileIndex }: ProjectContext,
   currentImport: string
 ): string[] {
-  const basePath = toUnixStyle(path.join(rootPath, "node_modules", path.sep));
+  const basePath = toUnixStyle(
+    path.join(projectBasePath, "node_modules", path.sep)
+  );
   const basePathWithCurrentImport = toUnixStyle(
     path.join(basePath, currentImport)
   );
 
-  const contractFilePaths = Object.keys(documentsAnalyzer)
+  const contractFilePaths = Object.keys(solFileIndex)
     .filter((fullPath) => fullPath.startsWith(basePathWithCurrentImport))
     .map((fullPath) => fullPath.replace(basePath, ""));
 
