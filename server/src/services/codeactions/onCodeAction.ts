@@ -9,28 +9,24 @@ export function onCodeAction(serverState: ServerState) {
     logger.trace("onCodeAction");
 
     try {
-      if (!analyzer) {
-        return [];
-      }
+      return serverState.telemetry.trackTimingSync("onCodeAction", () => {
+        const document = documents.get(params.textDocument.uri);
 
-      const quickFixResolver = new QuickFixResolver(
-        analyzer,
-        serverState.logger
-      );
+        if (!document || params.context.diagnostics.length === 0) {
+          return [];
+        }
 
-      const document = documents.get(params.textDocument.uri);
+        const quickFixResolver = new QuickFixResolver(
+          analyzer,
+          serverState.logger
+        );
 
-      if (!document || params.context.diagnostics.length === 0) {
-        return [];
-      }
-
-      return serverState.telemetry.trackTimingSync("onCodeAction", () =>
-        quickFixResolver.resolve(
+        return quickFixResolver.resolve(
           params.textDocument.uri,
           document,
           params.context.diagnostics
-        )
-      );
+        );
+      });
     } catch (err) {
       logger.error(err);
 

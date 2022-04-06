@@ -1,8 +1,8 @@
 import { ResolveActionsContext } from "../../../types";
 import { ParseContractDefinitionResult } from "../../parsing/parseContractDefinition";
-import { getUriFromDocument } from "../../../../utils/index";
 import { ContractDefinitionNode, DocumentAnalyzer } from "@common/types";
 import { isContractDefinitionNode } from "@analyzer/utils/typeGuards";
+import { lookupEntryForDocument } from "@utils/lookupEntryForDocument";
 
 export function findAnalyzedContract(
   { contractDefinition, functionSourceLocation }: ParseContractDefinitionResult,
@@ -12,8 +12,7 @@ export function findAnalyzedContract(
     return null;
   }
 
-  const documentURI = getUriFromDocument(document);
-  const currentAnalyzer = analyzer.getDocumentAnalyzer(documentURI);
+  const currentAnalyzer = lookupEntryForDocument(analyzer, document);
 
   if (!currentAnalyzer.isAnalyzed) {
     return null;
