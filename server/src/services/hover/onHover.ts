@@ -3,7 +3,6 @@ import {
   isMemberAccessNode,
 } from "@analyzer/utils/typeGuards";
 import { getParserPositionFromVSCodePosition } from "@common/utils";
-import { getUriFromDocument } from "../../utils/index";
 import { HoverParams, Hover } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
 import {
@@ -13,36 +12,20 @@ import {
 } from "@common/types";
 import { astToText } from "./utils/astToText";
 import { textToHover } from "./utils/textTohover";
+import { onCommand } from "@utils/onCommand";
 
 export function onHover(serverState: ServerState) {
   return (params: HoverParams): Hover | null => {
-    const { analyzer, logger } = serverState;
-
-    logger.trace("onHover");
-
     try {
-      if (!analyzer) {
-        return null;
-      }
-
-      const document = serverState.documents.get(params.textDocument.uri);
-
-      if (!document) {
-        return null;
-      }
-
-      const documentURI = getUriFromDocument(document);
-      const documentAnalyzer = analyzer.getDocumentAnalyzer(documentURI);
-
-      if (!documentAnalyzer.isAnalyzed) {
-        return null;
-      }
-
-      return serverState.telemetry.trackTimingSync("onHover", () =>
-        findHoverForNodeAtPosition(documentAnalyzer, documentURI, params)
+      return onCommand(
+        serverState,
+        "onHover",
+        params.textDocument.uri,
+        (documentAnalyzer) =>
+          findHoverForNodeAtPosition(documentAnalyzer, params)
       );
     } catch (err) {
-      logger.error(err);
+      serverState.logger.error(err);
 
       return null;
     }
@@ -51,11 +34,10 @@ export function onHover(serverState: ServerState) {
 
 function findHoverForNodeAtPosition(
   documentAnalyzer: DocumentAnalyzer,
-  documentURI: string,
   params: HoverParams
 ) {
   const node = documentAnalyzer.searcher.findNodeByPosition(
-    documentURI,
+    documentAnalyzer.uri,
     getParserPositionFromVSCodePosition(params.position),
     documentAnalyzer.analyzerTree.tree
   );

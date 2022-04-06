@@ -1,38 +1,54 @@
-import { SolidityNavigation } from "@services/navigation/SolidityNavigation";
+import {
+  DocumentAnalyzer,
+  VSCodePosition,
+  Node,
+  Location,
+  VSCodeLocation,
+  Overwrite,
+} from "@common/types";
+import { getParserPositionFromVSCodePosition, getRange } from "@common/utils";
+import { findReferencesFor } from "@utils/findReferencesFor";
+import { convertHardhatUriToVscodeUri } from "@utils/index";
+import { onCommand } from "@utils/onCommand";
 import { ReferenceParams } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
-import { getUriFromDocument } from "../../utils/index";
 
 export const onReferences = (serverState: ServerState) => {
   return (params: ReferenceParams) => {
-    const { logger } = serverState;
-
-    logger.trace("onReferences");
-
     try {
-      const document = serverState.documents.get(params.textDocument.uri);
-
-      if (!document) {
-        return;
-      }
-
-      const documentURI = getUriFromDocument(document);
-      const documentAnalyzer =
-        serverState.analyzer.getDocumentAnalyzer(documentURI);
-
-      if (!documentAnalyzer.isAnalyzed) {
-        return;
-      }
-
-      return serverState.telemetry.trackTimingSync("onReferences", () =>
-        new SolidityNavigation(serverState.analyzer).findReferences(
-          documentURI,
-          params.position,
-          documentAnalyzer.analyzerTree.tree
-        )
+      return onCommand(
+        serverState,
+        "onReferences",
+        params.textDocument.uri,
+        (documentAnalyzer) =>
+          findReferences(serverState, documentAnalyzer, params.position)
       );
     } catch (err) {
-      logger.error(err);
+      serverState.logger.error(err);
     }
   };
 };
+
+function findReferences(
+  serverState: ServerState,
+  documentAnalyzer: DocumentAnalyzer,
+  position: VSCodePosition
+): VSCodeLocation[] {
+  const definitionNode = documentAnalyzer.searcher.findDefinitionNodeByPosition(
+    documentAnalyzer.uri,
+    getParserPositionFromVSCodePosition(position),
+    documentAnalyzer.analyzerTree.tree
+  );
+
+  const references: Node[] = findReferencesFor(definitionNode);
+
+  return references
+    .filter(
+      (refNode): refNode is Overwrite<Node, { nameLoc: Location }> =>
+        refNode.nameLoc !== undefined
+    )
+    .map((refNode) => ({
+      uri: convertHardhatUriToVscodeUri(refNode.uri),
+      range: getRange(refNode.nameLoc),
+    }));
+}

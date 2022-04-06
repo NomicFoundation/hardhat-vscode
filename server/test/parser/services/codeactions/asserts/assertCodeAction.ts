@@ -3,7 +3,6 @@ import { Diagnostic, TextEdit } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { CompilerDiagnostic } from "@compilerDiagnostics/types";
 import { Analyzer } from "@analyzer/index";
-import { getUriFromDocument } from "../../../../../src/utils";
 import { setupMockWorkspaceFileRetriever } from "../../../../helpers/setupMockWorkspaceFileRetriever";
 import { setupMockLogger } from "../../../../helpers/setupMockLogger";
 import { setupMockConnection } from "../../../../helpers/setupMockConnection";
@@ -33,9 +32,6 @@ export async function assertCodeAction(
     mockConnection,
     mockLogger
   ).init([{ name: "example", uri: exampleUri }]);
-
-  const documentURI = getUriFromDocument(document);
-  analyzer.analyzeDocument(document.getText(), documentURI);
 
   const actions = compilerDiagnostic.resolveActions(diagnostic, {
     document,
