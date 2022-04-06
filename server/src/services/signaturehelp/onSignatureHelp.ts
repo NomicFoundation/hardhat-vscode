@@ -19,23 +19,22 @@ export const onSignatureHelp = (serverState: ServerState) => {
       const documentURI = getUriFromDocument(document);
 
       if (params.context?.triggerCharacter === "(") {
-        serverState.languageServer.analyzer.analyzeDocument(
-          document.getText(),
-          documentURI
-        );
+        serverState.analyzer.analyzeDocument(document.getText(), documentURI);
       }
 
       const documentAnalyzer =
-        serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
+        serverState.analyzer.getDocumentAnalyzer(documentURI);
 
       if (!documentAnalyzer.isAnalyzed) {
         return;
       }
 
       return serverState.telemetry.trackTimingSync("onSignatureHelp", () =>
-        new SoliditySignatureHelp(
-          serverState.languageServer.analyzer
-        ).doSignatureHelp(document, params.position, documentAnalyzer)
+        new SoliditySignatureHelp(serverState.analyzer).doSignatureHelp(
+          document,
+          params.position,
+          documentAnalyzer
+        )
       );
     } catch (err) {
       logger.error(err);

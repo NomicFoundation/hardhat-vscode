@@ -18,16 +18,14 @@ export const onTypeDefinition = (serverState: ServerState) => {
 
       const documentURI = getUriFromDocument(document);
       const documentAnalyzer =
-        serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
+        serverState.analyzer.getDocumentAnalyzer(documentURI);
 
       if (!documentAnalyzer.isAnalyzed) {
         return;
       }
 
       return serverState.telemetry.trackTimingSync("onTypeDefinition", () =>
-        new SolidityNavigation(
-          serverState.languageServer.analyzer
-        ).findTypeDefinition(
+        new SolidityNavigation(serverState.analyzer).findTypeDefinition(
           documentURI,
           params.position,
           documentAnalyzer.analyzerTree.tree
