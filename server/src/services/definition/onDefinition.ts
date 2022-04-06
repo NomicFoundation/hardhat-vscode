@@ -1,3 +1,4 @@
+import { SolidityNavigation } from "@services/navigation/SolidityNavigation";
 import { DefinitionParams } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
 import { getUriFromDocument } from "../../utils/index";
@@ -24,7 +25,9 @@ export const onDefinition = (serverState: ServerState) => {
       }
 
       return serverState.telemetry.trackTimingSync("onDefinition", () =>
-        serverState.languageServer.solidityNavigation.findDefinition(
+        new SolidityNavigation(
+          serverState.languageServer.analyzer
+        ).findDefinition(
           documentURI,
           params.position,
           documentAnalyzer.analyzerTree.tree

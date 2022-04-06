@@ -1,6 +1,7 @@
 import { ServerState } from "../../types";
 import { SignatureHelpParams, SignatureHelp } from "vscode-languageserver/node";
 import { getUriFromDocument } from "../../utils/index";
+import { SoliditySignatureHelp } from "@services/documentation/SoliditySignatureHelp";
 
 export const onSignatureHelp = (serverState: ServerState) => {
   return (params: SignatureHelpParams): SignatureHelp | undefined => {
@@ -32,11 +33,9 @@ export const onSignatureHelp = (serverState: ServerState) => {
       }
 
       return serverState.telemetry.trackTimingSync("onSignatureHelp", () =>
-        serverState.languageServer.soliditySignatureHelp.doSignatureHelp(
-          document,
-          params.position,
-          documentAnalyzer
-        )
+        new SoliditySignatureHelp(
+          serverState.languageServer.analyzer
+        ).doSignatureHelp(document, params.position, documentAnalyzer)
       );
     } catch (err) {
       logger.error(err);

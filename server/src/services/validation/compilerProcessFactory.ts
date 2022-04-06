@@ -1,5 +1,6 @@
 import { Logger } from "@utils/Logger";
-import { CompilerProcess, HardhatProcess } from "./HardhatProcess";
+import { CompilerProcess } from "../../types";
+import { HardhatProcess } from "./HardhatProcess";
 
 export function compilerProcessFactory(
   rootPath: string,
