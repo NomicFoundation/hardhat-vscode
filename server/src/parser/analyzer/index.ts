@@ -1,4 +1,3 @@
-import * as events from "events";
 import { IndexFileData } from "@common/event";
 import {
   Node,
@@ -10,22 +9,23 @@ import { Logger } from "@utils/Logger";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
 import { decodeUriAndRemoveFilePrefix } from "../../utils/index";
 import { DocumentAnalyzer } from "./DocumentAnalyzer";
+import { Connection } from "vscode-languageserver";
 
 export class Analyzer {
   workspaceFolders: WorkspaceFolder[];
-  em: events.EventEmitter;
   workspaceFileRetriever: WorkspaceFileRetriever;
+  connection: Connection;
   logger: Logger;
 
   documentsAnalyzer: DocumentsAnalyzerMap = {};
 
   constructor(
     workspaceFileRetriever: WorkspaceFileRetriever,
-    em: events.EventEmitter,
+    connection: Connection,
     logger: Logger
   ) {
     this.workspaceFolders = [];
-    this.em = em;
+    this.connection = connection;
     this.workspaceFileRetriever = workspaceFileRetriever;
     this.logger = logger;
   }
@@ -38,7 +38,6 @@ export class Analyzer {
     this.workspaceFolders = workspaceFolders;
 
     this.logger.info("Starting workspace indexing ...");
-
     this.logger.info("Scanning workspace for sol files");
 
     for (const workspaceFolder of workspaceFolders) {
@@ -108,7 +107,8 @@ export class Analyzer {
               total: documentsUri.length,
             };
 
-            this.em.emit("indexing-file", data);
+            this.connection.sendNotification("custom/indexing-file", data);
+
             this.logger.trace("Indexing file", data);
 
             if (!documentAnalyzer.isAnalyzed) {
@@ -126,7 +126,7 @@ export class Analyzer {
           total: 0,
         };
 
-        this.em.emit("indexing-file", data);
+        this.connection.sendNotification("custom/indexing-file", data);
         this.logger.trace("No files to index", data);
       }
     } catch (err) {

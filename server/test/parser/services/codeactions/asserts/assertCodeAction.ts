@@ -1,4 +1,3 @@
-import * as events from "events";
 import { assert } from "chai";
 import { Diagnostic, TextEdit } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
@@ -7,6 +6,7 @@ import { Analyzer } from "@analyzer/index";
 import { getUriFromDocument } from "../../../../../src/utils";
 import { setupMockWorkspaceFileRetriever } from "../../../../helpers/setupMockWorkspaceFileRetriever";
 import { setupMockLogger } from "../../../../helpers/setupMockLogger";
+import { setupMockConnection } from "../../../../helpers/setupMockConnection";
 
 export async function assertCodeAction(
   compilerDiagnostic: CompilerDiagnostic,
@@ -25,12 +25,12 @@ export async function assertCodeAction(
 
   const mockLogger = setupMockLogger();
   const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
-
-  const em = new events.EventEmitter();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const mockConnection = setupMockConnection() as any;
 
   const analyzer = await new Analyzer(
     mockWorkspaceFileRetriever,
-    em,
+    mockConnection,
     mockLogger
   ).init([{ name: "example", uri: exampleUri }]);
 

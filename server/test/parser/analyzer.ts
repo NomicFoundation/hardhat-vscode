@@ -1,4 +1,3 @@
-import * as events from "events";
 import * as path from "path";
 import { Analyzer } from "@analyzer/index";
 import { assert } from "chai";
@@ -83,10 +82,14 @@ function setupAnalyzer(
   foundSolFiles: string[],
   collectedData: IndexFileData[]
 ): Analyzer {
-  const em = new events.EventEmitter();
   const logger = setupMockLogger();
 
-  em.on("indexing-file", (data) => collectedData.push(data));
+  const mockConnection = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    sendNotification: (eventName: string, data: any) => {
+      collectedData.push(data);
+    },
+  };
 
   const mockWorkspaceFileRetriever = {
     findFiles: async (): Promise<string[]> => {
@@ -103,5 +106,10 @@ function setupAnalyzer(
     },
   };
 
-  return new Analyzer(mockWorkspaceFileRetriever, em, logger);
+  return new Analyzer(
+    mockWorkspaceFileRetriever,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mockConnection as any,
+    logger
+  );
 }
