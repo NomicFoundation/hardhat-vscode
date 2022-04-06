@@ -6,7 +6,7 @@ import { debounce } from "../../utils/debounce";
 import { ServerState } from "../../types";
 import { LanguageService } from "parser";
 import { Logger } from "@utils/Logger";
-import { ValidationJob } from "./SolidityValidation";
+import { SolidityValidation, ValidationJob } from "./SolidityValidation";
 
 const debounceAnalyzeDocument: {
   [uri: string]: (
@@ -41,10 +41,7 @@ export function onDidChangeContent(serverState: ServerState) {
     logger.trace("onDidChangeContent");
 
     try {
-      if (
-        !serverState.languageServer ||
-        !serverState.languageServer.solidityValidation
-      ) {
+      if (!serverState.languageServer) {
         return;
       }
 
@@ -72,11 +69,11 @@ export function onDidChangeContent(serverState: ServerState) {
       }
 
       const documentURI = getUriFromDocument(change.document);
-      const validationJob =
-        serverState.languageServer.solidityValidation.getValidationJob(
-          serverState.telemetry,
-          logger
-        );
+      const validationJob = new SolidityValidation(
+        serverState.languageServer.analyzer,
+        serverState.compProcessFactory,
+        logger
+      ).getValidationJob(serverState.telemetry, logger);
 
       debounceValidateDocument[change.document.uri](
         validationJob,

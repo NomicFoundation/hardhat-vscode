@@ -1,6 +1,7 @@
 import { RenameParams } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
 import { getUriFromDocument } from "../../utils/index";
+import { SolidityRename } from "./SolidityRename";
 
 export const onRename = (serverState: ServerState) => {
   return (params: RenameParams) => {
@@ -24,7 +25,7 @@ export const onRename = (serverState: ServerState) => {
       }
 
       return serverState.telemetry.trackTimingSync("onRenameRequest", () =>
-        serverState.languageServer.solidityRename.doRename(
+        new SolidityRename(serverState.languageServer.analyzer).doRename(
           documentURI,
           params.position,
           params.newName,

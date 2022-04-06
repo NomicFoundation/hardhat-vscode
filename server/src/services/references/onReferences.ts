@@ -1,3 +1,4 @@
+import { SolidityNavigation } from "@services/navigation/SolidityNavigation";
 import { ReferenceParams } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
 import { getUriFromDocument } from "../../utils/index";
@@ -24,7 +25,9 @@ export const onReferences = (serverState: ServerState) => {
       }
 
       return serverState.telemetry.trackTimingSync("onReferences", () =>
-        serverState.languageServer.solidityNavigation.findReferences(
+        new SolidityNavigation(
+          serverState.languageServer.analyzer
+        ).findReferences(
           documentURI,
           params.position,
           documentAnalyzer.analyzerTree.tree

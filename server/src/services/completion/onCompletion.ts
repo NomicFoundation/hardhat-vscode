@@ -1,6 +1,7 @@
 import { CompletionList, CompletionParams } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
 import { getUriFromDocument } from "../../utils/index";
+import { SolidityCompletion } from "./SolidityCompletion";
 
 export const onCompletion = (serverState: ServerState) => {
   return (params: CompletionParams): CompletionList | undefined => {
@@ -44,7 +45,9 @@ export const onCompletion = (serverState: ServerState) => {
         }
 
         return serverState.telemetry.trackTimingSync("onCompletion", () =>
-          serverState.languageServer.solidityCompletion.doComplete(
+          new SolidityCompletion(
+            serverState.languageServer.analyzer
+          ).doComplete(
             params.position,
             documentAnalyzer,
             params.context,

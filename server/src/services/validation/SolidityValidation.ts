@@ -1,7 +1,7 @@
 import * as path from "path";
 import { Analyzer } from "@analyzer/index";
 import { TextDocument, Diagnostic } from "@common/types";
-import { CompilerProcess } from "./HardhatProcess";
+
 import {
   GET_DOCUMENT_EVENT,
   SOLIDITY_COMPILE_CONFIRMATION_EVENT,
@@ -9,6 +9,7 @@ import {
 import { DiagnosticConverter } from "./DiagnosticConverter";
 import { Logger } from "@utils/Logger";
 import { Telemetry } from "telemetry/types";
+import { CompilerProcess } from "../../types";
 
 export interface ValidationJob {
   run(
