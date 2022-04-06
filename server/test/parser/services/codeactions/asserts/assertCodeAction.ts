@@ -8,7 +8,7 @@ import { getUriFromDocument } from "../../../../../src/utils";
 import { setupMockWorkspaceFileRetriever } from "../../../../helpers/setupMockWorkspaceFileRetriever";
 import { setupMockLogger } from "../../../../helpers/setupMockLogger";
 
-export function assertCodeAction(
+export async function assertCodeAction(
   compilerDiagnostic: CompilerDiagnostic,
   docText: string,
   diagnostic: Diagnostic,
@@ -28,7 +28,7 @@ export function assertCodeAction(
 
   const em = new events.EventEmitter();
 
-  const analyzer = new Analyzer(
+  const analyzer = await new Analyzer(
     mockWorkspaceFileRetriever,
     em,
     mockLogger
