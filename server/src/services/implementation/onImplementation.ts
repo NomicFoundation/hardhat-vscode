@@ -18,16 +18,14 @@ export const onImplementation = (serverState: ServerState) => {
 
       const documentURI = getUriFromDocument(document);
       const documentAnalyzer =
-        serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
+        serverState.analyzer.getDocumentAnalyzer(documentURI);
 
       if (!documentAnalyzer.isAnalyzed) {
         return;
       }
 
       return serverState.telemetry.trackTimingSync("onImplementation", () =>
-        new SolidityNavigation(
-          serverState.languageServer.analyzer
-        ).findImplementation(
+        new SolidityNavigation(serverState.analyzer).findImplementation(
           documentURI,
           params.position,
           documentAnalyzer.analyzerTree.tree

@@ -1,8 +1,6 @@
 import { Connection } from "vscode-languageserver";
 import { TextDocuments } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-
-import { LanguageService } from "./parser";
 import { Logger } from "@utils/Logger";
 import { Telemetry } from "./telemetry/types";
 import { ServerState } from "./types";
@@ -20,6 +18,7 @@ import { onReferences } from "@services/references/onReferences";
 import { onImplementation } from "@services/implementation/onImplementation";
 import { onRename } from "@services/rename/onRename";
 import { onDidChangeContent } from "@services/validation/onDidChangeContent";
+import { Analyzer } from "@analyzer/index";
 
 export default function setupServer(
   connection: Connection,
@@ -57,17 +56,11 @@ function setupUninitializedServerState(
     hasWorkspaceFolderCapability: false,
     globalTelemetryEnabled: false,
     hardhatTelemetryEnabled: false,
-
     compProcessFactory,
     connection,
     workspaceFolders: [],
     documents: new TextDocuments(TextDocument),
-    languageServer: new LanguageService(
-      compProcessFactory,
-      workspaceFileRetriever,
-      connection,
-      logger
-    ),
+    analyzer: new Analyzer(workspaceFileRetriever, connection, logger),
     telemetry,
     logger,
   };

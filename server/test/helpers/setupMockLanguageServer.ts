@@ -133,14 +133,14 @@ export async function setupMockLanguageServer({
         () => {
           const doc = serverState.documents.get(documentUri);
 
-          if (!doc || !serverState.languageServer) {
+          if (!doc) {
             return false;
           }
 
           const localUri = getUriFromDocument(doc);
 
           const documentAnalyzer =
-            serverState.languageServer.analyzer.getDocumentAnalyzer(localUri);
+            serverState.analyzer.getDocumentAnalyzer(localUri);
 
           return documentAnalyzer && documentAnalyzer.isAnalyzed;
         },

@@ -4,17 +4,17 @@ import { ServerState } from "../../types";
 
 export function onCodeAction(serverState: ServerState) {
   return (params: CodeActionParams): CodeAction[] => {
-    const { documents, languageServer, logger } = serverState;
+    const { documents, analyzer, logger } = serverState;
 
     logger.trace("onCodeAction");
 
     try {
-      if (!languageServer) {
+      if (!analyzer) {
         return [];
       }
 
       const quickFixResolver = new QuickFixResolver(
-        languageServer,
+        analyzer,
         serverState.logger
       );
 

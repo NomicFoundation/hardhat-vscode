@@ -18,14 +18,14 @@ export const onRename = (serverState: ServerState) => {
 
       const documentURI = getUriFromDocument(document);
       const documentAnalyzer =
-        serverState.languageServer.analyzer.getDocumentAnalyzer(documentURI);
+        serverState.analyzer.getDocumentAnalyzer(documentURI);
 
       if (!documentAnalyzer.isAnalyzed) {
         return;
       }
 
       return serverState.telemetry.trackTimingSync("onRenameRequest", () =>
-        new SolidityRename(serverState.languageServer.analyzer).doRename(
+        new SolidityRename(serverState.analyzer).doRename(
           documentURI,
           params.position,
           params.newName,
