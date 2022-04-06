@@ -1,4 +1,3 @@
-import * as events from "events";
 import { assert } from "chai";
 import * as fs from "fs";
 import * as path from "path";
@@ -8,6 +7,7 @@ import { MarkContractAbstract } from "@compilerDiagnostics/diagnostics/MarkContr
 import { Analyzer } from "@analyzer/index";
 import { setupMockWorkspaceFileRetriever } from "../../../helpers/setupMockWorkspaceFileRetriever";
 import { setupMockLogger } from "../../../helpers/setupMockLogger";
+import { setupMockConnection } from "../../../helpers/setupMockConnection";
 
 describe("Code Actions", () => {
   describe("Mark Contract Abstract", () => {
@@ -138,12 +138,12 @@ describe("Code Actions", () => {
 
           const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
           const mockLogger = setupMockLogger();
-
-          const em = new events.EventEmitter();
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const mockConnection = setupMockConnection() as any;
 
           const analyzer = await new Analyzer(
             mockWorkspaceFileRetriever,
-            em,
+            mockConnection,
             mockLogger
           ).init([{ name: "example", uri: exampleUri }]);
 
