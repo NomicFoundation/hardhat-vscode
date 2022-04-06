@@ -57,6 +57,8 @@ function setupUninitializedServerState(
     hasWorkspaceFolderCapability: false,
     globalTelemetryEnabled: false,
     hardhatTelemetryEnabled: false,
+
+    compProcessFactory,
     connection,
     workspaceFolders: [],
     documents: new TextDocuments(TextDocument),

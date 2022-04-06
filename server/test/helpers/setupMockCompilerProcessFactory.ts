@@ -1,5 +1,5 @@
 import * as sinon from "sinon";
-import { CompilerProcess } from "@services/validation/HardhatProcess";
+import { CompilerProcess } from "../../src/types";
 
 export function setupMockCompilerProcessFactory(
   errors: {

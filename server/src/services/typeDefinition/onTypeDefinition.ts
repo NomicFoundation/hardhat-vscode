@@ -1,3 +1,4 @@
+import { SolidityNavigation } from "@services/navigation/SolidityNavigation";
 import { TypeDefinitionParams } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
 import { getUriFromDocument } from "../../utils/index";
@@ -23,13 +24,15 @@ export const onTypeDefinition = (serverState: ServerState) => {
         return;
       }
 
-      return serverState.telemetry.trackTimingSync("onTypeDefinition", () => {
-        return serverState.languageServer.solidityNavigation.findTypeDefinition(
+      return serverState.telemetry.trackTimingSync("onTypeDefinition", () =>
+        new SolidityNavigation(
+          serverState.languageServer.analyzer
+        ).findTypeDefinition(
           documentURI,
           params.position,
           documentAnalyzer.analyzerTree.tree
-        );
-      });
+        )
+      );
     } catch (err) {
       logger.error(err);
     }

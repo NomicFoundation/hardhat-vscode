@@ -8,17 +8,7 @@ import {
   HARDHAT_PROCESS_ERROR,
   SOLIDITY_COMPILE_EVENT,
 } from "./events";
-
-export interface CompilerProcess {
-  init: () => {
-    hardhatConfigFileExistPromise: Promise<unknown>;
-    compilerDownloadedPromise: Promise<unknown>;
-    solidityCompilePromise: Promise<unknown>;
-  };
-
-  send: (message: childProcess.Serializable) => void;
-  kill: () => void;
-}
+import { CompilerProcess } from "../../types";
 
 export class HardhatProcess implements CompilerProcess {
   private rootPath: string;
