@@ -16,6 +16,7 @@ import {
   ParseFunctionDefinitionResult,
 } from "./parsing/parseFunctionDefinition";
 import { lookupToken } from "./parsing/lookupToken";
+import { ServerState } from "types";
 
 export class ConstrainMutability implements CompilerDiagnostic {
   public code = "2018";
@@ -29,16 +30,19 @@ export class ConstrainMutability implements CompilerDiagnostic {
   }
 
   resolveActions(
+    serverState: ServerState,
     diagnostic: Diagnostic,
-    context: ResolveActionsContext
+    { document, uri }: ResolveActionsContext
   ): CodeAction[] {
-    const { document, uri } = context;
-
     if (!diagnostic.data) {
       return [];
     }
 
-    const parseResult = parseFunctionDefinition(diagnostic, context);
+    const parseResult = parseFunctionDefinition(
+      diagnostic,
+      document,
+      serverState.logger
+    );
 
     if (parseResult === null) {
       return [];

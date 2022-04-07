@@ -3,16 +3,18 @@ import { ParseContractDefinitionResult } from "../../parsing/parseContractDefini
 import { ContractDefinitionNode, DocumentAnalyzer } from "@common/types";
 import { isContractDefinitionNode } from "@analyzer/utils/typeGuards";
 import { lookupEntryForDocument } from "@utils/lookupEntryForDocument";
+import { ServerState } from "types";
 
 export function findAnalyzedContract(
+  serverState: ServerState,
   { contractDefinition, functionSourceLocation }: ParseContractDefinitionResult,
-  { document, analyzer }: ResolveActionsContext
+  { document }: ResolveActionsContext
 ): ContractDefinitionNode | null {
   if (!contractDefinition.range) {
     return null;
   }
 
-  const currentAnalyzer = lookupEntryForDocument(analyzer, document);
+  const currentAnalyzer = lookupEntryForDocument(serverState, document);
 
   if (!currentAnalyzer.isAnalyzed) {
     return null;

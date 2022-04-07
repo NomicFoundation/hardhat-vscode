@@ -1,4 +1,8 @@
-import { Connection, TextDocumentChangeEvent } from "vscode-languageserver";
+import {
+  Connection,
+  TextDocumentChangeEvent,
+  WorkspaceFolder,
+} from "vscode-languageserver";
 import { TextDocuments } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { getUriFromDocument } from "../../utils/index";
@@ -6,13 +10,17 @@ import { debounce } from "../../utils/debounce";
 import { ServerState } from "../../types";
 import { Logger } from "@utils/Logger";
 import { SolidityValidation, ValidationJob } from "./SolidityValidation";
-import { Analyzer } from "@analyzer/index";
+
+import { findProjectBasePathFor } from "@utils/findProjectBasePathFor";
+import { DocumentsAnalyzerMap } from "@common/types";
+import { analyzeDocument } from "@utils/analyzeDocument";
 
 const debounceAnalyzeDocument: {
   [uri: string]: (
     documents: TextDocuments<TextDocument>,
     uri: string,
-    analyzer: Analyzer,
+    workspaceFolders: WorkspaceFolder[],
+    solFileIndex: DocumentsAnalyzerMap,
     logger: Logger
   ) => void;
 } = {};
@@ -22,6 +30,7 @@ const debounceValidateDocument: {
     validationJob: ValidationJob,
     connection: Connection,
     uri: string,
+    projectBasePath: string | null,
     document: TextDocument,
     logger: Logger
   ) => void;
@@ -41,9 +50,10 @@ export function onDidChangeContent(serverState: ServerState) {
     logger.trace("onDidChangeContent");
 
     try {
-      if (!serverState.analyzer) {
-        return;
-      }
+      const projectBasePath = findProjectBasePathFor(
+        serverState,
+        change.document.uri
+      );
 
       if (!debounceAnalyzeDocument[change.document.uri]) {
         debounceAnalyzeDocument[change.document.uri] = debounce(
@@ -55,7 +65,8 @@ export function onDidChangeContent(serverState: ServerState) {
       debounceAnalyzeDocument[change.document.uri](
         serverState.documents,
         change.document.uri,
-        serverState.analyzer,
+        serverState.workspaceFolders,
+        serverState.solFileIndex,
         serverState.logger
       );
 
@@ -70,7 +81,6 @@ export function onDidChangeContent(serverState: ServerState) {
 
       const documentURI = getUriFromDocument(change.document);
       const validationJob = new SolidityValidation(
-        serverState.analyzer,
         serverState.compProcessFactory,
         logger
       ).getValidationJob(serverState.telemetry, logger);
@@ -79,6 +89,7 @@ export function onDidChangeContent(serverState: ServerState) {
         validationJob,
         serverState.connection,
         documentURI,
+        projectBasePath,
         change.document,
         logger
       );
@@ -91,7 +102,8 @@ export function onDidChangeContent(serverState: ServerState) {
 function analyzeFunc(
   documents: TextDocuments<TextDocument>,
   uri: string,
-  analyzer: Analyzer,
+  workspaceFolders: WorkspaceFolder[],
+  solFileIndex: DocumentsAnalyzerMap,
   logger: Logger
 ): void {
   logger.trace("debounced onDidChangeContent");
@@ -104,7 +116,12 @@ function analyzeFunc(
     }
 
     const documentURI = getUriFromDocument(document);
-    analyzer.analyzeDocument(document.getText(), documentURI);
+
+    analyzeDocument(
+      { workspaceFolders, solFileIndex, logger },
+      document.getText(),
+      documentURI
+    );
   } catch (err) {
     logger.error(err);
   }
@@ -114,6 +131,7 @@ async function validateTextDocument(
   validationJob: ValidationJob,
   connection: Connection,
   uri: string,
+  projectBasePath: string | null,
   document: TextDocument,
   logger: Logger
 ): Promise<void> {
@@ -124,7 +142,8 @@ async function validateTextDocument(
     const diagnostics = await validationJob.run(
       uri,
       document,
-      unsavedDocuments
+      unsavedDocuments,
+      projectBasePath
     );
 
     // Send the calculated diagnostics to VSCode, but only for the file over which we called validation.

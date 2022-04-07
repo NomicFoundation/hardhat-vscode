@@ -2,6 +2,8 @@ import { getUriFromDocument } from "./index";
 import { ServerState } from "../types";
 import { LookupResult } from "./lookupEntryForUri";
 import { TextDocument } from "@common/types";
+import { analyzeDocument } from "@utils/analyzeDocument";
+import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
 
 export function applyEditToDocumentAnalyzer(
   serverState: ServerState,
@@ -21,10 +23,9 @@ export function applyEditToDocumentAnalyzer(
 
   const newDocumentText = edit(document);
 
-  serverState.analyzer.analyzeDocument(newDocumentText, documentURI);
+  analyzeDocument(serverState, newDocumentText, documentURI);
 
-  const documentAnalyzer =
-    serverState.analyzer.getDocumentAnalyzer(documentURI);
+  const documentAnalyzer = getDocumentAnalyzer(serverState, documentURI);
 
   if (!documentAnalyzer.isAnalyzed) {
     return {

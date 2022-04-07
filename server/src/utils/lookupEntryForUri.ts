@@ -2,6 +2,7 @@ import { getUriFromDocument } from "./index";
 import { ServerState } from "../types";
 import { DocumentAnalyzer } from "@common/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
 
 export type LookupResult = {
   found: boolean;
@@ -11,9 +12,11 @@ export type LookupResult = {
 };
 
 export function lookupEntryForUri(
-  { documents, analyzer }: ServerState,
+  serverState: ServerState,
   uri: string
 ): LookupResult {
+  const { documents } = serverState;
+
   const document = documents.get(uri);
 
   if (!document) {
@@ -24,7 +27,7 @@ export function lookupEntryForUri(
   }
 
   const documentURI = getUriFromDocument(document);
-  const documentAnalyzer = analyzer.getDocumentAnalyzer(documentURI);
+  const documentAnalyzer = getDocumentAnalyzer(serverState, documentURI);
 
   if (!documentAnalyzer.isAnalyzed) {
     return {

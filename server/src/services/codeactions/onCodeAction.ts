@@ -1,10 +1,10 @@
 import { CodeActionParams, CodeAction } from "vscode-languageserver/node";
-import { QuickFixResolver } from "./QuickFixResolver";
+import { resolveQuickFixes } from "./QuickFixResolver";
 import { ServerState } from "../../types";
 
 export function onCodeAction(serverState: ServerState) {
   return (params: CodeActionParams): CodeAction[] => {
-    const { documents, analyzer, logger } = serverState;
+    const { documents, logger } = serverState;
 
     logger.trace("onCodeAction");
 
@@ -16,12 +16,8 @@ export function onCodeAction(serverState: ServerState) {
           return [];
         }
 
-        const quickFixResolver = new QuickFixResolver(
-          analyzer,
-          serverState.logger
-        );
-
-        return quickFixResolver.resolve(
+        return resolveQuickFixes(
+          serverState,
           params.textDocument.uri,
           document,
           params.context.diagnostics

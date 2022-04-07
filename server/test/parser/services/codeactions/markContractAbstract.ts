@@ -4,10 +4,11 @@ import * as path from "path";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { assertCodeAction } from "./asserts/assertCodeAction";
 import { MarkContractAbstract } from "@compilerDiagnostics/diagnostics/MarkContractAbstract";
-import { Analyzer } from "@analyzer/index";
 import { setupMockWorkspaceFileRetriever } from "../../../helpers/setupMockWorkspaceFileRetriever";
 import { setupMockLogger } from "../../../helpers/setupMockLogger";
 import { setupMockConnection } from "../../../helpers/setupMockConnection";
+import { indexWorkspaceFolders } from "@services/initialization/indexWorkspaceFolders";
+import { ServerState } from "types";
 
 describe("Code Actions", () => {
   describe("Mark Contract Abstract", () => {
@@ -141,18 +142,23 @@ describe("Code Actions", () => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const mockConnection = setupMockConnection() as any;
 
-          const analyzer = await new Analyzer(
-            mockWorkspaceFileRetriever,
-            mockConnection,
-            mockLogger
-          ).init([{ name: "example", uri: exampleUri }]);
-
-          const actions = markContractAbstract.resolveActions(diagnostic, {
-            document,
-            uri: exampleUri,
-            analyzer,
+          const serverState = {
+            workspaceFolders: [{ name: "example", uri: exampleUri }],
+            connection: mockConnection,
+            solFileIndex: {},
             logger: mockLogger,
-          });
+          };
+
+          await indexWorkspaceFolders(serverState, mockWorkspaceFileRetriever);
+
+          const actions = markContractAbstract.resolveActions(
+            serverState as ServerState,
+            diagnostic,
+            {
+              document,
+              uri: exampleUri,
+            }
+          );
 
           assert.deepStrictEqual(actions, []);
         });

@@ -1,5 +1,4 @@
 import * as path from "path";
-import { Analyzer } from "@analyzer/index";
 import { TextDocument, Diagnostic } from "@common/types";
 
 import {
@@ -15,13 +14,13 @@ export interface ValidationJob {
   run(
     uri: string,
     document: TextDocument,
-    unsavedDocuments: TextDocument[]
+    unsavedDocuments: TextDocument[],
+    projectBasePath: string | null
   ): Promise<{ [uri: string]: Diagnostic[] }>;
   close(): void;
 }
 
 export class SolidityValidation {
-  analyzer: Analyzer;
   compilerProcessFactory: (
     rootPath: string,
     uri: string,
@@ -30,7 +29,6 @@ export class SolidityValidation {
   diagnosticConverter: DiagnosticConverter;
 
   constructor(
-    analyzer: Analyzer,
     compilerProcessFactory: (
       rootPath: string,
       uri: string,
@@ -38,7 +36,6 @@ export class SolidityValidation {
     ) => CompilerProcess,
     logger: Logger
   ) {
-    this.analyzer = analyzer;
     this.compilerProcessFactory = compilerProcessFactory;
     this.diagnosticConverter = new DiagnosticConverter(logger);
   }
@@ -56,11 +53,10 @@ export class SolidityValidation {
       run: async (
         uri: string,
         document: TextDocument,
-        unsavedDocuments: TextDocument[]
+        unsavedDocuments: TextDocument[],
+        projectBasePath: string | null
       ): Promise<{ [uri: string]: Diagnostic[] }> => {
-        const rootPath = this.analyzer.resolveRootPath(uri);
-
-        if (!rootPath) {
+        if (!projectBasePath) {
           logger.error(new Error("Validation failed, no rootPath specified"));
           return {};
         }
@@ -71,7 +67,7 @@ export class SolidityValidation {
         });
 
         const hardhatProcess = this.compilerProcessFactory(
-          rootPath,
+          projectBasePath,
           uri,
           logger
         );

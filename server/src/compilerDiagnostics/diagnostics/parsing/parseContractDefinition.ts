@@ -4,6 +4,7 @@ import { ContractDefinition } from "@common/types";
 import { Token } from "@solidity-parser/parser/dist/src/types";
 import { isContractDefinition } from "@analyzer/utils/typeGuards";
 import { ResolveActionsContext } from "@compilerDiagnostics/types";
+import { Logger } from "@utils/Logger";
 
 export type ParseContractDefinitionResult = {
   contractDefinition: ContractDefinition;
@@ -14,7 +15,8 @@ export type ParseContractDefinitionResult = {
 
 export function parseContractDefinition(
   diagnostic: Diagnostic,
-  { document, logger }: ResolveActionsContext
+  { document }: ResolveActionsContext,
+  logger: Logger
 ): ParseContractDefinitionResult | null {
   if (!diagnostic.data) {
     return null;

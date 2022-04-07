@@ -18,7 +18,6 @@ import { onReferences } from "@services/references/onReferences";
 import { onImplementation } from "@services/implementation/onImplementation";
 import { onRename } from "@services/rename/onRename";
 import { onDidChangeContent } from "@services/validation/onDidChangeContent";
-import { Analyzer } from "@analyzer/index";
 
 export default function setupServer(
   connection: Connection,
@@ -30,12 +29,11 @@ export default function setupServer(
   const serverState = setupUninitializedServerState(
     connection,
     compProcessFactory,
-    workspaceFileRetriever,
     telemetry,
     logger
   );
 
-  attachLanguageServerLifeCycleHooks(serverState);
+  attachLanguageServerLifeCycleHooks(serverState, workspaceFileRetriever);
   attachLanguageServerCommandHooks(serverState);
   attachCustomNotifiactionHooks(serverState);
 
@@ -47,7 +45,6 @@ export default function setupServer(
 function setupUninitializedServerState(
   connection: Connection,
   compProcessFactory: typeof compilerProcessFactory,
-  workspaceFileRetriever: WorkspaceFileRetriever,
   telemetry: Telemetry,
   logger: Logger
 ) {
@@ -60,7 +57,8 @@ function setupUninitializedServerState(
     connection,
     workspaceFolders: [],
     documents: new TextDocuments(TextDocument),
-    analyzer: new Analyzer(workspaceFileRetriever, connection, logger),
+    solFileIndex: {},
+
     telemetry,
     logger,
   };
@@ -68,11 +66,14 @@ function setupUninitializedServerState(
   return serverState;
 }
 
-function attachLanguageServerLifeCycleHooks(serverState: ServerState) {
+function attachLanguageServerLifeCycleHooks(
+  serverState: ServerState,
+  workspaceFileRetriever: WorkspaceFileRetriever
+) {
   const { connection } = serverState;
 
   connection.onInitialize(onInitialize(serverState));
-  connection.onInitialized(onInitialized(serverState));
+  connection.onInitialized(onInitialized(serverState, workspaceFileRetriever));
 
   connection.onExit(() => {
     serverState.logger.info("Server closing down");
