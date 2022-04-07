@@ -5,6 +5,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { ConstrainMutability } from "@compilerDiagnostics/diagnostics/ConstrainMutability";
 import { assertCodeAction } from "./asserts/assertCodeAction";
 import { setupMockLogger } from "../../../helpers/setupMockLogger";
+import { ServerState } from "types";
 
 describe("Code Actions", () => {
   const constrainMutability = new ConstrainMutability();
@@ -271,13 +272,18 @@ describe("Code Actions", () => {
 
         const mockLogger = setupMockLogger();
 
-        const actions = constrainMutability.resolveActions(diagnostic, {
-          document,
-          uri: exampleUri,
+        const serverState = {
           logger: mockLogger,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          analyzer: null as any,
-        });
+        } as ServerState;
+
+        const actions = constrainMutability.resolveActions(
+          serverState,
+          diagnostic,
+          {
+            document,
+            uri: exampleUri,
+          }
+        );
 
         assert.deepStrictEqual(actions, []);
       });

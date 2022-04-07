@@ -7,6 +7,7 @@ import {
 } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
 import { resolveInsertSpecifierQuickFix } from "./common/resolveInsertSpecifierQuickFix";
+import { ServerState } from "types";
 
 export class AddOverrideSpecifier implements CompilerDiagnostic {
   public code = "9456";
@@ -20,9 +21,15 @@ export class AddOverrideSpecifier implements CompilerDiagnostic {
   }
 
   resolveActions(
+    serverState: ServerState,
     diagnostic: Diagnostic,
     context: ResolveActionsContext
   ): CodeAction[] {
-    return resolveInsertSpecifierQuickFix("override", diagnostic, context);
+    return resolveInsertSpecifierQuickFix(
+      "override",
+      diagnostic,
+      context,
+      serverState.logger
+    );
   }
 }
