@@ -29,6 +29,7 @@ import { setupMockLogger } from "./setupMockLogger";
 import { setupMockWorkspaceFileRetriever } from "./setupMockWorkspaceFileRetriever";
 import { setupMockTelemetry } from "./setupMockTelemetry";
 import { forceToUnixStyle } from "./forceToUnixStyle";
+import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
 
 export type OnSignatureHelp = (
   params: SignatureHelpParams
@@ -62,6 +63,8 @@ export async function setupMockLanguageServer({
   errors: any[];
 }) {
   const exampleRootUri = forceToUnixStyle(path.join(__dirname, ".."));
+  const exampleWorkspaceFolders = [{ name: "example", uri: exampleRootUri }];
+
   const mockConnection = setupMockConnection();
   const mockCompilerProcessFactory = setupMockCompilerProcessFactory(errors);
   const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
@@ -82,7 +85,7 @@ export async function setupMockLanguageServer({
   assert(initialize);
   const initializeResponse = await initialize({
     rootUri: exampleRootUri,
-    workspaceFolders: [{ name: "example", uri: exampleRootUri }],
+    workspaceFolders: exampleWorkspaceFolders,
     capabilities: {},
   });
   assert(initializeResponse);
@@ -139,8 +142,7 @@ export async function setupMockLanguageServer({
 
           const localUri = getUriFromDocument(doc);
 
-          const documentAnalyzer =
-            serverState.analyzer.getDocumentAnalyzer(localUri);
+          const documentAnalyzer = getDocumentAnalyzer(serverState, localUri);
 
           return documentAnalyzer && documentAnalyzer.isAnalyzed;
         },

@@ -24,6 +24,7 @@ import { applyEditToDocumentAnalyzer } from "@utils/applyEditToDocumentAnalyzer"
 import { CompletionParams } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
 import { ProjectContext } from "./types";
+import { findProjectBasePathFor } from "@utils/findProjectBasePathFor";
 
 export const onCompletion = (serverState: ServerState) => {
   return (params: CompletionParams): CompletionList | undefined => {
@@ -50,7 +51,8 @@ export const onCompletion = (serverState: ServerState) => {
           return undefined;
         }
 
-        const projectBasePath = serverState.analyzer.resolveRootPath(
+        const projectBasePath = findProjectBasePathFor(
+          serverState,
           document.uri
         );
 
@@ -66,7 +68,7 @@ export const onCompletion = (serverState: ServerState) => {
 
         const projCtx: ProjectContext = {
           projectBasePath: projectBasePath,
-          solFileIndex: serverState.analyzer.documentsAnalyzer,
+          solFileIndex: serverState.solFileIndex,
         };
 
         return doComplete(

@@ -1,8 +1,8 @@
 import { Diagnostic, Range } from "vscode-languageserver/node";
 import * as parser from "@solidity-parser/parser";
-import { FunctionDefinition } from "@common/types";
+import { FunctionDefinition, TextDocument } from "@common/types";
 import { Token } from "@solidity-parser/parser/dist/src/types";
-import { ResolveActionsContext } from "@compilerDiagnostics/types";
+import { Logger } from "@utils/Logger";
 
 export type ParseFunctionDefinitionResult = {
   functionDefinition: FunctionDefinition;
@@ -12,7 +12,8 @@ export type ParseFunctionDefinitionResult = {
 
 export function parseFunctionDefinition(
   diagnostic: Diagnostic,
-  { document, logger }: ResolveActionsContext
+  document: TextDocument,
+  logger: Logger
 ): ParseFunctionDefinitionResult | null {
   if (!diagnostic.data) {
     return null;

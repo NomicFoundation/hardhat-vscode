@@ -5,7 +5,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { Telemetry } from "telemetry/types";
 import { Logger } from "@utils/Logger";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
-import { Analyzer } from "@analyzer/index";
+import { DocumentsAnalyzerMap } from "@common/types";
 
 export interface CompilerProcess {
   init: () => {
@@ -34,7 +34,7 @@ export type ServerState = {
   connection: Connection;
   documents: TextDocuments<TextDocument>;
   workspaceFolders: WorkspaceFolder[];
-  analyzer: Analyzer;
+  solFileIndex: DocumentsAnalyzerMap;
 
   telemetry: Telemetry;
   logger: Logger;

@@ -9,6 +9,7 @@ import { HardhatCompilerError, ResolveActionsContext } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
 import { parseFunctionDefinition } from "./parsing/parseFunctionDefinition";
 import { lookupToken } from "./parsing/lookupToken";
+import { ServerState } from "types";
 
 type Visibility = "public" | "private" | "external" | "internal";
 
@@ -26,12 +27,17 @@ export class SpecifyVisibility {
   }
 
   resolveActions(
+    serverState: ServerState,
     diagnostic: Diagnostic,
     context: ResolveActionsContext
   ): CodeAction[] {
     const { document, uri } = context;
 
-    const parseResult = parseFunctionDefinition(diagnostic, context);
+    const parseResult = parseFunctionDefinition(
+      diagnostic,
+      document,
+      serverState.logger
+    );
 
     if (parseResult === null) {
       return [];

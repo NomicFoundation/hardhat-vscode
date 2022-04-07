@@ -2,10 +2,11 @@ import { assert } from "chai";
 import { Diagnostic, TextEdit } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { CompilerDiagnostic } from "@compilerDiagnostics/types";
-import { Analyzer } from "@analyzer/index";
 import { setupMockWorkspaceFileRetriever } from "../../../../helpers/setupMockWorkspaceFileRetriever";
 import { setupMockLogger } from "../../../../helpers/setupMockLogger";
 import { setupMockConnection } from "../../../../helpers/setupMockConnection";
+import { indexWorkspaceFolders } from "@services/initialization/indexWorkspaceFolders";
+import { ServerState } from "types";
 
 export async function assertCodeAction(
   compilerDiagnostic: CompilerDiagnostic,
@@ -27,18 +28,23 @@ export async function assertCodeAction(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockConnection = setupMockConnection() as any;
 
-  const analyzer = await new Analyzer(
-    mockWorkspaceFileRetriever,
-    mockConnection,
-    mockLogger
-  ).init([{ name: "example", uri: exampleUri }]);
-
-  const actions = compilerDiagnostic.resolveActions(diagnostic, {
-    document,
-    uri: exampleUri,
-    analyzer: analyzer,
+  const serverState = {
+    workspaceFolders: [{ name: "example", uri: exampleUri }],
+    connection: mockConnection,
+    solFileIndex: {},
     logger: mockLogger,
-  });
+  };
+
+  await indexWorkspaceFolders(serverState, mockWorkspaceFileRetriever);
+
+  const actions = compilerDiagnostic.resolveActions(
+    serverState as ServerState,
+    diagnostic,
+    {
+      document,
+      uri: exampleUri,
+    }
+  );
 
   assert(actions);
   assert.equal(actions.length, expectedActions.length);

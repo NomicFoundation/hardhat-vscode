@@ -1,6 +1,11 @@
+import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { ServerState } from "../../types";
+import { indexWorkspaceFolders } from "./indexWorkspaceFolders";
 
-export const onInitialized = (serverState: ServerState) => {
+export const onInitialized = (
+  serverState: ServerState,
+  workspaceFileRetriever: WorkspaceFileRetriever
+) => {
   const { logger } = serverState;
 
   return () => {
@@ -11,7 +16,7 @@ export const onInitialized = (serverState: ServerState) => {
     }
 
     serverState.telemetry.trackTimingSync("indexing", () => {
-      serverState.analyzer.init(serverState.workspaceFolders);
+      indexWorkspaceFolders(serverState, workspaceFileRetriever);
     });
 
     if (serverState.hasWorkspaceFolderCapability) {

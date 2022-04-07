@@ -1,9 +1,10 @@
 import * as path from "path";
-import { Analyzer } from "@analyzer/index";
 import { assert } from "chai";
 import { setupMockLogger } from "../helpers/setupMockLogger";
 import { IndexFileData } from "@common/event";
 import { forceToUnixStyle } from "../helpers/forceToUnixStyle";
+import { indexWorkspaceFolders } from "@services/initialization/indexWorkspaceFolders";
+import { Connection } from "vscode-languageserver";
 
 describe("Analyzer", () => {
   describe("indexing", () => {
@@ -16,14 +17,7 @@ describe("Analyzer", () => {
         collectedData = [];
         foundSolFiles = ["example1.sol", "example2.sol", "example3.sol"];
 
-        const analyzer = setupAnalyzer(
-          exampleRootPath,
-          foundSolFiles,
-          collectedData
-        );
-
-        // trigger the indexing
-        await analyzer.init([{ name: "example", uri: exampleRootPath }]);
+        await runIndexing(exampleRootPath, foundSolFiles, collectedData);
       });
 
       it("should emit an indexing event for each", () => {
@@ -53,14 +47,7 @@ describe("Analyzer", () => {
         collectedData = [];
         foundSolFiles = [];
 
-        const analyzer = setupAnalyzer(
-          exampleRootPath,
-          foundSolFiles,
-          collectedData
-        );
-
-        // trigger the indexing
-        await analyzer.init([{ name: "example", uri: exampleRootPath }]);
+        await runIndexing(exampleRootPath, foundSolFiles, collectedData);
       });
 
       it("should emit an indexing event for each", () => {
@@ -77,19 +64,22 @@ describe("Analyzer", () => {
   });
 });
 
-function setupAnalyzer(
+async function runIndexing(
   rootPath: string,
   foundSolFiles: string[],
   collectedData: IndexFileData[]
-): Analyzer {
-  const logger = setupMockLogger();
+) {
+  const exampleWorkspaceFolders = [{ name: "example", uri: rootPath }];
+  const solFileIndex = {};
+
+  const mockLogger = setupMockLogger();
 
   const mockConnection = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     sendNotification: (eventName: string, data: any) => {
       collectedData.push(data);
     },
-  };
+  } as Connection;
 
   const mockWorkspaceFileRetriever = {
     findFiles: async (): Promise<string[]> => {
@@ -106,10 +96,13 @@ function setupAnalyzer(
     },
   };
 
-  return new Analyzer(
-    mockWorkspaceFileRetriever,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mockConnection as any,
-    logger
+  await indexWorkspaceFolders(
+    {
+      workspaceFolders: exampleWorkspaceFolders,
+      connection: mockConnection,
+      solFileIndex,
+      logger: mockLogger,
+    },
+    mockWorkspaceFileRetriever
   );
 }
