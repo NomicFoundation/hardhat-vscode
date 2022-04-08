@@ -57,7 +57,9 @@ export class SolidityValidation {
         projectBasePath: string | null
       ): Promise<{ [uri: string]: Diagnostic[] }> => {
         if (!projectBasePath) {
-          logger.error(new Error("Validation failed, no rootPath specified"));
+          logger.error(
+            new Error(`Validation failed, no projectBasePath given for ${uri}`)
+          );
           return {};
         }
 
