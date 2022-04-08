@@ -385,11 +385,6 @@ export interface DocumentAnalyzer {
    * The Nodes for which we couldn't find a parent.
    */
   orphanNodes: Node[];
-
-  analyze(
-    documentsAnalyzer: DocumentsAnalyzerMap,
-    document?: string
-  ): Node | undefined;
 }
 
 /**
