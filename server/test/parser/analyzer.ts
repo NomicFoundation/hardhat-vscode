@@ -82,17 +82,15 @@ async function runIndexing(
   } as Connection;
 
   const mockWorkspaceFileRetriever = {
-    findFiles: async (): Promise<string[]> => {
-      return [];
-    },
-    findSolFiles: (base: string | undefined, documentsUri: string[]) => {
-      if (base !== rootPath) {
-        return;
+    findFiles: async (
+      baseUri: string,
+      globPattern: string
+    ): Promise<string[]> => {
+      if (globPattern !== "**/*.sol") {
+        return [];
       }
 
-      for (const foundSolFile of foundSolFiles) {
-        documentsUri.push(path.join(base ?? "", foundSolFile));
-      }
+      return foundSolFiles.map((fsf) => path.join(baseUri ?? "", fsf));
     },
   };
 

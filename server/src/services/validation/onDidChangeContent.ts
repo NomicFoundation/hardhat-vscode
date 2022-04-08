@@ -118,7 +118,7 @@ function analyzeFunc(
     const documentURI = getUriFromDocument(document);
 
     analyzeDocument(
-      { workspaceFolders, solFileIndex, logger },
+      { workspaceFolders, solFileIndex },
       document.getText(),
       documentURI
     );

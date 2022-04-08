@@ -11,10 +11,9 @@ import {
   EmptyNode,
   Searcher as ISearcher,
 } from "@common/types";
-import { Logger } from "@utils/Logger";
 
 export class DocumentAnalyzer implements IDocumentAnalyzer {
-  private logger: Logger;
+  // private logger: Logger;
   rootPath: string;
 
   document: string | undefined;
@@ -29,10 +28,9 @@ export class DocumentAnalyzer implements IDocumentAnalyzer {
 
   orphanNodes: Node[] = [];
 
-  constructor(rootPath: string, uri: string, logger: Logger) {
+  constructor(rootPath: string, uri: string) {
     this.rootPath = rootPath;
     this.uri = uri;
-    this.logger = logger;
 
     this.analyzerTree = {
       tree: new EmptyNode({ type: "Empty" }, this.uri, this.rootPath, {}),
@@ -84,9 +82,7 @@ export class DocumentAnalyzer implements IDocumentAnalyzer {
         .accept(matcher.find, this.orphanNodes);
 
       return this.analyzerTree.tree;
-    } catch (err) {
-      this.logger.error(err);
-
+    } catch {
       return this.analyzerTree.tree;
     }
   }

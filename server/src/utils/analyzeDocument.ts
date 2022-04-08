@@ -1,5 +1,4 @@
 import { Node, DocumentsAnalyzerMap } from "@common/types";
-import { Logger } from "@utils/Logger";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
 import { getDocumentAnalyzer } from "./getDocumentAnalyzer";
 
@@ -10,11 +9,9 @@ export function analyzeDocument(
   {
     workspaceFolders,
     solFileIndex,
-    logger,
   }: {
     workspaceFolders: WorkspaceFolder[];
     solFileIndex: DocumentsAnalyzerMap;
-    logger: Logger;
   },
   document: string,
   uri: string
@@ -23,7 +20,6 @@ export function analyzeDocument(
     {
       workspaceFolders,
       solFileIndex,
-      logger,
     },
     uri
   );
