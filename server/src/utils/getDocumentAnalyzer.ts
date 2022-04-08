@@ -1,3 +1,4 @@
+import * as fs from "fs";
 import {
   DocumentsAnalyzerMap,
   ISolFileEntry as IDocumentAnalyzer,
@@ -34,7 +35,11 @@ export function getDocumentAnalyzer(
       );
     }
 
-    documentAnalyzer = new SolFileEntry(projectBasePath, uri);
+    // TODO: this is wrong, we shouldn't be doing arbitary sync file reads
+    // put here to move it out of the constructor. Can we replace this with
+    // a unloaded state?
+    const docText = fs.existsSync(uri) ? fs.readFileSync(uri).toString() : "";
+    documentAnalyzer = new SolFileEntry(projectBasePath, uri, docText);
 
     solFileIndex[uri] = documentAnalyzer;
   }
