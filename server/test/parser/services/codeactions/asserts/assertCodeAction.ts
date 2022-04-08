@@ -28,14 +28,21 @@ export async function assertCodeAction(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockConnection = setupMockConnection() as any;
 
+  const exampleWorkspaceFolder = { name: "example", uri: exampleUri };
+
   const serverState = {
-    workspaceFolders: [{ name: "example", uri: exampleUri }],
+    workspaceFolders: [exampleWorkspaceFolder],
+    projects: {},
     connection: mockConnection,
     solFileIndex: {},
     logger: mockLogger,
   };
 
-  await indexWorkspaceFolders(serverState, mockWorkspaceFileRetriever);
+  await indexWorkspaceFolders(
+    serverState,
+    mockWorkspaceFileRetriever,
+    serverState.workspaceFolders
+  );
 
   const actions = compilerDiagnostic.resolveActions(
     serverState as ServerState,

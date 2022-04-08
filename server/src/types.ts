@@ -5,7 +5,8 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { Telemetry } from "telemetry/types";
 import { Logger } from "@utils/Logger";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
-import { DocumentsAnalyzerMap } from "@common/types";
+import { DocumentsAnalyzerMap, SolProjectMap } from "@common/types";
+import { HardhatProject } from "@analyzer/HardhatProject";
 
 export interface CompilerProcess {
   init: () => {
@@ -26,7 +27,7 @@ export type ServerState = {
   hardhatTelemetryEnabled: boolean;
 
   compProcessFactory: (
-    rootPath: string,
+    project: HardhatProject,
     uri: string,
     logger: Logger
   ) => CompilerProcess;
@@ -34,6 +35,7 @@ export type ServerState = {
   connection: Connection;
   documents: TextDocuments<TextDocument>;
   workspaceFolders: WorkspaceFolder[];
+  projects: SolProjectMap;
   solFileIndex: DocumentsAnalyzerMap;
 
   telemetry: Telemetry;

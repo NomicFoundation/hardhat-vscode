@@ -56,6 +56,7 @@ function setupUninitializedServerState(
     compProcessFactory,
     connection,
     workspaceFolders: [],
+    projects: {},
     documents: new TextDocuments(TextDocument),
     solFileIndex: {},
 

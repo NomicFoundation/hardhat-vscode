@@ -13,12 +13,18 @@ import {
 import { forceToUnixStyle } from "../../../helpers/forceToUnixStyle";
 
 describe("Parser", () => {
+  const projectFile = forceToUnixStyle(
+    path.join(__dirname, "../../../hardhat.config.ts")
+  );
+
   const importsUri = forceToUnixStyle(
     path.join(__dirname, "testData", "imports", "Imports.sol")
   );
+
   const importsSubUri = forceToUnixStyle(
     path.join(__dirname, "testData", "imports", "sub", "SubImport.sol")
   );
+
   const importsSubSubUri = forceToUnixStyle(
     path.join(
       __dirname,
@@ -62,6 +68,7 @@ describe("Parser", () => {
               "../../../node_modules/@openzeppelin/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.sol"
             )
           );
+
           const ensUri = forceToUnixStyle(
             path.join(__dirname, "../../../node_modules/@ens/contracts/ENS.sol")
           );
@@ -69,6 +76,7 @@ describe("Parser", () => {
           ({
             server: { completion },
           } = await setupMockLanguageServer({
+            projects: [projectFile],
             documents: [
               { uri: importsUri, analyze: true },
               { uri: openzepplinUri, content: "// empty", analyze: true },
@@ -121,6 +129,7 @@ describe("Parser", () => {
             ({
               server: { completion },
             } = await setupMockLanguageServer({
+              projects: [projectFile],
               documents: [{ uri: importsUri, analyze: true }],
               errors: [],
             }));
@@ -596,6 +605,7 @@ describe("Parser", () => {
           ({
             server: { completion },
           } = await setupMockLanguageServer({
+            projects: [projectFile],
             documents: [
               { uri: importsUri, analyze: true },
               { uri: openzepplinUri1, content: "// empty", analyze: true },
@@ -776,6 +786,7 @@ const assertImportCompletion = async (
   const actual = response.items.sort((left, right) =>
     left.label.localeCompare(right.label)
   );
+
   const expected = completions
     .map((comp) => ({
       ...comp,

@@ -55,9 +55,11 @@ export type OnRenameRequest = (
 export type OnHover = (params: HoverParams) => Hover | null;
 
 export async function setupMockLanguageServer({
+  projects,
   documents,
   errors,
 }: {
+  projects?: string[];
   documents: { uri: string; content?: string; analyze: boolean }[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errors: any[];
@@ -67,7 +69,9 @@ export async function setupMockLanguageServer({
 
   const mockConnection = setupMockConnection();
   const mockCompilerProcessFactory = setupMockCompilerProcessFactory(errors);
-  const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
+  const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever(
+    projects ?? []
+  );
   const mockTelemetry = setupMockTelemetry();
   const mockLogger = setupMockLogger();
 
@@ -88,11 +92,13 @@ export async function setupMockLanguageServer({
     workspaceFolders: exampleWorkspaceFolders,
     capabilities: {},
   });
+
   assert(initializeResponse);
 
   assert(mockConnection.onInitialized.called);
   const initialized = mockConnection.onInitialized.getCall(0).firstArg;
   assert(initialized);
+
   await initialized({ rootUri: exampleRootUri, capabilities: {} });
 
   const signatureHelp: OnSignatureHelp =

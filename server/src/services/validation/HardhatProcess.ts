@@ -9,15 +9,16 @@ import {
   SOLIDITY_COMPILE_EVENT,
 } from "./events";
 import { CompilerProcess } from "../../types";
+import { HardhatProject } from "@analyzer/HardhatProject";
 
 export class HardhatProcess implements CompilerProcess {
-  private rootPath: string;
+  private project: HardhatProject;
   private uri: string;
   private child: null | childProcess.ChildProcess;
   private logger: Logger;
 
-  constructor(rootPath: string, uri: string, logger: Logger) {
-    this.rootPath = rootPath;
+  constructor(project: HardhatProject, uri: string, logger: Logger) {
+    this.project = project;
     this.uri = uri;
     this.child = null;
     this.logger = logger;
@@ -26,7 +27,7 @@ export class HardhatProcess implements CompilerProcess {
   init() {
     const projectRoot = utils.findUpSync("package.json", {
       cwd: path.resolve(this.uri, ".."),
-      stopAt: this.rootPath,
+      stopAt: this.project.basePath,
     });
 
     this.child = childProcess.fork(path.resolve(__dirname, "helper.js"), {

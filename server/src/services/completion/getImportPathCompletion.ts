@@ -97,7 +97,7 @@ function getRelativeImportPathCompletions(
 function getIndexedNodeModuleFolderCompletions(
   projCtx: ProjectContext
 ): CompletionItem[] {
-  if (!projCtx.projectBasePath) {
+  if (projCtx.project.type === "none" || !projCtx.project.basePath) {
     return [];
   }
 
@@ -270,10 +270,10 @@ function convertFileToCompletion(
 }
 
 function findNodeModulePackagesInIndex({
-  projectBasePath,
+  project,
   solFileIndex,
 }: ProjectContext): string[] {
-  const basePath = toUnixStyle(path.join(projectBasePath, "node_modules"));
+  const basePath = toUnixStyle(path.join(project.basePath, "node_modules"));
 
   const allNodeModulePaths = Object.keys(solFileIndex)
     .filter((p) => p.startsWith(basePath))
@@ -287,11 +287,11 @@ function findNodeModulePackagesInIndex({
 }
 
 function findNodeModulesContractFilesInIndex(
-  { projectBasePath, solFileIndex }: ProjectContext,
+  { project, solFileIndex }: ProjectContext,
   currentImport: string
 ): string[] {
   const basePath = toUnixStyle(
-    path.join(projectBasePath, "node_modules", path.sep)
+    path.join(project.basePath, "node_modules", path.sep)
   );
   const basePathWithCurrentImport = toUnixStyle(
     path.join(basePath, currentImport)

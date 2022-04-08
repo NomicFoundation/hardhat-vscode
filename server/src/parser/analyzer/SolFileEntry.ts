@@ -6,11 +6,12 @@ import {
   EmptyNode,
   Searcher as ISearcher,
   SolFileState,
+  ISolProject,
 } from "@common/types";
 
 export class SolFileEntry implements ISolFileEntry {
-  rootPath: string;
   uri: string;
+  project: ISolProject;
   document: string | undefined;
   status: SolFileState;
 
@@ -19,25 +20,30 @@ export class SolFileEntry implements ISolFileEntry {
   searcher: ISearcher;
   orphanNodes: Node[] = [];
 
-  constructor(uri: string, rootPath: string) {
-    this.rootPath = rootPath;
+  private constructor(uri: string, project: ISolProject) {
     this.uri = uri;
+    this.project = project;
     this.document = "";
     this.status = SolFileState.Unloaded;
 
     this.analyzerTree = {
-      tree: new EmptyNode({ type: "Empty" }, this.uri, this.rootPath, {}),
+      tree: new EmptyNode(
+        { type: "Empty" },
+        this.uri,
+        this.project.basePath,
+        {}
+      ),
     };
 
     this.searcher = new Searcher(this.analyzerTree);
   }
 
-  static createUnloadedEntry(uri: string, rootPath: string) {
-    return new SolFileEntry(uri, rootPath);
+  static createUnloadedEntry(uri: string, project: ISolProject) {
+    return new SolFileEntry(uri, project);
   }
 
-  static createLoadedEntry(uri: string, rootPath: string, text: string) {
-    const unloaded = new SolFileEntry(uri, rootPath);
+  static createLoadedEntry(uri: string, project: ISolProject, text: string) {
+    const unloaded = new SolFileEntry(uri, project);
 
     return unloaded.loadText(text);
   }
