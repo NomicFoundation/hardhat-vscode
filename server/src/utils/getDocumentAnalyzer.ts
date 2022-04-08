@@ -3,7 +3,6 @@ import {
   DocumentAnalyzer as IDocumentAnalyzer,
 } from "@common/types";
 import { findProjectBasePathFor } from "@utils/findProjectBasePathFor";
-import { Logger } from "@utils/Logger";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
 import { DocumentAnalyzer } from "../parser/analyzer/DocumentAnalyzer";
 
@@ -18,11 +17,9 @@ export function getDocumentAnalyzer(
   {
     workspaceFolders,
     solFileIndex,
-    logger,
   }: {
     workspaceFolders: WorkspaceFolder[];
     solFileIndex: DocumentsAnalyzerMap;
-    logger: Logger;
   },
   uri: string
 ): IDocumentAnalyzer {
@@ -37,7 +34,7 @@ export function getDocumentAnalyzer(
       );
     }
 
-    documentAnalyzer = new DocumentAnalyzer(projectBasePath, uri, logger);
+    documentAnalyzer = new DocumentAnalyzer(projectBasePath, uri);
 
     solFileIndex[uri] = documentAnalyzer;
   }

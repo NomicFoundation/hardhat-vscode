@@ -31,7 +31,7 @@ export async function indexWorkspaceFolders(
   for (const workspaceFolder of workspaceFolders) {
     await scanForHardhatProjects(workspaceFolder, workspaceFileRetriever);
 
-    indexWorkspaceFolder(
+    await indexWorkspaceFolder(
       indexWorkspaceFoldersContext,
       workspaceFileRetriever,
       workspaceFolder
@@ -49,13 +49,14 @@ async function scanForHardhatProjects(
 
   const hardhatConfigFiles = await workspaceFileRetriever.findFiles(
     uri,
-    "**/hardhat.config.{ts,js}"
+    "**/hardhat.config.{ts,js}",
+    ["**/node_modules/**"]
   );
 
   return hardhatConfigFiles;
 }
 
-function indexWorkspaceFolder(
+async function indexWorkspaceFolder(
   {
     workspaceFolders,
     connection,
@@ -66,11 +67,15 @@ function indexWorkspaceFolder(
   workspaceFolder: WorkspaceFolder
 ) {
   try {
-    const rootPath = decodeUriAndRemoveFilePrefix(workspaceFolder.uri);
+    const workspaceFolderPath = decodeUriAndRemoveFilePrefix(
+      workspaceFolder.uri
+    );
 
-    const documentsUri: string[] = [];
+    const documentsUri: string[] = await workspaceFileRetriever.findFiles(
+      workspaceFolderPath,
+      "**/*.sol"
+    );
 
-    workspaceFileRetriever.findSolFiles(rootPath, documentsUri, logger);
     // this.workspaceFileRetriever.findSolFiles(
     //   BROWNIE_PACKAGE_PATH,
     //   documentsUri,
@@ -81,9 +86,8 @@ function indexWorkspaceFolder(
     // Init all documentAnalyzers
     for (const documentUri of documentsUri) {
       solFileIndex[documentUri] = new DocumentAnalyzer(
-        rootPath,
-        documentUri,
-        logger
+        workspaceFolderPath,
+        documentUri
       );
     }
 
@@ -98,7 +102,7 @@ function indexWorkspaceFolder(
 
         try {
           const documentAnalyzer = getDocumentAnalyzer(
-            { workspaceFolders, solFileIndex, logger },
+            { workspaceFolders, solFileIndex },
             documentUri
           );
 
