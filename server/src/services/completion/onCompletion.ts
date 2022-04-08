@@ -24,7 +24,7 @@ import { applyEditToDocumentAnalyzer } from "@utils/applyEditToDocumentAnalyzer"
 import { CompletionParams } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
 import { ProjectContext } from "./types";
-import { findProjectBasePathFor } from "@utils/findProjectBasePathFor";
+import { findProjectFor } from "@utils/findProjectFor";
 
 export const onCompletion = (serverState: ServerState) => {
   return (params: CompletionParams): CompletionList | undefined => {
@@ -51,23 +51,10 @@ export const onCompletion = (serverState: ServerState) => {
           return undefined;
         }
 
-        const projectBasePath = findProjectBasePathFor(
-          serverState,
-          document.uri
-        );
-
-        if (!projectBasePath) {
-          logger.error(
-            new Error(
-              `Unable to resolve base project path within onCompletion: ${errorMessage}`
-            )
-          );
-
-          return undefined;
-        }
+        const project = findProjectFor(serverState, document.uri);
 
         const projCtx: ProjectContext = {
-          projectBasePath: projectBasePath,
+          project,
           solFileIndex: serverState.solFileIndex,
         };
 

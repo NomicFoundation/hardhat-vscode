@@ -1,6 +1,5 @@
 import { analyzeSolFile } from "@analyzer/analyzeSolFile";
-import { Node, DocumentsAnalyzerMap } from "@common/types";
-import { WorkspaceFolder } from "vscode-languageserver-protocol";
+import { Node, DocumentsAnalyzerMap, SolProjectMap } from "@common/types";
 import { getDocumentAnalyzer } from "./getDocumentAnalyzer";
 
 /**
@@ -8,10 +7,10 @@ import { getDocumentAnalyzer } from "./getDocumentAnalyzer";
  */
 export function analyzeDocument(
   {
-    workspaceFolders,
+    projects,
     solFileIndex,
   }: {
-    workspaceFolders: WorkspaceFolder[];
+    projects: SolProjectMap;
     solFileIndex: DocumentsAnalyzerMap;
   },
   document: string,
@@ -19,7 +18,7 @@ export function analyzeDocument(
 ): Node | undefined {
   const documentAnalyzer = getDocumentAnalyzer(
     {
-      workspaceFolders,
+      projects,
       solFileIndex,
     },
     uri

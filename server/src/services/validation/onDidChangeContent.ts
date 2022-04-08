@@ -1,8 +1,4 @@
-import {
-  Connection,
-  TextDocumentChangeEvent,
-  WorkspaceFolder,
-} from "vscode-languageserver";
+import { Connection, TextDocumentChangeEvent } from "vscode-languageserver";
 import { TextDocuments } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { getUriFromDocument } from "../../utils/index";
@@ -11,15 +7,19 @@ import { ServerState } from "../../types";
 import { Logger } from "@utils/Logger";
 import { SolidityValidation, ValidationJob } from "./SolidityValidation";
 
-import { findProjectBasePathFor } from "@utils/findProjectBasePathFor";
-import { DocumentsAnalyzerMap } from "@common/types";
+import { findProjectFor } from "@utils/findProjectFor";
+import {
+  DocumentsAnalyzerMap,
+  ISolProject,
+  SolProjectMap,
+} from "@common/types";
 import { analyzeDocument } from "@utils/analyzeDocument";
 
 const debounceAnalyzeDocument: {
   [uri: string]: (
     documents: TextDocuments<TextDocument>,
     uri: string,
-    workspaceFolders: WorkspaceFolder[],
+    projects: SolProjectMap,
     solFileIndex: DocumentsAnalyzerMap,
     logger: Logger
   ) => void;
@@ -30,7 +30,7 @@ const debounceValidateDocument: {
     validationJob: ValidationJob,
     connection: Connection,
     uri: string,
-    projectBasePath: string | null,
+    project: ISolProject,
     document: TextDocument,
     logger: Logger
   ) => void;
@@ -50,10 +50,7 @@ export function onDidChangeContent(serverState: ServerState) {
     logger.trace("onDidChangeContent");
 
     try {
-      const projectBasePath = findProjectBasePathFor(
-        serverState,
-        change.document.uri
-      );
+      const project = findProjectFor(serverState, change.document.uri);
 
       if (!debounceAnalyzeDocument[change.document.uri]) {
         debounceAnalyzeDocument[change.document.uri] = debounce(
@@ -65,7 +62,7 @@ export function onDidChangeContent(serverState: ServerState) {
       debounceAnalyzeDocument[change.document.uri](
         serverState.documents,
         change.document.uri,
-        serverState.workspaceFolders,
+        serverState.projects,
         serverState.solFileIndex,
         serverState.logger
       );
@@ -89,7 +86,7 @@ export function onDidChangeContent(serverState: ServerState) {
         validationJob,
         serverState.connection,
         documentURI,
-        projectBasePath,
+        project,
         change.document,
         logger
       );
@@ -102,7 +99,7 @@ export function onDidChangeContent(serverState: ServerState) {
 function analyzeFunc(
   documents: TextDocuments<TextDocument>,
   uri: string,
-  workspaceFolders: WorkspaceFolder[],
+  projects: SolProjectMap,
   solFileIndex: DocumentsAnalyzerMap,
   logger: Logger
 ): void {
@@ -118,7 +115,7 @@ function analyzeFunc(
     const documentURI = getUriFromDocument(document);
 
     analyzeDocument(
-      { workspaceFolders, solFileIndex },
+      { projects, solFileIndex },
       document.getText(),
       documentURI
     );
@@ -131,7 +128,7 @@ async function validateTextDocument(
   validationJob: ValidationJob,
   connection: Connection,
   uri: string,
-  projectBasePath: string | null,
+  project: ISolProject,
   document: TextDocument,
   logger: Logger
 ): Promise<void> {
@@ -143,7 +140,7 @@ async function validateTextDocument(
       uri,
       document,
       unsavedDocuments,
-      projectBasePath
+      project
     );
 
     // Send the calculated diagnostics to VSCode, but only for the file over which we called validation.

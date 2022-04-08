@@ -5,6 +5,7 @@ import { IndexFileData } from "@common/event";
 import { forceToUnixStyle } from "../helpers/forceToUnixStyle";
 import { indexWorkspaceFolders } from "@services/initialization/indexWorkspaceFolders";
 import { Connection } from "vscode-languageserver";
+import { HardhatProject } from "@analyzer/HardhatProject";
 
 describe("Analyzer", () => {
   describe("indexing", () => {
@@ -69,7 +70,14 @@ async function runIndexing(
   foundSolFiles: string[],
   collectedData: IndexFileData[]
 ) {
-  const exampleWorkspaceFolders = [{ name: "example", uri: rootPath }];
+  const exampleWorkspaceFolder = { name: "example", uri: rootPath };
+
+  const exampleProjects = {
+    [rootPath]: new HardhatProject(
+      exampleWorkspaceFolder.uri,
+      exampleWorkspaceFolder
+    ),
+  };
   const solFileIndex = {};
 
   const mockLogger = setupMockLogger();
@@ -97,11 +105,12 @@ async function runIndexing(
 
   await indexWorkspaceFolders(
     {
-      workspaceFolders: exampleWorkspaceFolders,
       connection: mockConnection,
       solFileIndex,
+      projects: exampleProjects,
       logger: mockLogger,
     },
-    mockWorkspaceFileRetriever
+    mockWorkspaceFileRetriever,
+    [exampleWorkspaceFolder]
   );
 }
