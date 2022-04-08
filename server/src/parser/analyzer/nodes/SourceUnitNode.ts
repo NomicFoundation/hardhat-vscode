@@ -33,7 +33,7 @@ export class SourceUnitNode extends AbstractSourceUnitNode {
 
     const documentAnalyzer = this.documentsAnalyzer[this.uri];
     if (
-      documentAnalyzer?.isAnalyzed &&
+      documentAnalyzer?.isAnalyzed() &&
       documentAnalyzer.analyzerTree.tree instanceof SourceUnitNode
     ) {
       this.exportNodes = documentAnalyzer.analyzerTree.tree

@@ -349,6 +349,13 @@ export interface Searcher {
   getNodeVisibility(node: Node): string | undefined;
 }
 
+export enum SolFileState {
+  Unloaded = "Unloaded",
+  Dirty = "Dirty",
+  Analyzed = "Analyzed",
+  Errored = "Errored",
+}
+
 export interface ISolFileEntry {
   /**
    * The rootPath of the workspace.
@@ -374,10 +381,12 @@ export interface ISolFileEntry {
    * Analyzed tree.
    */
   analyzerTree: { tree: Node };
+
   /**
-   * If the document is analyzed this will be true, otherwise false.
+   * The status of the sol files analysis, you can only rely on the
+   * ast and enhanced ast if the sol file is analyzed.
    */
-  isAnalyzed: boolean;
+  status: SolFileState;
 
   searcher: Searcher;
 
@@ -385,6 +394,8 @@ export interface ISolFileEntry {
    * The Nodes for which we couldn't find a parent.
    */
   orphanNodes: Node[];
+
+  isAnalyzed(): boolean;
 }
 
 /**

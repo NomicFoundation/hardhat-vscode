@@ -144,7 +144,7 @@ export async function setupMockLanguageServer({
 
           const documentAnalyzer = getDocumentAnalyzer(serverState, localUri);
 
-          return documentAnalyzer && documentAnalyzer.isAnalyzed;
+          return documentAnalyzer && documentAnalyzer.isAnalyzed();
         },
         100,
         1600

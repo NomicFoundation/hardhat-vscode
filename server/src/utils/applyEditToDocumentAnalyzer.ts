@@ -27,7 +27,7 @@ export function applyEditToDocumentAnalyzer(
 
   const documentAnalyzer = getDocumentAnalyzer(serverState, documentURI);
 
-  if (!documentAnalyzer.isAnalyzed) {
+  if (!documentAnalyzer.isAnalyzed()) {
     return {
       found: false,
       errorMessage: `Text document not analyzed for ${uri}`,
