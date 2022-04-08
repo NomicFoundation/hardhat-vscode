@@ -1,4 +1,3 @@
-import * as fs from "fs";
 import { Searcher } from "@analyzer/searcher";
 import {
   Node,
@@ -10,28 +9,25 @@ import {
 
 export class SolFileEntry implements ISolFileEntry {
   rootPath: string;
-  document: string | undefined;
   uri: string;
+  document: string | undefined;
+  isAnalyzed: boolean;
+
   ast: ASTNode | undefined;
   analyzerTree: { tree: Node };
-  isAnalyzed = false;
   searcher: ISearcher;
   orphanNodes: Node[] = [];
 
-  constructor(rootPath: string, uri: string) {
+  constructor(rootPath: string, uri: string, text: string) {
     this.rootPath = rootPath;
     this.uri = uri;
+    this.document = text;
+    this.isAnalyzed = false;
 
     this.analyzerTree = {
       tree: new EmptyNode({ type: "Empty" }, this.uri, this.rootPath, {}),
     };
 
     this.searcher = new Searcher(this.analyzerTree);
-
-    if (fs.existsSync(uri)) {
-      this.document = "" + fs.readFileSync(uri);
-    } else {
-      this.document = "";
-    }
   }
 }

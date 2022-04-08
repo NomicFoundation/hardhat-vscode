@@ -86,10 +86,17 @@ async function indexWorkspaceFolder(
 
     // Init all documentAnalyzers
     for (const documentUri of documentsUri) {
-      solFileIndex[documentUri] = new SolFileEntry(
-        workspaceFolderPath,
-        documentUri
-      );
+      try {
+        const docText = await workspaceFileRetriever.readFile(documentUri);
+
+        solFileIndex[documentUri] = new SolFileEntry(
+          workspaceFolderPath,
+          documentUri,
+          docText.toString()
+        );
+      } catch (err) {
+        logger.error(err);
+      }
     }
 
     logger.info("File indexing starting");

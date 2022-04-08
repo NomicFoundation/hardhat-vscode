@@ -92,6 +92,7 @@ async function runIndexing(
 
       return foundSolFiles.map((fsf) => path.join(baseUri ?? "", fsf));
     },
+    readFile: async () => "",
   };
 
   await indexWorkspaceFolders(
