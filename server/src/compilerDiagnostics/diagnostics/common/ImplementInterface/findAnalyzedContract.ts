@@ -1,6 +1,6 @@
 import { ResolveActionsContext } from "../../../types";
 import { ParseContractDefinitionResult } from "../../parsing/parseContractDefinition";
-import { ContractDefinitionNode, DocumentAnalyzer } from "@common/types";
+import { ContractDefinitionNode, ISolFileEntry } from "@common/types";
 import { isContractDefinitionNode } from "@analyzer/utils/typeGuards";
 import { lookupEntryForDocument } from "@utils/lookupEntryForDocument";
 import { ServerState } from "types";
@@ -32,7 +32,7 @@ export function findAnalyzedContract(
 }
 
 function findEquivalentAnalyzerContractNode(
-  currentAnalyzer: DocumentAnalyzer,
+  currentAnalyzer: ISolFileEntry,
   { start, end }: { start: number; end: number }
 ): ContractDefinitionNode | undefined {
   return currentAnalyzer.analyzerTree.tree.children

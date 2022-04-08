@@ -1,4 +1,4 @@
-import { DocumentAnalyzer } from "@common/types";
+import { ISolFileEntry } from "@common/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { ServerState } from "../types";
 import { lookupEntryForUri } from "./lookupEntryForUri";
@@ -7,7 +7,7 @@ export function onCommand<T>(
   serverState: ServerState,
   commandName: string,
   uri: string,
-  action: (documentAnalyzer: DocumentAnalyzer, document: TextDocument) => T
+  action: (documentAnalyzer: ISolFileEntry, document: TextDocument) => T
 ) {
   const { logger, telemetry } = serverState;
 

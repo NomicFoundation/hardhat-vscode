@@ -1,5 +1,5 @@
 import {
-  DocumentAnalyzer,
+  ISolFileEntry,
   VSCodePosition,
   Node,
   Location,
@@ -31,7 +31,7 @@ export const onTypeDefinition = (serverState: ServerState) => {
 
 function findTypeDefinition(
   serverState: ServerState,
-  documentAnalyzer: DocumentAnalyzer,
+  documentAnalyzer: ISolFileEntry,
   position: VSCodePosition
 ) {
   const definitionNode = documentAnalyzer.searcher.findDefinitionNodeByPosition(

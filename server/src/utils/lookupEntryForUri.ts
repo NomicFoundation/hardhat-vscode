@@ -1,13 +1,13 @@
 import { getUriFromDocument } from "./index";
 import { ServerState } from "../types";
-import { DocumentAnalyzer } from "@common/types";
+import { ISolFileEntry } from "@common/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
 
 export type LookupResult = {
   found: boolean;
   errorMessage?: string;
-  documentAnalyzer?: DocumentAnalyzer;
+  documentAnalyzer?: ISolFileEntry;
   document?: TextDocument;
 };
 

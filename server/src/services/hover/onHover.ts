@@ -5,11 +5,7 @@ import {
 import { getParserPositionFromVSCodePosition } from "@common/utils";
 import { HoverParams, Hover } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
-import {
-  DocumentAnalyzer,
-  IdentifierNode,
-  MemberAccessNode,
-} from "@common/types";
+import { ISolFileEntry, IdentifierNode, MemberAccessNode } from "@common/types";
 import { astToText } from "./utils/astToText";
 import { textToHover } from "./utils/textTohover";
 import { onCommand } from "@utils/onCommand";
@@ -33,7 +29,7 @@ export function onHover(serverState: ServerState) {
 }
 
 function findHoverForNodeAtPosition(
-  documentAnalyzer: DocumentAnalyzer,
+  documentAnalyzer: ISolFileEntry,
   params: HoverParams
 ) {
   const node = documentAnalyzer.searcher.findNodeByPosition(

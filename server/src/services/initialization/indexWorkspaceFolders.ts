@@ -4,7 +4,7 @@ import { WorkspaceFolder } from "vscode-languageserver-protocol";
 import { decodeUriAndRemoveFilePrefix } from "../../utils/index";
 import { Connection } from "vscode-languageserver";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
-import { DocumentAnalyzer } from "@analyzer/DocumentAnalyzer";
+import { SolFileEntry } from "@analyzer/SolFileEntry";
 import { DocumentsAnalyzerMap } from "@common/types";
 import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
 import { analyzeSolFile } from "@analyzer/analyzeSolFile";
@@ -86,7 +86,7 @@ async function indexWorkspaceFolder(
 
     // Init all documentAnalyzers
     for (const documentUri of documentsUri) {
-      solFileIndex[documentUri] = new DocumentAnalyzer(
+      solFileIndex[documentUri] = new SolFileEntry(
         workspaceFolderPath,
         documentUri
       );
