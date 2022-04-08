@@ -7,6 +7,7 @@ import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { DocumentAnalyzer } from "@analyzer/DocumentAnalyzer";
 import { DocumentsAnalyzerMap } from "@common/types";
 import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
+import { analyzeSolFile } from "@analyzer/analyzeSolFile";
 
 type IndexWorkspaceFoldersContext = {
   workspaceFolders: WorkspaceFolder[];
@@ -117,7 +118,7 @@ async function indexWorkspaceFolder(
           logger.trace("Indexing file", data);
 
           if (!documentAnalyzer.isAnalyzed) {
-            documentAnalyzer.analyze(solFileIndex);
+            analyzeSolFile(documentAnalyzer, solFileIndex);
           }
         } catch (err) {
           logger.error(err);

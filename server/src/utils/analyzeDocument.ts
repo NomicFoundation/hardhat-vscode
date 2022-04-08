@@ -1,3 +1,4 @@
+import { analyzeSolFile } from "@analyzer/analyzeSolFile";
 import { Node, DocumentsAnalyzerMap } from "@common/types";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
 import { getDocumentAnalyzer } from "./getDocumentAnalyzer";
@@ -24,5 +25,5 @@ export function analyzeDocument(
     uri
   );
 
-  return documentAnalyzer.analyze(solFileIndex, document);
+  return analyzeSolFile(documentAnalyzer, solFileIndex, document);
 }
