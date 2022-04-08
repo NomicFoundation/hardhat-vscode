@@ -1,6 +1,10 @@
 import { ResolveActionsContext } from "../../../types";
 import { ParseContractDefinitionResult } from "../../parsing/parseContractDefinition";
-import { ContractDefinitionNode, ISolFileEntry } from "@common/types";
+import {
+  ContractDefinitionNode,
+  ISolFileEntry,
+  SolFileState,
+} from "@common/types";
 import { isContractDefinitionNode } from "@analyzer/utils/typeGuards";
 import { lookupEntryForDocument } from "@utils/lookupEntryForDocument";
 import { ServerState } from "types";
@@ -16,7 +20,7 @@ export function findAnalyzedContract(
 
   const currentAnalyzer = lookupEntryForDocument(serverState, document);
 
-  if (!currentAnalyzer.isAnalyzed) {
+  if (currentAnalyzer.status !== SolFileState.Analyzed) {
     return null;
   }
 

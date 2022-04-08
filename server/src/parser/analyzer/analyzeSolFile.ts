@@ -1,10 +1,15 @@
 import * as parser from "@solidity-parser/parser";
 import * as matcher from "@analyzer/matcher";
-import { Node, SourceUnitNode, DocumentsAnalyzerMap } from "@common/types";
-import { SolFileEntry } from "./SolFileEntry";
+import {
+  Node,
+  SourceUnitNode,
+  DocumentsAnalyzerMap,
+  ISolFileEntry,
+  SolFileState,
+} from "@common/types";
 
 export function analyzeSolFile(
-  solFileEntry: SolFileEntry,
+  solFileEntry: ISolFileEntry,
   solFileIndex: DocumentsAnalyzerMap,
   text?: string
 ): Node | undefined {
@@ -22,10 +27,11 @@ export function analyzeSolFile(
         tolerant: true,
       });
     } catch {
+      solFileEntry.status = SolFileState.Errored;
       return solFileEntry.analyzerTree.tree;
     }
 
-    if (solFileEntry.isAnalyzed) {
+    if (solFileEntry.isAnalyzed()) {
       const oldDocumentsAnalyzerTree = solFileEntry.analyzerTree
         .tree as SourceUnitNode;
 
@@ -35,7 +41,7 @@ export function analyzeSolFile(
       }
     }
 
-    solFileEntry.isAnalyzed = true;
+    solFileEntry.status = SolFileState.Analyzed;
     solFileEntry.analyzerTree.tree = matcher
       .find(
         solFileEntry.ast,

@@ -89,9 +89,9 @@ async function indexWorkspaceFolder(
       try {
         const docText = await workspaceFileRetriever.readFile(documentUri);
 
-        solFileIndex[documentUri] = new SolFileEntry(
-          workspaceFolderPath,
+        solFileIndex[documentUri] = SolFileEntry.createLoadedEntry(
           documentUri,
+          workspaceFolderPath,
           docText.toString()
         );
       } catch (err) {
@@ -109,7 +109,7 @@ async function indexWorkspaceFolder(
         const documentUri = documentsUri[i];
 
         try {
-          const documentAnalyzer = getDocumentAnalyzer(
+          const solFileEntry = getDocumentAnalyzer(
             { workspaceFolders, solFileIndex },
             documentUri
           );
@@ -124,8 +124,8 @@ async function indexWorkspaceFolder(
 
           logger.trace("Indexing file", data);
 
-          if (!documentAnalyzer.isAnalyzed) {
-            analyzeSolFile(documentAnalyzer, solFileIndex);
+          if (!solFileEntry.isAnalyzed()) {
+            analyzeSolFile(solFileEntry, solFileIndex);
           }
         } catch (err) {
           logger.error(err);
