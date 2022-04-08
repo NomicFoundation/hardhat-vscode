@@ -7,7 +7,7 @@ import {
   WorkspaceEdit,
   TextEdit,
   Node,
-  DocumentAnalyzer,
+  ISolFileEntry,
 } from "@common/types";
 
 import { getParserPositionFromVSCodePosition, getRange } from "@common/utils";
@@ -31,7 +31,7 @@ export const onRename = (serverState: ServerState) => {
 };
 
 function rename(
-  documentAnalyzer: DocumentAnalyzer,
+  documentAnalyzer: ISolFileEntry,
   position: VSCodePosition,
   newName: string
 ): WorkspaceEdit {

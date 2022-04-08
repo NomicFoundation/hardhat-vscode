@@ -4,7 +4,7 @@ import {
   CompletionItem,
   CompletionItemKind,
   MarkupKind,
-  DocumentAnalyzer,
+  ISolFileEntry,
   Node,
   TypeName,
   ContractDefinitionNode,
@@ -113,7 +113,7 @@ function resolveChangedDocText(
 }
 
 export function doComplete(
-  documentAnalyzer: DocumentAnalyzer,
+  documentAnalyzer: ISolFileEntry,
   position: VSCodePosition,
   context: CompletionContext | undefined,
   projCtx: ProjectContext,
@@ -186,7 +186,7 @@ export function doComplete(
 }
 
 function getThisCompletions(
-  documentAnalyzer: DocumentAnalyzer,
+  documentAnalyzer: ISolFileEntry,
   position: VSCodePosition
 ): CompletionItem[] {
   const definitionNodes: Node[] = [];
@@ -216,7 +216,7 @@ function getThisCompletions(
 }
 
 function getSuperCompletions(
-  documentAnalyzer: DocumentAnalyzer,
+  documentAnalyzer: ISolFileEntry,
   position: VSCodePosition
 ): CompletionItem[] {
   const definitionNodes: Node[] = [];
@@ -263,7 +263,7 @@ function getGlobalVariableCompletions(
 }
 
 function getMemberAccessCompletions(
-  documentAnalyzer: DocumentAnalyzer,
+  documentAnalyzer: ISolFileEntry,
   position: VSCodePosition,
   node: Node
 ): CompletionItem[] {
@@ -293,7 +293,7 @@ function getMemberAccessCompletions(
 }
 
 function getDefaultCompletions(
-  documentAnalyzer: DocumentAnalyzer,
+  documentAnalyzer: ISolFileEntry,
   position: VSCodePosition
 ): CompletionItem[] {
   const definitionNodes: Node[] = documentAnalyzer.searcher.findDefinitionNodes(

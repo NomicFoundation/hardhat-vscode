@@ -1,10 +1,10 @@
 import {
   DocumentsAnalyzerMap,
-  DocumentAnalyzer as IDocumentAnalyzer,
+  ISolFileEntry as IDocumentAnalyzer,
 } from "@common/types";
 import { findProjectBasePathFor } from "@utils/findProjectBasePathFor";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
-import { DocumentAnalyzer } from "../parser/analyzer/DocumentAnalyzer";
+import { SolFileEntry } from "../parser/analyzer/SolFileEntry";
 
 /**
  * Get or create and get DocumentAnalyzer.
@@ -34,7 +34,7 @@ export function getDocumentAnalyzer(
       );
     }
 
-    documentAnalyzer = new DocumentAnalyzer(projectBasePath, uri);
+    documentAnalyzer = new SolFileEntry(projectBasePath, uri);
 
     solFileIndex[uri] = documentAnalyzer;
   }

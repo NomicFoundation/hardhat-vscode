@@ -2,26 +2,20 @@ import * as fs from "fs";
 import { Searcher } from "@analyzer/searcher";
 import {
   Node,
-  DocumentAnalyzer as IDocumentAnalyzer,
+  ISolFileEntry as ISolFileEntry,
   ASTNode,
   EmptyNode,
   Searcher as ISearcher,
 } from "@common/types";
 
-export class DocumentAnalyzer implements IDocumentAnalyzer {
-  // private logger: Logger;
+export class SolFileEntry implements ISolFileEntry {
   rootPath: string;
-
   document: string | undefined;
   uri: string;
-
   ast: ASTNode | undefined;
-
   analyzerTree: { tree: Node };
   isAnalyzed = false;
-
   searcher: ISearcher;
-
   orphanNodes: Node[] = [];
 
   constructor(rootPath: string, uri: string) {

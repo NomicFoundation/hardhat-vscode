@@ -349,7 +349,7 @@ export interface Searcher {
   getNodeVisibility(node: Node): string | undefined;
 }
 
-export interface DocumentAnalyzer {
+export interface ISolFileEntry {
   /**
    * The rootPath of the workspace.
    */
@@ -419,7 +419,7 @@ export type FinderType = (
  * documentsAnalyzer Map { [uri: string]: DocumentAnalyzer } have all documentsAnalyzer class instances used for handle imports on first project start.
  */
 export type DocumentsAnalyzerMap = {
-  [uri: string]: DocumentAnalyzer | undefined;
+  [uri: string]: ISolFileEntry | undefined;
 };
 
 export type EmptyNodeType = {
