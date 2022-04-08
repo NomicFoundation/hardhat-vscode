@@ -1,5 +1,5 @@
 import * as path from "path";
-import { TextDocument, Diagnostic } from "@common/types";
+import { TextDocument, Diagnostic, ISolProject } from "@common/types";
 
 import {
   GET_DOCUMENT_EVENT,
@@ -9,20 +9,21 @@ import { DiagnosticConverter } from "./DiagnosticConverter";
 import { Logger } from "@utils/Logger";
 import { Telemetry } from "telemetry/types";
 import { CompilerProcess } from "../../types";
+import { HardhatProject } from "@analyzer/HardhatProject";
 
 export interface ValidationJob {
   run(
     uri: string,
     document: TextDocument,
     unsavedDocuments: TextDocument[],
-    projectBasePath: string | null
+    project: ISolProject
   ): Promise<{ [uri: string]: Diagnostic[] }>;
   close(): void;
 }
 
 export class SolidityValidation {
   compilerProcessFactory: (
-    rootPath: string,
+    project: HardhatProject,
     uri: string,
     logger: Logger
   ) => CompilerProcess;
@@ -30,7 +31,7 @@ export class SolidityValidation {
 
   constructor(
     compilerProcessFactory: (
-      rootPath: string,
+      project: HardhatProject,
       uri: string,
       logger: Logger
     ) => CompilerProcess,
@@ -54,12 +55,13 @@ export class SolidityValidation {
         uri: string,
         document: TextDocument,
         unsavedDocuments: TextDocument[],
-        projectBasePath: string | null
+        project: ISolProject
       ): Promise<{ [uri: string]: Diagnostic[] }> => {
-        if (!projectBasePath) {
+        if (project.type !== "hardhat") {
           logger.error(
             new Error(`Validation failed, no projectBasePath given for ${uri}`)
           );
+
           return {};
         }
 
@@ -69,7 +71,7 @@ export class SolidityValidation {
         });
 
         const hardhatProcess = this.compilerProcessFactory(
-          projectBasePath,
+          project as HardhatProject,
           uri,
           logger
         );

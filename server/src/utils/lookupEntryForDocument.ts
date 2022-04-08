@@ -1,14 +1,17 @@
-import { WorkspaceFolder } from "vscode-languageserver-protocol";
-import { DocumentsAnalyzerMap, TextDocument } from "@common/types";
+import {
+  DocumentsAnalyzerMap,
+  SolProjectMap,
+  TextDocument,
+} from "@common/types";
 import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
 import { getUriFromDocument } from "./index";
 
 export function lookupEntryForDocument(
   {
-    workspaceFolders,
+    projects,
     solFileIndex,
   }: {
-    workspaceFolders: WorkspaceFolder[];
+    projects: SolProjectMap;
     solFileIndex: DocumentsAnalyzerMap;
   },
   document: TextDocument
@@ -16,7 +19,7 @@ export function lookupEntryForDocument(
   const documentURI = getUriFromDocument(document);
   const currentAnalyzer = getDocumentAnalyzer(
     {
-      workspaceFolders,
+      projects,
       solFileIndex,
     },
     documentURI

@@ -356,21 +356,33 @@ export enum SolFileState {
   Errored = "Errored",
 }
 
-export interface ISolFileEntry {
-  /**
-   * The rootPath of the workspace.
-   */
-  rootPath: string;
+export type SolProjectType = "hardhat" | "none";
 
+export interface ISolProject {
   /**
-   * The contents of the file we will try to analyze.
+   * The basepath of the solidity project.
    */
-  document: string | undefined;
+  basePath: string;
+  type: SolProjectType;
+}
+
+export type SolProjectMap = {
+  [key: string]: ISolProject;
+};
+
+export interface ISolFileEntry {
   /**
    * The path to the file with the document we are analyzing.
    * Uri needs to be decoded and without the "file://" prefix.
    */
   uri: string;
+
+  /**
+   * The contents of the file we will try to analyze.
+   */
+  document: string | undefined;
+
+  project: ISolProject;
 
   /**
    * AST that we get from @solidity-parser/parser.

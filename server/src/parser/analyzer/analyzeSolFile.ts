@@ -46,7 +46,7 @@ export function analyzeSolFile(
       .find(
         solFileEntry.ast,
         solFileEntry.uri,
-        solFileEntry.rootPath,
+        solFileEntry.project.basePath,
         solFileIndex
       )
       .accept(matcher.find, solFileEntry.orphanNodes);

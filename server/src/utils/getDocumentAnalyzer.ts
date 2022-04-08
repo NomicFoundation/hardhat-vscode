@@ -2,9 +2,9 @@ import * as fs from "fs";
 import {
   DocumentsAnalyzerMap,
   ISolFileEntry as IDocumentAnalyzer,
+  SolProjectMap,
 } from "@common/types";
-import { findProjectBasePathFor } from "@utils/findProjectBasePathFor";
-import { WorkspaceFolder } from "vscode-languageserver-protocol";
+import { findProjectFor } from "@utils/findProjectFor";
 import { SolFileEntry } from "../parser/analyzer/SolFileEntry";
 
 /**
@@ -16,10 +16,10 @@ import { SolFileEntry } from "../parser/analyzer/SolFileEntry";
 
 export function getDocumentAnalyzer(
   {
-    workspaceFolders,
+    projects,
     solFileIndex,
   }: {
-    workspaceFolders: WorkspaceFolder[];
+    projects: SolProjectMap;
     solFileIndex: DocumentsAnalyzerMap;
   },
   uri: string
@@ -27,9 +27,9 @@ export function getDocumentAnalyzer(
   let documentAnalyzer = solFileIndex[uri];
 
   if (!documentAnalyzer) {
-    const projectBasePath = findProjectBasePathFor({ workspaceFolders }, uri);
+    const project = findProjectFor({ projects }, uri);
 
-    if (!projectBasePath) {
+    if (!project) {
       throw new Error(
         "Document analyzer can't be retrieved as project base path not set."
       );
@@ -37,16 +37,12 @@ export function getDocumentAnalyzer(
 
     if (fs.existsSync(uri)) {
       const docText = fs.readFileSync(uri).toString();
-      documentAnalyzer = SolFileEntry.createLoadedEntry(
-        uri,
-        projectBasePath,
-        docText
-      );
+      documentAnalyzer = SolFileEntry.createLoadedEntry(uri, project, docText);
     } else {
       // TODO: figure out what happens if we just don't do this
       // why bother with non-existant files? Maybe untitled but unsaved
       // files?
-      documentAnalyzer = SolFileEntry.createUnloadedEntry(uri, projectBasePath);
+      documentAnalyzer = SolFileEntry.createUnloadedEntry(uri, project);
     }
 
     solFileIndex[uri] = documentAnalyzer;

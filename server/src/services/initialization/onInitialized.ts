@@ -8,22 +8,34 @@ export const onInitialized = (
 ) => {
   const { logger } = serverState;
 
-  return () => {
+  return async () => {
     logger.trace("onInitialized");
 
     if (serverState.workspaceFolders.length === 0) {
       throw new Error("Workspace folders not set");
     }
 
-    serverState.telemetry.trackTimingSync("indexing", () => {
-      indexWorkspaceFolders(serverState, workspaceFileRetriever);
-    });
-
     if (serverState.hasWorkspaceFolderCapability) {
-      serverState.connection.workspace.onDidChangeWorkspaceFolders(() => {
-        logger.trace("Workspace folder change event received.");
+      serverState.connection.workspace.onDidChangeWorkspaceFolders((e) => {
+        logger.trace(
+          `Workspace folder change event received. ${e.added} ${e.removed}`
+        );
+
+        return indexWorkspaceFolders(
+          serverState,
+          workspaceFileRetriever,
+          e.added
+        );
       });
     }
+
+    await serverState.telemetry.trackTimingSync("indexing", () =>
+      indexWorkspaceFolders(
+        serverState,
+        workspaceFileRetriever,
+        serverState.workspaceFolders
+      )
+    );
 
     logger.info("Language server ready");
   };

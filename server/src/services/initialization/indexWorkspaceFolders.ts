@@ -1,3 +1,4 @@
+import * as path from "path";
 import { IndexFileData } from "@common/event";
 import { Logger } from "@utils/Logger";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
@@ -5,22 +6,25 @@ import { decodeUriAndRemoveFilePrefix } from "../../utils/index";
 import { Connection } from "vscode-languageserver";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { SolFileEntry } from "@analyzer/SolFileEntry";
-import { DocumentsAnalyzerMap } from "@common/types";
+import { DocumentsAnalyzerMap, SolProjectMap } from "@common/types";
 import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
 import { analyzeSolFile } from "@analyzer/analyzeSolFile";
+import { HardhatProject } from "@analyzer/HardhatProject";
+import { findProjectFor } from "@utils/findProjectFor";
 
 type IndexWorkspaceFoldersContext = {
-  workspaceFolders: WorkspaceFolder[];
   connection: Connection;
   solFileIndex: DocumentsAnalyzerMap;
+  projects: SolProjectMap;
   logger: Logger;
 };
 
 export async function indexWorkspaceFolders(
   indexWorkspaceFoldersContext: IndexWorkspaceFoldersContext,
-  workspaceFileRetriever: WorkspaceFileRetriever
+  workspaceFileRetriever: WorkspaceFileRetriever,
+  workspaceFolders: WorkspaceFolder[]
 ) {
-  const { workspaceFolders, logger } = indexWorkspaceFoldersContext;
+  const { logger } = indexWorkspaceFoldersContext;
 
   if (workspaceFolders.some((wf) => wf.uri.includes("\\"))) {
     throw new Error("Unexpect windows style path");
@@ -29,23 +33,30 @@ export async function indexWorkspaceFolders(
   logger.info("Starting workspace indexing ...");
   logger.info("Scanning workspace for sol files");
 
+  // TODO: deal with nested workspaces
   for (const workspaceFolder of workspaceFolders) {
-    await scanForHardhatProjects(workspaceFolder, workspaceFileRetriever);
+    await scanForHardhatProjectsAndAppend(
+      workspaceFolder,
+      indexWorkspaceFoldersContext.projects,
+      workspaceFileRetriever
+    );
 
     await indexWorkspaceFolder(
       indexWorkspaceFoldersContext,
       workspaceFileRetriever,
-      workspaceFolder
+      workspaceFolder,
+      indexWorkspaceFoldersContext.projects
     );
   }
 
   logger.info("File indexing complete");
 }
 
-async function scanForHardhatProjects(
+async function scanForHardhatProjectsAndAppend(
   workspaceFolder: WorkspaceFolder,
+  projects: SolProjectMap,
   workspaceFileRetriever: WorkspaceFileRetriever
-) {
+): Promise<void> {
   const uri = decodeUriAndRemoveFilePrefix(workspaceFolder.uri);
 
   const hardhatConfigFiles = await workspaceFileRetriever.findFiles(
@@ -54,18 +65,24 @@ async function scanForHardhatProjects(
     ["**/node_modules/**"]
   );
 
-  return hardhatConfigFiles;
+  const foundProjects = hardhatConfigFiles.map(
+    (hhcf) =>
+      new HardhatProject(
+        path.dirname(decodeUriAndRemoveFilePrefix(hhcf)),
+        workspaceFolder
+      )
+  );
+
+  for (const project of foundProjects) {
+    projects[project.basePath] = project;
+  }
 }
 
 async function indexWorkspaceFolder(
-  {
-    workspaceFolders,
-    connection,
-    solFileIndex,
-    logger,
-  }: IndexWorkspaceFoldersContext,
+  { connection, solFileIndex, logger }: IndexWorkspaceFoldersContext,
   workspaceFileRetriever: WorkspaceFileRetriever,
-  workspaceFolder: WorkspaceFolder
+  workspaceFolder: WorkspaceFolder,
+  projects: SolProjectMap
 ) {
   try {
     const workspaceFolderPath = decodeUriAndRemoveFilePrefix(
@@ -88,10 +105,11 @@ async function indexWorkspaceFolder(
     for (const documentUri of documentsUri) {
       try {
         const docText = await workspaceFileRetriever.readFile(documentUri);
+        const project = findProjectFor({ projects }, documentUri);
 
         solFileIndex[documentUri] = SolFileEntry.createLoadedEntry(
           documentUri,
-          workspaceFolderPath,
+          project,
           docText.toString()
         );
       } catch (err) {
@@ -110,7 +128,7 @@ async function indexWorkspaceFolder(
 
         try {
           const solFileEntry = getDocumentAnalyzer(
-            { workspaceFolders, solFileIndex },
+            { projects, solFileIndex },
             documentUri
           );
 
