@@ -8,6 +8,7 @@ import {
   Node,
   SourceUnitNode,
   ImportDirectiveNode as AbstractImportDirectiveNode,
+  SolFileState,
 } from "@common/types";
 import { toUnixStyle } from "../../../utils/index";
 import { analyzeSolFile } from "@analyzer/analyzeSolFile";
@@ -71,13 +72,13 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
     }
 
     const documentAnalyzer = this.documentsAnalyzer[toUnixStyle(this.uri)];
-    if (documentAnalyzer && !documentAnalyzer.isAnalyzed) {
+    if (documentAnalyzer && documentAnalyzer.status !== SolFileState.Analyzed) {
       analyzeSolFile(documentAnalyzer, this.documentsAnalyzer);
 
       // Analyze will change root node so we need to return root node after analyze
       const rootNode = this.documentsAnalyzer[this.realUri]?.analyzerTree.tree;
 
-      if (documentAnalyzer.isAnalyzed && rootNode) {
+      if (documentAnalyzer.isAnalyzed() && rootNode) {
         // We transfer orphan nodes from the imported file in case it imports ours and we have a circular dependency.
         // We need to do this since the current analysis is not yet complete so some exported nodes may miss finding a parent.
         // This way we have solved this problem.

@@ -35,11 +35,19 @@ export function getDocumentAnalyzer(
       );
     }
 
-    // TODO: this is wrong, we shouldn't be doing arbitary sync file reads
-    // put here to move it out of the constructor. Can we replace this with
-    // a unloaded state?
-    const docText = fs.existsSync(uri) ? fs.readFileSync(uri).toString() : "";
-    documentAnalyzer = new SolFileEntry(projectBasePath, uri, docText);
+    if (fs.existsSync(uri)) {
+      const docText = fs.readFileSync(uri).toString();
+      documentAnalyzer = SolFileEntry.createLoadedEntry(
+        uri,
+        projectBasePath,
+        docText
+      );
+    } else {
+      // TODO: figure out what happens if we just don't do this
+      // why bother with non-existant files? Maybe untitled but unsaved
+      // files?
+      documentAnalyzer = SolFileEntry.createUnloadedEntry(uri, projectBasePath);
+    }
 
     solFileIndex[uri] = documentAnalyzer;
   }
