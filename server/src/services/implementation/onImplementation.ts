@@ -1,6 +1,6 @@
 import { isFunctionDefinitionNode } from "@analyzer/utils/typeGuards";
 import {
-  DocumentAnalyzer,
+  ISolFileEntry,
   VSCodePosition,
   Location,
   Node,
@@ -33,7 +33,7 @@ export const onImplementation = (serverState: ServerState) => {
 
 function findImplementation(
   serverState: ServerState,
-  documentAnalyzer: DocumentAnalyzer,
+  documentAnalyzer: ISolFileEntry,
   position: VSCodePosition
 ): VSCodeLocation[] {
   const definitionNode = documentAnalyzer.searcher.findDefinitionNodeByPosition(

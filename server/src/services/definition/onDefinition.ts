@@ -1,9 +1,4 @@
-import {
-  DocumentAnalyzer,
-  VSCodePosition,
-  Node,
-  Location,
-} from "@common/types";
+import { ISolFileEntry, VSCodePosition, Node, Location } from "@common/types";
 import { getParserPositionFromVSCodePosition, getRange } from "@common/utils";
 import { convertHardhatUriToVscodeUri } from "@utils/index";
 import { onCommand } from "@utils/onCommand";
@@ -28,7 +23,7 @@ export const onDefinition = (serverState: ServerState) => {
 
 function findDefinition(
   serverState: ServerState,
-  documentAnalyzer: DocumentAnalyzer,
+  documentAnalyzer: ISolFileEntry,
   position: VSCodePosition
 ) {
   const definitionNode = documentAnalyzer.searcher.findDefinitionNodeByPosition(

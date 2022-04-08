@@ -1,5 +1,5 @@
 import {
-  DocumentAnalyzer,
+  ISolFileEntry,
   VSCodePosition,
   Node,
   Location,
@@ -31,7 +31,7 @@ export const onReferences = (serverState: ServerState) => {
 
 function findReferences(
   serverState: ServerState,
-  documentAnalyzer: DocumentAnalyzer,
+  documentAnalyzer: ISolFileEntry,
   position: VSCodePosition
 ): VSCodeLocation[] {
   const definitionNode = documentAnalyzer.searcher.findDefinitionNodeByPosition(

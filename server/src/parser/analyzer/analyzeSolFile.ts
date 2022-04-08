@@ -1,32 +1,32 @@
 import * as parser from "@solidity-parser/parser";
 import * as matcher from "@analyzer/matcher";
 import { Node, SourceUnitNode, DocumentsAnalyzerMap } from "@common/types";
-import { DocumentAnalyzer } from "./DocumentAnalyzer";
+import { SolFileEntry } from "./SolFileEntry";
 
 export function analyzeSolFile(
-  documentAnalyzer: DocumentAnalyzer,
+  solFileEntry: SolFileEntry,
   solFileIndex: DocumentsAnalyzerMap,
-  document?: string
+  text?: string
 ): Node | undefined {
   try {
-    documentAnalyzer.orphanNodes = [];
+    solFileEntry.orphanNodes = [];
 
-    if (document) {
-      documentAnalyzer.document = document;
+    if (text) {
+      solFileEntry.document = text;
     }
 
     try {
-      documentAnalyzer.ast = parser.parse(documentAnalyzer.document || "", {
+      solFileEntry.ast = parser.parse(solFileEntry.document || "", {
         loc: true,
         range: true,
         tolerant: true,
       });
     } catch {
-      return documentAnalyzer.analyzerTree.tree;
+      return solFileEntry.analyzerTree.tree;
     }
 
-    if (documentAnalyzer.isAnalyzed) {
-      const oldDocumentsAnalyzerTree = documentAnalyzer.analyzerTree
+    if (solFileEntry.isAnalyzed) {
+      const oldDocumentsAnalyzerTree = solFileEntry.analyzerTree
         .tree as SourceUnitNode;
 
       for (const importNode of oldDocumentsAnalyzerTree.getImportNodes()) {
@@ -35,18 +35,18 @@ export function analyzeSolFile(
       }
     }
 
-    documentAnalyzer.isAnalyzed = true;
-    documentAnalyzer.analyzerTree.tree = matcher
+    solFileEntry.isAnalyzed = true;
+    solFileEntry.analyzerTree.tree = matcher
       .find(
-        documentAnalyzer.ast,
-        documentAnalyzer.uri,
-        documentAnalyzer.rootPath,
+        solFileEntry.ast,
+        solFileEntry.uri,
+        solFileEntry.rootPath,
         solFileIndex
       )
-      .accept(matcher.find, documentAnalyzer.orphanNodes);
+      .accept(matcher.find, solFileEntry.orphanNodes);
 
-    return documentAnalyzer.analyzerTree.tree;
+    return solFileEntry.analyzerTree.tree;
   } catch {
-    return documentAnalyzer.analyzerTree.tree;
+    return solFileEntry.analyzerTree.tree;
   }
 }

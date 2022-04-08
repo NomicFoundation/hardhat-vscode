@@ -3,7 +3,7 @@ import { SignatureHelpParams } from "vscode-languageserver/node";
 import { onCommand } from "@utils/onCommand";
 import {
   VSCodePosition,
-  DocumentAnalyzer,
+  ISolFileEntry,
   Position,
   Node,
   TextDocument,
@@ -40,7 +40,7 @@ export const onSignatureHelp = (serverState: ServerState) => {
 function signatureHelp(
   document: TextDocument,
   vsCodePosition: VSCodePosition,
-  documentAnalyzer: DocumentAnalyzer
+  documentAnalyzer: ISolFileEntry
 ): SignatureHelp | undefined {
   if (!documentAnalyzer.document) {
     return undefined;
