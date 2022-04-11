@@ -68,6 +68,8 @@ export const HARDHAT_PROCESS_ERROR = "error";
     } catch (err) {
       // Hardhat is not installed
       // console.error("Hardhat Error:", err);
+      // console.error("cwd: ", process.cwd());
+      // console.error("hardhat base: ", hardhatBase);
       hre = undefined;
     }
 

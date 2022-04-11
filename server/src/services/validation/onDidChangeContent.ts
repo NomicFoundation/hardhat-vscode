@@ -1,7 +1,10 @@
 import { Connection, TextDocumentChangeEvent } from "vscode-languageserver";
 import { TextDocuments } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { getUriFromDocument } from "../../utils/index";
+import {
+  decodeUriAndRemoveFilePrefix,
+  getUriFromDocument,
+} from "../../utils/index";
 import { debounce } from "../../utils/debounce";
 import { ServerState } from "../../types";
 import { Logger } from "@utils/Logger";
@@ -50,8 +53,6 @@ export function onDidChangeContent(serverState: ServerState) {
     logger.trace("onDidChangeContent");
 
     try {
-      const project = findProjectFor(serverState, change.document.uri);
-
       if (!debounceAnalyzeDocument[change.document.uri]) {
         debounceAnalyzeDocument[change.document.uri] = debounce(
           analyzeFunc,
@@ -77,6 +78,10 @@ export function onDidChangeContent(serverState: ServerState) {
       }
 
       const documentURI = getUriFromDocument(change.document);
+      const project = findProjectFor(
+        serverState,
+        decodeUriAndRemoveFilePrefix(change.document.uri)
+      );
       const validationJob = new SolidityValidation(
         serverState.compProcessFactory,
         logger

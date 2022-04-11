@@ -59,7 +59,7 @@ export class SolidityValidation {
       ): Promise<{ [uri: string]: Diagnostic[] }> => {
         if (project.type !== "hardhat") {
           logger.error(
-            new Error(`Validation failed, no projectBasePath given for ${uri}`)
+            new Error(`Validation failed, not a hardhat project ${uri}`)
           );
 
           return {};
