@@ -10,8 +10,11 @@ export async function sleep(ms: number): Promise<void> {
 
 export function getDocPath(dirname: string, p: string): string {
   // TO-DO: Refactor this
-  dirname = dirname.replace("/out/", "/").replace("\\out\\", "\\");
-  return path.resolve(dirname, "testdata", p);
+  return path.join(
+    dirname.replace("/out/", "/").replace("\\out\\", "\\"),
+    "testdata",
+    p
+  );
 }
 
 export function getDocUri(dirname: string, p: string): vscode.Uri {
@@ -40,7 +43,7 @@ export function uriEqual(
   let expectedPath: string = expected.path;
 
   const actualPathExp = actual.path.match(/testdata\/(.*)/);
-  const expectedPathExp = expected.path.match(/.\/(.*)/);
+  const expectedPathExp = expected.path.match(/^.\/(.*)/);
 
   if (actualPathExp && actualPathExp.length > 0) {
     actualPath = actualPathExp[1];

@@ -21,7 +21,10 @@ import {
   HoverParams,
   Hover,
 } from "vscode-languageserver/node";
-import setupServer from "../../src/server";
+import setupServer, {
+  GetSolFileDetailsParams,
+  GetSolFileDetailsResponse,
+} from "../../src/server";
 import { setupMockCompilerProcessFactory } from "./setupMockCompilerProcessFactory";
 import { setupMockConnection } from "./setupMockConnection";
 import { waitUntil } from "./waitUntil";
@@ -53,6 +56,9 @@ export type OnRenameRequest = (
   params: RenameParams
 ) => WorkspaceEdit | undefined | null;
 export type OnHover = (params: HoverParams) => Hover | null;
+export type OnRequest = (
+  params: GetSolFileDetailsParams
+) => GetSolFileDetailsResponse;
 
 export async function setupMockLanguageServer({
   projects,
@@ -116,6 +122,7 @@ export async function setupMockLanguageServer({
   const renameRequest: OnRenameRequest =
     mockConnection.onRenameRequest.getCall(0).firstArg;
   const hover: OnHover = mockConnection.onHover.getCall(0).firstArg;
+  const request: OnRequest = mockConnection.onRequest.getCall(0).args[1];
 
   const didOpenTextDocument =
     mockConnection.onDidOpenTextDocument.getCall(0).firstArg;
@@ -173,6 +180,7 @@ export async function setupMockLanguageServer({
       implementation,
       renameRequest,
       hover,
+      request,
     },
   };
 }

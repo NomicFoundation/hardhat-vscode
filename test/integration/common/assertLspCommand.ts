@@ -2,7 +2,7 @@ import * as lsclient from "vscode-languageclient/node";
 import * as vscode from "vscode";
 import * as assert from "assert";
 
-import { getDocUri, isArray, isDefined, rangeEqual, uriEqual } from "./helper";
+import { isArray, isDefined, rangeEqual, uriEqual } from "./helper";
 import { Client, Action } from "../common/types";
 
 export async function assertLspCommand(client: Client, action: Action) {
@@ -30,10 +30,8 @@ export async function assertLspCommand(client: Client, action: Action) {
 }
 
 async function ensureValidationOfDoc(client: Client, action: Action) {
-  const docUri = getDocUri(__dirname, action.uri);
-
-  if (client.docUri?.path !== docUri.path) {
-    await client.changeDocument(docUri);
+  if (client.docUri?.path !== action.uri) {
+    await client.changeDocument(vscode.Uri.file(action.uri));
   }
 }
 

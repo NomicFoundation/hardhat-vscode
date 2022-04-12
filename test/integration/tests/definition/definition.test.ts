@@ -1,3 +1,4 @@
+import * as path from "path";
 import { getClient } from "../../client";
 import { Client } from "../../common/types";
 import { assertLspCommand } from "../../common/assertLspCommand";
@@ -166,6 +167,19 @@ suite("Single-file Navigation", function () {
   });
 
   test("Jump to import dependency file", async () => {
+    let expectedPath = path
+      .join(
+        __dirname,
+        "../node_modules/@openzeppelin/contracts/access/Ownable.sol"
+      )
+      .replace("/out/", "/")
+      .replace("\\out\\", "\\")
+      .replace(/\\/g, "/");
+
+    expectedPath = expectedPath.startsWith("/")
+      ? expectedPath
+      : `/${expectedPath}`;
+
     await assertLspCommand(client, {
       action: "DefinitionRequest",
       uri: importTestUri.path,
@@ -178,7 +192,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: "./node_modules/@openzeppelin/contracts/access/Ownable.sol",
+            path: expectedPath,
           },
           range: [
             {

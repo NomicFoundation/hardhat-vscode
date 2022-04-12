@@ -1,4 +1,4 @@
-import { ExtensionContext, OutputChannel } from "vscode";
+import { ExtensionContext, LanguageStatusItem, OutputChannel } from "vscode";
 import { Disposable, LanguageClient } from "vscode-languageclient/node";
 import { Telemetry } from "./telemetry/types";
 import { Logger } from "./utils/Logger";
@@ -23,4 +23,6 @@ export type ExtensionState = {
   telemetry: Telemetry;
   outputChannel: OutputChannel;
   logger: Logger;
+
+  hardhatConfigStatusItem: LanguageStatusItem | null;
 };

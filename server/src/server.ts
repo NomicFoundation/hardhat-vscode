@@ -18,6 +18,27 @@ import { onReferences } from "@services/references/onReferences";
 import { onImplementation } from "@services/implementation/onImplementation";
 import { onRename } from "@services/rename/onRename";
 import { onDidChangeContent } from "@services/validation/onDidChangeContent";
+import { Uri } from "vscode";
+import { RequestType } from "vscode-languageserver-protocol";
+import { decodeUriAndRemoveFilePrefix, toUnixStyle } from "./utils";
+import path = require("path");
+
+export type GetSolFileDetailsParams = { uri: Uri };
+export type GetSolFileDetailsResponse =
+  | { found: false }
+  | { found: true; hardhat: false }
+  | {
+      found: true;
+      hardhat: true;
+      configPath: string;
+      configDisplayPath: string;
+    };
+
+const GetSolFileDetails = new RequestType<
+  GetSolFileDetailsParams,
+  GetSolFileDetailsResponse,
+  void
+>("solidity/getSolFileDetails");
 
 export default function setupServer(
   connection: Connection,
@@ -35,7 +56,7 @@ export default function setupServer(
 
   attachLanguageServerLifeCycleHooks(serverState, workspaceFileRetriever);
   attachLanguageServerCommandHooks(serverState);
-  attachCustomNotifiactionHooks(serverState);
+  attachCustomHooks(serverState);
 
   listenForDocumentChanges(serverState);
 
@@ -96,7 +117,7 @@ function attachLanguageServerCommandHooks(serverState: ServerState) {
   connection.onHover(onHover(serverState));
 }
 
-function attachCustomNotifiactionHooks(serverState: ServerState) {
+function attachCustomHooks(serverState: ServerState) {
   const { connection, logger } = serverState;
 
   connection.onNotification(
@@ -122,6 +143,43 @@ function attachCustomNotifiactionHooks(serverState: ServerState) {
       }
 
       serverState.hardhatTelemetryEnabled = enabled;
+    }
+  );
+
+  serverState.connection.onRequest(
+    GetSolFileDetails,
+    (params: GetSolFileDetailsParams): GetSolFileDetailsResponse => {
+      try {
+        const solFil =
+          serverState.solFileIndex[
+            decodeUriAndRemoveFilePrefix(params.uri.path)
+          ];
+
+        if (!solFil) {
+          return { found: false };
+        }
+
+        if (solFil.project.type !== "hardhat") {
+          return { found: true, hardhat: false };
+        }
+
+        const displayConfigPath = toUnixStyle(
+          path.relative(
+            decodeUriAndRemoveFilePrefix(solFil.project.workspaceFolder.uri),
+            solFil.project.configPath
+          )
+        );
+
+        return {
+          found: true,
+          hardhat: true,
+          configPath: solFil.project.configPath,
+          configDisplayPath: displayConfigPath,
+        };
+      } catch (err) {
+        serverState.logger.error(err);
+        return { found: false };
+      }
     }
   );
 }
