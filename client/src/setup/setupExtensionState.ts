@@ -40,6 +40,7 @@ export function setupExtensionState(
       .getConfiguration("hardhat")
       .get<boolean>("telemetry"),
     globalTelemetryEnabled: env.isTelemetryEnabled,
+    hardhatConfigStatusItem: null,
 
     telemetry,
     outputChannel,

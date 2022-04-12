@@ -25,6 +25,7 @@ import { CompletionParams } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
 import { ProjectContext } from "./types";
 import { findProjectFor } from "@utils/findProjectFor";
+import { decodeUriAndRemoveFilePrefix } from "@utils/index";
 
 export const onCompletion = (serverState: ServerState) => {
   return (params: CompletionParams): CompletionList | undefined => {
@@ -51,7 +52,10 @@ export const onCompletion = (serverState: ServerState) => {
           return undefined;
         }
 
-        const project = findProjectFor(serverState, document.uri);
+        const project = findProjectFor(
+          serverState,
+          decodeUriAndRemoveFilePrefix(document.uri)
+        );
 
         const projCtx: ProjectContext = {
           project,

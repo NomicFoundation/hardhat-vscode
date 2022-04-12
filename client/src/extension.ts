@@ -19,11 +19,11 @@ export function activate(context: ExtensionContext) {
   logger.info("Hardhat for Visual Studio Code Starting ...");
   logger.info(`env: ${extensionState.env}`);
 
-  warnOnOtherSolidityExtensions(extensionState);
-  showAnalyticsAllowPopup(extensionState);
-
   setupFormatterHook(extensionState);
   setupLanguageServerHooks(extensionState);
+
+  warnOnOtherSolidityExtensions(extensionState);
+  showAnalyticsAllowPopup(extensionState);
 }
 
 export function deactivate(): Thenable<void> {

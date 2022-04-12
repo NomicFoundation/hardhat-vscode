@@ -1,4 +1,4 @@
-import { workspace, env } from "vscode";
+import { workspace, env, window } from "vscode";
 import {
   LanguageClient,
   LanguageClientOptions,
@@ -8,6 +8,7 @@ import {
 import { ExtensionState } from "../types";
 import { getUnsavedDocuments } from "../utils/getUnsavedDocuments";
 import { showFileIndexingProgress } from "../popups/showFileIndexingProgress";
+import { updateHardhatProjectLanguageItem } from "./updateHardhatProjectLanguageItem";
 
 export function setupLanguageServerHooks(extensionState: ExtensionState) {
   if (workspace.workspaceFolders === undefined) {
@@ -121,6 +122,10 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
 
   extensionState.listenerDisposables.push(telemetryChangeDisposable);
   extensionState.listenerDisposables.push(hardhatTelemetryChangeDisposable);
+
+  window.onDidChangeActiveTextEditor(
+    updateHardhatProjectLanguageItem(extensionState)
+  );
 
   client.start();
 

@@ -81,6 +81,8 @@ import type {
   TypeDefinition,
 } from "@solidity-parser/parser/dist/src/ast-types";
 
+import { WorkspaceFolder } from "vscode-languageserver-protocol";
+
 import {
   Position as VSCodePosition,
   WorkspaceEdit,
@@ -359,11 +361,13 @@ export enum SolFileState {
 export type SolProjectType = "hardhat" | "none";
 
 export interface ISolProject {
+  type: SolProjectType;
   /**
    * The basepath of the solidity project.
    */
   basePath: string;
-  type: SolProjectType;
+  configPath: string;
+  workspaceFolder: WorkspaceFolder;
 }
 
 export type SolProjectMap = {
