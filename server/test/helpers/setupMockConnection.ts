@@ -40,6 +40,7 @@ export function setupMockConnection() {
       }
     ),
     sendDiagnostics: sinon.spy(),
+    onRequest: sinon.spy(),
     onExit: sinon.spy(),
   };
 }

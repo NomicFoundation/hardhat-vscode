@@ -75,6 +75,7 @@ async function runIndexing(
   const exampleProjects = {
     [rootPath]: new HardhatProject(
       exampleWorkspaceFolder.uri,
+      path.join(exampleWorkspaceFolder.uri, "hardhat.config.ts"),
       exampleWorkspaceFolder
     ),
   };

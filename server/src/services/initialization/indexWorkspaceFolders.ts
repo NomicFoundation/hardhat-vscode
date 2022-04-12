@@ -69,6 +69,7 @@ async function scanForHardhatProjectsAndAppend(
     (hhcf) =>
       new HardhatProject(
         path.dirname(decodeUriAndRemoveFilePrefix(hhcf)),
+        hhcf,
         workspaceFolder
       )
   );
@@ -99,6 +100,7 @@ async function indexWorkspaceFolder(
     //   documentsUri,
     //   this.logger
     // );
+
     logger.info(`Scan complete, ${documentsUri.length} sol files found`);
 
     // Init all documentAnalyzers
