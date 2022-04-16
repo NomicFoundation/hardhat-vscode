@@ -124,7 +124,7 @@
       "name": "storage.type.return.natspec"
     },
     "natspec-tag-custom": {
-      "match": "(@custom:)\\b",
+      "match": "(@custom:[a-z]+(-[a-z]+)*)\\b",
       "name": "storage.type.custom.natspec"
     },
     "comment": {
