@@ -86,6 +86,9 @@
         },
         {
           "include": "#natspec-tag-return"
+        },
+        {
+          "include": "#natspec-tag-custom"
         }
       ]
     },
@@ -119,6 +122,10 @@
     "natspec-tag-return": {
       "match": "(@return)\\b",
       "name": "storage.type.return.natspec"
+    },
+    "natspec-tag-custom": {
+      "match": "(@custom:)\\b",
+      "name": "storage.type.custom.natspec"
     },
     "comment": {
       "patterns": [
