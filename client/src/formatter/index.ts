@@ -45,9 +45,14 @@ export function formatDocument(
     lastLine.range.end
   );
 
-  const formatted = prettier.format(source, options);
+  try {
+    const formatted = prettier.format(source, options);
 
-  return [vscode.TextEdit.replace(fullTextRange, formatted)];
+    return [vscode.TextEdit.replace(fullTextRange, formatted)];
+  } catch {
+    // ignore formatter errors, we get lots of fails
+    return [];
+  }
 }
 
 function getCurrentWorkspaceRootFsPath(): string {
