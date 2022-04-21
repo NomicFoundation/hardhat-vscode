@@ -36,7 +36,7 @@ To set **Hardhat for Visual Studio Code** as your default formatter for solidity
 
 ![Format Document With](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/docs/add-formatting-instructions/docs/images/format_document_with.png "Format Document With")
 
-1. Select `Configure Default Formatter...`
+2. Select `Configure Default Formatter...`
 
 ![Format Document With](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/docs/add-formatting-instructions/docs/images/configure_default_formatter.png "Configure default formatter")
 
