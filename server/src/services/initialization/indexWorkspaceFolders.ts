@@ -30,23 +30,45 @@ export async function indexWorkspaceFolders(
     throw new Error("Unexpect windows style path");
   }
 
+  if (workspaceFolders.length === 0) {
+    const data: IndexFileData = {
+      path: "",
+      current: 0,
+      total: 0,
+    };
+
+    indexWorkspaceFoldersContext.connection.sendNotification(
+      "custom/indexing-file",
+      data
+    );
+
+    logger.trace("No workspace folders to index", data);
+
+    return;
+  }
+
   logger.info("Starting workspace indexing ...");
   logger.info("Scanning workspace for sol files");
 
   // TODO: deal with nested workspaces
   for (const workspaceFolder of workspaceFolders) {
-    await scanForHardhatProjectsAndAppend(
-      workspaceFolder,
-      indexWorkspaceFoldersContext.projects,
-      workspaceFileRetriever
-    );
+    try {
+      await scanForHardhatProjectsAndAppend(
+        workspaceFolder,
+        indexWorkspaceFoldersContext.projects,
+        workspaceFileRetriever,
+        logger
+      );
 
-    await indexWorkspaceFolder(
-      indexWorkspaceFoldersContext,
-      workspaceFileRetriever,
-      workspaceFolder,
-      indexWorkspaceFoldersContext.projects
-    );
+      await indexWorkspaceFolder(
+        indexWorkspaceFoldersContext,
+        workspaceFileRetriever,
+        workspaceFolder,
+        indexWorkspaceFoldersContext.projects
+      );
+    } catch (err) {
+      logger.error(err);
+    }
   }
 
   logger.info("File indexing complete");
@@ -55,8 +77,11 @@ export async function indexWorkspaceFolders(
 async function scanForHardhatProjectsAndAppend(
   workspaceFolder: WorkspaceFolder,
   projects: SolProjectMap,
-  workspaceFileRetriever: WorkspaceFileRetriever
+  workspaceFileRetriever: WorkspaceFileRetriever,
+  logger: Logger
 ): Promise<void> {
+  logger.info(`Scanning ${workspaceFolder.name} for hardhat projects`);
+
   const uri = decodeUriAndRemoveFilePrefix(workspaceFolder.uri);
 
   const hardhatConfigFiles = await workspaceFileRetriever.findFiles(
@@ -75,7 +100,20 @@ async function scanForHardhatProjectsAndAppend(
   );
 
   for (const project of foundProjects) {
+    if (project.basePath in project) {
+      continue;
+    }
+
     projects[project.basePath] = project;
+  }
+
+  if (foundProjects.length === 0) {
+    logger.info(`No hardhat projects found in ${workspaceFolder.name}`);
+  } else {
+    logger.info(`Hardhat projects found:`);
+    for (const foundProject of foundProjects) {
+      logger.info(`  ${foundProject.basePath}`);
+    }
   }
 }
 
@@ -142,7 +180,7 @@ async function indexWorkspaceFolder(
 
           connection.sendNotification("custom/indexing-file", data);
 
-          logger.trace("Indexing file", data);
+          logger.trace(`Indexing file ${i}/${documentsUri.length}`, data);
 
           if (!solFileEntry.isAnalyzed()) {
             analyzeSolFile(solFileEntry, solFileIndex);

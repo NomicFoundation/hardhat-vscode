@@ -11,10 +11,6 @@ export const onInitialized = (
   return async () => {
     logger.trace("onInitialized");
 
-    if (serverState.workspaceFolders.length === 0) {
-      throw new Error("Workspace folders not set");
-    }
-
     if (serverState.hasWorkspaceFolderCapability) {
       serverState.connection.workspace.onDidChangeWorkspaceFolders((e) => {
         logger.trace(
