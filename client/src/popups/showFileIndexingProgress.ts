@@ -85,6 +85,13 @@ async function displayLanguageStatusItem(
         return;
       }
 
+      if (data.total === 0) {
+        updateHardhatProjectLanguageItem(
+          extensionState,
+          window.activeTextEditor.document
+        );
+      }
+
       resolve();
     });
   });

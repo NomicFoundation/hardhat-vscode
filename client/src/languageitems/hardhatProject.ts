@@ -28,10 +28,6 @@ export async function updateHardhatProjectLanguageItem(
     params
   );
 
-  if (!response.found) {
-    return clearHardhatConfigState(extensionState);
-  }
-
   if (extensionState.hardhatConfigStatusItem === null) {
     const statusItem = languages.createLanguageStatusItem(
       "hardhat-config-file",
@@ -43,7 +39,7 @@ export async function updateHardhatProjectLanguageItem(
     extensionState.hardhatConfigStatusItem = statusItem;
   }
 
-  if (response.found && !response.hardhat) {
+  if (!response.found || !response.hardhat) {
     extensionState.hardhatConfigStatusItem.severity =
       LanguageStatusSeverity.Warning;
     extensionState.hardhatConfigStatusItem.text =

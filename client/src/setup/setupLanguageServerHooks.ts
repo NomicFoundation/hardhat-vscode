@@ -11,13 +11,7 @@ import { showFileIndexingProgress } from "../popups/showFileIndexingProgress";
 import { onDidChangeActiveTextEditor } from "./onDidChangeActiveTextEditor";
 
 export function setupLanguageServerHooks(extensionState: ExtensionState) {
-  if (workspace.workspaceFolders === undefined) {
-    // start lsp in files modes
-    extensionState.logger.log("Detached files mode not supported (yet).");
-  } else {
-    // start lsp in workspace folders mode
-    startLanguageServer(extensionState);
-  }
+  startLanguageServer(extensionState);
 }
 
 const startLanguageServer = (extensionState: ExtensionState): void => {
