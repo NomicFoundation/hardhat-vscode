@@ -1,11 +1,14 @@
 import * as events from "events";
 import {
   workspace,
+  window,
   TextDocument,
   languages,
   LanguageStatusSeverity,
 } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
+import { updateHardhatProjectLanguageItem } from "../languageitems/hardhatProject";
+import { ExtensionState } from "../types";
 
 type IndexFileData = {
   path: string;
@@ -13,7 +16,10 @@ type IndexFileData = {
   total: number;
 };
 
-export function showFileIndexingProgress(client: LanguageClient): void {
+export function showFileIndexingProgress(
+  extensionState: ExtensionState,
+  client: LanguageClient
+): void {
   const em = new events.EventEmitter();
 
   client.onReady().then(() => {
@@ -23,7 +29,7 @@ export function showFileIndexingProgress(client: LanguageClient): void {
   });
 
   // Show the language status item
-  displayLanguageStatusItem(client, em);
+  displayLanguageStatusItem(extensionState, client, em);
 }
 
 /**
@@ -39,7 +45,11 @@ function triggerValidationForOpenDoc(client: LanguageClient, path: string) {
   notifyOfNoopChange(client, textDoc);
 }
 
-async function displayLanguageStatusItem(client: LanguageClient, em: events) {
+async function displayLanguageStatusItem(
+  extensionState: ExtensionState,
+  client: LanguageClient,
+  em: events
+) {
   const statusItem = languages.createLanguageStatusItem("indexing", {
     language: "solidity",
   });
@@ -63,9 +73,19 @@ async function displayLanguageStatusItem(client: LanguageClient, em: events) {
       // to ensure warning and errors appear on startup.
       triggerValidationForOpenDoc(client, data.path);
 
-      if (data.total === data.current) {
-        resolve();
+      // check to display language status item
+      if (window.activeTextEditor.document.uri.path === data.path) {
+        updateHardhatProjectLanguageItem(
+          extensionState,
+          window.activeTextEditor.document
+        );
       }
+
+      if (data.total !== data.current) {
+        return;
+      }
+
+      resolve();
     });
   });
 

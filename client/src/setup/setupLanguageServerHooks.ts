@@ -8,7 +8,7 @@ import {
 import { ExtensionState } from "../types";
 import { getUnsavedDocuments } from "../utils/getUnsavedDocuments";
 import { showFileIndexingProgress } from "../popups/showFileIndexingProgress";
-import { updateHardhatProjectLanguageItem } from "./updateHardhatProjectLanguageItem";
+import { onDidChangeActiveTextEditor } from "./onDidChangeActiveTextEditor";
 
 export function setupLanguageServerHooks(extensionState: ExtensionState) {
   if (workspace.workspaceFolders === undefined) {
@@ -92,7 +92,7 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
     });
   });
 
-  showFileIndexingProgress(client);
+  showFileIndexingProgress(extensionState, client);
 
   const telemetryChangeDisposable = env.onDidChangeTelemetryEnabled(
     (enabled: boolean) => {
@@ -124,7 +124,7 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
   extensionState.listenerDisposables.push(hardhatTelemetryChangeDisposable);
 
   window.onDidChangeActiveTextEditor(
-    updateHardhatProjectLanguageItem(extensionState)
+    onDidChangeActiveTextEditor(extensionState)
   );
 
   client.start();
