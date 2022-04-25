@@ -24,6 +24,8 @@ Some features (e.g. inline validation) are still experimental and are only enabl
 
 ## Setup
 
+This extension should work without any configuration. If formatting functionality isn't working, or you have previously configured another **Solidity** formatter, please read on.
+
 ### Formatting
 
 **Hardhat for Visual Studio Code** provides formatting support for `.sol` files, by leveraging [prettier-plugin-solidity](https://github.com/prettier-solidity/prettier-plugin-solidity).
