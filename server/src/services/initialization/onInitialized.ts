@@ -27,7 +27,7 @@ export const onInitialized = (
 
     await serverState.telemetry.trackTimingSync("indexing", () =>
       indexWorkspaceFolders(
-        serverState,
+        { ...serverState, workspaceFolders: [] },
         workspaceFileRetriever,
         serverState.workspaceFolders
       )
