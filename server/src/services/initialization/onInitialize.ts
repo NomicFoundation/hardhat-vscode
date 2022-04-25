@@ -47,6 +47,13 @@ export const onInitialize = (serverState: ServerState) => {
         renameProvider: true,
         codeActionProvider: true,
         hoverProvider: true,
+
+        workspace: {
+          workspaceFolders: {
+            supported: true,
+            changeNotifications: true,
+          },
+        },
       },
     };
 
