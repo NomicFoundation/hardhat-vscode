@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import { VSCodePosition } from "@common/types";
-import { OnHover } from "../../../helpers/setupMockLanguageServer";
+import { OnHover } from "../../helpers/setupMockLanguageServer";
 import { MarkupContent } from "vscode-languageserver/node";
 
 export async function assertOnServerHover(

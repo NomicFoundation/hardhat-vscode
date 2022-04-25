@@ -4,7 +4,7 @@ import * as path from "path";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { ConstrainMutability } from "@compilerDiagnostics/diagnostics/ConstrainMutability";
 import { assertCodeAction } from "./asserts/assertCodeAction";
-import { setupMockLogger } from "../../../helpers/setupMockLogger";
+import { setupMockLogger } from "../../helpers/setupMockLogger";
 import { ServerState } from "types";
 
 describe("Code Actions", () => {

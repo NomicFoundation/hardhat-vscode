@@ -1,9 +1,9 @@
 import { assert } from "chai";
 import * as path from "path";
-import { forceToUnixStyle } from "../../../helpers/forceToUnixStyle";
-import { setupMockConnection } from "../../../helpers/setupMockConnection";
-import { setupMockLanguageServer } from "../../../helpers/setupMockLanguageServer";
-import { waitUntil } from "../../../helpers/waitUntil";
+import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
+import { setupMockConnection } from "../../helpers/setupMockConnection";
+import { setupMockLanguageServer } from "../../helpers/setupMockLanguageServer";
+import { waitUntil } from "../../helpers/waitUntil";
 
 describe("Parser", () => {
   describe("Validation", function () {

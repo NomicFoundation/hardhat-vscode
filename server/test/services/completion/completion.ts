@@ -4,9 +4,9 @@ import { VSCodePosition } from "@common/types";
 import {
   OnCompletion,
   setupMockLanguageServer,
-} from "../../../helpers/setupMockLanguageServer";
+} from "../../helpers/setupMockLanguageServer";
 import { CompletionContext } from "vscode-languageserver/node";
-import { forceToUnixStyle } from "../../../helpers/forceToUnixStyle";
+import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
 
 describe("Parser", () => {
   const globalVariablesUri = forceToUnixStyle(
