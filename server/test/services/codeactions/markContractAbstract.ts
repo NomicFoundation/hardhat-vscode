@@ -4,9 +4,9 @@ import * as path from "path";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { assertCodeAction } from "./asserts/assertCodeAction";
 import { MarkContractAbstract } from "@compilerDiagnostics/diagnostics/MarkContractAbstract";
-import { setupMockWorkspaceFileRetriever } from "../../../helpers/setupMockWorkspaceFileRetriever";
-import { setupMockLogger } from "../../../helpers/setupMockLogger";
-import { setupMockConnection } from "../../../helpers/setupMockConnection";
+import { setupMockWorkspaceFileRetriever } from "../../helpers/setupMockWorkspaceFileRetriever";
+import { setupMockLogger } from "../../helpers/setupMockLogger";
+import { setupMockConnection } from "../../helpers/setupMockConnection";
 import { indexWorkspaceFolders } from "@services/initialization/indexWorkspaceFolders";
 import { ServerState } from "types";
 

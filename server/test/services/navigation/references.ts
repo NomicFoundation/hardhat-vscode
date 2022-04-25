@@ -4,9 +4,9 @@ import { VSCodePosition, VSCodeLocation } from "@common/types";
 import {
   OnReferences,
   setupMockLanguageServer,
-} from "../../../helpers/setupMockLanguageServer";
-import { convertHardhatUriToVscodeUri } from "../../../../src/utils/index";
-import { forceToUnixStyle } from "../../../helpers/forceToUnixStyle";
+} from "../../helpers/setupMockLanguageServer";
+import { convertHardhatUriToVscodeUri } from "../../../src/utils/index";
+import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
 
 describe("Parser", () => {
   describe("Navigation", () => {

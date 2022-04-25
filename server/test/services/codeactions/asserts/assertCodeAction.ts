@@ -2,9 +2,9 @@ import { assert } from "chai";
 import { Diagnostic, TextEdit } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { CompilerDiagnostic } from "@compilerDiagnostics/types";
-import { setupMockWorkspaceFileRetriever } from "../../../../helpers/setupMockWorkspaceFileRetriever";
-import { setupMockLogger } from "../../../../helpers/setupMockLogger";
-import { setupMockConnection } from "../../../../helpers/setupMockConnection";
+import { setupMockWorkspaceFileRetriever } from "../../../helpers/setupMockWorkspaceFileRetriever";
+import { setupMockLogger } from "../../../helpers/setupMockLogger";
+import { setupMockConnection } from "../../../helpers/setupMockConnection";
 import { indexWorkspaceFolders } from "@services/initialization/indexWorkspaceFolders";
 import { ServerState } from "types";
 

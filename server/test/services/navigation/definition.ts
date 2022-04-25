@@ -4,8 +4,8 @@ import { VSCodePosition } from "@common/types";
 import {
   OnDefinition,
   setupMockLanguageServer,
-} from "../../../helpers/setupMockLanguageServer";
-import { forceToUnixStyle } from "../../../helpers/forceToUnixStyle";
+} from "../../helpers/setupMockLanguageServer";
+import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
 
 describe("Parser", () => {
   describe("Navigation", () => {

@@ -1,11 +1,11 @@
 import { assert } from "chai";
 import * as path from "path";
 import { SignatureHelp } from "vscode-languageserver/node";
-import { forceToUnixStyle } from "../../../helpers/forceToUnixStyle";
+import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
 import {
   setupMockLanguageServer,
   OnSignatureHelp,
-} from "../../../helpers/setupMockLanguageServer";
+} from "../../helpers/setupMockLanguageServer";
 
 describe("Parser", () => {
   describe("Documentation", () => {
