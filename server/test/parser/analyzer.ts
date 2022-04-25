@@ -110,6 +110,7 @@ async function runIndexing(
       solFileIndex,
       projects: exampleProjects,
       logger: mockLogger,
+      workspaceFolders: [],
     },
     mockWorkspaceFileRetriever,
     [exampleWorkspaceFolder]
