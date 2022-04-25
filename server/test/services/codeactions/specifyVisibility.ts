@@ -2,7 +2,7 @@ import { assert } from "chai";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { SpecifyVisibility } from "@compilerDiagnostics/diagnostics/SpecifyVisibility";
 import { assertCodeAction } from "./asserts/assertCodeAction";
-import { setupMockLogger } from "../../../helpers/setupMockLogger";
+import { setupMockLogger } from "../../helpers/setupMockLogger";
 import { ServerState } from "types";
 
 describe("Code Actions", () => {

@@ -4,9 +4,9 @@ import { VSCodePosition, TextEdit } from "@common/types";
 import {
   OnRenameRequest,
   setupMockLanguageServer,
-} from "../../../helpers/setupMockLanguageServer";
-import { forceToUnixStyle } from "../../../helpers/forceToUnixStyle";
-import { convertHardhatUriToVscodeUri } from "../../../../src/utils/index";
+} from "../../helpers/setupMockLanguageServer";
+import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
+import { convertHardhatUriToVscodeUri } from "../../../src/utils/index";
 
 describe("Parser", () => {
   describe("Rename", () => {
