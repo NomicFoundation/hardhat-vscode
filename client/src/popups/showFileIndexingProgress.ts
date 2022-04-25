@@ -74,7 +74,10 @@ async function displayLanguageStatusItem(
       triggerValidationForOpenDoc(client, data.path);
 
       // check to display language status item
-      if (window.activeTextEditor.document.uri.path === data.path) {
+      if (
+        window.activeTextEditor &&
+        window.activeTextEditor.document.uri.path === data.path
+      ) {
         updateHardhatProjectLanguageItem(
           extensionState,
           window.activeTextEditor.document
