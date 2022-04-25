@@ -11,10 +11,12 @@ import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
 import { analyzeSolFile } from "@analyzer/analyzeSolFile";
 import { HardhatProject } from "@analyzer/HardhatProject";
 import { findProjectFor } from "@utils/findProjectFor";
+import { resolveTopLevelWorkspaceFolders } from "./resolveTopLevelWorkspaceFolders";
 
-type IndexWorkspaceFoldersContext = {
+export type IndexWorkspaceFoldersContext = {
   connection: Connection;
   solFileIndex: DocumentsAnalyzerMap;
+  workspaceFolders: WorkspaceFolder[];
   projects: SolProjectMap;
   logger: Logger;
 };
@@ -50,8 +52,10 @@ export async function indexWorkspaceFolders(
   logger.info("Starting workspace indexing ...");
   logger.info("Scanning workspace for sol files");
 
-  // TODO: deal with nested workspaces
-  for (const workspaceFolder of workspaceFolders) {
+  for (const workspaceFolder of resolveTopLevelWorkspaceFolders(
+    indexWorkspaceFoldersContext,
+    workspaceFolders
+  )) {
     try {
       await scanForHardhatProjectsAndAppend(
         workspaceFolder,
