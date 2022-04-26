@@ -1,13 +1,16 @@
 import { assert } from "chai";
 import * as path from "path";
 import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
+import { prependWithSlash } from "../../helpers/prependWithSlash";
 import { setupMockConnection } from "../../helpers/setupMockConnection";
 import { setupMockLanguageServer } from "../../helpers/setupMockLanguageServer";
 import { waitUntil } from "../../helpers/waitUntil";
 
 describe("Parser", () => {
   describe("Validation", function () {
-    const workspaceFolder = forceToUnixStyle(path.join(__dirname, "../.."));
+    const workspaceFolder = prependWithSlash(
+      forceToUnixStyle(path.join(__dirname, "../.."))
+    );
 
     const projectUri = forceToUnixStyle(
       path.join(__dirname, "hardhat.config.js")
