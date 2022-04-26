@@ -7,6 +7,8 @@ import { waitUntil } from "../../helpers/waitUntil";
 
 describe("Parser", () => {
   describe("Validation", function () {
+    const workspaceFolder = forceToUnixStyle(path.join(__dirname, "../.."));
+
     const projectUri = forceToUnixStyle(
       path.join(__dirname, "hardhat.config.js")
     );
@@ -35,7 +37,7 @@ describe("Parser", () => {
 
       beforeEach(async () => {
         ({ connection: mockConnection } = await setupMockLanguageServer({
-          projects: [projectUri],
+          projects: { [workspaceFolder]: [projectUri] },
           documents: [{ uri: basicUri, analyze: true }],
           errors: [exampleError],
         }));
@@ -97,7 +99,7 @@ describe("Parser", () => {
 
         beforeEach(async () => {
           ({ connection: mockConnection } = await setupMockLanguageServer({
-            projects: [projectUri],
+            projects: { [workspaceFolder]: [projectUri] },
             documents: [{ uri: basicUri, analyze: true }],
             errors: [mutabliltyRestrictToViewWarning],
           }));
@@ -168,7 +170,7 @@ describe("Parser", () => {
 
           beforeEach(async () => {
             ({ connection: mockConnection } = await setupMockLanguageServer({
-              projects: [projectUri],
+              projects: { [workspaceFolder]: [projectUri] },
               documents: [{ uri: interfacesUri, analyze: true }],
               errors: [markAsAbstractError],
             }));
@@ -239,7 +241,7 @@ describe("Parser", () => {
 
           beforeEach(async () => {
             ({ connection: mockConnection } = await setupMockLanguageServer({
-              projects: [projectUri],
+              projects: { [workspaceFolder]: [projectUri] },
               documents: [{ uri: contractCodeSizeUri, analyze: true }],
               errors: [contractSizeError],
             }));
@@ -337,7 +339,7 @@ describe("Parser", () => {
 
       beforeEach(async () => {
         ({ connection: mockConnection } = await setupMockLanguageServer({
-          projects: [projectUri],
+          projects: { [workspaceFolder]: [projectUri] },
           documents: [{ uri: blockedUri, analyze: true }],
           errors: [
             addOverrideErrorFoo,

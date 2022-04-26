@@ -65,7 +65,7 @@ export async function setupMockLanguageServer({
   documents,
   errors,
 }: {
-  projects?: string[];
+  projects?: { [key: string]: string[] };
   documents: { uri: string; content?: string; analyze: boolean }[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errors: any[];
@@ -76,7 +76,7 @@ export async function setupMockLanguageServer({
   const mockConnection = setupMockConnection();
   const mockCompilerProcessFactory = setupMockCompilerProcessFactory(errors);
   const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever(
-    projects ?? []
+    projects ?? {}
   );
   const mockTelemetry = setupMockTelemetry();
   const mockLogger = setupMockLogger();
