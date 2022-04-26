@@ -32,7 +32,12 @@ export async function indexWorkspaceFolders(
     throw new Error("Unexpect windows style path");
   }
 
-  if (workspaceFolders.length === 0) {
+  const topLevelWorkspaceFolders = resolveTopLevelWorkspaceFolders(
+    indexWorkspaceFoldersContext,
+    workspaceFolders
+  );
+
+  if (topLevelWorkspaceFolders.length === 0) {
     const data: IndexFileData = {
       path: "",
       current: 0,
@@ -52,10 +57,7 @@ export async function indexWorkspaceFolders(
   logger.info("Starting workspace indexing ...");
   logger.info("Scanning workspace for sol files");
 
-  for (const workspaceFolder of resolveTopLevelWorkspaceFolders(
-    indexWorkspaceFoldersContext,
-    workspaceFolders
-  )) {
+  for (const workspaceFolder of topLevelWorkspaceFolders) {
     try {
       await scanForHardhatProjectsAndAppend(
         workspaceFolder,
@@ -122,7 +124,12 @@ async function scanForHardhatProjectsAndAppend(
 }
 
 async function indexWorkspaceFolder(
-  { connection, solFileIndex, logger }: IndexWorkspaceFoldersContext,
+  {
+    connection,
+    solFileIndex,
+    workspaceFolders,
+    logger,
+  }: IndexWorkspaceFoldersContext,
   workspaceFileRetriever: WorkspaceFileRetriever,
   workspaceFolder: WorkspaceFolder,
   projects: SolProjectMap
@@ -204,6 +211,8 @@ async function indexWorkspaceFolder(
       connection.sendNotification("custom/indexing-file", data);
       logger.trace("No files to index", data);
     }
+
+    workspaceFolders.push(workspaceFolder);
   } catch (err) {
     logger.error(err);
   }
