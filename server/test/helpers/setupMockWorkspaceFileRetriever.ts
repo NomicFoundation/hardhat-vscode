@@ -1,17 +1,31 @@
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
+import { decodeUriAndRemoveFilePrefix } from "@utils/index";
 
 export function setupMockWorkspaceFileRetriever(
-  projects: string[] = [],
-  solFiles: string[] = []
+  projects: { [key: string]: string[] } = {},
+  solFiles: { [key: string]: string[] } = {}
 ): WorkspaceFileRetriever {
   return {
-    findFiles: async (_baseUri: string, globPattern: string) => {
+    findFiles: async (
+      baseUri: string,
+      globPattern: string
+    ): Promise<string[]> => {
+      const simplifiedUri = decodeUriAndRemoveFilePrefix(baseUri);
+
       if (globPattern === "**/hardhat.config.{ts,js}") {
-        return projects;
+        if (simplifiedUri in projects) {
+          return projects[simplifiedUri];
+        } else {
+          return [];
+        }
       }
 
       if (globPattern === "**/*.sol") {
-        return solFiles;
+        if (simplifiedUri in solFiles) {
+          return solFiles[simplifiedUri];
+        } else {
+          return [];
+        }
       }
 
       return [];

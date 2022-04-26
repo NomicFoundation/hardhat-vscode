@@ -38,24 +38,15 @@ export async function indexWorkspaceFolders(
   );
 
   if (topLevelWorkspaceFolders.length === 0) {
-    const data: IndexFileData = {
-      path: "",
-      current: 0,
-      total: 0,
-    };
-
-    indexWorkspaceFoldersContext.connection.sendNotification(
-      "custom/indexing-file",
-      data
+    notifyNoOpIndexing(
+      indexWorkspaceFoldersContext,
+      "No further workspace folders to index"
     );
-
-    logger.trace("No workspace folders to index", data);
 
     return;
   }
 
-  logger.info("Starting workspace indexing ...");
-  logger.info("Scanning workspace for sol files");
+  logger.info("Starting indexing ...");
 
   for (const workspaceFolder of topLevelWorkspaceFolders) {
     try {
@@ -65,16 +56,30 @@ export async function indexWorkspaceFolders(
         workspaceFileRetriever,
         logger
       );
-
-      await indexWorkspaceFolder(
-        indexWorkspaceFoldersContext,
-        workspaceFileRetriever,
-        workspaceFolder,
-        indexWorkspaceFoldersContext.projects
-      );
     } catch (err) {
       logger.error(err);
     }
+  }
+
+  const solFiles = await scanForSolFiles(
+    indexWorkspaceFoldersContext,
+    workspaceFileRetriever,
+    topLevelWorkspaceFolders
+  );
+
+  try {
+    await analyzeSolFiles(
+      indexWorkspaceFoldersContext,
+      workspaceFileRetriever,
+      indexWorkspaceFoldersContext.projects,
+      solFiles
+    );
+  } catch (err) {
+    logger.error(err);
+  }
+
+  for (const workspaceFolder of topLevelWorkspaceFolders) {
+    indexWorkspaceFoldersContext.workspaceFolders.push(workspaceFolder);
   }
 
   logger.info("File indexing complete");
@@ -114,27 +119,25 @@ async function scanForHardhatProjectsAndAppend(
   }
 
   if (foundProjects.length === 0) {
-    logger.info(`No hardhat projects found in ${workspaceFolder.name}`);
+    logger.info(`  No hardhat projects found in ${workspaceFolder.name}`);
   } else {
-    logger.info(`Hardhat projects found:`);
+    logger.info(`  Hardhat projects found in ${workspaceFolder.name}:`);
     for (const foundProject of foundProjects) {
-      logger.info(`  ${foundProject.basePath}`);
+      logger.info(`    ${foundProject.basePath}`);
     }
   }
 }
 
-async function indexWorkspaceFolder(
-  {
-    connection,
-    solFileIndex,
-    workspaceFolders,
-    logger,
-  }: IndexWorkspaceFoldersContext,
+async function scanForSolFiles(
+  { logger }: IndexWorkspaceFoldersContext,
   workspaceFileRetriever: WorkspaceFileRetriever,
-  workspaceFolder: WorkspaceFolder,
-  projects: SolProjectMap
-) {
-  try {
+  workspaceFolders: WorkspaceFolder[]
+): Promise<string[]> {
+  logger.info(`Scanning workspace folders for sol files`);
+
+  const batches: string[][] = [];
+
+  for (const workspaceFolder of workspaceFolders) {
     const workspaceFolderPath = decodeUriAndRemoveFilePrefix(
       workspaceFolder.uri
     );
@@ -144,22 +147,33 @@ async function indexWorkspaceFolder(
       "**/*.sol"
     );
 
-    // this.workspaceFileRetriever.findSolFiles(
-    //   BROWNIE_PACKAGE_PATH,
-    //   documentsUri,
-    //   this.logger
-    // );
+    batches.push(documentsUri);
+  }
 
-    logger.info(`Scan complete, ${documentsUri.length} sol files found`);
+  const solFileUris = batches.reduce((acc, batch) => acc.concat(batch), []);
 
+  logger.info(`Scan complete, ${solFileUris.length} sol files found`);
+
+  return solFileUris;
+}
+
+async function analyzeSolFiles(
+  indexWorkspaceFoldersContext: IndexWorkspaceFoldersContext,
+  workspaceFileRetriever: WorkspaceFileRetriever,
+  projects: SolProjectMap,
+  solFileUris: string[]
+) {
+  const { connection, solFileIndex, logger } = indexWorkspaceFoldersContext;
+
+  try {
     // Init all documentAnalyzers
-    for (const documentUri of documentsUri) {
+    for (const solFileUri of solFileUris) {
       try {
-        const docText = await workspaceFileRetriever.readFile(documentUri);
-        const project = findProjectFor({ projects }, documentUri);
+        const docText = await workspaceFileRetriever.readFile(solFileUri);
+        const project = findProjectFor({ projects }, solFileUri);
 
-        solFileIndex[documentUri] = SolFileEntry.createLoadedEntry(
-          documentUri,
+        solFileIndex[solFileUri] = SolFileEntry.createLoadedEntry(
+          solFileUri,
           project,
           docText.toString()
         );
@@ -168,14 +182,14 @@ async function indexWorkspaceFolder(
       }
     }
 
-    logger.info("File indexing starting");
+    logger.info("File analysis starting");
 
-    if (documentsUri.length > 0) {
+    if (solFileUris.length > 0) {
       // We will initialize all DocumentAnalizers first, because when we analyze documents we enter to their imports and
       // if they are not analyzed we analyze them, in order to be able to analyze imports we need to have DocumentAnalizer and
       // therefore we initiate everything first. The isAnalyzed serves to check if the document was analyzed so we don't analyze the document twice.
-      for (let i = 0; i < documentsUri.length; i++) {
-        const documentUri = documentsUri[i];
+      for (let i = 0; i < solFileUris.length; i++) {
+        const documentUri = solFileUris[i];
 
         try {
           const solFileEntry = getDocumentAnalyzer(
@@ -186,12 +200,12 @@ async function indexWorkspaceFolder(
           const data: IndexFileData = {
             path: documentUri,
             current: i + 1,
-            total: documentsUri.length,
+            total: solFileUris.length,
           };
 
           connection.sendNotification("custom/indexing-file", data);
 
-          logger.trace(`Indexing file ${i}/${documentsUri.length}`, data);
+          logger.trace(`Indexing file ${i}/${solFileUris.length}`, data);
 
           if (!solFileEntry.isAnalyzed()) {
             analyzeSolFile(solFileEntry, solFileIndex);
@@ -202,18 +216,27 @@ async function indexWorkspaceFolder(
         }
       }
     } else {
-      const data: IndexFileData = {
-        path: "",
-        current: 0,
-        total: 0,
-      };
-
-      connection.sendNotification("custom/indexing-file", data);
-      logger.trace("No files to index", data);
+      notifyNoOpIndexing(indexWorkspaceFoldersContext, "No files to index");
     }
-
-    workspaceFolders.push(workspaceFolder);
   } catch (err) {
     logger.error(err);
   }
+}
+
+function notifyNoOpIndexing(
+  indexWorkspaceFoldersContext: IndexWorkspaceFoldersContext,
+  logMessage: string
+) {
+  const data: IndexFileData = {
+    path: "",
+    current: 0,
+    total: 0,
+  };
+
+  indexWorkspaceFoldersContext.connection.sendNotification(
+    "custom/indexing-file",
+    data
+  );
+
+  indexWorkspaceFoldersContext.logger.trace(logMessage, data);
 }
