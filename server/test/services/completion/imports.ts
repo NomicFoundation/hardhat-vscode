@@ -13,8 +13,12 @@ import {
 import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
 
 describe("Parser", () => {
+  const workspaceFolder = forceToUnixStyle(
+    path.join(__dirname, "../../../test")
+  );
+
   const projectFile = forceToUnixStyle(
-    path.join(__dirname, "../../../hardhat.config.ts")
+    path.join(__dirname, "../../../test/hardhat.config.ts")
   );
 
   const importsUri = forceToUnixStyle(
@@ -65,18 +69,21 @@ describe("Parser", () => {
           const openzepplinUri = forceToUnixStyle(
             path.join(
               __dirname,
-              "../../../node_modules/@openzeppelin/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.sol"
+              "../../../test/node_modules/@openzeppelin/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.sol"
             )
           );
 
           const ensUri = forceToUnixStyle(
-            path.join(__dirname, "../../../node_modules/@ens/contracts/ENS.sol")
+            path.join(
+              __dirname,
+              "../../../test/node_modules/@ens/contracts/ENS.sol"
+            )
           );
 
           ({
             server: { completion },
           } = await setupMockLanguageServer({
-            projects: [projectFile],
+            projects: { [workspaceFolder]: [projectFile] },
             documents: [
               { uri: importsUri, analyze: true },
               { uri: openzepplinUri, content: "// empty", analyze: true },
@@ -129,7 +136,7 @@ describe("Parser", () => {
             ({
               server: { completion },
             } = await setupMockLanguageServer({
-              projects: [projectFile],
+              projects: { [workspaceFolder]: [projectFile] },
               documents: [{ uri: importsUri, analyze: true }],
               errors: [],
             }));
@@ -592,20 +599,20 @@ describe("Parser", () => {
           const openzepplinUri1 = forceToUnixStyle(
             path.join(
               __dirname,
-              "../../../node_modules/@openzeppelin/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.sol"
+              "../../../test/node_modules/@openzeppelin/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.sol"
             )
           );
           const openzepplinUri2 = forceToUnixStyle(
             path.join(
               __dirname,
-              "../../../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol"
+              "../../../test/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol"
             )
           );
 
           ({
             server: { completion },
           } = await setupMockLanguageServer({
-            projects: [projectFile],
+            projects: { [workspaceFolder]: [projectFile] },
             documents: [
               { uri: importsUri, analyze: true },
               { uri: openzepplinUri1, content: "// empty", analyze: true },

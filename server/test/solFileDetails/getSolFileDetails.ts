@@ -8,6 +8,8 @@ import {
 
 describe("Solidity Language Server", () => {
   describe("get sol file details", () => {
+    const workspaceFolder = forceToUnixStyle(path.join(__dirname, ".."));
+
     const projectUri = forceToUnixStyle(
       path.join(__dirname, "testData", "project", "hardhat.config.ts")
     );
@@ -26,7 +28,7 @@ describe("Solidity Language Server", () => {
       ({
         server: { request },
       } = await setupMockLanguageServer({
-        projects: [projectUri],
+        projects: { [workspaceFolder]: [projectUri] },
         documents: [
           { uri: outwithUri, analyze: true },
           { uri: withinUri, analyze: true },
