@@ -10,7 +10,11 @@ export function setupMockWorkspaceFileRetriever(
       baseUri: string,
       globPattern: string
     ): Promise<string[]> => {
-      const simplifiedUri = decodeUriAndRemoveFilePrefix(baseUri);
+      let simplifiedUri = decodeUriAndRemoveFilePrefix(baseUri);
+
+      if (!simplifiedUri.startsWith("/")) {
+        simplifiedUri = `/${simplifiedUri}`;
+      }
 
       if (globPattern === "**/hardhat.config.{ts,js}") {
         if (simplifiedUri in projects) {

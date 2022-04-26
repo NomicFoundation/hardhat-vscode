@@ -11,10 +11,11 @@ import {
   CompletionItemKind,
 } from "vscode-languageserver/node";
 import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
+import { prependWithSlash } from "../../helpers/prependWithSlash";
 
 describe("Parser", () => {
-  const workspaceFolder = forceToUnixStyle(
-    path.join(__dirname, "../../../test")
+  const workspaceFolder = prependWithSlash(
+    forceToUnixStyle(path.join(__dirname, "../../../test"))
   );
 
   const projectFile = forceToUnixStyle(

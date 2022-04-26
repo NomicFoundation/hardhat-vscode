@@ -1,6 +1,7 @@
 import * as assert from "assert";
 import * as path from "path";
 import { forceToUnixStyle } from "../helpers/forceToUnixStyle";
+import { prependWithSlash } from "../helpers/prependWithSlash";
 import {
   OnRequest,
   setupMockLanguageServer,
@@ -8,7 +9,9 @@ import {
 
 describe("Solidity Language Server", () => {
   describe("get sol file details", () => {
-    const workspaceFolder = forceToUnixStyle(path.join(__dirname, ".."));
+    const workspaceFolder = prependWithSlash(
+      forceToUnixStyle(path.join(__dirname, ".."))
+    );
 
     const projectUri = forceToUnixStyle(
       path.join(__dirname, "testData", "project", "hardhat.config.ts")
