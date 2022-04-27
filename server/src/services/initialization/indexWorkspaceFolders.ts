@@ -46,6 +46,7 @@ export async function indexWorkspaceFolders(
 
   if (topLevelWorkspaceFolders.length === 0) {
     notifyNoOpIndexing(
+      indexJobId,
       indexWorkspaceFoldersContext,
       `[indexing:${indexJobId}] Workspace folders already indexed`
     );
@@ -238,6 +239,7 @@ async function analyzeSolFiles(
           );
 
           const data: IndexFileData = {
+            jobId: indexJobId,
             path: documentUri,
             current: i + 1,
             total: solFileUris.length,
@@ -256,7 +258,11 @@ async function analyzeSolFiles(
         }
       }
     } else {
-      notifyNoOpIndexing(indexWorkspaceFoldersContext, "No files to index");
+      notifyNoOpIndexing(
+        indexJobId,
+        indexWorkspaceFoldersContext,
+        "No files to index"
+      );
     }
   } catch (err) {
     logger.error(err);
@@ -270,10 +276,12 @@ async function analyzeSolFiles(
 }
 
 function notifyNoOpIndexing(
+  indexJobId: number,
   indexWorkspaceFoldersContext: IndexWorkspaceFoldersContext,
   logMessage: string
 ) {
   const data: IndexFileData = {
+    jobId: indexJobId,
     path: "",
     current: 0,
     total: 0,
