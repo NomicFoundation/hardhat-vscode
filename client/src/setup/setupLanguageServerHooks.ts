@@ -7,7 +7,7 @@ import {
 } from "vscode-languageclient/node";
 import { ExtensionState } from "../types";
 import { getUnsavedDocuments } from "../utils/getUnsavedDocuments";
-import { showFileIndexingProgress } from "../popups/showFileIndexingProgress";
+import { setupIndexingHooks } from "../popups/setupIndexingHooks";
 import { onDidChangeActiveTextEditor } from "./onDidChangeActiveTextEditor";
 
 export function setupLanguageServerHooks(extensionState: ExtensionState) {
@@ -86,7 +86,7 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
     });
   });
 
-  showFileIndexingProgress(extensionState, client);
+  setupIndexingHooks(extensionState, client);
 
   const telemetryChangeDisposable = env.onDidChangeTelemetryEnabled(
     (enabled: boolean) => {
