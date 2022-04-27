@@ -1,4 +1,4 @@
-import * as assert from "assert";
+import assert from "assert";
 import setupServer from "../src/server";
 import { setupMockCompilerProcessFactory } from "./helpers/setupMockCompilerProcessFactory";
 import { setupMockConnection } from "./helpers/setupMockConnection";

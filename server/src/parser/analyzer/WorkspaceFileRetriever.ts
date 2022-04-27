@@ -1,7 +1,7 @@
-import * as path from "path";
-import * as fg from "fast-glob";
+import path from "path";
+import fg from "fast-glob";
 import { decodeUriAndRemoveFilePrefix } from "@utils/index";
-import * as fs from "fs";
+import fs from "fs";
 
 export class WorkspaceFileRetriever {
   public async findFiles(
