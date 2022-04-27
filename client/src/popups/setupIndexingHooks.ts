@@ -16,33 +16,25 @@ type IndexFileData = {
   total: number;
 };
 
-export function showFileIndexingProgress(
+export function setupIndexingHooks(
   extensionState: ExtensionState,
   client: LanguageClient
 ): void {
   const em = new events.EventEmitter();
 
   client.onReady().then(() => {
-    client.onNotification("custom/indexing-file", (data: IndexFileData) => {
-      em.emit("indexing-file", data);
-    });
+    const indexDisposable = client.onNotification(
+      "custom/indexing-file",
+      (data: IndexFileData) => {
+        em.emit("indexing-file", data);
+      }
+    );
+
+    extensionState.listenerDisposables.push(indexDisposable);
   });
 
   // Show the language status item
   displayLanguageStatusItem(extensionState, client, em);
-}
-
-/**
- * If the doc is open, trigger a noop change on the server to start validation.
- */
-function triggerValidationForOpenDoc(client: LanguageClient, path: string) {
-  const textDoc = workspace.textDocuments.find((d) => d.uri.path === path);
-
-  if (!textDoc) {
-    return;
-  }
-
-  notifyOfNoopChange(client, textDoc);
 }
 
 async function displayLanguageStatusItem(
@@ -103,6 +95,19 @@ async function displayLanguageStatusItem(
 
   statusItem.busy = false;
   statusItem.dispose();
+}
+
+/**
+ * If the doc is open, trigger a noop change on the server to start validation.
+ */
+function triggerValidationForOpenDoc(client: LanguageClient, path: string) {
+  const textDoc = workspace.textDocuments.find((d) => d.uri.path === path);
+
+  if (!textDoc) {
+    return;
+  }
+
+  notifyOfNoopChange(client, textDoc);
 }
 
 /**
