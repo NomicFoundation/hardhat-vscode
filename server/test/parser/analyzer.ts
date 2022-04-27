@@ -106,6 +106,7 @@ async function runIndexing(
 
   await indexWorkspaceFolders(
     {
+      indexJobCount: 0,
       connection: mockConnection,
       solFileIndex,
       projects: exampleProjects,

@@ -31,6 +31,7 @@ export async function assertCodeAction(
   const exampleWorkspaceFolder = { name: "example", uri: exampleUri };
 
   const serverState = {
+    indexJobCount: 0,
     workspaceFolders: [exampleWorkspaceFolder],
     projects: {},
     connection: mockConnection,

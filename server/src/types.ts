@@ -25,6 +25,7 @@ export type ServerState = {
 
   globalTelemetryEnabled: boolean;
   hardhatTelemetryEnabled: boolean;
+  indexJobCount: number;
 
   compProcessFactory: (
     project: HardhatProject,

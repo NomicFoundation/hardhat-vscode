@@ -143,6 +143,7 @@ describe("Code Actions", () => {
           const mockConnection = setupMockConnection() as any;
 
           const serverState = {
+            indexJobCount: 0,
             workspaceFolders: [{ name: "example", uri: exampleUri }],
             projects: {},
             connection: mockConnection,

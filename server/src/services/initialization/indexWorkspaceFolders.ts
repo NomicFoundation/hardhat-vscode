@@ -14,6 +14,7 @@ import { findProjectFor } from "@utils/findProjectFor";
 import { resolveTopLevelWorkspaceFolders } from "./resolveTopLevelWorkspaceFolders";
 
 export type IndexWorkspaceFoldersContext = {
+  indexJobCount: number;
   connection: Connection;
   solFileIndex: DocumentsAnalyzerMap;
   workspaceFolders: WorkspaceFolder[];
@@ -32,6 +33,12 @@ export async function indexWorkspaceFolders(
     throw new Error("Unexpect windows style path");
   }
 
+  indexWorkspaceFoldersContext.indexJobCount++;
+  const indexJobId = indexWorkspaceFoldersContext.indexJobCount;
+
+  const indexJobStartTime = new Date();
+  logger.info(`[indexing:${indexJobId}] Starting indexing job ...`);
+
   const topLevelWorkspaceFolders = resolveTopLevelWorkspaceFolders(
     indexWorkspaceFoldersContext,
     workspaceFolders
@@ -40,17 +47,21 @@ export async function indexWorkspaceFolders(
   if (topLevelWorkspaceFolders.length === 0) {
     notifyNoOpIndexing(
       indexWorkspaceFoldersContext,
-      "No further workspace folders to index"
+      `[indexing:${indexJobId}] Workspace folders already indexed`
     );
 
     return;
   }
 
-  logger.info("Starting indexing ...");
+  logger.info(`[indexing:${indexJobId}] Workspace folders`);
+  for (const workspaceFolder of topLevelWorkspaceFolders) {
+    logger.info(`[indexing:${indexJobId}]   ${workspaceFolder.name}`);
+  }
 
   for (const workspaceFolder of topLevelWorkspaceFolders) {
     try {
       await scanForHardhatProjectsAndAppend(
+        indexJobId,
         workspaceFolder,
         indexWorkspaceFoldersContext.projects,
         workspaceFileRetriever,
@@ -62,6 +73,7 @@ export async function indexWorkspaceFolders(
   }
 
   const solFiles = await scanForSolFiles(
+    indexJobId,
     indexWorkspaceFoldersContext,
     workspaceFileRetriever,
     topLevelWorkspaceFolders
@@ -69,6 +81,7 @@ export async function indexWorkspaceFolders(
 
   try {
     await analyzeSolFiles(
+      indexJobId,
       indexWorkspaceFoldersContext,
       workspaceFileRetriever,
       indexWorkspaceFoldersContext.projects,
@@ -81,15 +94,25 @@ export async function indexWorkspaceFolders(
   for (const workspaceFolder of topLevelWorkspaceFolders) {
     indexWorkspaceFoldersContext.workspaceFolders.push(workspaceFolder);
   }
+
+  logger.info(
+    `[indexing:${indexJobId}] Indexing complete (${
+      (new Date().getTime() - indexJobStartTime.getTime()) / 1000
+    }s)`
+  );
 }
 
 async function scanForHardhatProjectsAndAppend(
+  indexJobId: number,
   workspaceFolder: WorkspaceFolder,
   projects: SolProjectMap,
   workspaceFileRetriever: WorkspaceFileRetriever,
   logger: Logger
 ): Promise<void> {
-  logger.info(`Scanning ${workspaceFolder.name} for hardhat projects`);
+  const scanningStartTime = new Date();
+  logger.info(
+    `[indexing:${indexJobId}] Scanning ${workspaceFolder.name} for hardhat projects`
+  );
 
   const uri = decodeUriAndRemoveFilePrefix(workspaceFolder.uri);
 
@@ -117,21 +140,32 @@ async function scanForHardhatProjectsAndAppend(
   }
 
   if (foundProjects.length === 0) {
-    logger.info(`  No hardhat projects found in ${workspaceFolder.name}`);
+    logger.info(
+      `[indexing:${indexJobId}]   No hardhat projects found in ${workspaceFolder.name}`
+    );
   } else {
-    logger.info(`  Hardhat projects found in ${workspaceFolder.name}:`);
+    logger.info(
+      `[indexing:${indexJobId}]   Hardhat projects found in ${
+        workspaceFolder.name
+      } (${(new Date().getTime() - scanningStartTime.getTime()) / 1000}s):`
+    );
+
     for (const foundProject of foundProjects) {
-      logger.info(`    ${foundProject.basePath}`);
+      logger.info(`[indexing:${indexJobId}]     ${foundProject.basePath}`);
     }
   }
 }
 
 async function scanForSolFiles(
+  indexJobId: number,
   { logger }: IndexWorkspaceFoldersContext,
   workspaceFileRetriever: WorkspaceFileRetriever,
   workspaceFolders: WorkspaceFolder[]
 ): Promise<string[]> {
-  logger.info(`Scanning workspace folders for sol files`);
+  const solFileScanStart = new Date();
+  logger.info(
+    `[indexing:${indexJobId}] Scanning workspace folders for sol files`
+  );
 
   const batches: string[][] = [];
 
@@ -150,21 +184,29 @@ async function scanForSolFiles(
 
   const solFileUris = batches.reduce((acc, batch) => acc.concat(batch), []);
 
-  logger.info(`Scan complete, ${solFileUris.length} sol files found`);
+  logger.info(
+    `[indexing:${indexJobId}]   Scan complete, ${
+      solFileUris.length
+    } sol files found (${
+      (new Date().getTime() - solFileScanStart.getTime()) / 1000
+    }s)`
+  );
 
   return solFileUris;
 }
 
 async function analyzeSolFiles(
+  indexJobId: number,
   indexWorkspaceFoldersContext: IndexWorkspaceFoldersContext,
   workspaceFileRetriever: WorkspaceFileRetriever,
   projects: SolProjectMap,
   solFileUris: string[]
 ) {
   const { connection, solFileIndex, logger } = indexWorkspaceFoldersContext;
+  const analysisStart = new Date();
 
   try {
-    logger.info("File analysis starting");
+    logger.info(`[indexing:${indexJobId}] Analysing Sol files`);
 
     // Init all documentAnalyzers
     for (const solFileUri of solFileUris) {
@@ -219,7 +261,11 @@ async function analyzeSolFiles(
   } catch (err) {
     logger.error(err);
   } finally {
-    logger.info("File analysis complete");
+    logger.info(
+      `[indexing:${indexJobId}]   Analysis complete (${
+        (new Date().getTime() - analysisStart.getTime()) / 1000
+      }s)`
+    );
   }
 }
 
