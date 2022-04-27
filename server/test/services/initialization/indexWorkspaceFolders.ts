@@ -68,7 +68,12 @@ describe("initialization", () => {
         sinon.assert.calledOnceWithExactly(
           serverState.connection.sendNotification as any,
           "custom/indexing-file",
-          { path: "/data/example/contracts/one.sol", current: 1, total: 1 }
+          {
+            jobId: 1,
+            path: "/data/example/contracts/one.sol",
+            current: 1,
+            total: 1,
+          }
         );
       });
     });
@@ -162,6 +167,7 @@ describe("initialization", () => {
           serverState.connection.sendNotification as any,
           "custom/indexing-file",
           {
+            jobId: 1,
             path: "/data/example/packages/second/contracts/D.sol",
             current: 4,
             total: 4,
@@ -295,6 +301,7 @@ describe("initialization", () => {
           serverState.connection.sendNotification as any,
           "custom/indexing-file",
           {
+            jobId: 1,
             path: "/data/example/packages/third/contracts/F.sol",
             current: 6,
             total: 6,
@@ -342,7 +349,7 @@ describe("initialization", () => {
         sinon.assert.calledOnceWithExactly(
           serverState.connection.sendNotification as any,
           "custom/indexing-file",
-          { path: "", current: 0, total: 0 }
+          { jobId: 1, path: "", current: 0, total: 0 }
         );
       });
     });
@@ -386,7 +393,7 @@ describe("initialization", () => {
         sinon.assert.calledOnceWithExactly(
           serverState.connection.sendNotification as any,
           "custom/indexing-file",
-          { path: "", current: 0, total: 0 }
+          { jobId: 1, path: "", current: 0, total: 0 }
         );
       });
     });
@@ -455,7 +462,12 @@ describe("initialization", () => {
         sinon.assert.calledWith(
           serverState.connection.sendNotification as any,
           "custom/indexing-file",
-          { path: "/data/example/contracts/one.sol", current: 1, total: 1 }
+          {
+            jobId: 1,
+            path: "/data/example/contracts/one.sol",
+            current: 1,
+            total: 1,
+          }
         );
       });
     });
@@ -514,7 +526,7 @@ describe("initialization", () => {
         sinon.assert.calledWith(
           serverState.connection.sendNotification as any,
           "custom/indexing-file",
-          { path: "", current: 0, total: 0 }
+          { jobId: 1, path: "", current: 0, total: 0 }
         );
       });
     });
