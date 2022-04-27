@@ -1,4 +1,5 @@
 import * as path from "path";
+import * as fs from "fs";
 
 import { resolveDependency } from "@analyzer/resolver";
 import {
@@ -32,12 +33,11 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
       documentsAnalyzer,
       importDirective.path
     );
-    this.realUri = toUnixStyle(uri);
+    this.realUri = toUnixStyle(fs.realpathSync(uri));
 
     try {
       this.uri = resolveDependency(
         path.resolve(this.realUri, ".."),
-        this.rootPath,
         importDirective
       );
     } catch (err) {
