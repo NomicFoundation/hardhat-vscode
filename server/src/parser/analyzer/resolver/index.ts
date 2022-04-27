@@ -1,21 +1,14 @@
-import * as path from "path";
-import * as os from "os";
-
+import * as fs from "fs";
 import { ImportDirective } from "@common/types";
 import { toUnixStyle } from "../../../utils";
 
-export const BROWNIE_PACKAGE_PATH = path.resolve(
-  os.homedir(),
-  ".brownie",
-  "packages"
-);
-
 export function resolveDependency(
   cwd: string,
-  stopAt: string,
   importDirective: ImportDirective
 ): string {
-  const paths = [cwd];
+  const resolvedPath = require.resolve(importDirective.path, {
+    paths: [fs.realpathSync(cwd)],
+  });
 
-  return toUnixStyle(require.resolve(importDirective.path, { paths }));
+  return toUnixStyle(fs.realpathSync(resolvedPath));
 }
