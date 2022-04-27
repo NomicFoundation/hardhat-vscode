@@ -74,6 +74,7 @@ function setupUninitializedServerState(
     hasWorkspaceFolderCapability: false,
     globalTelemetryEnabled: false,
     hardhatTelemetryEnabled: false,
+    indexJobCount: 0,
     compProcessFactory,
     connection,
     workspaceFolders: [],

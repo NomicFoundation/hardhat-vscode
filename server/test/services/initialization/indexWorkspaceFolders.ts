@@ -530,6 +530,7 @@ function buildServerState({
   const mockLogger = setupMockLogger();
 
   return {
+    indexJobCount: 0,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     connection: mockConnection as any,
     solFileIndex: {},
