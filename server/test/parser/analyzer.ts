@@ -25,16 +25,19 @@ describe("Analyzer", () => {
         assert.equal(collectedData.length, foundSolFiles.length);
         assert.deepEqual(collectedData, [
           {
+            jobId: 1,
             path: path.join(__dirname, "example1.sol"),
             current: 1,
             total: 3,
           },
           {
+            jobId: 1,
             path: path.join(__dirname, "example2.sol"),
             current: 2,
             total: 3,
           },
           {
+            jobId: 1,
             path: path.join(__dirname, "example3.sol"),
             current: 3,
             total: 3,
@@ -55,6 +58,7 @@ describe("Analyzer", () => {
         assert.equal(collectedData.length, 1);
         assert.deepEqual(collectedData, [
           {
+            jobId: 1,
             path: "",
             current: 0,
             total: 0,
