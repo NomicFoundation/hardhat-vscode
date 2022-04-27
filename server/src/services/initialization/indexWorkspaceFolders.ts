@@ -45,14 +45,11 @@ export async function indexWorkspaceFolders(
   );
 
   if (topLevelWorkspaceFolders.length === 0) {
-    notifyNoOpIndexing(
-      indexJobId,
-      indexWorkspaceFoldersContext,
-      `[indexing:${indexJobId}] Workspace folders already indexed`
-    );
-
+    logger.info(`[indexing:${indexJobId}] Workspace folders already indexed`);
     return;
   }
+
+  notifyStartIndexing(indexJobId, indexWorkspaceFoldersContext);
 
   logger.info(`[indexing:${indexJobId}] Workspace folders`);
   for (const workspaceFolder of topLevelWorkspaceFolders) {
@@ -293,4 +290,21 @@ function notifyNoOpIndexing(
   );
 
   indexWorkspaceFoldersContext.logger.trace(logMessage, data);
+}
+
+function notifyStartIndexing(
+  indexJobId: number,
+  indexWorkspaceFoldersContext: IndexWorkspaceFoldersContext
+) {
+  const data: IndexFileData = {
+    jobId: indexJobId,
+    path: "",
+    current: 0,
+    total: 0,
+  };
+
+  indexWorkspaceFoldersContext.connection.sendNotification(
+    "custom/indexing-start",
+    data
+  );
 }

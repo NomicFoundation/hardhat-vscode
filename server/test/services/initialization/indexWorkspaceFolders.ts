@@ -64,8 +64,21 @@ describe("initialization", () => {
         assert("/data/example/contracts/one.sol" in serverState.solFileIndex);
       });
 
-      it("should notify the client of indexing of sol files", () => {
-        sinon.assert.calledOnceWithExactly(
+      it("should notify the client of indexing starting", () => {
+        sinon.assert.calledWithExactly(
+          serverState.connection.sendNotification as any,
+          "custom/indexing-start",
+          {
+            jobId: 1,
+            path: "",
+            current: 0,
+            total: 0,
+          }
+        );
+      });
+
+      it("should notify the client of indexing finishing", () => {
+        sinon.assert.calledWithExactly(
           serverState.connection.sendNotification as any,
           "custom/indexing-file",
           {
@@ -162,7 +175,20 @@ describe("initialization", () => {
         );
       });
 
-      it("should notify the client of indexing of sol files", () => {
+      it("should notify the client of indexing starting", () => {
+        sinon.assert.calledWithExactly(
+          serverState.connection.sendNotification as any,
+          "custom/indexing-start",
+          {
+            jobId: 1,
+            path: "",
+            current: 0,
+            total: 0,
+          }
+        );
+      });
+
+      it("should notify the client of indexing finishing", () => {
         sinon.assert.calledWith(
           serverState.connection.sendNotification as any,
           "custom/indexing-file",
@@ -296,7 +322,20 @@ describe("initialization", () => {
         );
       });
 
-      it("should notify the client of indexing of sol files", () => {
+      it("should notify the client of indexing starting", () => {
+        sinon.assert.calledWithExactly(
+          serverState.connection.sendNotification as any,
+          "custom/indexing-start",
+          {
+            jobId: 1,
+            path: "",
+            current: 0,
+            total: 0,
+          }
+        );
+      });
+
+      it("should notify the client of indexing finishing", () => {
         sinon.assert.calledWith(
           serverState.connection.sendNotification as any,
           "custom/indexing-file",
@@ -345,8 +384,21 @@ describe("initialization", () => {
         assert.deepStrictEqual(serverState.solFileIndex, {});
       });
 
-      it("should notify the client of indexing", () => {
-        sinon.assert.calledOnceWithExactly(
+      it("should notify the client of indexing starting", () => {
+        sinon.assert.calledWithExactly(
+          serverState.connection.sendNotification as any,
+          "custom/indexing-start",
+          {
+            jobId: 1,
+            path: "",
+            current: 0,
+            total: 0,
+          }
+        );
+      });
+
+      it("should notify the client of indexing finishing", () => {
+        sinon.assert.calledWithExactly(
           serverState.connection.sendNotification as any,
           "custom/indexing-file",
           { jobId: 1, path: "", current: 0, total: 0 }
@@ -389,12 +441,8 @@ describe("initialization", () => {
         assert.deepStrictEqual(serverState.workspaceFolders, existingFolders);
       });
 
-      it("should notify the client of indexing but with 0 files", () => {
-        sinon.assert.calledOnceWithExactly(
-          serverState.connection.sendNotification as any,
-          "custom/indexing-file",
-          { jobId: 1, path: "", current: 0, total: 0 }
-        );
+      it("should not notify the client of indexing", () => {
+        sinon.assert.notCalled(serverState.connection.sendNotification as any);
       });
     });
 
@@ -458,7 +506,20 @@ describe("initialization", () => {
         });
       });
 
-      it("should notify the client of indexing of the sol files", () => {
+      it("should notify the client of indexing starting", () => {
+        sinon.assert.calledWithExactly(
+          serverState.connection.sendNotification as any,
+          "custom/indexing-start",
+          {
+            jobId: 1,
+            path: "",
+            current: 0,
+            total: 0,
+          }
+        );
+      });
+
+      it("should notify the client of indexing finishing", () => {
         sinon.assert.calledWith(
           serverState.connection.sendNotification as any,
           "custom/indexing-file",
@@ -522,12 +583,8 @@ describe("initialization", () => {
         assert.deepStrictEqual(serverState.solFileIndex, {});
       });
 
-      it("should notify the client of indexing of the sol files", () => {
-        sinon.assert.calledWith(
-          serverState.connection.sendNotification as any,
-          "custom/indexing-file",
-          { jobId: 1, path: "", current: 0, total: 0 }
-        );
+      it("should not notify the client of indexing", () => {
+        sinon.assert.notCalled(serverState.connection.sendNotification as any);
       });
     });
   });
