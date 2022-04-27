@@ -15,6 +15,7 @@ export type ExtensionState = {
   serverModulePath: string;
 
   client: LanguageClient | null;
+  currentIndexingJobs: LanguageStatusItem[];
   listenerDisposables: Disposable[];
 
   globalTelemetryEnabled: boolean;

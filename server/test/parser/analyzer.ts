@@ -10,7 +10,7 @@ import { HardhatProject } from "@analyzer/HardhatProject";
 describe("Analyzer", () => {
   describe("indexing", () => {
     const exampleRootPath = forceToUnixStyle(__dirname);
-    let collectedData: IndexFileData[];
+    let collectedData: [string, IndexFileData][];
     let foundSolFiles: string[];
 
     describe("with multiple files", () => {
@@ -22,26 +22,44 @@ describe("Analyzer", () => {
       });
 
       it("should emit an indexing event for each", () => {
-        assert.equal(collectedData.length, foundSolFiles.length);
+        assert.equal(collectedData.length, 4);
         assert.deepEqual(collectedData, [
-          {
-            jobId: 1,
-            path: path.join(__dirname, "example1.sol"),
-            current: 1,
-            total: 3,
-          },
-          {
-            jobId: 1,
-            path: path.join(__dirname, "example2.sol"),
-            current: 2,
-            total: 3,
-          },
-          {
-            jobId: 1,
-            path: path.join(__dirname, "example3.sol"),
-            current: 3,
-            total: 3,
-          },
+          [
+            "custom/indexing-start",
+            {
+              jobId: 1,
+              path: "",
+              current: 0,
+              total: 0,
+            },
+          ],
+          [
+            "custom/indexing-file",
+            {
+              jobId: 1,
+              path: path.join(__dirname, "example1.sol"),
+              current: 1,
+              total: 3,
+            },
+          ],
+          [
+            "custom/indexing-file",
+            {
+              jobId: 1,
+              path: path.join(__dirname, "example2.sol"),
+              current: 2,
+              total: 3,
+            },
+          ],
+          [
+            "custom/indexing-file",
+            {
+              jobId: 1,
+              path: path.join(__dirname, "example3.sol"),
+              current: 3,
+              total: 3,
+            },
+          ],
         ]);
       });
     });
@@ -55,14 +73,26 @@ describe("Analyzer", () => {
       });
 
       it("should emit an indexing event for each", () => {
-        assert.equal(collectedData.length, 1);
+        assert.equal(collectedData.length, 2);
         assert.deepEqual(collectedData, [
-          {
-            jobId: 1,
-            path: "",
-            current: 0,
-            total: 0,
-          },
+          [
+            "custom/indexing-start",
+            {
+              jobId: 1,
+              path: "",
+              current: 0,
+              total: 0,
+            },
+          ],
+          [
+            "custom/indexing-file",
+            {
+              jobId: 1,
+              path: "",
+              current: 0,
+              total: 0,
+            },
+          ],
         ]);
       });
     });
@@ -72,7 +102,7 @@ describe("Analyzer", () => {
 async function runIndexing(
   rootPath: string,
   foundSolFiles: string[],
-  collectedData: IndexFileData[]
+  collectedData: [string, IndexFileData][]
 ) {
   const exampleWorkspaceFolder = { name: "example", uri: rootPath };
 
@@ -90,7 +120,7 @@ async function runIndexing(
   const mockConnection = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     sendNotification: (eventName: string, data: any) => {
-      collectedData.push(data);
+      collectedData.push([eventName, data]);
     },
   } as Connection;
 
