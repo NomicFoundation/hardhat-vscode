@@ -81,8 +81,6 @@ export async function indexWorkspaceFolders(
   for (const workspaceFolder of topLevelWorkspaceFolders) {
     indexWorkspaceFoldersContext.workspaceFolders.push(workspaceFolder);
   }
-
-  logger.info("File indexing complete");
 }
 
 async function scanForHardhatProjectsAndAppend(
@@ -166,6 +164,8 @@ async function analyzeSolFiles(
   const { connection, solFileIndex, logger } = indexWorkspaceFoldersContext;
 
   try {
+    logger.info("File analysis starting");
+
     // Init all documentAnalyzers
     for (const solFileUri of solFileUris) {
       try {
@@ -181,8 +181,6 @@ async function analyzeSolFiles(
         logger.error(err);
       }
     }
-
-    logger.info("File analysis starting");
 
     if (solFileUris.length > 0) {
       // We will initialize all DocumentAnalizers first, because when we analyze documents we enter to their imports and
@@ -220,6 +218,8 @@ async function analyzeSolFiles(
     }
   } catch (err) {
     logger.error(err);
+  } finally {
+    logger.info("File analysis complete");
   }
 }
 
