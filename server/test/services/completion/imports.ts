@@ -75,10 +75,7 @@ describe("Parser", () => {
           );
 
           const ensUri = forceToUnixStyle(
-            path.join(
-              __dirname,
-              "../../../test/node_modules/@ens/contracts/ENS.sol"
-            )
+            path.join(__dirname, "../../../node_modules/@ens/contracts/ENS.sol")
           );
 
           ({
