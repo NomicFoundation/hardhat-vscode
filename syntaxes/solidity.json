@@ -968,6 +968,9 @@
             },
             {
               "include": "#modifier-call"
+            },
+            {
+              "include": "#comment"
             }
           ]
         },
