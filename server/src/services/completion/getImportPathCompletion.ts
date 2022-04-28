@@ -297,9 +297,16 @@ function resolvePotentialNodeModulesPathsFor(project: ISolProject): string[] {
   const nodeModulesPaths = [];
 
   while (current !== "/") {
+    const previous = current;
+
     const potentialPath = toUnixStyle(path.join(current, "node_modules"));
     nodeModulesPaths.push(potentialPath);
+
     current = path.resolve(current, "..");
+
+    if (previous === current) {
+      break;
+    }
   }
 
   return nodeModulesPaths;
