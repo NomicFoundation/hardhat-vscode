@@ -20,3 +20,6 @@
 
 client/package.json
 server/package.json
+
+**/docs
+!**/docs/images/hardhat-vscode-logo.png
