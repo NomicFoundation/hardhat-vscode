@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import {
   indexWorkspaceFolders,
   IndexWorkspaceFoldersContext,
@@ -410,6 +411,7 @@ describe("initialization", () => {
       let serverState: IndexWorkspaceFoldersContext;
       let existingFolders: WorkspaceFolder[];
       let addedFolders: WorkspaceFolder[];
+      let mockWorkspaceFileRetriever: WorkspaceFileRetriever;
 
       before(async () => {
         existingFolders = [
@@ -426,7 +428,7 @@ describe("initialization", () => {
           },
         ];
 
-        const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
+        mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
 
         serverState = buildServerState({ existingFolders });
 
@@ -439,6 +441,10 @@ describe("initialization", () => {
 
       it("should not change the existing folders", () => {
         assert.deepStrictEqual(serverState.workspaceFolders, existingFolders);
+      });
+
+      it("should not scan for projects or sol files", () => {
+        sinon.assert.notCalled(mockWorkspaceFileRetriever.findFiles as any);
       });
 
       it("should not notify the client of indexing", () => {
