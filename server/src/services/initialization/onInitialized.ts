@@ -1,6 +1,7 @@
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { ServerState } from "../../types";
 import { indexWorkspaceFolders } from "./indexWorkspaceFolders";
+import { removeWorkspaceFolders } from "./removeWorkspaceFolders";
 
 export const onInitialized = (
   serverState: ServerState,
@@ -17,11 +18,17 @@ export const onInitialized = (
           `Workspace folder change event received. ${e.added} ${e.removed}`
         );
 
-        return indexWorkspaceFolders(
-          serverState,
-          workspaceFileRetriever,
-          e.added
-        );
+        if (e.added.length > 0) {
+          return indexWorkspaceFolders(
+            serverState,
+            workspaceFileRetriever,
+            e.added
+          );
+        }
+
+        if (e.removed.length > 0) {
+          return removeWorkspaceFolders(serverState, e.removed);
+        }
       });
     }
 
