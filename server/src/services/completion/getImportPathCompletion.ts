@@ -6,6 +6,7 @@ import {
   CompletionItem,
   CompletionItemKind,
   ImportDirectiveNode,
+  ISolProject,
   VSCodePosition,
 } from "@common/types";
 import { Logger } from "@utils/Logger";
@@ -273,35 +274,59 @@ function findNodeModulePackagesInIndex({
   project,
   solFileIndex,
 }: ProjectContext): string[] {
-  const basePath = toUnixStyle(path.join(project.basePath, "node_modules"));
+  const nodeModulePaths = resolvePotentialNodeModulesPathsFor(project);
 
-  const allNodeModulePaths = Object.keys(solFileIndex)
-    .filter((p) => p.startsWith(basePath))
-    .map((p) => p.replace(basePath, ""));
+  let modulePackages: string[] = [];
+  for (const nodeModulesPath of nodeModulePaths) {
+    const allNodeModulePaths = Object.keys(solFileIndex)
+      .filter((p) => p.startsWith(nodeModulesPath))
+      .map((p) => p.replace(nodeModulesPath, ""));
 
-  const uniqueFolders = Array.from(
-    new Set(allNodeModulePaths.map((p) => p.split("/")[1]))
-  );
+    const uniqueFolders = Array.from(
+      new Set(allNodeModulePaths.map((p) => p.split("/")[1]))
+    );
 
-  return uniqueFolders;
+    modulePackages = modulePackages.concat(uniqueFolders);
+  }
+
+  return Array.from(new Set(modulePackages));
+}
+
+function resolvePotentialNodeModulesPathsFor(project: ISolProject): string[] {
+  let current = project.basePath;
+  const nodeModulesPaths = [];
+
+  while (current !== "/") {
+    const potentialPath = toUnixStyle(path.join(current, "node_modules"));
+    nodeModulesPaths.push(potentialPath);
+    current = path.resolve(current, "..");
+  }
+
+  return nodeModulesPaths;
 }
 
 function findNodeModulesContractFilesInIndex(
   { project, solFileIndex }: ProjectContext,
   currentImport: string
 ): string[] {
-  const basePath = toUnixStyle(
-    path.join(project.basePath, "node_modules", path.sep)
-  );
-  const basePathWithCurrentImport = toUnixStyle(
-    path.join(basePath, currentImport)
-  );
+  const nodeModulesPaths = resolvePotentialNodeModulesPathsFor(project);
 
-  const contractFilePaths = Object.keys(solFileIndex)
-    .filter((fullPath) => fullPath.startsWith(basePathWithCurrentImport))
-    .map((fullPath) => fullPath.replace(basePath, ""));
+  let allContractFilePaths: string[] = [];
+  for (const nodeModulesPath of nodeModulesPaths) {
+    const basePath = toUnixStyle(path.join(nodeModulesPath, path.sep));
 
-  return contractFilePaths;
+    const basePathWithCurrentImport = toUnixStyle(
+      path.join(basePath, currentImport)
+    );
+
+    const contractFilePaths = Object.keys(solFileIndex)
+      .filter((fullPath) => fullPath.startsWith(basePathWithCurrentImport))
+      .map((fullPath) => fullPath.replace(basePath, ""));
+
+    allContractFilePaths = allContractFilePaths.concat(contractFilePaths);
+  }
+
+  return allContractFilePaths;
 }
 
 function normalizeSlashes(p: string) {
