@@ -12,7 +12,7 @@ import { setupMockLogger } from "../../helpers/setupMockLogger";
 import { setupMockWorkspaceFileRetriever } from "../../helpers/setupMockWorkspaceFileRetriever";
 
 describe("initialization", () => {
-  describe.only("indexing workspace folders", () => {
+  describe("indexing workspace folders", () => {
     describe("adding single workspace with projects and sol files", () => {
       let serverState: IndexWorkspaceFoldersContext;
       let addedFolders: WorkspaceFolder[];
