@@ -39,17 +39,22 @@ export async function indexWorkspaceFolders(
   const indexJobStartTime = new Date();
   logger.info(`[indexing:${indexJobId}] Starting indexing job ...`);
 
+  notifyStartIndexing(indexJobId, indexWorkspaceFoldersContext);
+
   const topLevelWorkspaceFolders = resolveTopLevelWorkspaceFolders(
     indexWorkspaceFoldersContext,
     workspaceFolders
   );
 
   if (topLevelWorkspaceFolders.length === 0) {
-    logger.info(`[indexing:${indexJobId}] Workspace folders already indexed`);
+    notifyNoOpIndexing(
+      indexJobId,
+      indexWorkspaceFoldersContext,
+      `[indexing:${indexJobId}] Workspace folders already indexed`
+    );
+
     return;
   }
-
-  notifyStartIndexing(indexJobId, indexWorkspaceFoldersContext);
 
   logger.info(`[indexing:${indexJobId}] Workspace folders`);
   for (const workspaceFolder of topLevelWorkspaceFolders) {
