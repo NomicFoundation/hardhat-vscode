@@ -43,7 +43,7 @@ export async function updateHardhatProjectLanguageItem(
     extensionState.hardhatConfigStatusItem.severity =
       LanguageStatusSeverity.Warning;
     extensionState.hardhatConfigStatusItem.text =
-      "Not part of a Hardhat project";
+      "No related Hardhat config file found";
 
     extensionState.hardhatConfigStatusItem.command = null;
 
