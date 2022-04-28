@@ -707,6 +707,9 @@
             {
               "match": "\\b(\\w+)\\b",
               "name": "entity.name.type.interface.extend"
+            },
+            {
+              "include": "#comment"
             }
           ]
         }
@@ -874,6 +877,9 @@
             },
             {
               "include": "#punctuation"
+            },
+            {
+              "include": "#comment"
             }
           ]
         },
@@ -962,6 +968,9 @@
             },
             {
               "include": "#modifier-call"
+            },
+            {
+              "include": "#comment"
             }
           ]
         },
