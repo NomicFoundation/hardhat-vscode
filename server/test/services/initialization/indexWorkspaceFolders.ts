@@ -12,7 +12,7 @@ import { setupMockLogger } from "../../helpers/setupMockLogger";
 import { setupMockWorkspaceFileRetriever } from "../../helpers/setupMockWorkspaceFileRetriever";
 
 describe("initialization", () => {
-  describe("indexing workspace folders", () => {
+  describe.only("indexing workspace folders", () => {
     describe("adding single workspace with projects and sol files", () => {
       let serverState: IndexWorkspaceFoldersContext;
       let addedFolders: WorkspaceFolder[];
@@ -447,8 +447,25 @@ describe("initialization", () => {
         sinon.assert.notCalled(mockWorkspaceFileRetriever.findFiles as any);
       });
 
-      it("should not notify the client of indexing", () => {
-        sinon.assert.notCalled(serverState.connection.sendNotification as any);
+      it("should notify the client of indexing starting", () => {
+        sinon.assert.calledWithExactly(
+          serverState.connection.sendNotification as any,
+          "custom/indexing-start",
+          {
+            jobId: 1,
+            path: "",
+            current: 0,
+            total: 0,
+          }
+        );
+      });
+
+      it("should notify the client of indexing finishing", () => {
+        sinon.assert.calledWithExactly(
+          serverState.connection.sendNotification as any,
+          "custom/indexing-file",
+          { jobId: 1, path: "", current: 0, total: 0 }
+        );
       });
     });
 
@@ -589,8 +606,30 @@ describe("initialization", () => {
         assert.deepStrictEqual(serverState.solFileIndex, {});
       });
 
-      it("should not notify the client of indexing", () => {
-        sinon.assert.notCalled(serverState.connection.sendNotification as any);
+      it("should notify the client of indexing starting", () => {
+        sinon.assert.calledWithExactly(
+          serverState.connection.sendNotification as any,
+          "custom/indexing-start",
+          {
+            jobId: 1,
+            path: "",
+            current: 0,
+            total: 0,
+          }
+        );
+      });
+
+      it("should notify the client of indexing finishing", () => {
+        sinon.assert.calledWith(
+          serverState.connection.sendNotification as any,
+          "custom/indexing-file",
+          {
+            jobId: 1,
+            path: "",
+            current: 0,
+            total: 0,
+          }
+        );
       });
     });
   });
