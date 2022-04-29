@@ -2,7 +2,7 @@ import * as path from "path";
 import { IndexFileData } from "@common/event";
 import { Logger } from "@utils/Logger";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
-import { decodeUriAndRemoveFilePrefix } from "../../utils/index";
+import { decodeUriAndRemoveFilePrefix, toUnixStyle } from "../../utils/index";
 import { Connection } from "vscode-languageserver";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { SolFileEntry } from "@analyzer/SolFileEntry";
@@ -182,7 +182,7 @@ async function scanForSolFiles(
       "**/*.sol"
     );
 
-    batches.push(documentsUri);
+    batches.push(documentsUri.map(toUnixStyle));
   }
 
   const solFileUris = batches.reduce((acc, batch) => acc.concat(batch), []);

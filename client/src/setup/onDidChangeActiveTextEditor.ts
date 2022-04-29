@@ -12,7 +12,7 @@ export function onDidChangeActiveTextEditor(extensionState: ExtensionState) {
     }
 
     return updateHardhatProjectLanguageItem(extensionState, {
-      uri: e.document.uri,
+      uri: e.document.uri.path,
     });
   };
 }

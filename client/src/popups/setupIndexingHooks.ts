@@ -57,12 +57,11 @@ export function setupIndexingHooks(
         // check to display language status item
         if (
           window.activeTextEditor &&
-          window.activeTextEditor.document.uri.path === data.path
+          window.activeTextEditor.document.uri.path.endsWith(data.path)
         ) {
-          updateHardhatProjectLanguageItem(
-            extensionState,
-            window.activeTextEditor.document
-          );
+          updateHardhatProjectLanguageItem(extensionState, {
+            uri: window.activeTextEditor.document.uri.path,
+          });
         }
 
         if (data.total !== data.current) {
@@ -70,10 +69,9 @@ export function setupIndexingHooks(
         }
 
         if (data.total === 0) {
-          updateHardhatProjectLanguageItem(
-            extensionState,
-            window.activeTextEditor.document
-          );
+          updateHardhatProjectLanguageItem(extensionState, {
+            uri: window.activeTextEditor.document.uri.path,
+          });
         }
 
         indexingStatusItem.busy = false;
