@@ -37,7 +37,7 @@ describe("Analyzer", () => {
             "custom/indexing-file",
             {
               jobId: 1,
-              path: path.join(__dirname, "example1.sol"),
+              path: forceToUnixStyle(path.join(__dirname, "example1.sol")),
               current: 1,
               total: 3,
             },
@@ -46,7 +46,7 @@ describe("Analyzer", () => {
             "custom/indexing-file",
             {
               jobId: 1,
-              path: path.join(__dirname, "example2.sol"),
+              path: forceToUnixStyle(path.join(__dirname, "example2.sol")),
               current: 2,
               total: 3,
             },
@@ -55,7 +55,7 @@ describe("Analyzer", () => {
             "custom/indexing-file",
             {
               jobId: 1,
-              path: path.join(__dirname, "example3.sol"),
+              path: forceToUnixStyle(path.join(__dirname, "example3.sol")),
               current: 3,
               total: 3,
             },

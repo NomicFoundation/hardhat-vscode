@@ -1,5 +1,7 @@
+import { lowercaseDriveLetter, toUnixStyle } from "@utils/index";
 import * as assert from "assert";
 import * as path from "path";
+import os from "os";
 import { forceToUnixStyle } from "../helpers/forceToUnixStyle";
 import { prependWithSlash } from "../helpers/prependWithSlash";
 import {
@@ -42,21 +44,21 @@ describe("Solidity Language Server", () => {
 
     it("returns the project config file for hardhat files", async () => {
       const response = await request({
-        uri: { path: withinUri },
+        uri: prependWithFilePrefix(withinUri),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
       assert.deepStrictEqual(response, {
         found: true,
         hardhat: true,
-        configPath: projectUri,
+        configPath: lowercaseDriveLetter(toUnixStyle(projectUri)),
         configDisplayPath: "solFileDetails/testData/project/hardhat.config.ts",
       });
     });
 
     it("returns no project config for non-hardhat files", async () => {
       const response = await request({
-        uri: { path: outwithUri },
+        uri: prependWithFilePrefix(outwithUri),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
@@ -68,7 +70,7 @@ describe("Solidity Language Server", () => {
 
     it("returns not found for unknown files", async () => {
       const response = await request({
-        uri: { path: "nonexistant.sol" },
+        uri: prependWithFilePrefix("nonexistant.sol"),
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
 
@@ -78,3 +80,7 @@ describe("Solidity Language Server", () => {
     });
   });
 });
+
+function prependWithFilePrefix(path: string) {
+  return os.platform() === "win32" ? `file:///${path}` : `file://${path}`;
+}
