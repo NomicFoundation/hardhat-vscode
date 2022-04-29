@@ -120,8 +120,15 @@
       }
     },
     "natspec-tag-return": {
-      "match": "(@return)\\b",
-      "name": "storage.type.return.natspec"
+      "match": "(@return)(\\s+([a-z_]\\w*))?\\b",
+      "captures": {
+        "1": {
+          "name": "storage.type.return.natspec"
+        },
+        "3": {
+          "name": "variable.other.natspec"
+        }
+      }
     },
     "natspec-tag-custom": {
       "match": "(@custom:[a-z]+(-[a-z]+)*)\\b",
