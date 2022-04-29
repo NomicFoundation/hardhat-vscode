@@ -120,7 +120,7 @@
       }
     },
     "natspec-tag-return": {
-      "match": "(@return)(\\s+([a-z_]\\w*))?\\b",
+      "match": "(@return)(\\s+(_?[a-z]\\w*))?\\b",
       "captures": {
         "1": {
           "name": "storage.type.return.natspec"
