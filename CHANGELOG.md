@@ -4,23 +4,37 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.3.0 - 2022-05-02
+
+### Added
+
+- Support for inline validation in monorepos ([#138](https://github.com/NomicFoundation/hardhat-vscode/issues/138))
+- Show a warning if file is not part of a Hardhat project ([#56](https://github.com/NomicFoundation/hardhat-vscode/issues/56))
+- Add instructions for configuring formatting ([#164](https://github.com/NomicFoundation/hardhat-vscode/pull/164))
+- Support for custom natspec tags ([#161](https://github.com/NomicFoundation/hardhat-vscode/issues/161))
+
+### Fixed
+
+- Turn off home directory scanning ([#126](https://github.com/NomicFoundation/hardhat-vscode/issues/126))
+- Allow comments in enums ([#165](https://github.com/NomicFoundation/hardhat-vscode/issues/165))
+
 ## 0.2.2 - 2022-04-01
 
 ### Changed
 
-- Change to telemetry, to stop capturing unhandled exceptions on the client ((#156)[https://github.com/NomicFoundation/hardhat-vscode/issues/156])
+- Change to telemetry, to stop capturing unhandled exceptions on the client ([#156](https://github.com/NomicFoundation/hardhat-vscode/issues/156))
 
 ## 0.2.1 - 2022-03-31
 
 ### Removed
 
-- Remove unnecessary setting for turning off formatting, use vscode formatting config if you want to turn Hardhat VSCode formatting off ((#102)[https://github.com/NomicFoundation/hardhat-vscode/issues/102])
+- Remove unnecessary setting for turning off formatting, use vscode formatting config if you want to turn Hardhat VSCode formatting off ([#102](https://github.com/NomicFoundation/hardhat-vscode/issues/102))
 
 ### Fixed
 
-- Fix for validation child_process cancelling ((#89)[https://github.com/NomicFoundation/hardhat-vscode/issues/89])
-- Fix to suppress parser errors in quickfixes ((#146)[https://github.com/NomicFoundation/hardhat-vscode/issues/146])
-- Fix to not throw on hh error objects with no source location ((#147)[https://github.com/NomicFoundation/hardhat-vscode/issues/147])
+- Fix for validation child_process cancelling ([#89](https://github.com/NomicFoundation/hardhat-vscode/issues/89))
+- Fix to suppress parser errors in quickfixes ([#146](https://github.com/NomicFoundation/hardhat-vscode/issues/146))
+- Fix to not throw on hh error objects with no source location ([#147](https://github.com/NomicFoundation/hardhat-vscode/issues/147))
 
 ## 0.2.0 - 2022-03-24
 
