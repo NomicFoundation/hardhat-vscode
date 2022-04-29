@@ -1,8 +1,8 @@
-import { languages, Uri, LanguageStatusSeverity } from "vscode";
+import { languages, LanguageStatusSeverity } from "vscode";
 import { RequestType } from "vscode-languageclient/node";
 import { ExtensionState } from "../types";
 
-type GetSolFileDetailsParams = { uri: Uri };
+type GetSolFileDetailsParams = { uri: string };
 type GetSolFileDetailsResponse =
   | { found: false }
   | { found: true; hardhat: false }
@@ -23,10 +23,9 @@ export async function updateHardhatProjectLanguageItem(
   extensionState: ExtensionState,
   params: GetSolFileDetailsParams
 ) {
-  const response = await extensionState.client.sendRequest(
-    GetSolFileDetails,
-    params
-  );
+  const response = await extensionState.client.sendRequest(GetSolFileDetails, {
+    uri: ensureFilePrefix(params.uri),
+  });
 
   if (extensionState.hardhatConfigStatusItem === null) {
     const statusItem = languages.createLanguageStatusItem(
@@ -55,7 +54,7 @@ export async function updateHardhatProjectLanguageItem(
     extensionState.hardhatConfigStatusItem.command = {
       title: "Open config file",
       command: "vscode.open",
-      arguments: [response.configPath],
+      arguments: [ensureFilePrefix(response.configPath)],
     };
 
     return;
@@ -71,4 +70,16 @@ export function clearHardhatConfigState(extensionState: ExtensionState): void {
 
   extensionState.hardhatConfigStatusItem.dispose();
   extensionState.hardhatConfigStatusItem = null;
+}
+
+function ensureFilePrefix(path: string) {
+  if (path.startsWith("file://")) {
+    return path;
+  }
+
+  if (path.startsWith("/")) {
+    return `file://${path}`;
+  } else {
+    return `file:///${path}`;
+  }
 }

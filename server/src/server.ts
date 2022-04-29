@@ -18,12 +18,11 @@ import { onReferences } from "@services/references/onReferences";
 import { onImplementation } from "@services/implementation/onImplementation";
 import { onRename } from "@services/rename/onRename";
 import { onDidChangeContent } from "@services/validation/onDidChangeContent";
-import { Uri } from "vscode";
 import { RequestType } from "vscode-languageserver-protocol";
 import { decodeUriAndRemoveFilePrefix, toUnixStyle } from "./utils";
 import path = require("path");
 
-export type GetSolFileDetailsParams = { uri: Uri };
+export type GetSolFileDetailsParams = { uri: string };
 export type GetSolFileDetailsResponse =
   | { found: false }
   | { found: true; hardhat: false }
@@ -152,9 +151,7 @@ function attachCustomHooks(serverState: ServerState) {
     (params: GetSolFileDetailsParams): GetSolFileDetailsResponse => {
       try {
         const solFil =
-          serverState.solFileIndex[
-            decodeUriAndRemoveFilePrefix(params.uri.path)
-          ];
+          serverState.solFileIndex[decodeUriAndRemoveFilePrefix(params.uri)];
 
         if (!solFil) {
           return { found: false };
