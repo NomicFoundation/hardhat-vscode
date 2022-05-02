@@ -9,7 +9,11 @@ export class WorkspaceFileRetriever {
     globPattern: string,
     ignore: string[] = []
   ): Promise<string[]> {
-    const relativePaths = await fg(globPattern, { cwd: baseUri, ignore });
+    const relativePaths = await fg(globPattern, {
+      cwd: baseUri,
+      ignore,
+      followSymbolicLinks: false,
+    });
 
     return relativePaths.map((rp) =>
       decodeUriAndRemoveFilePrefix(path.join(baseUri, rp))
