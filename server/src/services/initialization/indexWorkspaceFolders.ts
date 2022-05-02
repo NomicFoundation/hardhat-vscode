@@ -173,16 +173,20 @@ async function scanForSolFiles(
   const batches: string[][] = [];
 
   for (const workspaceFolder of workspaceFolders) {
-    const workspaceFolderPath = decodeUriAndRemoveFilePrefix(
-      workspaceFolder.uri
-    );
+    try {
+      const workspaceFolderPath = decodeUriAndRemoveFilePrefix(
+        workspaceFolder.uri
+      );
 
-    const documentsUri: string[] = await workspaceFileRetriever.findFiles(
-      workspaceFolderPath,
-      "**/*.sol"
-    );
+      const documentsUri: string[] = await workspaceFileRetriever.findFiles(
+        workspaceFolderPath,
+        "**/*.sol"
+      );
 
-    batches.push(documentsUri.map(toUnixStyle));
+      batches.push(documentsUri.map(toUnixStyle));
+    } catch (err) {
+      logger.error(err);
+    }
   }
 
   const solFileUris = batches.reduce((acc, batch) => acc.concat(batch), []);
