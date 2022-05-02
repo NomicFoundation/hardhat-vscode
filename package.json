@@ -19,7 +19,9 @@
     "solidity",
     "ethereum",
     "hardhat",
-    "evm"
+    "evm",
+    "blockchain",
+    "compiler"
   ],
   "homepage": "https://hardhat.org/",
   "repository": {
