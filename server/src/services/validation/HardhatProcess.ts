@@ -8,19 +8,26 @@ import {
   HARDHAT_PROCESS_ERROR,
   SOLIDITY_COMPILE_EVENT,
 } from "./events";
-import { CompilerProcess } from "../../types";
+import { CancelResolver, CompilerProcess } from "../../types";
 import { HardhatProject } from "@analyzer/HardhatProject";
 
 export class HardhatProcess implements CompilerProcess {
   private project: HardhatProject;
   private uri: string;
   private child: null | childProcess.ChildProcess;
+  private cancelResolver: CancelResolver;
   private logger: Logger;
 
-  constructor(project: HardhatProject, uri: string, logger: Logger) {
+  constructor(
+    project: HardhatProject,
+    uri: string,
+    cancelResolver: CancelResolver,
+    logger: Logger
+  ) {
     this.project = project;
     this.uri = uri;
     this.child = null;
+    this.cancelResolver = cancelResolver;
     this.logger = logger;
   }
 
@@ -69,7 +76,7 @@ export class HardhatProcess implements CompilerProcess {
           break;
 
         case HARDHAT_PROCESS_ERROR:
-          this.logError(data.err);
+          this.cancelWithError(data.err);
           break;
 
         default:
@@ -93,6 +100,12 @@ export class HardhatProcess implements CompilerProcess {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private cancelWithError(err: any) {
+    this.logError(err);
+    this.cancelResolver([]);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private logError(err: any) {
     if (!err) {
       return;
@@ -104,5 +117,7 @@ export class HardhatProcess implements CompilerProcess {
     }
 
     this.logger.error(err);
+
+    this.cancelResolver([]);
   }
 }
