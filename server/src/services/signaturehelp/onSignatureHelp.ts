@@ -13,6 +13,7 @@ import {
   FunctionDefinitionNode,
 } from "@common/types";
 import { isCharacterALetter, isCharacterANumber } from "../../utils";
+import { Logger } from "@utils/Logger";
 
 type DeclarationSignature = {
   declarationNodePosition: Position;
@@ -27,7 +28,12 @@ export const onSignatureHelp = (serverState: ServerState) => {
         "onSignatureHelp",
         params.textDocument.uri,
         (documentAnalyzer, document) =>
-          signatureHelp(document, params.position, documentAnalyzer)
+          signatureHelp(
+            document,
+            params.position,
+            documentAnalyzer,
+            serverState.logger
+          )
       );
     } catch (err) {
       serverState.logger.error(err);
@@ -40,7 +46,8 @@ export const onSignatureHelp = (serverState: ServerState) => {
 function signatureHelp(
   document: TextDocument,
   vsCodePosition: VSCodePosition,
-  documentAnalyzer: ISolFileEntry
+  documentAnalyzer: ISolFileEntry,
+  logger: Logger
 ): SignatureHelp | undefined {
   if (!documentAnalyzer.document) {
     return undefined;
@@ -67,7 +74,8 @@ function signatureHelp(
     return undefined;
   }
 
-  const definitionSignature = getDefinitionSignature(definitionNode);
+  const definitionSignature = getDefinitionSignature(definitionNode, logger);
+
   if (!definitionSignature) {
     return undefined;
   }
@@ -115,7 +123,8 @@ function getDeclarationSignature(
 }
 
 function getDefinitionSignature(
-  definitionNode: Node
+  definitionNode: Node,
+  logger: Logger
 ): SignatureInformation | undefined {
   if (definitionNode.type === "ContractDefinition") {
     const constructorNode =
@@ -134,14 +143,15 @@ function getDefinitionSignature(
     definitionNode.type === "ModifierDefinition" ||
     definitionNode.type === "CustomErrorDefinition"
   ) {
-    return getNodeDefinitionSignature(definitionNode);
+    return getNodeDefinitionSignature(definitionNode, logger);
   }
 
   return undefined;
 }
 
 function getNodeDefinitionSignature(
-  definitionNode: Node
+  definitionNode: Node,
+  logger: Logger
 ): SignatureInformation | undefined {
   const documentAnalyzer = definitionNode.documentsAnalyzer[definitionNode.uri];
   const document = documentAnalyzer?.document;
@@ -184,6 +194,12 @@ function getNodeDefinitionSignature(
     signature = "modifier " + signature;
   } else if (definitionNode.type === "CustomErrorDefinition") {
     signature = "error " + signature;
+  }
+
+  if (!signature) {
+    logger.error(`Unable to parse signature for ${definitionNode.type}`);
+
+    return undefined;
   }
 
   signature = signature.split(";")[0];
