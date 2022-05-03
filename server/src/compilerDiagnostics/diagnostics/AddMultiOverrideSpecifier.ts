@@ -10,6 +10,7 @@ import {
   Multioverride,
   resolveInsertSpecifierQuickFix,
 } from "./common/resolveInsertSpecifierQuickFix";
+import { ServerState } from "types";
 
 export class AddMultiOverrideSpecifier implements CompilerDiagnostic {
   public code = "4327";
@@ -23,6 +24,7 @@ export class AddMultiOverrideSpecifier implements CompilerDiagnostic {
   }
 
   resolveActions(
+    serverState: ServerState,
     diagnostic: Diagnostic,
     context: ResolveActionsContext
   ): CodeAction[] {
@@ -32,7 +34,12 @@ export class AddMultiOverrideSpecifier implements CompilerDiagnostic {
 
     const multiOverride = new Multioverride(missingContractIdentifiers);
 
-    return resolveInsertSpecifierQuickFix(multiOverride, diagnostic, context);
+    return resolveInsertSpecifierQuickFix(
+      multiOverride,
+      diagnostic,
+      context,
+      serverState.logger
+    );
   }
 
   public parseContractIdentifiersFromMessage(message: string) {

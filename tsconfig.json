@@ -5,7 +5,8 @@
     "lib": ["es2020"],
     "outDir": "out",
     "sourceMap": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   },
   "include": ["./client", "./server", "./test", "./test/**/*.json"],
   "exclude": [
@@ -13,7 +14,8 @@
     ".vscode-test",
     "./server/test",
     "./client/out",
-    "./server/out"
+    "./server/out",
+    "./out"
   ],
   "references": [{ "path": "./client" }, { "path": "./server" }]
 }

@@ -1,21 +1,26 @@
 import { ResolveActionsContext } from "../../../types";
 import { ParseContractDefinitionResult } from "../../parsing/parseContractDefinition";
-import { getUriFromDocument } from "../../../../utils/index";
-import { ContractDefinitionNode, DocumentAnalyzer } from "@common/types";
+import {
+  ContractDefinitionNode,
+  ISolFileEntry,
+  SolFileState,
+} from "@common/types";
 import { isContractDefinitionNode } from "@analyzer/utils/typeGuards";
+import { lookupEntryForDocument } from "@utils/lookupEntryForDocument";
+import { ServerState } from "types";
 
 export function findAnalyzedContract(
+  serverState: ServerState,
   { contractDefinition, functionSourceLocation }: ParseContractDefinitionResult,
-  { document, analyzer }: ResolveActionsContext
+  { document }: ResolveActionsContext
 ): ContractDefinitionNode | null {
   if (!contractDefinition.range) {
     return null;
   }
 
-  const documentURI = getUriFromDocument(document);
-  const currentAnalyzer = analyzer.getDocumentAnalyzer(documentURI);
+  const currentAnalyzer = lookupEntryForDocument(serverState, document);
 
-  if (!currentAnalyzer.isAnalyzed) {
+  if (currentAnalyzer.status !== SolFileState.Analyzed) {
     return null;
   }
 
@@ -31,7 +36,7 @@ export function findAnalyzedContract(
 }
 
 function findEquivalentAnalyzerContractNode(
-  currentAnalyzer: DocumentAnalyzer,
+  currentAnalyzer: ISolFileEntry,
   { start, end }: { start: number; end: number }
 ): ContractDefinitionNode | undefined {
   return currentAnalyzer.analyzerTree.tree.children

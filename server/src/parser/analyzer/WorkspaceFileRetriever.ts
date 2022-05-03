@@ -1,36 +1,26 @@
-import * as fs from "fs";
-import * as path from "path";
-import { Logger } from "@utils/Logger";
+import path from "path";
+import fg from "fast-glob";
 import { decodeUriAndRemoveFilePrefix } from "@utils/index";
+import fs from "fs";
 
 export class WorkspaceFileRetriever {
-  public findSolFiles(
-    base: string | undefined,
-    documentsUri: string[],
-    logger: Logger
-  ): void {
-    if (!base) {
-      return;
-    }
+  public async findFiles(
+    baseUri: string,
+    globPattern: string,
+    ignore: string[] = []
+  ): Promise<string[]> {
+    const relativePaths = await fg(globPattern, {
+      cwd: baseUri,
+      ignore,
+      followSymbolicLinks: false,
+    });
 
-    try {
-      const files = fs.readdirSync(base);
+    return relativePaths.map((rp) =>
+      decodeUriAndRemoveFilePrefix(path.join(baseUri, rp))
+    );
+  }
 
-      files.forEach((file) => {
-        const newBase = path.join(base || "", file);
-
-        if (fs.statSync(newBase).isDirectory()) {
-          this.findSolFiles(newBase, documentsUri, logger);
-        } else if (
-          newBase.slice(-4) === ".sol" &&
-          newBase.split("node_modules").length < 3 &&
-          !documentsUri.includes(newBase)
-        ) {
-          documentsUri.push(decodeUriAndRemoveFilePrefix(newBase));
-        }
-      });
-    } catch (err) {
-      logger.trace("Unable to scan directory: " + err);
-    }
+  public async readFile(documentUri: string): Promise<string> {
+    return (await fs.promises.readFile(documentUri)).toString();
   }
 }

@@ -1,5 +1,6 @@
+import { HardhatProject } from "@analyzer/HardhatProject";
 import * as sinon from "sinon";
-import { CompilerProcess } from "@services/validation/HardhatProcess";
+import { CompilerProcess } from "../../src/types";
 
 export function setupMockCompilerProcessFactory(
   errors: {
@@ -14,7 +15,7 @@ export function setupMockCompilerProcessFactory(
   }[] = []
 ) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  return (rootPath: string, uri: string): CompilerProcess => {
+  return (project: HardhatProject, uri: string): CompilerProcess => {
     return {
       init: sinon.fake(() => ({
         hardhatConfigFileExistPromise: Promise.resolve(true),

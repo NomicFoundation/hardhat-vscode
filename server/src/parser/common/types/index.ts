@@ -81,6 +81,8 @@ import type {
   TypeDefinition,
 } from "@solidity-parser/parser/dist/src/ast-types";
 
+import { WorkspaceFolder } from "vscode-languageserver-protocol";
+
 import {
   Position as VSCodePosition,
   WorkspaceEdit,
@@ -349,21 +351,42 @@ export interface Searcher {
   getNodeVisibility(node: Node): string | undefined;
 }
 
-export interface DocumentAnalyzer {
-  /**
-   * The rootPath of the workspace.
-   */
-  rootPath: string;
+export enum SolFileState {
+  Unloaded = "Unloaded",
+  Dirty = "Dirty",
+  Analyzed = "Analyzed",
+  Errored = "Errored",
+}
 
+export type SolProjectType = "hardhat" | "none";
+
+export interface ISolProject {
+  type: SolProjectType;
   /**
-   * The contents of the file we will try to analyze.
+   * The basepath of the solidity project.
    */
-  document: string | undefined;
+  basePath: string;
+  configPath: string;
+  workspaceFolder: WorkspaceFolder;
+}
+
+export type SolProjectMap = {
+  [key: string]: ISolProject;
+};
+
+export interface ISolFileEntry {
   /**
    * The path to the file with the document we are analyzing.
    * Uri needs to be decoded and without the "file://" prefix.
    */
   uri: string;
+
+  /**
+   * The contents of the file we will try to analyze.
+   */
+  document: string | undefined;
+
+  project: ISolProject;
 
   /**
    * AST that we get from @solidity-parser/parser.
@@ -374,10 +397,12 @@ export interface DocumentAnalyzer {
    * Analyzed tree.
    */
   analyzerTree: { tree: Node };
+
   /**
-   * If the document is analyzed this will be true, otherwise false.
+   * The status of the sol files analysis, you can only rely on the
+   * ast and enhanced ast if the sol file is analyzed.
    */
-  isAnalyzed: boolean;
+  status: SolFileState;
 
   searcher: Searcher;
 
@@ -386,10 +411,7 @@ export interface DocumentAnalyzer {
    */
   orphanNodes: Node[];
 
-  analyze(
-    documentsAnalyzer: DocumentsAnalyzerMap,
-    document?: string
-  ): Node | undefined;
+  isAnalyzed(): boolean;
 }
 
 /**
@@ -424,7 +446,7 @@ export type FinderType = (
  * documentsAnalyzer Map { [uri: string]: DocumentAnalyzer } have all documentsAnalyzer class instances used for handle imports on first project start.
  */
 export type DocumentsAnalyzerMap = {
-  [uri: string]: DocumentAnalyzer | undefined;
+  [uri: string]: ISolFileEntry | undefined;
 };
 
 export type EmptyNodeType = {
@@ -943,3 +965,5 @@ export const visibilityPrecedence: AstVisibility[] = [
   "external",
   "public",
 ];
+
+export type Overwrite<T, U> = Pick<T, Exclude<keyof T, keyof U>> & U;

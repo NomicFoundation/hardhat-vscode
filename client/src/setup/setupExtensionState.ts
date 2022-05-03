@@ -34,12 +34,14 @@ export function setupExtensionState(
     serverModulePath,
     machineId: env.machineId,
 
-    clients: new Map(),
+    client: null,
     listenerDisposables: [],
+    currentIndexingJobs: [],
     hardhatTelemetryEnabled: workspace
       .getConfiguration("hardhat")
       .get<boolean>("telemetry"),
     globalTelemetryEnabled: env.isTelemetryEnabled,
+    hardhatConfigStatusItem: null,
 
     telemetry,
     outputChannel,

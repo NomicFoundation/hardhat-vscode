@@ -4,12 +4,14 @@ import { ParseContractDefinitionResult } from "../../parsing/parseContractDefini
 import { createAppendFunctionsToContractChange } from "./createAppendFunctionsToContractChange";
 import { resolveFunctionsToImplement } from "./resolveFunctionsToImplement";
 import { findAnalyzedContract } from "./findAnalyzedContract";
+import { ServerState } from "types";
 
 export function buildImplementInterfaceQuickFix(
+  serverState: ServerState,
   parseResult: ParseContractDefinitionResult,
   resolveCtx: ResolveActionsContext
 ): CodeAction | null {
-  const contract = findAnalyzedContract(parseResult, resolveCtx);
+  const contract = findAnalyzedContract(serverState, parseResult, resolveCtx);
 
   if (contract === null || contract.inheritanceNodes.length === 0) {
     return null;

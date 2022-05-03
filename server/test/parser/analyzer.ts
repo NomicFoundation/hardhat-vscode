@@ -1,104 +1,153 @@
-import * as events from "events";
 import * as path from "path";
-import { Analyzer } from "@analyzer/index";
 import { assert } from "chai";
 import { setupMockLogger } from "../helpers/setupMockLogger";
 import { IndexFileData } from "@common/event";
 import { forceToUnixStyle } from "../helpers/forceToUnixStyle";
+import { indexWorkspaceFolders } from "@services/initialization/indexWorkspaceFolders";
+import { Connection } from "vscode-languageserver";
+import { HardhatProject } from "@analyzer/HardhatProject";
 
 describe("Analyzer", () => {
   describe("indexing", () => {
     const exampleRootPath = forceToUnixStyle(__dirname);
-    let collectedData: IndexFileData[];
+    let collectedData: [string, IndexFileData][];
     let foundSolFiles: string[];
 
     describe("with multiple files", () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         collectedData = [];
         foundSolFiles = ["example1.sol", "example2.sol", "example3.sol"];
 
-        const analyzer = setupAnalyzer(
-          exampleRootPath,
-          foundSolFiles,
-          collectedData
-        );
-
-        // trigger the indexing
-        analyzer.init(exampleRootPath);
+        await runIndexing(exampleRootPath, foundSolFiles, collectedData);
       });
 
       it("should emit an indexing event for each", () => {
-        assert.equal(collectedData.length, foundSolFiles.length);
+        assert.equal(collectedData.length, 4);
         assert.deepEqual(collectedData, [
-          {
-            path: path.join(__dirname, "example1.sol"),
-            current: 1,
-            total: 3,
-          },
-          {
-            path: path.join(__dirname, "example2.sol"),
-            current: 2,
-            total: 3,
-          },
-          {
-            path: path.join(__dirname, "example3.sol"),
-            current: 3,
-            total: 3,
-          },
+          [
+            "custom/indexing-start",
+            {
+              jobId: 1,
+              path: "",
+              current: 0,
+              total: 0,
+            },
+          ],
+          [
+            "custom/indexing-file",
+            {
+              jobId: 1,
+              path: forceToUnixStyle(path.join(__dirname, "example1.sol")),
+              current: 1,
+              total: 3,
+            },
+          ],
+          [
+            "custom/indexing-file",
+            {
+              jobId: 1,
+              path: forceToUnixStyle(path.join(__dirname, "example2.sol")),
+              current: 2,
+              total: 3,
+            },
+          ],
+          [
+            "custom/indexing-file",
+            {
+              jobId: 1,
+              path: forceToUnixStyle(path.join(__dirname, "example3.sol")),
+              current: 3,
+              total: 3,
+            },
+          ],
         ]);
       });
     });
 
     describe("with no files found", () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         collectedData = [];
         foundSolFiles = [];
 
-        const analyzer = setupAnalyzer(
-          exampleRootPath,
-          foundSolFiles,
-          collectedData
-        );
-
-        // trigger the indexing
-        analyzer.init(exampleRootPath);
+        await runIndexing(exampleRootPath, foundSolFiles, collectedData);
       });
 
       it("should emit an indexing event for each", () => {
-        assert.equal(collectedData.length, 1);
+        assert.equal(collectedData.length, 2);
         assert.deepEqual(collectedData, [
-          {
-            path: "",
-            current: 0,
-            total: 0,
-          },
+          [
+            "custom/indexing-start",
+            {
+              jobId: 1,
+              path: "",
+              current: 0,
+              total: 0,
+            },
+          ],
+          [
+            "custom/indexing-file",
+            {
+              jobId: 1,
+              path: "",
+              current: 0,
+              total: 0,
+            },
+          ],
         ]);
       });
     });
   });
 });
 
-function setupAnalyzer(
+async function runIndexing(
   rootPath: string,
   foundSolFiles: string[],
-  collectedData: IndexFileData[]
-): Analyzer {
-  const em = new events.EventEmitter();
-  const logger = setupMockLogger();
+  collectedData: [string, IndexFileData][]
+) {
+  const exampleWorkspaceFolder = { name: "example", uri: rootPath };
 
-  em.on("indexing-file", (data) => collectedData.push(data));
+  const exampleProjects = {
+    [rootPath]: new HardhatProject(
+      exampleWorkspaceFolder.uri,
+      path.join(exampleWorkspaceFolder.uri, "hardhat.config.ts"),
+      exampleWorkspaceFolder
+    ),
+  };
+  const solFileIndex = {};
+
+  const mockLogger = setupMockLogger();
+
+  const mockConnection = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    sendNotification: (eventName: string, data: any) => {
+      collectedData.push([eventName, data]);
+    },
+  } as Connection;
 
   const mockWorkspaceFileRetriever = {
-    findSolFiles: (base: string | undefined, documentsUri: string[]) => {
-      if (base !== rootPath) {
-        return;
+    findFiles: async (
+      baseUri: string,
+      globPattern: string
+    ): Promise<string[]> => {
+      if (globPattern !== "**/*.sol") {
+        return [];
       }
 
-      for (const foundSolFile of foundSolFiles) {
-        documentsUri.push(path.join(base ?? "", foundSolFile));
-      }
+      return foundSolFiles.map((fsf) => path.join(baseUri ?? "", fsf));
     },
+    readFile: async () => "",
   };
 
-  return new Analyzer(mockWorkspaceFileRetriever, em, logger);
+  await indexWorkspaceFolders(
+    {
+      indexJobCount: 0,
+      connection: mockConnection,
+      solFileIndex,
+      projects: exampleProjects,
+      logger: mockLogger,
+      workspaceFolders: [],
+    },
+    mockWorkspaceFileRetriever,
+    [exampleWorkspaceFolder]
+  );
 }

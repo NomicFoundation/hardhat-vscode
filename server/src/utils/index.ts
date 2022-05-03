@@ -12,6 +12,10 @@ export function toUnixStyle(uri: string) {
   return uri.replace(/\\/g, "/");
 }
 
+export function lowercaseDriveLetter(uri: string) {
+  return uri.replace(/^\/?\w+:/, (match) => match.toLowerCase());
+}
+
 export function decodeUriAndRemoveFilePrefix(uri: string): string {
   if (os.platform() === "win32" && uri && uri.includes("file:///")) {
     uri = uri.replace("file:///", "");
@@ -25,14 +29,16 @@ export function decodeUriAndRemoveFilePrefix(uri: string): string {
 
   uri = uri.replace(/\\/g, "/");
 
-  return uri;
+  return lowercaseDriveLetter(uri);
 }
 
 export function convertHardhatUriToVscodeUri(uri: string) {
-  if (uri.startsWith("/")) {
-    return uri;
+  const lowercasedDriveLetterUri = lowercaseDriveLetter(uri);
+
+  if (lowercasedDriveLetterUri.startsWith("/")) {
+    return lowercasedDriveLetterUri;
   } else {
-    return `/${uri}`;
+    return `/${lowercasedDriveLetterUri}`;
   }
 }
 

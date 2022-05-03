@@ -1,5 +1,5 @@
 import * as path from "path";
-import { runTests } from "vscode-test";
+import { runTests } from "@vscode/test-electron";
 
 (async () => {
   try {
@@ -22,9 +22,10 @@ import { runTests } from "vscode-test";
 
     // Download VS Code, unzip it and run the integration test
     await runTests({
-      version: "1.63.0",
+      version: "1.65.0",
       extensionDevelopmentPath,
       extensionTestsPath,
+
       launchArgs: [
         folder,
         "--disable-extensions",

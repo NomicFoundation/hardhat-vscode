@@ -6,7 +6,6 @@ import * as lsclient from "vscode-languageclient/node";
 
 import { sleep } from "./common/helper";
 import { Client as IClient } from "./common/types";
-import { NavigationProvider } from "./services/NavigationProvider";
 
 let client: Client;
 export async function getClient(): Promise<Client> {
@@ -15,6 +14,7 @@ export async function getClient(): Promise<Client> {
   }
 
   client = new Client();
+
   try {
     await client.activate();
   } catch (err) {
@@ -27,16 +27,15 @@ export async function getClient(): Promise<Client> {
 }
 
 class Client implements IClient {
-  private client: lsclient.LanguageClient;
-  private middleware: lsclient.Middleware;
-  private tokenSource: vscode.CancellationTokenSource =
+  public client: lsclient.LanguageClient;
+  public tokenSource: vscode.CancellationTokenSource =
     new vscode.CancellationTokenSource();
+
+  private middleware: lsclient.Middleware;
   private editor: vscode.TextEditor;
 
   document: vscode.TextDocument;
   docUri: vscode.Uri;
-
-  navigationProvider: NavigationProvider;
 
   /**
    * Activates the extension
@@ -58,6 +57,7 @@ class Client implements IClient {
       "out",
       "index.js"
     );
+
     const serverOptions: lsclient.ServerOptions = {
       run: { module: serverModule, transport: lsclient.TransportKind.ipc },
       debug: {
@@ -74,6 +74,14 @@ class Client implements IClient {
         fileEvents: vscode.workspace.createFileSystemWatcher("**/.sol"),
       },
       middleware: this.middleware,
+      initializationOptions: {
+        extensionName: "nomicfoundation.hardhat-solidity",
+        extensionVersion: "0.0.0",
+        env: "development",
+        globalTelemetryEnabled: false,
+        hardhatTelemetryEnabled: false,
+        machineId: "fake-interagtion-machine-id",
+      },
     };
 
     this.client = new lsclient.LanguageClient(
@@ -86,11 +94,6 @@ class Client implements IClient {
     this.client.start();
 
     await this.client.onReady();
-
-    this.navigationProvider = new NavigationProvider(
-      this.client,
-      this.tokenSource
-    );
 
     // Wait for analyzer to indexing all files
     await sleep(5000);

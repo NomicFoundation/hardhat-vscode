@@ -134,6 +134,10 @@
       "match": "(@custom:[a-z]+(-[a-z]+)*)\\b",
       "name": "storage.type.custom.natspec"
     },
+    "natspec-tag-custom": {
+      "match": "(@custom:[a-z]+(-[a-z]+)*)\\b",
+      "name": "storage.type.custom.natspec"
+    },
     "comment": {
       "patterns": [
         {

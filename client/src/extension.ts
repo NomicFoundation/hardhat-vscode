@@ -1,4 +1,5 @@
 import { ExtensionContext } from "vscode";
+import { showAnalyticsAllowPopup } from "./popups/showAnalyticsAllowPopup";
 import { warnOnOtherSolidityExtensions } from "./popups/warnOnOtherSolidityExtensions";
 import { setupExtensionState } from "./setup/setupExtensionState";
 import { setupFormatterHook } from "./setup/setupFormatterHook";
@@ -18,10 +19,11 @@ export function activate(context: ExtensionContext) {
   logger.info("Hardhat for Visual Studio Code Starting ...");
   logger.info(`env: ${extensionState.env}`);
 
-  warnOnOtherSolidityExtensions(extensionState);
-
   setupFormatterHook(extensionState);
   setupLanguageServerHooks(extensionState);
+
+  warnOnOtherSolidityExtensions(extensionState);
+  showAnalyticsAllowPopup(extensionState);
 }
 
 export function deactivate(): Thenable<void> {
@@ -35,8 +37,8 @@ export function deactivate(): Thenable<void> {
 
   const promises: Thenable<void>[] = [];
 
-  for (const client of extensionState.clients.values()) {
-    promises.push(client.stop());
+  if (extensionState.client) {
+    extensionState.client.stop();
   }
 
   const telemetryClosePromise = extensionState.telemetry.close();

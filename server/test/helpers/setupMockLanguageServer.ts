@@ -21,15 +21,18 @@ import {
   HoverParams,
   Hover,
 } from "vscode-languageserver/node";
-import setupServer from "../../src/server";
+import setupServer, {
+  GetSolFileDetailsParams,
+  GetSolFileDetailsResponse,
+} from "../../src/server";
 import { setupMockCompilerProcessFactory } from "./setupMockCompilerProcessFactory";
 import { setupMockConnection } from "./setupMockConnection";
 import { waitUntil } from "./waitUntil";
 import { setupMockLogger } from "./setupMockLogger";
 import { setupMockWorkspaceFileRetriever } from "./setupMockWorkspaceFileRetriever";
 import { setupMockTelemetry } from "./setupMockTelemetry";
-import { setupMockAnalytics } from "./setupMockAnalytics";
 import { forceToUnixStyle } from "./forceToUnixStyle";
+import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
 
 export type OnSignatureHelp = (
   params: SignatureHelpParams
@@ -53,20 +56,28 @@ export type OnRenameRequest = (
   params: RenameParams
 ) => WorkspaceEdit | undefined | null;
 export type OnHover = (params: HoverParams) => Hover | null;
+export type OnRequest = (
+  params: GetSolFileDetailsParams
+) => GetSolFileDetailsResponse;
 
 export async function setupMockLanguageServer({
+  projects,
   documents,
   errors,
 }: {
+  projects?: { [key: string]: string[] };
   documents: { uri: string; content?: string; analyze: boolean }[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errors: any[];
 }) {
   const exampleRootUri = forceToUnixStyle(path.join(__dirname, ".."));
+  const exampleWorkspaceFolders = [{ name: "example", uri: exampleRootUri }];
+
   const mockConnection = setupMockConnection();
   const mockCompilerProcessFactory = setupMockCompilerProcessFactory(errors);
-  const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
-  const mockAnalytics = setupMockAnalytics();
+  const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever(
+    projects ?? {}
+  );
   const mockTelemetry = setupMockTelemetry();
   const mockLogger = setupMockLogger();
 
@@ -75,7 +86,6 @@ export async function setupMockLanguageServer({
     mockConnection as any,
     mockCompilerProcessFactory,
     mockWorkspaceFileRetriever,
-    mockAnalytics,
     mockTelemetry,
     mockLogger
   );
@@ -85,13 +95,16 @@ export async function setupMockLanguageServer({
   assert(initialize);
   const initializeResponse = await initialize({
     rootUri: exampleRootUri,
+    workspaceFolders: exampleWorkspaceFolders,
     capabilities: {},
   });
+
   assert(initializeResponse);
 
   assert(mockConnection.onInitialized.called);
   const initialized = mockConnection.onInitialized.getCall(0).firstArg;
   assert(initialized);
+
   await initialized({ rootUri: exampleRootUri, capabilities: {} });
 
   const signatureHelp: OnSignatureHelp =
@@ -109,6 +122,7 @@ export async function setupMockLanguageServer({
   const renameRequest: OnRenameRequest =
     mockConnection.onRenameRequest.getCall(0).firstArg;
   const hover: OnHover = mockConnection.onHover.getCall(0).firstArg;
+  const request: OnRequest = mockConnection.onRequest.getCall(0).args[1];
 
   const didOpenTextDocument =
     mockConnection.onDidOpenTextDocument.getCall(0).firstArg;
@@ -135,16 +149,15 @@ export async function setupMockLanguageServer({
         () => {
           const doc = serverState.documents.get(documentUri);
 
-          if (!doc || !serverState.languageServer) {
+          if (!doc) {
             return false;
           }
 
           const localUri = getUriFromDocument(doc);
 
-          const documentAnalyzer =
-            serverState.languageServer.analyzer.getDocumentAnalyzer(localUri);
+          const documentAnalyzer = getDocumentAnalyzer(serverState, localUri);
 
-          return documentAnalyzer && documentAnalyzer.isAnalyzed;
+          return documentAnalyzer && documentAnalyzer.isAnalyzed();
         },
         100,
         1600
@@ -167,6 +180,7 @@ export async function setupMockLanguageServer({
       implementation,
       renameRequest,
       hover,
+      request,
     },
   };
 }

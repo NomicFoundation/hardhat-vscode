@@ -12,6 +12,7 @@ import {
   ParseContractDefinitionResult,
 } from "./parsing/parseContractDefinition";
 import { buildImplementInterfaceQuickFix } from "./common/ImplementInterface/buildImplementInterfaceQuickFix";
+import { ServerState } from "types";
 
 export class MarkContractAbstract {
   public code = "3656";
@@ -25,16 +26,22 @@ export class MarkContractAbstract {
   }
 
   resolveActions(
+    serverState: ServerState,
     diagnostic: Diagnostic,
     context: ResolveActionsContext
   ): CodeAction[] {
-    const parseResult = parseContractDefinition(diagnostic, context);
+    const parseResult = parseContractDefinition(
+      diagnostic,
+      context,
+      serverState.logger
+    );
 
     if (parseResult === null) {
       return [];
     }
 
     const implementInterfaceQuickFix = buildImplementInterfaceQuickFix(
+      serverState,
       parseResult,
       context
     );

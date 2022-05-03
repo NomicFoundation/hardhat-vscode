@@ -12,11 +12,12 @@
     "composite": true,
     "declaration": true,
     "baseUrl": "./src",
+    "esModuleInterop": true,
     "paths": {
       "@compilerDiagnostics/*": ["./compilerDiagnostics/*"],
       "@analyzer/*": ["./parser/analyzer/*"],
       "@common/*": ["./parser/common/*"],
-      "@services/*": ["./parser/services/*"],
+      "@services/*": ["./services/*"],
       "@utils/*": ["./utils/*"]
     }
   },
