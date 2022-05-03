@@ -5,8 +5,10 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { Telemetry } from "telemetry/types";
 import { Logger } from "@utils/Logger";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
-import { DocumentsAnalyzerMap, SolProjectMap } from "@common/types";
+import { DocumentsAnalyzerMap, SolProjectMap, Diagnostic } from "@common/types";
 import { HardhatProject } from "@analyzer/HardhatProject";
+
+export type CancelResolver = (diagnostics: Diagnostic[]) => void;
 
 export interface CompilerProcess {
   init: () => {
@@ -30,6 +32,7 @@ export type ServerState = {
   compProcessFactory: (
     project: HardhatProject,
     uri: string,
+    cancelResolver: CancelResolver,
     logger: Logger
   ) => CompilerProcess;
 

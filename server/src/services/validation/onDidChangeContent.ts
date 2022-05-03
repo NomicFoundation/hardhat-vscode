@@ -141,6 +141,7 @@ async function validateTextDocument(
 
   try {
     const unsavedDocuments = await getUnsavedDocuments(connection);
+
     const diagnostics = await validationJob.run(
       uri,
       document,

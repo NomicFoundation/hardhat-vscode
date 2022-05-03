@@ -8,7 +8,7 @@ import {
 import { DiagnosticConverter } from "./DiagnosticConverter";
 import { Logger } from "@utils/Logger";
 import { Telemetry } from "telemetry/types";
-import { CompilerProcess } from "../../types";
+import { CancelResolver, CompilerProcess } from "../../types";
 import { HardhatProject } from "@analyzer/HardhatProject";
 
 export interface ValidationJob {
@@ -25,6 +25,7 @@ export class SolidityValidation {
   compilerProcessFactory: (
     project: HardhatProject,
     uri: string,
+    cancelResolver: CancelResolver,
     logger: Logger
   ) => CompilerProcess;
   diagnosticConverter: DiagnosticConverter;
@@ -33,6 +34,7 @@ export class SolidityValidation {
     compilerProcessFactory: (
       project: HardhatProject,
       uri: string,
+      cancelResolver: CancelResolver,
       logger: Logger
     ) => CompilerProcess,
     logger: Logger
@@ -45,9 +47,9 @@ export class SolidityValidation {
     let isCompilerDownloaded = true;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let canceledResolver: any;
+    let cancelResolver: CancelResolver;
     const canceled = new Promise((resolve) => {
-      canceledResolver = resolve;
+      cancelResolver = resolve;
     });
 
     return {
@@ -71,6 +73,7 @@ export class SolidityValidation {
         const hardhatProcess = this.compilerProcessFactory(
           project as HardhatProject,
           uri,
+          cancelResolver,
           logger
         );
 
@@ -151,6 +154,7 @@ export class SolidityValidation {
           const timeout = new Promise((resolve, reject) => {
             const id = setTimeout(() => {
               clearTimeout(id);
+
               reject("Validation timed out");
             }, 60 * 1000);
           });
@@ -189,7 +193,7 @@ export class SolidityValidation {
           return;
         }
 
-        canceledResolver([]);
+        cancelResolver([]);
       },
     } as ValidationJob;
   }
