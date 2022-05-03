@@ -58,9 +58,7 @@ export class SolidityValidation {
         project: ISolProject
       ): Promise<{ [uri: string]: Diagnostic[] }> => {
         if (project.type !== "hardhat") {
-          logger.error(
-            new Error(`Validation failed, not a hardhat project ${uri}`)
-          );
+          logger.trace(`Validation failed, not a hardhat project ${uri}`);
 
           return {};
         }
