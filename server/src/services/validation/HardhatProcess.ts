@@ -10,6 +10,9 @@ import {
 } from "./events";
 import { CancelResolver, CompilerProcess } from "../../types";
 import { HardhatProject } from "@analyzer/HardhatProject";
+import { TextDocument } from "vscode-languageserver-textdocument";
+import { decodeUriAndRemoveFilePrefix } from "@utils/index";
+import { convertHardhatErrorToDiagnostic } from "./convertHardhatErrorToDiagnostic";
 
 export class HardhatProcess implements CompilerProcess {
   private project: HardhatProject;
@@ -31,7 +34,7 @@ export class HardhatProcess implements CompilerProcess {
     this.logger = logger;
   }
 
-  init() {
+  init(document: TextDocument) {
     const projectRoot = utils.findUpSync("package.json", {
       cwd: path.resolve(this.uri, ".."),
       stopAt: this.project.basePath,
@@ -76,7 +79,7 @@ export class HardhatProcess implements CompilerProcess {
           break;
 
         case HARDHAT_PROCESS_ERROR:
-          this.cancelWithError(data.err);
+          this.cancelWithError(document, data.err);
           break;
 
         default:
@@ -100,24 +103,30 @@ export class HardhatProcess implements CompilerProcess {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private cancelWithError(err: any) {
-    this.logError(err);
-    this.cancelResolver([]);
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private logError(err: any) {
-    if (!err) {
+  private cancelWithError(document: TextDocument, err: any) {
+    if (!err._isHardhatError) {
+      this.logger.error(err);
+      this.cancelResolver({});
       return;
     }
 
-    if (err._isHardhatError) {
-      this.logger.error(new Error(err.errorDescriptor?.title));
-      return;
+    try {
+      const diagnostic = convertHardhatErrorToDiagnostic(document, err);
+
+      if (diagnostic === null) {
+        this.logger.error(new Error(err.errorDescriptor?.title));
+        this.cancelResolver({});
+        return;
+      }
+
+      const diagnostics = {
+        [decodeUriAndRemoveFilePrefix(document.uri)]: [diagnostic],
+      };
+
+      this.cancelResolver(diagnostics);
+    } catch (err) {
+      this.logger.error(err);
+      this.cancelResolver({});
     }
-
-    this.logger.error(err);
-
-    this.cancelResolver([]);
   }
 }

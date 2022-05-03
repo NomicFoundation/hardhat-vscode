@@ -8,10 +8,12 @@ import { WorkspaceFolder } from "vscode-languageserver-protocol";
 import { DocumentsAnalyzerMap, SolProjectMap, Diagnostic } from "@common/types";
 import { HardhatProject } from "@analyzer/HardhatProject";
 
-export type CancelResolver = (diagnostics: Diagnostic[]) => void;
+export type CancelResolver = (diagnostics: {
+  [key: string]: Diagnostic[];
+}) => void;
 
 export interface CompilerProcess {
-  init: () => {
+  init: (document: TextDocument) => {
     hardhatConfigFileExistPromise: Promise<unknown>;
     compilerDownloadedPromise: Promise<unknown>;
     solidityCompilePromise: Promise<unknown>;
@@ -21,6 +23,13 @@ export interface CompilerProcess {
   kill: () => void;
 }
 
+export type CompilerProcessFactory = (
+  project: HardhatProject,
+  uri: string,
+  cancelResolver: CancelResolver,
+  logger: Logger
+) => CompilerProcess;
+
 export type ServerState = {
   env: "production" | "development";
   hasWorkspaceFolderCapability: boolean;
@@ -29,12 +38,7 @@ export type ServerState = {
   hardhatTelemetryEnabled: boolean;
   indexJobCount: number;
 
-  compProcessFactory: (
-    project: HardhatProject,
-    uri: string,
-    cancelResolver: CancelResolver,
-    logger: Logger
-  ) => CompilerProcess;
+  compProcessFactory: CompilerProcessFactory;
 
   connection: Connection;
   documents: TextDocuments<TextDocument>;

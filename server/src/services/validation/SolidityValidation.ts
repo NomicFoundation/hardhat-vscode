@@ -8,7 +8,7 @@ import {
 import { DiagnosticConverter } from "./DiagnosticConverter";
 import { Logger } from "@utils/Logger";
 import { Telemetry } from "telemetry/types";
-import { CancelResolver, CompilerProcess } from "../../types";
+import { CancelResolver, CompilerProcessFactory } from "../../types";
 import { HardhatProject } from "@analyzer/HardhatProject";
 
 export interface ValidationJob {
@@ -22,23 +22,10 @@ export interface ValidationJob {
 }
 
 export class SolidityValidation {
-  compilerProcessFactory: (
-    project: HardhatProject,
-    uri: string,
-    cancelResolver: CancelResolver,
-    logger: Logger
-  ) => CompilerProcess;
+  compilerProcessFactory: CompilerProcessFactory;
   diagnosticConverter: DiagnosticConverter;
 
-  constructor(
-    compilerProcessFactory: (
-      project: HardhatProject,
-      uri: string,
-      cancelResolver: CancelResolver,
-      logger: Logger
-    ) => CompilerProcess,
-    logger: Logger
-  ) {
+  constructor(compilerProcessFactory: CompilerProcessFactory, logger: Logger) {
     this.compilerProcessFactory = compilerProcessFactory;
     this.diagnosticConverter = new DiagnosticConverter(logger);
   }
@@ -83,7 +70,7 @@ export class SolidityValidation {
           hardhatConfigFileExistPromise,
           compilerDownloadedPromise,
           solidityCompilePromise,
-        } = hardhatProcess.init();
+        } = hardhatProcess.init(document);
 
         const _run = async (
           uri: string,
@@ -195,7 +182,7 @@ export class SolidityValidation {
           return;
         }
 
-        cancelResolver([]);
+        cancelResolver({});
       },
     } as ValidationJob;
   }
