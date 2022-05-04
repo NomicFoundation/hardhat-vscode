@@ -1,6 +1,12 @@
 import { ISolProject } from "@common/types";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
 
+export function isHardhatProject(
+  project: ISolProject
+): project is HardhatProject {
+  return project.type === "hardhat";
+}
+
 export class HardhatProject implements ISolProject {
   public type: "hardhat" = "hardhat";
   public basePath: string;
