@@ -1,3 +1,4 @@
+import { isHardhatProject } from "@analyzer/HardhatProject";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { ServerState } from "../../types";
 import { indexWorkspaceFolders } from "./indexWorkspaceFolders";
@@ -42,6 +43,34 @@ export const onInitialized = (
       return { status: "ok", result: null };
     });
 
+    serverState.telemetry.trackTimingSync("worker setup", () => {
+      setupWorkerProcesses(serverState);
+
+      return { status: "ok", result: null };
+    });
+
     logger.info("Language server ready");
   };
 };
+
+function setupWorkerProcesses(serverState: ServerState) {
+  const workerProcesses = serverState.workerProcesses;
+  for (const project of Object.values(serverState.projects)) {
+    if (project.basePath in workerProcesses) {
+      continue;
+    }
+
+    if (!isHardhatProject(project)) {
+      continue;
+    }
+
+    const workerProcess = serverState.compProcessFactory(
+      project,
+      serverState.logger
+    );
+
+    workerProcesses[project.basePath] = workerProcess;
+
+    workerProcess.init();
+  }
+}

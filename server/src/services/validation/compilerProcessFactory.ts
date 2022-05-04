@@ -1,13 +1,11 @@
 import { HardhatProject } from "@analyzer/HardhatProject";
 import { Logger } from "@utils/Logger";
-import { CancelResolver, CompilerProcess } from "../../types";
-import { HardhatProcess } from "./HardhatProcess";
+import { WorkerProcess } from "../../types";
+import { HardhatWorker } from "./HardhatWorker";
 
 export function compilerProcessFactory(
   project: HardhatProject,
-  uri: string,
-  cancelResolver: CancelResolver,
   logger: Logger
-): CompilerProcess {
-  return new HardhatProcess(project, uri, cancelResolver, logger);
+): WorkerProcess {
+  return new HardhatWorker(project, logger);
 }

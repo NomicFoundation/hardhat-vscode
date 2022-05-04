@@ -1,6 +1,6 @@
 import { HardhatProject } from "@analyzer/HardhatProject";
 import * as sinon from "sinon";
-import { CompilerProcess } from "../../src/types";
+import { CompilerProcessFactory, WorkerProcess } from "../../src/types";
 
 export function setupMockCompilerProcessFactory(
   errors: Array<{
@@ -13,19 +13,16 @@ export function setupMockCompilerProcessFactory(
       end: number;
     };
   }> = []
-) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  return (project: HardhatProject, uri: string): CompilerProcess => {
+): CompilerProcessFactory {
+  return (project: HardhatProject): WorkerProcess => {
     return {
-      init: sinon.fake(() => ({
-        hardhatConfigFileExistPromise: Promise.resolve(true),
-        compilerDownloadedPromise: Promise.resolve(true),
-        solidityCompilePromise: Promise.resolve({
-          errors,
-        }),
-      })),
-      send: sinon.spy(),
+      project,
+      init: sinon.spy(),
+      validate: sinon.spy(() => {
+        return { errors };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      }) as any,
       kill: sinon.spy(),
-    } as CompilerProcess;
+    } as WorkerProcess;
   };
 }

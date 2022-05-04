@@ -1,21 +1,21 @@
-import { Connection, TextDocumentChangeEvent } from "vscode-languageserver";
+import {
+  Connection,
+  Diagnostic,
+  TextDocumentChangeEvent,
+} from "vscode-languageserver";
 import { TextDocuments } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Logger } from "@utils/Logger";
-import { findProjectFor } from "@utils/findProjectFor";
-import {
-  DocumentsAnalyzerMap,
-  ISolProject,
-  SolProjectMap,
-} from "@common/types";
+import { DocumentsAnalyzerMap, SolProjectMap } from "@common/types";
 import { analyzeDocument } from "@utils/analyzeDocument";
+import { isHardhatProject } from "@analyzer/HardhatProject";
 import {
   decodeUriAndRemoveFilePrefix,
   getUriFromDocument,
 } from "../../utils/index";
 import { debounce } from "../../utils/debounce";
-import { ServerState } from "../../types";
-import { SolidityValidation, ValidationJob } from "./SolidityValidation";
+import { ServerState, WorkerProcess } from "../../types";
+import { DiagnosticConverter } from "./DiagnosticConverter";
 
 const debounceAnalyzeDocument: {
   [uri: string]: (
@@ -27,15 +27,9 @@ const debounceAnalyzeDocument: {
   ) => void;
 } = {};
 
-const debounceValidateDocument: {
-  [uri: string]: (
-    validationJob: ValidationJob,
-    connection: Connection,
-    uri: string,
-    project: ISolProject,
-    document: TextDocument,
-    logger: Logger
-  ) => void;
+const debouncedPropagate: {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  [uri: string]: Function;
 } = {};
 
 interface UnsavedDocumentType {
@@ -67,35 +61,7 @@ export function onDidChangeContent(serverState: ServerState) {
         serverState.logger
       );
 
-      // ------------------------------------------------------------------------
-
-      if (debounceValidateDocument[change.document.uri] === undefined) {
-        debounceValidateDocument[change.document.uri] = debounce(
-          validateTextDocument,
-          500
-        );
-      }
-
-      const documentURI = getUriFromDocument(change.document);
-
-      const project = findProjectFor(
-        serverState,
-        decodeUriAndRemoveFilePrefix(change.document.uri)
-      );
-
-      const validationJob = new SolidityValidation(
-        serverState.compProcessFactory,
-        logger
-      ).getValidationJob(serverState.telemetry, logger);
-
-      debounceValidateDocument[change.document.uri](
-        validationJob,
-        serverState.connection,
-        documentURI,
-        project,
-        change.document,
-        logger
-      );
+      propagateToValidationWorker(serverState, change);
     } catch (err) {
       logger.error(err);
     }
@@ -130,47 +96,6 @@ function analyzeFunc(
   }
 }
 
-async function validateTextDocument(
-  validationJob: ValidationJob,
-  connection: Connection,
-  uri: string,
-  project: ISolProject,
-  document: TextDocument,
-  logger: Logger
-): Promise<void> {
-  logger.trace("validateTextDocument");
-
-  try {
-    const unsavedDocuments = await getUnsavedDocuments(connection);
-
-    const diagnostics = await validationJob.run(
-      uri,
-      document,
-      unsavedDocuments,
-      project
-    );
-
-    // Send the calculated diagnostics to VSCode, but only for the file over which we called validation.
-    for (const diagnosticUri of Object.keys(diagnostics)) {
-      if (uri.includes(diagnosticUri)) {
-        connection.sendDiagnostics({
-          uri: document.uri,
-          diagnostics: diagnostics[diagnosticUri],
-        });
-
-        return;
-      }
-    }
-
-    connection.sendDiagnostics({
-      uri: document.uri,
-      diagnostics: [],
-    });
-  } catch (err) {
-    logger.error(err);
-  }
-}
-
 async function getUnsavedDocuments(
   connection: Connection
 ): Promise<TextDocument[]> {
@@ -199,4 +124,93 @@ async function getUnsavedDocuments(
       }
     );
   });
+}
+
+function propagateToValidationWorker(
+  serverState: ServerState,
+  change: TextDocumentChangeEvent<TextDocument>
+) {
+  if (!(change.document.uri in debouncedPropagate)) {
+    debouncedPropagate[change.document.uri] = debounce(async () => {
+      const normalizedUri = decodeUriAndRemoveFilePrefix(change.document.uri);
+
+      const solFile =
+        serverState.solFileIndex[
+          decodeUriAndRemoveFilePrefix(change.document.uri)
+        ];
+
+      if (!solFile) {
+        serverState.logger.error(
+          new Error(
+            `Could not send to valiation process, uri is not indexed: ${change.document.uri}`
+          )
+        );
+
+        return;
+      }
+
+      if (!isHardhatProject(solFile.project)) {
+        serverState.logger.trace(
+          `No project associated with file, change not propagated to validation process: ${change.document.uri}`
+        );
+
+        return;
+      }
+
+      const workerProcess: WorkerProcess | undefined =
+        serverState.workerProcesses[solFile.project.basePath];
+
+      if (workerProcess === undefined) {
+        serverState.logger.error(
+          `No worker process for project: ${solFile.project.basePath}`
+        );
+
+        return;
+      }
+
+      const unsavedDocuments = await getUnsavedDocuments(
+        serverState.connection
+      );
+
+      const documentText = change.document.getText();
+
+      const { errors } = await workerProcess.validate({
+        uri: normalizedUri,
+        documentText,
+        unsavedDocuments: unsavedDocuments.map((unsavedDocument) => ({
+          uri: unsavedDocument.uri,
+          documentText: unsavedDocument.getText(),
+        })),
+      });
+
+      const document = change.document;
+
+      if (errors.length === 0) {
+        serverState.connection.sendDiagnostics({
+          uri: document.uri,
+          diagnostics: [],
+        });
+
+        return;
+      }
+
+      const diagnosticConverter = new DiagnosticConverter(serverState.logger);
+
+      const diagnostics: { [uri: string]: Diagnostic[] } =
+        diagnosticConverter.convertErrors(change.document, errors);
+
+      for (const diagnosticUri of Object.keys(diagnostics)) {
+        if (document.uri.includes(diagnosticUri)) {
+          serverState.connection.sendDiagnostics({
+            uri: document.uri,
+            diagnostics: diagnostics[diagnosticUri],
+          });
+        }
+      }
+    }, 250);
+  }
+
+  const propagate = debouncedPropagate[change.document.uri];
+
+  propagate(change);
 }

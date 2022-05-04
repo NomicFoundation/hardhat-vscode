@@ -25,10 +25,36 @@ export interface CompilerProcess {
 
 export type CompilerProcessFactory = (
   project: HardhatProject,
-  uri: string,
-  cancelResolver: CancelResolver,
   logger: Logger
-) => CompilerProcess;
+) => WorkerProcess;
+
+export interface HardhatCompilerError {
+  component: "general";
+  errorCode: string;
+  formattedMessage: string;
+  message: string;
+  severity: "error" | "warning";
+  sourceLocation?: { file: string; start: number; end: number };
+  type: "DeclarationError";
+}
+
+export interface WorkerProcess {
+  project: HardhatProject;
+  init: () => void;
+  validate: (details: {
+    uri: string;
+    documentText: string;
+    unsavedDocuments: Array<{
+      uri: string;
+      documentText: string;
+    }>;
+  }) => Promise<{ errors: HardhatCompilerError[] }>;
+  kill: () => void;
+}
+
+export interface WorkerProcesses {
+  [key: string]: WorkerProcess;
+}
 
 export interface ServerState {
   env: "production" | "development";
@@ -45,6 +71,7 @@ export interface ServerState {
   workspaceFolders: WorkspaceFolder[];
   projects: SolProjectMap;
   solFileIndex: DocumentsAnalyzerMap;
+  workerProcesses: WorkerProcesses;
 
   telemetry: Telemetry;
   logger: Logger;

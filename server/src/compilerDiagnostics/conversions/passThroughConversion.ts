@@ -1,5 +1,5 @@
 import { TextDocument, Range, DiagnosticSeverity } from "@common/types";
-import { HardhatCompilerError } from "../types";
+import { HardhatCompilerError } from "../../types";
 
 export function passThroughConversion(
   document: TextDocument,

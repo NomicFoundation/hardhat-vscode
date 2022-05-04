@@ -1,5 +1,5 @@
 import { TextDocument, Range } from "@common/types";
-import { HardhatCompilerError } from "../types";
+import { HardhatCompilerError } from "../../types";
 import { passThroughConversion } from "./passThroughConversion";
 
 export function constrainByRegex(

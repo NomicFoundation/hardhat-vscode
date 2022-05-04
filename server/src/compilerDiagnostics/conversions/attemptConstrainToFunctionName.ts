@@ -1,5 +1,5 @@
 import { TextDocument, Diagnostic } from "@common/types";
-import { HardhatCompilerError } from "../types";
+import { HardhatCompilerError } from "../../types";
 import { constrainByRegex } from "./constrainByRegex";
 
 export function attemptConstrainToFunctionName(

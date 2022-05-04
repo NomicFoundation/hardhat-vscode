@@ -19,7 +19,7 @@ import { onDidChangeContent } from "@services/validation/onDidChangeContent";
 import { RequestType } from "vscode-languageserver-protocol";
 import path = require("path");
 import { decodeUriAndRemoveFilePrefix, toUnixStyle } from "./utils";
-import { ServerState } from "./types";
+import { CompilerProcessFactory, ServerState } from "./types";
 import { Telemetry } from "./telemetry/types";
 
 export interface GetSolFileDetailsParams {
@@ -66,7 +66,7 @@ export default function setupServer(
 
 function setupUninitializedServerState(
   connection: Connection,
-  compProcessFactory: typeof compilerProcessFactory,
+  compProcessFactory: CompilerProcessFactory,
   telemetry: Telemetry,
   logger: Logger
 ) {
@@ -82,6 +82,7 @@ function setupUninitializedServerState(
     projects: {},
     documents: new TextDocuments(TextDocument),
     solFileIndex: {},
+    workerProcesses: {},
 
     telemetry,
     logger,

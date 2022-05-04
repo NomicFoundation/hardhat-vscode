@@ -1,12 +1,8 @@
 import { CodeAction, Diagnostic } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import {
-  CompilerDiagnostic,
-  HardhatCompilerError,
-  ResolveActionsContext,
-} from "../types";
+import { CompilerDiagnostic, ResolveActionsContext } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
-import { ServerState } from "../../types";
+import { HardhatCompilerError, ServerState } from "../../types";
 import { resolveInsertSpecifierQuickFix } from "./common/resolveInsertSpecifierQuickFix";
 
 export class AddVirtualSpecifier implements CompilerDiagnostic {

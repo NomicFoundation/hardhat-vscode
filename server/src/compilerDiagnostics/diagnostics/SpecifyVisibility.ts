@@ -5,9 +5,9 @@ import {
   Range,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { HardhatCompilerError, ResolveActionsContext } from "../types";
+import { ResolveActionsContext } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
-import { ServerState } from "../../types";
+import { HardhatCompilerError, ServerState } from "../../types";
 import { parseFunctionDefinition } from "./parsing/parseFunctionDefinition";
 import { lookupToken } from "./parsing/lookupToken";
 
