@@ -84,7 +84,7 @@ describe("Parser", () => {
     });
 
     describe("enhancement", () => {
-      describe("function level error/warning", () => {
+      describe.skip("function level error/warning", () => {
         const mutabliltyRestrictToViewWarning = {
           component: "general",
           errorCode: "2018",
@@ -120,6 +120,7 @@ describe("Parser", () => {
 
         it("should convert constrain range of mutability warning", async () => {
           assert(mockConnection.sendDiagnostics.calledOnce);
+
           const { uri, diagnostics } =
             mockConnection.sendDiagnostics.firstCall.firstArg;
 

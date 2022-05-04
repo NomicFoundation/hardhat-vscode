@@ -3,17 +3,7 @@ import { passThroughConversion } from "@compilerDiagnostics/conversions/passThro
 import { compilerDiagnostics } from "@compilerDiagnostics/compilerDiagnostics";
 import { CompilerDiagnostic } from "@compilerDiagnostics/types";
 import { Logger } from "@utils/Logger";
-
-interface HardhatCompilerError {
-  errorCode: string;
-  severity: "error" | "warning";
-  message: string;
-  sourceLocation?: {
-    file: string;
-    start: number;
-    end: number;
-  };
-}
+import { HardhatCompilerError } from "../../types";
 
 export class DiagnosticConverter {
   private logger: Logger;
@@ -29,7 +19,7 @@ export class DiagnosticConverter {
     const diagnostics: { [uri: string]: Diagnostic[] } = {};
 
     for (const error of this._filterBlockedErrors(errors)) {
-      if (!error.sourceLocation) {
+      if (error.sourceLocation === undefined) {
         continue;
       }
 

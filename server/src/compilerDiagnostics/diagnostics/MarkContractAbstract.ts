@@ -6,8 +6,8 @@ import {
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { attemptConstrainToContractName } from "@compilerDiagnostics/conversions/attemptConstrainToContractName";
-import { HardhatCompilerError, ResolveActionsContext } from "../types";
-import { ServerState } from "../../types";
+import { ResolveActionsContext } from "../types";
+import { HardhatCompilerError, ServerState } from "../../types";
 import {
   parseContractDefinition,
   ParseContractDefinitionResult,
