@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.3.1 - 2022-05-05
+
+### Added
+
+- Display **Hardhat** import errors against the import line ([#154](https://github.com/NomicFoundation/hardhat-vscode/issues/154))
+- Add support for optional argument names in return NatSpec tags ([#168](https://github.com/NomicFoundation/hardhat-vscode/issues/168))
+- Add Hardhat project usage explanation to docs, documenting how the compiler is inferred ([#135](https://github.com/NomicFoundation/hardhat-vscode/issues/135))
+
+### Changed
+
+- Include explicit extensionKind ([#120](https://github.com/NomicFoundation/hardhat-vscode/pull/120))
+
+### Fixed
+
+- Stop validation timeout warning in logs (close the validation process on error) ([#144](https://github.com/NomicFoundation/hardhat-vscode/issues/144))
+
 ## 0.3.0 - 2022-05-02
 
 ### Added
