@@ -21,24 +21,27 @@ describe("Parser", () => {
     path.join(__dirname, "testData", "MemberAccessNestedStruct.sol")
   );
 
-  let completion: OnCompletion;
+  const memberAccessArraysUri = forceToUnixStyle(
+    path.join(__dirname, "testData", "MemberAccessArrays.sol")
+  );
 
-  before(async () => {
-    ({
-      server: { completion },
-    } = await setupMockLanguageServer({
-      documents: [
-        { uri: globalVariablesUri, analyze: true },
-        { uri: memberAccessStructUri, analyze: false },
-        { uri: memberAccessNestedStructUri, analyze: false },
-      ],
-      errors: [],
-    }));
-  });
+  let completion: OnCompletion;
 
   describe("Completion", () => {
     describe("Member Access", () => {
       describe("structs", () => {
+        before(async () => {
+          ({
+            server: { completion },
+          } = await setupMockLanguageServer({
+            documents: [
+              { uri: memberAccessStructUri, analyze: false },
+              { uri: memberAccessNestedStructUri, analyze: false },
+            ],
+            errors: [],
+          }));
+        });
+
         it("should provide completions", () =>
           assertCompletion(
             completion,
@@ -55,9 +58,69 @@ describe("Parser", () => {
             ["charisma", "intelligence", "strength", "wisdom"]
           ));
       });
+
+      describe("arrays", () => {
+        before(async () => {
+          ({
+            server: { completion },
+          } = await setupMockLanguageServer({
+            documents: [{ uri: memberAccessArraysUri, analyze: false }],
+            errors: [],
+          }));
+        });
+
+        it("should provide completions for local variables", () =>
+          assertCompletion(
+            completion,
+            memberAccessArraysUri,
+            { line: 21, character: 22 },
+            ["length", "pop", "push"]
+          ));
+
+        it("should provide completions for state properties", () =>
+          assertCompletion(
+            completion,
+            memberAccessArraysUri,
+            { line: 22, character: 13 },
+            ["length", "pop", "push"]
+          ));
+
+        it("should provide completions for array properties nested in structs", () =>
+          assertCompletion(
+            completion,
+            memberAccessArraysUri,
+            { line: 23, character: 25 },
+            ["length", "pop", "push"]
+          ));
+
+        it("should provide completions for state properties inherited from a parent contract", () =>
+          assertCompletion(
+            completion,
+            memberAccessArraysUri,
+            { line: 24, character: 12 },
+            ["length", "pop", "push"]
+          ));
+
+        it("should provide completions for array parameters", () =>
+          assertCompletion(
+            completion,
+            memberAccessArraysUri,
+            { line: 25, character: 20 },
+            ["length", "pop", "push"]
+          ));
+      });
     });
 
     describe("Global Variables", () => {
+      before(async () => {
+        ({
+          server: { completion },
+        } = await setupMockLanguageServer({
+          documents: [{ uri: globalVariablesUri, analyze: true }],
+          errors: [],
+        }));
+      });
+
       it("should provide sender completions", () =>
         assertCompletion(
           completion,

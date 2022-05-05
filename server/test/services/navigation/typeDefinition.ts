@@ -63,6 +63,19 @@ describe("Parser", () => {
               },
             ]
           ));
+
+        it("should navigate from array attribute usage", () =>
+          assertTypeDefinitionNavigation(
+            typeDefinition,
+            basicUri,
+            { line: 28, character: 21 },
+            [
+              {
+                start: { line: 33, character: 9 },
+                end: { line: 33, character: 12 },
+              },
+            ]
+          ));
       });
     });
   });

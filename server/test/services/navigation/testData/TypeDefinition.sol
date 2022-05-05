@@ -7,7 +7,7 @@ contract Test {
     uint120 charisma;
     uint120 intelligence;
     uint120 wisdom;
-	}
+  }
 
   uint120 public balance;
 
@@ -16,17 +16,17 @@ contract Test {
   mapping(address => Hero) public heroes;
   NPC[] public followers;
 
-	constructor() {
-		balance = 10;
+  constructor() {
+    balance = 10;
     hero = Hero({ strength: 1, charisma: 1, intelligence: 1, wisdom: 1 });
-	}
+  }
 
   function resetBalance() public {
     balance = 0;
   }
 
   function resetStrength() public {
-    hero.strength = 0;
+    hero.strength = followers.length;
 
     resetBalance();
   }
