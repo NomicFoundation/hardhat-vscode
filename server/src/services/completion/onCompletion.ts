@@ -26,6 +26,7 @@ import { ServerState } from "../../types";
 import { ProjectContext } from "./types";
 import { findProjectFor } from "@utils/findProjectFor";
 import { decodeUriAndRemoveFilePrefix } from "@utils/index";
+import { arrayCompletions } from "./arrayCompletions";
 
 export const onCompletion = (serverState: ServerState) => {
   return (params: CompletionParams): CompletionList | undefined => {
@@ -258,6 +259,10 @@ function getMemberAccessCompletions(
   position: VSCodePosition,
   node: Node
 ): CompletionItem[] {
+  if (isArrayAccess(node)) {
+    return arrayCompletions;
+  }
+
   const definitionNodes: Node[] = [];
   const cursorPosition = getParserPositionFromVSCodePosition(position);
 
@@ -281,6 +286,16 @@ function getMemberAccessCompletions(
   }
 
   return getCompletionsFromNodes(definitionNodes);
+}
+
+function isArrayAccess(node: Node): boolean {
+  const definition = node.getDefinitionNode();
+
+  if (definition?.type !== "VariableDeclaration") {
+    return false;
+  }
+
+  return definition.typeNodes.some((tn) => tn.type === "ArrayTypeName");
 }
 
 function getDefaultCompletions(
