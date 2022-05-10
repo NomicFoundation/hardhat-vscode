@@ -25,4 +25,16 @@ contract Dog is Animal {
     {
         return "woof";
     }
+
+    function factory()
+        public
+        pure
+        returns (Animal)
+    {
+        if (1 < 2) {
+          return new Animal("woof");
+        } else {
+          return new Animal("woof");
+        }
+    }
 }
