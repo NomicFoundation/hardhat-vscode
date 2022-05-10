@@ -7,7 +7,8 @@ import * as lsclient from "vscode-languageclient/node";
 import { sleep } from "./common/helper";
 import { Client as IClient } from "./common/types";
 
-let client: Client;
+let client: Client | null = null;
+
 export async function getClient(): Promise<Client> {
   if (client) {
     return client;
@@ -27,24 +28,28 @@ export async function getClient(): Promise<Client> {
 }
 
 class Client implements IClient {
-  public client: lsclient.LanguageClient;
+  public client: lsclient.LanguageClient | null = null;
   public tokenSource: vscode.CancellationTokenSource =
     new vscode.CancellationTokenSource();
 
-  private middleware: lsclient.Middleware;
-  private editor: vscode.TextEditor;
+  private middleware: lsclient.Middleware | null = null;
+  private editor: vscode.TextEditor | null = null;
 
-  document: vscode.TextDocument;
-  docUri: vscode.Uri;
+  public document: vscode.TextDocument | null = null;
+  public docUri: vscode.Uri | null = null;
 
   /**
    * Activates the extension
    */
-  async activate(): Promise<void> {
+  public async activate(): Promise<void> {
     // The extensionId is `publisher.name` from package.json
     const ext = vscode.extensions.getExtension(
       "nomicfoundation.hardhat-solidity"
     );
+
+    if (!ext) {
+      throw new Error("Extension not found");
+    }
 
     await ext.activate();
 
@@ -99,14 +104,18 @@ class Client implements IClient {
     await sleep(5000);
   }
 
-  async changeDocument(docUri: vscode.Uri) {
+  public async changeDocument(docUri: vscode.Uri) {
     this.docUri = docUri;
 
     this.document = await vscode.workspace.openTextDocument(this.docUri);
     this.editor = await vscode.window.showTextDocument(this.document);
   }
 
-  getVSCodeClient(): lsclient.LanguageClient {
+  public getVSCodeClient(): lsclient.LanguageClient {
+    if (!this.client) {
+      throw new Error("Client not set");
+    }
+
     return this.client;
   }
 }

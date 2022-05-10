@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class VariableDeclarationStatementNode extends Node {
-  astNode: VariableDeclarationStatement;
+  public astNode: VariableDeclarationStatement;
 
   constructor(
     variableDeclarationStatement: VariableDeclarationStatement,
@@ -24,11 +24,11 @@ export class VariableDeclarationStatementNode extends Node {
     this.astNode = variableDeclarationStatement;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

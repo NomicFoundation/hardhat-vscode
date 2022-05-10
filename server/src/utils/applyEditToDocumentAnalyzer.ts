@@ -1,9 +1,9 @@
-import { getUriFromDocument } from "./index";
-import { ServerState } from "../types";
-import { LookupResult } from "./lookupEntryForUri";
 import { TextDocument } from "@common/types";
 import { analyzeDocument } from "@utils/analyzeDocument";
 import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
+import { ServerState } from "../types";
+import { LookupResult } from "./lookupEntryForUri";
+import { getUriFromDocument } from "./index";
 
 export function applyEditToDocumentAnalyzer(
   serverState: ServerState,

@@ -1,10 +1,10 @@
 import { CodeAction, CodeActionKind } from "vscode-languageserver/node";
 import { ResolveActionsContext } from "../../../types";
 import { ParseContractDefinitionResult } from "../../parsing/parseContractDefinition";
+import { ServerState } from "../../../../types";
 import { createAppendFunctionsToContractChange } from "./createAppendFunctionsToContractChange";
 import { resolveFunctionsToImplement } from "./resolveFunctionsToImplement";
 import { findAnalyzedContract } from "./findAnalyzedContract";
-import { ServerState } from "types";
 
 export function buildImplementInterfaceQuickFix(
   serverState: ServerState,

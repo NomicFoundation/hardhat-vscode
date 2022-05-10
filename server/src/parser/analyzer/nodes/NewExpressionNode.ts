@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class NewExpressionNode extends Node {
-  astNode: NewExpression;
+  public astNode: NewExpression;
 
   constructor(
     newExpression: NewExpression,
@@ -18,7 +18,7 @@ export class NewExpressionNode extends Node {
     this.astNode = newExpression;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -26,6 +26,7 @@ export class NewExpressionNode extends Node {
   ): Node {
     this.setExpressionNode(expression);
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (this.astNode.typeName) {
       find(
         this.astNode.typeName,

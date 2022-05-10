@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class BreakStatementNode extends Node {
-  astNode: BreakStatement;
+  public astNode: BreakStatement;
 
   constructor(
     breakStatement: BreakStatement,
@@ -19,7 +19,7 @@ export class BreakStatementNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

@@ -10,10 +10,6 @@ import {
   Mapping,
   EmptyNodeType,
 } from "@common/types";
-import { ContractDefinitionNode } from "../nodes/ContractDefinitionNode";
-import { FunctionDefinitionNode } from "../nodes/FunctionDefinitionNode";
-import { MemberAccessNode } from "../nodes/MemberAccessNode";
-import { FunctionCallNode } from "../nodes/FunctionCallNode";
 import {
   ArrayTypeName,
   BaseASTNode,
@@ -24,6 +20,10 @@ import {
   VariableDeclaration,
 } from "@solidity-parser/parser/dist/src/ast-types";
 import { ElementaryTypeNameNode } from "@analyzer/nodes/ElementaryTypeNameNode";
+import { ContractDefinitionNode } from "../nodes/ContractDefinitionNode";
+import { FunctionDefinitionNode } from "../nodes/FunctionDefinitionNode";
+import { MemberAccessNode } from "../nodes/MemberAccessNode";
+import { FunctionCallNode } from "../nodes/FunctionCallNode";
 
 export function isContractDefinition(
   node: ASTNode

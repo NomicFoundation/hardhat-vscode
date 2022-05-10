@@ -1,11 +1,11 @@
 import { assert } from "chai";
 import * as path from "path";
 import { VSCodePosition } from "@common/types";
+import { CompletionContext } from "vscode-languageserver/node";
 import {
   OnCompletion,
   setupMockLanguageServer,
 } from "../../helpers/setupMockLanguageServer";
-import { CompletionContext } from "vscode-languageserver/node";
 import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
 
 describe("Parser", () => {

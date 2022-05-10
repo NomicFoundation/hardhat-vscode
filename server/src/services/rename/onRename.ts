@@ -1,6 +1,5 @@
 import { onCommand } from "@utils/onCommand";
 import { RenameParams } from "vscode-languageserver/node";
-import { ServerState } from "../../types";
 import { isFunctionDefinitionNode } from "@analyzer/utils/typeGuards";
 import {
   VSCodePosition,
@@ -12,6 +11,7 @@ import {
 
 import { getParserPositionFromVSCodePosition, getRange } from "@common/utils";
 import { findReferencesFor } from "@utils/findReferencesFor";
+import { ServerState } from "../../types";
 import { convertHardhatUriToVscodeUri } from "../../utils/index";
 
 export const onRename = (serverState: ServerState) => {
@@ -90,7 +90,10 @@ function convertRefNodesToUpdates(referenceNodes: Node[], newName: string) {
 
     const uri = convertHardhatUriToVscodeUri(potentialUpdate.uri);
 
-    if (workspaceEdit.changes && !workspaceEdit.changes[uri]) {
+    if (
+      workspaceEdit.changes !== undefined &&
+      !(uri in workspaceEdit.changes)
+    ) {
       workspaceEdit.changes[uri] = [];
     }
 
@@ -103,19 +106,19 @@ function convertRefNodesToUpdates(referenceNodes: Node[], newName: string) {
   return workspaceEdit;
 }
 
-function isConstructorContractModifier(initialRenameNode: Node) {
+function isConstructorContractModifier(initialRenameNode: Node): boolean {
   return (
     initialRenameNode.type === "ModifierInvocation" &&
-    initialRenameNode.parent &&
+    initialRenameNode.parent !== undefined &&
     isFunctionDefinitionNode(initialRenameNode.parent) &&
     initialRenameNode.parent.isConstructor
   );
 }
 
-function isFunctionOverrideContractSymbol(initialRenameNode: Node) {
+function isFunctionOverrideContractSymbol(initialRenameNode: Node): boolean {
   return (
     initialRenameNode.type === "UserDefinedTypeName" &&
-    initialRenameNode.parent &&
+    initialRenameNode.parent !== undefined &&
     isFunctionDefinitionNode(initialRenameNode.parent) &&
     initialRenameNode.parent.isConstructor
   );

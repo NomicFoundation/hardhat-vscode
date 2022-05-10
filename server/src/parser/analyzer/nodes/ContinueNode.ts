@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class ContinueNode extends Node {
-  astNode: Continue;
+  public astNode: Continue;
 
   constructor(
     astContinue: Continue,
@@ -19,7 +19,7 @@ export class ContinueNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

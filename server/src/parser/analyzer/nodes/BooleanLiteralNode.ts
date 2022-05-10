@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class BooleanLiteralNode extends Node {
-  astNode: BooleanLiteral;
+  public astNode: BooleanLiteral;
 
   constructor(
     booleanLiteral: BooleanLiteral,
@@ -19,7 +19,7 @@ export class BooleanLiteralNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

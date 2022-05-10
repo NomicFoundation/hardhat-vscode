@@ -1,7 +1,7 @@
 import { CodeAction, Diagnostic } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { compilerDiagnostics } from "@compilerDiagnostics/compilerDiagnostics";
-import { ServerState } from "types";
+import { ServerState } from "../../types";
 
 export function resolveQuickFixes(
   serverState: ServerState,
@@ -32,7 +32,7 @@ function resolveActionsFor(
   diagnostic: Diagnostic,
   { document, uri }: { document: TextDocument; uri: string }
 ): CodeAction[] {
-  if (diagnostic && diagnostic.code && diagnostic.code in compilerDiagnostics) {
+  if (diagnostic.code !== undefined && diagnostic.code in compilerDiagnostics) {
     return compilerDiagnostics[diagnostic.code].resolveActions(
       serverState,
       diagnostic,

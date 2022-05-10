@@ -7,9 +7,9 @@ import {
 } from "@common/types";
 
 export class CustomErrorDefinitionNode extends Node {
-  astNode: CustomErrorDefinition;
+  public astNode: CustomErrorDefinition;
 
-  connectionTypeRules: string[] = ["Identifier", "UserDefinedTypeName"];
+  public connectionTypeRules: string[] = ["Identifier", "UserDefinedTypeName"];
 
   constructor(
     customErrorDefinition: CustomErrorDefinition,
@@ -45,15 +45,15 @@ export class CustomErrorDefinitionNode extends Node {
     this.addTypeNode(this);
   }
 
-  getTypeNodes(): Node[] {
+  public getTypeNodes(): Node[] {
     return this.typeNodes;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

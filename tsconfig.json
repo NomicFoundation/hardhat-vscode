@@ -6,7 +6,8 @@
     "outDir": "out",
     "sourceMap": true,
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "strict": true
   },
   "include": ["./client", "./server", "./test", "./test/**/*.json"],
   "exclude": [
@@ -15,7 +16,8 @@
     "./server/test",
     "./client/out",
     "./server/out",
-    "./out"
+    "./out",
+    ".eslintrc.js"
   ],
   "references": [{ "path": "./client" }, { "path": "./server" }]
 }

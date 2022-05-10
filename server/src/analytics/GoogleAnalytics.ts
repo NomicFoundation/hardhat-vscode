@@ -1,6 +1,7 @@
 import * as os from "os";
 import got from "got";
 import * as qs from "qs";
+import { isTelemetryEnabled } from "@utils/serverStateUtils";
 import { ServerState } from "../types";
 import {
   Analytics,
@@ -8,7 +9,6 @@ import {
   DefaultRawAnalyticsPayload,
   RawAnalyticsPayload,
 } from "./types";
-import { isTelemetryEnabled } from "@utils/serverStateUtils";
 
 const GOOGLE_ANALYTICS_URL = "https://www.google-analytics.com/collect";
 
@@ -44,21 +44,21 @@ export class GoogleAnalytics implements Analytics {
       if (
         this.serverState?.env !== "production" ||
         !isTelemetryEnabled(this.serverState) ||
-        !this.machineId
+        this.machineId === undefined
       ) {
         return;
       }
 
-      const payload = this.buildPayloadFrom(taskName, this.machineId, more);
+      const payload = this._buildPayloadFrom(taskName, this.machineId, more);
 
-      await this.sendHit(payload);
+      await this._sendHit(payload);
     } catch {
       // continue on failed analytics send
       return;
     }
   }
 
-  private buildPayloadFrom(
+  private _buildPayloadFrom(
     taskName: string,
     machineId: string,
     more?: RawAnalyticsPayload
@@ -74,7 +74,7 @@ export class GoogleAnalytics implements Analytics {
       // We use it to inform Node version used and OS.
       // Example:
       //   Node/v8.12.0 (Darwin 17.7.0)
-      ua: this.getUserAgent(),
+      ua: this._getUserAgent(),
 
       // Client Id.
       cid: machineId,
@@ -93,7 +93,7 @@ export class GoogleAnalytics implements Analytics {
     return { ...defaultAnalytics, ...(more || {}) };
   }
 
-  private sendHit(hit: AnalyticsPayload) {
+  private _sendHit(hit: AnalyticsPayload) {
     const hitPayload = qs.stringify(hit);
 
     return got.post(GOOGLE_ANALYTICS_URL, {
@@ -106,8 +106,8 @@ export class GoogleAnalytics implements Analytics {
     });
   }
 
-  private getUserAgent(): string {
-    return `Node/${process.version} ${this.getOperatingSystem()}`;
+  private _getUserAgent(): string {
+    return `Node/${process.version} ${this._getOperatingSystem()}`;
   }
 
   /**
@@ -116,7 +116,7 @@ export class GoogleAnalytics implements Analytics {
    * return values different to those expected by Google Analytics
    * We decided to take the compromise of just reporting the OS Platform (OSX/Linux/Windows) for now (version information is bogus for now).
    */
-  private getOperatingSystem(): string {
+  private _getOperatingSystem(): string {
     switch (os.type()) {
       case "Windows_NT":
         return "(Windows NT 6.1; Win64; x64)";

@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class HexNumberNode extends Node {
-  astNode: HexNumber;
+  public astNode: HexNumber;
 
   constructor(
     hexNumber: HexNumber,
@@ -19,7 +19,7 @@ export class HexNumberNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

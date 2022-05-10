@@ -7,7 +7,7 @@ import {
 } from "@common/types";
 
 export class FunctionCallNode extends Node {
-  astNode: FunctionCall;
+  public astNode: FunctionCall;
 
   constructor(
     functionCall: FunctionCall,
@@ -19,7 +19,7 @@ export class FunctionCallNode extends Node {
     this.astNode = functionCall;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

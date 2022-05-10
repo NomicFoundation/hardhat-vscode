@@ -1,11 +1,11 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Token } from "@solidity-parser/parser/dist/src/types";
 
-export type LookupResult = {
+export interface LookupResult {
   token: Token;
   isSameLine: boolean;
   offset: number;
-};
+}
 
 const HEADER_KEYWORDS = [
   "public",

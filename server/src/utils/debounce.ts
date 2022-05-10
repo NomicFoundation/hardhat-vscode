@@ -15,26 +15,26 @@ export const debounce = <F extends (...args: any[]) => ReturnType<F>>(
   wait: number,
   immediate?: boolean
 ) => {
-  let timeout: NodeJS.Timeout;
-  let previousArgs: IArguments;
+  let timeout: NodeJS.Timeout | null = null;
+  let previousArgs: IArguments | null = null;
 
   const debounced: DebouncedFunction = function (this: void) {
     const context = this;
     const args = arguments;
 
     const later = function () {
-      if (!immediate) {
+      if (immediate === undefined) {
         func.call(context, ...args);
       }
     };
 
-    const callNow = immediate && !timeout;
+    const callNow = immediate !== undefined && !timeout;
 
     if (timeout) {
       if (
         previousArgs &&
         previousArgs[0] &&
-        typeof previousArgs[0].close == "function"
+        typeof previousArgs[0].close === "function"
       ) {
         previousArgs[0].close();
       }
@@ -53,11 +53,13 @@ export const debounce = <F extends (...args: any[]) => ReturnType<F>>(
   debounced.cancel = function () {
     const args = arguments;
 
-    if (args[0] && typeof args[0].close == "function") {
+    if (args[0] && typeof args[0].close === "function") {
       args[0].close();
     }
 
-    clearTimeout(timeout);
+    if (timeout) {
+      clearTimeout(timeout);
+    }
   };
 
   return debounced as (...args: Parameters<F>) => ReturnType<F>;

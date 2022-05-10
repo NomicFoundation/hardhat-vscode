@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class RevertStatementNode extends Node {
-  astNode: RevertStatement;
+  public astNode: RevertStatement;
 
   constructor(
     revertStatement: RevertStatement,
@@ -18,7 +18,7 @@ export class RevertStatementNode extends Node {
     this.astNode = revertStatement;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

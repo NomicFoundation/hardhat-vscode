@@ -1,21 +1,21 @@
 import { CodeAction, Diagnostic } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { ServerState } from "types";
+import { ServerState } from "../types";
 
-export type HardhatCompilerError = {
+export interface HardhatCompilerError {
   errorCode: string;
   severity: "error" | "warning";
   message: string;
-  sourceLocation: {
+  sourceLocation?: {
     start: number;
     end: number;
   };
-};
+}
 
-export type ResolveActionsContext = {
+export interface ResolveActionsContext {
   document: TextDocument;
   uri: string;
-};
+}
 
 export interface CompilerDiagnostic {
   code: string;

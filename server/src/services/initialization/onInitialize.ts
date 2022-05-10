@@ -50,8 +50,8 @@ export const onInitialize = (serverState: ServerState) => {
 
         workspace: {
           workspaceFolders: {
-            supported: true,
-            changeNotifications: true,
+            supported: false,
+            changeNotifications: false,
           },
         },
       },
@@ -61,6 +61,7 @@ export const onInitialize = (serverState: ServerState) => {
       result.capabilities.workspace = {
         workspaceFolders: {
           supported: true,
+          changeNotifications: true,
         },
       };
     }
@@ -92,10 +93,9 @@ function updateServerStateFromParams(
 
   serverState.workspaceFolders = params.workspaceFolders ?? [];
 
-  serverState.hasWorkspaceFolderCapability = !!(
-    params.capabilities.workspace &&
-    !!params.capabilities.workspace.workspaceFolders
-  );
+  serverState.hasWorkspaceFolderCapability =
+    params.capabilities.workspace !== undefined &&
+    params.capabilities.workspace.workspaceFolders !== undefined;
 }
 
 function logInitializationInfo(
@@ -115,10 +115,11 @@ function logInitializationInfo(
   logger.info(`  Release: ${extensionName}@${extensionVersion}`);
   logger.info(`  Environment: ${serverState.env}`);
   logger.info(`  Telemetry Enabled: ${serverState.globalTelemetryEnabled}`);
-  if (machineId) {
+
+  if (machineId !== undefined) {
     logger.info(
       `  Telemetry Tracking Id: ${
-        machineId.length > 10 ? machineId.substring(0, 10) + "..." : machineId
+        machineId.length > 10 ? `${machineId.substring(0, 10)}...` : machineId
       }`
     );
   }

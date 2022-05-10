@@ -5,27 +5,27 @@ import {
   Range,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { Token } from "@solidity-parser/parser/dist/src/types";
+import { ResolveActionsContext } from "@compilerDiagnostics/types";
+import { Logger } from "@utils/Logger";
+import { LookupResult, lookupToken } from "../parsing/lookupToken";
 import {
   parseFunctionDefinition,
   ParseFunctionDefinitionResult,
 } from "../parsing/parseFunctionDefinition";
-import { LookupResult, lookupToken } from "../parsing/lookupToken";
-import { Token } from "@solidity-parser/parser/dist/src/types";
-import { ResolveActionsContext } from "@compilerDiagnostics/types";
-import { Logger } from "@utils/Logger";
 
 export class Multioverride {
-  contractIdentifiers: string[];
+  public contractIdentifiers: string[];
 
   constructor(contractIdentifiers: string[]) {
     this.contractIdentifiers = contractIdentifiers;
   }
 
-  toDisplayName(): string {
+  public toDisplayName(): string {
     return "override(...)";
   }
 
-  toString(): string {
+  public toString(): string {
     return `override(${this.contractIdentifiers.join(", ")})`;
   }
 }
@@ -107,10 +107,10 @@ function buildActionFrom(
   specifier: Specifier,
   document: TextDocument,
   uri: string,
-  parseFunctionDefinition: ParseFunctionDefinitionResult,
+  parseFnDef: ParseFunctionDefinitionResult,
   tokenSelector: (token: Token) => boolean
 ) {
-  const { tokens, functionSourceLocation } = parseFunctionDefinition;
+  const { tokens, functionSourceLocation } = parseFnDef;
 
   const lookupResult = lookupToken(
     tokens,
@@ -133,7 +133,7 @@ function buildActionFrom(
     specifier,
     document,
     token,
-    parseFunctionDefinition,
+    parseFnDef,
     lookupResult
   );
 

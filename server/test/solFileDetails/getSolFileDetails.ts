@@ -81,6 +81,8 @@ describe("Solidity Language Server", () => {
   });
 });
 
-function prependWithFilePrefix(path: string) {
-  return os.platform() === "win32" ? `file:///${path}` : `file://${path}`;
+function prependWithFilePrefix(filePath: string) {
+  return os.platform() === "win32"
+    ? `file:///${filePath}`
+    : `file://${filePath}`;
 }

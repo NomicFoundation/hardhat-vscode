@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class IndexRangeAccessNode extends Node {
-  astNode: IndexRangeAccess;
+  public astNode: IndexRangeAccess;
 
   constructor(
     indexRangeAccess: IndexRangeAccess,
@@ -18,7 +18,7 @@ export class IndexRangeAccessNode extends Node {
     this.astNode = indexRangeAccess;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

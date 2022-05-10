@@ -66,25 +66,30 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
     clientOptions
   );
 
-  client.onReady().then(() => {
-    logger.info(`Client ready`);
+  client
+    .onReady()
+    .then(() => {
+      logger.info(`Client ready`);
 
-    client.onNotification("custom/get-unsaved-documents", () => {
-      const unsavedDocuments = getUnsavedDocuments();
+      client.onNotification("custom/get-unsaved-documents", () => {
+        const unsavedDocuments = getUnsavedDocuments();
 
-      client.sendNotification(
-        "custom/get-unsaved-documents",
-        unsavedDocuments.map((unsavedDocument) => {
-          return {
-            uri: unsavedDocument.uri,
-            languageId: unsavedDocument.languageId,
-            version: unsavedDocument.version,
-            content: unsavedDocument.getText(),
-          };
-        })
-      );
+        client.sendNotification(
+          "custom/get-unsaved-documents",
+          unsavedDocuments.map((unsavedDocument) => {
+            return {
+              uri: unsavedDocument.uri,
+              languageId: unsavedDocument.languageId,
+              version: unsavedDocument.version,
+              content: unsavedDocument.getText(),
+            };
+          })
+        );
+      });
+    })
+    .catch((reason) => {
+      logger.error(reason);
     });
-  });
 
   setupIndexingHooks(extensionState, client);
 
@@ -104,9 +109,9 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
         return;
       }
 
-      extensionState.hardhatTelemetryEnabled = workspace
-        .getConfiguration("hardhat")
-        .get<boolean>("telemetry");
+      extensionState.hardhatTelemetryEnabled =
+        workspace.getConfiguration("hardhat").get<boolean>("telemetry") ??
+        false;
 
       client.sendNotification("custom/didChangeHardhatTelemetryEnabled", {
         enabled: extensionState.hardhatTelemetryEnabled,

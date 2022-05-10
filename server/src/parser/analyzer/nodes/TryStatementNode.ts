@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class TryStatementNode extends Node {
-  astNode: TryStatement;
+  public astNode: TryStatement;
 
   constructor(
     tryStatement: TryStatement,
@@ -18,7 +18,7 @@ export class TryStatementNode extends Node {
     this.astNode = tryStatement;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -53,7 +53,7 @@ export class TryStatementNode extends Node {
       this.documentsAnalyzer
     ).accept(find, orphanNodes, this);
 
-    for (const catchClause of this.astNode.catchClauses || []) {
+    for (const catchClause of this.astNode.catchClauses ?? []) {
       find(catchClause, this.uri, this.rootPath, this.documentsAnalyzer).accept(
         find,
         orphanNodes,

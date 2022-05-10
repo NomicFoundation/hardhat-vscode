@@ -4,11 +4,11 @@ import {
 } from "@analyzer/utils/typeGuards";
 import { getParserPositionFromVSCodePosition } from "@common/utils";
 import { HoverParams, Hover } from "vscode-languageserver/node";
-import { ServerState } from "../../types";
 import { ISolFileEntry, IdentifierNode, MemberAccessNode } from "@common/types";
+import { onCommand } from "@utils/onCommand";
+import { ServerState } from "../../types";
 import { astToText } from "./utils/astToText";
 import { textToHover } from "./utils/textTohover";
-import { onCommand } from "@utils/onCommand";
 
 export function onHover(serverState: ServerState) {
   return (params: HoverParams): Hover | null => {

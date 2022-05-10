@@ -2,8 +2,8 @@ import * as lsclient from "vscode-languageclient/node";
 import * as vscode from "vscode";
 import * as assert from "assert";
 
-import { isArray, isDefined, rangeEqual, uriEqual } from "./helper";
 import { Client, Action } from "../common/types";
+import { isArray, isDefined, rangeEqual, uriEqual } from "./helper";
 
 export async function assertLspCommand(client: Client, action: Action) {
   await ensureValidationOfDoc(client, action);
@@ -41,16 +41,17 @@ async function assertDefinitionRequestResult(
 ) {
   const { client, tokenSource, document } = wrapClient;
 
+  if (!client || !document) {
+    throw new Error("Client or document not set");
+  }
+
   const provider = client
     .getFeature(lsclient.DefinitionRequest.method)
     .getProvider(document);
 
   isDefined(provider);
 
-  const position = new vscode.Position(
-    action.params.position.line,
-    action.params.position.character
-  );
+  const position = resolvePosition(action);
 
   const result = (await provider.provideDefinition(
     document,
@@ -80,16 +81,17 @@ async function assertTypeDefinitionRequestResult(
 ): Promise<void> {
   const { client, tokenSource, document } = wrapClient;
 
+  if (!client || !document) {
+    throw new Error("Client or document not set");
+  }
+
   const provider = client
     .getFeature(lsclient.TypeDefinitionRequest.method)
     .getProvider(document);
 
   isDefined(provider);
 
-  const position = new vscode.Position(
-    action.params.position.line,
-    action.params.position.character
-  );
+  const position = resolvePosition(action);
 
   const results = (await provider.provideTypeDefinition(
     document,
@@ -125,16 +127,17 @@ async function assertReferencesRequestResult(
 ): Promise<void> {
   const { client, tokenSource, document } = wrapClient;
 
+  if (!client || !document) {
+    throw new Error("Client or document not set");
+  }
+
   const provider = client
     .getFeature(lsclient.ReferencesRequest.method)
     .getProvider(document);
 
   isDefined(provider);
 
-  const position = new vscode.Position(
-    action.params.position.line,
-    action.params.position.character
-  );
+  const position = resolvePosition(action);
 
   const results = (await provider.provideReferences(
     document,
@@ -192,16 +195,17 @@ async function assertImplementationRequestResult(
 ): Promise<void> {
   const { client, tokenSource, document } = wrapClient;
 
+  if (!client || !document) {
+    throw new Error("Client or document not set");
+  }
+
   const provider = client
     .getFeature(lsclient.ImplementationRequest.method)
     .getProvider(document);
 
   isDefined(provider);
 
-  const position = new vscode.Position(
-    action.params.position.line,
-    action.params.position.character
-  );
+  const position = resolvePosition(action);
 
   const results = (await provider.provideImplementation(
     document,
@@ -237,16 +241,21 @@ async function assertRenameRequestResult(
 ): Promise<void> {
   const { client, tokenSource, document } = wrapClient;
 
+  if (!client || !document) {
+    throw new Error("Client or document not set");
+  }
+
   const provider = client
     .getFeature(lsclient.RenameRequest.method)
     .getProvider(document);
 
   isDefined(provider);
 
-  const position = new vscode.Position(
-    action.params.position.line,
-    action.params.position.character
-  );
+  if (action.params === undefined || action.params.new_name === undefined) {
+    throw new Error("No new name in params");
+  }
+
+  const position = resolvePosition(action);
 
   const renameResult = await provider.provideRenameEdits(
     document,
@@ -254,6 +263,10 @@ async function assertRenameRequestResult(
     action.params.new_name,
     tokenSource.token
   );
+
+  if (!renameResult) {
+    assert.fail("No rename result");
+  }
 
   isArray(renameResult.entries(), action.expected.length);
 
@@ -263,7 +276,7 @@ async function assertRenameRequestResult(
   );
 
   for (let i = 0; i < renameResult.entries().length; i++) {
-    const results = renameResult.entries()[i];
+    const results: [vscode.Uri, vscode.TextEdit[]] = renameResult.entries()[i];
     const expected = action.expected[i];
 
     if (results.length !== 2) {
@@ -300,4 +313,15 @@ async function assertRenameRequestResult(
       );
     }
   }
+}
+
+function resolvePosition(action: Action) {
+  if (!action.params?.position) {
+    throw new Error("No position in params");
+  }
+
+  return new vscode.Position(
+    action.params.position.line,
+    action.params.position.character
+  );
 }

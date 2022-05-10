@@ -7,9 +7,9 @@ import {
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { HardhatCompilerError, ResolveActionsContext } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
+import { ServerState } from "../../types";
 import { parseFunctionDefinition } from "./parsing/parseFunctionDefinition";
 import { lookupToken } from "./parsing/lookupToken";
-import { ServerState } from "types";
 
 type Visibility = "public" | "private" | "external" | "internal";
 
@@ -19,14 +19,14 @@ export class SpecifyVisibility {
   public code = "4937";
   public blocks: string[] = [];
 
-  fromHardhatCompilerError(
+  public fromHardhatCompilerError(
     document: TextDocument,
     error: HardhatCompilerError
   ): Diagnostic {
     return attemptConstrainToFunctionName(document, error);
   }
 
-  resolveActions(
+  public resolveActions(
     serverState: ServerState,
     diagnostic: Diagnostic,
     context: ResolveActionsContext
@@ -66,7 +66,7 @@ export class SpecifyVisibility {
       functionSourceLocation.start + closingParamListToken.range[0] + 1;
 
     return QUICK_FIX_VISIBILITIES.map((visibility) =>
-      this.constructVisibilityCodeActionFor(
+      this._constructVisibilityCodeActionFor(
         visibility,
         document,
         uri,
@@ -75,7 +75,7 @@ export class SpecifyVisibility {
     );
   }
 
-  private constructVisibilityCodeActionFor(
+  private _constructVisibilityCodeActionFor(
     visibility: Visibility,
     document: TextDocument,
     uri: string,

@@ -12,20 +12,22 @@ import {
   FileLevelConstant,
   Position,
   expressionNodeTypes,
+  TextDocument,
 } from "@common/types";
 import { getParserPositionFromVSCodePosition } from "@common/utils";
-import { globalVariables, defaultCompletion } from "./defaultCompletion";
 import { Logger } from "@utils/Logger";
 import { isImportDirectiveNode } from "@analyzer/utils/typeGuards";
-import { CompletionContext } from "vscode-languageserver/node";
-import { getImportPathCompletion } from "./getImportPathCompletion";
-import { TextDocument } from "@common/types";
+import {
+  CompletionContext,
+  CompletionParams,
+} from "vscode-languageserver/node";
 import { applyEditToDocumentAnalyzer } from "@utils/applyEditToDocumentAnalyzer";
-import { CompletionParams } from "vscode-languageserver/node";
-import { ServerState } from "../../types";
-import { ProjectContext } from "./types";
 import { findProjectFor } from "@utils/findProjectFor";
 import { decodeUriAndRemoveFilePrefix } from "@utils/index";
+import { ServerState } from "../../types";
+import { ProjectContext } from "./types";
+import { getImportPathCompletion } from "./getImportPathCompletion";
+import { globalVariables, defaultCompletion } from "./defaultCompletion";
 import { arrayCompletions } from "./arrayCompletions";
 
 export const onCompletion = (serverState: ServerState) => {
@@ -40,7 +42,7 @@ export const onCompletion = (serverState: ServerState) => {
           applyEditToDocumentAnalyzer(
             serverState,
             params.textDocument.uri,
-            (document) => resolveChangedDocText(params, document)
+            (doc) => resolveChangedDocText(params, doc)
           );
 
         if (!found || !documentAnalyzer || !document) {
@@ -94,11 +96,10 @@ function resolveChangedDocText(
         ? documentText.indexOf("\n", cursorOffset)
         : cursorOffset;
 
-    newDocumentText =
-      documentText.slice(0, cursorOffset) +
-      "_;" +
-      documentText.slice(cursorOffset, eofOffset) +
-      ";";
+    newDocumentText = `${documentText.slice(
+      0,
+      cursorOffset
+    )}_;${documentText.slice(cursorOffset, eofOffset)};`;
   }
 
   return newDocumentText;
@@ -112,10 +113,6 @@ export function doComplete(
   logger: Logger
 ): CompletionList | undefined {
   const result: CompletionList = { isIncomplete: false, items: [] };
-
-  if (!documentAnalyzer.analyzerTree.tree) {
-    return result;
-  }
 
   let definitionNode = documentAnalyzer.searcher.findNodeByPosition(
     documentAnalyzer.uri,
@@ -153,7 +150,7 @@ export function doComplete(
   } else if (definitionNodeName === "super") {
     result.items = getSuperCompletions(documentAnalyzer, position);
   } else if (
-    definitionNodeName &&
+    definitionNodeName !== undefined &&
     Object.keys(globalVariables).includes(definitionNodeName)
   ) {
     result.items = getGlobalVariableCompletions(definitionNodeName);
@@ -163,7 +160,7 @@ export function doComplete(
     });
   } else if (
     definitionNode &&
-    expressionNodeTypes.includes(definitionNode.getExpressionNode()?.type || "")
+    expressionNodeTypes.includes(definitionNode.getExpressionNode()?.type ?? "")
   ) {
     result.items = getMemberAccessCompletions(
       documentAnalyzer,
@@ -242,6 +239,7 @@ function getGlobalVariableCompletions(
 ): CompletionItem[] {
   const globalVariableFunctions = globalVariables[globalVariable];
 
+  // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
   if (globalVariableFunctions) {
     return globalVariableFunctions.map((globalVariableFunction: string) => {
       return {
@@ -321,7 +319,8 @@ function getCompletionsFromNodes(nodes: Node[]): CompletionItem[] {
     const name = node.getName();
 
     if (
-      name &&
+      name !== undefined &&
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       !completions.filter((completion) => completion.label === name)[0]
     ) {
       if (node.type === "Identifier") {

@@ -352,10 +352,10 @@ export interface Searcher {
 }
 
 export enum SolFileState {
-  Unloaded = "Unloaded",
-  Dirty = "Dirty",
-  Analyzed = "Analyzed",
-  Errored = "Errored",
+  UNLOADED = "UNLOADED",
+  DIRTY = "DIRTY",
+  ANALYZED = "ANALYZED",
+  ERRORED = "ERRORED",
 }
 
 export type SolProjectType = "hardhat" | "none";
@@ -370,9 +370,9 @@ export interface ISolProject {
   workspaceFolder: WorkspaceFolder;
 }
 
-export type SolProjectMap = {
+export interface SolProjectMap {
   [key: string]: ISolProject;
-};
+}
 
 export interface ISolFileEntry {
   /**
@@ -445,62 +445,62 @@ export type FinderType = (
 /**
  * documentsAnalyzer Map { [uri: string]: DocumentAnalyzer } have all documentsAnalyzer class instances used for handle imports on first project start.
  */
-export type DocumentsAnalyzerMap = {
+export interface DocumentsAnalyzerMap {
   [uri: string]: ISolFileEntry | undefined;
-};
+}
 
-export type EmptyNodeType = {
+export interface EmptyNodeType {
   type: "Empty";
   range?: [number, number];
   loc?: Location;
-};
+}
 
 export abstract class Node {
   /**
    * AST node type.
    */
-  type: string;
+  public type: string;
 
   /**
    * The path to the {@link Node} file.
    * URI need to be decoded and without "file://" prefix.
    * To get that format of uri you can use decodeUriAndRemoveFilePrefix in @common/util
    */
-  uri: string;
+  public uri: string;
 
   /**
    * The rootPath of the workspace where this Node belongs.
    */
-  rootPath: string;
+  public rootPath: string;
 
-  readonly documentsAnalyzer: DocumentsAnalyzerMap;
+  public readonly documentsAnalyzer: DocumentsAnalyzerMap;
 
   /**
    * AST node interface.
    */
-  abstract astNode: BaseASTNode | EmptyNodeType;
+  public abstract astNode: BaseASTNode | EmptyNodeType;
 
   /**
    * Represents is node alive or not. If it isn't alive we need to remove it, because if we don't
    * remove the dead nodes, we can have references to code that doesn't exist. Default is true and
    * default implementations of the removeChildren will set isAlive to false.
    */
-  isAlive = true;
+  public isAlive = true;
 
   /**
    * Exact name Location of Node used for rename and search node by name.
    */
-  nameLoc?: Location | undefined;
+  public nameLoc?: Location | undefined;
 
   /**
    * Node name. Name can be undefined for Nodes that don't have a name.
    */
-  name: string | undefined;
+  public name: string | undefined;
 
   /**
    * Import alias name. If the aliasName exists he is the real name and {@link Node.getName getName} will return the alias.
    */
-  aliasName?: string | undefined;
+  public aliasName?: string | undefined;
 
   /**
    * Serves to let us know if there is a Node expression like FunctionCallNode, ArrayTypeNameNode...
@@ -512,32 +512,32 @@ export abstract class Node {
    * This will be needed for autocomplete because we need to know if some Node expression
    * might be a FunctionCallNode and then we know that Node needs brackets.
    */
-  expressionNode?: Node | undefined;
+  public expressionNode?: Node | undefined;
   /**
    * Serves to let us know who is declaration of some type Node this is the reverse of getTypeNodes.
    */
-  declarationNode?: Node | undefined;
+  public declarationNode?: Node | undefined;
 
   /**
    * Rules for declaration nodes that must be met in order for nodes to be connected.
    */
-  connectionTypeRules: string[] = [];
+  public connectionTypeRules: string[] = [];
 
   /**
    * Node parent. Can be undefined for root or orphan Node.
    */
-  parent?: Node | undefined;
+  public parent?: Node | undefined;
   /**
    * Node children.
    */
-  children: Node[] = [];
+  public children: Node[] = [];
 
   /**
    * Node types.
    * Example: uint256 num; uint256 will be typeNode for VariableDeclarationNode num
    * TypeNodes is an array because some declaration can have more than one types like function.
    */
-  typeNodes: Node[] = [];
+  public typeNodes: Node[] = [];
 
   /**
    * Base Node constructor
@@ -561,7 +561,7 @@ export abstract class Node {
   /**
    * Return Nodes that are the type definition of the Node
    */
-  getTypeNodes(): Node[] {
+  public getTypeNodes(): Node[] {
     let nodes: Node[] = [];
 
     this.typeNodes.forEach((typeNode) => {
@@ -575,12 +575,12 @@ export abstract class Node {
    * If node alerdy exists in the {@link Node.typeNodes typeNodes}, the old node will be removed, and new node will be added.
    * In that way we secure that we alwes have the latast node references in our {@link Node.typeNodes typeNodes}.
    */
-  addTypeNode(node: Node): void {
-    const typeNodeExist = this.typeNodes.filter((typeNode) =>
+  public addTypeNode(node: Node): void {
+    const typeNodeExist: Node | undefined = this.typeNodes.filter((typeNode) =>
       isNodeEqual(typeNode, node)
     )[0];
 
-    if (typeNodeExist) {
+    if (typeNodeExist !== undefined) {
       const index = this.typeNodes.indexOf(typeNodeExist);
       this.typeNodes.splice(index, 1);
     }
@@ -592,37 +592,37 @@ export abstract class Node {
    * An {@link Node.expressionNode expressionNode} is a Node above the current Node by AST.
    * @returns ExpressionNode if exist otherwise undefined
    */
-  getExpressionNode(): Node | undefined {
+  public getExpressionNode(): Node | undefined {
     return this.expressionNode;
   }
 
-  setExpressionNode(node: Node | undefined): void {
+  public setExpressionNode(node: Node | undefined): void {
     this.expressionNode = node;
   }
 
   /**
    * Return Node that are the definition of the Node if definition exists.
    */
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this.parent?.getDefinitionNode();
   }
 
-  getDeclarationNode(): Node | undefined {
+  public getDeclarationNode(): Node | undefined {
     return this.declarationNode;
   }
 
-  setDeclarationNode(node: Node | undefined): void {
+  public setDeclarationNode(node: Node | undefined): void {
     this.declarationNode = node;
   }
 
   /**
    * A Node name can be undefined for Nodes that don't have a name.
    */
-  getName(): string | undefined {
+  public getName(): string | undefined {
     return this.name;
   }
 
-  setName(name: string): void {
+  public setName(name: string): void {
     this.name = name;
   }
 
@@ -630,23 +630,23 @@ export abstract class Node {
    * A Node alias name can be undefined for Nodes that don't declared with alias name.
    * If the aliasName exists he is the real name and {@link Node.getName getName} will return the alias.
    */
-  getAliasName(): string | undefined {
+  public getAliasName(): string | undefined {
     return this.aliasName;
   }
 
-  setAliasName(aliasName: string | undefined): void {
+  public setAliasName(aliasName: string | undefined): void {
     this.aliasName = aliasName;
   }
 
   /**
    * If a child already exists in the {@link Node.children children}, it will not be added.
    */
-  addChild(child: Node): void {
-    const childExist = this.children.filter((tmpChild) =>
+  public addChild(child: Node): void {
+    const childExist: Node | undefined = this.children.filter((tmpChild) =>
       isNodeEqual(tmpChild, child)
     )[0];
 
-    if (!childExist) {
+    if (childExist === undefined) {
       this.children.push(child);
     }
   }
@@ -655,7 +655,7 @@ export abstract class Node {
    * Note that removeChild will set {@link Node.isAlive isAlive} to false for the removed child
    * @param child Child who you want to remove
    */
-  removeChild(child: Node): void {
+  public removeChild(child: Node): void {
     const index = this.children.indexOf(child, 0);
 
     if (index > -1) {
@@ -665,11 +665,11 @@ export abstract class Node {
     child.isAlive = false;
   }
 
-  setParent(parent: Node | undefined): void {
+  public setParent(parent: Node | undefined): void {
     this.parent = parent;
   }
 
-  getParent(): Node | undefined {
+  public getParent(): Node | undefined {
     return this.parent;
   }
 
@@ -682,7 +682,7 @@ export abstract class Node {
    *
    * @returns Child node in AST.
    */
-  abstract accept(
+  public abstract accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -691,7 +691,7 @@ export abstract class Node {
 }
 
 export class EmptyNode extends Node {
-  astNode: EmptyNodeType;
+  public astNode: EmptyNodeType;
 
   constructor(
     emptyNode: EmptyNodeType,
@@ -703,7 +703,7 @@ export class EmptyNode extends Node {
     this.astNode = emptyNode;
   }
 
-  accept(
+  public accept(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     find: FinderType,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -721,20 +721,20 @@ export abstract class ContractDefinitionNode extends Node {
   /**
    * AST ContractDefinition interface.
    */
-  abstract astNode: ContractDefinition;
+  public abstract astNode: ContractDefinition;
 
-  inheritanceNodes: ContractDefinitionNode[] = [];
+  public inheritanceNodes: ContractDefinitionNode[] = [];
 
   /**
    * Kind can be "abstract" | "contract" | "library" | "interface".
    * @returns Contract kind.
    */
-  abstract getKind(): string;
+  public abstract getKind(): string;
 
   /**
    * @returns inherited Nodes
    */
-  getInheritanceNodes(): ContractDefinitionNode[] {
+  public getInheritanceNodes(): ContractDefinitionNode[] {
     return this.inheritanceNodes;
   }
 }
@@ -743,18 +743,18 @@ export abstract class MemberAccessNode extends Node {
   /**
    * AST MemberAccess interface.
    */
-  abstract astNode: MemberAccess;
+  public abstract astNode: MemberAccess;
 
-  previousMemberAccessNode: Node | undefined;
+  public previousMemberAccessNode: Node | undefined;
 
-  setPreviousMemberAccessNode(node: Node): void {
+  public setPreviousMemberAccessNode(node: Node): void {
     this.previousMemberAccessNode = node;
   }
 
   /**
    * @returns get previous MemberAccessNode
    */
-  getPreviousMemberAccessNode(): Node | undefined {
+  public getPreviousMemberAccessNode(): Node | undefined {
     return this.previousMemberAccessNode;
   }
 }
@@ -763,26 +763,26 @@ export abstract class ImportDirectiveNode extends Node {
   /**
    * AST ImportDirective interface.
    */
-  abstract astNode: ImportDirective;
+  public abstract astNode: ImportDirective;
 
   /**
    * The path to the file.
    * But in this case, realUri will be the URI of the file in which the import is declared.
    * And {@link Node.uri uri} will be a path to imported Node.
    */
-  abstract realUri: string;
+  public abstract realUri: string;
 
-  aliasNodes: Node[] = [];
+  public aliasNodes: Node[] = [];
 
-  getImportPath(): string | undefined {
+  public getImportPath(): string | undefined {
     return this.uri;
   }
 
-  addAliasNode(aliasNode: Node): void {
+  public addAliasNode(aliasNode: Node): void {
     this.aliasNodes.push(aliasNode);
   }
 
-  getAliasNodes(): Node[] {
+  public getAliasNodes(): Node[] {
     return this.aliasNodes;
   }
 }
@@ -791,30 +791,30 @@ export abstract class SourceUnitNode extends Node {
   /**
    * AST SourceUnit interface.
    */
-  abstract astNode: SourceUnit;
+  public abstract astNode: SourceUnit;
 
-  importNodes: Node[] = [];
-  exportNodes: Node[] = [];
+  public importNodes: Node[] = [];
+  public exportNodes: Node[] = [];
 
-  addImportNode(importNode: Node): void {
+  public addImportNode(importNode: Node): void {
     this.importNodes.push(importNode);
   }
 
   /**
    * @returns all imported Nodes in this SourceUint.
    */
-  getImportNodes(): Node[] {
+  public getImportNodes(): Node[] {
     return this.importNodes;
   }
 
-  addExportNode(exportNode: Node): void {
+  public addExportNode(exportNode: Node): void {
     this.exportNodes.push(exportNode);
   }
 
   /**
    * @returns all exported Nodes from this SourceUint.
    */
-  getExportNodes(): Node[] {
+  public getExportNodes(): Node[] {
     return this.exportNodes;
   }
 }
@@ -823,16 +823,16 @@ export abstract class FunctionDefinitionNode extends Node {
   /**
    * AST FunctionDefinition interface.
    */
-  abstract astNode: FunctionDefinition;
+  public abstract astNode: FunctionDefinition;
 
-  isConstructor = false;
+  public isConstructor = false;
 
   /**
    * Visibility can be 'default' | 'external' | 'internal' | 'public' | 'private'
    *
    * @returns function visibility.
    */
-  getVisibility(): string {
+  public getVisibility(): string {
     return this.astNode.visibility;
   }
 }
@@ -841,14 +841,14 @@ export abstract class VariableDeclarationNode extends Node {
   /**
    * AST VariableDeclaration interface.
    */
-  abstract astNode: VariableDeclaration;
+  public abstract astNode: VariableDeclaration;
 
   /**
    * Visibility can be 'public' | 'private' | 'internal' | 'default'
    *
    * @returns function visibility.
    */
-  getVisibility(): string | undefined {
+  public getVisibility(): string | undefined {
     return this.astNode.visibility;
   }
 }
@@ -857,11 +857,11 @@ export abstract class IdentifierNode extends Node {
   /**
    * AST Identifier interface.
    */
-  abstract astNode: Identifier;
+  public abstract astNode: Identifier;
 
-  identifierFields: Node[] = [];
+  public identifierFields: Node[] = [];
 
-  getIdentifierFields(): Node[] {
+  public getIdentifierFields(): Node[] {
     return this.identifierFields;
   }
 
@@ -869,7 +869,7 @@ export abstract class IdentifierNode extends Node {
    * This is the place for all nonhandled identifier fileds like FunctionCallNode identifiers,
    * that we want to handle after when this node gets a parent.
    */
-  addIdentifierField(identifierField: Node): void {
+  public addIdentifierField(identifierField: Node): void {
     this.identifierFields.push(identifierField);
   }
 }

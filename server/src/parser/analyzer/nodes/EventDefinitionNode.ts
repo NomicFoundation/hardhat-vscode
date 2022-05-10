@@ -7,9 +7,9 @@ import {
 } from "@common/types";
 
 export class EventDefinitionNode extends Node {
-  astNode: EventDefinition;
+  public astNode: EventDefinition;
 
-  connectionTypeRules: string[] = ["EmitStatement"];
+  public connectionTypeRules: string[] = ["EmitStatement"];
 
   constructor(
     eventDefinition: EventDefinition,
@@ -37,7 +37,7 @@ export class EventDefinitionNode extends Node {
           column:
             eventDefinition.loc.start.column +
             "event ".length +
-            (this.getName()?.length || 0),
+            (this.getName()?.length ?? 0),
         },
       };
     }
@@ -45,15 +45,15 @@ export class EventDefinitionNode extends Node {
     this.addTypeNode(this);
   }
 
-  getTypeNodes(): Node[] {
+  public getTypeNodes(): Node[] {
     return this.typeNodes;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

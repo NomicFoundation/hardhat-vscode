@@ -7,9 +7,9 @@ import {
 } from "@common/types";
 
 export class ModifierDefinitionNode extends Node {
-  astNode: ModifierDefinition;
+  public astNode: ModifierDefinition;
 
-  connectionTypeRules: string[] = ["ModifierInvocation"];
+  public connectionTypeRules: string[] = ["ModifierInvocation"];
 
   constructor(
     modifierDefinition: ModifierDefinition,
@@ -45,15 +45,15 @@ export class ModifierDefinitionNode extends Node {
     this.addTypeNode(this);
   }
 
-  getTypeNodes(): Node[] {
+  public getTypeNodes(): Node[] {
     return this.typeNodes;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class DoWhileStatementNode extends Node {
-  astNode: DoWhileStatement;
+  public astNode: DoWhileStatement;
 
   constructor(
     doWhileStatement: DoWhileStatement,
@@ -18,11 +18,11 @@ export class DoWhileStatementNode extends Node {
     this.astNode = doWhileStatement;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return undefined;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -40,6 +40,7 @@ export class DoWhileStatementNode extends Node {
       this.rootPath,
       this.documentsAnalyzer
     ).accept(find, orphanNodes, this);
+
     find(
       this.astNode.body,
       this.uri,

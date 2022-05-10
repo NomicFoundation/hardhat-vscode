@@ -9,9 +9,9 @@ import {
 } from "@common/types";
 
 export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
-  astNode: FunctionDefinition;
+  public astNode: FunctionDefinition;
 
-  connectionTypeRules: string[] = [
+  public connectionTypeRules: string[] = [
     "FunctionCall",
     "MemberAccess",
     "ModifierInvocation",
@@ -29,7 +29,7 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
       uri,
       rootPath,
       documentsAnalyzer,
-      functionDefinition.name || undefined
+      functionDefinition.name ?? undefined
     );
     this.astNode = functionDefinition;
     this.isConstructor = functionDefinition.isConstructor;
@@ -53,7 +53,7 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
       return;
     }
 
-    if (!functionDefinition.name) {
+    if (functionDefinition.name === null) {
       return;
     }
 
@@ -72,15 +72,15 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
     };
   }
 
-  getName(): string | undefined {
+  public getName(): string | undefined {
     return this.isConstructor ? this.parent?.name : this.name;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -99,7 +99,7 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
       }
     }
 
-    this.findChildren(orphanNodes);
+    this._findChildren(orphanNodes);
 
     for (const override of this.astNode.override || []) {
       find(override, this.uri, this.rootPath, this.documentsAnalyzer).accept(
@@ -117,7 +117,7 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
       );
     }
 
-    for (const returnParam of this.astNode.returnParameters || []) {
+    for (const returnParam of this.astNode.returnParameters ?? []) {
       const typeNode = find(
         returnParam,
         this.uri,
@@ -128,7 +128,7 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
       this.addTypeNode(typeNode);
     }
 
-    for (const modifier of this.astNode.modifiers || []) {
+    for (const modifier of this.astNode.modifiers ?? []) {
       const typeNode = find(
         modifier,
         this.uri,
@@ -168,7 +168,7 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
     return this;
   }
 
-  private findChildren(orphanNodes: Node[]): void {
+  private _findChildren(orphanNodes: Node[]): void {
     const newOrphanNodes: Node[] = [];
     const parent = this.getParent();
 
@@ -179,7 +179,7 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
         parent &&
         isNodeShadowedByNode(orphanNode, parent) &&
         this.connectionTypeRules.includes(
-          orphanNode.getExpressionNode()?.type || ""
+          orphanNode.getExpressionNode()?.type ?? ""
         ) &&
         orphanNode.type !== "MemberAccess"
       ) {

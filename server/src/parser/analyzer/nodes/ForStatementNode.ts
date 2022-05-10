@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class ForStatementNode extends Node {
-  astNode: ForStatement;
+  public astNode: ForStatement;
 
   constructor(
     forStatement: ForStatement,
@@ -18,11 +18,11 @@ export class ForStatementNode extends Node {
     this.astNode = forStatement;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return undefined;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -42,6 +42,7 @@ export class ForStatementNode extends Node {
         this.documentsAnalyzer
       ).accept(find, orphanNodes, this);
     }
+
     if (this.astNode.conditionExpression) {
       find(
         this.astNode.conditionExpression,
@@ -50,6 +51,8 @@ export class ForStatementNode extends Node {
         this.documentsAnalyzer
       ).accept(find, orphanNodes, this);
     }
+
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (this.astNode.loopExpression) {
       find(
         this.astNode.loopExpression,

@@ -1,16 +1,16 @@
 import * as path from "path";
 import { assert } from "chai";
-import { setupMockLogger } from "../helpers/setupMockLogger";
 import { IndexFileData } from "@common/event";
-import { forceToUnixStyle } from "../helpers/forceToUnixStyle";
 import { indexWorkspaceFolders } from "@services/initialization/indexWorkspaceFolders";
 import { Connection } from "vscode-languageserver";
 import { HardhatProject } from "@analyzer/HardhatProject";
+import { forceToUnixStyle } from "../helpers/forceToUnixStyle";
+import { setupMockLogger } from "../helpers/setupMockLogger";
 
 describe("Analyzer", () => {
   describe("indexing", () => {
     const exampleRootPath = forceToUnixStyle(__dirname);
-    let collectedData: [string, IndexFileData][];
+    let collectedData: Array<[string, IndexFileData]>;
     let foundSolFiles: string[];
 
     describe("with multiple files", () => {
@@ -102,7 +102,7 @@ describe("Analyzer", () => {
 async function runIndexing(
   rootPath: string,
   foundSolFiles: string[],
-  collectedData: [string, IndexFileData][]
+  collectedData: Array<[string, IndexFileData]>
 ) {
   const exampleWorkspaceFolder = { name: "example", uri: rootPath };
 

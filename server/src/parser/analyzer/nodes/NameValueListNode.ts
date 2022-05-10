@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class NameValueListNode extends Node {
-  astNode: NameValueList;
+  public astNode: NameValueList;
 
   constructor(
     nameValueList: NameValueList,
@@ -18,7 +18,7 @@ export class NameValueListNode extends Node {
     this.astNode = nameValueList;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

@@ -7,9 +7,9 @@ import {
 } from "@common/types";
 
 export class EnumDefinitionNode extends Node {
-  astNode: EnumDefinition;
+  public astNode: EnumDefinition;
 
-  connectionTypeRules: string[] = ["Identifier", "UserDefinedTypeName"];
+  public connectionTypeRules: string[] = ["Identifier", "UserDefinedTypeName"];
 
   constructor(
     enumDefinition: EnumDefinition,
@@ -45,15 +45,15 @@ export class EnumDefinitionNode extends Node {
     this.addTypeNode(this);
   }
 
-  getTypeNodes(): Node[] {
+  public getTypeNodes(): Node[] {
     return this.typeNodes;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

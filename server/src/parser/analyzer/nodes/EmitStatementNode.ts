@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class EmitStatementNode extends Node {
-  astNode: EmitStatement;
+  public astNode: EmitStatement;
 
   constructor(
     emitStatement: EmitStatement,
@@ -18,7 +18,7 @@ export class EmitStatementNode extends Node {
     this.astNode = emitStatement;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

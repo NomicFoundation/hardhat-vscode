@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class CatchClauseNode extends Node {
-  astNode: CatchClause;
+  public astNode: CatchClause;
 
   constructor(
     catchClause: CatchClause,
@@ -18,7 +18,7 @@ export class CatchClauseNode extends Node {
     this.astNode = catchClause;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

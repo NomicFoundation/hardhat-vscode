@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class InlineAssemblyStatementNode extends Node {
-  astNode: InlineAssemblyStatement;
+  public astNode: InlineAssemblyStatement;
 
   constructor(
     inlineAssemblyStatement: InlineAssemblyStatement,
@@ -18,7 +18,7 @@ export class InlineAssemblyStatementNode extends Node {
     this.astNode = inlineAssemblyStatement;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -26,6 +26,7 @@ export class InlineAssemblyStatementNode extends Node {
   ): Node {
     this.setExpressionNode(expression);
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (this.astNode.body) {
       find(
         this.astNode.body,

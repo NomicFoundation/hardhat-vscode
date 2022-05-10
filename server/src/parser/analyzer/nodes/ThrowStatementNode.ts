@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class ThrowStatementNode extends Node {
-  astNode: ThrowStatement;
+  public astNode: ThrowStatement;
 
   constructor(
     throwStatement: ThrowStatement,
@@ -19,7 +19,7 @@ export class ThrowStatementNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

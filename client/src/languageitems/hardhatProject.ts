@@ -2,7 +2,10 @@ import { languages, LanguageStatusSeverity } from "vscode";
 import { RequestType } from "vscode-languageclient/node";
 import { ExtensionState } from "../types";
 
-type GetSolFileDetailsParams = { uri: string };
+interface GetSolFileDetailsParams {
+  uri: string;
+}
+
 type GetSolFileDetailsResponse =
   | { found: false }
   | { found: true; hardhat: false }
@@ -23,6 +26,10 @@ export async function updateHardhatProjectLanguageItem(
   extensionState: ExtensionState,
   params: GetSolFileDetailsParams
 ) {
+  if (!extensionState.client) {
+    return;
+  }
+
   const response = await extensionState.client.sendRequest(GetSolFileDetails, {
     uri: ensureFilePrefix(params.uri),
   });
@@ -44,7 +51,7 @@ export async function updateHardhatProjectLanguageItem(
     extensionState.hardhatConfigStatusItem.text =
       "No related Hardhat config file found";
 
-    extensionState.hardhatConfigStatusItem.command = null;
+    extensionState.hardhatConfigStatusItem.command = undefined;
 
     return;
   }

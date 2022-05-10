@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class LabelDefinitionNode extends Node {
-  astNode: LabelDefinition;
+  public astNode: LabelDefinition;
 
   constructor(
     labelDefinition: LabelDefinition,
@@ -19,15 +19,15 @@ export class LabelDefinitionNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  getTypeNodes(): Node[] {
+  public getTypeNodes(): Node[] {
     return this.typeNodes;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
