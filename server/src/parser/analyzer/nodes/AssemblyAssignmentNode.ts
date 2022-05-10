@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class AssemblyAssignmentNode extends Node {
-  astNode: AssemblyAssignment;
+  public astNode: AssemblyAssignment;
 
   constructor(
     assemblyAssignment: AssemblyAssignment,
@@ -18,7 +18,7 @@ export class AssemblyAssignmentNode extends Node {
     this.astNode = assemblyAssignment;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -26,7 +26,7 @@ export class AssemblyAssignmentNode extends Node {
   ): Node {
     this.setExpressionNode(expression);
 
-    for (const name of this.astNode.names || []) {
+    for (const name of this.astNode.names ?? []) {
       find(name, this.uri, this.rootPath, this.documentsAnalyzer).accept(
         find,
         orphanNodes,
@@ -34,6 +34,7 @@ export class AssemblyAssignmentNode extends Node {
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (this.astNode.expression) {
       find(
         this.astNode.expression,

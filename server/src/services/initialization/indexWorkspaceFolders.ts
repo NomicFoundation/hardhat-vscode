@@ -2,7 +2,6 @@ import * as path from "path";
 import { IndexFileData } from "@common/event";
 import { Logger } from "@utils/Logger";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
-import { decodeUriAndRemoveFilePrefix, toUnixStyle } from "../../utils/index";
 import { Connection } from "vscode-languageserver";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { SolFileEntry } from "@analyzer/SolFileEntry";
@@ -11,16 +10,17 @@ import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
 import { analyzeSolFile } from "@analyzer/analyzeSolFile";
 import { HardhatProject } from "@analyzer/HardhatProject";
 import { findProjectFor } from "@utils/findProjectFor";
+import { decodeUriAndRemoveFilePrefix, toUnixStyle } from "../../utils/index";
 import { resolveTopLevelWorkspaceFolders } from "./resolveTopLevelWorkspaceFolders";
 
-export type IndexWorkspaceFoldersContext = {
+export interface IndexWorkspaceFoldersContext {
   indexJobCount: number;
   connection: Connection;
   solFileIndex: DocumentsAnalyzerMap;
   workspaceFolders: WorkspaceFolder[];
   projects: SolProjectMap;
   logger: Logger;
-};
+}
 
 export async function indexWorkspaceFolders(
   indexWorkspaceFoldersContext: IndexWorkspaceFoldersContext,

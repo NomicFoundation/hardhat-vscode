@@ -11,7 +11,7 @@ let extensionState: ExtensionState | null = null;
 const SENTRY_DSN =
   "https://9d1e887190db400791c77d9bb5a154fd@o385026.ingest.sentry.io/5469451";
 
-export function activate(context: ExtensionContext) {
+export async function activate(context: ExtensionContext) {
   extensionState = setupExtensionState(context, { sentryDsn: SENTRY_DSN });
 
   const { logger } = extensionState;
@@ -22,11 +22,16 @@ export function activate(context: ExtensionContext) {
   setupFormatterHook(extensionState);
   setupLanguageServerHooks(extensionState);
 
-  warnOnOtherSolidityExtensions(extensionState);
+  // We don't want to block for user input, analytics will be turned
+  // off from users until they agree.
+  //
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   showAnalyticsAllowPopup(extensionState);
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  warnOnOtherSolidityExtensions(extensionState);
 }
 
-export function deactivate(): Thenable<void> {
+export function deactivate() {
   if (!extensionState) {
     return;
   }
@@ -35,15 +40,12 @@ export function deactivate(): Thenable<void> {
     disposable.dispose()
   );
 
-  const promises: Thenable<void>[] = [];
-
-  if (extensionState.client) {
-    extensionState.client.stop();
-  }
+  const clientStopPromise =
+    extensionState.client !== null
+      ? extensionState.client.stop()
+      : Promise.resolve();
 
   const telemetryClosePromise = extensionState.telemetry.close();
 
-  return Promise.all([...promises, telemetryClosePromise]).then(
-    () => undefined
-  );
+  return Promise.all([clientStopPromise, telemetryClosePromise]);
 }

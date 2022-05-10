@@ -4,7 +4,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 type ImportLineErrorCode = 404 | 405 | 406 | 407 | 408 | 409;
 const IMPORT_LINE_ERROR_CODES = [404, 405, 406, 407, 408, 409];
 
-type HardhatImportLineError = {
+interface HardhatImportLineError {
   errorDescriptor: {
     number: ImportLineErrorCode;
     title: string;
@@ -13,15 +13,15 @@ type HardhatImportLineError = {
   messageArguments: {
     imported: string;
   };
-};
+}
 
-type UnknownHardhatError = {
+interface UnknownHardhatError {
   errorDescriptor: {
     number: number;
     title: string;
     description: string;
   };
-};
+}
 
 type HardhatError = UnknownHardhatError | HardhatImportLineError;
 

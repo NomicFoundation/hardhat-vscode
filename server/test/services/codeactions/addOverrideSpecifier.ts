@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
-import { assertCodeAction } from "./asserts/assertCodeAction";
 import { AddOverrideSpecifier } from "@compilerDiagnostics/diagnostics/AddOverrideSpecifier";
+import { assertCodeAction } from "./asserts/assertCodeAction";
 
 describe("Code Actions", () => {
   describe("Add Override Specifier", () => {

@@ -1,7 +1,7 @@
 import { Break, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class BreakNode extends Node {
-  astNode: Break;
+  public astNode: Break;
 
   constructor(
     astBreak: Break,
@@ -14,7 +14,7 @@ export class BreakNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

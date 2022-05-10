@@ -175,7 +175,9 @@ const globalFunctions = [
   "selfdestruct",
 ];
 
-type GlobalVariablesType = { [globalVariable: string]: string[] };
+interface GlobalVariablesType {
+  [globalVariable: string]: string[];
+}
 export const globalVariables: GlobalVariablesType = {
   abi: [
     "decode",

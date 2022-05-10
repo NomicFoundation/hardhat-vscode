@@ -1,5 +1,7 @@
 import path from "path";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import Mocha from "mocha";
+// eslint-disable-next-line import/no-extraneous-dependencies
 import glob from "glob";
 
 export function run(): Promise<void> {
@@ -29,10 +31,10 @@ export function run(): Promise<void> {
             resolve();
           }
         });
-      } catch (err) {
+      } catch (innerErr) {
         // eslint-disable-next-line no-console
-        console.error(err);
-        reject(err);
+        console.error(innerErr);
+        reject(innerErr);
       }
     });
   });

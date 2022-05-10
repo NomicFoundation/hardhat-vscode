@@ -4,11 +4,11 @@ import { FunctionDefinition, TextDocument } from "@common/types";
 import { Token } from "@solidity-parser/parser/dist/src/types";
 import { Logger } from "@utils/Logger";
 
-export type ParseFunctionDefinitionResult = {
+export interface ParseFunctionDefinitionResult {
   functionDefinition: FunctionDefinition;
   tokens: Token[];
   functionSourceLocation: { start: number; end: number };
-};
+}
 
 export function parseFunctionDefinition(
   diagnostic: Diagnostic,

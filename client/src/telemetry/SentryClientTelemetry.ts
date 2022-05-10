@@ -13,7 +13,7 @@ export class SentryClientTelemetry implements Telemetry {
     this.extensionState = null;
   }
 
-  init(extensionState: ExtensionState) {
+  public init(extensionState: ExtensionState) {
     this.extensionState = extensionState;
 
     Sentry.init({
@@ -39,18 +39,18 @@ export class SentryClientTelemetry implements Telemetry {
     });
   }
 
-  captureException(err: unknown): void {
+  public captureException(err: unknown): void {
     Sentry.captureException(err);
   }
 
-  close(): Promise<boolean> {
+  public close(): Promise<boolean> {
     return Sentry.close(SENTRY_CLOSE_TIMEOUT);
   }
 }
 
-function isTelemetryEnabled(extensionState: ExtensionState | undefined | null) {
+function isTelemetryEnabled(extensionState: ExtensionState | null): boolean {
   return (
-    extensionState &&
+    extensionState !== null &&
     extensionState.globalTelemetryEnabled &&
     extensionState.hardhatTelemetryEnabled
   );

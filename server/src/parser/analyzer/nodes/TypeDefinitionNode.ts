@@ -7,9 +7,9 @@ import {
 } from "@common/types";
 
 export class TypeDefinitionNode extends Node {
-  astNode: TypeDefinition;
+  public astNode: TypeDefinition;
 
-  connectionTypeRules: string[] = ["Identifier", "UserDefinedTypeName"];
+  public connectionTypeRules: string[] = ["Identifier", "UserDefinedTypeName"];
 
   constructor(
     typeDefinition: TypeDefinition,
@@ -45,15 +45,15 @@ export class TypeDefinitionNode extends Node {
     this.addTypeNode(this);
   }
 
-  getTypeNodes(): Node[] {
+  public getTypeNodes(): Node[] {
     return this.typeNodes;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

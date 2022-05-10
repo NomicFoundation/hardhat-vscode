@@ -2,10 +2,10 @@ import { ISolProject } from "@common/types";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
 
 export class HardhatProject implements ISolProject {
-  type: "hardhat" = "hardhat";
-  basePath: string;
-  configPath: string;
-  workspaceFolder: WorkspaceFolder;
+  public type: "hardhat" = "hardhat";
+  public basePath: string;
+  public configPath: string;
+  public workspaceFolder: WorkspaceFolder;
 
   constructor(
     basePath: string,

@@ -6,24 +6,24 @@ import {
   ResolveActionsContext,
 } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
+import { ServerState } from "../../types";
 import {
   Multioverride,
   resolveInsertSpecifierQuickFix,
 } from "./common/resolveInsertSpecifierQuickFix";
-import { ServerState } from "types";
 
 export class AddMultiOverrideSpecifier implements CompilerDiagnostic {
   public code = "4327";
   public blocks: string[] = ["9456"];
 
-  fromHardhatCompilerError(
+  public fromHardhatCompilerError(
     document: TextDocument,
     error: HardhatCompilerError
   ): Diagnostic {
     return attemptConstrainToFunctionName(document, error);
   }
 
-  resolveActions(
+  public resolveActions(
     serverState: ServerState,
     diagnostic: Diagnostic,
     context: ResolveActionsContext

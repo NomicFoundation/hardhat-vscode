@@ -1,7 +1,7 @@
 import { Mapping, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class MappingNode extends Node {
-  astNode: Mapping;
+  public astNode: Mapping;
 
   constructor(
     mapping: Mapping,
@@ -13,7 +13,7 @@ export class MappingNode extends Node {
     this.astNode = mapping;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

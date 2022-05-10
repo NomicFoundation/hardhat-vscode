@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class AssemblySwitchNode extends Node {
-  astNode: AssemblySwitch;
+  public astNode: AssemblySwitch;
 
   constructor(
     assemblySwitch: AssemblySwitch,
@@ -18,7 +18,7 @@ export class AssemblySwitchNode extends Node {
     this.astNode = assemblySwitch;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

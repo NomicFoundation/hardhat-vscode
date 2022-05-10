@@ -8,9 +8,9 @@ import {
 } from "@common/types";
 
 export class VariableDeclarationNode extends AbstractVariableDeclarationNode {
-  astNode: VariableDeclaration;
+  public astNode: VariableDeclaration;
 
-  connectionTypeRules: string[] = [
+  public connectionTypeRules: string[] = [
     "Identifier",
     "MemberAccess",
     "AssemblyCall",
@@ -27,11 +27,14 @@ export class VariableDeclarationNode extends AbstractVariableDeclarationNode {
       uri,
       rootPath,
       documentsAnalyzer,
-      variableDeclaration.name || undefined
+      variableDeclaration.name ?? undefined
     );
     this.astNode = variableDeclaration;
 
-    if (variableDeclaration.identifier?.loc && variableDeclaration.name) {
+    if (
+      variableDeclaration.identifier?.loc &&
+      variableDeclaration.name !== null
+    ) {
       this.nameLoc = {
         start: {
           line: variableDeclaration.identifier.loc.start.line,
@@ -49,11 +52,11 @@ export class VariableDeclarationNode extends AbstractVariableDeclarationNode {
     this.astNode.loc = this.nameLoc;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -77,12 +80,14 @@ export class VariableDeclarationNode extends AbstractVariableDeclarationNode {
 
       // Find Type of declaration skip MappingNode, ArrayTypeNameNode, FunctionTypeNameNode
       while (
+        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
         typeNode &&
         !["UserDefinedTypeName", "ElementaryTypeName"].includes(typeNode.type)
       ) {
         typeNode = typeNode.typeNodes[0];
       }
 
+      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
       if (typeNode) {
         typeNode.setDeclarationNode(this);
       }

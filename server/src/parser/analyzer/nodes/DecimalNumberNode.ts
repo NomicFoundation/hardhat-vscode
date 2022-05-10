@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class DecimalNumberNode extends Node {
-  astNode: DecimalNumber;
+  public astNode: DecimalNumber;
 
   constructor(
     decimalNumber: DecimalNumber,
@@ -19,7 +19,7 @@ export class DecimalNumberNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

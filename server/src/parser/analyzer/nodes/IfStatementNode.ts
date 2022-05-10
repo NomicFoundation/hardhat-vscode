@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class IfStatementNode extends Node {
-  astNode: IfStatement;
+  public astNode: IfStatement;
 
   constructor(
     ifStatement: IfStatement,
@@ -18,11 +18,11 @@ export class IfStatementNode extends Node {
     this.astNode = ifStatement;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return undefined;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

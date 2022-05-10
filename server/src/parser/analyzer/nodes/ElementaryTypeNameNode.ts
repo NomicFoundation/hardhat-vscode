@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class ElementaryTypeNameNode extends Node {
-  astNode: ElementaryTypeName;
+  public astNode: ElementaryTypeName;
 
   constructor(
     elementaryTypeName: ElementaryTypeName,
@@ -25,7 +25,7 @@ export class ElementaryTypeNameNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

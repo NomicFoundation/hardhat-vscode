@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class NameValueExpressionNode extends Node {
-  astNode: NameValueExpression;
+  public astNode: NameValueExpression;
 
   constructor(
     nameValueExpression: NameValueExpression,
@@ -18,7 +18,7 @@ export class NameValueExpressionNode extends Node {
     this.astNode = nameValueExpression;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

@@ -1,21 +1,21 @@
 import * as Sentry from "@sentry/node";
-import { Transaction } from "@sentry/types";
+import type { Transaction } from "@sentry/types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as tracing from "@sentry/tracing";
 import { isTelemetryEnabled } from "@utils/serverStateUtils";
 import { ServerState } from "../types";
+import { Analytics } from "../analytics/types";
 import { Telemetry } from "./types";
-import { Analytics } from "analytics/types";
 
 const SENTRY_CLOSE_TIMEOUT = 2000;
 
 export class SentryServerTelemetry implements Telemetry {
-  dsn: string;
-  serverState: ServerState | null;
-  analytics: Analytics;
-  actionTaken: boolean;
-  heartbeatInterval: NodeJS.Timeout | null;
-  heartbeatPeriod: number;
+  private dsn: string;
+  private serverState: ServerState | null;
+  private analytics: Analytics;
+  private actionTaken: boolean;
+  private heartbeatInterval: NodeJS.Timeout | null;
+  private heartbeatPeriod: number;
 
   constructor(dsn: string, heartbeatPeriod: number, analytics: Analytics) {
     this.dsn = dsn;
@@ -27,7 +27,7 @@ export class SentryServerTelemetry implements Telemetry {
     this.heartbeatInterval = null;
   }
 
-  init(
+  public init(
     machineId: string | undefined,
     extensionName: string | undefined,
     extensionVersion: string | undefined,
@@ -35,16 +35,16 @@ export class SentryServerTelemetry implements Telemetry {
   ) {
     this.serverState = serverState;
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (!tracing) {
-      // eslint-disable-next-line no-console
-      console.error("Tracing not enabled");
+      throw new Error("Tracing not loaded");
     }
 
     Sentry.init({
       dsn: this.dsn,
       tracesSampleRate: serverState.env === "development" ? 1 : 0.01,
       release:
-        extensionName && extensionVersion
+        extensionName !== undefined && extensionVersion !== undefined
           ? `${extensionName}@${extensionVersion}`
           : undefined,
       environment: serverState.env,
@@ -62,7 +62,7 @@ export class SentryServerTelemetry implements Telemetry {
     this.enableHeartbeat();
   }
 
-  captureException(err: unknown) {
+  public captureException(err: unknown) {
     Sentry.captureException(err);
   }
 
@@ -98,25 +98,25 @@ export class SentryServerTelemetry implements Telemetry {
 
   public enableHeartbeat(): void {
     this.heartbeatInterval = setInterval(
-      () => this.pulse(),
+      () => this._pulse(),
       this.heartbeatPeriod
     );
   }
 
-  private async pulse(): Promise<void> {
+  public close(): Promise<boolean> {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+    }
+
+    return Sentry.close(SENTRY_CLOSE_TIMEOUT);
+  }
+
+  private async _pulse(): Promise<void> {
     if (!this.actionTaken) {
       return;
     }
 
     this.actionTaken = false;
     return this.analytics.sendPageView("heartbeat");
-  }
-
-  close(): Promise<boolean> {
-    if (this.heartbeatInterval) {
-      clearInterval(this.heartbeatInterval);
-    }
-
-    return Sentry.close(SENTRY_CLOSE_TIMEOUT);
   }
 }

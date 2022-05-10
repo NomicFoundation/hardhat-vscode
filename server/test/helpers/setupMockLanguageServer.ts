@@ -1,7 +1,6 @@
 import { assert } from "chai";
 import * as fs from "fs";
 import * as path from "path";
-import { getUriFromDocument } from "../../src/utils/index";
 import {
   CompletionItem,
   CompletionList,
@@ -21,6 +20,8 @@ import {
   HoverParams,
   Hover,
 } from "vscode-languageserver/node";
+import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
+import { getUriFromDocument } from "../../src/utils/index";
 import setupServer, {
   GetSolFileDetailsParams,
   GetSolFileDetailsResponse,
@@ -32,7 +33,6 @@ import { setupMockLogger } from "./setupMockLogger";
 import { setupMockWorkspaceFileRetriever } from "./setupMockWorkspaceFileRetriever";
 import { setupMockTelemetry } from "./setupMockTelemetry";
 import { forceToUnixStyle } from "./forceToUnixStyle";
-import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
 
 export type OnSignatureHelp = (
   params: SignatureHelpParams
@@ -66,7 +66,7 @@ export async function setupMockLanguageServer({
   errors,
 }: {
   projects?: { [key: string]: string[] };
-  documents: { uri: string; content?: string; analyze: boolean }[];
+  documents: Array<{ uri: string; content?: string; analyze: boolean }>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errors: any[];
 }) {
@@ -138,7 +138,7 @@ export async function setupMockLanguageServer({
       text: fileContent.toString(),
     };
 
-    await didOpenTextDocument({ textDocument: textDocument });
+    await didOpenTextDocument({ textDocument });
 
     if (!analyze) {
       continue;
@@ -157,7 +157,7 @@ export async function setupMockLanguageServer({
 
           const documentAnalyzer = getDocumentAnalyzer(serverState, localUri);
 
-          return documentAnalyzer && documentAnalyzer.isAnalyzed();
+          return documentAnalyzer.isAnalyzed();
         },
         100,
         1600

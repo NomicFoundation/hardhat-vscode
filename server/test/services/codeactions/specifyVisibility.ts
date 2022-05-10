@@ -1,9 +1,9 @@
 import { assert } from "chai";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { SpecifyVisibility } from "@compilerDiagnostics/diagnostics/SpecifyVisibility";
-import { assertCodeAction } from "./asserts/assertCodeAction";
 import { setupMockLogger } from "../../helpers/setupMockLogger";
-import { ServerState } from "types";
+import { ServerState } from "../../../src/types";
+import { assertCodeAction } from "./asserts/assertCodeAction";
 
 describe("Code Actions", () => {
   describe("Specify Visibility", () => {

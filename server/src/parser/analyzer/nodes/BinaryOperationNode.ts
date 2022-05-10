@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class BinaryOperationNode extends Node {
-  astNode: BinaryOperation;
+  public astNode: BinaryOperation;
 
   constructor(
     binaryOperation: BinaryOperation,
@@ -18,7 +18,7 @@ export class BinaryOperationNode extends Node {
     this.astNode = binaryOperation;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

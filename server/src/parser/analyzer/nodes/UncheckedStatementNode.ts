@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class UncheckedStatementNode extends Node {
-  astNode: UncheckedStatement;
+  public astNode: UncheckedStatement;
 
   constructor(
     uncheckedStatement: UncheckedStatement,
@@ -18,7 +18,7 @@ export class UncheckedStatementNode extends Node {
     this.astNode = uncheckedStatement;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -26,6 +26,7 @@ export class UncheckedStatementNode extends Node {
   ): Node {
     this.setExpressionNode(expression);
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (this.astNode.block) {
       find(
         this.astNode.block,

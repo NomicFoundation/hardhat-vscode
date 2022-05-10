@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "baseUrl": "./src",
+    "esModuleInterop": true,
+    "paths": {
+      "@compilerDiagnostics/*": ["./compilerDiagnostics/*"],
+      "@analyzer/*": ["./parser/analyzer/*"],
+      "@common/*": ["./parser/common/*"],
+      "@services/*": ["./services/*"],
+      "@utils/*": ["./utils/*"]
+    }
+  },
+  "exclude": ["test", "out", "coverage"]
+}

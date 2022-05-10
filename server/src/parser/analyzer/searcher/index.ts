@@ -16,7 +16,7 @@ export class Searcher implements ISearcher {
   /**
    * Default analyzerTree. It is document we are analyzing.
    */
-  analyzerTree: { tree: Node };
+  public analyzerTree: { tree: Node };
 
   constructor(analyzerTree: { tree: Node }) {
     this.analyzerTree = analyzerTree;
@@ -39,13 +39,13 @@ export class Searcher implements ISearcher {
 
     // If from doesn't exist start finding from the root of the analyzerTree.
     if (!from) {
-      parent = this.search(
+      parent = this._search(
         node,
         this.analyzerTree.tree,
         searchInInheritanceNodes
       );
     } else {
-      parent = this.search(node, from, searchInInheritanceNodes);
+      parent = this._search(node, from, searchInInheritanceNodes);
     }
 
     if (parent) {
@@ -251,13 +251,11 @@ export class Searcher implements ISearcher {
           variableDeclarationNode.addChild(childNode);
 
           // If the parent uri and node uri are not the same, add the node to the exportNode field
-          if (
-            variableDeclarationNode &&
-            variableDeclarationNode.uri !== childNode.uri
-          ) {
+          if (variableDeclarationNode.uri !== childNode.uri) {
             const exportRootNode = utils.findSourceUnitNode(
               variableDeclarationNode
             );
+
             const importRootNode = utils.findSourceUnitNode(sourceUintNode);
 
             if (exportRootNode) {
@@ -377,7 +375,7 @@ export class Searcher implements ISearcher {
     const visibility = this.getNodeVisibility(node);
 
     if (
-      !visibility ||
+      visibility === undefined ||
       (visibility && ["default", "public"].includes(visibility))
     ) {
       return true;
@@ -426,7 +424,7 @@ export class Searcher implements ISearcher {
     returnDefinitionNode = true,
     searchInExpression = false
   ): Node | undefined {
-    const node = this.walk(
+    const node = this._walk(
       uri,
       position,
       from || this.analyzerTree.tree,
@@ -448,7 +446,7 @@ export class Searcher implements ISearcher {
    * @param searchInInheritanceNodes If it is true, we will look for the parent in the inheritance nodes as well.
    * @returns Node that can connect to the forwarded node.
    */
-  private search(
+  private _search(
     node: Node,
     from?: Node | undefined,
     searchInInheritanceNodes?: boolean,
@@ -494,7 +492,12 @@ export class Searcher implements ISearcher {
         continue;
       }
 
-      parent = this.search(node, child, searchInInheritanceNodes, visitedNodes);
+      parent = this._search(
+        node,
+        child,
+        searchInInheritanceNodes,
+        visitedNodes
+      );
 
       if (parent) {
         return parent;
@@ -502,7 +505,10 @@ export class Searcher implements ISearcher {
     }
 
     // Handle inheritance
-    if (searchInInheritanceNodes && from.type === "ContractDefinition") {
+    if (
+      searchInInheritanceNodes !== undefined &&
+      from.type === "ContractDefinition"
+    ) {
       const inheritanceNodes = (
         from as ContractDefinitionNode
       ).getInheritanceNodes();
@@ -514,7 +520,7 @@ export class Searcher implements ISearcher {
           return inheritanceNode;
         }
 
-        parent = this.search(
+        parent = this._search(
           node,
           inheritanceNode,
           searchInInheritanceNodes,
@@ -528,12 +534,12 @@ export class Searcher implements ISearcher {
     }
 
     // Handle import
-    const matched = this.searchInImportNodes(visitedFiles, node, from);
+    const matched = this._searchInImportNodes(visitedFiles, node, from);
     if (matched) {
       return matched;
     }
 
-    return this.search(
+    return this._search(
       node,
       from.parent,
       searchInInheritanceNodes,
@@ -551,7 +557,7 @@ export class Searcher implements ISearcher {
    * @param from From which Node do we start searching.
    * @returns Node that can connect to the forwarded node.
    */
-  private searchInImportNodes(
+  private _searchInImportNodes(
     visitedFiles: string[],
     node: Node,
     from?: Node | undefined
@@ -565,7 +571,7 @@ export class Searcher implements ISearcher {
       const importAliasNodes = (from as ImportDirectiveNode).getAliasNodes();
 
       let importNode;
-      if (importPath) {
+      if (importPath !== undefined) {
         importNode = from.documentsAnalyzer[importPath]?.analyzerTree.tree;
       }
 
@@ -576,11 +582,15 @@ export class Searcher implements ISearcher {
         if (importAliasNodes.length > 0) {
           for (const importAliasNode of importAliasNodes) {
             if (
+              // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
               importAliasNode &&
+              // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
               node &&
               importAliasNode.isAlive &&
               node.isAlive &&
+              // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
               importAliasNode.getName() &&
+              // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
               node.getName() &&
               importAliasNode.getName() === node.getName()
             ) {
@@ -588,8 +598,13 @@ export class Searcher implements ISearcher {
             }
           }
         } else {
-          for (const child of importNode?.children || []) {
-            const matched = this.searchInImportNodes(visitedFiles, node, child);
+          // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+          for (const child of importNode.children || []) {
+            const matched = this._searchInImportNodes(
+              visitedFiles,
+              node,
+              child
+            );
 
             if (matched) {
               return matched;
@@ -612,7 +627,7 @@ export class Searcher implements ISearcher {
    * @param position {@link Node} position in file.
    * @returns Wanted {@link Node} if exist.
    */
-  private searchInExpressionNode(
+  private _searchInExpressionNode(
     uri: string,
     position: Position,
     expressionNode?: Node | undefined
@@ -630,7 +645,7 @@ export class Searcher implements ISearcher {
       return expressionNode;
     }
 
-    const matched = this.searchInExpressionNode(
+    const matched = this._searchInExpressionNode(
       uri,
       position,
       expressionNode.getExpressionNode()
@@ -650,7 +665,7 @@ export class Searcher implements ISearcher {
    * that aren't in orphan Nodes and don't have a parent. Like MemberAccessNode without a parent.
    * @returns Wanted {@link Node} if exist.
    */
-  private walk(
+  private _walk(
     uri: string,
     position: Position,
     from?: Node,
@@ -690,7 +705,7 @@ export class Searcher implements ISearcher {
     if (from.type === "SourceUnit") {
       for (let i = from.children.length - 1; i >= 0; i--) {
         const child = from.children[i];
-        const parent = this.walk(
+        const parent = this._walk(
           uri,
           position,
           child,
@@ -705,7 +720,7 @@ export class Searcher implements ISearcher {
       }
     } else {
       for (const child of from.children) {
-        const parent = this.walk(
+        const parent = this._walk(
           uri,
           position,
           child,
@@ -726,16 +741,16 @@ export class Searcher implements ISearcher {
       const importAliasNodes = (from as ImportDirectiveNode).getAliasNodes();
 
       let importNode;
-      if (importPath) {
+      if (importPath !== undefined) {
         importNode = from.documentsAnalyzer[importPath]?.analyzerTree.tree;
       }
 
       if (importNode && !visitedFiles.includes(importNode.uri)) {
-        let parent: Node | undefined = undefined;
+        let parent: Node | undefined;
 
         if (importAliasNodes.length > 0) {
           for (const importAliasNode of importAliasNodes) {
-            parent = this.walk(
+            parent = this._walk(
               uri,
               position,
               importAliasNode,
@@ -752,7 +767,7 @@ export class Searcher implements ISearcher {
           // Add URI in visitedFiles only when we analyze the whole file.
           visitedFiles.push(importNode.uri);
 
-          parent = this.walk(
+          parent = this._walk(
             uri,
             position,
             importNode,
@@ -769,7 +784,7 @@ export class Searcher implements ISearcher {
     }
 
     if (searchInExpression) {
-      const expressionNode = this.searchInExpressionNode(
+      const expressionNode = this._searchInExpressionNode(
         uri,
         position,
         from.getExpressionNode()
@@ -781,7 +796,7 @@ export class Searcher implements ISearcher {
       }
     }
 
-    return this.walk(
+    return this._walk(
       uri,
       position,
       from.parent,
@@ -865,7 +880,7 @@ export class Searcher implements ISearcher {
       const importAliasNodes = (from as ImportDirectiveNode).getAliasNodes();
 
       let importNode;
-      if (importPath) {
+      if (importPath !== undefined) {
         importNode = from.documentsAnalyzer[importPath]?.analyzerTree.tree;
       }
 

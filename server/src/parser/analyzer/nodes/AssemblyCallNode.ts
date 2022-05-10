@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class AssemblyCallNode extends Node {
-  astNode: AssemblyCall;
+  public astNode: AssemblyCall;
 
   constructor(
     assemblyCall: AssemblyCall,
@@ -33,7 +33,7 @@ export class AssemblyCallNode extends Node {
     this.astNode = assemblyCall;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -41,7 +41,7 @@ export class AssemblyCallNode extends Node {
   ): Node {
     this.setExpressionNode(expression);
 
-    for (const argument of this.astNode.arguments || []) {
+    for (const argument of this.astNode.arguments ?? []) {
       find(argument, this.uri, this.rootPath, this.documentsAnalyzer).accept(
         find,
         orphanNodes,

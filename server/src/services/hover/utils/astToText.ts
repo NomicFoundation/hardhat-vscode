@@ -53,7 +53,7 @@ export function variableDeclarationToText(variable: VariableDeclaration) {
   const visibility =
     variable.visibility === "default" ? null : variable.visibility;
 
-  const constant = variable.isDeclaredConst ? "constant" : null;
+  const constant = variable.isDeclaredConst === true ? "constant" : null;
 
   const storageLocation = variable.storageLocation;
 

@@ -1,15 +1,15 @@
 import * as path from "path";
 import { TextDocument, Diagnostic, ISolProject } from "@common/types";
 
+import { Logger } from "@utils/Logger";
+import { HardhatProject } from "@analyzer/HardhatProject";
+import { Telemetry } from "../../telemetry/types";
+import { CancelResolver, CompilerProcessFactory } from "../../types";
 import {
   GET_DOCUMENT_EVENT,
   SOLIDITY_COMPILE_CONFIRMATION_EVENT,
 } from "./events";
 import { DiagnosticConverter } from "./DiagnosticConverter";
-import { Logger } from "@utils/Logger";
-import { Telemetry } from "telemetry/types";
-import { CancelResolver, CompilerProcessFactory } from "../../types";
-import { HardhatProject } from "@analyzer/HardhatProject";
 
 export interface ValidationJob {
   run(
@@ -22,8 +22,8 @@ export interface ValidationJob {
 }
 
 export class SolidityValidation {
-  compilerProcessFactory: CompilerProcessFactory;
-  diagnosticConverter: DiagnosticConverter;
+  private compilerProcessFactory: CompilerProcessFactory;
+  private diagnosticConverter: DiagnosticConverter;
 
   constructor(compilerProcessFactory: CompilerProcessFactory, logger: Logger) {
     this.compilerProcessFactory = compilerProcessFactory;
@@ -71,16 +71,16 @@ export class SolidityValidation {
         } = hardhatProcess.init(document);
 
         const _run = async (
-          uri: string,
-          document: TextDocument,
-          unsavedDocuments: TextDocument[]
+          runUri: string,
+          runDocument: TextDocument,
+          runUnsavedDocuments: TextDocument[]
         ): Promise<{ [uri: string]: Diagnostic[] }> => {
           hardhatProcess.send({
             type: GET_DOCUMENT_EVENT,
             data: {
-              uri: path.normalize(uri),
-              documentText: document.getText(),
-              unsavedDocuments: unsavedDocuments.map((unsavedDocument) => {
+              uri: path.normalize(runUri),
+              documentText: runDocument.getText(),
+              unsavedDocuments: runUnsavedDocuments.map((unsavedDocument) => {
                 return {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   uri: (unsavedDocument.uri as any).path,
@@ -132,7 +132,7 @@ export class SolidityValidation {
           }
 
           const diagnostics: { [uri: string]: Diagnostic[] } =
-            this.diagnosticConverter.convertErrors(document, output.errors);
+            this.diagnosticConverter.convertErrors(runDocument, output.errors);
 
           return diagnostics;
         };
@@ -158,18 +158,18 @@ export class SolidityValidation {
             // suppress the kill signal error
           }
 
-          return diagnostics;
+          return await diagnostics;
         } catch (err) {
           logger.error(err);
           transaction.setStatus("unknown_error");
 
           try {
             hardhatProcess.kill();
-          } catch (err) {
+          } catch (killErr) {
             // suppress the kill signal error
           }
 
-          return Promise.resolve({});
+          return await Promise.resolve({});
         } finally {
           transaction.finish();
         }

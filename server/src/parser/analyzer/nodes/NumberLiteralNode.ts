@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class NumberLiteralNode extends Node {
-  astNode: NumberLiteral;
+  public astNode: NumberLiteral;
 
   constructor(
     numberLiteral: NumberLiteral,
@@ -19,7 +19,7 @@ export class NumberLiteralNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

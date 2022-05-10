@@ -5,27 +5,27 @@ import {
   Range,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { HardhatCompilerError, ResolveActionsContext } from "../types";
 import { attemptConstrainToContractName } from "@compilerDiagnostics/conversions/attemptConstrainToContractName";
+import { HardhatCompilerError, ResolveActionsContext } from "../types";
+import { ServerState } from "../../types";
 import {
   parseContractDefinition,
   ParseContractDefinitionResult,
 } from "./parsing/parseContractDefinition";
 import { buildImplementInterfaceQuickFix } from "./common/ImplementInterface/buildImplementInterfaceQuickFix";
-import { ServerState } from "types";
 
 export class MarkContractAbstract {
   public code = "3656";
   public blocks = [];
 
-  fromHardhatCompilerError(
+  public fromHardhatCompilerError(
     document: TextDocument,
     error: HardhatCompilerError
   ): Diagnostic {
     return attemptConstrainToContractName(document, error);
   }
 
-  resolveActions(
+  public resolveActions(
     serverState: ServerState,
     diagnostic: Diagnostic,
     context: ResolveActionsContext
@@ -46,7 +46,7 @@ export class MarkContractAbstract {
       context
     );
 
-    const addAbstrackQuickFix = this.buildAddAbstractQuickFix(
+    const addAbstrackQuickFix = this._buildAddAbstractQuickFix(
       parseResult,
       context
     );
@@ -56,7 +56,7 @@ export class MarkContractAbstract {
     );
   }
 
-  private buildAddAbstractQuickFix(
+  private _buildAddAbstractQuickFix(
     { tokens, functionSourceLocation }: ParseContractDefinitionResult,
     { document, uri }: ResolveActionsContext
   ): CodeAction | null {

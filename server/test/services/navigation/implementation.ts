@@ -71,7 +71,7 @@ const assertImplementationNavigation = async (
   implementation: OnImplementation,
   uri: string,
   position: VSCodePosition,
-  expectedRanges: { start: VSCodePosition; end: VSCodePosition }[]
+  expectedRanges: Array<{ start: VSCodePosition; end: VSCodePosition }>
 ) => {
   const response = await implementation({ textDocument: { uri }, position });
 

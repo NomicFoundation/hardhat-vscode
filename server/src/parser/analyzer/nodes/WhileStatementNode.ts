@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class WhileStatementNode extends Node {
-  astNode: WhileStatement;
+  public astNode: WhileStatement;
 
   constructor(
     whileStatement: WhileStatement,
@@ -18,11 +18,11 @@ export class WhileStatementNode extends Node {
     this.astNode = whileStatement;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return undefined;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

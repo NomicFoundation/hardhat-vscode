@@ -5,7 +5,7 @@ import { Logger } from "./utils/Logger";
 
 export type Environment = "development" | "production";
 
-export type ExtensionState = {
+export interface ExtensionState {
   context: ExtensionContext;
 
   name: string;
@@ -26,4 +26,4 @@ export type ExtensionState = {
   logger: Logger;
 
   hardhatConfigStatusItem: LanguageStatusItem | null;
-};
+}

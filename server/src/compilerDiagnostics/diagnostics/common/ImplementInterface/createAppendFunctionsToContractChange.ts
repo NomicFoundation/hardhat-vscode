@@ -22,7 +22,7 @@ export function createAppendFunctionsToContractChange(
     .join("\n\n");
 
   const newText = prettyPrinter
-    .format(originalText.slice(0, -1) + functionsAppendText + "}", { document })
+    .format(`${originalText.slice(0, -1) + functionsAppendText}}`, { document })
     .slice(0, -1);
 
   return {

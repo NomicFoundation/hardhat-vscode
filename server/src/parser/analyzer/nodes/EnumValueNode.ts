@@ -6,9 +6,9 @@ import {
 } from "@common/types";
 
 export class EnumValueNode extends Node {
-  astNode: EnumValue;
+  public astNode: EnumValue;
 
-  connectionTypeRules: string[] = ["MemberAccess"];
+  public connectionTypeRules: string[] = ["MemberAccess"];
 
   constructor(
     enumValue: EnumValue,
@@ -29,11 +29,11 @@ export class EnumValueNode extends Node {
     this.astNode = enumValue;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

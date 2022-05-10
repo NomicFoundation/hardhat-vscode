@@ -1,4 +1,4 @@
-import { Transaction } from "@sentry/types";
+import type { Transaction } from "@sentry/types";
 import { ServerState } from "../types";
 
 export interface Telemetry {

@@ -7,7 +7,7 @@ export interface Logger {
   log(arg: string): void;
   info(arg: string): void;
   error(err: unknown): void;
-  trace(message: string, verbose?: Record<string, unknown> | undefined): void;
+  trace(message: string, verbose?: {} | undefined): void;
 }
 
 export type ExceptionCapturer = (err: unknown) => void;
@@ -23,40 +23,43 @@ export class ConnectionLogger implements Logger {
     this.workspaceName = null;
   }
 
-  setWorkspace(rootUri: string): void {
+  public setWorkspace(rootUri: string): void {
     this.workspaceName = path.basename(rootUri);
   }
 
-  tryPrepend(arg: string) {
+  public log(arg: string): void {
+    this.connection.console.log(this._tryPrepend(arg));
+  }
+
+  public info(arg: string): void {
+    this.connection.console.info(this._tryPrepend(arg));
+  }
+
+  public error(err: unknown): void {
+    this.telemetry.captureException(err);
+
+    if (err instanceof Error) {
+      this.connection.console.error(this._tryPrepend(err.message));
+    } else {
+      this.connection.console.error(this._tryPrepend(String(err)));
+    }
+  }
+
+  public trace(
+    message: string,
+    verbose?: Record<string, unknown> | undefined
+  ): void {
+    this.connection.tracer.log(
+      this._tryPrepend(message),
+      JSON.stringify(verbose)
+    );
+  }
+
+  private _tryPrepend(arg: string) {
     if (this.workspaceName === null) {
       return arg;
     } else {
       return `[LS: ${this.workspaceName}] ${arg}`;
     }
-  }
-
-  log(arg: string): void {
-    this.connection.console.log(this.tryPrepend(arg));
-  }
-
-  info(arg: string): void {
-    this.connection.console.info(this.tryPrepend(arg));
-  }
-
-  error(err: unknown): void {
-    this.telemetry.captureException(err);
-
-    if (err instanceof Error) {
-      this.connection.console.error(this.tryPrepend(err.message));
-    } else {
-      this.connection.console.error(this.tryPrepend(String(err)));
-    }
-  }
-
-  trace(message: string, verbose?: Record<string, unknown> | undefined): void {
-    this.connection.tracer.log(
-      this.tryPrepend(message),
-      JSON.stringify(verbose)
-    );
   }
 }

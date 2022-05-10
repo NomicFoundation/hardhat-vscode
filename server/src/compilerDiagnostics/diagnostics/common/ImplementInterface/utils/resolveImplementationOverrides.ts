@@ -55,9 +55,7 @@ function findMostDerivedContractImplementedIn(
 ): string | undefined {
   const contractId = toContractId(contractNode);
 
-  return linearizations[contractId].find((contractId) =>
-    implementedIn.includes(contractId)
-  );
+  return linearizations[contractId].find((cid) => implementedIn.includes(cid));
 }
 
 /**

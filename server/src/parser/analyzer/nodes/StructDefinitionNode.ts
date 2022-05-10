@@ -7,9 +7,9 @@ import {
 } from "@common/types";
 
 export class StructDefinitionNode extends Node {
-  astNode: StructDefinition;
+  public astNode: StructDefinition;
 
-  connectionTypeRules: string[] = [
+  public connectionTypeRules: string[] = [
     "UserDefinedTypeName",
     "MemberAccess",
     "FunctionCall",
@@ -49,15 +49,15 @@ export class StructDefinitionNode extends Node {
     this.addTypeNode(this);
   }
 
-  getTypeNodes(): Node[] {
+  public getTypeNodes(): Node[] {
     return this.typeNodes;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

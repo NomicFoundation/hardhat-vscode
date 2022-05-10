@@ -2,16 +2,16 @@ import * as path from "path";
 import * as childProcess from "child_process";
 import * as utils from "@common/utils";
 import { Logger } from "@utils/Logger";
+import { HardhatProject } from "@analyzer/HardhatProject";
+import { TextDocument } from "vscode-languageserver-textdocument";
+import { decodeUriAndRemoveFilePrefix } from "@utils/index";
+import { CancelResolver, CompilerProcess } from "../../types";
 import {
   COMPILER_DOWNLOADED_EVENT,
   HARDHAT_CONFIG_FILE_EXIST_EVENT,
   HARDHAT_PROCESS_ERROR,
   SOLIDITY_COMPILE_EVENT,
 } from "./events";
-import { CancelResolver, CompilerProcess } from "../../types";
-import { HardhatProject } from "@analyzer/HardhatProject";
-import { TextDocument } from "vscode-languageserver-textdocument";
-import { decodeUriAndRemoveFilePrefix } from "@utils/index";
 import { convertHardhatErrorToDiagnostic } from "./convertHardhatErrorToDiagnostic";
 
 export class HardhatProcess implements CompilerProcess {
@@ -34,7 +34,7 @@ export class HardhatProcess implements CompilerProcess {
     this.logger = logger;
   }
 
-  init(document: TextDocument) {
+  public init(document: TextDocument) {
     const projectRoot = utils.findUpSync("package.json", {
       cwd: path.resolve(this.uri, ".."),
       stopAt: this.project.basePath,
@@ -79,7 +79,7 @@ export class HardhatProcess implements CompilerProcess {
           break;
 
         case HARDHAT_PROCESS_ERROR:
-          this.cancelWithError(document, data.err);
+          this._cancelWithError(document, data.err);
           break;
 
         default:
@@ -94,16 +94,16 @@ export class HardhatProcess implements CompilerProcess {
     };
   }
 
-  send(message: childProcess.Serializable) {
+  public send(message: childProcess.Serializable) {
     this.child?.send(message);
   }
 
-  kill() {
+  public kill() {
     this.child?.kill();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private cancelWithError(document: TextDocument, err: any) {
+  private _cancelWithError(document: TextDocument, err: any) {
     if (!err._isHardhatError) {
       this.logger.error(err);
       this.cancelResolver({});
@@ -124,8 +124,8 @@ export class HardhatProcess implements CompilerProcess {
       };
 
       this.cancelResolver(diagnostics);
-    } catch (err) {
-      this.logger.error(err);
+    } catch (convertErr) {
+      this.logger.error(convertErr);
       this.cancelResolver({});
     }
   }

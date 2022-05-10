@@ -5,3 +5,4 @@ server/node_modules/**
 server/out/**
 client/.eslintrc.js
 server/.eslintrc.js
+.eslintrc.js

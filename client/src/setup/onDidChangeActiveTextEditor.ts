@@ -6,8 +6,8 @@ import {
 } from "../languageitems/hardhatProject";
 
 export function onDidChangeActiveTextEditor(extensionState: ExtensionState) {
-  return async (e: TextEditor) => {
-    if (!e || !e.document || e.document.languageId !== "solidity") {
+  return async (e: TextEditor | undefined) => {
+    if (!e || e.document?.languageId !== "solidity") {
       return clearHardhatConfigState(extensionState);
     }
 

@@ -3,9 +3,9 @@ import * as fs from "fs";
 import * as path from "path";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { ConstrainMutability } from "@compilerDiagnostics/diagnostics/ConstrainMutability";
-import { assertCodeAction } from "./asserts/assertCodeAction";
 import { setupMockLogger } from "../../helpers/setupMockLogger";
-import { ServerState } from "types";
+import { ServerState } from "../../../src/types";
+import { assertCodeAction } from "./asserts/assertCodeAction";
 
 describe("Code Actions", () => {
   const constrainMutability = new ConstrainMutability();

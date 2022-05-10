@@ -7,9 +7,9 @@ import {
 } from "@common/types";
 
 export class AssemblyFunctionDefinitionNode extends Node {
-  astNode: AssemblyFunctionDefinition;
+  public astNode: AssemblyFunctionDefinition;
 
-  connectionTypeRules: string[] = ["AssemblyCall"];
+  public connectionTypeRules: string[] = ["AssemblyCall"];
 
   constructor(
     assemblyFunctionDefinition: AssemblyFunctionDefinition,
@@ -45,11 +45,11 @@ export class AssemblyFunctionDefinitionNode extends Node {
     }
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -61,7 +61,7 @@ export class AssemblyFunctionDefinitionNode extends Node {
       this.setParent(parent);
     }
 
-    this.findChildren(orphanNodes);
+    this._findChildren(orphanNodes);
 
     for (const argument of this.astNode.arguments) {
       find(argument, this.uri, this.rootPath, this.documentsAnalyzer).accept(
@@ -94,7 +94,7 @@ export class AssemblyFunctionDefinitionNode extends Node {
     return this;
   }
 
-  private findChildren(orphanNodes: Node[]): void {
+  private _findChildren(orphanNodes: Node[]): void {
     const newOrphanNodes: Node[] = [];
     const parent = this.getParent();
 
@@ -105,7 +105,7 @@ export class AssemblyFunctionDefinitionNode extends Node {
         parent &&
         isNodeShadowedByNode(orphanNode, parent) &&
         this.connectionTypeRules.includes(
-          orphanNode.getExpressionNode()?.type || ""
+          orphanNode.getExpressionNode()?.type ?? ""
         ) &&
         orphanNode.type !== "MemberAccess"
       ) {

@@ -7,13 +7,13 @@ import {
 import { convertHardhatErrorToDiagnostic } from "@services/validation/convertHardhatErrorToDiagnostic";
 import { assert } from "chai";
 
-type ErrorDescription = {
+interface ErrorDescription {
   number: number;
   message: string;
   title: string;
   description: string;
   shouldBeReported: false;
-};
+}
 
 describe("validation", () => {
   describe("convertHardhatErrorToDiagnostic", () => {

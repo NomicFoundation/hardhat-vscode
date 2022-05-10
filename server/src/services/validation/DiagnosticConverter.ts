@@ -4,16 +4,16 @@ import { compilerDiagnostics } from "@compilerDiagnostics/compilerDiagnostics";
 import { CompilerDiagnostic } from "@compilerDiagnostics/types";
 import { Logger } from "@utils/Logger";
 
-type HardhatCompilerError = {
+interface HardhatCompilerError {
   errorCode: string;
   severity: "error" | "warning";
   message: string;
-  sourceLocation: {
+  sourceLocation?: {
     file: string;
     start: number;
     end: number;
   };
-};
+}
 
 export class DiagnosticConverter {
   private logger: Logger;
@@ -28,8 +28,12 @@ export class DiagnosticConverter {
   ): { [uri: string]: Diagnostic[] } {
     const diagnostics: { [uri: string]: Diagnostic[] } = {};
 
-    for (const error of this.filterBlockedErrors(errors)) {
-      if (!diagnostics[error.sourceLocation.file]) {
+    for (const error of this._filterBlockedErrors(errors)) {
+      if (!error.sourceLocation) {
+        continue;
+      }
+
+      if (!(error.sourceLocation.file in diagnostics)) {
         diagnostics[error.sourceLocation.file] = [];
       }
 
@@ -55,23 +59,23 @@ export class DiagnosticConverter {
     }
   }
 
-  private filterBlockedErrors(
+  private _filterBlockedErrors(
     errors: HardhatCompilerError[]
   ): HardhatCompilerError[] {
-    const locationGroups = this.groupByLocation(errors);
+    const locationGroups = this._groupByLocation(errors);
 
     return Object.values(locationGroups).flatMap(
-      this.filterBlockedErrorsWithinGroup
+      this._filterBlockedErrorsWithinGroup
     );
   }
 
-  private groupByLocation(errors: HardhatCompilerError[]) {
+  private _groupByLocation(errors: HardhatCompilerError[]) {
     return errors.reduce(
       (
         acc: { [key: string]: HardhatCompilerError[] },
         error: HardhatCompilerError
       ) => {
-        const key = this.resolveErrorFileKey(error);
+        const key = this._resolveErrorFileKey(error);
 
         if (!(key in acc)) {
           acc[key] = [];
@@ -84,7 +88,7 @@ export class DiagnosticConverter {
     );
   }
 
-  private resolveErrorFileKey(error: HardhatCompilerError) {
+  private _resolveErrorFileKey(error: HardhatCompilerError) {
     if (!error.sourceLocation) {
       this.logger.error(
         new Error(
@@ -98,7 +102,7 @@ export class DiagnosticConverter {
     return `${error.sourceLocation.file}::${error.sourceLocation.start}::${error.sourceLocation.end}`;
   }
 
-  private filterBlockedErrorsWithinGroup(
+  private _filterBlockedErrorsWithinGroup(
     errors: HardhatCompilerError[]
   ): HardhatCompilerError[] {
     const blockCodes = errors

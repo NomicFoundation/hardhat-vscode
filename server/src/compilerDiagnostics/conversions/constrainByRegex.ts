@@ -7,6 +7,10 @@ export function constrainByRegex(
   error: HardhatCompilerError,
   regex: RegExp
 ) {
+  if (error.sourceLocation === undefined) {
+    throw new Error("No source location");
+  }
+
   const diagnostic = passThroughConversion(document, error);
 
   const matchResult = findMatchInRange(document, error.sourceLocation, regex);

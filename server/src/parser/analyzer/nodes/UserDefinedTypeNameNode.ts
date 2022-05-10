@@ -13,7 +13,7 @@ import {
 import { lookupConstructorFor } from "@analyzer/utils/lookups";
 
 export class UserDefinedTypeNameNode extends Node {
-  astNode: UserDefinedTypeName;
+  public astNode: UserDefinedTypeName;
 
   constructor(
     userDefinedTypeName: UserDefinedTypeName,
@@ -41,7 +41,7 @@ export class UserDefinedTypeNameNode extends Node {
     this.astNode = userDefinedTypeName;
   }
 
-  setParent(parent: Node | undefined): void {
+  public setParent(parent: Node | undefined): void {
     this.parent = parent;
 
     const declarationNode = this.getDeclarationNode();
@@ -66,7 +66,7 @@ export class UserDefinedTypeNameNode extends Node {
     }
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -112,7 +112,10 @@ export class UserDefinedTypeNameNode extends Node {
     return this;
   }
 
-  findMemberAccessParent(expressionNode: Node, definitionTypes: Node[]): void {
+  public findMemberAccessParent(
+    expressionNode: Node,
+    definitionTypes: Node[]
+  ): void {
     for (const definitionType of definitionTypes) {
       for (const definitionChild of definitionType.children) {
         if (isNodeConnectable(definitionChild, expressionNode)) {
@@ -122,6 +125,7 @@ export class UserDefinedTypeNameNode extends Node {
           definitionChild?.addChild(expressionNode);
 
           // If the parent uri and node uri are not the same, add the node to the exportNode field
+          // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
           if (definitionChild && definitionChild.uri !== expressionNode.uri) {
             const exportRootNode = findSourceUnitNode(definitionChild);
             const importRootNode = findSourceUnitNode(

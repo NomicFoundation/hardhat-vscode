@@ -1,15 +1,7 @@
 import { Connection, TextDocumentChangeEvent } from "vscode-languageserver";
 import { TextDocuments } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import {
-  decodeUriAndRemoveFilePrefix,
-  getUriFromDocument,
-} from "../../utils/index";
-import { debounce } from "../../utils/debounce";
-import { ServerState } from "../../types";
 import { Logger } from "@utils/Logger";
-import { SolidityValidation, ValidationJob } from "./SolidityValidation";
-
 import { findProjectFor } from "@utils/findProjectFor";
 import {
   DocumentsAnalyzerMap,
@@ -17,6 +9,13 @@ import {
   SolProjectMap,
 } from "@common/types";
 import { analyzeDocument } from "@utils/analyzeDocument";
+import {
+  decodeUriAndRemoveFilePrefix,
+  getUriFromDocument,
+} from "../../utils/index";
+import { debounce } from "../../utils/debounce";
+import { ServerState } from "../../types";
+import { SolidityValidation, ValidationJob } from "./SolidityValidation";
 
 const debounceAnalyzeDocument: {
   [uri: string]: (
@@ -39,12 +38,12 @@ const debounceValidateDocument: {
   ) => void;
 } = {};
 
-type UnsavedDocumentType = {
+interface UnsavedDocumentType {
   uri: string;
   languageId: string;
   version: number;
   content: string;
-};
+}
 
 export function onDidChangeContent(serverState: ServerState) {
   return (change: TextDocumentChangeEvent<TextDocument>) => {
@@ -53,7 +52,7 @@ export function onDidChangeContent(serverState: ServerState) {
     logger.trace("onDidChangeContent");
 
     try {
-      if (!debounceAnalyzeDocument[change.document.uri]) {
+      if (debounceAnalyzeDocument[change.document.uri] === undefined) {
         debounceAnalyzeDocument[change.document.uri] = debounce(
           analyzeFunc,
           500
@@ -70,7 +69,7 @@ export function onDidChangeContent(serverState: ServerState) {
 
       // ------------------------------------------------------------------------
 
-      if (!debounceValidateDocument[change.document.uri]) {
+      if (debounceValidateDocument[change.document.uri] === undefined) {
         debounceValidateDocument[change.document.uri] = debounce(
           validateTextDocument,
           500
@@ -78,10 +77,12 @@ export function onDidChangeContent(serverState: ServerState) {
       }
 
       const documentURI = getUriFromDocument(change.document);
+
       const project = findProjectFor(
         serverState,
         decodeUriAndRemoveFilePrefix(change.document.uri)
       );
+
       const validationJob = new SolidityValidation(
         serverState.compProcessFactory,
         logger

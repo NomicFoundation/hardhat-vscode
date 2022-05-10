@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class SubAssemblyNode extends Node {
-  astNode: SubAssembly;
+  public astNode: SubAssembly;
 
   constructor(
     subAssembly: SubAssembly,
@@ -19,7 +19,7 @@ export class SubAssemblyNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

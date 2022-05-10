@@ -3,7 +3,7 @@ import * as sinon from "sinon";
 import { CompilerProcess } from "../../src/types";
 
 export function setupMockCompilerProcessFactory(
-  errors: {
+  errors: Array<{
     errorCode: string;
     severity: string;
     message: string;
@@ -12,7 +12,7 @@ export function setupMockCompilerProcessFactory(
       start: number;
       end: number;
     };
-  }[] = []
+  }> = []
 ) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   return (project: HardhatProject, uri: string): CompilerProcess => {

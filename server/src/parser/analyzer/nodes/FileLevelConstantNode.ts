@@ -6,9 +6,9 @@ import {
 } from "@common/types";
 
 export class FileLevelConstantNode extends Node {
-  astNode: FileLevelConstant;
+  public astNode: FileLevelConstant;
 
-  connectionTypeRules: string[] = ["Identifier"];
+  public connectionTypeRules: string[] = ["Identifier"];
 
   constructor(
     fileLevelConstant: FileLevelConstant,
@@ -40,11 +40,11 @@ export class FileLevelConstantNode extends Node {
     }
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -56,6 +56,7 @@ export class FileLevelConstantNode extends Node {
       this.setParent(parent);
     }
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (this.astNode.typeName) {
       let typeNode = find(
         this.astNode.typeName,
@@ -76,6 +77,7 @@ export class FileLevelConstantNode extends Node {
       typeNode.setDeclarationNode(this);
     }
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (this.astNode.initialValue) {
       find(
         this.astNode.initialValue,
@@ -90,14 +92,14 @@ export class FileLevelConstantNode extends Node {
     return this;
   }
 
-  updateLocationName(typeNode: Node): void {
+  public updateLocationName(typeNode: Node): void {
     if (this.astNode.loc && this.nameLoc && typeNode.astNode.range) {
       const diff =
         1 + (+typeNode.astNode.range[1] - +typeNode.astNode.range[0]);
 
       this.nameLoc.start.column = this.astNode.loc.start.column + diff + 1;
       this.nameLoc.end.column =
-        this.nameLoc.start.column + (this.getName()?.length || 0);
+        this.nameLoc.start.column + (this.getName()?.length ?? 0);
 
       if (this.astNode.isDeclaredConst) {
         this.nameLoc.start.column += "constant ".length;

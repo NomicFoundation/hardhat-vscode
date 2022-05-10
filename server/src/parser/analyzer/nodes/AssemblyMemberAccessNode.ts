@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class AssemblyMemberAccessNode extends Node {
-  astNode: AssemblyMemberAccess;
+  public astNode: AssemblyMemberAccess;
 
   constructor(
     assemblyMemberAccess: AssemblyMemberAccess,
@@ -19,7 +19,7 @@ export class AssemblyMemberAccessNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

@@ -10,17 +10,17 @@ export class Logger {
     this.telemetry = telemetry;
   }
 
-  log(text: string) {
+  public log(text: string) {
     this.outputChannel.appendLine(text);
   }
 
-  info(text: string) {
+  public info(text: string) {
     this.outputChannel.appendLine(
       `[Info  - ${new Date().toLocaleTimeString()}] ${text}`
     );
   }
 
-  error(err: unknown) {
+  public error(err: unknown) {
     this.telemetry.captureException(err);
 
     const message = err instanceof Error ? err.message : String(err);

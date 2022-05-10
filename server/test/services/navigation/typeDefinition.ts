@@ -85,7 +85,7 @@ const assertTypeDefinitionNavigation = async (
   typeDefinition: OnTypeDefinition,
   uri: string,
   position: VSCodePosition,
-  expectedRanges: { start: VSCodePosition; end: VSCodePosition }[]
+  expectedRanges: Array<{ start: VSCodePosition; end: VSCodePosition }>
 ) => {
   const response = await typeDefinition({ textDocument: { uri }, position });
 

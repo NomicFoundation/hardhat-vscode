@@ -11,6 +11,7 @@ export const SOLIDITY_COMPILE_EVENT = "solidity_compile";
 export const HARDHAT_CONFIG_FILE_EXIST_EVENT = "hardhat_config_file_exist";
 export const HARDHAT_PROCESS_ERROR = "error";
 
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async () => {
   // TypeScript forces to check send method on existence
   if (!process.send) {
@@ -31,14 +32,14 @@ export const HARDHAT_PROCESS_ERROR = "error";
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    process.on("message", (data: any) => {
-      switch (data.type) {
+    process.on("message", (message: any) => {
+      switch (message.type) {
         case GET_DOCUMENT_EVENT:
-          getDocumentPromisePromiseResolver(data.data);
+          getDocumentPromisePromiseResolver(message.data);
           break;
 
         case SOLIDITY_COMPILE_CONFIRMATION_EVENT:
-          solidityCompileConfirmationPromiseResolver(data);
+          solidityCompileConfirmationPromiseResolver(message);
           break;
 
         default:
@@ -52,7 +53,7 @@ export const HARDHAT_PROCESS_ERROR = "error";
     let hre;
     const uri: string = data.uri;
     const documentText: string = data.documentText;
-    const unsavedDocuments: { uri: string; documentText: string }[] =
+    const unsavedDocuments: Array<{ uri: string; documentText: string }> =
       data.unsavedDocuments;
 
     let hardhatBase = "";
@@ -169,7 +170,7 @@ export const HARDHAT_PROCESS_ERROR = "error";
 
     // download solc version and compile files
     const { output } = await hre.run(TASK_COMPILE_SOLIDITY_COMPILE, {
-      solcVersion: solcVersion,
+      solcVersion,
       input,
       quiet: true,
       compilationJob,
