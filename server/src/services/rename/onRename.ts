@@ -73,6 +73,10 @@ function convertRefNodesToUpdates(referenceNodes: Node[], newName: string) {
   const workspaceEdit: WorkspaceEdit = { changes: {} };
 
   referenceNodes.forEach((potentialUpdate) => {
+    if (!potentialUpdate.isAlive) {
+      return;
+    }
+
     if (!potentialUpdate.nameLoc || !workspaceEdit.changes) {
       return;
     }
