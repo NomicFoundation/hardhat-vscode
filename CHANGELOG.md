@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.3.2 - 2022-05-10
+
+### Fixed
+
+- Include completions for arrays for variables and member accesses ([#179](https://github.com/NomicFoundation/hardhat-vscode/issues/179))
+- Change extensionKind to workspace only, to ensure always has access to workspace files ([#182](https://github.com/NomicFoundation/hardhat-vscode/issues/182))
+- Fix in renames to ignore dead nodes in the ast when calculating updates ([#184](https://github.com/NomicFoundation/hardhat-vscode/pull/184))
+
 ## 0.3.1 - 2022-05-05
 
 ### Added
