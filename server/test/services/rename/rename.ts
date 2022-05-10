@@ -44,6 +44,45 @@ describe("Parser", () => {
           },
           newText: "Animal2",
         },
+        {
+          newText: "Animal2",
+          range: {
+            start: {
+              line: 31,
+              character: 17,
+            },
+            end: {
+              line: 31,
+              character: 23,
+            },
+          },
+        },
+        {
+          newText: "Animal2",
+          range: {
+            start: {
+              line: 34,
+              character: 21,
+            },
+            end: {
+              line: 34,
+              character: 27,
+            },
+          },
+        },
+        {
+          newText: "Animal2",
+          range: {
+            end: {
+              line: 36,
+              character: 27,
+            },
+            start: {
+              line: 36,
+              character: 21,
+            },
+          },
+        },
       ];
 
       beforeEach(async () => {
