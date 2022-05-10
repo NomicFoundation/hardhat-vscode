@@ -14,7 +14,7 @@ export async function showAnalyticsAllowPopup({
     "shownTelemetryMessage"
   );
 
-  if (shownTelemetryMessage) {
+  if (shownTelemetryMessage === true) {
     return;
   }
 
@@ -29,7 +29,7 @@ export async function showAnalyticsAllowPopup({
 
   const config = workspace.getConfiguration("hardhat");
 
-  config.update("telemetry", isAccepted, ConfigurationTarget.Global);
+  await config.update("telemetry", isAccepted, ConfigurationTarget.Global);
 
-  context.globalState.update("shownTelemetryMessage", true);
+  await context.globalState.update("shownTelemetryMessage", true);
 }

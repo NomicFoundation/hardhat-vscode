@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class ConditionalNode extends Node {
-  astNode: Conditional;
+  public astNode: Conditional;
 
   constructor(
     conditional: Conditional,
@@ -18,7 +18,7 @@ export class ConditionalNode extends Node {
     this.astNode = conditional;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -26,6 +26,7 @@ export class ConditionalNode extends Node {
   ): Node {
     this.setExpressionNode(expression);
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (this.astNode.condition) {
       find(
         this.astNode.condition,
@@ -35,6 +36,7 @@ export class ConditionalNode extends Node {
       ).accept(find, orphanNodes, parent);
     }
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (this.astNode.trueExpression) {
       find(
         this.astNode.trueExpression,
@@ -44,6 +46,7 @@ export class ConditionalNode extends Node {
       ).accept(find, orphanNodes, parent);
     }
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (this.astNode.falseExpression) {
       find(
         this.astNode.falseExpression,

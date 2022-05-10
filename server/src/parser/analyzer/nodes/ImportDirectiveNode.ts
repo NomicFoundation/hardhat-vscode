@@ -11,14 +11,14 @@ import {
   ImportDirectiveNode as AbstractImportDirectiveNode,
   SolFileState,
 } from "@common/types";
-import { toUnixStyle } from "../../../utils/index";
 import { analyzeSolFile } from "@analyzer/analyzeSolFile";
+import { toUnixStyle } from "../../../utils/index";
 
 export class ImportDirectiveNode extends AbstractImportDirectiveNode {
-  realUri: string;
+  public realUri: string;
 
-  uri: string;
-  astNode: ImportDirective;
+  public uri: string;
+  public astNode: ImportDirective;
 
   constructor(
     importDirective: ImportDirective,
@@ -44,6 +44,7 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
       this.uri = "";
     }
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (importDirective.pathLiteral && importDirective.pathLiteral.loc) {
       this.nameLoc = importDirective.pathLiteral.loc;
       this.nameLoc.end.column =
@@ -55,11 +56,11 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
     this.astNode = importDirective;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -72,7 +73,7 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
     }
 
     const documentAnalyzer = this.documentsAnalyzer[toUnixStyle(this.uri)];
-    if (documentAnalyzer && documentAnalyzer.status !== SolFileState.Analyzed) {
+    if (documentAnalyzer && documentAnalyzer.status !== SolFileState.ANALYZED) {
       analyzeSolFile(documentAnalyzer, this.documentsAnalyzer);
 
       // Analyze will change root node so we need to return root node after analyze

@@ -3,7 +3,7 @@ import * as prettierPluginSolidity from "prettier-plugin-solidity";
 import { ASTNode, TextDocument } from "@common/types";
 
 export class PrettyPrinter {
-  options: prettier.Options;
+  private options: prettier.Options;
 
   constructor() {
     this.options = {
@@ -12,18 +12,18 @@ export class PrettyPrinter {
     };
   }
 
-  format(text: string, { document }: { document: TextDocument }) {
-    const options = this.mergeOptions(document);
+  public format(text: string, { document }: { document: TextDocument }) {
+    const options = this._mergeOptions(document);
 
     return prettier.format(text, options);
   }
 
-  formatAst(
+  public formatAst(
     ast: ASTNode,
     originalText: string,
     { document }: { document: TextDocument }
   ): string {
-    const options = this.mergeOptions(document);
+    const options = this._mergeOptions(document);
 
     // @ts-expect-error you bet __debug isn't on the type
     const { formatted } = prettier.__debug.formatAST(
@@ -38,7 +38,7 @@ export class PrettyPrinter {
     return formatted;
   }
 
-  private mergeOptions(document: TextDocument) {
+  private _mergeOptions(document: TextDocument) {
     const options = {
       parser: "solidity-parse",
       plugins: [prettierPluginSolidity],
@@ -49,7 +49,7 @@ export class PrettyPrinter {
         prettier.resolveConfig.sync(document.uri, {
           useCache: false,
           editorconfig: true,
-        }) ?? this.defaultConfig();
+        }) ?? this._defaultConfig();
 
       return {
         ...config,
@@ -57,13 +57,13 @@ export class PrettyPrinter {
       };
     } catch (err) {
       return {
-        ...this.defaultConfig(),
+        ...this._defaultConfig(),
         ...options,
       };
     }
   }
 
-  private defaultConfig() {
+  private _defaultConfig() {
     return {
       printWidth: 80,
       tabWidth: 4,

@@ -1,4 +1,3 @@
-import { ServerState } from "../../types";
 import { SignatureHelpParams } from "vscode-languageserver/node";
 import { onCommand } from "@utils/onCommand";
 import {
@@ -12,13 +11,14 @@ import {
   ParameterInformation,
   FunctionDefinitionNode,
 } from "@common/types";
-import { isCharacterALetter, isCharacterANumber } from "../../utils";
 import { Logger } from "@utils/Logger";
+import { isCharacterALetter, isCharacterANumber } from "../../utils";
+import { ServerState } from "../../types";
 
-type DeclarationSignature = {
+interface DeclarationSignature {
   declarationNodePosition: Position;
   activeParameter: number;
-};
+}
 
 export const onSignatureHelp = (serverState: ServerState) => {
   return (params: SignatureHelpParams): SignatureHelp | null | undefined => {
@@ -49,7 +49,7 @@ function signatureHelp(
   documentAnalyzer: ISolFileEntry,
   logger: Logger
 ): SignatureHelp | undefined {
-  if (!documentAnalyzer.document) {
+  if (documentAnalyzer.document === undefined) {
     return undefined;
   }
 
@@ -157,7 +157,7 @@ function getNodeDefinitionSignature(
   const document = documentAnalyzer?.document;
   const nameLoc = definitionNode.nameLoc;
 
-  if (!document) {
+  if (document === undefined) {
     return undefined;
   }
 
@@ -183,17 +183,17 @@ function getNodeDefinitionSignature(
     if ((definitionNode as FunctionDefinitionNode).isConstructor) {
       // Get contract name
       signature =
-        definitionNode.parent?.getName() +
+        (definitionNode.parent?.getName() ?? "") +
         signature.slice("constructor".length);
     } else {
-      signature = "function " + signature;
+      signature = `function ${signature}`;
     }
   } else if (definitionNode.type === "EventDefinition") {
-    signature = "event " + signature;
+    signature = `event ${signature}`;
   } else if (definitionNode.type === "ModifierDefinition") {
-    signature = "modifier " + signature;
+    signature = `modifier ${signature}`;
   } else if (definitionNode.type === "CustomErrorDefinition") {
-    signature = "error " + signature;
+    signature = `error ${signature}`;
   }
 
   if (!signature) {
@@ -270,7 +270,7 @@ function getDefinitionNodeDocumentation(
 
       // Remove comment prefix
       const prettyDocumentLine = documentLine.split(singleComment, 2)[1];
-      documentation = prettyDocumentLine + "\n" + documentation;
+      documentation = `${prettyDocumentLine}\n${documentation}`;
       continue;
     }
     if (trimmedLine[0] === "*" && trimmedLine[1] === "/") {
@@ -280,7 +280,7 @@ function getDefinitionNodeDocumentation(
     if (isMultiLineComments && trimmedLine[0] === "*") {
       // Remove comment prefix
       const prettyDocumentLine = documentLine.split("*", 2)[1];
-      documentation = prettyDocumentLine + "\n" + documentation;
+      documentation = `${prettyDocumentLine}\n${documentation}`;
       continue;
     }
 
@@ -329,6 +329,7 @@ function getPositionFromOffset(offset: number, document: string): Position {
 
   let line = 1;
   let column = offset;
+  // eslint-disable-next-line @typescript-eslint/prefer-for-of
   for (let i = 0; i < documentLines.length; i++) {
     const documentLineLength = documentLines[i].length + 1;
 

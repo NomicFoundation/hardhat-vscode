@@ -6,9 +6,9 @@ import {
 } from "@common/types";
 
 export class UsingForDeclarationNode extends Node {
-  astNode: UsingForDeclaration;
+  public astNode: UsingForDeclaration;
 
-  connectionTypeRules: string[] = ["ContractDefinition"];
+  public connectionTypeRules: string[] = ["ContractDefinition"];
 
   constructor(
     usingForDeclaration: UsingForDeclaration,
@@ -36,13 +36,13 @@ export class UsingForDeclarationNode extends Node {
           column:
             usingForDeclaration.loc.start.column +
             "using ".length +
-            (this.getName()?.length || 0),
+            (this.getName()?.length ?? 0),
         },
       };
     }
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

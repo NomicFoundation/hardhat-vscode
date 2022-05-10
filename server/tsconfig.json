@@ -5,22 +5,20 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "outDir": "out",
-    "rootDir": "src",
     "allowJs": true,
     "sourceMap": true,
     "strict": true,
     "composite": true,
     "declaration": true,
-    "baseUrl": "./src",
     "esModuleInterop": true,
     "paths": {
-      "@compilerDiagnostics/*": ["./compilerDiagnostics/*"],
-      "@analyzer/*": ["./parser/analyzer/*"],
-      "@common/*": ["./parser/common/*"],
-      "@services/*": ["./services/*"],
-      "@utils/*": ["./utils/*"]
+      "@compilerDiagnostics/*": ["./src/compilerDiagnostics/*"],
+      "@analyzer/*": ["./src/parser/analyzer/*"],
+      "@common/*": ["./src/parser/common/*"],
+      "@services/*": ["./src/services/*"],
+      "@utils/*": ["./src/utils/*"]
     }
-  },
-  "include": ["src"],
-  "exclude": ["node_modules", ".vscode-test"]
+  }
+  // "include": ["src", "test"],
+  // "exclude": ["node_modules", ".vscode-test", ".eslintrc.js"]
 }

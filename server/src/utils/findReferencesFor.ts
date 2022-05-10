@@ -3,7 +3,7 @@ import { Node } from "@common/types";
 export function findReferencesFor(definitionNode: Node | undefined): Node[] {
   const nodeName = definitionNode?.getName();
 
-  if (!definitionNode || !nodeName) {
+  if (!definitionNode || nodeName === undefined) {
     return [];
   }
 

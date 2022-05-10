@@ -6,9 +6,9 @@ import {
 } from "@common/types";
 
 export class AssemblyLocalDefinitionNode extends Node {
-  astNode: AssemblyLocalDefinition;
+  public astNode: AssemblyLocalDefinition;
 
-  connectionTypeRules: string[] = ["AssemblyCall", "Identifier"];
+  public connectionTypeRules: string[] = ["AssemblyCall", "Identifier"];
 
   constructor(
     assemblyLocalDefinition: AssemblyLocalDefinition,
@@ -31,15 +31,15 @@ export class AssemblyLocalDefinitionNode extends Node {
     }
   }
 
-  getTypeNodes(): Node[] {
+  public getTypeNodes(): Node[] {
     return this.typeNodes;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -47,7 +47,7 @@ export class AssemblyLocalDefinitionNode extends Node {
   ): Node {
     this.setExpressionNode(expression);
 
-    for (const name of this.astNode.names || []) {
+    for (const name of this.astNode.names ?? []) {
       const identifierNode = find(
         name,
         this.uri,

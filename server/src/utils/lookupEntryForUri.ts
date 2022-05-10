@@ -1,15 +1,15 @@
-import { getUriFromDocument } from "./index";
-import { ServerState } from "../types";
 import { ISolFileEntry } from "@common/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
+import { ServerState } from "../types";
+import { getUriFromDocument } from "./index";
 
-export type LookupResult = {
+export interface LookupResult {
   found: boolean;
   errorMessage?: string;
   documentAnalyzer?: ISolFileEntry;
   document?: TextDocument;
-};
+}
 
 export function lookupEntryForUri(
   serverState: ServerState,

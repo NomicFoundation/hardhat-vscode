@@ -1,6 +1,6 @@
 import { DocumentsAnalyzerMap, ISolProject } from "@common/types";
 
-export type ProjectContext = {
+export interface ProjectContext {
   project: ISolProject;
   solFileIndex: DocumentsAnalyzerMap;
-};
+}

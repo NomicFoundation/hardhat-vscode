@@ -28,12 +28,12 @@ export function setupMockConnection() {
       (
         _method: string,
         handler: (
-          unsavedDocuments: {
+          unsavedDocuments: Array<{
             uri: string;
             languageId: string;
             version: number;
             content: string;
-          }[]
+          }>
         ) => void
       ) => {
         handler([]);

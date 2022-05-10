@@ -1,6 +1,6 @@
 import { CodeActionParams, CodeAction } from "vscode-languageserver/node";
-import { resolveQuickFixes } from "./QuickFixResolver";
 import { ServerState } from "../../types";
+import { resolveQuickFixes } from "./QuickFixResolver";
 
 export function onCodeAction(serverState: ServerState) {
   return (params: CodeActionParams): CodeAction[] => {

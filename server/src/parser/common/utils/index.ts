@@ -15,11 +15,11 @@ import {
   isMemberAccessNode,
 } from "@analyzer/utils/typeGuards";
 
-type FindUpOptions = {
+interface FindUpOptions {
   cwd?: string;
   stopAt?: string;
   fullPath?: boolean;
-};
+}
 
 export function findUpSync(
   fileName: string,
@@ -28,10 +28,12 @@ export function findUpSync(
   if (!options) {
     options = {};
   }
-  options.cwd = options.cwd ? path.resolve(options.cwd) : process.cwd();
-  options.stopAt = options.stopAt
-    ? path.resolve(options.stopAt)
-    : path.parse(process.cwd()).root;
+  options.cwd =
+    options.cwd !== undefined ? path.resolve(options.cwd) : process.cwd();
+  options.stopAt =
+    options.stopAt !== undefined
+      ? path.resolve(options.stopAt)
+      : path.parse(process.cwd()).root;
 
   if (!options.cwd.includes(options.stopAt)) {
     return undefined;
@@ -46,7 +48,7 @@ export function findUpSync(
     directory = path.resolve(directory, "..");
   }
 
-  if (options.fullPath) {
+  if (options.fullPath !== undefined) {
     return path.join(directory, fileName);
   }
 
@@ -80,10 +82,7 @@ export function getRange(loc: Location): Range {
  */
 export function isNodePosition(node: Node, position: Position): boolean {
   if (
-    position &&
     node.nameLoc &&
-    node.nameLoc.start &&
-    node.nameLoc.end &&
     node.nameLoc.start.line === position.line &&
     node.nameLoc.end.line === position.line &&
     node.nameLoc.start.column <= position.column &&
@@ -128,7 +127,6 @@ export function isPositionShadowedByNode(
   node: Node | undefined
 ): boolean {
   if (
-    position &&
     node?.astNode.loc &&
     ((node.astNode.loc.start.line < position.line &&
       node.astNode.loc.end.line > position.line) ||
@@ -160,7 +158,7 @@ export function isNodeConnectable(
   const childName = child.getName();
   const childAlias = child.getAliasName();
 
-  if (!parentName || !childName) {
+  if (parentName === undefined || childName === undefined) {
     return false;
   }
 
@@ -170,7 +168,7 @@ export function isNodeConnectable(
 
   if (
     !parent.connectionTypeRules.includes(child.type) &&
-    !parent.connectionTypeRules.includes(child.getExpressionNode()?.type || "")
+    !parent.connectionTypeRules.includes(child.getExpressionNode()?.type ?? "")
   ) {
     return false;
   }

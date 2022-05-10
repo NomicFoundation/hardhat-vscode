@@ -2,22 +2,22 @@ import { assert } from "chai";
 import { Diagnostic, TextEdit } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { CompilerDiagnostic } from "@compilerDiagnostics/types";
+import { indexWorkspaceFolders } from "@services/initialization/indexWorkspaceFolders";
 import { setupMockWorkspaceFileRetriever } from "../../../helpers/setupMockWorkspaceFileRetriever";
 import { setupMockLogger } from "../../../helpers/setupMockLogger";
 import { setupMockConnection } from "../../../helpers/setupMockConnection";
-import { indexWorkspaceFolders } from "@services/initialization/indexWorkspaceFolders";
-import { ServerState } from "types";
+import { ServerState } from "../../../../src/types";
 
 export async function assertCodeAction(
   compilerDiagnostic: CompilerDiagnostic,
   docText: string,
   diagnostic: Diagnostic,
-  expectedActions: (null | {
+  expectedActions: Array<null | {
     title: string;
     kind: string;
     isPreferred: boolean;
     edits: TextEdit[];
-  })[]
+  }>
 ) {
   const exampleUri = "/example";
 
@@ -57,6 +57,7 @@ export async function assertCodeAction(
   assert(actions);
   assert.equal(actions.length, expectedActions.length);
 
+  // eslint-disable-next-line guard-for-in
   for (const index in expectedActions) {
     const expectedAction = expectedActions[index];
 

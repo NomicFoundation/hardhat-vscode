@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class AssemblyCaseNode extends Node {
-  astNode: AssemblyCase;
+  public astNode: AssemblyCase;
 
   constructor(
     assemblyCase: AssemblyCase,
@@ -18,7 +18,7 @@ export class AssemblyCaseNode extends Node {
     this.astNode = assemblyCase;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

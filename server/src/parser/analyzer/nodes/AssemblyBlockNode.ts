@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class AssemblyBlockNode extends Node {
-  astNode: AssemblyBlock;
+  public astNode: AssemblyBlock;
 
   constructor(
     assemblyBlock: AssemblyBlock,
@@ -18,7 +18,7 @@ export class AssemblyBlockNode extends Node {
     this.astNode = assemblyBlock;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -30,7 +30,7 @@ export class AssemblyBlockNode extends Node {
       this.setParent(parent);
     }
 
-    for (const operation of this.astNode.operations || []) {
+    for (const operation of this.astNode.operations ?? []) {
       find(operation, this.uri, this.rootPath, this.documentsAnalyzer).accept(
         find,
         orphanNodes,

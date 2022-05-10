@@ -2,8 +2,6 @@ import { Connection } from "vscode-languageserver";
 import { TextDocuments } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Logger } from "@utils/Logger";
-import { Telemetry } from "./telemetry/types";
-import { ServerState } from "./types";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { onHover } from "@services/hover/onHover";
 import { onInitialize } from "@services/initialization/onInitialize";
@@ -19,10 +17,14 @@ import { onImplementation } from "@services/implementation/onImplementation";
 import { onRename } from "@services/rename/onRename";
 import { onDidChangeContent } from "@services/validation/onDidChangeContent";
 import { RequestType } from "vscode-languageserver-protocol";
-import { decodeUriAndRemoveFilePrefix, toUnixStyle } from "./utils";
 import path = require("path");
+import { decodeUriAndRemoveFilePrefix, toUnixStyle } from "./utils";
+import { ServerState } from "./types";
+import { Telemetry } from "./telemetry/types";
 
-export type GetSolFileDetailsParams = { uri: string };
+export interface GetSolFileDetailsParams {
+  uri: string;
+}
 export type GetSolFileDetailsResponse =
   | { found: false }
   | { found: true; hardhat: false }

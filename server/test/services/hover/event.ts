@@ -1,8 +1,8 @@
 import * as path from "path";
 import { VSCodePosition } from "@common/types";
+import { MarkupKind } from "vscode-languageserver/node";
 import { setupMockLanguageServer } from "../../helpers/setupMockLanguageServer";
 import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
-import { MarkupKind } from "vscode-languageserver/node";
 import { assertOnServerHover } from "./assertOnServerHover";
 
 describe("Parser", () => {

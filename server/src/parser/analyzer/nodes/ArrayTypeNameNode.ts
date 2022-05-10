@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class ArrayTypeNameNode extends Node {
-  astNode: ArrayTypeName;
+  public astNode: ArrayTypeName;
 
   constructor(
     arrayTypeName: ArrayTypeName,
@@ -18,7 +18,7 @@ export class ArrayTypeNameNode extends Node {
     this.astNode = arrayTypeName;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -33,6 +33,7 @@ export class ArrayTypeNameNode extends Node {
       this.documentsAnalyzer
     ).accept(find, orphanNodes, parent, this);
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (typeNode) {
       this.addTypeNode(typeNode);
     }

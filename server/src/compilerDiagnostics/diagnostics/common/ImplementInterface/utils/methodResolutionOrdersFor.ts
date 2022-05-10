@@ -1,11 +1,11 @@
 import { linearize } from "c3-linearization";
 import { ContractDefinitionNode } from "@common/types";
-import { toContractId } from "./toContractId";
 import {
   ContractIdToNodeMapping,
   InheritanceLookupTable,
   LinearizationContext,
 } from "../types";
+import { toContractId } from "./toContractId";
 
 export function methodResoltionOrdersFor(
   contractNode: ContractDefinitionNode

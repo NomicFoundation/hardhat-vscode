@@ -16,18 +16,18 @@ export function analyzeSolFile(
   try {
     solFileEntry.orphanNodes = [];
 
-    if (text) {
+    if (text !== undefined) {
       solFileEntry.document = text;
     }
 
     try {
-      solFileEntry.ast = parser.parse(solFileEntry.document || "", {
+      solFileEntry.ast = parser.parse(solFileEntry.document ?? "", {
         loc: true,
         range: true,
         tolerant: true,
       });
     } catch {
-      solFileEntry.status = SolFileState.Errored;
+      solFileEntry.status = SolFileState.ERRORED;
       return solFileEntry.analyzerTree.tree;
     }
 
@@ -41,7 +41,7 @@ export function analyzeSolFile(
       }
     }
 
-    solFileEntry.status = SolFileState.Analyzed;
+    solFileEntry.status = SolFileState.ANALYZED;
     solFileEntry.analyzerTree.tree = matcher
       .find(
         solFileEntry.ast,

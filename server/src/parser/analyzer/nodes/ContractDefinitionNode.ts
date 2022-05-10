@@ -8,9 +8,9 @@ import {
 } from "@common/types";
 
 export class ContractDefinitionNode extends AbstractContractDefinitionNode {
-  astNode: ContractDefinition;
+  public astNode: ContractDefinition;
 
-  connectionTypeRules: string[] = [
+  public connectionTypeRules: string[] = [
     "Identifier",
     "UserDefinedTypeName",
     "FunctionCall",
@@ -56,19 +56,19 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
     this.addTypeNode(this);
   }
 
-  getKind(): string {
+  public getKind(): string {
     return this.astNode.kind;
   }
 
-  getTypeNodes(): Node[] {
+  public getTypeNodes(): Node[] {
     return this.typeNodes;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -124,7 +124,7 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
     return this;
   }
 
-  findParentForOrphanNodesInInheritanceNodes(orphanNodes: Node[]): void {
+  public findParentForOrphanNodesInInheritanceNodes(orphanNodes: Node[]): void {
     const searcher = this.documentsAnalyzer[this.uri]?.searcher;
     const newOrphanNodes: Node[] = [];
 

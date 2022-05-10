@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class FunctionTypeNameNode extends Node {
-  astNode: FunctionTypeName;
+  public astNode: FunctionTypeName;
 
   constructor(
     functionTypeName: FunctionTypeName,
@@ -19,7 +19,7 @@ export class FunctionTypeNameNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

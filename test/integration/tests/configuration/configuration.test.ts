@@ -35,6 +35,7 @@ suite("Configuration", function () {
         workspace: {
           workspaceFolders: {
             supported: true,
+            changeNotifications: true,
           },
         },
       },

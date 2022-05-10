@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class AssemblyFunctionReturnsNode extends Node {
-  astNode: AssemblyFunctionReturns;
+  public astNode: AssemblyFunctionReturns;
 
   constructor(
     assemblyFunctionReturns: AssemblyFunctionReturns,
@@ -19,7 +19,7 @@ export class AssemblyFunctionReturnsNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

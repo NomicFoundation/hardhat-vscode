@@ -1,7 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as lsp from "vscode-languageserver/node";
-import { toUnixStyle } from "../../utils/index";
 import {
   CompletionItem,
   CompletionItemKind,
@@ -10,6 +9,7 @@ import {
   VSCodePosition,
 } from "@common/types";
 import { Logger } from "@utils/Logger";
+import { toUnixStyle } from "../../utils/index";
 import { ProjectContext } from "./types";
 
 export function getImportPathCompletion(
@@ -73,7 +73,7 @@ function getRelativeImportPathCompletions(
     partial = "";
   } else {
     importDir = path.dirname(importPath);
-    partial = importPath.replace(importDir + "/", "");
+    partial = importPath.replace(`${importDir}/`, "");
 
     if (!fs.existsSync(importDir)) {
       return [];
@@ -114,7 +114,7 @@ function getIndexedNodeModuleFolderCompletions(
 }
 
 function replaceFor(
-  path: string,
+  filePath: string,
   position: VSCodePosition,
   currentImport: string
 ) {
@@ -125,7 +125,7 @@ function replaceFor(
 
   return lsp.TextEdit.replace(
     lsp.Range.create(startingPosition, position),
-    path
+    filePath
   );
 }
 

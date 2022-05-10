@@ -7,9 +7,9 @@ import {
   mutabliltyPrecedence,
   visibilityPrecedence,
 } from "@common/types";
+import { FunctionRecord, LinearizationContext } from "../types";
 import { isMatchingTypeName } from "./isMatchingTypeName";
 import { toContractId } from "./toContractId";
-import { FunctionRecord, LinearizationContext } from "../types";
 
 /**
  * Build a combined view of all of a contracts functions, both those

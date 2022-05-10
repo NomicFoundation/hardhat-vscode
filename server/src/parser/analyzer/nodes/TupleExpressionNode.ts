@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class TupleExpressionNode extends Node {
-  astNode: TupleExpression;
+  public astNode: TupleExpression;
 
   constructor(
     tupleExpression: TupleExpression,
@@ -18,7 +18,7 @@ export class TupleExpressionNode extends Node {
     this.astNode = tupleExpression;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

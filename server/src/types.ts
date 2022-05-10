@@ -2,11 +2,11 @@ import { Connection } from "vscode-languageserver";
 import * as childProcess from "child_process";
 import { TextDocuments } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { Telemetry } from "telemetry/types";
 import { Logger } from "@utils/Logger";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
 import { DocumentsAnalyzerMap, SolProjectMap, Diagnostic } from "@common/types";
 import { HardhatProject } from "@analyzer/HardhatProject";
+import { Telemetry } from "./telemetry/types";
 
 export type CancelResolver = (diagnostics: {
   [key: string]: Diagnostic[];
@@ -30,7 +30,7 @@ export type CompilerProcessFactory = (
   logger: Logger
 ) => CompilerProcess;
 
-export type ServerState = {
+export interface ServerState {
   env: "production" | "development";
   hasWorkspaceFolderCapability: boolean;
 
@@ -48,4 +48,4 @@ export type ServerState = {
 
   telemetry: Telemetry;
   logger: Logger;
-};
+}

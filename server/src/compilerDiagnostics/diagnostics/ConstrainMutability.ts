@@ -11,25 +11,25 @@ import {
   ResolveActionsContext,
 } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
+import { ServerState } from "../../types";
 import {
   parseFunctionDefinition,
   ParseFunctionDefinitionResult,
 } from "./parsing/parseFunctionDefinition";
 import { lookupToken } from "./parsing/lookupToken";
-import { ServerState } from "types";
 
 export class ConstrainMutability implements CompilerDiagnostic {
   public code = "2018";
   public blocks: string[] = [];
 
-  fromHardhatCompilerError(
+  public fromHardhatCompilerError(
     document: TextDocument,
     error: HardhatCompilerError
   ): Diagnostic {
     return attemptConstrainToFunctionName(document, error);
   }
 
-  resolveActions(
+  public resolveActions(
     serverState: ServerState,
     diagnostic: Diagnostic,
     { document, uri }: ResolveActionsContext
@@ -49,13 +49,13 @@ export class ConstrainMutability implements CompilerDiagnostic {
     }
 
     if (parseResult.functionDefinition.stateMutability === "view") {
-      return this.modifyViewToPureAction(document, uri, parseResult);
+      return this._modifyViewToPureAction(document, uri, parseResult);
     } else {
-      return this.addMutabilityAction(diagnostic, document, uri, parseResult);
+      return this._addMutabilityAction(diagnostic, document, uri, parseResult);
     }
   }
 
-  private modifyViewToPureAction(
+  private _modifyViewToPureAction(
     document: TextDocument,
     uri: string,
     { functionSourceLocation, tokens }: ParseFunctionDefinitionResult
@@ -94,7 +94,7 @@ export class ConstrainMutability implements CompilerDiagnostic {
     return [action];
   }
 
-  private addMutabilityAction(
+  private _addMutabilityAction(
     diagnostic: Diagnostic,
     document: TextDocument,
     uri: string,

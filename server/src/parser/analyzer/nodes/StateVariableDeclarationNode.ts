@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class StateVariableDeclarationNode extends Node {
-  astNode: StateVariableDeclaration;
+  public astNode: StateVariableDeclaration;
 
   constructor(
     stateVariableDeclaration: StateVariableDeclaration,
@@ -24,11 +24,11 @@ export class StateVariableDeclarationNode extends Node {
     this.astNode = stateVariableDeclaration;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return this;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

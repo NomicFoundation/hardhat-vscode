@@ -10,14 +10,14 @@
     "node": "*"
   },
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc -b tsconfig.build.json",
     "test": "cross-env TS_NODE_FILES=true mocha",
     "test:coverage": "cross-env TS_NODE_FILES=true nyc mocha",
     "lint": "yarn prettier --check && yarn eslint",
     "lint:fix": "yarn prettier --write && yarn lint --fix",
     "eslint": "eslint --max-warnings 0 \"./src/**/*.ts\" \"./test/**/*.ts\"",
     "prettier": "prettier \"*.json\" \"src/**/*.{ts,js,md,json,yml}\" \"test/**/*.{ts,js,md,json,yml}\"",
-    "clean": "rimraf out .nyc_output coverage tsconfig.tsbuildinfo"
+    "clean": "rimraf out .nyc_output coverage *.tsbuildinfo"
   },
   "_moduleAliases": {
     "@compilerDiagnostics": "./out/compilerDiagnostics",
@@ -42,7 +42,6 @@
     "eslint": "^7.23.0",
     "mocha": "9.1.3",
     "nyc": "15.1.0",
-    "prettier": "2.5.1",
     "rimraf": "3.0.2",
     "sinon": "12.0.1",
     "ts-node": "10.4.0",
@@ -60,10 +59,12 @@
     "hardhat": "^2.6.0",
     "js-yaml": "^4.1.0",
     "module-alias": "^2.2.2",
+    "prettier": "2.5.1",
     "prettier-plugin-solidity": "1.0.0-beta.19",
     "qs": "^6.10.1",
     "uuid": "^8.3.2",
     "vscode-languageserver": "^7.0.0",
+    "vscode-languageserver-protocol": "3.16.0",
     "vscode-languageserver-textdocument": "^1.0.1",
     "vscode-languageserver-types": "^3.16.0"
   }

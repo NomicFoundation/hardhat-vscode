@@ -6,12 +6,12 @@ import { isContractDefinition } from "@analyzer/utils/typeGuards";
 import { ResolveActionsContext } from "@compilerDiagnostics/types";
 import { Logger } from "@utils/Logger";
 
-export type ParseContractDefinitionResult = {
+export interface ParseContractDefinitionResult {
   contractDefinition: ContractDefinition;
   tokens: Token[];
   functionSourceLocation: { start: number; end: number };
   contractText: string;
-};
+}
 
 export function parseContractDefinition(
   diagnostic: Diagnostic,

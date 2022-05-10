@@ -1,9 +1,9 @@
 import { ServerState } from "../types";
 
-export type AnalyticsData = {
+export interface AnalyticsData {
   clientId: string;
   isAllowed?: boolean;
-};
+}
 
 // VERY IMPORTANT:
 // The documentation doesn't say so, but the user-agent parameter is required (ua).

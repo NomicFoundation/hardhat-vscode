@@ -10,7 +10,7 @@ import {
 } from "@common/types";
 
 export class MemberAccessNode extends IMemberAccessNode {
-  astNode: MemberAccess;
+  public astNode: MemberAccess;
 
   constructor(
     memberAccess: MemberAccess,
@@ -39,7 +39,7 @@ export class MemberAccessNode extends IMemberAccessNode {
     this.astNode = memberAccess;
   }
 
-  setParent(parent: Node | undefined): void {
+  public setParent(parent: Node | undefined): void {
     this.parent = parent;
 
     let expressionNode = this.getExpressionNode();
@@ -60,7 +60,7 @@ export class MemberAccessNode extends IMemberAccessNode {
     }
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -162,7 +162,7 @@ export class MemberAccessNode extends IMemberAccessNode {
     return this;
   }
 
-  findMemberAccessParent(
+  public findMemberAccessParent(
     expressionNode: Node,
     definitionTypes: Node[]
   ): Node | undefined {
@@ -175,6 +175,7 @@ export class MemberAccessNode extends IMemberAccessNode {
           definitionChild?.addChild(expressionNode);
 
           // If the parent uri and node uri are not the same, add the node to the exportNode field
+          // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
           if (definitionChild && definitionChild.uri !== expressionNode.uri) {
             const exportRootNode = findSourceUnitNode(definitionChild);
             const importRootNode = findSourceUnitNode(

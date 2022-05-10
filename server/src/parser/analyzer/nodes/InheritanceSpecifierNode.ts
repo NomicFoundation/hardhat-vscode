@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class InheritanceSpecifierNode extends Node {
-  astNode: InheritanceSpecifier;
+  public astNode: InheritanceSpecifier;
 
   constructor(
     inheritanceSpecifier: InheritanceSpecifier,
@@ -18,7 +18,7 @@ export class InheritanceSpecifierNode extends Node {
     this.astNode = inheritanceSpecifier;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

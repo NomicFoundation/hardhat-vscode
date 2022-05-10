@@ -7,7 +7,7 @@ import {
 } from "@common/types";
 
 export class SourceUnitNode extends AbstractSourceUnitNode {
-  astNode: SourceUnit;
+  public astNode: SourceUnit;
 
   constructor(
     sourceUnit: SourceUnit,
@@ -19,11 +19,11 @@ export class SourceUnitNode extends AbstractSourceUnitNode {
     this.astNode = sourceUnit;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return undefined;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
@@ -33,7 +33,7 @@ export class SourceUnitNode extends AbstractSourceUnitNode {
 
     const documentAnalyzer = this.documentsAnalyzer[this.uri];
     if (
-      documentAnalyzer?.isAnalyzed() &&
+      documentAnalyzer?.isAnalyzed() === true &&
       documentAnalyzer.analyzerTree.tree instanceof SourceUnitNode
     ) {
       this.exportNodes = documentAnalyzer.analyzerTree.tree

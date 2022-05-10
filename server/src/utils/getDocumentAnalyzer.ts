@@ -29,12 +29,6 @@ export function getDocumentAnalyzer(
   if (!documentAnalyzer) {
     const project = findProjectFor({ projects }, uri);
 
-    if (!project) {
-      throw new Error(
-        "Document analyzer can't be retrieved as project base path not set."
-      );
-    }
-
     if (fs.existsSync(uri)) {
       const docText = fs.readFileSync(uri).toString();
       documentAnalyzer = SolFileEntry.createLoadedEntry(uri, project, docText);

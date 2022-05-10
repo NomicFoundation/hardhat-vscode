@@ -72,9 +72,9 @@ export function isInstanceOf<T>(
 }
 
 export function isArray<T>(
-  value: Array<T> | undefined | null,
+  value: T[] | undefined | null,
   length = 1
-): asserts value is Array<T> {
+): asserts value is T[] {
   assert.ok(
     Array.isArray(value),
     `value must be array ${JSON.stringify(value, null, 2)}`

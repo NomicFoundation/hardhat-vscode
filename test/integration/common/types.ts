@@ -3,7 +3,7 @@
 import * as vscode from "vscode";
 import * as lsclient from "vscode-languageclient/node";
 
-export type Position = {
+export interface Position {
   /**
    * The zero-based line value.
    */
@@ -12,9 +12,9 @@ export type Position = {
    * The zero-based character value.
    */
   character: number;
-};
+}
 
-export type ActionParams = {
+export interface ActionParams {
   /**
    * Represents a line and character position, such as the position of the cursor.
    */
@@ -23,10 +23,11 @@ export type ActionParams = {
   /**
    * Optional param. Currently used only in RenameRequest.
    */
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   new_name?: string | undefined;
-};
+}
 
-export type Action = {
+export interface Action {
   /**
    * The name of the action to be executed.
    */
@@ -47,9 +48,9 @@ export type Action = {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   expected: any[];
-};
+}
 
-export type IntegrationSamples = {
+export interface IntegrationSamples {
   /**
    * Test title.
    */
@@ -59,13 +60,13 @@ export type IntegrationSamples = {
    * List of related actions
    */
   actions: Action[];
-};
+}
 
-export type IndexFileData = {
+export interface IndexFileData {
   path: string;
   current: number;
   total: number;
-};
+}
 
 export interface NavigationProvider {
   client: lsclient.LanguageClient;
@@ -91,11 +92,11 @@ export interface NavigationProvider {
 }
 
 export interface Client {
-  client: lsclient.LanguageClient;
+  client: lsclient.LanguageClient | null;
   tokenSource: vscode.CancellationTokenSource;
 
-  document: vscode.TextDocument;
-  docUri: vscode.Uri;
+  document: vscode.TextDocument | null;
+  docUri: vscode.Uri | null;
 
   /**
    * Activates the extension

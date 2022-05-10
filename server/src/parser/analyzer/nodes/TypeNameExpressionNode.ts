@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class TypeNameExpressionNode extends Node {
-  astNode: TypeNameExpression;
+  public astNode: TypeNameExpression;
 
   constructor(
     typeNameExpression: TypeNameExpression,
@@ -19,7 +19,7 @@ export class TypeNameExpressionNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class PragmaDirectiveNode extends Node {
-  astNode: PragmaDirective;
+  public astNode: PragmaDirective;
 
   constructor(
     pragmaDirective: PragmaDirective,
@@ -19,7 +19,7 @@ export class PragmaDirectiveNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

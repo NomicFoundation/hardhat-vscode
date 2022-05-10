@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class AssemblyLiteralNode extends Node {
-  astNode: AssemblyLiteral;
+  public astNode: AssemblyLiteral;
 
   constructor(
     assemblyLiteral: AssemblyLiteral,
@@ -19,7 +19,7 @@ export class AssemblyLiteralNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

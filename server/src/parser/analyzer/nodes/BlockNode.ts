@@ -1,7 +1,7 @@
 import { Block, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
 
 export class BlockNode extends Node {
-  astNode: Block;
+  public astNode: Block;
 
   constructor(
     block: Block,
@@ -13,11 +13,11 @@ export class BlockNode extends Node {
     this.astNode = block;
   }
 
-  getDefinitionNode(): Node | undefined {
+  public getDefinitionNode(): Node | undefined {
     return undefined;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

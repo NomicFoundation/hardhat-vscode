@@ -9,6 +9,10 @@ export function formatDocument(
 ): vscode.TextEdit[] {
   const rootPath = getCurrentWorkspaceRootFsPath();
 
+  if (rootPath === undefined) {
+    return [];
+  }
+
   const ignoreOptions = {
     ignorePath: path.join(rootPath, ".prettierignore"),
   };
@@ -19,7 +23,7 @@ export function formatDocument(
   );
 
   if (fileInfo.ignored) {
-    return null;
+    return [];
   }
 
   const source = document.getText();
@@ -55,12 +59,19 @@ export function formatDocument(
   }
 }
 
-function getCurrentWorkspaceRootFsPath(): string {
-  return getCurrentWorkspaceRootFolder().uri.fsPath;
+function getCurrentWorkspaceRootFsPath(): string | undefined {
+  const rootFolder = getCurrentWorkspaceRootFolder();
+
+  return rootFolder?.uri.fsPath;
 }
 
 function getCurrentWorkspaceRootFolder(): vscode.WorkspaceFolder | undefined {
   const editor = vscode.window.activeTextEditor;
+
+  if (!editor) {
+    return undefined;
+  }
+
   const currentDocument = editor.document.uri;
 
   return vscode.workspace.getWorkspaceFolder(currentDocument);

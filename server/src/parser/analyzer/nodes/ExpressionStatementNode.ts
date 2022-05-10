@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class ExpressionStatementNode extends Node {
-  astNode: ExpressionStatement;
+  public astNode: ExpressionStatement;
 
   constructor(
     expressionStatement: ExpressionStatement,
@@ -18,7 +18,7 @@ export class ExpressionStatementNode extends Node {
     this.astNode = expressionStatement;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class AssemblyForNode extends Node {
-  astNode: AssemblyFor;
+  public astNode: AssemblyFor;
 
   constructor(
     assemblyFor: AssemblyFor,
@@ -18,7 +18,7 @@ export class AssemblyForNode extends Node {
     this.astNode = assemblyFor;
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

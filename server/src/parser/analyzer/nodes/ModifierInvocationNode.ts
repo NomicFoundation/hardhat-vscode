@@ -8,7 +8,7 @@ import { isContractDefinitionNode } from "@analyzer/utils/typeGuards";
 import { lookupConstructorFor } from "@analyzer/utils/lookups";
 
 export class ModifierInvocationNode extends Node {
-  astNode: ModifierInvocation;
+  public astNode: ModifierInvocation;
 
   constructor(
     modifierInvocation: ModifierInvocation,
@@ -41,7 +41,7 @@ export class ModifierInvocationNode extends Node {
     }
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,

@@ -24,7 +24,7 @@ export function setupExtensionState(
   const logger = new Logger(outputChannel, telemetry);
 
   const extensionState: ExtensionState = {
-    context: context,
+    context,
     env:
       process.env.NODE_ENV === "development"
         ? process.env.NODE_ENV
@@ -37,9 +37,8 @@ export function setupExtensionState(
     client: null,
     listenerDisposables: [],
     currentIndexingJobs: [],
-    hardhatTelemetryEnabled: workspace
-      .getConfiguration("hardhat")
-      .get<boolean>("telemetry"),
+    hardhatTelemetryEnabled:
+      workspace.getConfiguration("hardhat").get<boolean>("telemetry") ?? false,
     globalTelemetryEnabled: env.isTelemetryEnabled,
     hardhatConfigStatusItem: null,
 

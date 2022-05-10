@@ -15,11 +15,15 @@ export function getOuterMostWorkspaceFolder(
     let uri = folder.uri.toString();
 
     if (uri.charAt(uri.length - 1) !== "/") {
-      uri = uri + "/";
+      uri = `${uri}/`;
     }
 
     if (uri.startsWith(element)) {
-      return workspace.getWorkspaceFolder(Uri.parse(element));
+      const foundFolder = workspace.getWorkspaceFolder(Uri.parse(element));
+
+      if (foundFolder) {
+        return foundFolder;
+      }
     }
   }
 
@@ -34,7 +38,7 @@ function sortedWorkspaceFolders(): string[] {
             let result = folder.uri.toString();
 
             if (result.charAt(result.length - 1) !== "/") {
-              result = result + "/";
+              result = `${result}/`;
             }
 
             return result;

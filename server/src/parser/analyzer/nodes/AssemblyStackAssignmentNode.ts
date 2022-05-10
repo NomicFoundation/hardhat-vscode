@@ -6,7 +6,7 @@ import {
 } from "@common/types";
 
 export class AssemblyStackAssignmentNode extends Node {
-  astNode: AssemblyStackAssignment;
+  public astNode: AssemblyStackAssignment;
 
   constructor(
     assemblyStackAssignment: AssemblyStackAssignment,
@@ -19,7 +19,7 @@ export class AssemblyStackAssignmentNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  accept(
+  public accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
