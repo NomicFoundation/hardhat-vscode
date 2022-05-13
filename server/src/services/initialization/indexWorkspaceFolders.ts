@@ -5,8 +5,8 @@ import { WorkspaceFolder } from "vscode-languageserver-protocol";
 import { Connection } from "vscode-languageserver";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { SolFileEntry } from "@analyzer/SolFileEntry";
-import { DocumentsAnalyzerMap, SolProjectMap } from "@common/types";
-import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
+import { SolFileIndexMap, SolProjectMap } from "@common/types";
+import { getOrInitialiseSolFileEntry } from "@utils/getOrInitialiseSolFileEntry";
 import { analyzeSolFile } from "@analyzer/analyzeSolFile";
 import { HardhatProject } from "@analyzer/HardhatProject";
 import { findProjectFor } from "@utils/findProjectFor";
@@ -16,7 +16,7 @@ import { resolveTopLevelWorkspaceFolders } from "./resolveTopLevelWorkspaceFolde
 export interface IndexWorkspaceFoldersContext {
   indexJobCount: number;
   connection: Connection;
-  solFileIndex: DocumentsAnalyzerMap;
+  solFileIndex: SolFileIndexMap;
   workspaceFolders: WorkspaceFolder[];
   projects: SolProjectMap;
   logger: Logger;
@@ -221,7 +221,7 @@ async function analyzeSolFiles(
         const docText = await workspaceFileRetriever.readFile(solFileUri);
         const project = findProjectFor({ projects }, solFileUri);
 
-        solFileIndex[solFileUri] = SolFileEntry.createLoadedEntry(
+        solFileIndex[solFileUri] = SolFileEntry.createLoadedUntrackedEntry(
           solFileUri,
           project,
           docText.toString()
@@ -239,11 +239,6 @@ async function analyzeSolFiles(
         const documentUri = solFileUris[i];
 
         try {
-          const solFileEntry = getDocumentAnalyzer(
-            { projects, solFileIndex },
-            documentUri
-          );
-
           const data: IndexFileData = {
             jobId: indexJobId,
             path: documentUri,
@@ -255,8 +250,13 @@ async function analyzeSolFiles(
 
           logger.trace(`Indexing file ${i}/${solFileUris.length}`, data);
 
+          const solFileEntry = getOrInitialiseSolFileEntry(
+            { projects, solFileIndex },
+            documentUri
+          );
+
           if (!solFileEntry.isAnalyzed()) {
-            analyzeSolFile(solFileEntry, solFileIndex);
+            analyzeSolFile({ solFileIndex }, solFileEntry);
           }
         } catch (err) {
           logger.error(err);

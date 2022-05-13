@@ -1,7 +1,7 @@
 import {
   TupleExpression,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class TupleExpressionNode extends Node {
     tupleExpression: TupleExpression,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(tupleExpression, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = tupleExpression;
@@ -28,7 +28,7 @@ export class TupleExpressionNode extends Node {
 
     for (const component of this.astNode.components) {
       if (component) {
-        find(component, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+        find(component, this.uri, this.rootPath, this.solFileIndex).accept(
           find,
           orphanNodes,
           parent

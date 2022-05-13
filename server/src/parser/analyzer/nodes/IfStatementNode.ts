@@ -1,9 +1,4 @@
-import {
-  IfStatement,
-  FinderType,
-  DocumentsAnalyzerMap,
-  Node,
-} from "@common/types";
+import { IfStatement, FinderType, SolFileIndexMap, Node } from "@common/types";
 
 export class IfStatementNode extends Node {
   public astNode: IfStatement;
@@ -12,7 +7,7 @@ export class IfStatementNode extends Node {
     ifStatement: IfStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(ifStatement, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = ifStatement;
@@ -38,13 +33,13 @@ export class IfStatementNode extends Node {
       this.astNode.condition,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, this);
     find(
       this.astNode.trueBody,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, this);
 
     if (this.astNode.falseBody) {
@@ -52,7 +47,7 @@ export class IfStatementNode extends Node {
         this.astNode.falseBody,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, this);
     }
 

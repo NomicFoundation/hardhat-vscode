@@ -1,9 +1,4 @@
-import {
-  AssemblyIf,
-  FinderType,
-  DocumentsAnalyzerMap,
-  Node,
-} from "@common/types";
+import { AssemblyIf, FinderType, SolFileIndexMap, Node } from "@common/types";
 
 export class AssemblyIfNode extends Node {
   public astNode: AssemblyIf;
@@ -12,7 +7,7 @@ export class AssemblyIfNode extends Node {
     assemblyIf: AssemblyIf,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(assemblyIf, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = assemblyIf;
@@ -34,15 +29,14 @@ export class AssemblyIfNode extends Node {
       this.astNode.condition,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, this);
 
-    find(
-      this.astNode.body,
-      this.uri,
-      this.rootPath,
-      this.documentsAnalyzer
-    ).accept(find, orphanNodes, this);
+    find(this.astNode.body, this.uri, this.rootPath, this.solFileIndex).accept(
+      find,
+      orphanNodes,
+      this
+    );
 
     parent?.addChild(this);
 

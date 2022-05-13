@@ -1,9 +1,4 @@
-import {
-  AssemblyFor,
-  FinderType,
-  DocumentsAnalyzerMap,
-  Node,
-} from "@common/types";
+import { AssemblyFor, FinderType, SolFileIndexMap, Node } from "@common/types";
 
 export class AssemblyForNode extends Node {
   public astNode: AssemblyFor;
@@ -12,7 +7,7 @@ export class AssemblyForNode extends Node {
     assemblyFor: AssemblyFor,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(assemblyFor, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = assemblyFor;
@@ -30,30 +25,27 @@ export class AssemblyForNode extends Node {
       this.setParent(parent);
     }
 
-    find(
-      this.astNode.pre,
-      this.uri,
-      this.rootPath,
-      this.documentsAnalyzer
-    ).accept(find, orphanNodes, this);
+    find(this.astNode.pre, this.uri, this.rootPath, this.solFileIndex).accept(
+      find,
+      orphanNodes,
+      this
+    );
     find(
       this.astNode.condition,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, this);
-    find(
-      this.astNode.post,
-      this.uri,
-      this.rootPath,
-      this.documentsAnalyzer
-    ).accept(find, orphanNodes, this);
-    find(
-      this.astNode.body,
-      this.uri,
-      this.rootPath,
-      this.documentsAnalyzer
-    ).accept(find, orphanNodes, this);
+    find(this.astNode.post, this.uri, this.rootPath, this.solFileIndex).accept(
+      find,
+      orphanNodes,
+      this
+    );
+    find(this.astNode.body, this.uri, this.rootPath, this.solFileIndex).accept(
+      find,
+      orphanNodes,
+      this
+    );
 
     parent?.addChild(this);
 

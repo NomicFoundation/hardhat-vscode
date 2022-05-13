@@ -1,7 +1,7 @@
 import {
   AssemblyFunctionReturns,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class AssemblyFunctionReturnsNode extends Node {
     assemblyFunctionReturns: AssemblyFunctionReturns,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(assemblyFunctionReturns, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = assemblyFunctionReturns;

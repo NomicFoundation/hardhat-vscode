@@ -1,7 +1,7 @@
 import {
   AssemblyLiteral,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class AssemblyLiteralNode extends Node {
     assemblyLiteral: AssemblyLiteral,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(assemblyLiteral, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = assemblyLiteral;

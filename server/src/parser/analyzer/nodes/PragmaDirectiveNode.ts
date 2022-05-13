@@ -1,7 +1,7 @@
 import {
   PragmaDirective,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class PragmaDirectiveNode extends Node {
     pragmaDirective: PragmaDirective,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(pragmaDirective, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = pragmaDirective;

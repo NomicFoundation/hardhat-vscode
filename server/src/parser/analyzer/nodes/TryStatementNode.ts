@@ -1,9 +1,4 @@
-import {
-  TryStatement,
-  FinderType,
-  DocumentsAnalyzerMap,
-  Node,
-} from "@common/types";
+import { TryStatement, FinderType, SolFileIndexMap, Node } from "@common/types";
 
 export class TryStatementNode extends Node {
   public astNode: TryStatement;
@@ -12,7 +7,7 @@ export class TryStatementNode extends Node {
     tryStatement: TryStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(tryStatement, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = tryStatement;
@@ -34,27 +29,25 @@ export class TryStatementNode extends Node {
       this.astNode.expression,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, this);
 
     for (const returnParameter of this.astNode.returnParameters || []) {
-      find(
-        returnParameter,
-        this.uri,
-        this.rootPath,
-        this.documentsAnalyzer
-      ).accept(find, orphanNodes, this);
+      find(returnParameter, this.uri, this.rootPath, this.solFileIndex).accept(
+        find,
+        orphanNodes,
+        this
+      );
     }
 
-    find(
-      this.astNode.body,
-      this.uri,
-      this.rootPath,
-      this.documentsAnalyzer
-    ).accept(find, orphanNodes, this);
+    find(this.astNode.body, this.uri, this.rootPath, this.solFileIndex).accept(
+      find,
+      orphanNodes,
+      this
+    );
 
     for (const catchClause of this.astNode.catchClauses ?? []) {
-      find(catchClause, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(catchClause, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         this

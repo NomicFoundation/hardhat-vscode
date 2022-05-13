@@ -6,7 +6,6 @@ import {
   TransportKind,
 } from "vscode-languageclient/node";
 import { ExtensionState } from "../types";
-import { getUnsavedDocuments } from "../utils/getUnsavedDocuments";
 import { setupIndexingHooks } from "../popups/setupIndexingHooks";
 import { onDidChangeActiveTextEditor } from "./onDidChangeActiveTextEditor";
 
@@ -65,31 +64,6 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
     serverOptions,
     clientOptions
   );
-
-  client
-    .onReady()
-    .then(() => {
-      logger.info(`Client ready`);
-
-      client.onNotification("custom/get-unsaved-documents", () => {
-        const unsavedDocuments = getUnsavedDocuments();
-
-        client.sendNotification(
-          "custom/get-unsaved-documents",
-          unsavedDocuments.map((unsavedDocument) => {
-            return {
-              uri: unsavedDocument.uri,
-              languageId: unsavedDocument.languageId,
-              version: unsavedDocument.version,
-              content: unsavedDocument.getText(),
-            };
-          })
-        );
-      });
-    })
-    .catch((reason) => {
-      logger.error(reason);
-    });
 
   setupIndexingHooks(extensionState, client);
 

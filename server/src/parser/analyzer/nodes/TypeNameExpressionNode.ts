@@ -1,7 +1,7 @@
 import {
   TypeNameExpression,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class TypeNameExpressionNode extends Node {
     typeNameExpression: TypeNameExpression,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(typeNameExpression, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = typeNameExpression;

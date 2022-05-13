@@ -1,7 +1,7 @@
 import {
   StringLiteral,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class StringLiteralNode extends Node {
     stringLiteral: StringLiteral,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(stringLiteral, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = stringLiteral;

@@ -76,7 +76,7 @@ import { CustomErrorDefinitionNode } from "@analyzer/nodes/CustomErrorDefinition
 import { RevertStatementNode } from "@analyzer/nodes/RevertStatementNode";
 import { TypeDefinitionNode } from "@analyzer/nodes/TypeDefinitionNode";
 
-import { Node, DocumentsAnalyzerMap } from "@common/types";
+import { Node, SolFileIndexMap } from "@common/types";
 
 type ASTTypes = astTypes.ASTNode["type"];
 type ASTMap<U> = { [K in ASTTypes]: U extends { type: K } ? U : never };
@@ -87,7 +87,7 @@ type Pattern<T> = {
     ast: ASTTypeMap[K],
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => T;
 };
 
@@ -97,7 +97,7 @@ function matcher<T>(
   ast: astTypes.BaseASTNode,
   uri: string,
   rootPath: string,
-  documentsAnalyzer: DocumentsAnalyzerMap
+  documentsAnalyzer: SolFileIndexMap
 ) => T {
   return (ast, uri, rootPath, documentsAnalyzer) =>
     pattern[ast.type](
@@ -105,7 +105,7 @@ function matcher<T>(
       ast as any,
       uri as string,
       rootPath as string,
-      documentsAnalyzer as DocumentsAnalyzerMap
+      documentsAnalyzer as SolFileIndexMap
     );
 }
 
@@ -114,27 +114,27 @@ export const find = matcher<Node>({
     sourceUnit: astTypes.SourceUnit,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new SourceUnitNode(sourceUnit, uri, rootPath, documentsAnalyzer),
   PragmaDirective: (
     pragmaDirective: astTypes.PragmaDirective,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new PragmaDirectiveNode(pragmaDirective, uri, rootPath, documentsAnalyzer),
   ImportDirective: (
     importDirective: astTypes.ImportDirective,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new ImportDirectiveNode(importDirective, uri, rootPath, documentsAnalyzer),
   ContractDefinition: (
     contractDefinition: astTypes.ContractDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new ContractDefinitionNode(
       contractDefinition,
@@ -146,7 +146,7 @@ export const find = matcher<Node>({
     inheritanceSpecifier: astTypes.InheritanceSpecifier,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new InheritanceSpecifierNode(
       inheritanceSpecifier,
@@ -158,7 +158,7 @@ export const find = matcher<Node>({
     stateVariableDeclaration: astTypes.StateVariableDeclaration,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new StateVariableDeclarationNode(
       stateVariableDeclaration,
@@ -170,7 +170,7 @@ export const find = matcher<Node>({
     usingForDeclaration: astTypes.UsingForDeclaration,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new UsingForDeclarationNode(
       usingForDeclaration,
@@ -182,7 +182,7 @@ export const find = matcher<Node>({
     structDefinition: astTypes.StructDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new StructDefinitionNode(
       structDefinition,
@@ -194,7 +194,7 @@ export const find = matcher<Node>({
     modifierDefinition: astTypes.ModifierDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new ModifierDefinitionNode(
       modifierDefinition,
@@ -206,7 +206,7 @@ export const find = matcher<Node>({
     modifierInvocation: astTypes.ModifierInvocation,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new ModifierInvocationNode(
       modifierInvocation,
@@ -218,7 +218,7 @@ export const find = matcher<Node>({
     functionDefinition: astTypes.FunctionDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new FunctionDefinitionNode(
       functionDefinition,
@@ -230,26 +230,26 @@ export const find = matcher<Node>({
     eventDefinition: astTypes.EventDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new EventDefinitionNode(eventDefinition, uri, rootPath, documentsAnalyzer),
   EnumValue: (
     enumValue: astTypes.EnumValue,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new EnumValueNode(enumValue, uri, rootPath, documentsAnalyzer),
   EnumDefinition: (
     enumDefinition: astTypes.EnumDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new EnumDefinitionNode(enumDefinition, uri, rootPath, documentsAnalyzer),
   VariableDeclaration: (
     variableDeclaration: astTypes.VariableDeclaration,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new VariableDeclarationNode(
       variableDeclaration,
@@ -261,7 +261,7 @@ export const find = matcher<Node>({
     userDefinedTypeName: astTypes.UserDefinedTypeName,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new UserDefinedTypeNameNode(
       userDefinedTypeName,
@@ -273,19 +273,19 @@ export const find = matcher<Node>({
     arrayTypeName: astTypes.ArrayTypeName,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new ArrayTypeNameNode(arrayTypeName, uri, rootPath, documentsAnalyzer),
   Mapping: (
     mapping: astTypes.Mapping,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new MappingNode(mapping, uri, rootPath, documentsAnalyzer),
   ElementaryTypeName: (
     elementaryTypeName: astTypes.ElementaryTypeName,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new ElementaryTypeNameNode(
       elementaryTypeName,
@@ -297,7 +297,7 @@ export const find = matcher<Node>({
     functionTypeName: astTypes.FunctionTypeName,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new FunctionTypeNameNode(
       functionTypeName,
@@ -309,13 +309,13 @@ export const find = matcher<Node>({
     block: astTypes.Block,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new BlockNode(block, uri, rootPath, documentsAnalyzer),
   ExpressionStatement: (
     expressionStatement: astTypes.ExpressionStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new ExpressionStatementNode(
       expressionStatement,
@@ -327,13 +327,13 @@ export const find = matcher<Node>({
     ifStatement: astTypes.IfStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new IfStatementNode(ifStatement, uri, rootPath, documentsAnalyzer),
   UncheckedStatement: (
     uncheckedStatement: astTypes.UncheckedStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new UncheckedStatementNode(
       uncheckedStatement,
@@ -345,19 +345,19 @@ export const find = matcher<Node>({
     whileStatement: astTypes.WhileStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new WhileStatementNode(whileStatement, uri, rootPath, documentsAnalyzer),
   ForStatement: (
     forStatement: astTypes.ForStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new ForStatementNode(forStatement, uri, rootPath, documentsAnalyzer),
   InlineAssemblyStatement: (
     inlineAssemblyStatement: astTypes.InlineAssemblyStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new InlineAssemblyStatementNode(
       inlineAssemblyStatement,
@@ -369,7 +369,7 @@ export const find = matcher<Node>({
     doWhileStatement: astTypes.DoWhileStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new DoWhileStatementNode(
       doWhileStatement,
@@ -381,7 +381,7 @@ export const find = matcher<Node>({
     continueStatement: astTypes.ContinueStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new ContinueStatementNode(
       continueStatement,
@@ -393,44 +393,44 @@ export const find = matcher<Node>({
     astBreak: astTypes.Break,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new BreakNode(astBreak, uri, rootPath, documentsAnalyzer),
   Continue: (
     astContinue: astTypes.Continue,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new ContinueNode(astContinue, uri, rootPath, documentsAnalyzer),
   BreakStatement: (
     breakStatement: astTypes.BreakStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new BreakStatementNode(breakStatement, uri, rootPath, documentsAnalyzer),
   ReturnStatement: (
     returnStatement: astTypes.ReturnStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new ReturnStatementNode(returnStatement, uri, rootPath, documentsAnalyzer),
   EmitStatement: (
     emitStatement: astTypes.EmitStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new EmitStatementNode(emitStatement, uri, rootPath, documentsAnalyzer),
   ThrowStatement: (
     throwStatement: astTypes.ThrowStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new ThrowStatementNode(throwStatement, uri, rootPath, documentsAnalyzer),
   VariableDeclarationStatement: (
     variableDeclarationStatement: astTypes.VariableDeclarationStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new VariableDeclarationStatementNode(
       variableDeclarationStatement,
@@ -442,25 +442,25 @@ export const find = matcher<Node>({
     functionCall: astTypes.FunctionCall,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new FunctionCallNode(functionCall, uri, rootPath, documentsAnalyzer),
   AssemblyBlock: (
     assemblyBlock: astTypes.AssemblyBlock,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new AssemblyBlockNode(assemblyBlock, uri, rootPath, documentsAnalyzer),
   AssemblyCall: (
     assemblyCall: astTypes.AssemblyCall,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new AssemblyCallNode(assemblyCall, uri, rootPath, documentsAnalyzer),
   AssemblyLocalDefinition: (
     assemblyLocalDefinition: astTypes.AssemblyLocalDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new AssemblyLocalDefinitionNode(
       assemblyLocalDefinition,
@@ -472,7 +472,7 @@ export const find = matcher<Node>({
     assemblyAssignment: astTypes.AssemblyAssignment,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new AssemblyAssignmentNode(
       assemblyAssignment,
@@ -484,7 +484,7 @@ export const find = matcher<Node>({
     assemblyStackAssignment: astTypes.AssemblyStackAssignment,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new AssemblyStackAssignmentNode(
       assemblyStackAssignment,
@@ -496,26 +496,26 @@ export const find = matcher<Node>({
     labelDefinition: astTypes.LabelDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new LabelDefinitionNode(labelDefinition, uri, rootPath, documentsAnalyzer),
   AssemblySwitch: (
     assemblySwitch: astTypes.AssemblySwitch,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new AssemblySwitchNode(assemblySwitch, uri, rootPath, documentsAnalyzer),
   AssemblyCase: (
     assemblyCase: astTypes.AssemblyCase,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new AssemblyCaseNode(assemblyCase, uri, rootPath, documentsAnalyzer),
   AssemblyFunctionDefinition: (
     assemblyFunctionDefinition: astTypes.AssemblyFunctionDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new AssemblyFunctionDefinitionNode(
       assemblyFunctionDefinition,
@@ -527,7 +527,7 @@ export const find = matcher<Node>({
     assemblyFunctionReturns: astTypes.AssemblyFunctionReturns,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new AssemblyFunctionReturnsNode(
       assemblyFunctionReturns,
@@ -539,38 +539,38 @@ export const find = matcher<Node>({
     assemblyFor: astTypes.AssemblyFor,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new AssemblyForNode(assemblyFor, uri, rootPath, documentsAnalyzer),
   AssemblyIf: (
     assemblyIf: astTypes.AssemblyIf,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new AssemblyIfNode(assemblyIf, uri, rootPath, documentsAnalyzer),
   SubAssembly: (
     subAssembly: astTypes.SubAssembly,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new SubAssemblyNode(subAssembly, uri, rootPath, documentsAnalyzer),
   NewExpression: (
     newExpression: astTypes.NewExpression,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new NewExpressionNode(newExpression, uri, rootPath, documentsAnalyzer),
   TupleExpression: (
     tupleExpression: astTypes.TupleExpression,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new TupleExpressionNode(tupleExpression, uri, rootPath, documentsAnalyzer),
   TypeNameExpression: (
     typeNameExpression: astTypes.TypeNameExpression,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new TypeNameExpressionNode(
       typeNameExpression,
@@ -582,7 +582,7 @@ export const find = matcher<Node>({
     nameValueExpression: astTypes.NameValueExpression,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new NameValueExpressionNode(
       nameValueExpression,
@@ -594,62 +594,62 @@ export const find = matcher<Node>({
     numberLiteral: astTypes.NumberLiteral,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new NumberLiteralNode(numberLiteral, uri, rootPath, documentsAnalyzer),
   BooleanLiteral: (
     booleanLiteral: astTypes.BooleanLiteral,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new BooleanLiteralNode(booleanLiteral, uri, rootPath, documentsAnalyzer),
   HexLiteral: (
     hexLiteral: astTypes.HexLiteral,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new HexLiteralNode(hexLiteral, uri, rootPath, documentsAnalyzer),
   StringLiteral: (
     stringLiteral: astTypes.StringLiteral,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new StringLiteralNode(stringLiteral, uri, rootPath, documentsAnalyzer),
   Identifier: (
     identifier: astTypes.Identifier,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new IdentifierNode(identifier, uri, rootPath, documentsAnalyzer),
   BinaryOperation: (
     binaryOperation: astTypes.BinaryOperation,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new BinaryOperationNode(binaryOperation, uri, rootPath, documentsAnalyzer),
   UnaryOperation: (
     unaryOperation: astTypes.UnaryOperation,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new UnaryOperationNode(unaryOperation, uri, rootPath, documentsAnalyzer),
   Conditional: (
     conditional: astTypes.Conditional,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new ConditionalNode(conditional, uri, rootPath, documentsAnalyzer),
   IndexAccess: (
     indexAccess: astTypes.IndexAccess,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new IndexAccessNode(indexAccess, uri, rootPath, documentsAnalyzer),
   IndexRangeAccess: (
     indexRangeAccess: astTypes.IndexRangeAccess,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new IndexRangeAccessNode(
       indexRangeAccess,
@@ -661,37 +661,37 @@ export const find = matcher<Node>({
     memberAccess: astTypes.MemberAccess,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new MemberAccessNode(memberAccess, uri, rootPath, documentsAnalyzer),
   HexNumber: (
     hexNumber: astTypes.HexNumber,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new HexNumberNode(hexNumber, uri, rootPath, documentsAnalyzer),
   DecimalNumber: (
     decimalNumber: astTypes.DecimalNumber,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new DecimalNumberNode(decimalNumber, uri, rootPath, documentsAnalyzer),
   TryStatement: (
     tryStatement: astTypes.TryStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new TryStatementNode(tryStatement, uri, rootPath, documentsAnalyzer),
   NameValueList: (
     nameValueList: astTypes.NameValueList,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new NameValueListNode(nameValueList, uri, rootPath, documentsAnalyzer),
   AssemblyMemberAccess: (
     assemblyMemberAccess: astTypes.AssemblyMemberAccess,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new AssemblyMemberAccessNode(
       assemblyMemberAccess,
@@ -703,13 +703,13 @@ export const find = matcher<Node>({
     catchClause: astTypes.CatchClause,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new CatchClauseNode(catchClause, uri, rootPath, documentsAnalyzer),
   FileLevelConstant: (
     fileLevelConstant: astTypes.FileLevelConstant,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new FileLevelConstantNode(
       fileLevelConstant,
@@ -721,7 +721,7 @@ export const find = matcher<Node>({
     customErrorDefinition: astTypes.CustomErrorDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new CustomErrorDefinitionNode(
       customErrorDefinition,
@@ -733,13 +733,13 @@ export const find = matcher<Node>({
     revertStatement: astTypes.RevertStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) =>
     new RevertStatementNode(revertStatement, uri, rootPath, documentsAnalyzer),
   TypeDefinition: (
     typeDefinition: astTypes.TypeDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) => new TypeDefinitionNode(typeDefinition, uri, rootPath, documentsAnalyzer),
 });

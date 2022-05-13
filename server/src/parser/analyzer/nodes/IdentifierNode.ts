@@ -2,7 +2,7 @@ import * as utils from "@common/utils";
 import {
   Identifier,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
   IdentifierNode as AbstractIdentifierNode,
   expressionNodeTypes,
@@ -15,7 +15,7 @@ export class IdentifierNode extends AbstractIdentifierNode {
     identifier: Identifier,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(identifier, uri, rootPath, documentsAnalyzer, identifier.name);
 
@@ -54,13 +54,13 @@ export class IdentifierNode extends AbstractIdentifierNode {
 
     const definitionTypes = parent?.getTypeNodes();
     if (definitionTypes && definitionTypes.length > 0) {
-      const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+      const searcher = this.solFileIndex[this.uri]?.searcher;
 
       for (const identifierField of this.getIdentifierFields()) {
         searcher?.findAndAddParentInDefinitionTypeVarialbles(
           identifierField,
           definitionTypes,
-          this.documentsAnalyzer[this.uri]?.analyzerTree.tree
+          this.solFileIndex[this.uri]?.analyzerTree.tree
         );
       }
 
@@ -90,7 +90,7 @@ export class IdentifierNode extends AbstractIdentifierNode {
     }
 
     if (parent) {
-      const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+      const searcher = this.solFileIndex[this.uri]?.searcher;
       const identifierParent = searcher?.findParent(this, parent);
 
       if (identifierParent) {
@@ -125,7 +125,7 @@ export class IdentifierNode extends AbstractIdentifierNode {
           if (definitionChild && definitionChild.uri !== expressionNode.uri) {
             const exportRootNode = utils.findSourceUnitNode(definitionChild);
             const importRootNode = utils.findSourceUnitNode(
-              this.documentsAnalyzer[this.uri]?.analyzerTree.tree
+              this.solFileIndex[this.uri]?.analyzerTree.tree
             );
 
             if (exportRootNode) {

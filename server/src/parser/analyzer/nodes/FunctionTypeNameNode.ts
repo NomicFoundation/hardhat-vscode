@@ -1,7 +1,7 @@
 import {
   FunctionTypeName,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class FunctionTypeNameNode extends Node {
     functionTypeName: FunctionTypeName,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(functionTypeName, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = functionTypeName;

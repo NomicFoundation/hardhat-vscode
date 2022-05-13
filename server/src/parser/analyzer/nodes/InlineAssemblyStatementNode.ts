@@ -1,7 +1,7 @@
 import {
   InlineAssemblyStatement,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class InlineAssemblyStatementNode extends Node {
     inlineAssemblyStatement: InlineAssemblyStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(inlineAssemblyStatement, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = inlineAssemblyStatement;
@@ -32,7 +32,7 @@ export class InlineAssemblyStatementNode extends Node {
         this.astNode.body,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, parent);
     }
 

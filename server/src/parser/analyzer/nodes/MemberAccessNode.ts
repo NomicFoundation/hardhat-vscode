@@ -2,7 +2,7 @@ import { isNodeConnectable, findSourceUnitNode } from "@common/utils";
 import {
   MemberAccess,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   ContractDefinitionNode,
   Node,
   MemberAccessNode as IMemberAccessNode,
@@ -16,7 +16,7 @@ export class MemberAccessNode extends IMemberAccessNode {
     memberAccess: MemberAccess,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       memberAccess,
@@ -72,7 +72,7 @@ export class MemberAccessNode extends IMemberAccessNode {
       this.astNode.expression,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, parent, this);
     this.setPreviousMemberAccessNode(expressionNode);
 
@@ -101,7 +101,7 @@ export class MemberAccessNode extends IMemberAccessNode {
         contractDefinitionNode = contractDefinitionNode.getParent();
       }
 
-      const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+      const searcher = this.solFileIndex[this.uri]?.searcher;
       const inheritanceNodes = (
         contractDefinitionNode as ContractDefinitionNode
       ).getInheritanceNodes();
@@ -140,7 +140,7 @@ export class MemberAccessNode extends IMemberAccessNode {
         contractDefinitionNode = contractDefinitionNode.getParent();
       }
 
-      const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+      const searcher = this.solFileIndex[this.uri]?.searcher;
       const memberAccessParent = searcher?.findParent(
         this,
         contractDefinitionNode,
@@ -179,7 +179,7 @@ export class MemberAccessNode extends IMemberAccessNode {
           if (definitionChild && definitionChild.uri !== expressionNode.uri) {
             const exportRootNode = findSourceUnitNode(definitionChild);
             const importRootNode = findSourceUnitNode(
-              this.documentsAnalyzer[this.uri]?.analyzerTree.tree
+              this.solFileIndex[this.uri]?.analyzerTree.tree
             );
 
             if (exportRootNode) {

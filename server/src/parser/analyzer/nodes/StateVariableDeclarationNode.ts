@@ -1,7 +1,7 @@
 import {
   StateVariableDeclaration,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class StateVariableDeclarationNode extends Node {
     stateVariableDeclaration: StateVariableDeclaration,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       stateVariableDeclaration,
@@ -37,7 +37,7 @@ export class StateVariableDeclarationNode extends Node {
     this.setExpressionNode(expression);
 
     for (const variable of this.astNode.variables) {
-      find(variable, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(variable, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         parent
@@ -49,7 +49,7 @@ export class StateVariableDeclarationNode extends Node {
         this.astNode.initialValue,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, parent);
     }
 

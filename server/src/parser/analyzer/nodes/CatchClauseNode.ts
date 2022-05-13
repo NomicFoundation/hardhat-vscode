@@ -1,9 +1,4 @@
-import {
-  CatchClause,
-  FinderType,
-  DocumentsAnalyzerMap,
-  Node,
-} from "@common/types";
+import { CatchClause, FinderType, SolFileIndexMap, Node } from "@common/types";
 
 export class CatchClauseNode extends Node {
   public astNode: CatchClause;
@@ -12,7 +7,7 @@ export class CatchClauseNode extends Node {
     catchClause: CatchClause,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(catchClause, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = catchClause;
@@ -31,19 +26,18 @@ export class CatchClauseNode extends Node {
     }
 
     for (const param of this.astNode.parameters || []) {
-      find(param, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(param, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         this
       );
     }
 
-    find(
-      this.astNode.body,
-      this.uri,
-      this.rootPath,
-      this.documentsAnalyzer
-    ).accept(find, orphanNodes, this);
+    find(this.astNode.body, this.uri, this.rootPath, this.solFileIndex).accept(
+      find,
+      orphanNodes,
+      this
+    );
 
     parent?.addChild(this);
 

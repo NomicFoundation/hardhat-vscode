@@ -1,7 +1,7 @@
 import {
   VariableDeclarationStatement,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class VariableDeclarationStatementNode extends Node {
     variableDeclarationStatement: VariableDeclarationStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       variableDeclarationStatement,
@@ -38,7 +38,7 @@ export class VariableDeclarationStatementNode extends Node {
 
     for (const variable of this.astNode.variables) {
       if (variable) {
-        find(variable, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+        find(variable, this.uri, this.rootPath, this.solFileIndex).accept(
           find,
           orphanNodes,
           parent
@@ -51,7 +51,7 @@ export class VariableDeclarationStatementNode extends Node {
         this.astNode.initialValue,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, parent);
     }
 

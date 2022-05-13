@@ -1,7 +1,7 @@
 import {
   NewExpression,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class NewExpressionNode extends Node {
     newExpression: NewExpression,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(newExpression, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = newExpression;
@@ -32,7 +32,7 @@ export class NewExpressionNode extends Node {
         this.astNode.typeName,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, parent);
     }
 

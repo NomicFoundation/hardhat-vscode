@@ -1,9 +1,4 @@
-import {
-  IndexAccess,
-  FinderType,
-  DocumentsAnalyzerMap,
-  Node,
-} from "@common/types";
+import { IndexAccess, FinderType, SolFileIndexMap, Node } from "@common/types";
 
 export class IndexAccessNode extends Node {
   public astNode: IndexAccess;
@@ -12,7 +7,7 @@ export class IndexAccessNode extends Node {
     indexAccess: IndexAccess,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(indexAccess, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = indexAccess;
@@ -30,14 +25,13 @@ export class IndexAccessNode extends Node {
       this.astNode.base,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, parent, this);
-    find(
-      this.astNode.index,
-      this.uri,
-      this.rootPath,
-      this.documentsAnalyzer
-    ).accept(find, orphanNodes, parent);
+    find(this.astNode.index, this.uri, this.rootPath, this.solFileIndex).accept(
+      find,
+      orphanNodes,
+      parent
+    );
 
     return typeNode;
   }

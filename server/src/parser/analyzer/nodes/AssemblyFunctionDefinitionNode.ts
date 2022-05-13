@@ -2,7 +2,7 @@ import { isNodeShadowedByNode } from "@common/utils";
 import {
   AssemblyFunctionDefinition,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -15,7 +15,7 @@ export class AssemblyFunctionDefinitionNode extends Node {
     assemblyFunctionDefinition: AssemblyFunctionDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       assemblyFunctionDefinition,
@@ -64,7 +64,7 @@ export class AssemblyFunctionDefinitionNode extends Node {
     this._findChildren(orphanNodes);
 
     for (const argument of this.astNode.arguments) {
-      find(argument, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(argument, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         this
@@ -76,18 +76,17 @@ export class AssemblyFunctionDefinitionNode extends Node {
         returnArgument,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, this);
 
       this.addTypeNode(typeNode);
     }
 
-    find(
-      this.astNode.body,
-      this.uri,
-      this.rootPath,
-      this.documentsAnalyzer
-    ).accept(find, orphanNodes, this);
+    find(this.astNode.body, this.uri, this.rootPath, this.solFileIndex).accept(
+      find,
+      orphanNodes,
+      this
+    );
 
     parent?.addChild(this);
 
