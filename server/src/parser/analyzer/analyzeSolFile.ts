@@ -3,25 +3,25 @@ import * as matcher from "@analyzer/matcher";
 import {
   Node,
   SourceUnitNode,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   ISolFileEntry,
   SolFileState,
 } from "@common/types";
 
 export function analyzeSolFile(
+  { solFileIndex }: { solFileIndex: SolFileIndexMap },
   solFileEntry: ISolFileEntry,
-  solFileIndex: DocumentsAnalyzerMap,
-  text?: string
+  newText?: string
 ): Node | undefined {
   try {
     solFileEntry.orphanNodes = [];
 
-    if (text !== undefined) {
-      solFileEntry.document = text;
+    if (newText !== undefined) {
+      solFileEntry.text = newText;
     }
 
     try {
-      solFileEntry.ast = parser.parse(solFileEntry.document ?? "", {
+      solFileEntry.ast = parser.parse(solFileEntry.text ?? "", {
         loc: true,
         range: true,
         tolerant: true,

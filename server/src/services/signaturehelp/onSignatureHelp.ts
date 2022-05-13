@@ -49,7 +49,7 @@ function signatureHelp(
   documentAnalyzer: ISolFileEntry,
   logger: Logger
 ): SignatureHelp | undefined {
-  if (documentAnalyzer.document === undefined) {
+  if (documentAnalyzer.text === undefined) {
     return undefined;
   }
 
@@ -153,8 +153,8 @@ function getNodeDefinitionSignature(
   definitionNode: Node,
   logger: Logger
 ): SignatureInformation | undefined {
-  const documentAnalyzer = definitionNode.documentsAnalyzer[definitionNode.uri];
-  const document = documentAnalyzer?.document;
+  const documentAnalyzer = definitionNode.solFileIndex[definitionNode.uri];
+  const document = documentAnalyzer?.text;
   const nameLoc = definitionNode.nameLoc;
 
   if (document === undefined) {

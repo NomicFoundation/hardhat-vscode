@@ -1,7 +1,7 @@
 import {
   ThrowStatement,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class ThrowStatementNode extends Node {
     throwStatement: ThrowStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(throwStatement, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = throwStatement;

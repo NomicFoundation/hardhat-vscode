@@ -1,7 +1,7 @@
 import {
   AssemblyLocalDefinition,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -14,7 +14,7 @@ export class AssemblyLocalDefinitionNode extends Node {
     assemblyLocalDefinition: AssemblyLocalDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap,
+    documentsAnalyzer: SolFileIndexMap,
     parent?: Node,
     identifierNode?: Node
   ) {
@@ -52,14 +52,14 @@ export class AssemblyLocalDefinitionNode extends Node {
         name,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       );
 
       new AssemblyLocalDefinitionNode(
         this.astNode,
         identifierNode.uri,
         identifierNode.rootPath,
-        identifierNode.documentsAnalyzer,
+        identifierNode.solFileIndex,
         parent,
         identifierNode
       );
@@ -70,7 +70,7 @@ export class AssemblyLocalDefinitionNode extends Node {
         this.astNode.expression,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, parent);
     }
 

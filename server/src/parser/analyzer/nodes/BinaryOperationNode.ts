@@ -1,7 +1,7 @@
 import {
   BinaryOperation,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class BinaryOperationNode extends Node {
     binaryOperation: BinaryOperation,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(binaryOperation, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = binaryOperation;
@@ -26,18 +26,16 @@ export class BinaryOperationNode extends Node {
   ): Node {
     this.setExpressionNode(expression);
 
-    find(
-      this.astNode.left,
-      this.uri,
-      this.rootPath,
-      this.documentsAnalyzer
-    ).accept(find, orphanNodes, parent);
-    find(
-      this.astNode.right,
-      this.uri,
-      this.rootPath,
-      this.documentsAnalyzer
-    ).accept(find, orphanNodes, parent);
+    find(this.astNode.left, this.uri, this.rootPath, this.solFileIndex).accept(
+      find,
+      orphanNodes,
+      parent
+    );
+    find(this.astNode.right, this.uri, this.rootPath, this.solFileIndex).accept(
+      find,
+      orphanNodes,
+      parent
+    );
 
     return this;
   }

@@ -2,7 +2,7 @@ import { findSourceUnitNode } from "@common/utils";
 import {
   StructDefinition,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -19,7 +19,7 @@ export class StructDefinitionNode extends Node {
     structDefinition: StructDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       structDefinition,
@@ -70,7 +70,7 @@ export class StructDefinitionNode extends Node {
     }
 
     for (const member of this.astNode.members) {
-      find(member, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(member, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         this
@@ -78,7 +78,7 @@ export class StructDefinitionNode extends Node {
     }
 
     const rootNode = findSourceUnitNode(parent);
-    const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+    const searcher = this.solFileIndex[this.uri]?.searcher;
 
     if (rootNode) {
       const exportNodes = new Array(...rootNode.getExportNodes());

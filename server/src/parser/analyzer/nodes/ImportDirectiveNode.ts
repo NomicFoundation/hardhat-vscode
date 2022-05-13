@@ -5,7 +5,7 @@ import { resolveDependency } from "@analyzer/resolver";
 import {
   ImportDirective,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
   SourceUnitNode,
   ImportDirectiveNode as AbstractImportDirectiveNode,
@@ -24,7 +24,7 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
     importDirective: ImportDirective,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       importDirective,
@@ -72,19 +72,22 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
       this.setParent(parent);
     }
 
-    const documentAnalyzer = this.documentsAnalyzer[toUnixStyle(this.uri)];
-    if (documentAnalyzer && documentAnalyzer.status !== SolFileState.ANALYZED) {
-      analyzeSolFile(documentAnalyzer, this.documentsAnalyzer);
+    const solFileEntry = this.solFileIndex[toUnixStyle(this.uri)];
+    if (
+      solFileEntry !== undefined &&
+      solFileEntry.status !== SolFileState.ANALYZED
+    ) {
+      analyzeSolFile({ solFileIndex: this.solFileIndex }, solFileEntry);
 
       // Analyze will change root node so we need to return root node after analyze
-      const rootNode = this.documentsAnalyzer[this.realUri]?.analyzerTree.tree;
+      const rootNode = this.solFileIndex[this.realUri]?.analyzerTree.tree;
 
-      if (documentAnalyzer.isAnalyzed() && rootNode) {
+      if (solFileEntry.isAnalyzed() && rootNode !== undefined) {
         // We transfer orphan nodes from the imported file in case it imports ours and we have a circular dependency.
         // We need to do this since the current analysis is not yet complete so some exported nodes may miss finding a parent.
         // This way we have solved this problem.
-        for (const importOrphanNode of documentAnalyzer.orphanNodes) {
-          (documentAnalyzer.analyzerTree.tree as SourceUnitNode).addImportNode(
+        for (const importOrphanNode of solFileEntry.orphanNodes) {
+          (solFileEntry.analyzerTree.tree as SourceUnitNode).addImportNode(
             importOrphanNode
           );
           (rootNode as SourceUnitNode).addExportNode(importOrphanNode);
@@ -93,10 +96,10 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
     }
 
     if (
-      documentAnalyzer?.analyzerTree.tree.type === "SourceUnit" &&
-      documentAnalyzer.analyzerTree.tree.astNode.loc
+      solFileEntry?.analyzerTree.tree.type === "SourceUnit" &&
+      solFileEntry.analyzerTree.tree.astNode.loc
     ) {
-      this.astNode.loc = documentAnalyzer.analyzerTree.tree.astNode.loc;
+      this.astNode.loc = solFileEntry.analyzerTree.tree.astNode.loc;
     }
 
     const aliesNodes: Node[] = [];
@@ -106,7 +109,7 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
         symbolAliasesIdentifier[0],
         this.realUri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, this);
 
       // Check if alias exist for importedContractNode
@@ -115,7 +118,7 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
           symbolAliasesIdentifier[1],
           this.realUri,
           this.rootPath,
-          this.documentsAnalyzer
+          this.solFileIndex
         ).accept(find, orphanNodes, importedContractNode, this);
         importedContractAliasNode.setAliasName(importedContractNode.getName());
 

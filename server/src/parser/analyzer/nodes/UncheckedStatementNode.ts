@@ -1,7 +1,7 @@
 import {
   UncheckedStatement,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class UncheckedStatementNode extends Node {
     uncheckedStatement: UncheckedStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(uncheckedStatement, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = uncheckedStatement;
@@ -32,7 +32,7 @@ export class UncheckedStatementNode extends Node {
         this.astNode.block,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, parent);
     }
 

@@ -20,7 +20,7 @@ import {
   HoverParams,
   Hover,
 } from "vscode-languageserver/node";
-import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
+import { getOrInitialiseSolFileEntry } from "@utils/getOrInitialiseSolFileEntry";
 import { getUriFromDocument } from "../../src/utils/index";
 import setupServer, {
   GetSolFileDetailsParams,
@@ -155,7 +155,10 @@ export async function setupMockLanguageServer({
 
           const localUri = getUriFromDocument(doc);
 
-          const documentAnalyzer = getDocumentAnalyzer(serverState, localUri);
+          const documentAnalyzer = getOrInitialiseSolFileEntry(
+            serverState,
+            localUri
+          );
 
           return documentAnalyzer.isAnalyzed();
         },

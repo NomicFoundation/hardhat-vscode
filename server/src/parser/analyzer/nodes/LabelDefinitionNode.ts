@@ -1,7 +1,7 @@
 import {
   LabelDefinition,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class LabelDefinitionNode extends Node {
     labelDefinition: LabelDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(labelDefinition, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = labelDefinition;

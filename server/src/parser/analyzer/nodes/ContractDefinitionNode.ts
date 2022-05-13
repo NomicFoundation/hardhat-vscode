@@ -2,7 +2,7 @@ import { findSourceUnitNode } from "@common/utils";
 import {
   ContractDefinition,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
   ContractDefinitionNode as AbstractContractDefinitionNode,
 } from "@common/types";
@@ -22,7 +22,7 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
     contractDefinition: ContractDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       contractDefinition,
@@ -76,7 +76,7 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
   ): Node {
     this.setExpressionNode(expression);
 
-    const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+    const searcher = this.solFileIndex[this.uri]?.searcher;
 
     if (parent) {
       this.setParent(parent);
@@ -87,7 +87,7 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
         baseContract,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, this);
 
       const inheritanceNodeDefinition = inheritanceNode.getDefinitionNode();
@@ -101,7 +101,7 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
     }
 
     for (const subNode of this.astNode.subNodes) {
-      find(subNode, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(subNode, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         this
@@ -125,7 +125,7 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
   }
 
   public findParentForOrphanNodesInInheritanceNodes(orphanNodes: Node[]): void {
-    const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+    const searcher = this.solFileIndex[this.uri]?.searcher;
     const newOrphanNodes: Node[] = [];
 
     let orphanNode = orphanNodes.shift();

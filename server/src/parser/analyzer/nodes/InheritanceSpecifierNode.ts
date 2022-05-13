@@ -1,7 +1,7 @@
 import {
   InheritanceSpecifier,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class InheritanceSpecifierNode extends Node {
     inheritanceSpecifier: InheritanceSpecifier,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(inheritanceSpecifier, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = inheritanceSpecifier;
@@ -30,11 +30,11 @@ export class InheritanceSpecifierNode extends Node {
       this.astNode.baseName,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, parent);
 
     for (const argument of this.astNode.arguments) {
-      find(argument, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(argument, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         parent

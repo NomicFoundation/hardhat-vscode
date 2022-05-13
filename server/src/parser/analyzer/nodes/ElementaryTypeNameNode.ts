@@ -1,7 +1,7 @@
 import {
   ElementaryTypeName,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class ElementaryTypeNameNode extends Node {
     elementaryTypeName: ElementaryTypeName,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       elementaryTypeName,

@@ -1,4 +1,4 @@
-import { Break, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
+import { Break, FinderType, SolFileIndexMap, Node } from "@common/types";
 
 export class BreakNode extends Node {
   public astNode: Break;
@@ -7,7 +7,7 @@ export class BreakNode extends Node {
     astBreak: Break,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(astBreak, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = astBreak;

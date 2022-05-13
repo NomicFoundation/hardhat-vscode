@@ -2,7 +2,7 @@ import { isNodeConnectable, findSourceUnitNode } from "@common/utils";
 import {
   UserDefinedTypeName,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
   expressionNodeTypes,
 } from "@common/types";
@@ -19,7 +19,7 @@ export class UserDefinedTypeNameNode extends Node {
     userDefinedTypeName: UserDefinedTypeName,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       userDefinedTypeName,
@@ -79,7 +79,7 @@ export class UserDefinedTypeNameNode extends Node {
       return this;
     }
 
-    const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+    const searcher = this.solFileIndex[this.uri]?.searcher;
     const definitionParent = searcher?.findParent(this, parent);
 
     if (!definitionParent) {
@@ -129,7 +129,7 @@ export class UserDefinedTypeNameNode extends Node {
           if (definitionChild && definitionChild.uri !== expressionNode.uri) {
             const exportRootNode = findSourceUnitNode(definitionChild);
             const importRootNode = findSourceUnitNode(
-              this.documentsAnalyzer[this.uri]?.analyzerTree.tree
+              this.solFileIndex[this.uri]?.analyzerTree.tree
             );
 
             if (exportRootNode) {

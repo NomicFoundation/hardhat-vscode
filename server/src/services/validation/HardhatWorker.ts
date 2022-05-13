@@ -48,11 +48,11 @@ export class HardhatWorker implements WorkerProcess {
   public async validate({
     uri,
     documentText,
-    unsavedDocuments,
+    openDocuments,
   }: {
     uri: string;
     documentText: string;
-    unsavedDocuments: Array<{
+    openDocuments: Array<{
       uri: string;
       documentText: string;
     }>;
@@ -69,7 +69,7 @@ export class HardhatWorker implements WorkerProcess {
             jobId,
             uri,
             documentText,
-            unsavedDocuments,
+            openDocuments,
           },
           (err) => {
             if (err) {

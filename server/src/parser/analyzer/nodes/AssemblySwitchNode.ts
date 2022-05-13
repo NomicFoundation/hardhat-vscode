@@ -1,7 +1,7 @@
 import {
   AssemblySwitch,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class AssemblySwitchNode extends Node {
     assemblySwitch: AssemblySwitch,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(assemblySwitch, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = assemblySwitch;
@@ -34,11 +34,11 @@ export class AssemblySwitchNode extends Node {
       this.astNode.expression,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, this);
 
     for (const caseNode of this.astNode.cases) {
-      find(caseNode, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(caseNode, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         this

@@ -1,7 +1,7 @@
 import {
   NameValueExpression,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class NameValueExpressionNode extends Node {
     nameValueExpression: NameValueExpression,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(nameValueExpression, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = nameValueExpression;
@@ -30,13 +30,13 @@ export class NameValueExpressionNode extends Node {
       this.astNode.expression,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, parent);
     find(
       this.astNode.arguments,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, parent);
 
     return this;

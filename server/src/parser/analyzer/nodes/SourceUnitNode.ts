@@ -1,7 +1,7 @@
 import {
   SourceUnit,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
   SourceUnitNode as AbstractSourceUnitNode,
 } from "@common/types";
@@ -13,7 +13,7 @@ export class SourceUnitNode extends AbstractSourceUnitNode {
     sourceUnit: SourceUnit,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(sourceUnit, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = sourceUnit;
@@ -31,7 +31,7 @@ export class SourceUnitNode extends AbstractSourceUnitNode {
   ): Node {
     this.setExpressionNode(expression);
 
-    const documentAnalyzer = this.documentsAnalyzer[this.uri];
+    const documentAnalyzer = this.solFileIndex[this.uri];
     if (
       documentAnalyzer?.isAnalyzed() === true &&
       documentAnalyzer.analyzerTree.tree instanceof SourceUnitNode
@@ -41,12 +41,13 @@ export class SourceUnitNode extends AbstractSourceUnitNode {
         .filter((exportNode) => exportNode.isAlive);
     }
 
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (documentAnalyzer) {
       documentAnalyzer.analyzerTree.tree = this;
     }
 
     for (const child of this.astNode.children) {
-      find(child, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(child, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         this

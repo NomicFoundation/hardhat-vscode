@@ -1,9 +1,4 @@
-import {
-  AssemblyCase,
-  FinderType,
-  DocumentsAnalyzerMap,
-  Node,
-} from "@common/types";
+import { AssemblyCase, FinderType, SolFileIndexMap, Node } from "@common/types";
 
 export class AssemblyCaseNode extends Node {
   public astNode: AssemblyCase;
@@ -12,7 +7,7 @@ export class AssemblyCaseNode extends Node {
     assemblyCase: AssemblyCase,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(assemblyCase, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = assemblyCase;
@@ -35,16 +30,15 @@ export class AssemblyCaseNode extends Node {
         this.astNode.value,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, this);
     }
 
-    find(
-      this.astNode.block,
-      this.uri,
-      this.rootPath,
-      this.documentsAnalyzer
-    ).accept(find, orphanNodes, this);
+    find(this.astNode.block, this.uri, this.rootPath, this.solFileIndex).accept(
+      find,
+      orphanNodes,
+      this
+    );
 
     parent?.addChild(this);
 

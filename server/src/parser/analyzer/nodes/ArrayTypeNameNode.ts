@@ -1,7 +1,7 @@
 import {
   ArrayTypeName,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class ArrayTypeNameNode extends Node {
     arrayTypeName: ArrayTypeName,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(arrayTypeName, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = arrayTypeName;
@@ -30,7 +30,7 @@ export class ArrayTypeNameNode extends Node {
       this.astNode.baseTypeName,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, parent, this);
 
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions

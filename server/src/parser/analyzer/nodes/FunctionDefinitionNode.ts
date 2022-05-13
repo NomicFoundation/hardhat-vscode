@@ -2,7 +2,7 @@ import { isNodeShadowedByNode, findSourceUnitNode } from "@common/utils";
 import {
   FunctionDefinition,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   ContractDefinitionNode,
   Node,
   FunctionDefinitionNode as AbstractFunctionDefinitionNode,
@@ -22,7 +22,7 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
     functionDefinition: FunctionDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       functionDefinition,
@@ -93,7 +93,7 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
 
       const rootNode = findSourceUnitNode(parent);
       if (rootNode) {
-        const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+        const searcher = this.solFileIndex[this.uri]?.searcher;
         const exportNodes = new Array(...rootNode.getExportNodes());
         searcher?.findAndAddExportChildren(this, exportNodes);
       }
@@ -102,7 +102,7 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
     this._findChildren(orphanNodes);
 
     for (const override of this.astNode.override || []) {
-      find(override, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(override, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         this
@@ -110,7 +110,7 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
     }
 
     for (const param of this.astNode.parameters) {
-      find(param, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(param, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         this
@@ -122,7 +122,7 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
         returnParam,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, this);
 
       this.addTypeNode(typeNode);
@@ -133,7 +133,7 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
         modifier,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, this);
 
       this.addTypeNode(typeNode);
@@ -144,7 +144,7 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
         this.astNode.body,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, this);
     }
 

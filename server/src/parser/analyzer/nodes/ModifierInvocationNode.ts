@@ -1,7 +1,7 @@
 import {
   ModifierInvocation,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 import { isContractDefinitionNode } from "@analyzer/utils/typeGuards";
@@ -14,7 +14,7 @@ export class ModifierInvocationNode extends Node {
     modifierInvocation: ModifierInvocation,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       modifierInvocation,
@@ -50,7 +50,7 @@ export class ModifierInvocationNode extends Node {
     this.setExpressionNode(expression);
 
     for (const argument of this.astNode.arguments || []) {
-      find(argument, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(argument, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         parent
@@ -62,7 +62,7 @@ export class ModifierInvocationNode extends Node {
       return this;
     }
 
-    const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+    const searcher = this.solFileIndex[this.uri]?.searcher;
     const modifierInvocationParent = searcher?.findParent(this, parent);
 
     if (!modifierInvocationParent) {

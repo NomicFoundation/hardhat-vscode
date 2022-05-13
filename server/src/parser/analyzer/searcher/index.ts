@@ -572,7 +572,7 @@ export class Searcher implements ISearcher {
 
       let importNode;
       if (importPath !== undefined) {
-        importNode = from.documentsAnalyzer[importPath]?.analyzerTree.tree;
+        importNode = from.solFileIndex[importPath]?.analyzerTree.tree;
       }
 
       if (importNode && !visitedFiles.includes(importNode.uri)) {
@@ -742,7 +742,7 @@ export class Searcher implements ISearcher {
 
       let importNode;
       if (importPath !== undefined) {
-        importNode = from.documentsAnalyzer[importPath]?.analyzerTree.tree;
+        importNode = from.solFileIndex[importPath]?.analyzerTree.tree;
       }
 
       if (importNode && !visitedFiles.includes(importNode.uri)) {
@@ -881,7 +881,7 @@ export class Searcher implements ISearcher {
 
       let importNode;
       if (importPath !== undefined) {
-        importNode = from.documentsAnalyzer[importPath]?.analyzerTree.tree;
+        importNode = from.solFileIndex[importPath]?.analyzerTree.tree;
       }
 
       if (importNode && !visitedFiles.includes(importNode.uri)) {

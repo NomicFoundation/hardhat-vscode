@@ -1,7 +1,7 @@
 import {
   AssemblyMemberAccess,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class AssemblyMemberAccessNode extends Node {
     assemblyMemberAccess: AssemblyMemberAccess,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(assemblyMemberAccess, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = assemblyMemberAccess;

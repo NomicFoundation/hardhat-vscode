@@ -1,7 +1,7 @@
 import {
   AssemblyAssignment,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class AssemblyAssignmentNode extends Node {
     assemblyAssignment: AssemblyAssignment,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(assemblyAssignment, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = assemblyAssignment;
@@ -27,7 +27,7 @@ export class AssemblyAssignmentNode extends Node {
     this.setExpressionNode(expression);
 
     for (const name of this.astNode.names ?? []) {
-      find(name, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(name, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         parent
@@ -40,7 +40,7 @@ export class AssemblyAssignmentNode extends Node {
         this.astNode.expression,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, parent);
     }
 

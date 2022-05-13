@@ -50,7 +50,7 @@ interface ValidateCommand {
   jobId: number;
   uri: string;
   documentText: string;
-  unsavedDocuments: Array<{
+  openDocuments: Array<{
     uri: string;
     documentText: string;
   }>;
@@ -206,7 +206,7 @@ async function hardhatBuild(
     getSolidityFilesCachePath,
     SolidityFilesCache,
   }: WorkerState,
-  { uri, documentText, unsavedDocuments }: ValidateCommand
+  { uri, documentText, openDocuments }: ValidateCommand
 ): Promise<HardhatError[]> {
   const startTime = new Date();
 
@@ -257,7 +257,7 @@ async function hardhatBuild(
     [uri]: documentText,
   };
 
-  for (const unsavedDocument of unsavedDocuments) {
+  for (const unsavedDocument of openDocuments) {
     modifiedFiles[unsavedDocument.uri] = unsavedDocument.documentText;
   }
 

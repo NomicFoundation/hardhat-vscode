@@ -1,8 +1,8 @@
 import { ISolFileEntry } from "@common/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
+import { getOrInitialiseSolFileEntry } from "@utils/getOrInitialiseSolFileEntry";
 import { ServerState } from "../types";
-import { getUriFromDocument } from "./index";
+import { decodeUriAndRemoveFilePrefix } from "./index";
 
 export interface LookupResult {
   found: boolean;
@@ -15,9 +15,7 @@ export function lookupEntryForUri(
   serverState: ServerState,
   uri: string
 ): LookupResult {
-  const { documents } = serverState;
-
-  const document = documents.get(uri);
+  const document = serverState.documents.get(uri);
 
   if (!document) {
     return {
@@ -26,10 +24,10 @@ export function lookupEntryForUri(
     };
   }
 
-  const documentURI = getUriFromDocument(document);
-  const documentAnalyzer = getDocumentAnalyzer(serverState, documentURI);
+  const internalUri = decodeUriAndRemoveFilePrefix(uri);
+  const solFileEntry = getOrInitialiseSolFileEntry(serverState, internalUri);
 
-  if (!documentAnalyzer.isAnalyzed()) {
+  if (!solFileEntry.isAnalyzed()) {
     return {
       found: false,
       errorMessage: `Text document not analyzed for ${uri}`,
@@ -38,7 +36,7 @@ export function lookupEntryForUri(
 
   return {
     found: true,
-    documentAnalyzer,
+    documentAnalyzer: solFileEntry,
     document,
   };
 }

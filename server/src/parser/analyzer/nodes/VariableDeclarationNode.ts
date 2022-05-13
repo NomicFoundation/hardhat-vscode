@@ -3,7 +3,7 @@ import {
   VariableDeclaration,
   FinderType,
   Node,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   VariableDeclarationNode as AbstractVariableDeclarationNode,
 } from "@common/types";
 
@@ -20,7 +20,7 @@ export class VariableDeclarationNode extends AbstractVariableDeclarationNode {
     variableDeclaration: VariableDeclaration,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       variableDeclaration,
@@ -73,7 +73,7 @@ export class VariableDeclarationNode extends AbstractVariableDeclarationNode {
         this.astNode.typeName,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, this);
 
       this.addTypeNode(typeNode);
@@ -95,7 +95,7 @@ export class VariableDeclarationNode extends AbstractVariableDeclarationNode {
 
     const rootNode = findSourceUnitNode(parent);
     if (rootNode) {
-      const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+      const searcher = this.solFileIndex[this.uri]?.searcher;
       const exportNodes = new Array(...rootNode.getExportNodes());
 
       searcher?.findAndAddExportChildren(this, exportNodes);

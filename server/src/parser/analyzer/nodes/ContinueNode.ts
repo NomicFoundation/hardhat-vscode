@@ -1,9 +1,4 @@
-import {
-  Continue,
-  FinderType,
-  DocumentsAnalyzerMap,
-  Node,
-} from "@common/types";
+import { Continue, FinderType, SolFileIndexMap, Node } from "@common/types";
 
 export class ContinueNode extends Node {
   public astNode: Continue;
@@ -12,7 +7,7 @@ export class ContinueNode extends Node {
     astContinue: Continue,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(astContinue, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = astContinue;

@@ -1,7 +1,7 @@
 import {
   UnaryOperation,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class UnaryOperationNode extends Node {
     unaryOperation: UnaryOperation,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(unaryOperation, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = unaryOperation;
@@ -30,7 +30,7 @@ export class UnaryOperationNode extends Node {
       this.astNode.subExpression,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, parent);
 
     return this;

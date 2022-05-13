@@ -4,7 +4,8 @@ import {
   SolFileState,
 } from "@common/types";
 import { isContractDefinitionNode } from "@analyzer/utils/typeGuards";
-import { lookupEntryForDocument } from "@utils/lookupEntryForDocument";
+import { getOrInitialiseSolFileEntry } from "@utils/getOrInitialiseSolFileEntry";
+import { decodeUriAndRemoveFilePrefix } from "@utils/index";
 import { ParseContractDefinitionResult } from "../../parsing/parseContractDefinition";
 import { ResolveActionsContext } from "../../../types";
 import { ServerState } from "../../../../types";
@@ -18,7 +19,10 @@ export function findAnalyzedContract(
     return null;
   }
 
-  const currentAnalyzer = lookupEntryForDocument(serverState, document);
+  const currentAnalyzer = getOrInitialiseSolFileEntry(
+    serverState,
+    decodeUriAndRemoveFilePrefix(document.uri)
+  );
 
   if (currentAnalyzer.status !== SolFileState.ANALYZED) {
     return null;

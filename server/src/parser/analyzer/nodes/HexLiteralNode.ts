@@ -1,9 +1,4 @@
-import {
-  HexLiteral,
-  FinderType,
-  DocumentsAnalyzerMap,
-  Node,
-} from "@common/types";
+import { HexLiteral, FinderType, SolFileIndexMap, Node } from "@common/types";
 
 export class HexLiteralNode extends Node {
   public astNode: HexLiteral;
@@ -12,7 +7,7 @@ export class HexLiteralNode extends Node {
     hexLiteral: HexLiteral,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(hexLiteral, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = hexLiteral;
