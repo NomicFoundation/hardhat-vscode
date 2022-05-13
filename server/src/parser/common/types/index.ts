@@ -353,9 +353,14 @@ export interface Searcher {
 
 export enum SolFileState {
   UNLOADED = "UNLOADED",
-  DIRTY = "DIRTY",
+  LOADED = "LOADED",
   ANALYZED = "ANALYZED",
   ERRORED = "ERRORED",
+}
+
+export enum ClientTrackingState {
+  UNTRACKED = "UNTRACKED",
+  TRACKED = "TRACKED",
 }
 
 export type SolProjectType = "hardhat" | "none";
@@ -384,7 +389,7 @@ export interface ISolFileEntry {
   /**
    * The contents of the file we will try to analyze.
    */
-  document: string | undefined;
+  text: string | undefined;
 
   project: ISolProject;
 
@@ -404,6 +409,8 @@ export interface ISolFileEntry {
    */
   status: SolFileState;
 
+  tracking: ClientTrackingState;
+
   searcher: Searcher;
 
   /**
@@ -411,7 +418,22 @@ export interface ISolFileEntry {
    */
   orphanNodes: Node[];
 
+  /**
+   * Has an analysis pass succeeded, allowing a user to operate on the ast.
+   */
   isAnalyzed(): boolean;
+
+  /**
+   * Set the Solidity file as being the responsibility of the client
+   * but with no changes to the underlying file,
+   */
+  track(): void;
+
+  /**
+   * Set the Solidity file as no longer being the responsibility of the
+   * client.
+   */
+  untrack(): void;
 }
 
 /**
@@ -439,14 +461,14 @@ export type FinderType = (
   ast: BaseASTNode,
   uri: string,
   rootPath: string,
-  documentsAnalyzer: DocumentsAnalyzerMap
+  documentsAnalyzer: SolFileIndexMap
 ) => Node;
 
 /**
  * documentsAnalyzer Map { [uri: string]: DocumentAnalyzer } have all documentsAnalyzer class instances used for handle imports on first project start.
  */
-export interface DocumentsAnalyzerMap {
-  [uri: string]: ISolFileEntry | undefined;
+export interface SolFileIndexMap {
+  [uri: string]: ISolFileEntry;
 }
 
 export interface EmptyNodeType {
@@ -473,7 +495,7 @@ export abstract class Node {
    */
   public rootPath: string;
 
-  public readonly documentsAnalyzer: DocumentsAnalyzerMap;
+  public readonly solFileIndex: SolFileIndexMap;
 
   /**
    * AST node interface.
@@ -548,13 +570,13 @@ export abstract class Node {
     baseASTNode: BaseASTNode | EmptyNodeType,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap,
+    documentsAnalyzer: SolFileIndexMap,
     name: string | undefined
   ) {
     this.type = baseASTNode.type;
     this.uri = uri;
     this.rootPath = rootPath;
-    this.documentsAnalyzer = documentsAnalyzer;
+    this.solFileIndex = documentsAnalyzer;
     this.name = name;
   }
 
@@ -697,7 +719,7 @@ export class EmptyNode extends Node {
     emptyNode: EmptyNodeType,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(emptyNode, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = emptyNode;

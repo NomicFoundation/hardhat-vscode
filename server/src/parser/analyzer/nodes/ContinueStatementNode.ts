@@ -1,7 +1,7 @@
 import {
   ContinueStatement,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class ContinueStatementNode extends Node {
     continueStatement: ContinueStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(continueStatement, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = continueStatement;

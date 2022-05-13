@@ -1,7 +1,7 @@
 import {
   IndexRangeAccess,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class IndexRangeAccessNode extends Node {
     indexRangeAccess: IndexRangeAccess,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(indexRangeAccess, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = indexRangeAccess;
@@ -30,7 +30,7 @@ export class IndexRangeAccessNode extends Node {
       this.astNode.base,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, parent, this);
 
     if (this.astNode.indexStart) {
@@ -38,7 +38,7 @@ export class IndexRangeAccessNode extends Node {
         this.astNode.indexStart,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, parent);
     }
 
@@ -47,7 +47,7 @@ export class IndexRangeAccessNode extends Node {
         this.astNode.indexEnd,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, parent);
     }
 

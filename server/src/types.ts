@@ -4,7 +4,7 @@ import { TextDocuments } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Logger } from "@utils/Logger";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
-import { DocumentsAnalyzerMap, SolProjectMap, Diagnostic } from "@common/types";
+import { SolFileIndexMap, SolProjectMap, Diagnostic } from "@common/types";
 import { HardhatProject } from "@analyzer/HardhatProject";
 import { Telemetry } from "./telemetry/types";
 
@@ -44,7 +44,7 @@ export interface WorkerProcess {
   validate: (details: {
     uri: string;
     documentText: string;
-    unsavedDocuments: Array<{
+    openDocuments: Array<{
       uri: string;
       documentText: string;
     }>;
@@ -70,7 +70,7 @@ export interface ServerState {
   documents: TextDocuments<TextDocument>;
   workspaceFolders: WorkspaceFolder[];
   projects: SolProjectMap;
-  solFileIndex: DocumentsAnalyzerMap;
+  solFileIndex: SolFileIndexMap;
   workerProcesses: WorkerProcesses;
 
   telemetry: Telemetry;

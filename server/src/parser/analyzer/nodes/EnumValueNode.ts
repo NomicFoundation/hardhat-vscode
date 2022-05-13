@@ -1,9 +1,4 @@
-import {
-  EnumValue,
-  FinderType,
-  DocumentsAnalyzerMap,
-  Node,
-} from "@common/types";
+import { EnumValue, FinderType, SolFileIndexMap, Node } from "@common/types";
 
 export class EnumValueNode extends Node {
   public astNode: EnumValue;
@@ -14,7 +9,7 @@ export class EnumValueNode extends Node {
     enumValue: EnumValue,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(enumValue, uri, rootPath, documentsAnalyzer, enumValue.name);
 

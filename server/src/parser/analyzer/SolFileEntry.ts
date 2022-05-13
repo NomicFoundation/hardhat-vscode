@@ -7,13 +7,15 @@ import {
   Searcher as ISearcher,
   SolFileState,
   ISolProject,
+  ClientTrackingState,
 } from "@common/types";
 
 export class SolFileEntry implements ISolFileEntry {
   public uri: string;
   public project: ISolProject;
-  public document: string | undefined;
+  public text: string | undefined;
   public status: SolFileState;
+  public tracking: ClientTrackingState;
 
   public ast: ASTNode | undefined;
   public analyzerTree: { tree: Node };
@@ -23,8 +25,9 @@ export class SolFileEntry implements ISolFileEntry {
   private constructor(uri: string, project: ISolProject) {
     this.uri = uri;
     this.project = project;
-    this.document = "";
+    this.text = "";
     this.status = SolFileState.UNLOADED;
+    this.tracking = ClientTrackingState.UNTRACKED;
 
     this.analyzerTree = {
       tree: new EmptyNode(
@@ -42,19 +45,41 @@ export class SolFileEntry implements ISolFileEntry {
     return new SolFileEntry(uri, project);
   }
 
-  public static createLoadedEntry(
+  public static createLoadedUntrackedEntry(
     uri: string,
     project: ISolProject,
     text: string
-  ) {
+  ): ISolFileEntry {
     const unloaded = new SolFileEntry(uri, project);
 
     return unloaded.loadText(text);
   }
 
-  public loadText(text: string): ISolFileEntry {
-    this.status = SolFileState.DIRTY;
-    this.document = text;
+  public static createLoadedTrackedEntry(
+    uri: string,
+    project: ISolProject,
+    text: string
+  ): ISolFileEntry {
+    const unloaded = new SolFileEntry(uri, project);
+    const loaded = unloaded.loadText(text);
+    return loaded.track();
+  }
+
+  public loadText(text: string) {
+    this.status = SolFileState.LOADED;
+    this.text = text;
+
+    return this;
+  }
+
+  public track(): ISolFileEntry {
+    this.tracking = ClientTrackingState.TRACKED;
+
+    return this;
+  }
+
+  public untrack(): ISolFileEntry {
+    this.tracking = ClientTrackingState.UNTRACKED;
 
     return this;
   }

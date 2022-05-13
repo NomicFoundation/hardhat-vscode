@@ -2,7 +2,7 @@ import { findSourceUnitNode } from "@common/utils";
 import {
   TypeDefinition,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -15,7 +15,7 @@ export class TypeDefinitionNode extends Node {
     typeDefinition: TypeDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       typeDefinition,
@@ -61,7 +61,7 @@ export class TypeDefinitionNode extends Node {
   ): Node {
     this.setExpressionNode(expression);
 
-    const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+    const searcher = this.solFileIndex[this.uri]?.searcher;
 
     if (parent) {
       this.setParent(parent);

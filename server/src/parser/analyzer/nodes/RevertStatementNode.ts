@@ -1,7 +1,7 @@
 import {
   RevertStatement,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class RevertStatementNode extends Node {
     revertStatement: RevertStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(revertStatement, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = revertStatement;
@@ -30,7 +30,7 @@ export class RevertStatementNode extends Node {
       this.astNode.revertCall,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, parent, this);
 
     return this;

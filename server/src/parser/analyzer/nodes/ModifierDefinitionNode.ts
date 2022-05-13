@@ -2,7 +2,7 @@ import { findSourceUnitNode } from "@common/utils";
 import {
   ModifierDefinition,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -15,7 +15,7 @@ export class ModifierDefinitionNode extends Node {
     modifierDefinition: ModifierDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       modifierDefinition,
@@ -66,7 +66,7 @@ export class ModifierDefinitionNode extends Node {
     }
 
     for (const override of this.astNode.override || []) {
-      find(override, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(override, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         this
@@ -74,7 +74,7 @@ export class ModifierDefinitionNode extends Node {
     }
 
     for (const param of this.astNode.parameters || []) {
-      find(param, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(param, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         this
@@ -86,12 +86,12 @@ export class ModifierDefinitionNode extends Node {
         this.astNode.body,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, this);
     }
 
     const rootNode = findSourceUnitNode(parent);
-    const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+    const searcher = this.solFileIndex[this.uri]?.searcher;
 
     if (rootNode) {
       const exportNodes = new Array(...rootNode.getExportNodes());

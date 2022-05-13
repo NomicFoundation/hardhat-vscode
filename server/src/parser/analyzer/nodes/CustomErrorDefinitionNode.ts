@@ -2,7 +2,7 @@ import { findSourceUnitNode } from "@common/utils";
 import {
   CustomErrorDefinition,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -15,7 +15,7 @@ export class CustomErrorDefinitionNode extends Node {
     customErrorDefinition: CustomErrorDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       customErrorDefinition,
@@ -61,14 +61,14 @@ export class CustomErrorDefinitionNode extends Node {
   ): Node {
     this.setExpressionNode(expression);
 
-    const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+    const searcher = this.solFileIndex[this.uri]?.searcher;
 
     if (parent) {
       this.setParent(parent);
     }
 
     for (const parameter of this.astNode.parameters) {
-      find(parameter, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(parameter, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         this

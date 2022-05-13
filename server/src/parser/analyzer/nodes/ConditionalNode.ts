@@ -1,9 +1,4 @@
-import {
-  Conditional,
-  FinderType,
-  DocumentsAnalyzerMap,
-  Node,
-} from "@common/types";
+import { Conditional, FinderType, SolFileIndexMap, Node } from "@common/types";
 
 export class ConditionalNode extends Node {
   public astNode: Conditional;
@@ -12,7 +7,7 @@ export class ConditionalNode extends Node {
     conditional: Conditional,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(conditional, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = conditional;
@@ -32,7 +27,7 @@ export class ConditionalNode extends Node {
         this.astNode.condition,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, parent);
     }
 
@@ -42,7 +37,7 @@ export class ConditionalNode extends Node {
         this.astNode.trueExpression,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, parent);
     }
 
@@ -52,7 +47,7 @@ export class ConditionalNode extends Node {
         this.astNode.falseExpression,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, parent);
     }
 

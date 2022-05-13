@@ -1,7 +1,7 @@
 import {
   ExpressionStatement,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class ExpressionStatementNode extends Node {
     expressionStatement: ExpressionStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(expressionStatement, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = expressionStatement;
@@ -31,7 +31,7 @@ export class ExpressionStatementNode extends Node {
         this.astNode.expression,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, parent);
     }
 

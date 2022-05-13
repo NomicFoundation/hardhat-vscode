@@ -2,7 +2,7 @@ import { findSourceUnitNode } from "@common/utils";
 import {
   EnumDefinition,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -15,7 +15,7 @@ export class EnumDefinitionNode extends Node {
     enumDefinition: EnumDefinition,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       enumDefinition,
@@ -61,14 +61,14 @@ export class EnumDefinitionNode extends Node {
   ): Node {
     this.setExpressionNode(expression);
 
-    const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+    const searcher = this.solFileIndex[this.uri]?.searcher;
 
     if (parent) {
       this.setParent(parent);
     }
 
     for (const member of this.astNode.members) {
-      find(member, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(member, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         this

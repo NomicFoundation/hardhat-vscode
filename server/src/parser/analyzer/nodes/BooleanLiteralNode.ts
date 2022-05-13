@@ -1,7 +1,7 @@
 import {
   BooleanLiteral,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class BooleanLiteralNode extends Node {
     booleanLiteral: BooleanLiteral,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(booleanLiteral, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = booleanLiteral;

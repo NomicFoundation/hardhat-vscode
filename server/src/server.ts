@@ -15,12 +15,12 @@ import { onTypeDefinition } from "@services/typeDefinition/onTypeDefinition";
 import { onReferences } from "@services/references/onReferences";
 import { onImplementation } from "@services/implementation/onImplementation";
 import { onRename } from "@services/rename/onRename";
-import { onDidChangeContent } from "@services/validation/onDidChangeContent";
 import { RequestType } from "vscode-languageserver-protocol";
 import path = require("path");
 import { decodeUriAndRemoveFilePrefix, toUnixStyle } from "./utils";
 import { CompilerProcessFactory, ServerState } from "./types";
 import { Telemetry } from "./telemetry/types";
+import { attachDocumentHooks } from "./services/documents/attachDocumentHooks";
 
 export interface GetSolFileDetailsParams {
   uri: string;
@@ -58,8 +58,7 @@ export default function setupServer(
   attachLanguageServerLifeCycleHooks(serverState, workspaceFileRetriever);
   attachLanguageServerCommandHooks(serverState);
   attachCustomHooks(serverState);
-
-  listenForDocumentChanges(serverState);
+  attachDocumentHooks(serverState);
 
   return serverState;
 }
@@ -156,7 +155,7 @@ function attachCustomHooks(serverState: ServerState) {
         const solFil =
           serverState.solFileIndex[decodeUriAndRemoveFilePrefix(params.uri)];
 
-        if (!solFil) {
+        if (solFil === undefined) {
           return { found: false };
         }
 
@@ -183,15 +182,4 @@ function attachCustomHooks(serverState: ServerState) {
       }
     }
   );
-}
-
-function listenForDocumentChanges(serverState: ServerState) {
-  // The content of a text document has changed. This event is emitted
-  // when the text document first opened or when its content has changed.
-  // This is the start of our validation pipeline
-  serverState.documents.onDidChangeContent(onDidChangeContent(serverState));
-
-  // Make the text document manager listen on the connection
-  // for open, change and close text document events
-  serverState.documents.listen(serverState.connection);
 }

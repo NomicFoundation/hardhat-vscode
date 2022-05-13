@@ -1,7 +1,7 @@
 import {
   AssemblyBlock,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class AssemblyBlockNode extends Node {
     assemblyBlock: AssemblyBlock,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(assemblyBlock, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = assemblyBlock;
@@ -31,7 +31,7 @@ export class AssemblyBlockNode extends Node {
     }
 
     for (const operation of this.astNode.operations ?? []) {
-      find(operation, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(operation, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         this

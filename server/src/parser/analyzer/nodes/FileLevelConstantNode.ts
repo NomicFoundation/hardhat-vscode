@@ -1,7 +1,7 @@
 import {
   FileLevelConstant,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -14,7 +14,7 @@ export class FileLevelConstantNode extends Node {
     fileLevelConstant: FileLevelConstant,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       fileLevelConstant,
@@ -62,7 +62,7 @@ export class FileLevelConstantNode extends Node {
         this.astNode.typeName,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, this);
 
       this.addTypeNode(typeNode);
@@ -83,7 +83,7 @@ export class FileLevelConstantNode extends Node {
         this.astNode.initialValue,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, parent);
     }
 

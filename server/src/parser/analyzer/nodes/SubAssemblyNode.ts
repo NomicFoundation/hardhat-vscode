@@ -1,9 +1,4 @@
-import {
-  SubAssembly,
-  FinderType,
-  DocumentsAnalyzerMap,
-  Node,
-} from "@common/types";
+import { SubAssembly, FinderType, SolFileIndexMap, Node } from "@common/types";
 
 export class SubAssemblyNode extends Node {
   public astNode: SubAssembly;
@@ -12,7 +7,7 @@ export class SubAssemblyNode extends Node {
     subAssembly: SubAssembly,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(subAssembly, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = subAssembly;

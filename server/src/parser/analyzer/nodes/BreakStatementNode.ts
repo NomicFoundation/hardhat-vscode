@@ -1,7 +1,7 @@
 import {
   BreakStatement,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class BreakStatementNode extends Node {
     breakStatement: BreakStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(breakStatement, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = breakStatement;

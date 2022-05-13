@@ -1,6 +1,6 @@
 import { TextDocument } from "@common/types";
-import { analyzeDocument } from "@utils/analyzeDocument";
-import { getDocumentAnalyzer } from "@utils/getDocumentAnalyzer";
+import { getOrInitialiseSolFileEntry } from "@utils/getOrInitialiseSolFileEntry";
+import { analyzeSolFile } from "@analyzer/analyzeSolFile";
 import { ServerState } from "../types";
 import { LookupResult } from "./lookupEntryForUri";
 import { getUriFromDocument } from "./index";
@@ -20,14 +20,12 @@ export function applyEditToDocumentAnalyzer(
   }
 
   const documentURI = getUriFromDocument(document);
-
   const newDocumentText = edit(document);
 
-  analyzeDocument(serverState, newDocumentText, documentURI);
+  const solFileEntry = getOrInitialiseSolFileEntry(serverState, documentURI);
+  analyzeSolFile(serverState, solFileEntry, newDocumentText);
 
-  const documentAnalyzer = getDocumentAnalyzer(serverState, documentURI);
-
-  if (!documentAnalyzer.isAnalyzed()) {
+  if (!solFileEntry.isAnalyzed()) {
     return {
       found: false,
       errorMessage: `Text document not analyzed for ${uri}`,
@@ -36,7 +34,7 @@ export function applyEditToDocumentAnalyzer(
 
   return {
     found: true,
-    documentAnalyzer,
+    documentAnalyzer: solFileEntry,
     document,
   };
 }

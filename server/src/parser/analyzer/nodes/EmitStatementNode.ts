@@ -1,7 +1,7 @@
 import {
   EmitStatement,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class EmitStatementNode extends Node {
     emitStatement: EmitStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(emitStatement, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = emitStatement;
@@ -30,7 +30,7 @@ export class EmitStatementNode extends Node {
       this.astNode.eventCall,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, parent, this);
 
     return this;

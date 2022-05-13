@@ -1,9 +1,4 @@
-import {
-  ForStatement,
-  FinderType,
-  DocumentsAnalyzerMap,
-  Node,
-} from "@common/types";
+import { ForStatement, FinderType, SolFileIndexMap, Node } from "@common/types";
 
 export class ForStatementNode extends Node {
   public astNode: ForStatement;
@@ -12,7 +7,7 @@ export class ForStatementNode extends Node {
     forStatement: ForStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(forStatement, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = forStatement;
@@ -39,7 +34,7 @@ export class ForStatementNode extends Node {
         this.astNode.initExpression,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, this);
     }
 
@@ -48,7 +43,7 @@ export class ForStatementNode extends Node {
         this.astNode.conditionExpression,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, this);
     }
 
@@ -58,16 +53,15 @@ export class ForStatementNode extends Node {
         this.astNode.loopExpression,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, this);
     }
 
-    find(
-      this.astNode.body,
-      this.uri,
-      this.rootPath,
-      this.documentsAnalyzer
-    ).accept(find, orphanNodes, this);
+    find(this.astNode.body, this.uri, this.rootPath, this.solFileIndex).accept(
+      find,
+      orphanNodes,
+      this
+    );
 
     parent?.addChild(this);
 

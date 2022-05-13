@@ -1,7 +1,7 @@
 import {
   UsingForDeclaration,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -14,7 +14,7 @@ export class UsingForDeclarationNode extends Node {
     usingForDeclaration: UsingForDeclaration,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       usingForDeclaration,
@@ -55,12 +55,12 @@ export class UsingForDeclarationNode extends Node {
         this.astNode.typeName,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, parent);
     }
 
     if (parent) {
-      const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+      const searcher = this.solFileIndex[this.uri]?.searcher;
       const identifierParent = searcher?.findParent(this, parent);
 
       if (identifierParent) {

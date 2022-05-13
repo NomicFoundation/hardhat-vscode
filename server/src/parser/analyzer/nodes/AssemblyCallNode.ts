@@ -1,9 +1,4 @@
-import {
-  AssemblyCall,
-  FinderType,
-  DocumentsAnalyzerMap,
-  Node,
-} from "@common/types";
+import { AssemblyCall, FinderType, SolFileIndexMap, Node } from "@common/types";
 
 export class AssemblyCallNode extends Node {
   public astNode: AssemblyCall;
@@ -12,7 +7,7 @@ export class AssemblyCallNode extends Node {
     assemblyCall: AssemblyCall,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(
       assemblyCall,
@@ -42,7 +37,7 @@ export class AssemblyCallNode extends Node {
     this.setExpressionNode(expression);
 
     for (const argument of this.astNode.arguments ?? []) {
-      find(argument, this.uri, this.rootPath, this.documentsAnalyzer).accept(
+      find(argument, this.uri, this.rootPath, this.solFileIndex).accept(
         find,
         orphanNodes,
         parent
@@ -50,7 +45,7 @@ export class AssemblyCallNode extends Node {
     }
 
     if (parent) {
-      const searcher = this.documentsAnalyzer[this.uri]?.searcher;
+      const searcher = this.solFileIndex[this.uri]?.searcher;
       const assemblyCallParent = searcher?.findParent(this, parent);
 
       if (assemblyCallParent) {

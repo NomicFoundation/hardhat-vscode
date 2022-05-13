@@ -1,7 +1,7 @@
 import {
   DecimalNumber,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class DecimalNumberNode extends Node {
     decimalNumber: DecimalNumber,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(decimalNumber, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = decimalNumber;

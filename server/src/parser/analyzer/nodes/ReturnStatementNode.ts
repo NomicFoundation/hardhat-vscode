@@ -1,7 +1,7 @@
 import {
   ReturnStatement,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class ReturnStatementNode extends Node {
     returnStatement: ReturnStatement,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(returnStatement, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = returnStatement;
@@ -31,7 +31,7 @@ export class ReturnStatementNode extends Node {
         this.astNode.expression,
         this.uri,
         this.rootPath,
-        this.documentsAnalyzer
+        this.solFileIndex
       ).accept(find, orphanNodes, parent);
     }
 

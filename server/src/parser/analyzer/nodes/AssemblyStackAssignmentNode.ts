@@ -1,7 +1,7 @@
 import {
   AssemblyStackAssignment,
   FinderType,
-  DocumentsAnalyzerMap,
+  SolFileIndexMap,
   Node,
 } from "@common/types";
 
@@ -12,7 +12,7 @@ export class AssemblyStackAssignmentNode extends Node {
     assemblyStackAssignment: AssemblyStackAssignment,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(assemblyStackAssignment, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = assemblyStackAssignment;

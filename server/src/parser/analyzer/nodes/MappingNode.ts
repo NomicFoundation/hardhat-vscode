@@ -1,4 +1,4 @@
-import { Mapping, FinderType, DocumentsAnalyzerMap, Node } from "@common/types";
+import { Mapping, FinderType, SolFileIndexMap, Node } from "@common/types";
 
 export class MappingNode extends Node {
   public astNode: Mapping;
@@ -7,7 +7,7 @@ export class MappingNode extends Node {
     mapping: Mapping,
     uri: string,
     rootPath: string,
-    documentsAnalyzer: DocumentsAnalyzerMap
+    documentsAnalyzer: SolFileIndexMap
   ) {
     super(mapping, uri, rootPath, documentsAnalyzer, undefined);
     this.astNode = mapping;
@@ -25,13 +25,13 @@ export class MappingNode extends Node {
       this.astNode.keyType,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, parent);
     const typeNode = find(
       this.astNode.valueType,
       this.uri,
       this.rootPath,
-      this.documentsAnalyzer
+      this.solFileIndex
     ).accept(find, orphanNodes, parent);
 
     this.addTypeNode(typeNode);
