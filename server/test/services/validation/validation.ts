@@ -1,5 +1,6 @@
 import { assert } from "chai";
 import * as path from "path";
+import { HardhatCompilerError } from "../../../src/types";
 import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
 import { prependWithSlash } from "../../helpers/prependWithSlash";
 import { setupMockConnection } from "../../helpers/setupMockConnection";
@@ -27,7 +28,7 @@ describe("Parser", () => {
     let mockConnection: ReturnType<typeof setupMockConnection>;
 
     describe("pass through", () => {
-      const exampleError = {
+      const exampleError: HardhatCompilerError = {
         sourceLocation: {
           file: basicUri,
           start: 5,
@@ -36,6 +37,9 @@ describe("Parser", () => {
         errorCode: "101",
         severity: "error",
         message: "It went wrong!",
+        formattedMessage: "-",
+        type: "DeclarationError",
+        component: "general",
       };
 
       beforeEach(async () => {
@@ -85,7 +89,7 @@ describe("Parser", () => {
 
     describe("enhancement", () => {
       describe.skip("function level error/warning", () => {
-        const mutabliltyRestrictToViewWarning = {
+        const mutabliltyRestrictToViewWarning: HardhatCompilerError = {
           component: "general",
           errorCode: "2018",
           formattedMessage:
@@ -97,7 +101,7 @@ describe("Parser", () => {
             start: 445,
             end: 556,
           },
-          type: "Warning",
+          type: "DeclarationError",
         };
 
         beforeEach(async () => {
@@ -158,7 +162,7 @@ describe("Parser", () => {
             path.join(__dirname, "testData", "Interfaces.sol")
           );
 
-          const markAsAbstractError = {
+          const markAsAbstractError: HardhatCompilerError = {
             component: "general",
             errorCode: "3656",
             formattedMessage: "",
@@ -169,7 +173,7 @@ describe("Parser", () => {
               start: 131,
               end: 162,
             },
-            type: "Error",
+            type: "DeclarationError",
           };
 
           beforeEach(async () => {
@@ -228,7 +232,7 @@ describe("Parser", () => {
             path.join(__dirname, "testData", "ContractCodeSize.sol")
           );
 
-          const contractSizeError = {
+          const contractSizeError: HardhatCompilerError = {
             component: "general",
             errorCode: "5574",
             formattedMessage: "",
@@ -240,7 +244,7 @@ describe("Parser", () => {
               start: 62,
               end: 249,
             },
-            type: "Warning",
+            type: "DeclarationError",
           };
 
           beforeEach(async () => {
@@ -298,7 +302,7 @@ describe("Parser", () => {
     });
 
     describe("blocking", () => {
-      const addOverrideErrorFoo = {
+      const addOverrideErrorFoo: HardhatCompilerError = {
         component: "general",
         errorCode: "9456",
         formattedMessage: "Error: ...",
@@ -309,10 +313,10 @@ describe("Parser", () => {
           start: 248,
           end: 272,
         },
-        type: "Error",
+        type: "DeclarationError",
       };
 
-      const addMultioverrideErrorFoo = {
+      const addMultioverrideErrorFoo: HardhatCompilerError = {
         component: "general",
         errorCode: "4327",
         formattedMessage: "Error: ...",
@@ -324,10 +328,10 @@ describe("Parser", () => {
           start: 248,
           end: 272,
         },
-        type: "Error",
+        type: "DeclarationError",
       };
 
-      const addOverrideErrorBar = {
+      const addOverrideErrorBar: HardhatCompilerError = {
         component: "general",
         errorCode: "9456",
         formattedMessage: "Error: ...",
@@ -338,7 +342,7 @@ describe("Parser", () => {
           start: 276,
           end: 300,
         },
-        type: "Error",
+        type: "DeclarationError",
       };
 
       beforeEach(async () => {

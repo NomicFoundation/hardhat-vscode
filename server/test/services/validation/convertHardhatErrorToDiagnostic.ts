@@ -192,6 +192,7 @@ import "1123453";`;
         );
 
         diagnostic = convertHardhatErrorToDiagnostic(document, {
+          name: "HardhatError",
           errorDescriptor: {
             number: 999,
             title: "unknown - some unknown error",
@@ -224,6 +225,7 @@ function assertConversionToDiagnostic(
   const diagnostic: Diagnostic | null = convertHardhatErrorToDiagnostic(
     document,
     {
+      name: "HardhatError",
       errorDescriptor: errorDescription,
       messageArguments: { imported: importLine },
     }

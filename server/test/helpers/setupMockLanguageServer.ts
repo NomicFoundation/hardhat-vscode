@@ -26,6 +26,7 @@ import setupServer, {
   GetSolFileDetailsParams,
   GetSolFileDetailsResponse,
 } from "../../src/server";
+import type { HardhatCompilerError } from "../../src/types";
 import { setupMockCompilerProcessFactory } from "./setupMockCompilerProcessFactory";
 import { setupMockConnection } from "./setupMockConnection";
 import { waitUntil } from "./waitUntil";
@@ -67,8 +68,7 @@ export async function setupMockLanguageServer({
 }: {
   projects?: { [key: string]: string[] };
   documents: Array<{ uri: string; content?: string; analyze: boolean }>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  errors: any[];
+  errors: HardhatCompilerError[];
 }) {
   const exampleRootUri = forceToUnixStyle(path.join(__dirname, ".."));
   const exampleWorkspaceFolders = [{ name: "example", uri: exampleRootUri }];

@@ -2,13 +2,7 @@ import * as path from "path";
 import * as childProcess from "child_process";
 import { HardhatProject } from "@analyzer/HardhatProject";
 import { Logger } from "@utils/Logger";
-import { HardhatCompilerError, WorkerProcess } from "../../types";
-
-interface ValidationCompleteMessage {
-  type: "VALIDATION_COMPLETE";
-  jobId: number;
-  errors: HardhatCompilerError[];
-}
+import { ValidationCompleteMessage, WorkerProcess } from "../../types";
 
 export class HardhatWorker implements WorkerProcess {
   public project: HardhatProject;
@@ -16,8 +10,12 @@ export class HardhatWorker implements WorkerProcess {
   private logger: Logger;
   private jobCount: number;
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  private jobs: { [key: string]: { resolve: Function; reject: Function } };
+  private jobs: {
+    [key: string]: {
+      resolve: (message: ValidationCompleteMessage) => void;
+      reject: () => void;
+    };
+  };
 
   constructor(project: HardhatProject, logger: Logger) {
     this.project = project;
@@ -41,7 +39,7 @@ export class HardhatWorker implements WorkerProcess {
 
       const { resolve } = this.jobs[message.jobId];
 
-      resolve({ errors: message.errors });
+      resolve(message);
     });
   }
 
@@ -57,29 +55,27 @@ export class HardhatWorker implements WorkerProcess {
       documentText: string;
     }>;
   }) {
-    return new Promise<{ errors: HardhatCompilerError[] }>(
-      (resolve, reject) => {
-        const jobId = this.jobCount++;
+    return new Promise<ValidationCompleteMessage>((resolve, reject) => {
+      const jobId = this.jobCount++;
 
-        this.jobs[jobId] = { resolve, reject };
+      this.jobs[jobId] = { resolve, reject };
 
-        this.child?.send(
-          {
-            type: "VALIDATE",
-            jobId,
-            uri,
-            documentText,
-            openDocuments,
-          },
-          (err) => {
-            if (err) {
-              delete this.jobs[jobId];
-              return reject(err);
-            }
+      this.child?.send(
+        {
+          type: "VALIDATE",
+          jobId,
+          uri,
+          documentText,
+          openDocuments,
+        },
+        (err) => {
+          if (err) {
+            delete this.jobs[jobId];
+            return reject(err);
           }
-        );
-      }
-    );
+        }
+      );
+    });
   }
 
   public kill() {
