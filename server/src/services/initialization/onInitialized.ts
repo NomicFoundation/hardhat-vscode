@@ -32,13 +32,15 @@ export const onInitialized = (
       });
     }
 
-    await serverState.telemetry.trackTimingSync("indexing", () =>
-      indexWorkspaceFolders(
+    await serverState.telemetry.trackTiming("indexing", async () => {
+      await indexWorkspaceFolders(
         { ...serverState, workspaceFolders: [] },
         workspaceFileRetriever,
         serverState.workspaceFolders
-      )
-    );
+      );
+
+      return { status: "ok", result: null };
+    });
 
     logger.info("Language server ready");
   };
