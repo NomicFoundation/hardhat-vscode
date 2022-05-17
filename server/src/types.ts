@@ -50,6 +50,7 @@ export interface WorkerProcess {
     }>;
   }) => Promise<{ errors: HardhatCompilerError[] }>;
   kill: () => void;
+  restart: () => Promise<void>;
 }
 
 export interface WorkerProcesses {

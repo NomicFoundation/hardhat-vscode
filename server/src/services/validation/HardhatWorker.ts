@@ -85,4 +85,9 @@ export class HardhatWorker implements WorkerProcess {
   public kill() {
     this.child?.kill();
   }
+
+  public async restart(): Promise<void> {
+    this.kill();
+    this.init();
+  }
 }
