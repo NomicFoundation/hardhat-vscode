@@ -31,6 +31,9 @@ export const onInitialize = (serverState: ServerState) => {
     });
 
     const result: InitializeResult = {
+      serverInfo: {
+        name: "Hardhat Language Server",
+      },
       capabilities: {
         textDocumentSync: TextDocumentSyncKind.Incremental,
         // Tell the client that this server supports code completion.

@@ -3,6 +3,7 @@ import { onDidChangeContent } from "./onDidChangeContent";
 import { onDidOpen } from "./onDidOpen";
 import { onDidClose } from "./onDidClose";
 import { onDidSave } from "./onDidSave";
+import { onDidChangeWatchedFiles } from "./onDidChangeWatchedFiles";
 
 /**
  * Establish a sync between the client and the `serverState.documents`
@@ -23,6 +24,11 @@ export function attachDocumentHooks(serverState: ServerState) {
   // when the text document first opened or when its content has changed.
   // This is the start of our validation pipeline
   serverState.documents.onDidChangeContent(onDidChangeContent(serverState));
+
+  //
+  serverState.connection.onDidChangeWatchedFiles(
+    onDidChangeWatchedFiles(serverState)
+  );
 
   // Make the text document manager listen on the connection
   // for open, change and close text document events
