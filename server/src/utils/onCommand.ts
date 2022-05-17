@@ -18,13 +18,13 @@ export function onCommand<T>(
       lookupEntryForUri(serverState, uri);
 
     if (!found || !documentAnalyzer || !document) {
-      logger.error(
-        new Error(`Error analyzing doc within ${commandName}: ${errorMessage}`)
-      );
+      if (errorMessage !== undefined) {
+        logger.trace(errorMessage);
+      }
 
-      return null;
+      return { status: "failed_precondition", result: null };
     }
 
-    return action(documentAnalyzer, document);
+    return { status: "ok", result: action(documentAnalyzer, document) };
   });
 }

@@ -31,51 +31,47 @@ import { globalVariables, defaultCompletion } from "./defaultCompletion";
 import { arrayCompletions } from "./arrayCompletions";
 
 export const onCompletion = (serverState: ServerState) => {
-  return (params: CompletionParams): CompletionList | undefined => {
+  return (params: CompletionParams): CompletionList | null => {
     const { logger } = serverState;
 
     logger.trace("onCompletion");
 
-    try {
-      return serverState.telemetry.trackTimingSync("onCompletion", () => {
-        const { found, errorMessage, documentAnalyzer, document } =
-          applyEditToDocumentAnalyzer(
-            serverState,
-            params.textDocument.uri,
-            (doc) => resolveChangedDocText(params, doc)
-          );
-
-        if (!found || !documentAnalyzer || !document) {
-          logger.error(
-            new Error(
-              `Error editing and analyzing doc within onCompletion: ${errorMessage}`
-            )
-          );
-
-          return undefined;
-        }
-
-        const project = findProjectFor(
+    return serverState.telemetry.trackTimingSync("onCompletion", () => {
+      const { found, errorMessage, documentAnalyzer, document } =
+        applyEditToDocumentAnalyzer(
           serverState,
-          decodeUriAndRemoveFilePrefix(document.uri)
+          params.textDocument.uri,
+          (doc) => resolveChangedDocText(params, doc)
         );
 
-        const projCtx: ProjectContext = {
-          project,
-          solFileIndex: serverState.solFileIndex,
-        };
-
-        return doComplete(
-          documentAnalyzer,
-          params.position,
-          params.context,
-          projCtx,
-          logger
+      if (!found || !documentAnalyzer || !document) {
+        logger.trace(
+          `Error editing and analyzing doc within onCompletion: ${errorMessage}`
         );
-      });
-    } catch (err) {
-      logger.error(err);
-    }
+
+        return { status: "failed_precondition", result: null };
+      }
+
+      const project = findProjectFor(
+        serverState,
+        decodeUriAndRemoveFilePrefix(document.uri)
+      );
+
+      const projCtx: ProjectContext = {
+        project,
+        solFileIndex: serverState.solFileIndex,
+      };
+
+      const completions = doComplete(
+        documentAnalyzer,
+        params.position,
+        params.context,
+        projCtx,
+        logger
+      );
+
+      return { status: "ok", result: completions };
+    });
   };
 };
 
@@ -111,7 +107,7 @@ export function doComplete(
   context: CompletionContext | undefined,
   projCtx: ProjectContext,
   logger: Logger
-): CompletionList | undefined {
+): CompletionList | null {
   const result: CompletionList = { isIncomplete: false, items: [] };
 
   let definitionNode = documentAnalyzer.searcher.findNodeByPosition(
@@ -141,7 +137,7 @@ export function doComplete(
     context?.triggerCharacter === '"' &&
     (!definitionNode || !isImportDirectiveNode(definitionNode))
   ) {
-    return undefined;
+    return null;
   }
 
   const definitionNodeName = definitionNode?.getName();

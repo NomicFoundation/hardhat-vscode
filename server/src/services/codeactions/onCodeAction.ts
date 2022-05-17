@@ -8,25 +8,23 @@ export function onCodeAction(serverState: ServerState) {
 
     logger.trace("onCodeAction");
 
-    try {
-      return serverState.telemetry.trackTimingSync("onCodeAction", () => {
+    return (
+      serverState.telemetry.trackTimingSync("onCodeAction", () => {
         const document = documents.get(params.textDocument.uri);
 
         if (!document || params.context.diagnostics.length === 0) {
-          return [];
+          return { status: "failed_precondition", result: [] };
         }
 
-        return resolveQuickFixes(
+        const quickfixes = resolveQuickFixes(
           serverState,
           params.textDocument.uri,
           document,
           params.context.diagnostics
         );
-      });
-    } catch (err) {
-      logger.error(err);
 
-      return [];
-    }
+        return { status: "ok", result: quickfixes };
+      }) ?? []
+    );
   };
 }
