@@ -45,10 +45,8 @@ export const onCompletion = (serverState: ServerState) => {
         );
 
       if (!found || !documentAnalyzer || !document) {
-        logger.error(
-          new Error(
-            `Error editing and analyzing doc within onCompletion: ${errorMessage}`
-          )
+        logger.trace(
+          `Error editing and analyzing doc within onCompletion: ${errorMessage}`
         );
 
         return { status: "failed_precondition", result: null };

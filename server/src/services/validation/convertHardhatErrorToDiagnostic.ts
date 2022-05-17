@@ -1,29 +1,8 @@
 import { Diagnostic, DiagnosticSeverity, Range } from "@common/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import type { HardhatError, HardhatImportLineError } from "../../types";
 
-type ImportLineErrorCode = 404 | 405 | 406 | 407 | 408 | 409;
-const IMPORT_LINE_ERROR_CODES = [404, 405, 406, 407, 408, 409];
-
-interface HardhatImportLineError {
-  errorDescriptor: {
-    number: ImportLineErrorCode;
-    title: string;
-    description: string;
-  };
-  messageArguments: {
-    imported: string;
-  };
-}
-
-interface UnknownHardhatError {
-  errorDescriptor: {
-    number: number;
-    title: string;
-    description: string;
-  };
-}
-
-type HardhatError = UnknownHardhatError | HardhatImportLineError;
+export const IMPORT_LINE_ERROR_CODES = [404, 405, 406, 407, 408, 409];
 
 function isHardhatImportLineError(
   error: HardhatError
