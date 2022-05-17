@@ -23,6 +23,7 @@ export function setupMockCompilerProcessFactory(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       }) as any,
       kill: sinon.spy(),
+      restart: sinon.spy(),
     } as WorkerProcess;
   };
 }

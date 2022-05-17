@@ -42,6 +42,11 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
     documentSelector: [
       { scheme: "file", language: "solidity", pattern: `**/*.sol` },
     ],
+    synchronize: {
+      fileEvents: workspace.createFileSystemWatcher(
+        "**/hardhat.config.{ts,js}"
+      ),
+    },
     diagnosticCollectionName: "hardhat-language-server",
     outputChannel: extensionState.outputChannel,
     initializationOptions: {

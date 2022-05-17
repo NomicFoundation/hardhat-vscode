@@ -82,7 +82,6 @@ function setupUninitializedServerState(
     documents: new TextDocuments(TextDocument),
     solFileIndex: {},
     workerProcesses: {},
-
     telemetry,
     logger,
   };
