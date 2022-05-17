@@ -1,25 +1,28 @@
 import { HardhatProject } from "@analyzer/HardhatProject";
 import * as sinon from "sinon";
-import { CompilerProcessFactory, WorkerProcess } from "../../src/types";
+import {
+  CompilerProcessFactory,
+  HardhatCompilerError,
+  ValidationFail,
+  WorkerProcess,
+} from "../../src/types";
 
 export function setupMockCompilerProcessFactory(
-  errors: Array<{
-    errorCode: string;
-    severity: string;
-    message: string;
-    sourceLocation: {
-      file: string;
-      start: number;
-      end: number;
-    };
-  }> = []
+  errors: HardhatCompilerError[] = []
 ): CompilerProcessFactory {
   return (project: HardhatProject): WorkerProcess => {
     return {
       project,
       init: sinon.spy(),
       validate: sinon.spy(() => {
-        return { errors };
+        const validationMessage: ValidationFail = {
+          type: "VALIDATION_COMPLETE",
+          status: "VALIDATION_FAIL",
+          jobId: 1,
+          errors,
+        };
+
+        return validationMessage;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       }) as any,
       kill: sinon.spy(),

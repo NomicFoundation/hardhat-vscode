@@ -2,9 +2,16 @@ import { Diagnostic, TextDocumentChangeEvent } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { isHardhatProject } from "@analyzer/HardhatProject";
 import { decodeUriAndRemoveFilePrefix } from "../../utils/index";
-import { ServerState, WorkerProcess } from "../../types";
+import {
+  HardhatPreprocessingError,
+  ServerState,
+  ValidationCompleteMessage,
+  ValidationFail,
+  WorkerProcess,
+} from "../../types";
 import { getOpenDocumentsInProject } from "../../queries/getOpenDocumentsInProject";
 import { DiagnosticConverter } from "./DiagnosticConverter";
+import { convertHardhatErrorToDiagnostic } from "./convertHardhatErrorToDiagnostic";
 
 export async function validate(
   serverState: ServerState,
@@ -50,7 +57,7 @@ export async function validate(
 
   const documentText = change.document.getText();
 
-  const { errors } = await workerProcess.validate({
+  const completeMessage = await workerProcess.validate({
     uri: internalUri,
     documentText,
     openDocuments: openDocuments.map((openDoc) => ({
@@ -59,21 +66,64 @@ export async function validate(
     })),
   });
 
+  sendResults(serverState, change, completeMessage);
+}
+
+function sendResults(
+  serverState: ServerState,
+  change: TextDocumentChangeEvent<TextDocument>,
+  completeMessage: ValidationCompleteMessage
+) {
+  switch (completeMessage.status) {
+    case "HARDHAT_ERROR":
+      return hardhatPreprocessFail(serverState, change, completeMessage);
+    case "VALIDATION_FAIL":
+      return validationFail(serverState, change, completeMessage);
+    case "VALIDATION_PASS":
+      return validationPass(serverState, change);
+    default:
+      return assertUnknownMessageStatus(completeMessage);
+  }
+}
+
+function hardhatPreprocessFail(
+  serverState: ServerState,
+  { document }: TextDocumentChangeEvent<TextDocument>,
+  { hardhatErrors }: HardhatPreprocessingError
+) {
+  const hardhatErrordiagnostics = hardhatErrors
+    .map((hh) => convertHardhatErrorToDiagnostic(document, hh))
+    .filter((diag): diag is Diagnostic => diag !== null);
+
+  serverState.connection.sendDiagnostics({
+    uri: document.uri,
+    diagnostics: hardhatErrordiagnostics,
+  });
+}
+
+function validationPass(
+  serverState: ServerState,
+  change: TextDocumentChangeEvent<TextDocument>
+): void {
   const document = change.document;
 
-  if (errors.length === 0) {
-    serverState.connection.sendDiagnostics({
-      uri: document.uri,
-      diagnostics: [],
-    });
+  // TODO: send one for each source in complete message
+  serverState.connection.sendDiagnostics({
+    uri: document.uri,
+    diagnostics: [],
+  });
+}
 
-    return;
-  }
-
+function validationFail(
+  serverState: ServerState,
+  change: TextDocumentChangeEvent<TextDocument>,
+  message: ValidationFail
+): void {
+  const document = change.document;
   const diagnosticConverter = new DiagnosticConverter(serverState.logger);
 
   const diagnostics: { [uri: string]: Diagnostic[] } =
-    diagnosticConverter.convertErrors(change.document, errors);
+    diagnosticConverter.convertErrors(change.document, message.errors);
 
   for (const diagnosticUri of Object.keys(diagnostics)) {
     if (document.uri.includes(diagnosticUri)) {
@@ -83,4 +133,11 @@ export async function validate(
       });
     }
   }
+}
+
+function assertUnknownMessageStatus(completeMessage: never) {
+  throw new Error(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    `Unrecognized message status: ${(completeMessage as any)?.status}`
+  );
 }
