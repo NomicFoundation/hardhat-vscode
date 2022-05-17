@@ -5,7 +5,7 @@ import * as tracing from "@sentry/tracing";
 import { isTelemetryEnabled } from "@utils/serverStateUtils";
 import { ServerState } from "../types";
 import { Analytics } from "../analytics/types";
-import { Telemetry } from "./types";
+import { Telemetry, TrackingResult } from "./types";
 
 const SENTRY_CLOSE_TIMEOUT = 2000;
 
@@ -66,15 +66,48 @@ export class SentryServerTelemetry implements Telemetry {
     Sentry.captureException(err);
   }
 
-  public trackTimingSync<T>(taskName: string, action: () => T): T {
+  public async trackTiming<T>(
+    taskName: string,
+    action: (transaction: Transaction) => Promise<TrackingResult<T>>
+  ): Promise<T | null> {
     const transaction = this.startTransaction({ op: "task", name: taskName });
     this.actionTaken = true;
 
-    const result = action();
+    try {
+      const trackingResult = await action(transaction);
 
-    transaction.finish();
+      transaction.setStatus(trackingResult.status);
 
-    return result;
+      return trackingResult.result;
+    } catch (err) {
+      this.serverState?.logger.error(err);
+      transaction.setStatus("internal_error");
+      return null;
+    } finally {
+      transaction.finish();
+    }
+  }
+
+  public trackTimingSync<T>(
+    taskName: string,
+    action: (transaction: Transaction) => TrackingResult<T>
+  ): T | null {
+    const transaction = this.startTransaction({ op: "task", name: taskName });
+    this.actionTaken = true;
+
+    try {
+      const trackingResult = action(transaction);
+
+      transaction.setStatus(trackingResult.status);
+
+      return trackingResult.result;
+    } catch (err) {
+      this.serverState?.logger.error(err);
+      transaction.setStatus("internal_error");
+      return null;
+    } finally {
+      transaction.finish();
+    }
   }
 
   public startTransaction({

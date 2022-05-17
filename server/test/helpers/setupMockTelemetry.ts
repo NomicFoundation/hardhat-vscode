@@ -6,8 +6,15 @@ export function setupMockTelemetry(): Telemetry {
   return {
     init: sinon.spy(),
     captureException: sinon.spy(),
-    trackTimingSync: (_taskName: string, action) => {
-      return action();
+    trackTiming: async (_taskName: string, action) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (await action(sinon.spy() as any)).result;
+    },
+    trackTimingSync: (_taskName, action) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const actionResponse = action(sinon.spy() as any);
+
+      return actionResponse.result;
     },
     startTransaction: (): Transaction => {
       return {

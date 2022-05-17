@@ -62,7 +62,7 @@ describe("Parser", () => {
           },
         });
 
-        assert(response === undefined);
+        assert(response === null);
       });
 
       describe("empty (neither relative/direct)", () => {
