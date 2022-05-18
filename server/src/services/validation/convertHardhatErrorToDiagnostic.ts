@@ -4,10 +4,15 @@ import type { HardhatError, HardhatImportLineError } from "../../types";
 
 export const IMPORT_LINE_ERROR_CODES = [404, 405, 406, 407, 408, 409];
 
-function isHardhatImportLineError(
-  error: HardhatError
-): error is HardhatImportLineError {
-  return IMPORT_LINE_ERROR_CODES.includes(error.errorDescriptor.number);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function isHardhatImportLineError(error: any): error is HardhatImportLineError {
+  if (error.errorDescriptor === undefined) {
+    return false;
+  }
+
+  const errorCode = error.errorDescriptor.number;
+
+  return IMPORT_LINE_ERROR_CODES.includes(errorCode);
 }
 
 export function convertHardhatErrorToDiagnostic(

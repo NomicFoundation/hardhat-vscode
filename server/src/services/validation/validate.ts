@@ -4,9 +4,13 @@ import { isHardhatProject } from "@analyzer/HardhatProject";
 import { decodeUriAndRemoveFilePrefix } from "../../utils/index";
 import {
   HardhatPreprocessingError,
+  JobCreationError,
   ServerState,
   ValidationCompleteMessage,
   ValidationFail,
+  ValidationJobFailureNotification,
+  ValidationJobStatusNotification,
+  ValidationPass,
   WorkerProcess,
 } from "../../types";
 import { getOpenDocumentsInProject } from "../../queries/getOpenDocumentsInProject";
@@ -60,6 +64,7 @@ export async function validate(
   const completeMessage = await workerProcess.validate({
     uri: internalUri,
     documentText,
+    projectBasePath: solFileEntry.project.basePath,
     openDocuments: openDocuments.map((openDoc) => ({
       uri: decodeUriAndRemoveFilePrefix(openDoc.uri),
       documentText: openDoc.getText(),
@@ -80,7 +85,7 @@ function sendResults(
     case "VALIDATION_FAIL":
       return validationFail(serverState, change, completeMessage);
     case "VALIDATION_PASS":
-      return validationPass(serverState, change);
+      return validationPass(serverState, change, completeMessage);
     default:
       return assertUnknownMessageStatus(completeMessage);
   }
@@ -89,21 +94,109 @@ function sendResults(
 function hardhatPreprocessFail(
   serverState: ServerState,
   { document }: TextDocumentChangeEvent<TextDocument>,
-  { hardhatErrors }: HardhatPreprocessingError
+  { hardhatErrors, projectBasePath }: HardhatPreprocessingError
 ) {
-  const hardhatErrordiagnostics = hardhatErrors
+  const hardhatErrorDiagnostics = hardhatErrors
+    .filter((hh) => hh.name === "HardhatError")
     .map((hh) => convertHardhatErrorToDiagnostic(document, hh))
     .filter((diag): diag is Diagnostic => diag !== null);
 
   serverState.connection.sendDiagnostics({
     uri: document.uri,
-    diagnostics: hardhatErrordiagnostics,
+    diagnostics: hardhatErrorDiagnostics,
   });
+
+  const compilationJobCreationErrors = hardhatErrors
+    .filter(
+      (hh): hh is JobCreationError => hh.name === "HardhatJobCreationError"
+    )
+    .sort((left, right) =>
+      left.reason > right.reason ? 1 : right.reason > left.reason ? -1 : 0
+    );
+
+  const firstCompilationJobError = compilationJobCreationErrors[0];
+
+  sendValidationProcessProblem(
+    serverState,
+    projectBasePath,
+    firstCompilationJobError
+  );
+}
+
+function sendValidationProcessProblem(
+  serverState: ServerState,
+  projectBasePath: string,
+  error: JobCreationError
+) {
+  const data: ValidationJobStatusNotification = jobStatusFrom(
+    projectBasePath,
+    error
+  );
+
+  serverState.connection.sendNotification("custom/validation-job-status", data);
+}
+
+function sendValidationProcessSuccess(
+  serverState: ServerState,
+  projectBasePath: string,
+  version: string
+) {
+  const data: ValidationJobStatusNotification = {
+    validationRun: true,
+    projectBasePath,
+    version,
+  };
+
+  serverState.connection.sendNotification("custom/validation-job-status", data);
+}
+
+function jobStatusFrom(
+  projectBasePath: string,
+  error: JobCreationError
+): ValidationJobFailureNotification {
+  switch (error.reason) {
+    case "directly-imports-incompatible-file":
+      return {
+        validationRun: false,
+        projectBasePath,
+        reason: error.reason,
+        displayText: "directly imports incompatible file",
+      };
+    case "incompatible-overriden-solc-version":
+      return {
+        validationRun: false,
+        projectBasePath,
+        reason: error.reason,
+        displayText: "incompatible overriden solc version",
+      };
+    case "indirectly-imports-incompatible-file":
+      return {
+        validationRun: false,
+        projectBasePath,
+        reason: error.reason,
+        displayText: "indirectly imports incompatible file",
+      };
+    case "no-compatible-solc-version-found":
+      return {
+        validationRun: false,
+        projectBasePath,
+        reason: error.reason,
+        displayText: "no compatibile solc version found",
+      };
+    default:
+      return {
+        validationRun: false,
+        projectBasePath,
+        reason: error.reason,
+        displayText: "Unknown failure code",
+      };
+  }
 }
 
 function validationPass(
   serverState: ServerState,
-  change: TextDocumentChangeEvent<TextDocument>
+  change: TextDocumentChangeEvent<TextDocument>,
+  message: ValidationPass
 ): void {
   const document = change.document;
 
@@ -112,6 +205,12 @@ function validationPass(
     uri: document.uri,
     diagnostics: [],
   });
+
+  sendValidationProcessSuccess(
+    serverState,
+    message.projectBasePath,
+    message.version
+  );
 }
 
 function validationFail(
@@ -133,6 +232,8 @@ function validationFail(
       });
     }
   }
+
+  sendValidationProcessSuccess(serverState, message.projectBasePath, "0.0.0");
 }
 
 function assertUnknownMessageStatus(completeMessage: never) {
