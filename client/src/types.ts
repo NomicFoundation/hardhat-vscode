@@ -16,6 +16,7 @@ export interface ExtensionState {
 
   client: LanguageClient | null;
   currentIndexingJobs: LanguageStatusItem[];
+  projectsValidationStatus: { [key: string]: LanguageStatusItem };
   listenerDisposables: Disposable[];
 
   globalTelemetryEnabled: boolean;

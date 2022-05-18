@@ -28,43 +28,13 @@ export type CompilerProcessFactory = (
   logger: Logger
 ) => WorkerProcess;
 
-export interface HardhatCompilerError {
-  component: "general";
-  errorCode: string;
-  formattedMessage: string;
-  message: string;
-  severity: "error" | "warning";
-  sourceLocation?: { file: string; start: number; end: number };
-  type: "DeclarationError";
-}
-
-export interface HardhatPreprocessingError {
-  type: "VALIDATION_COMPLETE";
-  status: "HARDHAT_ERROR";
-  jobId: number;
-  hardhatErrors: HardhatError[];
-}
-
-export interface ValidationFail {
-  type: "VALIDATION_COMPLETE";
-  status: "VALIDATION_FAIL";
-  jobId: number;
-  errors: HardhatCompilerError[];
-}
-
-export interface ValidationPass {
-  type: "VALIDATION_COMPLETE";
-  status: "VALIDATION_PASS";
-  jobId: number;
-  sources: string[];
-}
-
 export interface WorkerProcess {
   project: HardhatProject;
   init: () => void;
   validate: (details: {
     uri: string;
     documentText: string;
+    projectBasePath: string;
     openDocuments: Array<{
       uri: string;
       documentText: string;
@@ -160,6 +130,7 @@ export interface ValidateCommand {
   jobId: number;
   uri: string;
   documentText: string;
+  projectBasePath: string;
   openDocuments: Array<{
     uri: string;
     documentText: string;
@@ -189,7 +160,19 @@ export interface UnknownHardhatError {
   };
 }
 
-export type HardhatError = UnknownHardhatError | HardhatImportLineError;
+export interface JobCreationError {
+  name: "HardhatJobCreationError";
+  reason:
+    | "no-compatible-solc-version-found"
+    | "incompatible-overriden-solc-version"
+    | "directly-imports-incompatible-file"
+    | "indirectly-imports-incompatible-file";
+}
+
+export type HardhatError =
+  | UnknownHardhatError
+  | HardhatImportLineError
+  | JobCreationError;
 
 export type HardhatWorkerCommand = ExitCommand | ValidateCommand;
 
@@ -207,6 +190,7 @@ export interface HardhatPreprocessingError {
   type: "VALIDATION_COMPLETE";
   status: "HARDHAT_ERROR";
   jobId: number;
+  projectBasePath: string;
   hardhatErrors: HardhatError[];
 }
 
@@ -214,6 +198,7 @@ export interface ValidationFail {
   type: "VALIDATION_COMPLETE";
   status: "VALIDATION_FAIL";
   jobId: number;
+  projectBasePath: string;
   errors: HardhatCompilerError[];
 }
 
@@ -221,6 +206,8 @@ export interface ValidationPass {
   type: "VALIDATION_COMPLETE";
   status: "VALIDATION_PASS";
   jobId: number;
+  projectBasePath: string;
+  version: string;
   sources: string[];
 }
 
@@ -228,3 +215,20 @@ export type ValidationCompleteMessage =
   | ValidationPass
   | ValidationFail
   | HardhatPreprocessingError;
+
+export interface ValidationJobSuccessNotification {
+  validationRun: true;
+  projectBasePath: string;
+  version: string;
+}
+
+export interface ValidationJobFailureNotification {
+  validationRun: false;
+  projectBasePath: string;
+  reason: string;
+  displayText: string;
+}
+
+export type ValidationJobStatusNotification =
+  | ValidationJobFailureNotification
+  | ValidationJobSuccessNotification;

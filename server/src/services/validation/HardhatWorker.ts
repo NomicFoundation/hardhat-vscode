@@ -2,7 +2,11 @@ import * as path from "path";
 import * as childProcess from "child_process";
 import { HardhatProject } from "@analyzer/HardhatProject";
 import { Logger } from "@utils/Logger";
-import { ValidationCompleteMessage, WorkerProcess } from "../../types";
+import {
+  ValidateCommand,
+  ValidationCompleteMessage,
+  WorkerProcess,
+} from "../../types";
 
 export class HardhatWorker implements WorkerProcess {
   public project: HardhatProject;
@@ -46,10 +50,12 @@ export class HardhatWorker implements WorkerProcess {
   public async validate({
     uri,
     documentText,
+    projectBasePath,
     openDocuments,
   }: {
     uri: string;
     documentText: string;
+    projectBasePath: string;
     openDocuments: Array<{
       uri: string;
       documentText: string;
@@ -60,21 +66,21 @@ export class HardhatWorker implements WorkerProcess {
 
       this.jobs[jobId] = { resolve, reject };
 
-      this.child?.send(
-        {
-          type: "VALIDATE",
-          jobId,
-          uri,
-          documentText,
-          openDocuments,
-        },
-        (err) => {
-          if (err) {
-            delete this.jobs[jobId];
-            return reject(err);
-          }
+      const message: ValidateCommand = {
+        type: "VALIDATE",
+        jobId,
+        uri,
+        documentText,
+        projectBasePath,
+        openDocuments,
+      };
+
+      this.child?.send(message, (err) => {
+        if (err) {
+          delete this.jobs[jobId];
+          return reject(err);
         }
-      );
+      });
     });
   }
 

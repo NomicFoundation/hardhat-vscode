@@ -75,7 +75,7 @@ async function hardhatBuild(
     SolidityFilesCache,
     logger,
   }: WorkerState,
-  { uri, jobId, documentText, openDocuments }: ValidateCommand
+  { uri, jobId, documentText, projectBasePath, openDocuments }: ValidateCommand
 ): Promise<ValidationCompleteMessage> {
   const startTime = new Date();
 
@@ -106,6 +106,7 @@ async function hardhatBuild(
       type: VALIDATION_COMPLETE,
       status: "HARDHAT_ERROR",
       jobId,
+      projectBasePath,
       hardhatErrors: [convertToHardhatError(err)],
     };
   }
@@ -126,13 +127,14 @@ async function hardhatBuild(
         solidityFilesCache: filesCache,
       }
     );
-  } catch (err) {
+  } catch (err: unknown) {
     // console.log("get compilation job", err);
     return {
       type: VALIDATION_COMPLETE,
       status: "HARDHAT_ERROR",
       jobId,
-      hardhatErrors: [],
+      projectBasePath,
+      hardhatErrors: [convertToHardhatError(err)],
     };
   }
 
@@ -147,7 +149,13 @@ async function hardhatBuild(
       type: VALIDATION_COMPLETE,
       status: "HARDHAT_ERROR",
       jobId,
-      hardhatErrors: [],
+      projectBasePath,
+      hardhatErrors: [
+        {
+          name: "HardhatJobCreationError",
+          reason: compilationJob.reason,
+        },
+      ],
     };
   }
 
@@ -194,6 +202,7 @@ async function hardhatBuild(
       type: VALIDATION_COMPLETE,
       status: "VALIDATION_FAIL",
       jobId,
+      projectBasePath,
       errors: output.errors,
     };
   } else {
@@ -207,6 +216,8 @@ async function hardhatBuild(
       type: VALIDATION_COMPLETE,
       status: "VALIDATION_PASS",
       jobId,
+      projectBasePath,
+      version: solcVersion,
       sources: switchForPaths(output.sources, sourcePaths),
     };
   }
