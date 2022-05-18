@@ -18,7 +18,7 @@ export class SentryClientTelemetry implements Telemetry {
 
     Sentry.init({
       dsn: this.dsn,
-      tracesSampleRate: this.extensionState.env === "development" ? 1 : 0.01,
+      tracesSampleRate: this.extensionState.env === "development" ? 1 : 0.001,
       release: `${this.extensionState.name}@${this.extensionState.version}`,
       environment: this.extensionState.env,
       initialScope: {
