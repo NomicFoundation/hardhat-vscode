@@ -34,6 +34,7 @@ describe("worker", () => {
       await dispatch(workerState)({
         type: "VALIDATE",
         jobId: 1,
+        projectBasePath: "/example",
         uri: "/example/first.sol",
         documentText:
           "// SPDX-License-Identifier: GPL-3.0\npragma solidity >=0.8.2 <0.9.0;",
@@ -47,6 +48,7 @@ describe("worker", () => {
         type: "VALIDATION_COMPLETE",
         status: "VALIDATION_FAIL",
         jobId: 1,
+        projectBasePath: "/example",
         errors: [exampleError],
       });
     });
@@ -59,6 +61,7 @@ describe("worker", () => {
       await dispatch(workerState)({
         type: "VALIDATE",
         jobId: 1,
+        projectBasePath: "/example",
         uri: "/example/first.sol",
         documentText:
           "// SPDX-License-Identifier: GPL-3.0\npragma solidity >=0.8.2 <0.9.0;",
@@ -72,7 +75,9 @@ describe("worker", () => {
         type: "VALIDATION_COMPLETE",
         status: "VALIDATION_PASS",
         jobId: 1,
+        projectBasePath: "/example",
         sources: ["/project/contracts/file1.sol"],
+        version: "0.8.0",
       });
     });
   });

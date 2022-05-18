@@ -7,6 +7,7 @@ import {
 } from "vscode-languageclient/node";
 import { ExtensionState } from "../types";
 import { setupIndexingHooks } from "../popups/setupIndexingHooks";
+import { setupValidationJobHooks } from "../popups/setupValidationJobHooks";
 import { onDidChangeActiveTextEditor } from "./onDidChangeActiveTextEditor";
 
 export function setupLanguageServerHooks(extensionState: ExtensionState) {
@@ -71,6 +72,10 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
   );
 
   setupIndexingHooks(extensionState, client);
+
+  setupValidationJobHooks(extensionState, client)
+    .then((disposable) => extensionState.listenerDisposables.push(disposable))
+    .catch((err) => extensionState.logger.error(err));
 
   const telemetryChangeDisposable = env.onDidChangeTelemetryEnabled(
     (enabled: boolean) => {

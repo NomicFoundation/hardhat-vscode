@@ -37,6 +37,7 @@ export function setupExtensionState(
     client: null,
     listenerDisposables: [],
     currentIndexingJobs: [],
+    projectsValidationStatus: {},
     hardhatTelemetryEnabled:
       workspace.getConfiguration("hardhat").get<boolean>("telemetry") ?? false,
     globalTelemetryEnabled: env.isTelemetryEnabled,
