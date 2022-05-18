@@ -42,7 +42,7 @@ export class SentryServerTelemetry implements Telemetry {
 
     Sentry.init({
       dsn: this.dsn,
-      tracesSampleRate: serverState.env === "development" ? 1 : 0.01,
+      tracesSampleRate: serverState.env === "development" ? 1 : 0.001,
       release:
         extensionName !== undefined && extensionVersion !== undefined
           ? `${extensionName}@${extensionVersion}`
