@@ -1,19 +1,19 @@
 {
-    "extends": "@istanbuljs/nyc-config-typescript",
-    "check-coverage": true,
-    "branches": 24,
-    "lines": 37,
-    "functions": 30,
-    "statements": 37,
-    "all": true,
-    "include": [
-        "src/**/*.ts"
-    ],
-    "reporter": [
-        "html",
-        "lcov",
-        "text",
-        "text-summary"
-    ],
-    "report-dir": "coverage"
+  "extends": "@istanbuljs/nyc-config-typescript",
+  "check-coverage": true,
+  "statements": 71,
+  "branches": 55,
+  "functions": 66,
+  "lines": 71,
+  "all": true,
+  "include": [
+    "src/**/*.ts"
+  ],
+  "reporter": [
+    "html",
+    "lcov",
+    "text",
+    "text-summary"
+  ],
+  "report-dir": "coverage"
 }

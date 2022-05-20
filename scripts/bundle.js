@@ -54,7 +54,7 @@ async function main() {
     entryPoints: {
       "./client/out/extension": "./client/src/extension.ts",
       "./server/out/index": "./server/src/index.ts",
-      "./server/out/helper": "./server/src/services/validation/helper.ts",
+      "./server/out/worker": "./server/src/services/validation/worker.ts",
     },
     bundle: true,
     minifyWhitespace: true,

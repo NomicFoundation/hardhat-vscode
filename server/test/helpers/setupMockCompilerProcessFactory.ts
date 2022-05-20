@@ -20,6 +20,7 @@ export function setupMockCompilerProcessFactory(
           status: "VALIDATION_FAIL",
           jobId: 1,
           projectBasePath: project.basePath,
+          version: "9.9.9",
           errors,
         };
 

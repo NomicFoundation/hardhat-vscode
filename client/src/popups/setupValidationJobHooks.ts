@@ -27,10 +27,6 @@ export function setupValidationJobHooks(
     return client.onNotification(
       "custom/validation-job-status",
       (notification: ValidationJobStatusNotification) => {
-        extensionState.logger.log(
-          `Client job status: ${JSON.stringify(notification, null, 2)}`
-        );
-
         updateValidationStatusItem(extensionState, notification);
       }
     );
