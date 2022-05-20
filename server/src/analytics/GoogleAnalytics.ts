@@ -1,3 +1,4 @@
+/* istanbul ignore file: external system */
 import * as os from "os";
 import got from "got";
 import * as qs from "qs";

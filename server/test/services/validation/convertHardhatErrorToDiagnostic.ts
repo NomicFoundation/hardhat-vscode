@@ -197,7 +197,70 @@ import "1123453";`;
             number: 999,
             title: "unknown - some unknown error",
             description: unknownErrorDescription,
+            message: "an unknown error",
+            shouldBeReported: false,
           },
+        });
+      });
+
+      it("should not convert to a diagnostic", () => {
+        assert.deepStrictEqual(diagnostic, null);
+      });
+    });
+
+    describe("badly formed hardhat error", () => {
+      const fileText = `
+//SPDX-License-Identifier: Unlicense`;
+
+      let diagnostic: Diagnostic | null;
+
+      beforeEach(() => {
+        const document = TextDocument.create(
+          exampleUri,
+          "solidity",
+          0,
+          fileText
+        );
+
+        diagnostic = convertHardhatErrorToDiagnostic(document, {
+          name: "HardhatError",
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          errorDescriptor: undefined as any,
+        });
+      });
+
+      it("should not convert to a diagnostic", () => {
+        assert.deepStrictEqual(diagnostic, null);
+      });
+    });
+
+    describe("unmatchable error to file text", () => {
+      const fileText = `
+//SPDX-License-Identifier: Unlicense
+pragma solidity ^0.8.0;
+import "existant.sol";`;
+
+      let diagnostic: Diagnostic | null;
+
+      beforeEach(() => {
+        const document = TextDocument.create(
+          exampleUri,
+          "solidity",
+          0,
+          fileText
+        );
+
+        diagnostic = convertHardhatErrorToDiagnostic(document, {
+          name: "HardhatError",
+          errorDescriptor: {
+            number: 404,
+            message: "File {x} not found",
+            title: "Imported file not found",
+            description: `One of your source files imported a nonexistent file.
+      Please double check your imports.`,
+            shouldBeReported: false,
+          },
+          messageArguments: { imported: "nonexistant.sol" },
         });
       });
 

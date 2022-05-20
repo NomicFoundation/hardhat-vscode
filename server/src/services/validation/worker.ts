@@ -1,4 +1,5 @@
-import type { ValidationCompleteMessage, WorkerState } from "../../types";
+/* istanbul ignore file: setup point for validation process */
+import type { ValidationCompleteMessage } from "../../types";
 import { dispatch } from "./worker/dispatch";
 import { initialiseWorkerState } from "./worker/initialiseWorkerState";
 import { setupWorkerLogger } from "./worker/setupWorkerLogger";
@@ -6,18 +7,15 @@ import { setupWorkerLogger } from "./worker/setupWorkerLogger";
 const initialiseWorker = async () => {
   const workerLogger = setupWorkerLogger();
 
-  workerLogger.log("[WORKER] Starting Hardhat Worker");
+  workerLogger.trace("[WORKER] Starting Hardhat Worker");
   const workserState = await initialiseWorkerState(send, workerLogger);
 
-  workerLogger.log("[WORKER] Waiting for messages ...");
+  workerLogger.trace("[WORKER] Waiting for messages ...");
 
   process.on("message", dispatch(workserState));
 };
 
-function send(
-  { logger }: WorkerState,
-  message: ValidationCompleteMessage
-): Promise<void> {
+function send(message: ValidationCompleteMessage): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     if (!process.send) {
       return;
@@ -28,7 +26,6 @@ function send(
         return reject(err);
       }
 
-      logger.log("[WORKER] Job Complete");
       resolve();
     });
   });

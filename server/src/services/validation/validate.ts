@@ -1,11 +1,14 @@
 import { Diagnostic, TextDocumentChangeEvent } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { isHardhatProject } from "@analyzer/HardhatProject";
+import { deserializeError } from "serialize-error";
 import { decodeUriAndRemoveFilePrefix } from "../../utils/index";
 import {
-  HardhatPreprocessingError,
-  JobCreationError,
+  CancelledValidation,
+  HardhatThrownError,
+  JobCompletionError,
   ServerState,
+  UnknownError,
   ValidationCompleteMessage,
   ValidationFail,
   ValidationJobFailureNotification,
@@ -20,58 +23,67 @@ import { convertHardhatErrorToDiagnostic } from "./convertHardhatErrorToDiagnost
 export async function validate(
   serverState: ServerState,
   change: TextDocumentChangeEvent<TextDocument>
-) {
-  const internalUri = decodeUriAndRemoveFilePrefix(change.document.uri);
+): Promise<boolean | null> {
+  return serverState.telemetry.trackTiming("validation", async () => {
+    const internalUri = decodeUriAndRemoveFilePrefix(change.document.uri);
 
-  const solFileEntry = serverState.solFileIndex[internalUri];
+    const solFileEntry = serverState.solFileIndex[internalUri];
 
-  if (solFileEntry === undefined) {
-    serverState.logger.error(
-      new Error(
-        `Could not send to valiation process, uri is not indexed: ${internalUri}`
-      )
+    if (solFileEntry === undefined) {
+      serverState.logger.error(
+        new Error(
+          `Could not send to valiation process, uri is not indexed: ${internalUri}`
+        )
+      );
+
+      return { status: "failed_precondition", result: false };
+    }
+
+    if (!isHardhatProject(solFileEntry.project)) {
+      serverState.logger.trace(
+        `No project associated with file, change not propagated to validation process: ${change.document.uri}`
+      );
+
+      return { status: "failed_precondition", result: false };
+    }
+
+    const workerProcess: WorkerProcess | undefined =
+      serverState.workerProcesses[solFileEntry.project.basePath];
+
+    if (workerProcess === undefined) {
+      serverState.logger.error(
+        new Error(
+          `No worker process for project: ${solFileEntry.project.basePath}`
+        )
+      );
+
+      return { status: "failed_precondition", result: false };
+    }
+
+    const openDocuments = getOpenDocumentsInProject(
+      serverState,
+      solFileEntry.project
     );
 
-    return;
-  }
+    const documentText = change.document.getText();
 
-  if (!isHardhatProject(solFileEntry.project)) {
-    serverState.logger.trace(
-      `No project associated with file, change not propagated to validation process: ${change.document.uri}`
-    );
+    const completeMessage = await workerProcess.validate({
+      uri: internalUri,
+      documentText,
+      projectBasePath: solFileEntry.project.basePath,
+      openDocuments: openDocuments.map((openDoc) => ({
+        uri: decodeUriAndRemoveFilePrefix(openDoc.uri),
+        documentText: openDoc.getText(),
+      })),
+    });
 
-    return;
-  }
+    sendResults(serverState, change, completeMessage);
 
-  const workerProcess: WorkerProcess | undefined =
-    serverState.workerProcesses[solFileEntry.project.basePath];
-
-  if (workerProcess === undefined) {
-    serverState.logger.error(
-      `No worker process for project: ${solFileEntry.project.basePath}`
-    );
-
-    return;
-  }
-
-  const openDocuments = getOpenDocumentsInProject(
-    serverState,
-    solFileEntry.project
-  );
-
-  const documentText = change.document.getText();
-
-  const completeMessage = await workerProcess.validate({
-    uri: internalUri,
-    documentText,
-    projectBasePath: solFileEntry.project.basePath,
-    openDocuments: openDocuments.map((openDoc) => ({
-      uri: decodeUriAndRemoveFilePrefix(openDoc.uri),
-      documentText: openDoc.getText(),
-    })),
+    return {
+      status: "ok",
+      result: completeMessage.status === "VALIDATION_PASS",
+    };
   });
-
-  sendResults(serverState, change, completeMessage);
 }
 
 function sendResults(
@@ -81,57 +93,110 @@ function sendResults(
 ) {
   switch (completeMessage.status) {
     case "HARDHAT_ERROR":
-      return hardhatPreprocessFail(serverState, change, completeMessage);
+      return hardhatThrownFail(serverState, change, completeMessage);
+    case "JOB_COMPLETION_ERROR":
+      return jobCompletionErrorFail(serverState, change, completeMessage);
+    case "UNKNOWN_ERROR":
+      return unknownErrorFail(serverState, change, completeMessage);
     case "VALIDATION_FAIL":
       return validationFail(serverState, change, completeMessage);
     case "VALIDATION_PASS":
       return validationPass(serverState, change, completeMessage);
+    case "CANCELLED":
+      return cancelled(serverState, change, completeMessage);
     default:
       return assertUnknownMessageStatus(completeMessage);
   }
 }
 
-function hardhatPreprocessFail(
+function hardhatThrownFail(
   serverState: ServerState,
   { document }: TextDocumentChangeEvent<TextDocument>,
-  { hardhatErrors, projectBasePath }: HardhatPreprocessingError
+  { projectBasePath, hardhatError }: HardhatThrownError
 ) {
-  const hardhatErrorDiagnostics = hardhatErrors
-    .filter((hh) => hh.name === "HardhatError")
-    .map((hh) => convertHardhatErrorToDiagnostic(document, hh))
-    .filter((diag): diag is Diagnostic => diag !== null);
+  const diagnostic = convertHardhatErrorToDiagnostic(document, hardhatError);
 
-  serverState.connection.sendDiagnostics({
-    uri: document.uri,
-    diagnostics: hardhatErrorDiagnostics,
-  });
+  if (diagnostic === null) {
+    // note the error
+    serverState.logger.error(hardhatError);
 
-  const compilationJobCreationErrors = hardhatErrors
-    .filter(
-      (hh): hh is JobCreationError => hh.name === "HardhatJobCreationError"
-    )
-    .sort((left, right) =>
-      left.reason > right.reason ? 1 : right.reason > left.reason ? -1 : 0
+    // clear any diagnostics on the page
+    serverState.connection.sendDiagnostics({
+      uri: document.uri,
+      diagnostics: [],
+    });
+
+    const displayText = hardhatError.errorDescriptor.title;
+
+    const validationJobStatus: ValidationJobStatusNotification = {
+      validationRun: false,
+      projectBasePath,
+      reason: "non-import line hardhat error",
+      displayText,
+    };
+
+    serverState.connection.sendNotification(
+      "custom/validation-job-status",
+      validationJobStatus
     );
+  } else {
+    serverState.connection.sendDiagnostics({
+      uri: document.uri,
+      diagnostics: [diagnostic],
+    });
 
-  const firstCompilationJobError = compilationJobCreationErrors[0];
+    const validationJobStatus: ValidationJobStatusNotification = {
+      validationRun: false,
+      projectBasePath,
+      reason: "import line hardhat error",
+      displayText: "import error",
+    };
 
-  sendValidationProcessProblem(
-    serverState,
-    projectBasePath,
-    firstCompilationJobError
-  );
+    serverState.connection.sendNotification(
+      "custom/validation-job-status",
+      validationJobStatus
+    );
+  }
 }
 
-function sendValidationProcessProblem(
+function jobCompletionErrorFail(
   serverState: ServerState,
-  projectBasePath: string,
-  error: JobCreationError
+  { document }: TextDocumentChangeEvent<TextDocument>,
+  jobCompletionError: JobCompletionError
 ) {
-  const data: ValidationJobStatusNotification = jobStatusFrom(
+  serverState.connection.sendDiagnostics({
+    uri: document.uri,
+    diagnostics: [],
+  });
+
+  const data: ValidationJobStatusNotification =
+    jobStatusFrom(jobCompletionError);
+
+  serverState.connection.sendNotification("custom/validation-job-status", data);
+}
+
+function unknownErrorFail(
+  serverState: ServerState,
+  { document }: TextDocumentChangeEvent<TextDocument>,
+  { error, projectBasePath }: UnknownError
+) {
+  // clear any current diagnostics
+  serverState.connection.sendDiagnostics({
+    uri: document.uri,
+    diagnostics: [],
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const displayText = (error as any)?.message ?? "internal error";
+
+  serverState.logger.error(deserializeError(error));
+
+  const data: ValidationJobStatusNotification = {
+    validationRun: false,
     projectBasePath,
-    error
-  );
+    reason: "unknown",
+    displayText,
+  };
 
   serverState.connection.sendNotification("custom/validation-job-status", data);
 }
@@ -150,61 +215,60 @@ function sendValidationProcessSuccess(
   serverState.connection.sendNotification("custom/validation-job-status", data);
 }
 
-function jobStatusFrom(
-  projectBasePath: string,
-  error: JobCreationError
-): ValidationJobFailureNotification {
-  switch (error.reason) {
+function jobStatusFrom({
+  projectBasePath,
+  reason,
+}: JobCompletionError): ValidationJobFailureNotification {
+  switch (reason) {
     case "directly-imports-incompatible-file":
       return {
         validationRun: false,
         projectBasePath,
-        reason: error.reason,
+        reason,
         displayText: "directly imports incompatible file",
       };
     case "incompatible-overriden-solc-version":
       return {
         validationRun: false,
         projectBasePath,
-        reason: error.reason,
+        reason,
         displayText: "incompatible overriden solc version",
       };
     case "indirectly-imports-incompatible-file":
       return {
         validationRun: false,
         projectBasePath,
-        reason: error.reason,
+        reason,
         displayText: "indirectly imports incompatible file",
       };
     case "no-compatible-solc-version-found":
       return {
         validationRun: false,
         projectBasePath,
-        reason: error.reason,
+        reason,
         displayText: "no compatibile solc version found",
       };
     default:
       return {
         validationRun: false,
         projectBasePath,
-        reason: error.reason,
-        displayText: "Unknown failure code",
+        reason,
+        displayText: "unknown failure reason",
       };
   }
 }
 
 function validationPass(
   serverState: ServerState,
-  change: TextDocumentChangeEvent<TextDocument>,
+  _change: TextDocumentChangeEvent<TextDocument>,
   message: ValidationPass
 ): void {
-  const document = change.document;
-
-  // TODO: send one for each source in complete message
-  serverState.connection.sendDiagnostics({
-    uri: document.uri,
-    diagnostics: [],
-  });
+  for (const source of message.sources) {
+    serverState.connection.sendDiagnostics({
+      uri: source,
+      diagnostics: [],
+    });
+  }
 
   sendValidationProcessSuccess(
     serverState,
@@ -233,7 +297,19 @@ function validationFail(
     }
   }
 
-  sendValidationProcessSuccess(serverState, message.projectBasePath, "0.0.0");
+  sendValidationProcessSuccess(
+    serverState,
+    message.projectBasePath,
+    message.version
+  );
+}
+
+function cancelled(
+  serverState: ServerState,
+  _change: TextDocumentChangeEvent<TextDocument>,
+  message: CancelledValidation
+): void {
+  serverState.logger.trace(`Cancelled validation job ${message.jobId}`);
 }
 
 function assertUnknownMessageStatus(completeMessage: never) {
