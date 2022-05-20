@@ -1,3 +1,4 @@
+/* istanbul ignore file: setup file */
 import "module-alias/register";
 import { createConnection, ProposedFeatures } from "vscode-languageserver/node";
 import { ConnectionLogger } from "@utils/Logger";

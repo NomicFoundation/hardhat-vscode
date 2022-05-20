@@ -1,3 +1,4 @@
+/* istanbul ignore file: top level node loading */
 import path from "path";
 import type {
   ValidationCompleteMessage,
@@ -6,10 +7,7 @@ import type {
 } from "../../../types";
 
 export async function initialiseWorkerState(
-  send: (
-    workerState: WorkerState,
-    message: ValidationCompleteMessage
-  ) => Promise<void>,
+  send: (message: ValidationCompleteMessage) => Promise<void>,
   logger: WorkerLogger
 ): Promise<WorkerState> {
   let hre;

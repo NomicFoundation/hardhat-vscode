@@ -1,3 +1,4 @@
+/* istanbul ignore file: external system */
 import * as Sentry from "@sentry/node";
 import type { Transaction } from "@sentry/types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

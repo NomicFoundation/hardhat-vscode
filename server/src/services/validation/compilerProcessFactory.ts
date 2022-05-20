@@ -1,3 +1,4 @@
+/* istanbul ignore file: top level dependency injection */
 import { HardhatProject } from "@analyzer/HardhatProject";
 import { Logger } from "@utils/Logger";
 import { WorkerProcess } from "../../types";

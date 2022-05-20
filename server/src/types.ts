@@ -72,15 +72,48 @@ export interface ServerState {
 export interface WorkerLogger {
   log: (text: string) => void;
   error: (text: string) => void;
+  trace: (text: string) => void;
+}
+
+export interface BuildContext {
+  sourcePaths?: string[];
+  sourceNames?: string[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  solidityFilesCache?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  dependencyGraph?: any;
+  file?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  compilationJob?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  input?: any;
 }
 
 export interface BuildJob {
-  status: "processing";
+  status: "processing" | "cancelled";
+  context: BuildContext;
+  startTime: Date;
+
   uri: string;
+  jobId: number;
+  projectBasePath: string;
+  documentText: string;
+  openDocuments: Array<{
+    uri: string;
+    documentText: string;
+  }>;
+  added: Date;
 }
 
 export interface BuildDetails {
   uri: string;
+  jobId: number;
+  projectBasePath: string;
+  documentText: string;
+  openDocuments: Array<{
+    uri: string;
+    documentText: string;
+  }>;
   added: Date;
 }
 
@@ -114,16 +147,39 @@ export interface WorkerState {
     // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
     TASK_COMPILE_SOLIDITY_COMPILE: any;
   };
-  send: (
-    { logger }: WorkerState,
-    message: ValidationCompleteMessage
-  ) => Promise<void>;
+  send: (message: ValidationCompleteMessage) => Promise<void>;
   logger: WorkerLogger;
 }
 
-export interface ExitCommand {
-  type: "EXIT";
+export type ImportLineErrorCode = 404 | 405 | 406 | 407 | 408 | 409;
+
+export interface HardhatImportLineError {
+  name: "HardhatError";
+  errorDescriptor: {
+    number: number;
+    message: string;
+    title: string;
+    description: string;
+    shouldBeReported: boolean;
+  };
+  messageArguments: {
+    imported: string;
+  };
 }
+
+export interface UnknownHardhatError {
+  name: "HardhatError";
+  errorDescriptor: {
+    number: number;
+    message: string;
+    title: string;
+    description: string;
+    shouldBeReported: boolean;
+  };
+  messageArguments?: unknown;
+}
+
+export type HardhatError = UnknownHardhatError | HardhatImportLineError;
 
 export interface ValidateCommand {
   type: "VALIDATE";
@@ -137,44 +193,7 @@ export interface ValidateCommand {
   }>;
 }
 
-export type ImportLineErrorCode = 404 | 405 | 406 | 407 | 408 | 409;
-
-export interface HardhatImportLineError {
-  name: "HardhatError";
-  errorDescriptor: {
-    number: ImportLineErrorCode;
-    title: string;
-    description: string;
-  };
-  messageArguments: {
-    imported: string;
-  };
-}
-
-export interface UnknownHardhatError {
-  name: "HardhatError";
-  errorDescriptor: {
-    number: number;
-    title: string;
-    description: string;
-  };
-}
-
-export interface JobCreationError {
-  name: "HardhatJobCreationError";
-  reason:
-    | "no-compatible-solc-version-found"
-    | "incompatible-overriden-solc-version"
-    | "directly-imports-incompatible-file"
-    | "indirectly-imports-incompatible-file";
-}
-
-export type HardhatError =
-  | UnknownHardhatError
-  | HardhatImportLineError
-  | JobCreationError;
-
-export type HardhatWorkerCommand = ExitCommand | ValidateCommand;
+export type HardhatWorkerCommand = ValidateCommand;
 
 export interface HardhatCompilerError {
   component: "general";
@@ -186,12 +205,28 @@ export interface HardhatCompilerError {
   type: "DeclarationError";
 }
 
-export interface HardhatPreprocessingError {
+export interface HardhatThrownError {
   type: "VALIDATION_COMPLETE";
   status: "HARDHAT_ERROR";
   jobId: number;
   projectBasePath: string;
-  hardhatErrors: HardhatError[];
+  hardhatError: HardhatError;
+}
+
+export interface JobCompletionError {
+  type: "VALIDATION_COMPLETE";
+  status: "JOB_COMPLETION_ERROR";
+  jobId: number;
+  projectBasePath: string;
+  reason: string;
+}
+
+export interface UnknownError {
+  type: "VALIDATION_COMPLETE";
+  status: "UNKNOWN_ERROR";
+  jobId: number;
+  projectBasePath: string;
+  error: unknown;
 }
 
 export interface ValidationFail {
@@ -199,6 +234,7 @@ export interface ValidationFail {
   status: "VALIDATION_FAIL";
   jobId: number;
   projectBasePath: string;
+  version: string;
   errors: HardhatCompilerError[];
 }
 
@@ -211,10 +247,20 @@ export interface ValidationPass {
   sources: string[];
 }
 
+export interface CancelledValidation {
+  type: "VALIDATION_COMPLETE";
+  status: "CANCELLED";
+  jobId: number;
+  projectBasePath: string;
+}
+
 export type ValidationCompleteMessage =
   | ValidationPass
   | ValidationFail
-  | HardhatPreprocessingError;
+  | HardhatThrownError
+  | JobCompletionError
+  | CancelledValidation
+  | UnknownError;
 
 export interface ValidationJobSuccessNotification {
   validationRun: true;

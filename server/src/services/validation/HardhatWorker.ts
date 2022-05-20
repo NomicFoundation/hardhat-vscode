@@ -1,3 +1,4 @@
+/* istanbul ignore file: wrapper around process */
 import * as path from "path";
 import * as childProcess from "child_process";
 import { HardhatProject } from "@analyzer/HardhatProject";
