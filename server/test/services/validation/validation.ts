@@ -1,3 +1,4 @@
+import os from "os";
 import { validate } from "@services/validation/validate";
 import { Logger } from "@utils/Logger";
 import { assert } from "chai";
@@ -461,7 +462,11 @@ describe("Parser", () => {
           jobId: 1,
           version: "0.8.0",
           projectBasePath: "/projects/example",
-          sources: ["/projects/example/contracts/first.sol"],
+          sources: [
+            os.platform() === "win32"
+              ? "c:/projects/example/contracts/first.sol"
+              : "/projects/example/contracts/first.sol",
+          ],
         };
 
         await validateReturningWorkerMessage(workerReturnMessage, {
@@ -475,7 +480,10 @@ describe("Parser", () => {
         assert(sendDiagnostics.called);
         assert.deepStrictEqual(sendDiagnostics.args[0][0], {
           diagnostics: [],
-          uri: "/projects/example/contracts/first.sol",
+          uri:
+            os.platform() === "win32"
+              ? "/c:/projects/example/contracts/first.sol"
+              : "/projects/example/contracts/first.sol",
         });
       });
 

@@ -1,3 +1,4 @@
+import os from "os";
 import { Diagnostic, TextDocumentChangeEvent } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { isHardhatProject } from "@analyzer/HardhatProject";
@@ -264,8 +265,10 @@ function validationPass(
   message: ValidationPass
 ): void {
   for (const source of message.sources) {
+    const uri = os.platform() === "win32" ? `/${source}` : source;
+
     serverState.connection.sendDiagnostics({
-      uri: source,
+      uri,
       diagnostics: [],
     });
   }
