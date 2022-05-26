@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.4.0 - 2022-05-26
+
+### Added
+
+- Reflect changes to hardhat config in validation ([#188](https://github.com/NomicFoundation/hardhat-vscode/pull/188))
+- Show validation preprocessing errors against `solidity` in the status bar ([#148](https://github.com/NomicFoundation/hardhat-vscode/issues/148))
+
+### Changed
+
+- Improve validation speed by reducing number of repeated steps ([#188](https://github.com/NomicFoundation/hardhat-vscode/pull/188))
+
+### Fixed
+
+- Reduce ram spikes from large numbers of validation processes ([#140](https://github.com/NomicFoundation/hardhat-vscode/issues/140))
+- Stop `getUnsavedDocuments` timeouts ([#187](https://github.com/NomicFoundation/hardhat-vscode/issues/187))
+
 ## 0.3.2 - 2022-05-10
 
 ### Fixed
