@@ -17,7 +17,8 @@
     "lint:fix": "yarn prettier --write && yarn lint --fix",
     "eslint": "eslint --max-warnings 0 \"./src/**/*.ts\" \"./test/**/*.ts\"",
     "prettier": "prettier \"*.json\" \"src/**/*.{ts,js,md,json,yml}\" \"test/**/*.{ts,js,md,json,yml}\"",
-    "clean": "rimraf out .nyc_output coverage *.tsbuildinfo"
+    "clean": "rimraf out .nyc_output coverage *.tsbuildinfo",
+    "test:codecov": "cross-env TS_NODE_FILES=true nyc --reporter=lcov mocha && codecov"
   },
   "_moduleAliases": {
     "@compilerDiagnostics": "./out/compilerDiagnostics",
@@ -38,6 +39,7 @@
     "@types/sinon": "10.0.6",
     "@types/uuid": "^8.3.1",
     "chai": "4.3.4",
+    "codecov": "3.8.3",
     "cross-env": "7.0.3",
     "eslint": "^7.23.0",
     "mocha": "9.1.3",
