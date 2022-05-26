@@ -37,6 +37,9 @@ export function switchForPaths(
   paths: string[] = []
 ): string[] {
   return Object.keys(sources)
-    .map((source) => paths.find((p) => p.endsWith(source)))
-    .filter((p): p is string => p !== undefined);
+    .map((source) =>
+      paths.find((p) => p.replaceAll("\\", "/").endsWith(source))
+    )
+    .filter((p): p is string => p !== undefined)
+    .map((path) => path.replaceAll("\\", "/"));
 }

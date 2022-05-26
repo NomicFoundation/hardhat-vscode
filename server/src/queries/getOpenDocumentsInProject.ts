@@ -1,3 +1,4 @@
+import os from "os";
 import { isHardhatProject } from "@analyzer/HardhatProject";
 import {
   ClientTrackingState,
@@ -37,5 +38,10 @@ function lookupDocForSolFileEntry(
   serverState: ServerState,
   solFile: ISolFileEntry
 ): TextDocument | undefined {
-  return serverState.documents.get(`file://${solFile.uri}`);
+  const convertedUri =
+    os.platform() === "win32"
+      ? `file:///${solFile.uri.replace(":", "%3A")}`
+      : `file://${solFile.uri}`;
+
+  return serverState.documents.get(convertedUri);
 }
