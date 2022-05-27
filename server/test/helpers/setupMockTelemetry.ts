@@ -7,14 +7,22 @@ export function setupMockTelemetry(): Telemetry {
     init: sinon.spy(),
     captureException: sinon.spy(),
     trackTiming: async (_taskName: string, action) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (await action(sinon.spy() as any)).result;
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return (await action(sinon.spy() as any)).result;
+      } catch {
+        return null;
+      }
     },
     trackTimingSync: (_taskName, action) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const actionResponse = action(sinon.spy() as any);
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const actionResponse = action(sinon.spy() as any);
 
-      return actionResponse.result;
+        return actionResponse.result;
+      } catch {
+        return null;
+      }
     },
     startTransaction: (): Transaction => {
       return {

@@ -20,6 +20,7 @@ import { setupMockConnection } from "../../helpers/setupMockConnection";
 import { setupMockLanguageServer } from "../../helpers/setupMockLanguageServer";
 import { setupMockLogger } from "../../helpers/setupMockLogger";
 import { waitUntil } from "../../helpers/waitUntil";
+import { setupMockTelemetry } from "../../helpers/setupMockTelemetry";
 
 describe("Parser", () => {
   describe("Validation", function () {
@@ -40,12 +41,6 @@ describe("Parser", () => {
     );
 
     let mockConnection: ReturnType<typeof setupMockConnection>;
-
-    const fakeTelemetry = {
-      trackTiming: async (_name: string, action: () => Promise<void>) => {
-        return action();
-      },
-    };
 
     describe("validation fail - solc warnings/errors from worker", () => {
       describe("pass through", () => {
@@ -902,7 +897,7 @@ describe("Parser", () => {
 
           const serverState = {
             solFileIndex: {},
-            telemetry: fakeTelemetry,
+            telemetry: setupMockTelemetry(),
             logger: mockLogger,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any;
@@ -948,7 +943,7 @@ describe("Parser", () => {
               "/projects/example": undefined,
             },
             logger: mockLogger,
-            telemetry: fakeTelemetry,
+            telemetry: setupMockTelemetry(),
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any;
 
@@ -1023,11 +1018,7 @@ async function validateReturningWorkerMessage(
           "// ignore"
         ),
     },
-    telemetry: {
-      trackTiming: async (_name: string, action: () => Promise<void>) => {
-        return action();
-      },
-    },
+    telemetry: setupMockTelemetry(),
     logger: mockLogger,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any;
