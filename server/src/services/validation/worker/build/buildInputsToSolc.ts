@@ -7,7 +7,6 @@ export interface SolcInput {
   built: true;
   solcVersion: string;
   input: unknown;
-  compilationJob: unknown;
   sourcePaths: string[];
 }
 
@@ -63,7 +62,6 @@ export async function buildInputsToSolc(
     built: true,
     solcVersion,
     input: buildJob.context.input,
-    compilationJob: buildJob.context.compilationJob,
     sourcePaths: buildJob.context.sourcePaths ?? [],
   };
 }

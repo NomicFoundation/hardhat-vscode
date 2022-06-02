@@ -94,7 +94,7 @@ describe("worker", () => {
           workerState.hre = setupMockHre({
             errors: [],
             interleavedActions: {
-              TASK_COMPILE_SOLIDITY_COMPILE: async (options) => {
+              TASK_COMPILE_SOLIDITY_RUN_SOLC: async (options) => {
                 capturedOptions = options;
               },
             },
@@ -399,16 +399,16 @@ describe("worker", () => {
         } = setupPausableFunction();
 
         const {
-          function: solidityCompile,
-          startPromise: solidityCompileStartPromise,
-          finishResolve: resolveSolidityCompileFinished,
+          function: runSolc,
+          startPromise: runSolcStartPromise,
+          finishResolve: runSolcFinished,
         } = setupPausableFunction();
 
         workerState.hre = setupMockHre({
           errors: [],
           interleavedActions: {
             TASK_COMPILE_SOLIDITY_GET_DEPENDENCY_GRAPH: getDependencyGraph,
-            TASK_COMPILE_SOLIDITY_COMPILE: solidityCompile,
+            TASK_COMPILE_SOLIDITY_RUN_SOLC: runSolc,
           },
         });
 
@@ -433,7 +433,7 @@ describe("worker", () => {
         resolveGetDepenencyGraphFinished();
 
         // Pause on `TASK_COMPILE_SOLIDITY_COMPILE`
-        await solidityCompileStartPromise;
+        await runSolcStartPromise;
 
         // Send the third change
         await dispatch(workerState)({
@@ -443,7 +443,7 @@ describe("worker", () => {
         });
 
         // Unpause on `TASK_COMPILE_SOLIDITY_COMPILE`
-        resolveSolidityCompileFinished();
+        runSolcFinished();
 
         // Complete the first change message
         await dispatchPromise;
@@ -672,8 +672,13 @@ describe("worker", () => {
       it("should cancel on `TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT` error", () =>
         assertCancelOnFailureOf("TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT"));
 
-      it("should cancel on `TASK_COMPILE_SOLIDITY_COMPILE` error", () =>
-        assertCancelOnFailureOf("TASK_COMPILE_SOLIDITY_COMPILE"));
+      it("should cancel on `TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD` error", () =>
+        assertCancelOnFailureOf("TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD"));
+
+      it("should cancel on `TASK_COMPILE_SOLIDITY_RUN_SOLCJS` error", () =>
+        assertCancelOnFailureOf("TASK_COMPILE_SOLIDITY_RUN_SOLCJS", {
+          isSolcJs: true,
+        }));
 
       it("should return a cancelled build job if reading the file cache errors", async () => {
         const {
@@ -809,7 +814,10 @@ function setupWorkerState({
         "TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE",
       TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT:
         "TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT",
-      TASK_COMPILE_SOLIDITY_COMPILE: "TASK_COMPILE_SOLIDITY_COMPILE",
+      TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD:
+        "TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD",
+      TASK_COMPILE_SOLIDITY_RUN_SOLCJS: "TASK_COMPILE_SOLIDITY_RUN_SOLCJS",
+      TASK_COMPILE_SOLIDITY_RUN_SOLC: "TASK_COMPILE_SOLIDITY_RUN_SOLC",
     },
     send: sinon.spy(),
     logger: mockLogger,
@@ -824,6 +832,7 @@ function setupMockHre({
   getResolvedFiles,
   interleavedActions,
   compilationJob,
+  isSolcJs = false,
 }: {
   errors: unknown[];
   throwOnDepGraph?: () => void;
@@ -837,12 +846,17 @@ function setupMockHre({
     // eslint-disable-next-line @typescript-eslint/naming-convention
     TASK_COMPILE_SOLIDITY_GET_DEPENDENCY_GRAPH?: () => Promise<void>;
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    TASK_COMPILE_SOLIDITY_COMPILE?: (options: unknown) => Promise<void>;
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE?: () => Promise<void>;
     // eslint-disable-next-line @typescript-eslint/naming-convention
     TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT?: () => Promise<void>;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD?: () => Promise<void>;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_RUN_SOLCJS?: (options: unknown) => Promise<void>;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_RUN_SOLC?: (options: unknown) => Promise<void>;
   };
+  isSolcJs?: boolean;
 }) {
   const compilationFiles: Array<{
     absolutePath: string;
@@ -963,27 +977,63 @@ function setupMockHre({
         };
       }
 
-      if (param === "TASK_COMPILE_SOLIDITY_COMPILE") {
-        if (interleavedActions?.TASK_COMPILE_SOLIDITY_COMPILE !== undefined) {
-          await interleavedActions?.TASK_COMPILE_SOLIDITY_COMPILE(
+      if (param === "TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD") {
+        if (
+          interleavedActions?.TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD !== undefined
+        ) {
+          await interleavedActions?.TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD();
+        }
+
+        return {
+          compilerPath:
+            "/projects/example/node_modules/hardhat/compilers/compiler1",
+          isSolcJs,
+        };
+      }
+
+      if (param === "TASK_COMPILE_SOLIDITY_RUN_SOLCJS") {
+        if (
+          interleavedActions?.TASK_COMPILE_SOLIDITY_RUN_SOLCJS !== undefined
+        ) {
+          await interleavedActions?.TASK_COMPILE_SOLIDITY_RUN_SOLCJS(
             passedOptions
           );
         }
 
         return {
-          output: {
-            contracts: {
-              "": {
-                Auction: null,
-                AuctionBase: null,
-              },
+          contracts: {
+            "": {
+              Auction: null,
+              AuctionBase: null,
             },
-            sources: {
-              "contracts/first.sol": { ast: {}, id: 0 },
-              "contracts/second.sol": { ast: {}, id: 0 },
-            },
-            errors,
           },
+          sources: {
+            "contracts/first.sol": { ast: {}, id: 0 },
+            "contracts/second.sol": { ast: {}, id: 0 },
+          },
+          errors,
+        };
+      }
+
+      if (param === "TASK_COMPILE_SOLIDITY_RUN_SOLC") {
+        if (interleavedActions?.TASK_COMPILE_SOLIDITY_RUN_SOLC !== undefined) {
+          await interleavedActions?.TASK_COMPILE_SOLIDITY_RUN_SOLC(
+            passedOptions
+          );
+        }
+
+        return {
+          contracts: {
+            "": {
+              Auction: null,
+              AuctionBase: null,
+            },
+          },
+          sources: {
+            "contracts/first.sol": { ast: {}, id: 0 },
+            "contracts/second.sol": { ast: {}, id: 0 },
+          },
+          errors,
         };
       }
 
@@ -1029,7 +1079,10 @@ function setupPausableFunction() {
   };
 }
 
-async function assertCancelOnFailureOf(step: string) {
+async function assertCancelOnFailureOf(
+  step: string,
+  options?: { isSolcJs: boolean }
+) {
   const exampleValidation: ValidateCommand = {
     type: "VALIDATE",
     jobId: 1,
@@ -1056,6 +1109,7 @@ async function assertCancelOnFailureOf(step: string) {
     interleavedActions: {
       [step]: startEndFunc,
     },
+    isSolcJs: options?.isSolcJs !== undefined ? options?.isSolcJs : false,
   });
 
   // Act - send first change

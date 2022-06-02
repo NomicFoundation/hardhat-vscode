@@ -134,18 +134,22 @@ export interface WorkerState {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   SolidityFilesCache: any;
   tasks: {
-    // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
-    TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS: any;
-    // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
-    TASK_COMPILE_SOLIDITY_GET_SOURCE_NAMES: any;
-    // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
-    TASK_COMPILE_SOLIDITY_GET_DEPENDENCY_GRAPH: any;
-    // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
-    TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE: any;
-    // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
-    TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT: any;
-    // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
-    TASK_COMPILE_SOLIDITY_COMPILE: any;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS: string;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_GET_SOURCE_NAMES: string;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_GET_DEPENDENCY_GRAPH: string;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE: string;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT: string;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD: string;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_RUN_SOLCJS: string;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_RUN_SOLC: string;
   };
   send: (message: ValidationCompleteMessage) => Promise<void>;
   logger: WorkerLogger;
