@@ -65,6 +65,7 @@ export async function initialiseWorkerState(
       TASK_COMPILE_SOLIDITY_RUN_SOLCJS,
       TASK_COMPILE_SOLIDITY_RUN_SOLC,
     },
+    compilerMetadataCache: {},
     send,
     logger,
   };

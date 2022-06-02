@@ -193,20 +193,53 @@ async function getSolcInput(
   return null;
 }
 
+/**
+ * The solc build subtask, this downloads the appropriate compiler
+ * for the given solc version, then checks the hash of the solc binary.
+ * As these checks are expensive, we cache in the workerState whether
+ * the download and check has already been done
+ * @param workerState the state shared between build jobs
+ * @param buildJob the container for the context of the build job
+ * @param solcVersion the solc compiler to download
+ * @returns a promise that the context has been populated
+ *  with the compiler path details
+ */
 async function getSolcBuild(
-  { hre, tasks: { TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD } }: WorkerState,
+  {
+    hre,
+    tasks: { TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD },
+    compilerMetadataCache,
+  }: WorkerState,
   { context }: BuildJob,
   solcVersion: string
 ) {
-  const solcBuild: SolcBuild = await hre.run(
-    TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD,
-    {
+  try {
+    const cachedBuildVersionPromise = compilerMetadataCache[solcVersion];
+
+    if (cachedBuildVersionPromise !== undefined) {
+      const cachedSolcBuild = await cachedBuildVersionPromise;
+
+      context.solcBuild = cachedSolcBuild;
+
+      return;
+    }
+
+    const solcBuildPromise = hre.run(TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD, {
       quiet: true,
       solcVersion,
-    }
-  );
+    });
 
-  context.solcBuild = solcBuild;
+    compilerMetadataCache[solcVersion] = solcBuildPromise;
+
+    const solcBuild: SolcBuild = await solcBuildPromise;
+
+    context.solcBuild = solcBuild;
+  } catch (err) {
+    // remove the cached promise on build task failure
+    delete compilerMetadataCache[solcVersion];
+
+    throw err;
+  }
 }
 
 function cancel({ jobId, projectBasePath }: BuildJob): {

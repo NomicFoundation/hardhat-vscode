@@ -4,6 +4,7 @@ import { assert } from "chai";
 import sinon from "sinon";
 import { HardhatError as FrameworkHardhatError } from "hardhat/internal/core/errors";
 import { ErrorDescriptor } from "hardhat/internal/core/errors-list";
+import type { SolcBuild } from "hardhat/types";
 import { ValidateCommand, WorkerState } from "../../../src/types";
 
 describe("worker", () => {
@@ -40,15 +41,20 @@ describe("worker", () => {
 
     describe("completes", () => {
       describe("without solc warnings/errors", () => {
-        it("should return 0 warnings/errors for the file", async () => {
+        let workerState: WorkerState;
+        let send: any;
+
+        before(async () => {
           const errors: unknown[] = [];
 
-          const workerState = setupWorkerState({ errors });
+          workerState = setupWorkerState({ errors });
 
           await dispatch(workerState)(exampleValidation);
 
-          const send = workerState.send as any;
+          send = workerState.send;
+        });
 
+        it("should return 0 warnings/errors for the file", async () => {
           assert(send.called);
           assert.deepStrictEqual(send.args[0][0], {
             type: "VALIDATION_COMPLETE",
@@ -60,6 +66,22 @@ describe("worker", () => {
               "/projects/example/contracts/first.sol",
               "/projects/example/contracts/second.sol",
             ],
+          });
+        });
+
+        it("should populate the compiler metadata cache", async () => {
+          assert("0.8.0" in workerState.compilerMetadataCache);
+
+          const buildInfoPromise = await workerState.compilerMetadataCache[
+            "0.8.0"
+          ];
+
+          assert.deepStrictEqual(buildInfoPromise, {
+            compilerPath:
+              "/projects/example/node_modules/hardhat/compilers/compiler1",
+            isSolcJs: false,
+            version: "0.8.0",
+            longVersion: "0.8.0",
           });
         });
       });
@@ -115,6 +137,43 @@ describe("worker", () => {
               content: "// expected",
             },
           });
+        });
+      });
+
+      describe("with cached compiler metadata", () => {
+        it("should not call `TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD`", async () => {
+          const workerState = setupWorkerState({ errors: [] });
+
+          workerState.compilerMetadataCache = {
+            "0.8.0": new Promise((resolve) => {
+              const solcBuild: SolcBuild = {
+                version: "0.8.0",
+                longVersion: "0.8.0",
+                compilerPath:
+                  "/projects/example/node_modules/hardhat/compilers/compiler1",
+                isSolcJs: false,
+              };
+              resolve(solcBuild);
+            }),
+          };
+
+          let solcBuildCalled = false;
+
+          workerState.hre = setupMockHre({
+            errors: [],
+            interleavedActions: {
+              TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD: async () => {
+                solcBuildCalled = true;
+              },
+            },
+          });
+
+          await dispatch(workerState)(exampleValidation);
+
+          assert(
+            !solcBuildCalled,
+            "Solc build should not have been called, the cache should have been used"
+          );
         });
       });
     });
@@ -239,6 +298,51 @@ describe("worker", () => {
             await dispatch(workerState)(exampleValidation);
 
             assert((workerState.logger.error as any).calledTwice);
+          });
+        });
+
+        describe("build (compiler download) error", () => {
+          let workerState: WorkerState;
+
+          before(async () => {
+            workerState = setupWorkerState({ errors: [] });
+
+            workerState.hre = setupMockHre({
+              errors: [],
+              interleavedActions: {
+                TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD: async () => {
+                  throw new Error("Could not download compiler");
+                },
+              },
+            });
+
+            await dispatch(workerState)(exampleValidation);
+          });
+
+          it("should send an error", async () => {
+            const send = workerState.send as any;
+
+            assert(send.called);
+
+            const { error, ...sentMessage } = send.args[0][0];
+
+            assert.deepStrictEqual(sentMessage, {
+              type: "VALIDATION_COMPLETE",
+              status: "UNKNOWN_ERROR",
+              jobId: 1,
+              projectBasePath: "/projects/example",
+            });
+
+            assert.deepStrictEqual(
+              error.message,
+              "Could not download compiler"
+            );
+
+            assert.deepStrictEqual(error.name, "Error");
+          });
+
+          it("should clear the compiler metadata cache", () => {
+            assert(workerState.compilerMetadataCache["0.8.0"] === undefined);
           });
         });
       });
@@ -819,6 +923,7 @@ function setupWorkerState({
       TASK_COMPILE_SOLIDITY_RUN_SOLCJS: "TASK_COMPILE_SOLIDITY_RUN_SOLCJS",
       TASK_COMPILE_SOLIDITY_RUN_SOLC: "TASK_COMPILE_SOLIDITY_RUN_SOLC",
     },
+    compilerMetadataCache: {},
     send: sinon.spy(),
     logger: mockLogger,
   };
@@ -985,6 +1090,8 @@ function setupMockHre({
         }
 
         return {
+          version: "0.8.0",
+          longVersion: "0.8.0",
           compilerPath:
             "/projects/example/node_modules/hardhat/compilers/compiler1",
           isSolcJs,

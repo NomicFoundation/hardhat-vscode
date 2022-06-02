@@ -6,6 +6,7 @@ import type { Logger } from "@utils/Logger";
 import type { WorkspaceFolder } from "vscode-languageserver-protocol";
 import type { SolFileIndexMap, SolProjectMap, Diagnostic } from "@common/types";
 import type { HardhatProject } from "@analyzer/HardhatProject";
+import type { SolcBuild } from "hardhat/types";
 import type { Telemetry } from "./telemetry/types";
 
 export type CancelResolver = (diagnostics: {
@@ -154,6 +155,7 @@ export interface WorkerState {
     TASK_COMPILE_SOLIDITY_RUN_SOLC: string;
   };
   send: (message: ValidationCompleteMessage) => Promise<void>;
+  compilerMetadataCache: { [key: string]: Promise<SolcBuild> };
   logger: WorkerLogger;
 }
 
