@@ -1,3 +1,4 @@
+import type { SolcBuild } from "hardhat/types";
 import {
   WorkerState,
   BuildJob,
@@ -7,6 +8,7 @@ export interface SolcInput {
   built: true;
   solcVersion: string;
   input: unknown;
+  solcBuild: SolcBuild;
   sourcePaths: string[];
 }
 
@@ -58,10 +60,17 @@ export async function buildInputsToSolc(
 
   const solcVersion = buildJob.context.compilationJob.getSolcConfig().version;
 
+  await getSolcBuild(workerState, buildJob, solcVersion);
+
+  if (isJobCancelled(buildJob)) {
+    return cancel(buildJob);
+  }
+
   return {
     built: true,
     solcVersion,
     input: buildJob.context.input,
+    solcBuild: buildJob.context.solcBuild,
     sourcePaths: buildJob.context.sourcePaths ?? [],
   };
 }
@@ -182,6 +191,22 @@ async function getSolcInput(
   );
 
   return null;
+}
+
+async function getSolcBuild(
+  { hre, tasks: { TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD } }: WorkerState,
+  { context }: BuildJob,
+  solcVersion: string
+) {
+  const solcBuild: SolcBuild = await hre.run(
+    TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD,
+    {
+      quiet: true,
+      solcVersion,
+    }
+  );
+
+  context.solcBuild = solcBuild;
 }
 
 function cancel({ jobId, projectBasePath }: BuildJob): {

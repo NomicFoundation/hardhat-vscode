@@ -1,12 +1,12 @@
-import { Connection } from "vscode-languageserver";
-import * as childProcess from "child_process";
-import { TextDocuments } from "vscode-languageserver/node";
-import { TextDocument } from "vscode-languageserver-textdocument";
-import { Logger } from "@utils/Logger";
-import { WorkspaceFolder } from "vscode-languageserver-protocol";
-import { SolFileIndexMap, SolProjectMap, Diagnostic } from "@common/types";
-import { HardhatProject } from "@analyzer/HardhatProject";
-import { Telemetry } from "./telemetry/types";
+import type { Connection } from "vscode-languageserver";
+import type { Serializable } from "child_process";
+import type { TextDocuments } from "vscode-languageserver/node";
+import type { TextDocument } from "vscode-languageserver-textdocument";
+import type { Logger } from "@utils/Logger";
+import type { WorkspaceFolder } from "vscode-languageserver-protocol";
+import type { SolFileIndexMap, SolProjectMap, Diagnostic } from "@common/types";
+import type { HardhatProject } from "@analyzer/HardhatProject";
+import type { Telemetry } from "./telemetry/types";
 
 export type CancelResolver = (diagnostics: {
   [key: string]: Diagnostic[];
@@ -19,7 +19,7 @@ export interface CompilerProcess {
     solidityCompilePromise: Promise<unknown>;
   };
 
-  send: (message: childProcess.Serializable) => void;
+  send: (message: Serializable) => void;
   kill: () => void;
 }
 
@@ -87,6 +87,8 @@ export interface BuildContext {
   compilationJob?: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   input?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  solcBuild?: any;
 }
 
 export interface BuildJob {

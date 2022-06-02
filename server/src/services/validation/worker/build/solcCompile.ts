@@ -15,22 +15,10 @@ export interface SolcResult {
 export async function solcCompile(
   {
     hre,
-    tasks: {
-      TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD,
-      TASK_COMPILE_SOLIDITY_RUN_SOLCJS,
-      TASK_COMPILE_SOLIDITY_RUN_SOLC,
-    },
+    tasks: { TASK_COMPILE_SOLIDITY_RUN_SOLCJS, TASK_COMPILE_SOLIDITY_RUN_SOLC },
   }: WorkerState,
-  { solcVersion, input }: SolcInput
+  { input, solcBuild }: SolcInput
 ): Promise<SolcResult> {
-  const solcBuild: SolcBuild = await hre.run(
-    TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD,
-    {
-      quiet: true,
-      solcVersion,
-    }
-  );
-
   let output;
   if (solcBuild.isSolcJs) {
     output = await hre.run(TASK_COMPILE_SOLIDITY_RUN_SOLCJS, {
