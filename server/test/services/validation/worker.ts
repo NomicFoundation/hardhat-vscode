@@ -43,11 +43,21 @@ describe("worker", () => {
       describe("without solc warnings/errors", () => {
         let workerState: WorkerState;
         let send: any;
+        let capturedOptions: any;
 
         before(async () => {
           const errors: unknown[] = [];
 
           workerState = setupWorkerState({ errors });
+
+          workerState.hre = setupMockHre({
+            errors: [],
+            interleavedActions: {
+              TASK_COMPILE_SOLIDITY_RUN_SOLC: async (options) => {
+                capturedOptions = options;
+              },
+            },
+          });
 
           await dispatch(workerState)(exampleValidation);
 
@@ -82,6 +92,16 @@ describe("worker", () => {
             isSolcJs: false,
             version: "0.8.0",
             longVersion: "0.8.0",
+          });
+        });
+
+        it("should pass overriden settings to solc", async () => {
+          assert.deepStrictEqual(capturedOptions.input.settings, {
+            optimizer: {
+              enabled: false,
+              runs: 1,
+            },
+            outputSelection: {},
           });
         });
       });

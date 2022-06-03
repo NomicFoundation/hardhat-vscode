@@ -21,14 +21,25 @@ export async function solcCompile(
 ): Promise<SolcResult> {
   let output;
 
+  const originalInput = input as { settings: {} };
+
+  const overriddenInput = {
+    ...originalInput,
+    settings: {
+      ...originalInput.settings,
+      optimizer: { enabled: false, runs: 1 },
+      outputSelection: {},
+    },
+  };
+
   if (solcBuild.isSolcJs) {
     output = await hre.run(TASK_COMPILE_SOLIDITY_RUN_SOLCJS, {
-      input,
+      input: overriddenInput,
       solcJsPath: solcBuild.compilerPath,
     });
   } else {
     output = await hre.run(TASK_COMPILE_SOLIDITY_RUN_SOLC, {
-      input,
+      input: overriddenInput,
       solcPath: solcBuild.compilerPath,
     });
   }
