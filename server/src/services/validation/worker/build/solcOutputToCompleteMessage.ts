@@ -28,11 +28,7 @@ export function solcOutputToCompleteMessage(
   }
 
   if (output.errors?.length > 0) {
-    workerState.logger.trace(
-      `[WORKER] Validation complete (${timeSinceInSecs(
-        buildJob.startTime
-      )} processing, total: ${timeSinceInSecs(buildJob.added)}) - Fail`
-    );
+    logCompletionMessage(workerState, buildJob, "Fail");
 
     const validationFailMessage: ValidationFail = {
       type: "VALIDATION_COMPLETE",
@@ -45,11 +41,7 @@ export function solcOutputToCompleteMessage(
 
     return validationFailMessage;
   } else {
-    workerState.logger.trace(
-      `[WORKER] Validation complete (${timeSinceInSecs(
-        buildJob.startTime
-      )} processing, total: ${timeSinceInSecs(buildJob.added)}) - Pass`
-    );
+    logCompletionMessage(workerState, buildJob, "Pass");
 
     const validationPassMessage: ValidationPass = {
       type: "VALIDATION_COMPLETE",
@@ -64,6 +56,31 @@ export function solcOutputToCompleteMessage(
   }
 }
 
-function timeSinceInSecs(startTime: Date) {
-  return (new Date().getTime() - startTime.getTime()) / 1000;
+function logCompletionMessage(
+  workerState: WorkerState,
+  buildJob: BuildJob,
+  passOrFail: "Pass" | "Fail"
+) {
+  const finalSection =
+    buildJob.preprocessingFinished === undefined
+      ? ""
+      : `, prep: ${timeSinceInSecs(
+          buildJob.startTime,
+          buildJob.preprocessingFinished
+        )}, solc: ${timeSinceInSecs(buildJob.preprocessingFinished)}`;
+
+  workerState.logger.trace(
+    `[WORKER:${
+      buildJob.jobId
+    }] Validation complete - ${passOrFail} (total: ${timeSinceInSecs(
+      buildJob.added
+    )}, queued: ${timeSinceInSecs(
+      buildJob.added,
+      buildJob.startTime
+    )}${finalSection})`
+  );
+}
+
+function timeSinceInSecs(startTime: Date, endTime: Date = new Date()) {
+  return (endTime.getTime() - startTime.getTime()) / 1000;
 }

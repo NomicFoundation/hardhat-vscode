@@ -20,6 +20,7 @@ export async function solcCompile(
   { input, solcBuild }: SolcInput
 ): Promise<SolcResult> {
   let output;
+
   if (solcBuild.isSolcJs) {
     output = await hre.run(TASK_COMPILE_SOLIDITY_RUN_SOLCJS, {
       input,

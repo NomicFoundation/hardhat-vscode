@@ -106,6 +106,8 @@ export interface BuildJob {
     documentText: string;
   }>;
   added: Date;
+
+  preprocessingFinished?: Date;
 }
 
 export interface BuildDetails {

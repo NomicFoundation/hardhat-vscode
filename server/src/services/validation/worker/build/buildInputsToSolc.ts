@@ -4,10 +4,12 @@ import {
   BuildJob,
   ValidationCompleteMessage,
 } from "../../../../types";
+
 export interface SolcInput {
   built: true;
+  jobId: number;
   solcVersion: string;
-  input: unknown;
+  input: {};
   solcBuild: SolcBuild;
   sourcePaths: string[];
 }
@@ -66,9 +68,12 @@ export async function buildInputsToSolc(
     return cancel(buildJob);
   }
 
+  buildJob.preprocessingFinished = new Date();
+
   return {
     built: true,
     solcVersion,
+    jobId: buildJob.jobId,
     input: buildJob.context.input,
     solcBuild: buildJob.context.solcBuild,
     sourcePaths: buildJob.context.sourcePaths ?? [],
