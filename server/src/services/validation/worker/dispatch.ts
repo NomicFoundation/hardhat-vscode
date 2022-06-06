@@ -122,6 +122,8 @@ async function runNextJob(workerState: WorkerState): Promise<void> {
     documentText: lastDetails.documentText,
     openDocuments: lastDetails.openDocuments,
     added: lastDetails.added,
+
+    fromInputCache: false,
   };
 
   workerState.current = buildJob;
