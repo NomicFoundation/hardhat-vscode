@@ -20,32 +20,17 @@ export interface SolcInput {
   sourcePaths: string[];
 }
 
-function overwriteWithCurrentChanges(
-  previous: SolcInput,
-  changedUri: string,
-  changedDocumentText: string
-) {
-  const normalizedChangedUri = changedUri.replaceAll("\\", "/");
-  const changedDocKey = Object.keys(previous.input.sources).find((k) =>
-    normalizedChangedUri.endsWith(k)
-  );
-
-  if (changedDocKey === undefined) {
-    return { overwrite: false };
-  }
-
-  previous.input.sources[changedDocKey] = { content: changedDocumentText };
-
-  return { overwrite: true };
-}
-
 export async function buildInputsToSolc(
   workerState: WorkerState,
   buildJob: BuildJob
 ): Promise<{ built: false; result: ValidationCompleteMessage } | SolcInput> {
   const analysis = analyze(buildJob.documentText);
 
-  if (isDeepStrictEqual(analysis, workerState.previousChangedDocAnalysis)) {
+  if (
+    workerState.previousChangedDocAnalysis !== undefined &&
+    buildJob.uri === workerState.previousChangedDocAnalysis.uri &&
+    isDeepStrictEqual(analysis, workerState.previousChangedDocAnalysis.analysis)
+  ) {
     if (workerState.previousSolcInput !== undefined) {
       const { overwrite } = overwriteWithCurrentChanges(
         workerState.previousSolcInput,
@@ -65,7 +50,7 @@ export async function buildInputsToSolc(
       }
     }
   } else {
-    workerState.previousChangedDocAnalysis = analysis;
+    workerState.previousChangedDocAnalysis = { uri: buildJob.uri, analysis };
   }
 
   await getSourcePaths(workerState, buildJob);
@@ -132,6 +117,25 @@ export async function buildInputsToSolc(
   workerState.previousSolcInput = solcInput;
 
   return solcInput;
+}
+
+function overwriteWithCurrentChanges(
+  previous: SolcInput,
+  changedUri: string,
+  changedDocumentText: string
+) {
+  const normalizedChangedUri = changedUri.replaceAll("\\", "/");
+  const changedDocKey = Object.keys(previous.input.sources).find((k) =>
+    normalizedChangedUri.endsWith(k)
+  );
+
+  if (changedDocKey === undefined) {
+    return { overwrite: false };
+  }
+
+  previous.input.sources[changedDocKey] = { content: changedDocumentText };
+
+  return { overwrite: true };
 }
 
 // Gets the paths to the contract files for the project

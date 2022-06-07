@@ -71,7 +71,7 @@ function logCompletionMessage(
 
   workerState.logger.trace(
     `[WORKER:${buildJob.jobId}] Validation complete - ${passOrFail} ${
-      buildJob.fromInputCache ? "Cached" : ""
+      buildJob.fromInputCache ? "[Cached]" : ""
     } (total: ${timeSinceInSecs(buildJob.added)}, queued: ${timeSinceInSecs(
       buildJob.added,
       buildJob.startTime
