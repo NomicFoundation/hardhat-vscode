@@ -4,6 +4,7 @@ import { assert } from "chai";
 import sinon from "sinon";
 import { HardhatError as FrameworkHardhatError } from "hardhat/internal/core/errors";
 import { ErrorDescriptor } from "hardhat/internal/core/errors-list";
+import type { SolcBuild } from "hardhat/types";
 import { ValidateCommand, WorkerState } from "../../../src/types";
 
 describe("worker", () => {
@@ -40,15 +41,20 @@ describe("worker", () => {
 
     describe("completes", () => {
       describe("without solc warnings/errors", () => {
-        it("should return 0 warnings/errors for the file", async () => {
+        let workerState: WorkerState;
+        let send: any;
+
+        before(async () => {
           const errors: unknown[] = [];
 
-          const workerState = setupWorkerState({ errors });
+          workerState = setupWorkerState({ errors });
 
           await dispatch(workerState)(exampleValidation);
 
-          const send = workerState.send as any;
+          send = workerState.send;
+        });
 
+        it("should return 0 warnings/errors for the file", async () => {
           assert(send.called);
           assert.deepStrictEqual(send.args[0][0], {
             type: "VALIDATION_COMPLETE",
@@ -60,6 +66,22 @@ describe("worker", () => {
               "/projects/example/contracts/first.sol",
               "/projects/example/contracts/second.sol",
             ],
+          });
+        });
+
+        it("should populate the compiler metadata cache", async () => {
+          assert("0.8.0" in workerState.compilerMetadataCache);
+
+          const buildInfoPromise = await workerState.compilerMetadataCache[
+            "0.8.0"
+          ];
+
+          assert.deepStrictEqual(buildInfoPromise, {
+            compilerPath:
+              "/projects/example/node_modules/hardhat/compilers/compiler1",
+            isSolcJs: false,
+            version: "0.8.0",
+            longVersion: "0.8.0",
           });
         });
       });
@@ -94,7 +116,7 @@ describe("worker", () => {
           workerState.hre = setupMockHre({
             errors: [],
             interleavedActions: {
-              TASK_COMPILE_SOLIDITY_COMPILE: async (options) => {
+              TASK_COMPILE_SOLIDITY_RUN_SOLC: async (options) => {
                 capturedOptions = options;
               },
             },
@@ -115,6 +137,43 @@ describe("worker", () => {
               content: "// expected",
             },
           });
+        });
+      });
+
+      describe("with cached compiler metadata", () => {
+        it("should not call `TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD`", async () => {
+          const workerState = setupWorkerState({ errors: [] });
+
+          workerState.compilerMetadataCache = {
+            "0.8.0": new Promise((resolve) => {
+              const solcBuild: SolcBuild = {
+                version: "0.8.0",
+                longVersion: "0.8.0",
+                compilerPath:
+                  "/projects/example/node_modules/hardhat/compilers/compiler1",
+                isSolcJs: false,
+              };
+              resolve(solcBuild);
+            }),
+          };
+
+          let solcBuildCalled = false;
+
+          workerState.hre = setupMockHre({
+            errors: [],
+            interleavedActions: {
+              TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD: async () => {
+                solcBuildCalled = true;
+              },
+            },
+          });
+
+          await dispatch(workerState)(exampleValidation);
+
+          assert(
+            !solcBuildCalled,
+            "Solc build should not have been called, the cache should have been used"
+          );
         });
       });
     });
@@ -239,6 +298,51 @@ describe("worker", () => {
             await dispatch(workerState)(exampleValidation);
 
             assert((workerState.logger.error as any).calledTwice);
+          });
+        });
+
+        describe("build (compiler download) error", () => {
+          let workerState: WorkerState;
+
+          before(async () => {
+            workerState = setupWorkerState({ errors: [] });
+
+            workerState.hre = setupMockHre({
+              errors: [],
+              interleavedActions: {
+                TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD: async () => {
+                  throw new Error("Could not download compiler");
+                },
+              },
+            });
+
+            await dispatch(workerState)(exampleValidation);
+          });
+
+          it("should send an error", async () => {
+            const send = workerState.send as any;
+
+            assert(send.called);
+
+            const { error, ...sentMessage } = send.args[0][0];
+
+            assert.deepStrictEqual(sentMessage, {
+              type: "VALIDATION_COMPLETE",
+              status: "UNKNOWN_ERROR",
+              jobId: 1,
+              projectBasePath: "/projects/example",
+            });
+
+            assert.deepStrictEqual(
+              error.message,
+              "Could not download compiler"
+            );
+
+            assert.deepStrictEqual(error.name, "Error");
+          });
+
+          it("should clear the compiler metadata cache", () => {
+            assert(workerState.compilerMetadataCache["0.8.0"] === undefined);
           });
         });
       });
@@ -399,16 +503,16 @@ describe("worker", () => {
         } = setupPausableFunction();
 
         const {
-          function: solidityCompile,
-          startPromise: solidityCompileStartPromise,
-          finishResolve: resolveSolidityCompileFinished,
+          function: runSolc,
+          startPromise: runSolcStartPromise,
+          finishResolve: runSolcFinished,
         } = setupPausableFunction();
 
         workerState.hre = setupMockHre({
           errors: [],
           interleavedActions: {
             TASK_COMPILE_SOLIDITY_GET_DEPENDENCY_GRAPH: getDependencyGraph,
-            TASK_COMPILE_SOLIDITY_COMPILE: solidityCompile,
+            TASK_COMPILE_SOLIDITY_RUN_SOLC: runSolc,
           },
         });
 
@@ -433,7 +537,7 @@ describe("worker", () => {
         resolveGetDepenencyGraphFinished();
 
         // Pause on `TASK_COMPILE_SOLIDITY_COMPILE`
-        await solidityCompileStartPromise;
+        await runSolcStartPromise;
 
         // Send the third change
         await dispatch(workerState)({
@@ -443,7 +547,7 @@ describe("worker", () => {
         });
 
         // Unpause on `TASK_COMPILE_SOLIDITY_COMPILE`
-        resolveSolidityCompileFinished();
+        runSolcFinished();
 
         // Complete the first change message
         await dispatchPromise;
@@ -672,8 +776,13 @@ describe("worker", () => {
       it("should cancel on `TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT` error", () =>
         assertCancelOnFailureOf("TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT"));
 
-      it("should cancel on `TASK_COMPILE_SOLIDITY_COMPILE` error", () =>
-        assertCancelOnFailureOf("TASK_COMPILE_SOLIDITY_COMPILE"));
+      it("should cancel on `TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD` error", () =>
+        assertCancelOnFailureOf("TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD"));
+
+      it("should cancel on `TASK_COMPILE_SOLIDITY_RUN_SOLCJS` error", () =>
+        assertCancelOnFailureOf("TASK_COMPILE_SOLIDITY_RUN_SOLCJS", {
+          isSolcJs: true,
+        }));
 
       it("should return a cancelled build job if reading the file cache errors", async () => {
         const {
@@ -809,8 +918,12 @@ function setupWorkerState({
         "TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE",
       TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT:
         "TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT",
-      TASK_COMPILE_SOLIDITY_COMPILE: "TASK_COMPILE_SOLIDITY_COMPILE",
+      TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD:
+        "TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD",
+      TASK_COMPILE_SOLIDITY_RUN_SOLCJS: "TASK_COMPILE_SOLIDITY_RUN_SOLCJS",
+      TASK_COMPILE_SOLIDITY_RUN_SOLC: "TASK_COMPILE_SOLIDITY_RUN_SOLC",
     },
+    compilerMetadataCache: {},
     send: sinon.spy(),
     logger: mockLogger,
   };
@@ -824,6 +937,7 @@ function setupMockHre({
   getResolvedFiles,
   interleavedActions,
   compilationJob,
+  isSolcJs = false,
 }: {
   errors: unknown[];
   throwOnDepGraph?: () => void;
@@ -837,12 +951,17 @@ function setupMockHre({
     // eslint-disable-next-line @typescript-eslint/naming-convention
     TASK_COMPILE_SOLIDITY_GET_DEPENDENCY_GRAPH?: () => Promise<void>;
     // eslint-disable-next-line @typescript-eslint/naming-convention
-    TASK_COMPILE_SOLIDITY_COMPILE?: (options: unknown) => Promise<void>;
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE?: () => Promise<void>;
     // eslint-disable-next-line @typescript-eslint/naming-convention
     TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT?: () => Promise<void>;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD?: () => Promise<void>;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_RUN_SOLCJS?: (options: unknown) => Promise<void>;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_RUN_SOLC?: (options: unknown) => Promise<void>;
   };
+  isSolcJs?: boolean;
 }) {
   const compilationFiles: Array<{
     absolutePath: string;
@@ -963,27 +1082,65 @@ function setupMockHre({
         };
       }
 
-      if (param === "TASK_COMPILE_SOLIDITY_COMPILE") {
-        if (interleavedActions?.TASK_COMPILE_SOLIDITY_COMPILE !== undefined) {
-          await interleavedActions?.TASK_COMPILE_SOLIDITY_COMPILE(
+      if (param === "TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD") {
+        if (
+          interleavedActions?.TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD !== undefined
+        ) {
+          await interleavedActions?.TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD();
+        }
+
+        return {
+          version: "0.8.0",
+          longVersion: "0.8.0",
+          compilerPath:
+            "/projects/example/node_modules/hardhat/compilers/compiler1",
+          isSolcJs,
+        };
+      }
+
+      if (param === "TASK_COMPILE_SOLIDITY_RUN_SOLCJS") {
+        if (
+          interleavedActions?.TASK_COMPILE_SOLIDITY_RUN_SOLCJS !== undefined
+        ) {
+          await interleavedActions?.TASK_COMPILE_SOLIDITY_RUN_SOLCJS(
             passedOptions
           );
         }
 
         return {
-          output: {
-            contracts: {
-              "": {
-                Auction: null,
-                AuctionBase: null,
-              },
+          contracts: {
+            "": {
+              Auction: null,
+              AuctionBase: null,
             },
-            sources: {
-              "contracts/first.sol": { ast: {}, id: 0 },
-              "contracts/second.sol": { ast: {}, id: 0 },
-            },
-            errors,
           },
+          sources: {
+            "contracts/first.sol": { ast: {}, id: 0 },
+            "contracts/second.sol": { ast: {}, id: 0 },
+          },
+          errors,
+        };
+      }
+
+      if (param === "TASK_COMPILE_SOLIDITY_RUN_SOLC") {
+        if (interleavedActions?.TASK_COMPILE_SOLIDITY_RUN_SOLC !== undefined) {
+          await interleavedActions?.TASK_COMPILE_SOLIDITY_RUN_SOLC(
+            passedOptions
+          );
+        }
+
+        return {
+          contracts: {
+            "": {
+              Auction: null,
+              AuctionBase: null,
+            },
+          },
+          sources: {
+            "contracts/first.sol": { ast: {}, id: 0 },
+            "contracts/second.sol": { ast: {}, id: 0 },
+          },
+          errors,
         };
       }
 
@@ -1029,7 +1186,10 @@ function setupPausableFunction() {
   };
 }
 
-async function assertCancelOnFailureOf(step: string) {
+async function assertCancelOnFailureOf(
+  step: string,
+  options?: { isSolcJs: boolean }
+) {
   const exampleValidation: ValidateCommand = {
     type: "VALIDATE",
     jobId: 1,
@@ -1056,6 +1216,7 @@ async function assertCancelOnFailureOf(step: string) {
     interleavedActions: {
       [step]: startEndFunc,
     },
+    isSolcJs: options?.isSolcJs !== undefined ? options?.isSolcJs : false,
   });
 
   // Act - send first change

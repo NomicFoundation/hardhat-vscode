@@ -1,12 +1,13 @@
-import { Connection } from "vscode-languageserver";
-import * as childProcess from "child_process";
-import { TextDocuments } from "vscode-languageserver/node";
-import { TextDocument } from "vscode-languageserver-textdocument";
-import { Logger } from "@utils/Logger";
-import { WorkspaceFolder } from "vscode-languageserver-protocol";
-import { SolFileIndexMap, SolProjectMap, Diagnostic } from "@common/types";
-import { HardhatProject } from "@analyzer/HardhatProject";
-import { Telemetry } from "./telemetry/types";
+import type { Connection } from "vscode-languageserver";
+import type { Serializable } from "child_process";
+import type { TextDocuments } from "vscode-languageserver/node";
+import type { TextDocument } from "vscode-languageserver-textdocument";
+import type { Logger } from "@utils/Logger";
+import type { WorkspaceFolder } from "vscode-languageserver-protocol";
+import type { SolFileIndexMap, SolProjectMap, Diagnostic } from "@common/types";
+import type { HardhatProject } from "@analyzer/HardhatProject";
+import type { SolcBuild } from "hardhat/types";
+import type { Telemetry } from "./telemetry/types";
 
 export type CancelResolver = (diagnostics: {
   [key: string]: Diagnostic[];
@@ -19,7 +20,7 @@ export interface CompilerProcess {
     solidityCompilePromise: Promise<unknown>;
   };
 
-  send: (message: childProcess.Serializable) => void;
+  send: (message: Serializable) => void;
   kill: () => void;
 }
 
@@ -87,6 +88,8 @@ export interface BuildContext {
   compilationJob?: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   input?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  solcBuild?: any;
 }
 
 export interface BuildJob {
@@ -134,20 +137,25 @@ export interface WorkerState {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   SolidityFilesCache: any;
   tasks: {
-    // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
-    TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS: any;
-    // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
-    TASK_COMPILE_SOLIDITY_GET_SOURCE_NAMES: any;
-    // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
-    TASK_COMPILE_SOLIDITY_GET_DEPENDENCY_GRAPH: any;
-    // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
-    TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE: any;
-    // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
-    TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT: any;
-    // eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-explicit-any
-    TASK_COMPILE_SOLIDITY_COMPILE: any;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS: string;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_GET_SOURCE_NAMES: string;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_GET_DEPENDENCY_GRAPH: string;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_GET_COMPILATION_JOB_FOR_FILE: string;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_GET_COMPILER_INPUT: string;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD: string;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_RUN_SOLCJS: string;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_RUN_SOLC: string;
   };
   send: (message: ValidationCompleteMessage) => Promise<void>;
+  compilerMetadataCache: { [key: string]: Promise<SolcBuild> };
   logger: WorkerLogger;
 }
 
