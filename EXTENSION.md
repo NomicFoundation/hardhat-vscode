@@ -47,7 +47,7 @@ Direct imports (those not starting with `./` or `../`) are completed based on su
 
 Relative imports pull their suggestions from the file system based on the current solidity file's location.
 
-![Import completions](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/docs/detailed-feature-list/docs/gifs/import-completion.gif "Import completions")
+![Import completions](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/import-completion.gif "Import completions")
 
 ---
 
@@ -67,7 +67,7 @@ Navigates to the type of an identifier.
 
 Shows all references of the identifier under the cursor.
 
-![Navigation](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/docs/detailed-feature-list/docs/gifs/navigation.gif "Navigation")
+![Navigation](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/navigation.gif "Navigation")
 
 ---
 
@@ -75,7 +75,7 @@ Shows all references of the identifier under the cursor.
 
 Rename the identifier under the cursor and all of its references:
 
-![Rename](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/docs/detailed-feature-list/docs/gifs/rename.gif "Rename")
+![Rename](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/rename.gif "Rename")
 
 ---
 
@@ -85,7 +85,7 @@ Apply solidity formatting to the current document.
 
 The formatting configuration can be overriden through a `.prettierrc` file, see [Formatting Configuration](#formatting-configuration).
 
-![Reformat](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/docs/detailed-feature-list/docs/gifs/format.gif "Reformat")
+![Reformat](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/format.gif "Reformat")
 
 ---
 
@@ -93,7 +93,7 @@ The formatting configuration can be overriden through a `.prettierrc` file, see 
 
 Hovering the cursor over variables, function calls, errors and events will display a popup showing type and signature information:
 
-![Hover](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/docs/detailed-feature-list/docs/gifs/on-hover.gif "Hover")
+![Hover](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/on-hover.gif "Hover")
 
 ---
 
@@ -103,7 +103,7 @@ As code is edited, **Hardhat for Visual Studio Code** runs the [solc](https://do
 
 This feature is only available in solidity files that are part of a **Hardhat** project, as **Hardhat** is used for import resolution, see [Hardhat Projects](#hardhat-projects) for details.
 
-![Diagnostic](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/docs/detailed-feature-list/docs/gifs/diagnostic.gif "Diagnostic")
+![Diagnostic](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/diagnostic.gif "Diagnostic")
 
 ---
 
@@ -119,7 +119,7 @@ A contract that implements an interface, but is missing functions specified in t
 
 The matching code action _Add missing functions from interface_ will determine which functions need to be implemented to satisfy the interface and add them as stubs to the body of the contract.
 
-![Implement interface](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/docs/detailed-feature-list/docs/gifs/implement-interface.gif "Implement interface")
+![Implement interface](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/implement-interface.gif "Implement interface")
 
 #### Constrain mutability
 
@@ -127,7 +127,7 @@ A function without a mutability keyword but which does not update contract state
 
 The matching code action _Add view/pure modifier to function declaration_ resolves the warning by adding the keyword to the function signature.
 
-![Constrain Mutability](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/docs/detailed-feature-list/docs/gifs/constrain-mutability.gif "Constrain Mutability")
+![Constrain Mutability](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/constrain-mutability.gif "Constrain Mutability")
 
 #### Adding `virtual`/`override` on inherited function signature
 
@@ -135,7 +135,7 @@ A function in an inheriting contract, that has the same name and parameters as a
 
 The _Add virtual specifier to function definition_ and _Add override specifier to function definition_ code actions appear against functions with these errors.
 
-![Virtual and Override](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/docs/detailed-feature-list/docs/gifs/virtual-override.gif "Virtual and Override")
+![Virtual and Override](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/virtual-override.gif "Virtual and Override")
 
 #### Adding `public`/`private` to function signature
 
@@ -143,7 +143,7 @@ A function without an accessibility keyword will cause the `solidity(4937)` erro
 
 Two code actions will appear against a function with this error: _Add public visibility to declaration_ and _Add private visibility to declaration_.
 
-![Public Private](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/docs/detailed-feature-list/docs/gifs/public-private.gif "Public Private")
+![Public Private](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/public-private.gif "Public Private")
 
 ---
 
