@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.4.1 - 2022-06-08
+
+### Added
+
+- A detailed feature section with gifs to the docs ([#159](https://github.com/NomicFoundation/hardhat-vscode/issues/159))
+
+### Changed
+
+- Faster validation by caching compiler metadata ([#196](https://github.com/NomicFoundation/hardhat-vscode/pull/196))
+
+### Fixed
+
+- Better reporting of no worker on restarts ([#193](https://github.com/NomicFoundation/hardhat-vscode/issues/193))
+
 ## 0.4.0 - 2022-05-26
 
 ### Added
