@@ -41,7 +41,7 @@ Some features (e.g. inline validation, quick fixes) are still experimental and a
 
 ### Code Completions
 
-**Hardhat for Visual Studio Code** autocomplete references to existing symbols (e.g. contract instances, globally available variables and built-in types like arrays) and import directives (i.e. it autocompletes the path to the imported file).
+**Hardhat for Visual Studio Code** autocompletes references to existing symbols (e.g. contract instances, globally available variables and built-in types like arrays) and import directives (i.e. it autocompletes the path to the imported file).
 
 Direct imports (those not starting with `./` or `../`) are completed based on suggestions from `./node_modules`.
 
