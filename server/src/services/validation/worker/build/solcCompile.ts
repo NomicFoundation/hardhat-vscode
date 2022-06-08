@@ -27,7 +27,6 @@ export async function solcCompile(
     ...originalInput,
     settings: {
       ...originalInput.settings,
-      optimizer: { enabled: false, runs: 1 },
       outputSelection: {},
     },
   };

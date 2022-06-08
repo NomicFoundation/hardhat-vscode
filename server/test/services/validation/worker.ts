@@ -95,11 +95,11 @@ describe("worker", () => {
           });
         });
 
-        it("should pass overriden settings to solc", async () => {
+        it("should pass overriden `outputSelection` settings to solc", async () => {
           assert.deepStrictEqual(capturedOptions.input.settings, {
             optimizer: {
               enabled: false,
-              runs: 1,
+              runs: 200,
             },
             outputSelection: {},
           });
