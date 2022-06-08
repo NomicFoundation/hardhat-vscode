@@ -18,15 +18,16 @@ Built by the [Nomic Foundation](https://nomic.foundation/). [We’re hiring](htt
 
 ---
 
-- [Hardhat for Visual Studio Code](#hardhat-for-visual-studio-code)
-  - [Installation](#installation)
-  - [Features](#features)
-  - [Setup](#setup)
-  - [Hardhat Projects](#hardhat-projects)
-    - [Monorepo Support](#monorepo-support)
-  - [Formatting](#formatting)
-    - [Formatting Configuration](#formatting-configuration)
-  - [Feedback, help and news](#feedback-help-and-news)
+## Table of Contents
+
+- [Installation](#installation)
+- [Features](#features)
+- [Setup](#setup)
+- [Hardhat Projects](#hardhat-projects)
+  - [Monorepo Support](#monorepo-support)
+- [Formatting](#formatting)
+  - [Formatting Configuration](#formatting-configuration)
+- [Feedback, help and news](#feedback-help-and-news)
 
 ---
 
