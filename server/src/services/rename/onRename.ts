@@ -11,19 +11,36 @@ import {
 
 import { getParserPositionFromVSCodePosition, getRange } from "@common/utils";
 import { findReferencesFor } from "@utils/findReferencesFor";
+import { invalidateWorkerPreprocessCache } from "@services/validation/invalidateWorkerPreprocessCache";
 import { ServerState } from "../../types";
-import { convertHardhatUriToVscodeUri } from "../../utils/index";
+import {
+  convertHardhatUriToVscodeUri,
+  decodeUriAndRemoveFilePrefix,
+} from "../../utils/index";
 
 export const onRename = (serverState: ServerState) => {
-  return (params: RenameParams) => {
+  return async (params: RenameParams) => {
     try {
-      return onCommand(
+      const workspaceEdit = onCommand(
         serverState,
         "onRenameRequest",
         params.textDocument.uri,
         (documentAnalyzer) =>
           rename(documentAnalyzer, params.position, params.newName)
       );
+
+      // Renames are multifile, if the change to the current
+      // editor goes to validation before any file changes
+      // are recorded, preprocessing won't recognise that
+      // the cache is no longer valid, hence we clear it
+      // before returning
+      await invalidateWorkerPreprocessCache(
+        serverState,
+        decodeUriAndRemoveFilePrefix(params.textDocument.uri),
+        true
+      );
+
+      return workspaceEdit;
     } catch (err) {
       serverState.logger.error(err);
     }

@@ -3,7 +3,8 @@ import { ServerState, WorkerProcess } from "../../types";
 
 export async function invalidateWorkerPreprocessCache(
   serverState: ServerState,
-  uri: string
+  uri: string,
+  allowTracked = false
 ) {
   return serverState.telemetry.trackTiming<boolean>(
     "worker preprocessing cache invalidate",
@@ -18,7 +19,7 @@ export async function invalidateWorkerPreprocessCache(
         return { status: "failed_precondition", result: false };
       }
 
-      if (entry.tracking === ClientTrackingState.TRACKED) {
+      if (!allowTracked && entry.tracking === ClientTrackingState.TRACKED) {
         return { status: "ok", result: false };
       }
 
