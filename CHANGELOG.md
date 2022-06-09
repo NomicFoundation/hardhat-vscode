@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.4.2 - 2022-06-09
+
+### Changed
+
+- Speed up validation by caching solc input for the same page ([198](https://github.com/NomicFoundation/hardhat-vscode/pull/198))
+- Speed up validation by removing code generation steps from solc ([#197](https://github.com/NomicFoundation/hardhat-vscode/pull/197))
+
 ## 0.4.1 - 2022-06-08
 
 ### Added
