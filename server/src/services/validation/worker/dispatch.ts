@@ -8,6 +8,7 @@ import type {
 } from "../../../types";
 import { convertErrorToMessage } from "./build/convertErrorToMessage";
 import { hardhatBuild } from "./build/hardhatBuild";
+import { clearPreprocessingCacheState } from "./utils/clearPreprocessingCacheState";
 
 export function dispatch(workerState: WorkerState) {
   return async (command: HardhatWorkerCommand) => {
@@ -56,8 +57,7 @@ export function dispatch(workerState: WorkerState) {
 function invalidatePreprocessingCache(workerState: WorkerState) {
   workerState.logger.trace(`[WORKER] Preprocessing cache cleared`);
 
-  workerState.previousSolcInput = undefined;
-  workerState.previousChangedDocAnalysis = undefined;
+  clearPreprocessingCacheState(workerState);
 }
 
 async function validate(workerState: WorkerState, command: ValidateCommand) {

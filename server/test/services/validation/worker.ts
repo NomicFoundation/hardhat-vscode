@@ -11,6 +11,7 @@ import {
   ValidateCommand,
   WorkerState,
 } from "../../../src/types";
+import { worker } from "cluster";
 
 describe("worker", () => {
   describe("validation job", () => {
@@ -139,6 +140,37 @@ describe("worker", () => {
             version: "0.8.0",
             errors: [exampleError],
           });
+        });
+
+        it("should clear the preprocessing cache if an import line error is returned", async () => {
+          const importLineError = { ...exampleError, errorCode: "6275" };
+
+          const errors = [importLineError];
+
+          const workerState = setupWorkerState({ errors });
+
+          workerState.previousChangedDocAnalysis = {
+            uri: "example.sol",
+            analysis: { imports: [], versionPragmas: [] },
+          };
+          workerState.previousSolcInput = {} as any;
+
+          await dispatch(workerState)(exampleValidation);
+
+          const send = workerState.send as any;
+
+          assert(send.called);
+          assert.deepStrictEqual(send.args[0][0], {
+            type: "VALIDATION_COMPLETE",
+            status: "VALIDATION_FAIL",
+            jobId: 1,
+            projectBasePath: "/projects/example",
+            version: "0.8.0",
+            errors: [importLineError],
+          });
+
+          assert.isUndefined(workerState.previousChangedDocAnalysis);
+          assert.isUndefined(workerState.previousSolcInput);
         });
       });
 
