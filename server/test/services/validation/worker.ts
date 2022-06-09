@@ -11,7 +11,6 @@ import {
   ValidateCommand,
   WorkerState,
 } from "../../../src/types";
-import { worker } from "cluster";
 
 describe("worker", () => {
   describe("validation job", () => {

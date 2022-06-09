@@ -1,9 +1,9 @@
 import { ServerState } from "../../types";
+import { onDidChangeWatchedFiles } from "./onDidChangeWatchedFiles";
 import { onDidChangeContent } from "./onDidChangeContent";
 import { onDidOpen } from "./onDidOpen";
 import { onDidClose } from "./onDidClose";
 import { onDidSave } from "./onDidSave";
-import { onDidChangeWatchedFiles } from "./onDidChangeWatchedFiles";
 
 /**
  * Establish a sync between the client and the `serverState.documents`
