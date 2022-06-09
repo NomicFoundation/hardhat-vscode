@@ -1,4 +1,5 @@
 import * as path from "path";
+import { serializeError } from "serialize-error";
 import { Connection } from "vscode-languageserver/node";
 import type { Telemetry } from "../telemetry/types";
 
@@ -40,8 +41,16 @@ export class ConnectionLogger implements Logger {
 
     if (err instanceof Error) {
       this.connection.console.error(this._tryPrepend(err.message));
+    } else if (this._hasErrorDescriptor(err)) {
+      this.connection.console.error(
+        this._tryPrepend(
+          `${err.errorDescriptor.title}: ${err.errorDescriptor.description}`
+        )
+      );
     } else {
-      this.connection.console.error(this._tryPrepend(String(err)));
+      this.connection.console.error(
+        this._tryPrepend(JSON.stringify(serializeError(err)))
+      );
     }
   }
 
@@ -61,5 +70,15 @@ export class ConnectionLogger implements Logger {
     } else {
       return `[LS: ${this.workspaceName}] ${arg}`;
     }
+  }
+
+  private _hasErrorDescriptor(
+    err: unknown
+  ): err is { errorDescriptor: { title: string; description: string } } {
+    if (typeof err !== "object" || err === null) {
+      return false;
+    }
+
+    return "errorDescriptor" in err;
   }
 }
