@@ -8,11 +8,17 @@ import type {
 } from "../../../types";
 import { convertErrorToMessage } from "./build/convertErrorToMessage";
 import { hardhatBuild } from "./build/hardhatBuild";
+import { clearPreprocessingCacheState } from "./utils/clearPreprocessingCacheState";
 
 export function dispatch(workerState: WorkerState) {
   return async (command: HardhatWorkerCommand) => {
     try {
-      return await validate(workerState, command);
+      switch (command.type) {
+        case "VALIDATE":
+          return await validate(workerState, command);
+        case "INVALIDATE_PREPROCESSING_CACHE":
+          return invalidatePreprocessingCache(workerState);
+      }
     } catch (err: unknown) {
       /* istanbul ignore else */
       if (err instanceof Error) {
@@ -21,17 +27,19 @@ export function dispatch(workerState: WorkerState) {
         workerState.logger.error(JSON.stringify(err));
       }
 
-      try {
-        const message = convertErrorToMessage(err, command);
+      if (command.type === "VALIDATE") {
+        try {
+          const message = convertErrorToMessage(err, command);
 
-        await workerState.send(message);
-      } catch (innerErr: unknown) {
-        // log and ignore
-        /* istanbul ignore else */
-        if (err instanceof Error) {
-          workerState.logger.error(err.message);
-        } else {
-          workerState.logger.error(JSON.stringify(err));
+          await workerState.send(message);
+        } catch (innerErr: unknown) {
+          // log and ignore
+          /* istanbul ignore else */
+          if (err instanceof Error) {
+            workerState.logger.error(err.message);
+          } else {
+            workerState.logger.error(JSON.stringify(err));
+          }
         }
       }
 
@@ -39,8 +47,17 @@ export function dispatch(workerState: WorkerState) {
       workerState.current = null;
       workerState.buildQueue = [];
       workerState.buildJobs = {};
+      workerState.compilerMetadataCache = {};
+      workerState.previousSolcInput = undefined;
+      workerState.previousChangedDocAnalysis = undefined;
     }
   };
+}
+
+function invalidatePreprocessingCache(workerState: WorkerState) {
+  workerState.logger.trace(`[WORKER] Preprocessing cache cleared`);
+
+  clearPreprocessingCacheState(workerState);
 }
 
 async function validate(workerState: WorkerState, command: ValidateCommand) {
@@ -122,6 +139,8 @@ async function runNextJob(workerState: WorkerState): Promise<void> {
     documentText: lastDetails.documentText,
     openDocuments: lastDetails.openDocuments,
     added: lastDetails.added,
+
+    fromInputCache: false,
   };
 
   workerState.current = buildJob;

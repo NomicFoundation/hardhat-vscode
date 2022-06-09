@@ -5,6 +5,7 @@ import { TextDocuments } from "vscode-languageserver/node";
 import { ClientTrackingState } from "@common/types";
 import { onDidChangeContent } from "@services/documents/onDidChangeContent";
 import { onDidClose } from "@services/documents/onDidClose";
+import { onDidSave } from "@services/documents/onDidSave";
 import { ServerState } from "../../../src/types";
 import { setupMockCompilerProcessFactory } from "../../helpers/setupMockCompilerProcessFactory";
 import { setupMockConnection } from "../../helpers/setupMockConnection";
@@ -27,6 +28,25 @@ describe("documents", () => {
 
         assert.equal(fileEntry.tracking, ClientTrackingState.TRACKED);
       });
+
+      it("ignores non-solidity files", () => {
+        const serverState: ServerState = setupServerState();
+
+        const change = {
+          document: TextDocument.create(
+            "/example/not-solidity.js",
+            "javascript",
+            0,
+            "// ignore"
+          ),
+        };
+
+        onDidOpen(serverState)(change);
+
+        const fileEntry = serverState.solFileIndex["/example/not-solidity.js"];
+
+        assert.isUndefined(fileEntry);
+      });
     });
 
     describe("on change", () => {
@@ -43,6 +63,45 @@ describe("documents", () => {
         const fileEntry = serverState.solFileIndex["/example/file.sol"];
 
         assert.equal(fileEntry.tracking, ClientTrackingState.TRACKED);
+      });
+
+      it("logs and ignores on error", () => {
+        const serverState: ServerState = setupServerState();
+
+        serverState.logger.trace = () => {
+          throw new Error("Unexpected");
+        };
+
+        const change = {
+          document: TextDocument.create("/example/file.sol", "solidity", 0, ""),
+        };
+
+        onDidChangeContent(serverState)(change);
+
+        assert(
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (serverState.logger.error as any).calledOnce,
+          "error was not logged"
+        );
+      });
+
+      it("ignores non-solidity files", () => {
+        const serverState: ServerState = setupServerState();
+
+        const change = {
+          document: TextDocument.create(
+            "/example/not-solidity.js",
+            "javascript",
+            0,
+            "// ignore"
+          ),
+        };
+
+        onDidChangeContent(serverState)(change);
+
+        const fileEntry = serverState.solFileIndex["/example/not-solidity.js"];
+
+        assert.isUndefined(fileEntry);
       });
     });
 
@@ -61,6 +120,60 @@ describe("documents", () => {
         const fileEntry = serverState.solFileIndex["/example/file.sol"];
 
         assert.equal(fileEntry.tracking, ClientTrackingState.UNTRACKED);
+      });
+
+      it("ignores non-solidity files", () => {
+        const serverState: ServerState = setupServerState();
+
+        const change = {
+          document: TextDocument.create(
+            "/example/not-solidity.js",
+            "javascript",
+            0,
+            "// ignore"
+          ),
+        };
+
+        onDidClose(serverState)(change);
+
+        const fileEntry = serverState.solFileIndex["/example/not-solidity.js"];
+
+        assert.isUndefined(fileEntry);
+      });
+    });
+
+    describe("on save", () => {
+      it("sets tracking as on", () => {
+        const serverState: ServerState = setupServerState();
+
+        const change = {
+          document: TextDocument.create("/example/file.sol", "solidity", 0, ""),
+        };
+
+        onDidSave(serverState)(change);
+
+        const fileEntry = serverState.solFileIndex["/example/file.sol"];
+
+        assert.equal(fileEntry.tracking, ClientTrackingState.TRACKED);
+      });
+
+      it("ignores non-solidity files", () => {
+        const serverState: ServerState = setupServerState();
+
+        const change = {
+          document: TextDocument.create(
+            "/example/not-solidity.js",
+            "javascript",
+            0,
+            "// ignore"
+          ),
+        };
+
+        onDidSave(serverState)(change);
+
+        const fileEntry = serverState.solFileIndex["/example/not-solidity.js"];
+
+        assert.isUndefined(fileEntry);
       });
     });
   });

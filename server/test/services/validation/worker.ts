@@ -5,7 +5,12 @@ import sinon from "sinon";
 import { HardhatError as FrameworkHardhatError } from "hardhat/internal/core/errors";
 import { ErrorDescriptor } from "hardhat/internal/core/errors-list";
 import type { SolcBuild } from "hardhat/types";
-import { ValidateCommand, WorkerState } from "../../../src/types";
+import { SolcInput } from "@services/validation/worker/build/buildInputsToSolc";
+import {
+  InvalidatePreprocessingCacheMessage,
+  ValidateCommand,
+  WorkerState,
+} from "../../../src/types";
 
 describe("worker", () => {
   describe("validation job", () => {
@@ -104,6 +109,15 @@ describe("worker", () => {
             outputSelection: {},
           });
         });
+
+        it("should set the solc input cache", async () => {
+          assert.deepStrictEqual(workerState.previousChangedDocAnalysis, {
+            uri: "/projects/example/contracts/first.sol",
+            analysis: { imports: [], versionPragmas: [">=0.8.2 <0.9.0"] },
+          });
+
+          assert.isDefined(workerState.previousSolcInput);
+        });
       });
 
       describe("with solc warnings/errors", () => {
@@ -125,6 +139,37 @@ describe("worker", () => {
             version: "0.8.0",
             errors: [exampleError],
           });
+        });
+
+        it("should clear the preprocessing cache if an import line error is returned", async () => {
+          const importLineError = { ...exampleError, errorCode: "6275" };
+
+          const errors = [importLineError];
+
+          const workerState = setupWorkerState({ errors });
+
+          workerState.previousChangedDocAnalysis = {
+            uri: "example.sol",
+            analysis: { imports: [], versionPragmas: [] },
+          };
+          workerState.previousSolcInput = {} as any;
+
+          await dispatch(workerState)(exampleValidation);
+
+          const send = workerState.send as any;
+
+          assert(send.called);
+          assert.deepStrictEqual(send.args[0][0], {
+            type: "VALIDATION_COMPLETE",
+            status: "VALIDATION_FAIL",
+            jobId: 1,
+            projectBasePath: "/projects/example",
+            version: "0.8.0",
+            errors: [importLineError],
+          });
+
+          assert.isUndefined(workerState.previousChangedDocAnalysis);
+          assert.isUndefined(workerState.previousSolcInput);
         });
       });
 
@@ -194,6 +239,137 @@ describe("worker", () => {
             !solcBuildCalled,
             "Solc build should not have been called, the cache should have been used"
           );
+        });
+      });
+
+      describe("with cached solc input", () => {
+        describe("matching the current uri", () => {
+          let solcCompileCalled: boolean;
+          let workerState: WorkerState;
+
+          before(async () => {
+            workerState = setupWorkerState({ errors: [] });
+
+            workerState.hre = setupMockHre({
+              errors: [],
+              interleavedActions: {
+                TASK_COMPILE_SOLIDITY_RUN_SOLC: async () => {
+                  solcCompileCalled = true;
+                },
+              },
+            });
+
+            workerState.previousChangedDocAnalysis = {
+              uri: "/projects/example/contracts/first.sol",
+              analysis: { imports: [], versionPragmas: [">=0.8.2 <0.9.0"] },
+            };
+            workerState.previousSolcInput = {
+              input: {
+                sources: {
+                  "contracts/first.sol": { content: "NOT OVERWRITTEN" },
+                },
+              },
+            } as any;
+
+            await dispatch(workerState)(exampleValidation);
+          });
+
+          it("should not call `solc compile`", async () => {
+            assert(
+              !solcCompileCalled,
+              "Solc compile should not have been called, the cache should have been used"
+            );
+          });
+
+          it("overwrites the solc input", async () => {
+            assert.deepStrictEqual(
+              workerState.previousSolcInput?.input.sources[
+                "contracts/first.sol"
+              ],
+              {
+                content:
+                  "// SPDX-License-Identifier: GPL-3.0\npragma solidity >=0.8.2 <0.9.0;",
+              }
+            );
+          });
+        });
+
+        describe("not matching the current uri", () => {
+          let solcCompileCalled: boolean;
+          let workerState: WorkerState;
+
+          before(async () => {
+            workerState = setupWorkerState({ errors: [] });
+
+            workerState.hre = setupMockHre({
+              errors: [],
+              interleavedActions: {
+                TASK_COMPILE_SOLIDITY_RUN_SOLC: async () => {
+                  solcCompileCalled = true;
+                },
+              },
+            });
+
+            workerState.previousChangedDocAnalysis = {
+              uri: "/projects/example/contracts/some_other.sol",
+              analysis: { imports: [], versionPragmas: [">=0.8.2 <0.9.0"] },
+            };
+
+            await dispatch(workerState)(exampleValidation);
+          });
+
+          it("falls back to `solc compile`", async () => {
+            assert(
+              solcCompileCalled,
+              "Solc compile should have been called, the cache doesn't match"
+            );
+          });
+        });
+      });
+
+      describe("with invalid cached solc input", () => {
+        let solcCompileCalled: boolean;
+        let workerState: WorkerState;
+        let originalSolcInput: SolcInput;
+
+        before(async () => {
+          workerState = setupWorkerState({ errors: [] });
+
+          originalSolcInput = Object.freeze({
+            input: {
+              sources: {
+                invalid: { content: "invalid" },
+              },
+            },
+          } as any);
+
+          workerState.hre = setupMockHre({
+            errors: [],
+            interleavedActions: {
+              TASK_COMPILE_SOLIDITY_RUN_SOLC: async () => {
+                solcCompileCalled = true;
+              },
+            },
+          });
+
+          workerState.previousChangedDocAnalysis = {
+            uri: "/projects/example/contracts/first.sol",
+            analysis: { imports: [], versionPragmas: [">=0.8.2 <0.9.0"] },
+          };
+          workerState.previousSolcInput = originalSolcInput;
+
+          await dispatch(workerState)(exampleValidation);
+        });
+
+        it("should fall back on `solc compile`", async () => {
+          assert(
+            solcCompileCalled,
+            "Solc compile should have been called as the cache was invalid"
+          );
+        });
+
+        it("logs the error", async () => {
+          assert((workerState.logger.error as any).called);
         });
       });
     });
@@ -293,6 +469,9 @@ describe("worker", () => {
             assert.equal(workerState.current, null);
             assert.deepStrictEqual(workerState.buildJobs, {});
             assert.deepStrictEqual(workerState.buildQueue, []);
+            assert.deepStrictEqual(workerState.compilerMetadataCache, {});
+            assert.equal(workerState.previousSolcInput, undefined);
+            assert.equal(workerState.previousChangedDocAnalysis, undefined);
           });
 
           it("should ignore an issue with send", async () => {
@@ -881,6 +1060,35 @@ describe("worker", () => {
           ],
         });
       });
+    });
+  });
+
+  describe("invalidate preprocessing cache", () => {
+    let workerState: WorkerState;
+
+    const exampleInvalidateMessage: InvalidatePreprocessingCacheMessage = {
+      type: "INVALIDATE_PREPROCESSING_CACHE",
+    };
+
+    before(async () => {
+      workerState = setupWorkerState({ errors: [] });
+
+      workerState.previousChangedDocAnalysis = {
+        uri: "/projects/example/contracts/first.sol",
+        analysis: {
+          versionPragmas: ["0.8.0"],
+          imports: ["./example.sol"],
+        },
+      };
+
+      workerState.previousSolcInput = { fake: "input" } as any;
+
+      await dispatch(workerState)(exampleInvalidateMessage);
+    });
+
+    it("should clear the preprocessing cache", async () => {
+      assert.equal(workerState.previousChangedDocAnalysis, undefined);
+      assert.equal(workerState.previousSolcInput, undefined);
     });
   });
 });

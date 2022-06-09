@@ -1,3 +1,5 @@
+import { analyze } from "@nomicfoundation/solidity-analyzer";
+import { isDeepStrictEqual } from "util";
 import type { SolcBuild } from "hardhat/types";
 import {
   WorkerState,
@@ -9,7 +11,11 @@ export interface SolcInput {
   built: true;
   jobId: number;
   solcVersion: string;
-  input: {};
+  input: {
+    language: "Solidity";
+    sources: { [key: string]: {} };
+    settings?: { optimizer: {}; outputSelection: {} };
+  };
   solcBuild: SolcBuild;
   sourcePaths: string[];
 }
@@ -18,6 +24,35 @@ export async function buildInputsToSolc(
   workerState: WorkerState,
   buildJob: BuildJob
 ): Promise<{ built: false; result: ValidationCompleteMessage } | SolcInput> {
+  const analysis = analyze(buildJob.documentText);
+
+  if (
+    workerState.previousChangedDocAnalysis !== undefined &&
+    buildJob.uri === workerState.previousChangedDocAnalysis.uri &&
+    isDeepStrictEqual(analysis, workerState.previousChangedDocAnalysis.analysis)
+  ) {
+    if (workerState.previousSolcInput !== undefined) {
+      const { overwrite } = overwriteWithCurrentChanges(
+        workerState.previousSolcInput,
+        buildJob.uri,
+        buildJob.documentText
+      );
+
+      if (!overwrite) {
+        // log and continue
+        workerState.logger.error(
+          `Unable to overwrite changed doc at: ${buildJob.uri}`
+        );
+      } else {
+        buildJob.preprocessingFinished = new Date();
+        buildJob.fromInputCache = true;
+        return workerState.previousSolcInput;
+      }
+    }
+  } else {
+    workerState.previousChangedDocAnalysis = { uri: buildJob.uri, analysis };
+  }
+
   await getSourcePaths(workerState, buildJob);
 
   if (isJobCancelled(buildJob)) {
@@ -70,7 +105,7 @@ export async function buildInputsToSolc(
 
   buildJob.preprocessingFinished = new Date();
 
-  return {
+  const solcInput: SolcInput = {
     built: true,
     solcVersion,
     jobId: buildJob.jobId,
@@ -78,6 +113,29 @@ export async function buildInputsToSolc(
     solcBuild: buildJob.context.solcBuild,
     sourcePaths: buildJob.context.sourcePaths ?? [],
   };
+
+  workerState.previousSolcInput = solcInput;
+
+  return solcInput;
+}
+
+function overwriteWithCurrentChanges(
+  previous: SolcInput,
+  changedUri: string,
+  changedDocumentText: string
+) {
+  const normalizedChangedUri = changedUri.replaceAll("\\", "/");
+  const changedDocKey = Object.keys(previous.input.sources).find((k) =>
+    normalizedChangedUri.endsWith(k)
+  );
+
+  if (changedDocKey === undefined) {
+    return { overwrite: false };
+  }
+
+  previous.input.sources[changedDocKey] = { content: changedDocumentText };
+
+  return { overwrite: true };
 }
 
 // Gets the paths to the contract files for the project

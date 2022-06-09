@@ -17,9 +17,36 @@
 **/node_modules/
 **/src
 **/test
+**/scripts
 
 client/package.json
 server/package.json
 
 **/docs
 !**/docs/images/hardhat-vscode-logo.png
+
+!server/node_modules/@nomicfoundation/solidity-analyzer/package.json
+!server/node_modules/@nomicfoundation/solidity-analyzer/index.js
+!server/node_modules/@nomicfoundation/solidity-analyzer/index.js
+
+!server/node_modules/@nomicfoundation/solidity-analyzer-darwin-arm64/package.json
+!server/node_modules/@nomicfoundation/solidity-analyzer-darwin-x64/package.json
+!server/node_modules/@nomicfoundation/solidity-analyzer-freebsd-x64/package.json
+!server/node_modules/@nomicfoundation/solidity-analyzer-linux-arm64-gnu/package.json
+!server/node_modules/@nomicfoundation/solidity-analyzer-linux-arm64-musl/package.json
+!server/node_modules/@nomicfoundation/solidity-analyzer-linux-x64-gnu/package.json
+!server/node_modules/@nomicfoundation/solidity-analyzer-linux-x64-musl/package.json
+!server/node_modules/@nomicfoundation/solidity-analyzer-win32-arm64-msvc/package.json
+!server/node_modules/@nomicfoundation/solidity-analyzer-win32-ia32-msvc/package.json
+!server/node_modules/@nomicfoundation/solidity-analyzer-win32-x64-msvc/package.json
+
+!server/node_modules/@nomicfoundation/solidity-analyzer-darwin-arm64/solidity-analyzer.darwin-arm64.node
+!server/node_modules/@nomicfoundation/solidity-analyzer-darwin-x64/solidity-analyzer.darwin-x64.node
+!server/node_modules/@nomicfoundation/solidity-analyzer-freebsd-x64/solidity-analyzer.freebsd-x64.node
+!server/node_modules/@nomicfoundation/solidity-analyzer-linux-arm64-gnu/solidity-analyzer.linux-arm64-gnu.node
+!server/node_modules/@nomicfoundation/solidity-analyzer-linux-arm64-musl/solidity-analyzer.linux-arm64-musl.node
+!server/node_modules/@nomicfoundation/solidity-analyzer-linux-x64-gnu/solidity-analyzer.linux-x64-gnu.node
+!server/node_modules/@nomicfoundation/solidity-analyzer-linux-x64-musl/solidity-analyzer.linux-x64-musl.node
+!server/node_modules/@nomicfoundation/solidity-analyzer-win32-arm64-msvc/solidity-analyzer.win32-arm64-msvc.node
+!server/node_modules/@nomicfoundation/solidity-analyzer-win32-ia32-msvc/solidity-analyzer.win32-ia32-msvc.node
+!server/node_modules/@nomicfoundation/solidity-analyzer-win32-x64-msvc/solidity-analyzer.win32-x64-msvc.node
