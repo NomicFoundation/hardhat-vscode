@@ -70,11 +70,9 @@ function logCompletionMessage(
         )}, solc: ${timeSinceInSecs(buildJob.preprocessingFinished)}`;
 
   workerState.logger.trace(
-    `[WORKER:${
-      buildJob.jobId
-    }] Validation complete - ${passOrFail} (total: ${timeSinceInSecs(
-      buildJob.added
-    )}, queued: ${timeSinceInSecs(
+    `[WORKER:${buildJob.jobId}] Validation complete - ${passOrFail} ${
+      buildJob.fromInputCache ? "[Cached]" : ""
+    } (total: ${timeSinceInSecs(buildJob.added)}, queued: ${timeSinceInSecs(
       buildJob.added,
       buildJob.startTime
     )}${finalSection})`

@@ -27,6 +27,10 @@ export function setupMockCompilerProcessFactory(
         return validationMessage;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       }) as any,
+      invalidatePreprocessingCache: sinon.spy(() => {
+        return true;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      }) as any,
       kill: sinon.spy(),
       restart: sinon.spy(),
     } as WorkerProcess;

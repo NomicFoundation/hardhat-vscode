@@ -3,9 +3,10 @@ import {
   ValidationCompleteMessage,
   WorkerState,
 } from "../../../../types";
+import { clearPreprocessingCacheState } from "../utils/clearPreprocessingCacheState";
 import { buildInputsToSolc } from "./buildInputsToSolc";
 import { convertErrorToMessage } from "./convertErrorToMessage";
-import { solcCompile } from "./solcCompile";
+import { solcCompile, SolcResult } from "./solcCompile";
 import { solcOutputToCompleteMessage } from "./solcOutputToCompleteMessage";
 
 export async function hardhatBuild(
@@ -21,6 +22,8 @@ export async function hardhatBuild(
 
     const solcResult = await solcCompile(workerState, solcInputs);
 
+    clearCacheOnImportLineError(workerState, solcResult);
+
     return solcOutputToCompleteMessage(
       workerState,
       buildJob,
@@ -29,6 +32,20 @@ export async function hardhatBuild(
     );
   } catch (err) {
     return convertErrorToMessage(err, buildJob);
+  }
+}
+
+function clearCacheOnImportLineError(
+  workerState: WorkerState,
+  solcResult: SolcResult
+) {
+  if (
+    solcResult.output.errors !== undefined &&
+    solcResult.output.errors.some((error) =>
+      ["6275", "7858"].includes(error.errorCode)
+    )
+  ) {
+    clearPreprocessingCacheState(workerState);
   }
 }
 

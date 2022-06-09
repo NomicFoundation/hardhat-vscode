@@ -4,6 +4,7 @@ import * as childProcess from "child_process";
 import { HardhatProject } from "@analyzer/HardhatProject";
 import { Logger } from "@utils/Logger";
 import {
+  InvalidatePreprocessingCacheMessage,
   ValidateCommand,
   ValidationCompleteMessage,
   WorkerProcess,
@@ -65,6 +66,10 @@ export class HardhatWorker implements WorkerProcess {
     return new Promise<ValidationCompleteMessage>((resolve, reject) => {
       const jobId = this.jobCount++;
 
+      if (this.child === null) {
+        return reject(new Error("No child process to send validation"));
+      }
+
       this.jobs[jobId] = { resolve, reject };
 
       const message: ValidateCommand = {
@@ -76,11 +81,33 @@ export class HardhatWorker implements WorkerProcess {
         openDocuments,
       };
 
-      this.child?.send(message, (err) => {
+      this.child.send(message, (err) => {
         if (err) {
           delete this.jobs[jobId];
           return reject(err);
         }
+      });
+    });
+  }
+
+  public async invalidatePreprocessingCache(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      if (this.child === null) {
+        return reject(
+          new Error("No child process to send invalidate preprocessing cache")
+        );
+      }
+
+      const message: InvalidatePreprocessingCacheMessage = {
+        type: "INVALIDATE_PREPROCESSING_CACHE",
+      };
+
+      this.child?.send(message, (err) => {
+        if (err) {
+          return reject(err);
+        }
+
+        return resolve(true);
       });
     });
   }

@@ -7,6 +7,8 @@ import type { WorkspaceFolder } from "vscode-languageserver-protocol";
 import type { SolFileIndexMap, SolProjectMap, Diagnostic } from "@common/types";
 import type { HardhatProject } from "@analyzer/HardhatProject";
 import type { SolcBuild } from "hardhat/types";
+import { AnalysisResult } from "@nomicfoundation/solidity-analyzer";
+import { SolcInput } from "@services/validation/worker/build/buildInputsToSolc";
 import type { Telemetry } from "./telemetry/types";
 
 export type CancelResolver = (diagnostics: {
@@ -41,6 +43,7 @@ export interface WorkerProcess {
       documentText: string;
     }>;
   }) => Promise<ValidationCompleteMessage>;
+  invalidatePreprocessingCache: () => Promise<boolean>;
   kill: () => void;
   restart: () => Promise<void>;
 }
@@ -108,6 +111,7 @@ export interface BuildJob {
   added: Date;
 
   preprocessingFinished?: Date;
+  fromInputCache: boolean;
 }
 
 export interface BuildDetails {
@@ -134,6 +138,10 @@ export interface WorkerState {
   current: null | BuildJob;
   buildQueue: string[];
   buildJobs: { [key: string]: BuildDetails };
+  compilerMetadataCache: { [key: string]: Promise<SolcBuild> };
+  previousChangedDocAnalysis?: { uri: string; analysis: AnalysisResult };
+  previousSolcInput?: SolcInput;
+
   hre: HardhatRuntimeEnvironment;
   solidityFilesCachePath: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -157,7 +165,6 @@ export interface WorkerState {
     TASK_COMPILE_SOLIDITY_RUN_SOLC: string;
   };
   send: (message: ValidationCompleteMessage) => Promise<void>;
-  compilerMetadataCache: { [key: string]: Promise<SolcBuild> };
   logger: WorkerLogger;
 }
 
@@ -203,7 +210,13 @@ export interface ValidateCommand {
   }>;
 }
 
-export type HardhatWorkerCommand = ValidateCommand;
+export interface InvalidatePreprocessingCacheMessage {
+  type: "INVALIDATE_PREPROCESSING_CACHE";
+}
+
+export type HardhatWorkerCommand =
+  | ValidateCommand
+  | InvalidatePreprocessingCacheMessage;
 
 export interface HardhatCompilerError {
   component: "general";

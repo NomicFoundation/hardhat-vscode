@@ -60,7 +60,7 @@ async function main() {
     minifyWhitespace: true,
     minifyIdentifiers: false,
     minifySyntax: true,
-    external: ["vscode"],
+    external: ["vscode", "@nomicfoundation/solidity-analyzer"],
     platform: "node",
     outdir: ".",
     logLevel: "info",
