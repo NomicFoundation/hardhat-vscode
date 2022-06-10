@@ -3,10 +3,10 @@ import { dispatch } from "@services/validation/worker/dispatch";
 import { assert } from "chai";
 import sinon from "sinon";
 import { HardhatError as FrameworkHardhatError } from "hardhat/internal/core/errors";
-import { ErrorDescriptor } from "hardhat/internal/core/errors-list";
+import type { ErrorDescriptor } from "hardhat/internal/core/errors-list";
 import type { SolcBuild } from "hardhat/types";
-import { SolcInput } from "@services/validation/worker/build/buildInputsToSolc";
-import {
+import type { SolcInput } from "@services/validation/worker/build/buildInputsToSolc";
+import type {
   InvalidatePreprocessingCacheMessage,
   ValidateCommand,
   WorkerState,
@@ -174,9 +174,11 @@ describe("worker", () => {
       });
 
       describe("with open editor files", () => {
-        it("should pass the overriden files to solc", async () => {
-          const workerState = setupWorkerState({ errors: [] });
-          let capturedOptions: any;
+        let workerState: WorkerState;
+        let capturedOptions: any;
+
+        before(async () => {
+          workerState = setupWorkerState({ errors: [] });
 
           workerState.hre = setupMockHre({
             errors: [],
@@ -196,12 +198,32 @@ describe("worker", () => {
               },
             ],
           });
+        });
 
+        it("should pass the overriden files to solc", async () => {
           assert.deepStrictEqual(capturedOptions.input.sources, {
             "contracts/first.sol": {
               content: "// expected",
             },
           });
+        });
+
+        it("should override the read file task to read from open docs", async () => {
+          const overwrittenNewAction = (workerState.hre as any).newAction;
+
+          assert.isDefined(overwrittenNewAction);
+
+          const openDocCotent = await overwrittenNewAction({
+            absolutePath: "/projects/example/contracts/first.sol",
+          });
+
+          assert.equal(openDocCotent, "// expected");
+
+          const fromDiskContent = await overwrittenNewAction({
+            absolutePath: "/ondisk.sol",
+          });
+
+          assert.equal(fromDiskContent, "Read from disk: /ondisk.sol");
         });
       });
 
@@ -1125,6 +1147,13 @@ function setupWorkerState({
     buildJobs: {},
     hre: mockHre,
     solidityFilesCachePath: "/cache",
+    originalReadFileAction: async ({
+      absolutePath,
+    }: {
+      absolutePath: string;
+    }) => {
+      return `Read from disk: ${absolutePath}`;
+    },
     SolidityFilesCache: {
       readFromFile:
         readFromFile ??
@@ -1150,6 +1179,7 @@ function setupWorkerState({
         "TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD",
       TASK_COMPILE_SOLIDITY_RUN_SOLCJS: "TASK_COMPILE_SOLIDITY_RUN_SOLCJS",
       TASK_COMPILE_SOLIDITY_RUN_SOLC: "TASK_COMPILE_SOLIDITY_RUN_SOLC",
+      TASK_COMPILE_SOLIDITY_READ_FILE: "TASK_COMPILE_SOLIDITY_READ_FILE",
     },
     compilerMetadataCache: {},
     send: sinon.spy(),
@@ -1202,6 +1232,14 @@ function setupMockHre({
   ];
 
   const mockHre = {
+    tasks: {
+      TASK_COMPILE_SOLIDITY_READ_FILE: {
+        setAction: (newAction: unknown) => {
+          return (mockHre.newAction = newAction);
+        },
+      },
+    },
+
     run: async (param: unknown, passedOptions: unknown) => {
       if (param === "TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS") {
         if (

@@ -1,6 +1,10 @@
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import { isDeepStrictEqual } from "util";
-import type { SolcBuild } from "hardhat/types";
+import type {
+  CompilerInput,
+  HardhatRuntimeEnvironment,
+  SolcBuild,
+} from "hardhat/types";
 import {
   WorkerState,
   BuildJob,
@@ -11,11 +15,7 @@ export interface SolcInput {
   built: true;
   jobId: number;
   solcVersion: string;
-  input: {
-    language: "Solidity";
-    sources: { [key: string]: {} };
-    settings?: { optimizer: {}; outputSelection: {} };
-  };
+  input: CompilerInput;
   solcBuild: SolcBuild;
   sourcePaths: string[];
 }
@@ -52,6 +52,28 @@ export async function buildInputsToSolc(
   } else {
     workerState.previousChangedDocAnalysis = { uri: buildJob.uri, analysis };
   }
+
+  workerState.hre.tasks[
+    workerState.tasks.TASK_COMPILE_SOLIDITY_READ_FILE
+  ].setAction(
+    async (
+      args: { absolutePath: string },
+      hre: HardhatRuntimeEnvironment,
+      runSuper: () => {}
+    ) => {
+      const normalizedUri = args.absolutePath.replace("\\", "/");
+
+      const openDoc = buildJob.openDocuments.find(
+        (doc) => doc.uri === normalizedUri
+      );
+
+      if (openDoc !== undefined) {
+        return openDoc.documentText;
+      }
+
+      return workerState.originalReadFileAction(args, hre, runSuper);
+    }
+  );
 
   await getSourcePaths(workerState, buildJob);
 
