@@ -37,6 +37,7 @@ export async function initialiseWorkerState(
     TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD,
     TASK_COMPILE_SOLIDITY_RUN_SOLCJS,
     TASK_COMPILE_SOLIDITY_RUN_SOLC,
+    TASK_COMPILE_SOLIDITY_READ_FILE,
     // eslint-disable-next-line @typescript-eslint/no-var-requires
   } = require(`${hardhatBase}/builtin-tasks/task-names`);
 
@@ -48,6 +49,9 @@ export async function initialiseWorkerState(
 
   const solidityFilesCachePath = getSolidityFilesCachePath(hre.config.paths);
 
+  const originalReadFileAction =
+    hre.tasks[TASK_COMPILE_SOLIDITY_READ_FILE].action;
+
   return {
     current: null,
     buildQueue: [],
@@ -55,6 +59,7 @@ export async function initialiseWorkerState(
     compilerMetadataCache: {},
 
     hre,
+    originalReadFileAction,
     solidityFilesCachePath,
     SolidityFilesCache,
     tasks: {
@@ -66,6 +71,7 @@ export async function initialiseWorkerState(
       TASK_COMPILE_SOLIDITY_GET_SOLC_BUILD,
       TASK_COMPILE_SOLIDITY_RUN_SOLCJS,
       TASK_COMPILE_SOLIDITY_RUN_SOLC,
+      TASK_COMPILE_SOLIDITY_READ_FILE,
     },
     send,
     logger,

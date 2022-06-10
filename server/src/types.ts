@@ -6,9 +6,9 @@ import type { Logger } from "@utils/Logger";
 import type { WorkspaceFolder } from "vscode-languageserver-protocol";
 import type { SolFileIndexMap, SolProjectMap, Diagnostic } from "@common/types";
 import type { HardhatProject } from "@analyzer/HardhatProject";
-import type { SolcBuild } from "hardhat/types";
-import { AnalysisResult } from "@nomicfoundation/solidity-analyzer";
-import { SolcInput } from "@services/validation/worker/build/buildInputsToSolc";
+import type { HardhatRuntimeEnvironment, SolcBuild } from "hardhat/types";
+import type { AnalysisResult } from "@nomicfoundation/solidity-analyzer";
+import type { SolcInput } from "@services/validation/worker/build/buildInputsToSolc";
 import type { Telemetry } from "./telemetry/types";
 
 export type CancelResolver = (diagnostics: {
@@ -126,14 +126,6 @@ export interface BuildDetails {
   added: Date;
 }
 
-export interface HardhatRuntimeEnvironment {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  run: Function;
-  config: {
-    paths: string[];
-  };
-}
-
 export interface WorkerState {
   current: null | BuildJob;
   buildQueue: string[];
@@ -143,6 +135,11 @@ export interface WorkerState {
   previousSolcInput?: SolcInput;
 
   hre: HardhatRuntimeEnvironment;
+  originalReadFileAction: (
+    args: { absolutePath: string },
+    hre: HardhatRuntimeEnvironment,
+    runSuper: () => {}
+  ) => Promise<string>;
   solidityFilesCachePath: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   SolidityFilesCache: any;
@@ -163,6 +160,8 @@ export interface WorkerState {
     TASK_COMPILE_SOLIDITY_RUN_SOLCJS: string;
     // eslint-disable-next-line @typescript-eslint/naming-convention
     TASK_COMPILE_SOLIDITY_RUN_SOLC: string;
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    TASK_COMPILE_SOLIDITY_READ_FILE: string;
   };
   send: (message: ValidationCompleteMessage) => Promise<void>;
   logger: WorkerLogger;
