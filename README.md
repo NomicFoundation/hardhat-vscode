@@ -28,7 +28,7 @@ Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay u
 
 Contributions are always welcome! Feel free to [open any issue](https://github.com/NomicFoundation/hardhat-vscode/issues) or send a pull request.
 
-Go to [CONTRIBUTING.md](./CONTRIBUTING.md) to learn about how to set up Hardhat VSCode's development environment.
+Go to [CONTRIBUTING.md](./CONTRIBUTING.md) to learn about how to set up **Hardhat for Visual Studio Code**'s development environment.
 
 ## Feedback, help and news
 
