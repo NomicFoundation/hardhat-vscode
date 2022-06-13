@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.4.3 - 2022-06-13
+
+### Fixed
+
+- Fix sync between file on disk/open editor for import line validation ([#201](https://github.com/NomicFoundation/hardhat-vscode/issues/201))
+
 ## 0.4.2 - 2022-06-09
 
 ### Changed
