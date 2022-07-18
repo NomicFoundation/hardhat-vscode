@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.4.4 - 2022-07-18
+
+- Fix to restart validation processes on unexpected exits ([#209](https://github.com/NomicFoundation/hardhat-vscode/pull/209))
+
 ## 0.4.3 - 2022-06-13
 
 ### Fixed
