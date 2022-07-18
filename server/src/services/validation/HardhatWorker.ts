@@ -19,7 +19,7 @@ export class HardhatWorker implements WorkerProcess {
   private jobs: {
     [key: string]: {
       resolve: (message: ValidationCompleteMessage) => void;
-      reject: () => void;
+      reject: (err: string) => void;
     };
   };
 
@@ -45,7 +45,25 @@ export class HardhatWorker implements WorkerProcess {
 
       const { resolve } = this.jobs[message.jobId];
 
+      delete this.jobs[message.jobId];
+
       resolve(message);
+    });
+
+    this.child.on("error", (err) => {
+      this.logger.error(err);
+    });
+
+    this.child.on("exit", (code, signal) => {
+      this.logger.trace(
+        `Hardhat Worker Process restart (${code}): ${this.project.basePath}`
+      );
+
+      if (code === 0 || signal !== null) {
+        return;
+      }
+
+      return this.restart();
     });
   }
 
@@ -117,6 +135,13 @@ export class HardhatWorker implements WorkerProcess {
   }
 
   public async restart(): Promise<void> {
+    for (const jobId of Object.keys(this.jobs)) {
+      const { reject } = this.jobs[jobId];
+      reject("Worker process restarted");
+
+      delete this.jobs[jobId];
+    }
+
     this.kill();
     this.init();
   }
