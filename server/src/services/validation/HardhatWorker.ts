@@ -1,6 +1,5 @@
-/* istanbul ignore file: wrapper around process */
-import * as path from "path";
 import * as childProcess from "child_process";
+import * as path from "path";
 import { HardhatProject } from "@analyzer/HardhatProject";
 import { Logger } from "@utils/Logger";
 import {
@@ -22,25 +21,45 @@ type HardhatWorkerStatus =
   | typeof STARTING
   | typeof RUNNING;
 
+export function createProcessFor(
+  project: HardhatProject
+): childProcess.ChildProcess {
+  return childProcess.fork(path.resolve(__dirname, "worker.js"), {
+    cwd: project.basePath,
+    detached: true,
+  });
+}
+
 export class HardhatWorker implements WorkerProcess {
   public project: HardhatProject;
-  private child: childProcess.ChildProcess | null;
-  private logger: Logger;
-  private jobCount: number;
-  private status: HardhatWorkerStatus;
-
-  private jobs: {
+  public status: HardhatWorkerStatus;
+  public jobs: {
     [key: string]: {
       resolve: (message: ValidationCompleteMessage) => void;
       reject: (err: string) => void;
     };
   };
 
-  constructor(project: HardhatProject, logger: Logger) {
-    this.project = project;
+  private child: childProcess.ChildProcess | null;
+  private createProcessFor: (
+    project: HardhatProject
+  ) => childProcess.ChildProcess;
+  private logger: Logger;
+  private jobCount: number;
+
+  constructor(
+    project: HardhatProject,
+    givenCreateProcessFor: (
+      project: HardhatProject
+    ) => childProcess.ChildProcess,
+    logger: Logger
+  ) {
     this.child = null;
     this.jobCount = 0;
     this.jobs = {};
+
+    this.project = project;
+    this.createProcessFor = givenCreateProcessFor;
     this.logger = logger;
 
     this.status = UNINITIALIZED;
@@ -62,10 +81,7 @@ export class HardhatWorker implements WorkerProcess {
 
     this.status = STARTING;
 
-    this.child = childProcess.fork(path.resolve(__dirname, "worker.js"), {
-      cwd: this.project.basePath,
-      detached: true,
-    });
+    this.child = this.createProcessFor(this.project);
 
     // deal with messages sent from the background process to the LSP
     this.child.on(
@@ -97,26 +113,7 @@ export class HardhatWorker implements WorkerProcess {
     // we restart if it has previously been running,
     // if exits during initialization, we leave it in
     // the errored state
-    this.child.on("exit", (code, signal) => {
-      this.logger.trace(
-        `Hardhat Worker Process restart (${code}): ${this.project.basePath}`
-      );
-
-      if (code === 0 || signal !== null) {
-        return;
-      }
-
-      if (this.status === STARTING) {
-        this.status = INITIALIZATION_ERRORED;
-        return;
-      }
-
-      if (this.status !== RUNNING) {
-        return;
-      }
-
-      return this.restart();
-    });
+    this.child.on("exit", this.handleExit.bind(this));
   }
 
   public async validate({
@@ -220,15 +217,39 @@ export class HardhatWorker implements WorkerProcess {
   public async restart(): Promise<void> {
     this.logger.trace(`Restarting hardhat worker for ${this.project.basePath}`);
 
-    for (const jobId of Object.keys(this.jobs)) {
-      const { reject } = this.jobs[jobId];
-      reject("Worker process restarted");
-
-      delete this.jobs[jobId];
-    }
+    this._cancelCurrentJobs();
 
     this.kill();
     this.init();
+  }
+
+  public handleExit(code: number | null, signal: NodeJS.Signals | null) {
+    this.logger.trace(
+      `Hardhat Worker Process restart (${code}): ${this.project.basePath}`
+    );
+
+    if (code === 0 || signal !== null) {
+      this.status = UNINITIALIZED;
+      this._cancelCurrentJobs();
+      return;
+    }
+
+    if (this.status === STARTING) {
+      this.status = INITIALIZATION_ERRORED;
+      this._cancelCurrentJobs();
+      return;
+    }
+
+    if (this.status !== RUNNING) {
+      this.logger.error(
+        new Error(
+          "Exit from validator that is already UNINITIALIZED/INITIALIZATION_ERRORED"
+        )
+      );
+      return;
+    }
+
+    return this.restart();
   }
 
   private _validationComplete(message: ValidationCompleteMessage) {
@@ -282,5 +303,17 @@ export class HardhatWorker implements WorkerProcess {
       projectBasePath,
       reason: "validator-in-unexpected-state",
     });
+  }
+
+  /**
+   * Reject any open jobs whose result is still promised.
+   */
+  private _cancelCurrentJobs() {
+    for (const jobId of Object.keys(this.jobs)) {
+      const { reject } = this.jobs[jobId];
+      reject("Worker process restarted");
+
+      delete this.jobs[jobId];
+    }
   }
 }
