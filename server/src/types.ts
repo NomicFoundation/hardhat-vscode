@@ -163,7 +163,9 @@ export interface WorkerState {
     // eslint-disable-next-line @typescript-eslint/naming-convention
     TASK_COMPILE_SOLIDITY_READ_FILE: string;
   };
-  send: (message: ValidationCompleteMessage) => Promise<void>;
+  send: (
+    message: InitialisationCompleteMessage | ValidationCompleteMessage
+  ) => Promise<void>;
   logger: WorkerLogger;
 }
 
@@ -227,6 +229,10 @@ export interface HardhatCompilerError {
   type: "DeclarationError";
 }
 
+/**
+ * While running the validation job, an error was thrown
+ * from within hardhat.
+ */
 export interface HardhatThrownError {
   type: "VALIDATION_COMPLETE";
   status: "HARDHAT_ERROR";
@@ -235,6 +241,23 @@ export interface HardhatThrownError {
   hardhatError: HardhatError;
 }
 
+/**
+ * An error with the background validation thread
+ * e.g. failed to start or has died.
+ */
+export interface ValidatorError {
+  type: "VALIDATION_COMPLETE";
+  status: "VALIDATOR_ERROR";
+  jobId: number;
+  projectBasePath: string;
+  reason: string;
+}
+
+/**
+ * An error in completing the validation job
+ * e.g. prerequisutes of compile failed, downloading
+ * the solc compiler etc.
+ */
 export interface JobCompletionError {
   type: "VALIDATION_COMPLETE";
   status: "JOB_COMPLETION_ERROR";
@@ -251,6 +274,9 @@ export interface UnknownError {
   error: unknown;
 }
 
+/**
+ * The validation job ran and solc returned warnings/errors
+ */
 export interface ValidationFail {
   type: "VALIDATION_COMPLETE";
   status: "VALIDATION_FAIL";
@@ -260,6 +286,10 @@ export interface ValidationFail {
   errors: HardhatCompilerError[];
 }
 
+/**
+ * The validation job ran and solc return no warnings/errors
+ * indicating the code would compile.
+ */
 export interface ValidationPass {
   type: "VALIDATION_COMPLETE";
   status: "VALIDATION_PASS";
@@ -269,6 +299,10 @@ export interface ValidationPass {
   sources: string[];
 }
 
+/**
+ * The validation job was cancelled part way through,
+ * probably because a new edit came in.
+ */
 export interface CancelledValidation {
   type: "VALIDATION_COMPLETE";
   status: "CANCELLED";
@@ -276,11 +310,16 @@ export interface CancelledValidation {
   projectBasePath: string;
 }
 
+export interface InitialisationCompleteMessage {
+  type: "INITIALISATION_COMPLETE";
+}
+
 export type ValidationCompleteMessage =
   | ValidationPass
   | ValidationFail
   | HardhatThrownError
   | JobCompletionError
+  | ValidatorError
   | CancelledValidation
   | UnknownError;
 

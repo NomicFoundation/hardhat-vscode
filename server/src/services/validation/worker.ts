@@ -1,5 +1,8 @@
 /* istanbul ignore file: setup point for validation process */
-import type { ValidationCompleteMessage } from "../../types";
+import type {
+  InitialisationCompleteMessage,
+  ValidationCompleteMessage,
+} from "../../types";
 import { dispatch } from "./worker/dispatch";
 import { initialiseWorkerState } from "./worker/initialiseWorkerState";
 import { setupWorkerLogger } from "./worker/setupWorkerLogger";
@@ -13,9 +16,13 @@ const initialiseWorker = async () => {
   workerLogger.trace("[WORKER] Waiting for messages ...");
 
   process.on("message", dispatch(workserState));
+
+  await workserState.send({ type: "INITIALISATION_COMPLETE" });
 };
 
-function send(message: ValidationCompleteMessage): Promise<void> {
+function send(
+  message: InitialisationCompleteMessage | ValidationCompleteMessage
+): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     if (!process.send) {
       return;

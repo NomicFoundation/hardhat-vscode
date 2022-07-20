@@ -4,17 +4,30 @@ import * as childProcess from "child_process";
 import { HardhatProject } from "@analyzer/HardhatProject";
 import { Logger } from "@utils/Logger";
 import {
+  InitialisationCompleteMessage,
   InvalidatePreprocessingCacheMessage,
   ValidateCommand,
   ValidationCompleteMessage,
   WorkerProcess,
 } from "../../types";
 
+const UNINITIALIZED = "UNINITIALIZED";
+const STARTING = "STARTING";
+const RUNNING = "RUNNING";
+const INITIALIZATION_ERRORED = "INITIALIZATION_ERRORED";
+
+type HardhatWorkerStatus =
+  | typeof UNINITIALIZED
+  | typeof INITIALIZATION_ERRORED
+  | typeof STARTING
+  | typeof RUNNING;
+
 export class HardhatWorker implements WorkerProcess {
   public project: HardhatProject;
   private child: childProcess.ChildProcess | null;
   private logger: Logger;
   private jobCount: number;
+  private status: HardhatWorkerStatus;
 
   private jobs: {
     [key: string]: {
@@ -29,37 +42,76 @@ export class HardhatWorker implements WorkerProcess {
     this.jobCount = 0;
     this.jobs = {};
     this.logger = logger;
+
+    this.status = UNINITIALIZED;
   }
 
+  /**
+   * Setup the background validation process along with listeners
+   * on the LSP side.
+   *
+   * The status immediately moves from UNINITIALIZED -> STARTING. An
+   * `INITIALISATION_COMPLETE` message from the process will move
+   * the status to RUNNING (an unexpected exit will move it to
+   * INITIALIZATION_ERRORED).
+   */
   public init() {
+    if (![UNINITIALIZED, INITIALIZATION_ERRORED].includes(this.status)) {
+      throw new Error("Cannot start a worker thread that has already started");
+    }
+
+    this.status = STARTING;
+
     this.child = childProcess.fork(path.resolve(__dirname, "worker.js"), {
       cwd: this.project.basePath,
       detached: true,
     });
 
-    this.child.on("message", (message: ValidationCompleteMessage) => {
-      if (!(message.jobId in this.jobs)) {
-        this.logger.error("No job registered for validation complete");
-        return;
+    // deal with messages sent from the background process to the LSP
+    this.child.on(
+      "message",
+      (message: InitialisationCompleteMessage | ValidationCompleteMessage) => {
+        switch (message.type) {
+          case "INITIALISATION_COMPLETE":
+            this.status = RUNNING;
+            this.logger.trace(
+              `initialisation complete for ${this.project.basePath}`
+            );
+            break;
+          case "VALIDATION_COMPLETE":
+            this._validationComplete(message);
+            break;
+          default:
+            this._unexectpedMessage(message);
+            break;
+        }
       }
+    );
 
-      const { resolve } = this.jobs[message.jobId];
-
-      delete this.jobs[message.jobId];
-
-      resolve(message);
-    });
-
+    // errors on the background thread are logged
     this.child.on("error", (err) => {
       this.logger.error(err);
     });
 
+    // if the background process exits due to an error
+    // we restart if it has previously been running,
+    // if exits during initialization, we leave it in
+    // the errored state
     this.child.on("exit", (code, signal) => {
       this.logger.trace(
         `Hardhat Worker Process restart (${code}): ${this.project.basePath}`
       );
 
       if (code === 0 || signal !== null) {
+        return;
+      }
+
+      if (this.status === STARTING) {
+        this.status = INITIALIZATION_ERRORED;
+        return;
+      }
+
+      if (this.status !== RUNNING) {
         return;
       }
 
@@ -88,6 +140,14 @@ export class HardhatWorker implements WorkerProcess {
         return reject(new Error("No child process to send validation"));
       }
 
+      if (this.status !== RUNNING) {
+        return this._validationBlocked(
+          { jobId, projectBasePath },
+          resolve,
+          reject
+        );
+      }
+
       this.jobs[jobId] = { resolve, reject };
 
       const message: ValidateCommand = {
@@ -108,12 +168,23 @@ export class HardhatWorker implements WorkerProcess {
     });
   }
 
+  /**
+   * Inform the background validation process to clear its file caches
+   * and reread the solidity files from disk on the next job.
+   *
+   * @returns whether the cace was cleared
+   */
   public async invalidatePreprocessingCache(): Promise<boolean> {
     return new Promise((resolve, reject) => {
       if (this.child === null) {
         return reject(
           new Error("No child process to send invalidate preprocessing cache")
         );
+      }
+
+      // Only running validators can have their cache cleared
+      if (this.status !== RUNNING) {
+        return resolve(false);
       }
 
       const message: InvalidatePreprocessingCacheMessage = {
@@ -130,11 +201,25 @@ export class HardhatWorker implements WorkerProcess {
     });
   }
 
+  /**
+   * Stop the current background validation process.
+   *
+   * The status will be set back to the unstarted state (UNINITIALIZED).
+   */
   public kill() {
     this.child?.kill();
+    // reset status to allow restarting in future
+    this.status = UNINITIALIZED;
   }
 
+  /**
+   * Stop the current background validation process and start a new one.
+   *
+   * The jobs being currently processeded are all cancelled.
+   */
   public async restart(): Promise<void> {
+    this.logger.trace(`Restarting hardhat worker for ${this.project.basePath}`);
+
     for (const jobId of Object.keys(this.jobs)) {
       const { reject } = this.jobs[jobId];
       reject("Worker process restarted");
@@ -144,5 +229,58 @@ export class HardhatWorker implements WorkerProcess {
 
     this.kill();
     this.init();
+  }
+
+  private _validationComplete(message: ValidationCompleteMessage) {
+    if (!(message.jobId in this.jobs)) {
+      this.logger.error("No job registered for validation complete");
+      return;
+    }
+
+    const { resolve } = this.jobs[message.jobId];
+
+    delete this.jobs[message.jobId];
+
+    resolve(message);
+  }
+
+  private _unexectpedMessage(message: never) {
+    this.logger.error(new Error(`Unexpected error type: ${message}`));
+  }
+
+  private _validationBlocked(
+    { jobId, projectBasePath }: { jobId: number; projectBasePath: string },
+    resolve: (
+      value: ValidationCompleteMessage | PromiseLike<ValidationCompleteMessage>
+    ) => void,
+    _reject: (reason?: string) => void
+  ): void {
+    if (this.status === STARTING) {
+      return resolve({
+        type: "VALIDATION_COMPLETE",
+        status: "VALIDATOR_ERROR",
+        jobId,
+        projectBasePath,
+        reason: "validator-starting",
+      });
+    }
+
+    if (this.status === "INITIALIZATION_ERRORED") {
+      return resolve({
+        type: "VALIDATION_COMPLETE",
+        status: "VALIDATOR_ERROR",
+        jobId,
+        projectBasePath,
+        reason: "validator-initialization-failed",
+      });
+    }
+
+    return resolve({
+      type: "VALIDATION_COMPLETE",
+      status: "VALIDATOR_ERROR",
+      jobId,
+      projectBasePath,
+      reason: "validator-in-unexpected-state",
+    });
   }
 }
