@@ -4,7 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.4.5 - 2022-07-21
+
+### Fixed
+
+- Fix for restarts on invalid hardhat configs ([#212](https://github.com/NomicFoundation/hardhat-vscode/pull/212))
+
 ## 0.4.4 - 2022-07-18
+
+### Fixed
 
 - Fix to restart validation processes on unexpected exits ([#209](https://github.com/NomicFoundation/hardhat-vscode/pull/209))
 
