@@ -1,13 +1,16 @@
 /* istanbul ignore file: top level node loading */
 import path from "path";
 import type {
+  InitialisationCompleteMessage,
   ValidationCompleteMessage,
   WorkerLogger,
   WorkerState,
 } from "../../../types";
 
 export async function initialiseWorkerState(
-  send: (message: ValidationCompleteMessage) => Promise<void>,
+  send: (
+    message: InitialisationCompleteMessage | ValidationCompleteMessage
+  ) => Promise<void>,
   logger: WorkerLogger
 ): Promise<WorkerState> {
   let hre;
@@ -25,7 +28,7 @@ export async function initialiseWorkerState(
 
     hre = require(`${hardhatBase}/internal/lib/hardhat-lib.js`);
   } catch (err) {
-    throw new Error("Unable to initialize Hardhat Runtime Environment");
+    throw new Error(`Unable to initialize Hardhat Runtime Environment`);
   }
 
   const {

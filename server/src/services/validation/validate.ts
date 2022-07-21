@@ -15,6 +15,7 @@ import {
   ValidationJobFailureNotification,
   ValidationJobStatusNotification,
   ValidationPass,
+  ValidatorError,
   WorkerProcess,
 } from "../../types";
 import { getOpenDocumentsInProject } from "../../queries/getOpenDocumentsInProject";
@@ -97,6 +98,8 @@ function sendResults(
       return hardhatThrownFail(serverState, change, completeMessage);
     case "JOB_COMPLETION_ERROR":
       return jobCompletionErrorFail(serverState, change, completeMessage);
+    case "VALIDATOR_ERROR":
+      return validatorErrorFail(serverState, change, completeMessage);
     case "UNKNOWN_ERROR":
       return unknownErrorFail(serverState, change, completeMessage);
     case "VALIDATION_FAIL":
@@ -176,6 +179,21 @@ function jobCompletionErrorFail(
   serverState.connection.sendNotification("custom/validation-job-status", data);
 }
 
+function validatorErrorFail(
+  serverState: ServerState,
+  { document }: TextDocumentChangeEvent<TextDocument>,
+  validatorError: ValidatorError
+) {
+  serverState.connection.sendDiagnostics({
+    uri: document.uri,
+    diagnostics: [],
+  });
+
+  const data: ValidationJobStatusNotification = jobStatusFrom(validatorError);
+
+  serverState.connection.sendNotification("custom/validation-job-status", data);
+}
+
 function unknownErrorFail(
   serverState: ServerState,
   { document }: TextDocumentChangeEvent<TextDocument>,
@@ -219,7 +237,10 @@ function sendValidationProcessSuccess(
 function jobStatusFrom({
   projectBasePath,
   reason,
-}: JobCompletionError): ValidationJobFailureNotification {
+}: {
+  projectBasePath: string;
+  reason: string;
+}): ValidationJobFailureNotification {
   switch (reason) {
     case "directly-imports-incompatible-file":
       return {
@@ -248,6 +269,27 @@ function jobStatusFrom({
         projectBasePath,
         reason,
         displayText: "no compatibile solc version found",
+      };
+    case "validator-starting":
+      return {
+        validationRun: false,
+        projectBasePath,
+        reason,
+        displayText: "validator starting",
+      };
+    case "validator-initialization-failed":
+      return {
+        validationRun: false,
+        projectBasePath,
+        reason,
+        displayText: "unable to load hardhat config",
+      };
+    case "validator-in-unexpected-state":
+      return {
+        validationRun: false,
+        projectBasePath,
+        reason,
+        displayText: "validator in unexpected state",
       };
     default:
       return {

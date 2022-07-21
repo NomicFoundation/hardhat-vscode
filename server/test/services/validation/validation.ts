@@ -13,6 +13,7 @@ import {
   UnknownError,
   ValidationCompleteMessage,
   ValidationJobStatusNotification,
+  ValidatorError,
 } from "../../../src/types";
 import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
 import { prependWithSlash } from "../../helpers/prependWithSlash";
@@ -651,6 +652,29 @@ describe("Parser", () => {
         });
       });
 
+      describe("validator error", () => {
+        describe("initialization is still in progress", () => {
+          it("sends a failure status message", async () =>
+            assertValidatorError("validator-starting", "validator starting"));
+        });
+
+        describe("initialization failed", () => {
+          it("sends a failure status message", async () =>
+            assertValidatorError(
+              "validator-initialization-failed",
+              "unable to load hardhat config"
+            ));
+        });
+
+        describe("initialization failed", () => {
+          it("sends a failure status message", async () =>
+            assertValidatorError(
+              "validator-in-unexpected-state",
+              "validator in unexpected state"
+            ));
+        });
+      });
+
       describe("job completion error", () => {
         describe("directly imports incompatible file", () => {
           it("sends a failure status message", async () =>
@@ -1037,17 +1061,41 @@ async function assertJobCompletionError(
   reason: string,
   expectedDisplayText: string
 ) {
+  return assertError(
+    {
+      type: "VALIDATION_COMPLETE",
+      status: "JOB_COMPLETION_ERROR",
+      jobId: 1,
+      projectBasePath: "/projects/example",
+      reason,
+    },
+    { reason, displayText: expectedDisplayText }
+  );
+}
+
+async function assertValidatorError(
+  reason: string,
+  expectedDisplayText: string
+) {
+  return assertError(
+    {
+      type: "VALIDATION_COMPLETE",
+      status: "VALIDATOR_ERROR",
+      jobId: 1,
+      projectBasePath: "/projects/example",
+      reason,
+    },
+    { reason, displayText: expectedDisplayText }
+  );
+}
+
+async function assertError(
+  workerReturnMessage: JobCompletionError | ValidatorError,
+  expected: { reason: string; displayText: string }
+) {
   const sendDiagnostics = sinon.spy();
   const sendNotification = sinon.spy();
   const logger = setupMockLogger();
-
-  const workerReturnMessage: JobCompletionError = {
-    type: "VALIDATION_COMPLETE",
-    status: "JOB_COMPLETION_ERROR",
-    jobId: 1,
-    projectBasePath: "/projects/example",
-    reason,
-  };
 
   await validateReturningWorkerMessage(workerReturnMessage, {
     sendDiagnosticsSpy: sendDiagnostics,
@@ -1067,8 +1115,8 @@ async function assertJobCompletionError(
   const expectedFailureStatus: ValidationJobStatusNotification = {
     validationRun: false,
     projectBasePath: "/projects/example",
-    reason,
-    displayText: expectedDisplayText,
+    reason: expected.reason,
+    displayText: expected.displayText,
   };
 
   assert.deepStrictEqual(sendNotification.args[0][1], expectedFailureStatus);
