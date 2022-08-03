@@ -4,7 +4,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import * as lsclient from "vscode-languageclient/node";
 
-import { sleep } from "./common/helper";
+import { sleep } from "./helpers/misc";
 import { Client as IClient } from "./common/types";
 
 let client: Client | null = null;

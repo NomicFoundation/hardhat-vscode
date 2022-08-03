@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import * as assert from "assert";
 
 import { Client, Action } from "../common/types";
-import { isArray, isDefined, rangeEqual, uriEqual } from "./helper";
+import { isArray, isDefined, rangeEqual, uriEqual } from "../helpers/misc";
 
 export async function assertLspCommand(client: Client, action: Action) {
   await ensureValidationOfDoc(client, action);
