@@ -1,7 +1,7 @@
 import { getClient } from "../../client";
 import { Client } from "../../common/types";
 import { assertLspCommand } from "../../common/assertLspCommand";
-import { getDocUri } from "../../common/helper";
+import { getDocUri } from "../../helpers/docPaths";
 
 suite("Single-file Navigation", function () {
   this.timeout(10000);
