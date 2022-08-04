@@ -1,26 +1,6 @@
 "use strict";
-
-import * as path from "path";
 import * as vscode from "vscode";
 import * as assert from "assert";
-import * as os from "os";
-
-export async function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-export function getDocPath(dirname: string, p: string): string {
-  // TO-DO: Refactor this
-  return path.join(
-    dirname.replace("/out/", "/").replace("\\out\\", "\\"),
-    "testdata",
-    p
-  );
-}
-
-export function getDocUri(dirname: string, p: string): vscode.Uri {
-  return vscode.Uri.file(getDocPath(dirname, p));
-}
 
 export function rangeEqual(
   range: vscode.Range,
@@ -82,9 +62,3 @@ export function isArray<T>(
   );
   assert.strictEqual(value.length, length, "value invalid length");
 }
-
-/**
- * OS-independant line joining
- */
-export const joinLines = (...args: string[]) =>
-  args.join(os.platform() === "win32" ? "\r\n" : "\n");

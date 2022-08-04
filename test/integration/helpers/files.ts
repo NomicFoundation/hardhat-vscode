@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import { join } from "path";
 import * as fs from "fs";
 import * as os from "os";
-import { sleep } from "./misc";
+import { sleep } from "./sleep";
 
 export const CURSOR = "$$CURSOR$$";
 

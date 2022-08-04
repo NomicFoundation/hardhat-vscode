@@ -1,5 +1,5 @@
 import * as assert from "assert";
-import { joinLines } from "../../helpers/misc";
+import { joinLines } from "../../helpers/joinLines";
 import { CURSOR, withRandomFileEditor } from "../../helpers/files";
 import { type } from "../../helpers/commands";
 
