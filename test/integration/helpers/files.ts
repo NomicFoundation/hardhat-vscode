@@ -18,7 +18,7 @@ export const withRandomFileEditor = async (
     editor: vscode.TextEditor,
     document: vscode.TextDocument
   ) => Promise<void>
-): Promise<boolean> => {
+): Promise<void> => {
   const cursorIndex = text.indexOf(CURSOR);
   const file = await createRandomFile(text.replace(CURSOR, ""), fileExtension);
   const document = await vscode.workspace.openTextDocument(file);
@@ -32,39 +32,19 @@ export const withRandomFileEditor = async (
   await sleep(200); // Wait a bit, otherwise onEnterRules randomly don't work on test scenarios
 
   await run(editor, document);
-  if (document.isDirty) {
-    return document.save().then(() => {
-      return deleteFile(file);
-    });
-  } else {
-    return deleteFile(file);
-  }
+
+  deleteFile(file);
 };
 
-const createRandomFile = (
-  contents = "",
-  fileExtension = "txt"
+const createRandomFile = async (
+  contents: string,
+  fileExtension: string
 ): Promise<vscode.Uri> => {
-  return new Promise((resolve, reject) => {
-    const tmpFile = join(os.tmpdir(), `${Math.random()}.${fileExtension}`);
-    fs.writeFile(tmpFile, contents, (error) => {
-      if (error) {
-        return reject(error);
-      }
-
-      resolve(vscode.Uri.file(tmpFile));
-    });
-  });
+  const tmpFile = join(os.tmpdir(), `${Math.random()}.${fileExtension}`);
+  fs.writeFileSync(tmpFile, contents);
+  return vscode.Uri.file(tmpFile);
 };
 
-const deleteFile = (file: vscode.Uri): Promise<boolean> => {
-  return new Promise((resolve, reject) => {
-    fs.unlink(file.fsPath, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(true);
-      }
-    });
-  });
+const deleteFile = (file: vscode.Uri): void => {
+  fs.unlinkSync(file.fsPath);
 };

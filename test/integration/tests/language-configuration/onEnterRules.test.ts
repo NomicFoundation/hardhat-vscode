@@ -5,7 +5,7 @@ import { type } from "../../helpers/commands";
 
 suite("onEnterRules", function () {
   test("[onEnterRules] - Multi line comment - first line with closing", async () => {
-    return withRandomFileEditor(
+    await withRandomFileEditor(
       `/**${CURSOR} */`,
       "sol",
       async (_editor, document) => {
@@ -16,7 +16,7 @@ suite("onEnterRules", function () {
   });
 
   test("[onEnterRules] - Multi line comment - first line without closing", async () => {
-    return withRandomFileEditor(
+    await withRandomFileEditor(
       `/**${CURSOR}`,
       "sol",
       async (_editor, document) => {
@@ -27,7 +27,7 @@ suite("onEnterRules", function () {
   });
 
   test("[onEnterRules] - Multi line comment - line in middle", async () => {
-    return withRandomFileEditor(
+    await withRandomFileEditor(
       joinLines(`/**`, ` * a line${CURSOR}`),
       "sol",
       async (_editor, document) => {
@@ -41,7 +41,7 @@ suite("onEnterRules", function () {
   });
 
   test("[onEnterRules] - Multi line comment - remove space when closing", async () => {
-    return withRandomFileEditor(
+    await withRandomFileEditor(
       joinLines(`  /**`, `   * a line`, `   */${CURSOR}`),
       "sol",
       async (_editor, document) => {
