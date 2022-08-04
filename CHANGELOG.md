@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.4.6 - 2022-08-04
+
+### Added
+
+- Added auto-insert of intermediary stars in block comments ([#75](https://github.com/NomicFoundation/hardhat-vscode/issues/75))
+
 ## 0.4.5 - 2022-07-21
 
 ### Fixed
