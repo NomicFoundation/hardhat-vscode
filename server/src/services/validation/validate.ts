@@ -333,14 +333,14 @@ function validationFail(
   const diagnostics: { [uri: string]: Diagnostic[] } =
     diagnosticConverter.convertErrors(change.document, message.errors);
 
-  for (const diagnosticUri of Object.keys(diagnostics)) {
-    if (document.uri.includes(diagnosticUri)) {
-      serverState.connection.sendDiagnostics({
-        uri: document.uri,
-        diagnostics: diagnostics[diagnosticUri],
-      });
-    }
-  }
+  const diagnosticsInOpenEditor = Object.entries(diagnostics)
+    .filter(([diagnosticUri]) => document.uri.includes(diagnosticUri))
+    .flatMap(([, diagnostic]) => diagnostic);
+
+  serverState.connection.sendDiagnostics({
+    uri: document.uri,
+    diagnostics: diagnosticsInOpenEditor,
+  });
 
   sendValidationProcessSuccess(
     serverState,

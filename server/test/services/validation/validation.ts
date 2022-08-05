@@ -441,6 +441,67 @@ describe("Parser", () => {
           ]);
         });
       });
+
+      describe("warnings/errors in a dependency but none in open editor", () => {
+        const exampleError: HardhatCompilerError = {
+          sourceLocation: {
+            file: basicUri,
+            start: 5,
+            end: 15,
+          },
+          errorCode: "101",
+          severity: "error",
+          message: "It went wrong!",
+          formattedMessage: "-",
+          type: "DeclarationError",
+          component: "general",
+        };
+
+        let sendDiagnostics: sinon.SinonSpy<unknown[], unknown>;
+        let sendNotification: sinon.SinonSpy<unknown[], unknown>;
+
+        before(async () => {
+          sendDiagnostics = sinon.spy();
+          sendNotification = sinon.spy();
+          const logger = setupMockLogger();
+
+          const workerReturnMessage: ValidationCompleteMessage = {
+            type: "VALIDATION_COMPLETE",
+            status: "VALIDATION_FAIL",
+            jobId: 1,
+            version: "0.8.0",
+            projectBasePath: "/projects/example",
+            errors: [exampleError],
+          };
+
+          await validateReturningWorkerMessage(workerReturnMessage, {
+            sendDiagnosticsSpy: sendDiagnostics,
+            sendNotificationSpy: sendNotification,
+            mockLogger: logger,
+          });
+        });
+
+        it("should clear diagnostics", async () => {
+          assert(sendDiagnostics.called);
+          assert.deepStrictEqual(sendDiagnostics.args[0][0], {
+            diagnostics: [],
+            uri: "/projects/example/contracts/first.sol",
+          });
+        });
+
+        it("should indicate success for the solidity status", () => {
+          assert(sendNotification.called);
+          assert.equal(
+            sendNotification.args[0][0],
+            "custom/validation-job-status"
+          );
+          assert.deepStrictEqual(sendNotification.args[0][1], {
+            validationRun: true,
+            projectBasePath: "/projects/example",
+            version: "0.8.0",
+          });
+        });
+      });
     });
 
     describe("validation pass - no solc warnings/errors from worker", () => {
