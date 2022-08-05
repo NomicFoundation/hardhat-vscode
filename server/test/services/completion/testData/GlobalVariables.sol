@@ -17,4 +17,8 @@ contract Test {
     function encode() public pure returns (bytes memory) {
         return abi.// <- cursor
     }
+
+    function withdraw() public {
+        return msg.sender.// <- cursor
+    }
 }
