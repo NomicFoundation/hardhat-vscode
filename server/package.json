@@ -63,7 +63,7 @@
     "js-yaml": "^4.1.0",
     "module-alias": "^2.2.2",
     "prettier": "2.5.1",
-    "prettier-plugin-solidity": "1.0.0-beta.19",
+    "prettier-plugin-solidity": "1.0.0-beta.24",
     "qs": "^6.10.1",
     "serialize-error": "8.1.0",
     "uuid": "^8.3.2",
