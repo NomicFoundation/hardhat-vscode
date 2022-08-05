@@ -196,6 +196,14 @@ export const globalVariables: GlobalVariablesType = {
     "number",
     "timestamp",
   ],
+  "msg.sender": [
+    "balance",
+    "code",
+    "codehash",
+    "call",
+    "delegatecall",
+    "staticcall",
+  ],
   msg: ["data", "sender", "value"],
   tx: ["gasprice", "origin"],
 };
