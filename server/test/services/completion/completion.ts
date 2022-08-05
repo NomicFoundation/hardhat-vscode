@@ -166,6 +166,14 @@ describe("Parser", () => {
             "encodeWithSignature",
           ]
         ));
+
+      it("should provide msg.sender completions", () =>
+        assertCompletion(
+          completion,
+          globalVariablesUri,
+          { line: 21, character: 26 },
+          ["balance", "code", "codehash", "call", "delegatecall", "staticcall"]
+        ));
     });
   });
 });

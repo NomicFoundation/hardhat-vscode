@@ -13,6 +13,7 @@ import {
   Position,
   expressionNodeTypes,
   TextDocument,
+  MemberAccessNode,
 } from "@common/types";
 import { getParserPositionFromVSCodePosition } from "@common/utils";
 import { Logger } from "@utils/Logger";
@@ -127,7 +128,7 @@ export function doComplete(
 
     for (const orphanNode of documentAnalyzer.orphanNodes) {
       if (isNodePosition(orphanNode, newPosition)) {
-        definitionNode = orphanNode;
+        definitionNode = getLastExpressionNode(orphanNode);
         break;
       }
     }
@@ -140,7 +141,7 @@ export function doComplete(
     return null;
   }
 
-  const definitionNodeName = definitionNode?.getName();
+  const definitionNodeName = getFullName(definitionNode);
   if (definitionNodeName === "this") {
     result.items = getThisCompletions(documentAnalyzer, position);
   } else if (definitionNodeName === "super") {
@@ -472,17 +473,18 @@ function getTypeName(typeNode: TypeName | null): string {
 }
 
 function isNodePosition(node: Node, position: Position): boolean {
-  if (
-    node.nameLoc &&
-    node.nameLoc.start.line === position.line &&
-    node.nameLoc.end.line === position.line &&
-    node.nameLoc.start.column <= position.column &&
-    node.nameLoc.end.column >= position.column
-  ) {
-    return true;
-  }
+  const nameLoc = node.nameLoc;
 
-  return false;
+  if (!nameLoc) return false;
+
+  const lastExpressionNodeNameLoc = getLastExpressionNode(node).nameLoc;
+
+  return (
+    nameLoc.start.line === position.line &&
+    nameLoc.end.line === position.line &&
+    nameLoc.start.column <= position.column &&
+    (lastExpressionNodeNameLoc?.end || nameLoc.end).column >= position.column
+  );
 }
 
 function findContractDefinition(
@@ -527,3 +529,28 @@ function findContractDefinition(
     }
   }
 }
+
+const getLastExpressionNode = (node: Node): Node => {
+  let lastExpressionNode: Node = node;
+  while (
+    lastExpressionNode.expressionNode &&
+    lastExpressionNode.expressionNode.name !== "_"
+  ) {
+    lastExpressionNode = lastExpressionNode.expressionNode;
+  }
+  return lastExpressionNode;
+};
+
+/**
+ * Get a node name or chain of names if it's a MemberAccessNode
+ * e.g. foo.bar.baz
+ */
+const getFullName = (node: Node | undefined): string | undefined => {
+  if (!node) {
+    return undefined;
+  } else if (node instanceof MemberAccessNode) {
+    return `${getFullName(node.previousMemberAccessNode)}.${node.name}`;
+  } else {
+    return node.name;
+  }
+};
