@@ -5,6 +5,7 @@ import { ConstrainMutability } from "./diagnostics/ConstrainMutability";
 import { ContractCodeSize } from "./diagnostics/ContractCodeSize";
 import { MarkContractAbstract } from "./diagnostics/MarkContractAbstract";
 import { SpecifyVisibility } from "./diagnostics/SpecifyVisibility";
+import { SpecifyCompilerVersion } from "./diagnostics/SpecifyCompilerVersion";
 import { CompilerDiagnostic } from "./types";
 
 export const compilerDiagnostics: { [key: string]: CompilerDiagnostic } = [
@@ -15,4 +16,5 @@ export const compilerDiagnostics: { [key: string]: CompilerDiagnostic } = [
   new ContractCodeSize(),
   new MarkContractAbstract(),
   new SpecifyVisibility(),
+  new SpecifyCompilerVersion(),
 ].reduce((acc, item) => ({ ...acc, [item.code]: item }), {});
