@@ -40,19 +40,18 @@ export function onDidChangeContent(serverState: ServerState) {
   };
 
   return (change: TextDocumentChangeEvent<TextDocument>) => {
+    const { logger } = serverState;
     try {
       if (change.document.languageId !== "solidity") {
         return;
       }
-
-      const { logger } = serverState;
 
       logger.trace("onDidChangeContent");
 
       debouncePerDocument(debounceState.analyse, serverState, change);
       debouncePerDocument(debounceState.validate, serverState, change);
     } catch (err) {
-      serverState.logger.error(err);
+      logger.error(err);
     }
   };
 }
