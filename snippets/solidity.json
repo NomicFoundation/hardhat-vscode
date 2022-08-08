@@ -5,6 +5,11 @@
 			"body": "// SPDX-License-Identifier: SEE LICENSE IN LICENSE\npragma solidity ${1};",
 			"description": "Pragma statement."
 		},
+    "license": {
+      "prefix": "license",
+      "body": "// SPDX-License-Identifier: ${1|MIT,GPL-2.0-or-later,GPL-3.0-or-later,Unlicense|}",
+      "description": "License identifier."
+    },
 		"import": {
 			"prefix": "import",
 			"body": "import \"${1:filename}\";",

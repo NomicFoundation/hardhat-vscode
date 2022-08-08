@@ -1,3 +1,4 @@
+import { AddLicenseIdentifier } from "./diagnostics/AddLicenseIdentifier";
 import { AddMultiOverrideSpecifier } from "./diagnostics/AddMultiOverrideSpecifier";
 import { AddOverrideSpecifier } from "./diagnostics/AddOverrideSpecifier";
 import { AddVirtualSpecifier } from "./diagnostics/AddVirtualSpecifier";
@@ -10,6 +11,7 @@ import { CompilerDiagnostic } from "./types";
 
 export const compilerDiagnostics: { [key: string]: CompilerDiagnostic } = [
   new AddOverrideSpecifier(),
+  new AddLicenseIdentifier(),
   new AddMultiOverrideSpecifier(),
   new AddVirtualSpecifier(),
   new ConstrainMutability(),
