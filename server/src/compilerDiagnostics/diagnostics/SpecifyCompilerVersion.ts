@@ -6,8 +6,8 @@ import {
   Range,
 } from "vscode-languageserver/node";
 import { CompilerDiagnostic, ResolveActionsContext } from "../types";
-import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
 import { HardhatCompilerError, ServerState } from "../../types";
+import { passThroughConversion } from "../conversions/passThroughConversion";
 
 /**
  * This diagnostic is shown when no compiler version is specified
@@ -24,7 +24,7 @@ export class SpecifyCompilerVersion implements CompilerDiagnostic {
     document: TextDocument,
     error: HardhatCompilerError
   ): Diagnostic {
-    return attemptConstrainToFunctionName(document, error);
+    return passThroughConversion(document, error);
   }
 
   public resolveActions(
@@ -41,19 +41,11 @@ export class SpecifyCompilerVersion implements CompilerDiagnostic {
       return [];
     }
 
-    // If diagnostic is shown on "// SPDX ..." line, insert on next line.
-    // Otherwise insert on previous line
-    const position = { character: 0, line: _diagnostic.range.end.line };
+    // If first line is license specifier, insert pragma statement after it
+    // Otherwise it is inserted on the first line
+    const position = { character: 0, line: 0 };
 
-    const checkRange: Range = {
-      start: _diagnostic.range.start,
-      end: {
-        line: _diagnostic.range.end.line,
-        character: _diagnostic.range.end.character + 1,
-      },
-    };
-
-    if (document.getText(checkRange) === "/") {
+    if (/^\/\/\s*SPDX-License-Identifier:/.test(document.getText())) {
       position.line += 1;
     }
 
