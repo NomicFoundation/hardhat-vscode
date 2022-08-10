@@ -26,7 +26,7 @@ export class Multioverride {
   }
 
   public toString(): string {
-    return `override(${this.contractIdentifiers.join(", ")})`;
+    return `override(${this.contractIdentifiers.sort().join(", ")})`;
   }
 }
 
