@@ -2,14 +2,29 @@
 
 To publish `hardhat-solidity` you need to do next steps:
 
-1.  Checkout out `main`
-2.  Run a full check, stopping on failure: `yarn fullcheck`
-3.  Update the package version and changelog with changeset: `yarn changeset version`
-4.  Check the version and changelog make sense (for the moment the changelog will need to be manually cleaned up as changeset is not adding in the _Keep a Changelog_ format).
-5.  Git tag and push with: `yarn changeset tag && git push --follow-tags`
-6.  Run the package command to generate the `vsix` file in the project root: `yarn package`
-7.  We can test `.vsix` file by installing it manually in VSCode.\
-    ![image](images/publish_extension_step_1.png)
-8.  Go to https://marketplace.visualstudio.com/manage/publishers/nomicfoundation and click on 3 dots.\
-    ![image](images/publish_extension_step_2.png)
-9.  Click on `Update` and find `.vsix` you want to release and click on `Upload`, and that's it, the new version was published. 🎉🎉🎉
+1. Checkout out `development`
+2. Run a full check, stopping on failure: `yarn fullcheck`, you can check that each commit meets our build requirements with: `git rebase main --exec "yarn && yarn fullcheck"`
+3. Confirm the commits represent the features for the release
+4. Branch into a release branch named for the current date: `git checkout -b release/yyyy-mm-dd`
+5. Update the package version based on semver
+6. Update the changelog by adding a new entry for the new version based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+7. Commit the package version and changelog change as a version bump commit:
+
+```
+chore: bump version to v0.x.x
+
+Update the package version and changelog for the `0.x.x - yyyy-mm-dd`
+release.
+```
+8. Push the release branch and open a pull request using the new changelog entry as the PR description
+9. Generate a release candidate vsix file with `yarn package`, the vsix file should appear in the root of the repo with the new version number
+10. Manually run smoke tests on the new features across:
+  - mac os x
+  - windows
+  - vscode running against docker
+11. On a successful check, `rebase merge` the release branch into main
+12. Switch to main branch and pull the latest changes
+13. Git tag the version and push the tag `git push --follow-tags`
+14. Upload the vsix file to the microsoft marketplace
+15. Upload the vsix file to openvsx
+16. Rebase `development` onto `main`
