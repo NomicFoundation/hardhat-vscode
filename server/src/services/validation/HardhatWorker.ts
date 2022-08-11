@@ -2,6 +2,7 @@ import * as childProcess from "child_process";
 import * as path from "path";
 import { HardhatProject } from "@analyzer/HardhatProject";
 import { Logger } from "@utils/Logger";
+import { Connection } from "vscode-languageserver";
 import {
   InitialisationCompleteMessage,
   InvalidatePreprocessingCacheMessage,
@@ -33,6 +34,7 @@ export function createProcessFor(
 export class HardhatWorker implements WorkerProcess {
   public project: HardhatProject;
   public status: HardhatWorkerStatus;
+  public connection: Connection;
   public jobs: {
     [key: string]: {
       resolve: (message: ValidationCompleteMessage) => void;
@@ -52,7 +54,8 @@ export class HardhatWorker implements WorkerProcess {
     givenCreateProcessFor: (
       project: HardhatProject
     ) => childProcess.ChildProcess,
-    logger: Logger
+    logger: Logger,
+    connection: Connection
   ) {
     this.child = null;
     this.jobCount = 0;
@@ -61,6 +64,7 @@ export class HardhatWorker implements WorkerProcess {
     this.project = project;
     this.createProcessFor = givenCreateProcessFor;
     this.logger = logger;
+    this.connection = connection;
 
     this.status = UNINITIALIZED;
   }
@@ -93,6 +97,9 @@ export class HardhatWorker implements WorkerProcess {
             this.logger.trace(
               `initialisation complete for ${this.project.basePath}`
             );
+            this.connection.sendNotification("custom/worker-initialized", {
+              projectBasePath: this.project.basePath,
+            });
             break;
           case "VALIDATION_COMPLETE":
             this._validationComplete(message);

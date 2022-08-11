@@ -28,7 +28,8 @@ export interface CompilerProcess {
 
 export type CompilerProcessFactory = (
   project: HardhatProject,
-  logger: Logger
+  logger: Logger,
+  connection: Connection
 ) => WorkerProcess;
 
 export interface WorkerProcess {

@@ -51,13 +51,6 @@ export function setupIndexingHooks(
             indexingStatusItem.detail = `${data.total} files`;
           }
 
-          // Files that were open on vscode load, will
-          // have swallowed the `didChange` event as the
-          // language server wasn't intialized yet. We
-          // revalidate open editor files after indexing
-          // to ensure warning and errors appear on startup.
-          triggerValidationForOpenDoc(client, data.path);
-
           // check to display language status item
           if (
             window.activeTextEditor &&
@@ -83,8 +76,21 @@ export function setupIndexingHooks(
         }
       );
 
+      const workerInitializedDisposable = client.onNotification(
+        "custom/worker-initialized",
+        (data: { projectBasePath: string }) => {
+          // Files that were open on vscode load, will
+          // have swallowed the `didChange` event as the
+          // language server wasn't intialized yet. We
+          // revalidate open editor files after indexing
+          // to ensure warning and errors appear on startup.
+          triggerValidationForOpenDoc(client, data.projectBasePath);
+        }
+      );
+
       extensionState.listenerDisposables.push(indexingStartDisposable);
       extensionState.listenerDisposables.push(indexDisposable);
+      extensionState.listenerDisposables.push(workerInitializedDisposable);
     })
     .catch((reason) => extensionState.logger.error(reason));
 }
@@ -106,14 +112,16 @@ function setupIndexingLanguageStatusItem(jobId: number): LanguageStatusItem {
 /**
  * If the doc is open, trigger a noop change on the server to start validation.
  */
-function triggerValidationForOpenDoc(client: LanguageClient, path: string) {
-  const textDoc = workspace.textDocuments.find((d) => d.uri.path === path);
-
-  if (!textDoc) {
-    return;
-  }
-
-  notifyOfNoopChange(client, textDoc);
+function triggerValidationForOpenDoc(
+  client: LanguageClient,
+  projectBasePath: string
+) {
+  workspace.textDocuments.forEach((doc) => {
+    // Only trigger files that belong to the project whose worker is ready
+    if (doc.uri.path.includes(projectBasePath)) {
+      notifyOfNoopChange(client, doc);
+    }
+  });
 }
 
 /**
