@@ -66,7 +66,8 @@ function setupWorkerProcesses(serverState: ServerState) {
 
     const workerProcess = serverState.compProcessFactory(
       project,
-      serverState.logger
+      serverState.logger,
+      serverState.connection
     );
 
     workerProcesses[project.basePath] = workerProcess;
