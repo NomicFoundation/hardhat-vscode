@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.5.0 - 2022-08-11
+
+### Added
+
+- Added Quickfix for missing solidity compiler version pragma ([#25](https://github.com/NomicFoundation/hardhat-vscode/issues/25))
+
+### Fixed
+
+- Fix to validation to clear diagnostics when all warnings/errors are in files other than the open editor ([#221](https://github.com/NomicFoundation/hardhat-vscode/issues/221))
+- Fix to formatting to not remove semi-colons on virtual modifiers ([#219](https://github.com/NomicFoundation/hardhat-vscode/issues/219))
+- Fix to completions for `msg.sender` ([#202](https://github.com/NomicFoundation/hardhat-vscode/issues/202))
+
 ## 0.4.6 - 2022-08-04
 
 ### Added
@@ -32,7 +44,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
-- Speed up validation by caching solc input for the same page ([198](https://github.com/NomicFoundation/hardhat-vscode/pull/198))
+- Speed up validation by caching solc input for the same page ([#198](https://github.com/NomicFoundation/hardhat-vscode/pull/198))
 - Speed up validation by removing code generation steps from solc ([#197](https://github.com/NomicFoundation/hardhat-vscode/pull/197))
 
 ## 0.4.1 - 2022-06-08
