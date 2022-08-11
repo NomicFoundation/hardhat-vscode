@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { HardhatProject } from "@analyzer/HardhatProject";
 import { HardhatWorker } from "@services/validation/HardhatWorker";
 import { assert } from "chai";
 import * as sinon from "sinon";
+import { Connection } from "vscode-languageserver";
+import { setupMockConnection } from "../../helpers/setupMockConnection";
 import { setupMockLogger } from "../../helpers/setupMockLogger";
 
 describe("Hardhat Worker", () => {
@@ -14,27 +17,32 @@ describe("Hardhat Worker", () => {
       uri: "/example",
     },
   };
+  const mockConnection = setupMockConnection();
+  let mockChildProcess: any;
+  const processFactory = () => {
+    return mockChildProcess;
+  };
+  const mockLogger = setupMockLogger();
+  let hardhatWorker: HardhatWorker;
+
+  beforeEach(() => {
+    // Instantiate mocks before each testcase
+    mockChildProcess = {
+      callbacks: {},
+      kill: sinon.spy(),
+      on(event: string, callback: () => {}) {
+        this.callbacks[event] = callback;
+      },
+    };
+    hardhatWorker = new HardhatWorker(
+      exampleProj,
+      processFactory,
+      mockLogger,
+      mockConnection as unknown as Connection
+    );
+  });
 
   describe("initialization", () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let mockProcessCreator: any;
-    let hardhatWorker: HardhatWorker;
-
-    beforeEach(() => {
-      const mockLogger = setupMockLogger();
-      mockProcessCreator = function () {
-        return {
-          on: sinon.spy(),
-        };
-      };
-
-      hardhatWorker = new HardhatWorker(
-        exampleProj,
-        mockProcessCreator,
-        mockLogger
-      );
-    });
-
     it("should set the worker to STARTING", () => {
       hardhatWorker.init();
 
@@ -62,31 +70,25 @@ describe("Hardhat Worker", () => {
         );
       });
     });
+
+    describe("on child's initialization complete", function () {
+      it("sends a custom notification", async () => {
+        hardhatWorker.init();
+        const onMessageCallback = mockChildProcess.callbacks.message;
+        onMessageCallback({ type: "INITIALISATION_COMPLETE" });
+        sinon.assert.calledWith(
+          mockConnection.sendNotification,
+          "custom/worker-initialized",
+          { projectBasePath: exampleProj.basePath }
+        );
+      });
+    });
   });
 
   describe("on exit", () => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let mockChildProcess: any;
-    let hardhatWorker: HardhatWorker;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let openJob: any;
 
     beforeEach(() => {
-      const mockLogger = setupMockLogger();
-      mockChildProcess = {
-        kill: sinon.spy(),
-        on: sinon.spy(),
-      };
-
-      hardhatWorker = new HardhatWorker(
-        exampleProj,
-        () => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          return mockChildProcess as any;
-        },
-        mockLogger
-      );
-
       openJob = {
         resolve: sinon.spy(),
         reject: sinon.spy(),
