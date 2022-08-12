@@ -5,6 +5,8 @@ on:
   pull_request:
     branches:
       - "*"
+  workflow_dispatch:
+    
 
 jobs:
   build:
@@ -20,11 +22,24 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.x"
 
+      - name: Cache Node Modules
+        id: cache-node-modules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: |
+            node_modules
+            client/node_modules
+            server/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
+
       - name: Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: yarn install
 
       - name: Lint
@@ -32,6 +47,15 @@ jobs:
 
       - name: Run server tests
         run: yarn run test:codecov
+
+      - name: Cache VS Code client
+        id: cache-vscode
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-vscode
+        with:
+          path: .vscode-test
+          key: ${{ runner.os }}-vscode-${{ matrix.version }}
 
       - name: Run integration tests
         uses: GabrielBB/xvfb-action@v1.0
