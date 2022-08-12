@@ -29,7 +29,7 @@ export const withRandomFileEditor = async (
     editor.selection = new vscode.Selection(position, position);
   }
 
-  await sleep(200); // Wait a bit, otherwise onEnterRules randomly don't work on test scenarios
+  await sleep(300); // Wait a bit, otherwise onEnterRules randomly don't work on test scenarios
 
   await run(editor, document);
 
