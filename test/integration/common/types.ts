@@ -92,7 +92,7 @@ export interface NavigationProvider {
 }
 
 export interface Client {
-  client: lsclient.LanguageClient | null;
+  client: lsclient.LanguageClient;
   tokenSource: vscode.CancellationTokenSource;
 
   document: vscode.TextDocument | null;
@@ -104,6 +104,4 @@ export interface Client {
   activate(docUri: vscode.Uri): Promise<void>;
 
   changeDocument(docUri: vscode.Uri): Promise<void>;
-
-  getVSCodeClient(): lsclient.LanguageClient;
 }

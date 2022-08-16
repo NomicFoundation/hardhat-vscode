@@ -28,31 +28,14 @@ export async function getClient(): Promise<Client> {
 }
 
 class Client implements IClient {
-  public client: lsclient.LanguageClient | null = null;
+  public client: lsclient.LanguageClient;
   public tokenSource: vscode.CancellationTokenSource =
     new vscode.CancellationTokenSource();
-
-  private middleware: lsclient.Middleware | null = null;
-  private editor: vscode.TextEditor | null = null;
 
   public document: vscode.TextDocument | null = null;
   public docUri: vscode.Uri | null = null;
 
-  /**
-   * Activates the extension
-   */
-  public async activate(): Promise<void> {
-    // The extensionId is `publisher.name` from package.json
-    const ext = vscode.extensions.getExtension(
-      "nomicfoundation.hardhat-solidity"
-    );
-
-    if (!ext) {
-      throw new Error("Extension not found");
-    }
-
-    await ext.activate();
-
+  constructor() {
     const serverModule = path.join(
       __dirname,
       "..",
@@ -72,13 +55,11 @@ class Client implements IClient {
       },
     };
 
-    this.middleware = {};
     const clientOptions: lsclient.LanguageClientOptions = {
       documentSelector: [{ scheme: "file", language: "solidity" }],
       synchronize: {
         fileEvents: vscode.workspace.createFileSystemWatcher("**/.sol"),
       },
-      middleware: this.middleware,
       initializationOptions: {
         extensionName: "nomicfoundation.hardhat-solidity",
         extensionVersion: "0.0.0",
@@ -95,6 +76,22 @@ class Client implements IClient {
       serverOptions,
       clientOptions
     );
+  }
+
+  /**
+   * Activates the extension
+   */
+  public async activate(): Promise<void> {
+    // The extensionId is `publisher.name` from package.json
+    const ext = vscode.extensions.getExtension(
+      "nomicfoundation.hardhat-solidity"
+    );
+
+    if (!ext) {
+      throw new Error("Extension not found");
+    }
+
+    await ext.activate();
 
     this.client.start();
 
@@ -108,14 +105,5 @@ class Client implements IClient {
     this.docUri = docUri;
 
     this.document = await vscode.workspace.openTextDocument(this.docUri);
-    this.editor = await vscode.window.showTextDocument(this.document);
-  }
-
-  public getVSCodeClient(): lsclient.LanguageClient {
-    if (!this.client) {
-      throw new Error("Client not set");
-    }
-
-    return this.client;
   }
 }

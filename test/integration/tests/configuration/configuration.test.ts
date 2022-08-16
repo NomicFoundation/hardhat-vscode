@@ -12,7 +12,7 @@ suite("Configuration", function () {
 
   suiteSetup(async () => {
     client = await getClient();
-    vscodeClient = client.getVSCodeClient();
+    vscodeClient = client.client;
   });
 
   test("InitializeResult", () => {
