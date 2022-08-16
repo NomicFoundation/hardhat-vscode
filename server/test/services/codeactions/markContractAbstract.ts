@@ -25,7 +25,7 @@ describe("Code Actions", () => {
           ).toString();
         });
 
-        it("should provide code action to add abstract keyword", () => {
+        it("should provide code action to add abstract keyword", async () => {
           const diagnostic = {
             code: "3656",
             message: 'Contract "Counter" should be marked as abstract.',
@@ -38,7 +38,7 @@ describe("Code Actions", () => {
             },
           };
 
-          assertCodeAction(
+          await assertCodeAction(
             markContractAbstract,
             markContractAbstractText,
             diagnostic,
@@ -68,7 +68,7 @@ describe("Code Actions", () => {
           );
         });
 
-        it("should provide code action to implement missing interface functions", () => {
+        it("should provide code action to implement missing interface functions", async () => {
           const diagnostic = {
             code: "3656",
             message: 'Contract "Counter" should be marked as abstract.',
@@ -81,7 +81,7 @@ describe("Code Actions", () => {
             },
           };
 
-          assertCodeAction(
+          await assertCodeAction(
             markContractAbstract,
             markContractAbstractText,
             diagnostic,
@@ -182,7 +182,7 @@ describe("Code Actions", () => {
           ).toString();
         });
 
-        it("should provide code action to implement missing interface functions", () => {
+        it("should provide code action to implement missing interface functions", async () => {
           const diagnostic = {
             code: "3656",
             message: 'Contract "Counter" should be marked as abstract.',
@@ -195,7 +195,7 @@ describe("Code Actions", () => {
             },
           };
 
-          assertCodeAction(
+          await assertCodeAction(
             markContractAbstract,
             singleInterfaceInheritanceText,
             diagnostic,
@@ -243,7 +243,7 @@ describe("Code Actions", () => {
           ).toString();
         });
 
-        it("should provide code action to implement missing interface functions", () => {
+        it("should provide code action to implement missing interface functions", async () => {
           const diagnostic = {
             code: "3656",
             message: 'Contract "Counter" should be marked as abstract.',
@@ -256,7 +256,7 @@ describe("Code Actions", () => {
             },
           };
 
-          assertCodeAction(
+          await assertCodeAction(
             markContractAbstract,
             multiInterfaceInheritance,
             diagnostic,
@@ -304,7 +304,7 @@ describe("Code Actions", () => {
           ).toString();
         });
 
-        it("should provide code action to implement missing interface functions", () => {
+        it("should provide code action to implement missing interface functions", async () => {
           const diagnostic = {
             code: "3656",
             message: 'Contract "I" should be marked as abstract.',
@@ -317,7 +317,7 @@ describe("Code Actions", () => {
             },
           };
 
-          assertCodeAction(
+          await assertCodeAction(
             markContractAbstract,
             multiInterfaceInheritance,
             diagnostic,
@@ -367,7 +367,7 @@ describe("Code Actions", () => {
           ).toString();
         });
 
-        it("should provide code action to implement missing interface functions", () => {
+        it("should provide code action to implement missing interface functions", async () => {
           const diagnostic = {
             code: "3656",
             message: 'Contract "Child" should be marked as abstract.',
@@ -380,7 +380,7 @@ describe("Code Actions", () => {
             },
           };
 
-          assertCodeAction(
+          await assertCodeAction(
             markContractAbstract,
             markContractAbstractText,
             diagnostic,
@@ -430,7 +430,7 @@ describe("Code Actions", () => {
           ).toString();
         });
 
-        it("should provide code action to implement missing interface functions", () => {
+        it("should provide code action to implement missing interface functions", async () => {
           const diagnostic = {
             code: "3656",
             message: 'Contract "Child" should be marked as abstract.',
@@ -443,7 +443,7 @@ describe("Code Actions", () => {
             },
           };
 
-          assertCodeAction(
+          await assertCodeAction(
             markContractAbstract,
             markContractAbstractText,
             diagnostic,
@@ -493,7 +493,7 @@ describe("Code Actions", () => {
           ).toString();
         });
 
-        it("should provide code action to implement missing interface functions", () => {
+        it("should provide code action to implement missing interface functions", async () => {
           const diagnostic = {
             code: "3656",
             message: 'Contract "C" should be marked as abstract.',
@@ -506,7 +506,7 @@ describe("Code Actions", () => {
             },
           };
 
-          assertCodeAction(
+          await assertCodeAction(
             markContractAbstract,
             interfaceInheritanceTwoDiamondsText,
             diagnostic,
