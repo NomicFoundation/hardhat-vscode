@@ -9,7 +9,7 @@ describe("Code Actions", () => {
   describe("Specify Visibility", () => {
     const specifyVisibility = new SpecifyVisibility();
 
-    it("should provide code actions", () => {
+    it("should provide code actions", async () => {
       const fileText = `  
       function greet() returns (string memory input) {
         return greeting;
@@ -27,7 +27,7 @@ describe("Code Actions", () => {
         },
       };
 
-      assertCodeAction(specifyVisibility, fileText, diagnostic, [
+      await assertCodeAction(specifyVisibility, fileText, diagnostic, [
         {
           title: "Add public visibilty to function declaration",
           kind: "quickfix",
@@ -71,7 +71,7 @@ describe("Code Actions", () => {
       ]);
     });
 
-    it("should provide code actions with poor whitespace before return", () => {
+    it("should provide code actions with poor whitespace before return", async () => {
       const fileText = `  
       function greet()returns (string memory input) {
         return greeting;
@@ -89,7 +89,7 @@ describe("Code Actions", () => {
         },
       };
 
-      assertCodeAction(specifyVisibility, fileText, diagnostic, [
+      await assertCodeAction(specifyVisibility, fileText, diagnostic, [
         {
           title: "Add public visibilty to function declaration",
           kind: "quickfix",

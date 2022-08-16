@@ -1,9 +1,13 @@
 import { assert } from "chai";
-import { Diagnostic, TextEdit } from "vscode-languageserver/node";
+import {
+  Diagnostic,
+  TextEdit,
+  WorkspaceFolder,
+} from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { CompilerDiagnostic } from "@compilerDiagnostics/types";
-import { indexWorkspaceFolders } from "@services/initialization/indexWorkspaceFolders";
-import { setupMockWorkspaceFileRetriever } from "../../../helpers/setupMockWorkspaceFileRetriever";
+import { getOrInitialiseSolFileEntry } from "@utils/getOrInitialiseSolFileEntry";
+import { analyzeSolFile } from "@analyzer/analyzeSolFile";
 import { setupMockLogger } from "../../../helpers/setupMockLogger";
 import { setupMockConnection } from "../../../helpers/setupMockConnection";
 import { ServerState } from "../../../../src/types";
@@ -24,26 +28,21 @@ export async function assertCodeAction(
   const document = TextDocument.create(exampleUri, "solidity", 0, docText);
 
   const mockLogger = setupMockLogger();
-  const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockConnection = setupMockConnection() as any;
 
-  const exampleWorkspaceFolder = { name: "example", uri: exampleUri };
-
   const serverState = {
     indexJobCount: 0,
-    workspaceFolders: [exampleWorkspaceFolder],
+    workspaceFolders: [] as WorkspaceFolder[],
     projects: {},
     connection: mockConnection,
     solFileIndex: {},
     logger: mockLogger,
   };
 
-  await indexWorkspaceFolders(
-    serverState,
-    mockWorkspaceFileRetriever,
-    serverState.workspaceFolders
-  );
+  const solFileEntry = getOrInitialiseSolFileEntry(serverState, exampleUri);
+
+  analyzeSolFile(serverState, solFileEntry, docText);
 
   const actions = compilerDiagnostic.resolveActions(
     serverState as ServerState,
