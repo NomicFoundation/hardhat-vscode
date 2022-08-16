@@ -46,8 +46,8 @@ async function assertDefinitionRequestResult(
 ) {
   const { client, tokenSource, document } = wrapClient;
 
-  if (!client || !document) {
-    throw new Error("Client or document not set");
+  if (!document) {
+    throw new Error("Document not set");
   }
 
   const provider = client
@@ -86,8 +86,8 @@ async function assertTypeDefinitionRequestResult(
 ): Promise<void> {
   const { client, tokenSource, document } = wrapClient;
 
-  if (!client || !document) {
-    throw new Error("Client or document not set");
+  if (!document) {
+    throw new Error("Document not set");
   }
 
   const provider = client
@@ -132,8 +132,8 @@ async function assertReferencesRequestResult(
 ): Promise<void> {
   const { client, tokenSource, document } = wrapClient;
 
-  if (!client || !document) {
-    throw new Error("Client or document not set");
+  if (!document) {
+    throw new Error("Document not set");
   }
 
   const provider = client
@@ -200,8 +200,8 @@ async function assertImplementationRequestResult(
 ): Promise<void> {
   const { client, tokenSource, document } = wrapClient;
 
-  if (!client || !document) {
-    throw new Error("Client or document not set");
+  if (!document) {
+    throw new Error("Document not set");
   }
 
   const provider = client
@@ -246,8 +246,8 @@ async function assertRenameRequestResult(
 ): Promise<void> {
   const { client, tokenSource, document } = wrapClient;
 
-  if (!client || !document) {
-    throw new Error("Client or document not set");
+  if (!document) {
+    throw new Error("Document not set");
   }
 
   const provider = client
