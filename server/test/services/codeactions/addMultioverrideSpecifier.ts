@@ -17,7 +17,7 @@ describe("Code Actions", () => {
     });
 
     describe("single line function headers", () => {
-      it("should provide option when no other keywords", () => {
+      it("should provide option when no other keywords", async () => {
         const diagnostic = {
           code: "4327",
           message:
@@ -31,7 +31,7 @@ describe("Code Actions", () => {
           },
         };
 
-        assertCodeAction(
+        await assertCodeAction(
           addOverrideSpecifier,
           addMultiOverrideSpecifierText,
           diagnostic,
@@ -60,7 +60,7 @@ describe("Code Actions", () => {
         );
       });
 
-      it("should provide option when visibility, mutability and virtual present", () => {
+      it("should provide option when visibility, mutability and virtual present", async () => {
         const diagnostic = {
           code: "4327",
           message:
@@ -74,7 +74,7 @@ describe("Code Actions", () => {
           },
         };
 
-        assertCodeAction(
+        await assertCodeAction(
           addOverrideSpecifier,
           addMultiOverrideSpecifierText,
           diagnostic,
@@ -105,7 +105,7 @@ describe("Code Actions", () => {
     });
 
     describe("multi-line function headers", () => {
-      it("should provide option when return statement present", () => {
+      it("should provide option when return statement present", async () => {
         const diagnostic = {
           code: "4327",
           message:
@@ -119,7 +119,7 @@ describe("Code Actions", () => {
           },
         };
 
-        assertCodeAction(
+        await assertCodeAction(
           addOverrideSpecifier,
           addMultiOverrideSpecifierText,
           diagnostic,

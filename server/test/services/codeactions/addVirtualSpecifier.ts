@@ -17,7 +17,7 @@ describe("Code Actions", () => {
     });
 
     describe("single line function headers", () => {
-      it("should provide option when no visibility or mutability", () => {
+      it("should provide option when no visibility or mutability", async () => {
         const diagnostic = {
           code: "4334",
           message:
@@ -31,7 +31,7 @@ describe("Code Actions", () => {
           },
         };
 
-        assertCodeAction(
+        await assertCodeAction(
           addVirtualSpecifier,
           addVirtualSpecifierText,
           diagnostic,
@@ -60,7 +60,7 @@ describe("Code Actions", () => {
         );
       });
 
-      it("should provide option when visibility but no mutability", () => {
+      it("should provide option when visibility but no mutability", async () => {
         const diagnostic = {
           code: "4334",
           message:
@@ -74,7 +74,7 @@ describe("Code Actions", () => {
           },
         };
 
-        assertCodeAction(
+        await assertCodeAction(
           addVirtualSpecifier,
           addVirtualSpecifierText,
           diagnostic,
@@ -103,7 +103,7 @@ describe("Code Actions", () => {
         );
       });
 
-      it("should provide option when visibility and mutability present", () => {
+      it("should provide option when visibility and mutability present", async () => {
         const diagnostic = {
           code: "4334",
           message:
@@ -117,7 +117,7 @@ describe("Code Actions", () => {
           },
         };
 
-        assertCodeAction(
+        await assertCodeAction(
           addVirtualSpecifier,
           addVirtualSpecifierText,
           diagnostic,
@@ -146,7 +146,7 @@ describe("Code Actions", () => {
         );
       });
 
-      it("should provide option when modifier present", () => {
+      it("should provide option when modifier present", async () => {
         const diagnostic = {
           code: "4334",
           message:
@@ -160,7 +160,7 @@ describe("Code Actions", () => {
           },
         };
 
-        assertCodeAction(
+        await assertCodeAction(
           addVirtualSpecifier,
           addVirtualSpecifierText,
           diagnostic,
@@ -191,7 +191,7 @@ describe("Code Actions", () => {
     });
 
     describe("multi-line function headers", () => {
-      it("should provide option when no visibility or mutability", () => {
+      it("should provide option when no visibility or mutability", async () => {
         const diagnostic = {
           code: "4334",
           message:
@@ -205,7 +205,7 @@ describe("Code Actions", () => {
           },
         };
 
-        assertCodeAction(
+        await assertCodeAction(
           addVirtualSpecifier,
           addVirtualSpecifierText,
           diagnostic,
@@ -234,7 +234,7 @@ describe("Code Actions", () => {
         );
       });
 
-      it("should provide option when visibility but no mutability", () => {
+      it("should provide option when visibility but no mutability", async () => {
         const diagnostic = {
           code: "4334",
           message:
@@ -248,7 +248,7 @@ describe("Code Actions", () => {
           },
         };
 
-        assertCodeAction(
+        await assertCodeAction(
           addVirtualSpecifier,
           addVirtualSpecifierText,
           diagnostic,
@@ -277,7 +277,7 @@ describe("Code Actions", () => {
         );
       });
 
-      it("should provide option when visibility and mutability present", () => {
+      it("should provide option when visibility and mutability present", async () => {
         const diagnostic = {
           code: "4334",
           message:
@@ -291,7 +291,7 @@ describe("Code Actions", () => {
           },
         };
 
-        assertCodeAction(
+        await assertCodeAction(
           addVirtualSpecifier,
           addVirtualSpecifierText,
           diagnostic,
@@ -320,7 +320,7 @@ describe("Code Actions", () => {
         );
       });
 
-      it("should provide option when modifier present", () => {
+      it("should provide option when modifier present", async () => {
         const diagnostic = {
           code: "4334",
           message:
@@ -334,7 +334,7 @@ describe("Code Actions", () => {
           },
         };
 
-        assertCodeAction(
+        await assertCodeAction(
           addVirtualSpecifier,
           addVirtualSpecifierText,
           diagnostic,

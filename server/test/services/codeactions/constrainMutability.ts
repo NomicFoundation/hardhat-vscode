@@ -21,7 +21,7 @@ describe("Code Actions", () => {
 
   describe("Constrain Mutability", () => {
     describe("to view", () => {
-      it('should provide option to "Add view modifier to function declaration"', () => {
+      it('should provide option to "Add view modifier to function declaration"', async () => {
         const diagnostic = {
           code: "2018",
           message: "Function state mutability can be restricted to view",
@@ -37,7 +37,7 @@ describe("Code Actions", () => {
           },
         };
 
-        assertCodeAction(
+        await assertCodeAction(
           constrainMutability,
           constrainMutabilityText,
           diagnostic,
@@ -66,7 +66,7 @@ describe("Code Actions", () => {
         );
       });
 
-      it("should provide view option to functions with modifiers", () => {
+      it("should provide view option to functions with modifiers", async () => {
         const diagnostic = {
           code: "2018",
           message: "Function state mutability can be restricted to view",
@@ -82,7 +82,7 @@ describe("Code Actions", () => {
           },
         };
 
-        assertCodeAction(
+        await assertCodeAction(
           constrainMutability,
           constrainMutabilityText,
           diagnostic,
@@ -113,7 +113,7 @@ describe("Code Actions", () => {
     });
 
     describe("to pure", () => {
-      it('should provide option to "Add pure modifier to function declaration"', () => {
+      it('should provide option to "Add pure modifier to function declaration"', async () => {
         const diagnostic = {
           code: "2018",
           message: "Function state mutability can be restricted to pure",
@@ -129,7 +129,7 @@ describe("Code Actions", () => {
           },
         };
 
-        assertCodeAction(
+        await assertCodeAction(
           constrainMutability,
           constrainMutabilityText,
           diagnostic,
@@ -158,7 +158,7 @@ describe("Code Actions", () => {
         );
       });
 
-      it('should provide option to "Change view modifier to pure in function declaration"', () => {
+      it('should provide option to "Change view modifier to pure in function declaration"', async () => {
         const diagnostic = {
           code: "2018",
           message: "Function state mutability can be restricted to pure",
@@ -174,7 +174,7 @@ describe("Code Actions", () => {
           },
         };
 
-        assertCodeAction(
+        await assertCodeAction(
           constrainMutability,
           constrainMutabilityText,
           diagnostic,
@@ -203,7 +203,7 @@ describe("Code Actions", () => {
         );
       });
 
-      it("should provide pure option to functions with modifiers", () => {
+      it("should provide pure option to functions with modifiers", async () => {
         const diagnostic = {
           code: "2018",
           message: "Function state mutability can be restricted to pure",
@@ -216,7 +216,7 @@ describe("Code Actions", () => {
           },
         };
 
-        assertCodeAction(
+        await assertCodeAction(
           constrainMutability,
           constrainMutabilityText,
           diagnostic,
