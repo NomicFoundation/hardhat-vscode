@@ -48,3 +48,8 @@ const createRandomFile = async (
 const deleteFile = (file: vscode.Uri): void => {
   fs.unlinkSync(file.fsPath);
 };
+
+export const openFileInEditor = async (uri: vscode.Uri) => {
+  const doc = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(doc);
+};

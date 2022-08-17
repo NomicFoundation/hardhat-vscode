@@ -160,12 +160,7 @@ module.exports = {
     "guard-for-in": "error",
     "id-blacklist": "error",
     "id-match": "error",
-    "import/no-extraneous-dependencies": [
-      "error",
-      {
-        devDependencies: ["**/test/**/*.ts"],
-      },
-    ],
+    "import/no-extraneous-dependencies": "off",
     "import/order": [
       "error",
       {
