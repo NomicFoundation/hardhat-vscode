@@ -44,7 +44,7 @@
   "scripts": {
     "build": "tsc -b ./client/tsconfig.json && tsc -b ./server/tsconfig.build.json && tsc -b",
     "watch": "concurrently -n client,server \"tsc -b -w ./client/tsconfig.json\" \"tsc -b -w ./server/tsconfig.build.json\"",
-    "postinstall": "yarn install --cwd ./client && yarn install --ignore-platform --cwd ./server",
+    "postinstall": "yarn install --cwd ./client && yarn install --ignore-platform --cwd ./server && yarn install --cwd ./test/integration",
     "test:integration": "yarn run build && node ./out/test/runTests.js",
     "test:unit": "yarn --cwd ./server run test",
     "test": "yarn run test:unit && yarn run test:integration",
