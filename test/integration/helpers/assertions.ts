@@ -62,3 +62,35 @@ export function isArray<T>(
   );
   assert.strictEqual(value.length, length, "value invalid length");
 }
+
+/**
+ * Assert a diagnostic is present in the given file, or listen to future
+ * diagnostics and resolve once a matching one arrives
+ */
+export async function checkOrWaitDiagnostic(
+  uri: vscode.Uri,
+  range: vscode.Range,
+  severity: vscode.DiagnosticSeverity,
+  source: string,
+  message: string
+) {
+  await new Promise((resolve, _reject) => {
+    const checkDiagnostics = () => {
+      const diagnostics = vscode.languages.getDiagnostics(uri);
+      if (
+        diagnostics.some(
+          (diagnostic) =>
+            diagnostic.range.isEqual(range) &&
+            diagnostic.severity === severity &&
+            diagnostic.source === source &&
+            diagnostic.message.includes(message)
+        )
+      ) {
+        resolve(true);
+      }
+    };
+
+    checkDiagnostics();
+    vscode.languages.onDidChangeDiagnostics(checkDiagnostics);
+  });
+}

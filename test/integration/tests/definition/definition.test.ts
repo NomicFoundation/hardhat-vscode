@@ -170,7 +170,7 @@ suite("Single-file Navigation", function () {
     let expectedPath = path
       .join(
         __dirname,
-        "../node_modules/@openzeppelin/contracts/access/Ownable.sol"
+        "../../node_modules/@openzeppelin/contracts/access/Ownable.sol"
       )
       .replace("/out/", "/")
       .replace("\\out\\", "\\")
@@ -196,11 +196,11 @@ suite("Single-file Navigation", function () {
           },
           range: [
             {
-              line: 2,
+              line: 3,
               character: 0,
             },
             {
-              line: 71,
+              line: 76,
               character: 0,
             },
           ],

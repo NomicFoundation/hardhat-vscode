@@ -36,6 +36,7 @@ jobs:
             node_modules
             client/node_modules
             server/node_modules
+            test/integration/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install dependencies

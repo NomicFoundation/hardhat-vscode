@@ -12,14 +12,7 @@ import { runTests } from "@vscode/test-electron";
     // Passed to --extensionTestsPath
     const extensionTestsPath = path.resolve(__dirname, "integration", "index");
 
-    const folder = path.resolve(
-      __dirname,
-      "..",
-      "..",
-      "test",
-      "integration",
-      "tests"
-    );
+    const folder = path.resolve(__dirname, "..", "..", "test", "integration");
 
     // Download VS Code, unzip it and run the integration test
     await runTests({

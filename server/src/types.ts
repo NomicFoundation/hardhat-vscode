@@ -96,21 +96,10 @@ export interface BuildContext {
   solcBuild?: any;
 }
 
-export interface BuildJob {
+export interface BuildJob extends BuildDetails {
   status: "processing" | "cancelled";
   context: BuildContext;
   startTime: Date;
-
-  uri: string;
-  jobId: number;
-  projectBasePath: string;
-  documentText: string;
-  openDocuments: Array<{
-    uri: string;
-    documentText: string;
-  }>;
-  added: Date;
-
   preprocessingFinished?: Date;
   fromInputCache: boolean;
 }
