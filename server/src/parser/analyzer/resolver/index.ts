@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import path from "node:path";
+import * as path from "path";
 import { Remapping } from "@common/types";
 import { toUnixStyle } from "../../../utils";
 
