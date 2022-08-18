@@ -3,6 +3,7 @@ import * as vscode from "vscode";
 import { join } from "path";
 import * as fs from "fs";
 import * as os from "os";
+import assert from "assert";
 import { sleep } from "./sleep";
 
 export const CURSOR = "$$CURSOR$$";
@@ -36,6 +37,44 @@ export const withRandomFileEditor = async (
   deleteFile(file);
 };
 
+export const openFileInEditor = async (
+  uri: vscode.Uri
+): Promise<vscode.TextEditor> => {
+  await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+  const doc = await vscode.workspace.openTextDocument(uri);
+  return vscode.window.showTextDocument(doc);
+};
+
+export const openQuickfixMenu = async () => {
+  await vscode.commands.executeCommand("editor.action.quickFix");
+  await waitForUI();
+};
+
+export const applyQuickfix = async (index: number) => {
+  for (let i = 0; i < index; i++) {
+    await vscode.commands.executeCommand("focusNextCodeAction");
+  }
+  await vscode.commands.executeCommand("onEnterSelectCodeAction");
+  await waitForUI();
+};
+
+export const goToPosition = (
+  editor: vscode.TextEditor,
+  position: vscode.Position
+) => {
+  editor.selection = new vscode.Selection(position, position);
+};
+
+export const compareWithFile = (
+  editor: vscode.TextEditor,
+  uriToCompare: vscode.Uri
+) => {
+  assert.equal(
+    editor.document.getText(),
+    fs.readFileSync(uriToCompare.path).toString()
+  );
+};
+
 const createRandomFile = async (
   contents: string,
   fileExtension: string
@@ -49,7 +88,8 @@ const deleteFile = (file: vscode.Uri): void => {
   fs.unlinkSync(file.fsPath);
 };
 
-export const openFileInEditor = async (uri: vscode.Uri) => {
-  const doc = await vscode.workspace.openTextDocument(uri);
-  await vscode.window.showTextDocument(doc);
+// Some editor commands return immediately but the effect happens asynchronously
+// This ensures the effect takes place before continuing execution
+const waitForUI = async () => {
+  await sleep(300);
 };

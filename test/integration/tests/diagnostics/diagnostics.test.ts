@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { checkOrWaitDiagnostic } from "../../helpers/assertions";
 import { getDocUri } from "../../helpers/docPaths";
-import { openFileInEditor } from "../../helpers/files";
+import { openFileInEditor } from "../../helpers/editor";
 
 suite("diagnostics", function () {
   this.timeout(20000);
