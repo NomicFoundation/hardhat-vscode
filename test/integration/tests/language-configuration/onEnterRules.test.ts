@@ -1,6 +1,6 @@
 import * as assert from "assert";
 import { joinLines } from "../../helpers/joinLines";
-import { CURSOR, withRandomFileEditor } from "../../helpers/files";
+import { CURSOR, withRandomFileEditor } from "../../helpers/editor";
 import { type } from "../../helpers/commands";
 
 suite("onEnterRules", function () {
