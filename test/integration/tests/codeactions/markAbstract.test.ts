@@ -10,7 +10,7 @@ import {
 } from "../../helpers/editor";
 
 suite("codeactions - mark abstract", function () {
-  this.timeout(20000000);
+  this.timeout(20000);
 
   test("add missing functions from interfaces", async () => {
     const uri = getDocUri(__dirname, "./MarkAbstract.sol");

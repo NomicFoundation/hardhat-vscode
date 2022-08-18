@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 "use strict";
 import * as vscode from "vscode";
 import * as assert from "assert";
@@ -72,11 +73,15 @@ export async function checkOrWaitDiagnostic(
   range: vscode.Range,
   severity: vscode.DiagnosticSeverity,
   source: string,
-  message: string
+  message: string,
+  debug = false
 ) {
   await new Promise((resolve, _reject) => {
     const checkDiagnostics = () => {
       const diagnostics = vscode.languages.getDiagnostics(uri);
+
+      if (diagnostics.length === 0) return;
+
       if (
         diagnostics.some(
           (diagnostic) =>
@@ -87,6 +92,14 @@ export async function checkOrWaitDiagnostic(
         )
       ) {
         resolve(true);
+      } else if (debug) {
+        console.log(
+          `Got diagnostics but didnt match: ${JSON.stringify(
+            diagnostics,
+            null,
+            2
+          )}`
+        );
       }
     };
 
