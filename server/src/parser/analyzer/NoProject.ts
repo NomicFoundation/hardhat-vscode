@@ -7,16 +7,10 @@ export function isNoProject(project: ISolProject): project is NoProject {
 
 export class NoProject implements ISolProject {
   public type: SolProjectType = "none";
-  public basePath: string;
-  public configPath: string;
-  public workspaceFolder: WorkspaceFolder;
-
-  constructor() {
-    this.basePath = "";
-    this.configPath = "";
-    this.workspaceFolder = {
-      name: "none",
-      uri: "",
-    };
-  }
+  public basePath = "";
+  public configPath = "";
+  public workspaceFolder: WorkspaceFolder = {
+    name: "none",
+    uri: "",
+  };
 }

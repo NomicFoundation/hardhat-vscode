@@ -365,6 +365,11 @@ export enum ClientTrackingState {
 
 export type SolProjectType = "hardhat" | "none";
 
+export interface Remapping {
+  from: string;
+  to: string;
+}
+
 export interface ISolProject {
   type: SolProjectType;
   /**
@@ -373,6 +378,7 @@ export interface ISolProject {
   basePath: string;
   configPath: string;
   workspaceFolder: WorkspaceFolder;
+  remappings?: Remapping[];
 }
 
 export interface SolProjectMap {

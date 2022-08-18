@@ -20,6 +20,15 @@ export class WorkspaceFileRetriever {
     );
   }
 
+  public async fileExists(documentUri: string): Promise<boolean> {
+    try {
+      await fs.promises.access(documentUri, fs.constants.R_OK);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   public async readFile(documentUri: string): Promise<string> {
     return (await fs.promises.readFile(documentUri)).toString();
   }
