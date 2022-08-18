@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.5.1 - 2022-08-18
+
+### Added
+
+- Added quickfix for partially-specified multi override contract functions ([#50](https://github.com/NomicFoundation/hardhat-vscode/issues/50))
+- Added quickfix for missing license identifier ([#26](https://github.com/NomicFoundation/hardhat-vscode/issues/26))
+
+### Fixed
+
+- Fix open files not being analyzed because of validator not being ready ([#229](https://github.com/NomicFoundation/hardhat-vscode/issues/229))
+
 ## 0.5.0 - 2022-08-11
 
 ### Added
