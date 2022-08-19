@@ -30,11 +30,12 @@ export const withRandomFileEditor = async (
     editor.selection = new vscode.Selection(position, position);
   }
 
-  await sleep(300); // Wait a bit, otherwise onEnterRules randomly don't work on test scenarios
+  await waitForUI();
 
   await run(editor, document);
 
   deleteFile(file);
+  await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
 };
 
 export const openFileInEditor = async (
@@ -67,12 +68,9 @@ export const goToPosition = (
 
 export const compareWithFile = (
   editor: vscode.TextEditor,
-  uriToCompare: vscode.Uri
+  filePath: string
 ) => {
-  assert.equal(
-    editor.document.getText(),
-    fs.readFileSync(uriToCompare.path).toString()
-  );
+  assert.equal(editor.document.getText(), fs.readFileSync(filePath).toString());
 };
 
 const createRandomFile = async (
@@ -91,5 +89,5 @@ const deleteFile = (file: vscode.Uri): void => {
 // Some editor commands return immediately but the effect happens asynchronously
 // This ensures the effect takes place before continuing execution
 const waitForUI = async () => {
-  await sleep(2000);
+  await sleep(400);
 };

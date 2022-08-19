@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { checkOrWaitDiagnostic } from "../../helpers/assertions";
-import { getDocUri } from "../../helpers/docPaths";
+import { getDocPath, getDocUri } from "../../helpers/docPaths";
 import {
   applyQuickfix,
   compareWithFile,
@@ -10,7 +10,7 @@ import {
 } from "../../helpers/editor";
 
 suite("codeactions - add license identifier", function () {
-  this.timeout(20000);
+  this.timeout(30000);
 
   test("add MIT license identifier", async () => {
     const uri = getDocUri(__dirname, "./NoLicense.sol");
@@ -32,6 +32,6 @@ suite("codeactions - add license identifier", function () {
     await openQuickfixMenu();
     await applyQuickfix(0);
 
-    compareWithFile(editor, getDocUri(__dirname, "./NoLicense_fixed.sol"));
+    compareWithFile(editor, getDocPath(__dirname, "./NoLicense_fixed.sol"));
   });
 });

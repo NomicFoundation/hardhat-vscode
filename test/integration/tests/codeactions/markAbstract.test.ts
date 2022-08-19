@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { checkOrWaitDiagnostic } from "../../helpers/assertions";
-import { getDocUri } from "../../helpers/docPaths";
+import { getDocPath, getDocUri } from "../../helpers/docPaths";
 import {
   applyQuickfix,
   compareWithFile,
@@ -10,7 +10,7 @@ import {
 } from "../../helpers/editor";
 
 suite("codeactions - mark abstract", function () {
-  this.timeout(20000);
+  this.timeout(30000);
 
   test("add missing functions from interfaces", async () => {
     const uri = getDocUri(__dirname, "./MarkAbstract.sol");
@@ -34,7 +34,7 @@ suite("codeactions - mark abstract", function () {
 
     compareWithFile(
       editor,
-      getDocUri(__dirname, "./MarkAbstract_implementedInterface.sol")
+      getDocPath(__dirname, "./MarkAbstract_implementedInterface.sol")
     );
   });
 
@@ -60,7 +60,7 @@ suite("codeactions - mark abstract", function () {
 
     compareWithFile(
       editor,
-      getDocUri(__dirname, "./MarkAbstract_markedAbstract.sol")
+      getDocPath(__dirname, "./MarkAbstract_markedAbstract.sol")
     );
   });
 });
