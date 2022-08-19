@@ -136,5 +136,11 @@
         "path": "./snippets/solidity.json"
       }
     ]
+  },
+  "__metadata": {
+    "id": "dada159b-1dfe-49fc-a369-0e08ecdff9b3",
+    "publisherDisplayName": "Nomic Foundation",
+    "publisherId": "973909a1-f7d7-44c0-9261-c2e7903bf2dd",
+    "isPreReleaseVersion": false
   }
 }
