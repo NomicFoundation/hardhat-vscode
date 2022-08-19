@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { sleep } from "./sleep";
 
 const onDocumentChange = (
   doc: vscode.TextDocument
@@ -21,8 +22,11 @@ export const type = async (
   document: vscode.TextDocument,
   text: string
 ): Promise<vscode.TextDocument> => {
-  const onChange = onDocumentChange(document);
-  await vscode.commands.executeCommand("type", { text });
-  await onChange;
+  for (const char of text.split("")) {
+    await sleep(100);
+    const onChange = onDocumentChange(document);
+    await vscode.commands.executeCommand("type", { text: char });
+    await onChange;
+  }
   return document;
 };
