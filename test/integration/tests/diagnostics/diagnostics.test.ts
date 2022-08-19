@@ -4,7 +4,7 @@ import { getDocUri } from "../../helpers/docPaths";
 import { openFileInEditor } from "../../helpers/editor";
 
 suite("diagnostics", function () {
-  this.timeout(20000);
+  this.timeout(30000);
 
   test("[diagnostics] missing semicolon", async () => {
     const uri = getDocUri(__dirname, "./MissingSemicolon.sol");
