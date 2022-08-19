@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { checkOrWaitDiagnostic } from "../../helpers/assertions";
-import { getDocUri } from "../../helpers/docPaths";
+import { getDocPath, getDocUri } from "../../helpers/docPaths";
 import {
   applyQuickfix,
   compareWithFile,
@@ -10,7 +10,7 @@ import {
 } from "../../helpers/editor";
 
 suite("codeactions - add multi override specifier", function () {
-  this.timeout(20000);
+  this.timeout(30000);
 
   test("add multi override on multiple occurrences", async () => {
     const uri = getDocUri(__dirname, "./AddMultioverrideSpecifier.sol");
@@ -18,20 +18,12 @@ suite("codeactions - add multi override specifier", function () {
 
     const diagPositions = [
       [
-        [50, 13],
-        [50, 16],
+        [20, 11],
+        [20, 14],
       ],
       [
-        [52, 13],
-        [52, 16],
-      ],
-      [
-        [54, 34],
-        [54, 49],
-      ],
-      [
-        [56, 13],
-        [56, 29],
+        [22, 32],
+        [22, 47],
       ],
     ];
 
@@ -60,7 +52,7 @@ suite("codeactions - add multi override specifier", function () {
 
     compareWithFile(
       editor,
-      getDocUri(__dirname, "./AddMultioverrideSpecifier_fixed.sol")
+      getDocPath(__dirname, "./AddMultioverrideSpecifier_fixed.sol")
     );
   });
 });
