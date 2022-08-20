@@ -11,9 +11,11 @@ export function setupFormatterHook({
 }) {
   context.subscriptions.push(
     languages.registerDocumentFormattingEditProvider("solidity", {
-      provideDocumentFormattingEdits(document: TextDocument): TextEdit[] {
+      async provideDocumentFormattingEdits(
+        document: TextDocument
+      ): Promise<TextEdit[]> {
         try {
-          return formatDocument(document, context);
+          return await formatDocument(document, context);
         } catch (err: unknown) {
           logger.error(err);
           return [];
