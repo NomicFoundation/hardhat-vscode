@@ -28,8 +28,8 @@ release.
 11. On a successful check, `rebase merge` the release branch into main
 12. Switch to main branch and pull the latest changes
 13. Git tag the version, `g tag -a v0.x.x -m "v0.x.x"` and push the tag `git push --follow-tags`
-14. Upload the vsix file to the microsoft marketplace
-15. Upload the vsix file to openvsx, `npx ovsx publish hardhat-solidity-0.5.0.vsix -p zzzzzz-zzzz-zzzzzz`
+14. Upload the vsix file to the microsoft marketplace: `npx vsce publish -p $VSCE_TOKEN --packagePath hardhat-solidity-0.X.X.vsix`
+15. Upload the vsix file to openvsx, `npx ovsx publish hardhat-solidity-0.X.X.vsix -p $OVSX_TOKEN`
 16. Create a release on github off of the pushed tag
 
 - use the added changelog section as the body of the release
