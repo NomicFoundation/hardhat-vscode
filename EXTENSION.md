@@ -13,6 +13,7 @@ This extension adds language support for [Solidity](https://soliditylang.org/) t
   - [Constrain mutability by adding `view`/`pure` to function signature](#constrain-mutability)
   - [Meet inheritance requirements by adding `virtual`/`override` on function signature](#adding-virtualoverride-on-inherited-function-signature)
   - [Provide accessibility by adding `public`/`private` to function signature](#adding-publicprivate-to-function-signature)
+  - [Specify license identifier and pragma solidity version](#adding-license-identifier-and-pragma-solidity-version)
 
 Built by the [Nomic Foundation](https://nomic.foundation/). [We’re hiring](https://nomic.foundation/hiring).
 
@@ -144,6 +145,14 @@ A function without an accessibility keyword will cause the `solidity(4937)` erro
 Two code actions will appear against a function with this error: _Add public visibility to declaration_ and _Add private visibility to declaration_.
 
 ![Public Private](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/public-private.gif "Public Private")
+
+#### Adding license identifier and `pragma solidity` version
+
+When no license is specified on a contract, the `solidity(1878)` warning is raised by the compiler. Similarly, when no compiler version is specified with a `pragma solidity` statement, the compiler shows the `solidity(3420)` warning. There are code actions available for quick fixes.
+
+![Add license specifier](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/add-license.gif "Add license specifier")
+
+![Add pragma solidity](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/add-pragma.gif "Add pragma solidity")
 
 ---
 
