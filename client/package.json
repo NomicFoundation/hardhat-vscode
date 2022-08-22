@@ -15,7 +15,7 @@
   "devDependencies": {
     "@sentry/types": "6.19.1",
     "@types/prettier": "2.6.0",
-    "@types/vscode": "^1.65.0",
+    "@types/vscode": "^1.70",
     "eslint": "^7.23.0",
     "rimraf": "3.0.2"
   },
