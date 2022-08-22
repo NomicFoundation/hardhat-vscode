@@ -35,7 +35,7 @@
     "url": "https://github.com/NomicFoundation/hardhat-vscode/issues"
   },
   "engines": {
-    "vscode": "^1.65.0"
+    "vscode": "^1.70.2"
   },
   "activationEvents": [
     "onLanguage:solidity",
@@ -67,7 +67,7 @@
     "@types/mocha": "^8.2.2",
     "@types/module-alias": "2.0.1",
     "@types/node": "^16.9.1",
-    "@types/vscode": "^1.65.0",
+    "@types/vscode": "^1.70",
     "@typescript-eslint/eslint-plugin": "5.8.0",
     "@typescript-eslint/parser": "5.8.0",
     "@vscode/test-electron": "2.1.3",
