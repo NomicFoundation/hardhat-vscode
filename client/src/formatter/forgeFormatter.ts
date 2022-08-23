@@ -11,19 +11,18 @@ export async function formatDocument(
     lastLine.range.end
   );
 
-  const p = cp.execFile("forge", [
-    "fmt",
-    "--check",
-    "--raw",
-    document.uri.fsPath,
-  ]);
+  const formatted = await new Promise<string>((resolve, reject) => {
+    const forge = cp.execFile("forge", ["fmt", "--raw", "-"], (err, stdout) => {
+      if (err !== null) {
+        return reject(err);
+      }
 
-  let formatted = "";
-  if (p.stdout) {
-    for await (const chunk of p.stdout) {
-      formatted += chunk;
-    }
-  }
+      resolve(stdout);
+    });
+
+    forge.stdin?.write(document.getText());
+    forge.stdin?.end();
+  });
 
   return [vscode.TextEdit.replace(fullTextRange, formatted)];
 }
