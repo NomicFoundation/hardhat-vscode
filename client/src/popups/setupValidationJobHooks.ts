@@ -1,3 +1,4 @@
+import path from "path";
 import { LanguageStatusItem, languages, LanguageStatusSeverity } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { ExtensionState } from "../types";
@@ -13,6 +14,7 @@ export interface ValidationJobFailureNotification {
   reason: string;
   displayText: string;
   projectBasePath: string;
+  errorFile?: string;
 }
 
 export type ValidationJobStatusNotification =
@@ -65,6 +67,18 @@ function updateValidationStatusItem(
     ? "Solc Version"
     : notification.displayText;
   statusItem.busy = false;
+
+  if (!notification.validationRun && notification.errorFile !== undefined) {
+    statusItem.command = {
+      title: "Open file",
+      command: "vscode.open",
+      arguments: [
+        path.join(notification.projectBasePath, notification.errorFile),
+      ],
+    };
+  } else {
+    statusItem.command = undefined;
+  }
 
   return statusItem;
 }
