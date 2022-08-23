@@ -6,6 +6,8 @@ import { deserializeError } from "serialize-error";
 import { decodeUriAndRemoveFilePrefix } from "../../utils/index";
 import {
   CancelledValidation,
+  HardhatError,
+  HardhatSourceImportError,
   HardhatThrownError,
   JobCompletionError,
   ServerState,
@@ -137,6 +139,9 @@ function hardhatThrownFail(
       projectBasePath,
       reason: "non-import line hardhat error",
       displayText,
+      errorFile: isHardhatSourceImportError(hardhatError)
+        ? hardhatError.messageArguments.from
+        : undefined,
     };
 
     serverState.connection.sendNotification(
@@ -188,7 +193,6 @@ function validatorErrorFail(
     uri: document.uri,
     diagnostics: [],
   });
-
   const data: ValidationJobStatusNotification = jobStatusFrom(validatorError);
 
   serverState.connection.sendNotification("custom/validation-job-status", data);
@@ -361,5 +365,13 @@ function assertUnknownMessageStatus(completeMessage: never) {
   throw new Error(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     `Unrecognized message status: ${(completeMessage as any)?.status}`
+  );
+}
+
+function isHardhatSourceImportError(
+  error: HardhatError
+): error is HardhatSourceImportError {
+  return (
+    error.errorDescriptor.number >= 400 && error.errorDescriptor.number <= 499
   );
 }

@@ -1,6 +1,7 @@
 import { languages, LanguageStatusSeverity } from "vscode";
 import { RequestType } from "vscode-languageclient/node";
 import { ExtensionState } from "../types";
+import { ensureFilePrefix } from "../utils/files";
 
 interface GetSolFileDetailsParams {
   uri: string;
@@ -77,16 +78,4 @@ export function clearHardhatConfigState(extensionState: ExtensionState): void {
 
   extensionState.hardhatConfigStatusItem.dispose();
   extensionState.hardhatConfigStatusItem = null;
-}
-
-function ensureFilePrefix(path: string) {
-  if (path.startsWith("file://")) {
-    return path;
-  }
-
-  if (path.startsWith("/")) {
-    return `file://${path}`;
-  } else {
-    return `file:///${path}`;
-  }
 }
