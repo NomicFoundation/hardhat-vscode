@@ -662,11 +662,15 @@ describe("Parser", () => {
               hardhatError: {
                 name: "HardhatError",
                 errorDescriptor: {
-                  number: 123,
+                  number: 404,
                   message: "This is an example errror",
                   title: "Example error",
                   description: "This is an example error",
                   shouldBeReported: false,
+                },
+                messageArguments: {
+                  from: "importing.sol",
+                  imported: "nonexistent.sol",
                 },
               },
             };
@@ -703,6 +707,7 @@ describe("Parser", () => {
               projectBasePath: "/projects/example",
               reason: "non-import line hardhat error",
               displayText: "Example error",
+              errorFile: "importing.sol",
             };
 
             assert.deepStrictEqual(

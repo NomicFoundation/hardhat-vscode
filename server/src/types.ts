@@ -187,7 +187,17 @@ export interface UnknownHardhatError {
   messageArguments?: unknown;
 }
 
-export type HardhatError = UnknownHardhatError | HardhatImportLineError;
+export interface HardhatSourceImportError extends UnknownHardhatError {
+  messageArguments: {
+    imported: string;
+    from: string;
+  };
+}
+
+export type HardhatError =
+  | UnknownHardhatError
+  | HardhatImportLineError
+  | HardhatSourceImportError;
 
 export interface ValidateCommand {
   type: "VALIDATE";
@@ -324,6 +334,7 @@ export interface ValidationJobFailureNotification {
   projectBasePath: string;
   reason: string;
   displayText: string;
+  errorFile?: string;
 }
 
 export type ValidationJobStatusNotification =
