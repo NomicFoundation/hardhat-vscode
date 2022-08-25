@@ -3,6 +3,7 @@ import { Diagnostic, TextDocumentChangeEvent } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { isHardhatProject } from "@analyzer/HardhatProject";
 import { deserializeError } from "serialize-error";
+import path from "path";
 import { decodeUriAndRemoveFilePrefix } from "../../utils/index";
 import {
   CancelledValidation,
@@ -134,14 +135,16 @@ function hardhatThrownFail(
 
     const displayText = hardhatError.errorDescriptor.title;
 
+    const errorFile = isHardhatSourceImportError(hardhatError)
+      ? resolveErrorFilePath(projectBasePath, hardhatError)
+      : undefined;
+
     const validationJobStatus: ValidationJobStatusNotification = {
       validationRun: false,
       projectBasePath,
       reason: "non-import line hardhat error",
       displayText,
-      errorFile: isHardhatSourceImportError(hardhatError)
-        ? hardhatError.messageArguments.from
-        : undefined,
+      errorFile,
     };
 
     serverState.connection.sendNotification(
@@ -374,4 +377,17 @@ function isHardhatSourceImportError(
   return (
     error.errorDescriptor.number >= 400 && error.errorDescriptor.number <= 499
   );
+}
+
+function resolveErrorFilePath(
+  projectBasePath: string,
+  hardhatError: HardhatSourceImportError
+): string {
+  const errorPath = decodeUriAndRemoveFilePrefix(
+    path.join(projectBasePath, hardhatError.messageArguments.from)
+  );
+
+  const osPath = os.platform() === "win32" ? `/${errorPath}` : errorPath;
+
+  return osPath;
 }
