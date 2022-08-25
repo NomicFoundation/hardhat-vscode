@@ -135,6 +135,39 @@
         "language": "solidity",
         "path": "./snippets/solidity.json"
       }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "hardhat",
+        "required": [
+          "task"
+        ],
+        "properties": {
+          "task": {
+            "type": "string",
+            "description": "%taskdef.task%"
+          }
+        },
+        "when": "shellExecutionSupported"
+      }
+    ],
+    "commands": [
+      {
+        "command": "hardhat.solidity.compile",
+        "title": "Solidity + Hardhat: Compile project"
+      },
+      {
+        "command": "hardhat.solidity.clean",
+        "title": "Solidity + Hardhat: Clear cache and artifacts "
+      },
+      {
+        "command": "hardhat.solidity.test",
+        "title": "Solidity + Hardhat: Run tests"
+      },
+      {
+        "command": "hardhat.solidity.flatten",
+        "title": "Solidity + Hardhat: Flatten and print contracts and their dependencies"
+      }
     ]
   },
   "__metadata": {

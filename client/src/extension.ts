@@ -4,6 +4,7 @@ import { warnOnOtherSolidityExtensions } from "./popups/warnOnOtherSolidityExten
 import { setupExtensionState } from "./setup/setupExtensionState";
 import { setupFormatterHook } from "./setup/setupFormatterHook";
 import { setupLanguageServerHooks } from "./setup/setupLanguageServerHooks";
+import { setupTaskProvider } from "./setup/setupTaskProvider";
 import { ExtensionState } from "./types";
 
 let extensionState: ExtensionState | null = null;
@@ -21,6 +22,7 @@ export async function activate(context: ExtensionContext) {
 
   setupFormatterHook(extensionState);
   setupLanguageServerHooks(extensionState);
+  setupTaskProvider(extensionState);
 
   // We don't want to block for user input, analytics will be turned
   // off from users until they agree.
