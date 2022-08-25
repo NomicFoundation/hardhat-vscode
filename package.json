@@ -167,6 +167,10 @@
       {
         "command": "hardhat.solidity.flatten",
         "title": "Solidity + Hardhat: Flatten and print contracts and their dependencies"
+      },
+      {
+        "command": "hardhat.solidity.run",
+        "title": "Solidity + Hardhat: Run arbitrary command"
       }
     ],
     "menus": {

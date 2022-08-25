@@ -1,55 +1,29 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as vscode from "vscode";
-import { spawn } from "child_process";
 import { ExtensionState } from "../types";
-import { getCurrentHardhatDir } from "../utils/workspace";
 
-const COMMANDS = [
-  {
-    name: "compile",
-  },
-  {
-    name: "test",
-  },
-  {
-    name: "clean",
-  },
-  {
-    name: "flatten",
-  },
+import CompileCommand from "../commands/CompileCommand";
+import TestCommand from "../commands/TestCommand";
+import FlattenCommand from "../commands/FlattenCommand";
+import CleanCommand from "../commands/CleanCommand";
+import RunCommand from "../commands/RunCommand";
+
+const commandClasses = [
+  CompileCommand,
+  TestCommand,
+  FlattenCommand,
+  CleanCommand,
+  RunCommand,
 ];
 
 export function setupCommands(state: ExtensionState) {
-  COMMANDS.forEach((command) => {
+  for (const commandClass of commandClasses) {
+    const command = new commandClass(getOutputChannel(state));
     const disposable = vscode.commands.registerCommand(
-      `hardhat.solidity.${command.name}`,
-      async () => {
-        const currentHardhatDir = await getCurrentHardhatDir();
-
-        if (currentHardhatDir === undefined) {
-          return;
-        }
-
-        const outputChannel = getOutputChannel(state);
-        outputChannel.show();
-        outputChannel.appendLine(`Running 'npx hardhat ${command.name}'\n`);
-        const childProcess = spawn("npx", ["hardhat", command.name], {
-          cwd: currentHardhatDir,
-        });
-
-        childProcess.stdout.on("data", (data) => {
-          outputChannel.append(data.toString());
-        });
-        childProcess.stderr.on("data", (data) => {
-          outputChannel.append(data.toString());
-        });
-        childProcess.stdout.on("close", () => {
-          outputChannel.appendLine("\nProcess exited\n");
-        });
-      }
+      `hardhat.solidity.${command.name()}`,
+      () => command.execute()
     );
     state.context.subscriptions.push(disposable);
-  });
+  }
 }
 
 const getOutputChannel = (state: ExtensionState) => {
