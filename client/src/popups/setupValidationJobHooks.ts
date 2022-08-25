@@ -1,4 +1,3 @@
-import path from "path";
 import { LanguageStatusItem, languages, LanguageStatusSeverity } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { ExtensionState } from "../types";
@@ -72,9 +71,7 @@ function updateValidationStatusItem(
     statusItem.command = {
       title: "Open file",
       command: "vscode.open",
-      arguments: [
-        path.join(notification.projectBasePath, notification.errorFile),
-      ],
+      arguments: [notification.errorFile],
     };
   } else {
     statusItem.command = undefined;
