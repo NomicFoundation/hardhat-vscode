@@ -168,7 +168,19 @@
         "command": "hardhat.solidity.flatten",
         "title": "Solidity + Hardhat: Flatten and print contracts and their dependencies"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "when": "editorLangId == 'solidity'",
+          "command": "hardhat.solidity.compile"
+        },
+        {
+          "when": "editorLangId == 'solidity'",
+          "command": "hardhat.solidity.test"
+        }
+      ]
+    }
   },
   "__metadata": {
     "id": "dada159b-1dfe-49fc-a369-0e08ecdff9b3",

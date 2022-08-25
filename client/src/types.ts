@@ -27,4 +27,5 @@ export interface ExtensionState {
   logger: Logger;
 
   hardhatConfigStatusItem: LanguageStatusItem | null;
+  commandsOutputChannel?: OutputChannel;
 }
