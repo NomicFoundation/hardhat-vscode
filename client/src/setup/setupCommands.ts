@@ -2,6 +2,7 @@
 import * as vscode from "vscode";
 import { spawn } from "child_process";
 import { ExtensionState } from "../types";
+import { getCurrentHardhatDir } from "../utils/workspace";
 
 const COMMANDS = [
   {
@@ -23,11 +24,17 @@ export function setupCommands(state: ExtensionState) {
     const disposable = vscode.commands.registerCommand(
       `hardhat.solidity.${command.name}`,
       async () => {
+        const currentHardhatDir = await getCurrentHardhatDir();
+
+        if (currentHardhatDir === undefined) {
+          return;
+        }
+
         const outputChannel = getOutputChannel(state);
         outputChannel.show();
         outputChannel.appendLine(`Running 'npx hardhat ${command.name}'\n`);
         const childProcess = spawn("npx", ["hardhat", command.name], {
-          cwd: vscode.workspace.workspaceFolders![0].uri.path,
+          cwd: currentHardhatDir,
         });
 
         childProcess.stdout.on("data", (data) => {
