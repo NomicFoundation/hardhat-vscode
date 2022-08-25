@@ -648,6 +648,14 @@ describe("Parser", () => {
           let sendDiagnostics: sinon.SinonSpy<unknown[], unknown>;
           let sendNotification: sinon.SinonSpy<unknown[], unknown>;
           let logger: Logger;
+          const projectBasePath =
+            os.platform() === "win32"
+              ? "c:/projects/example"
+              : "/projects/example";
+          const errorFile =
+            os.platform() === "win32"
+              ? "/c:/projects/example/importing.sol"
+              : "/projects/example/importing.sol";
 
           before(async () => {
             sendDiagnostics = sinon.spy();
@@ -658,7 +666,7 @@ describe("Parser", () => {
               type: "VALIDATION_COMPLETE",
               status: "HARDHAT_ERROR",
               jobId: 1,
-              projectBasePath: "/projects/example",
+              projectBasePath,
               hardhatError: {
                 name: "HardhatError",
                 errorDescriptor: {
@@ -704,10 +712,10 @@ describe("Parser", () => {
 
             const expectedFailureStatus: ValidationJobStatusNotification = {
               validationRun: false,
-              projectBasePath: "/projects/example",
+              projectBasePath,
               reason: "non-import line hardhat error",
               displayText: "Example error",
-              errorFile: "importing.sol",
+              errorFile,
             };
 
             assert.deepStrictEqual(
