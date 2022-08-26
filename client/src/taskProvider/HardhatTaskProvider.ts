@@ -21,11 +21,6 @@ const TASKS = [
     detail: "Clear hardhat cache and artifacts",
     group: vscode.TaskGroup.Clean,
   },
-  {
-    name: "flatten",
-    command: "flatten",
-    detail: "Flattens and prints contracts and their dependencies",
-  },
 ];
 
 const TASK_TYPE = "hardhat";

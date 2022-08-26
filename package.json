@@ -165,12 +165,10 @@
         "title": "Solidity + Hardhat: Run tests"
       },
       {
-        "command": "hardhat.solidity.flatten",
-        "title": "Solidity + Hardhat: Flatten and print contracts and their dependencies"
-      },
-      {
-        "command": "hardhat.solidity.run",
-        "title": "Solidity + Hardhat: Run arbitrary command"
+        "command": "hardhat.solidity.flattenCurrentFile",
+        "title": "Solidity + Hardhat: Flatten this file and their dependencies",
+        "enablement": "editorLangId == 'solidity'"
+        
       }
     ],
     "menus": {
@@ -181,7 +179,7 @@
         },
         {
           "when": "editorLangId == 'solidity'",
-          "command": "hardhat.solidity.test"
+          "command": "hardhat.solidity.flattenCurrentFile"
         }
       ]
     }

@@ -27,7 +27,7 @@ export const findHardhatDirForFile = async (filePath: string) => {
  * Otherwise tries to use current open file to select one
  */
 export const getCurrentHardhatDir = async () => {
-  const currentFile = vscode.window.activeTextEditor?.document.uri.path;
+  const currentFile = getCurrentOpenFile()?.uri.path;
   const allHardhatDirs = await findHardhatDirs();
 
   let currentHardhatDir: string | undefined;
@@ -47,4 +47,8 @@ export const getCurrentHardhatDir = async () => {
     }
   }
   return currentHardhatDir;
+};
+
+export const getCurrentOpenFile = () => {
+  return vscode.window.activeTextEditor?.document;
 };

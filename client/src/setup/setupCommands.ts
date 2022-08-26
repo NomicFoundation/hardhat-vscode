@@ -3,16 +3,14 @@ import { ExtensionState } from "../types";
 
 import CompileCommand from "../commands/CompileCommand";
 import TestCommand from "../commands/TestCommand";
-import FlattenCommand from "../commands/FlattenCommand";
+import FlattenCurrentFileCommand from "../commands/FlattenCurrentFileCommand";
 import CleanCommand from "../commands/CleanCommand";
-import RunCommand from "../commands/RunCommand";
 
 const commandClasses = [
   CompileCommand,
   TestCommand,
-  FlattenCommand,
+  FlattenCurrentFileCommand,
   CleanCommand,
-  RunCommand,
 ];
 
 export function setupCommands(state: ExtensionState) {
