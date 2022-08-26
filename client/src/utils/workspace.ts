@@ -26,7 +26,7 @@ export const findHardhatDirForFile = async (filePath: string) => {
  * If there's only one project on the workspace, returns it
  * Otherwise tries to use current open file to select one
  */
-export const getCurrentHardhatDir = async () => {
+export const ensureCurrentHardhatDir = async () => {
   const currentFile = getCurrentOpenFile()?.uri.path;
   const allHardhatDirs = await findHardhatDirs();
 

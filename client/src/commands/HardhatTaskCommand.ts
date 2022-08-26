@@ -1,12 +1,17 @@
 import { spawn } from "child_process";
-import { getCurrentHardhatDir } from "../utils/workspace";
+import { ensureHardhatIsInstalled } from "../utils/window";
+import { ensureCurrentHardhatDir } from "../utils/workspace";
 import Command from "./Command";
 
 export default abstract class HardhatTaskCommand extends Command {
   public async execute() {
-    const currentHardhatDir = await getCurrentHardhatDir();
+    const currentHardhatDir = await ensureCurrentHardhatDir();
 
     if (currentHardhatDir === undefined) {
+      return;
+    }
+
+    if (!(await ensureHardhatIsInstalled(currentHardhatDir))) {
       return;
     }
 

@@ -1,15 +1,25 @@
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { spawn } from "child_process";
-import { getCurrentHardhatDir, getCurrentOpenFile } from "../utils/workspace";
-import { openNewDocument, withProgressNotification } from "../utils/window";
+import {
+  ensureCurrentHardhatDir,
+  getCurrentOpenFile,
+} from "../utils/workspace";
+import {
+  ensureHardhatIsInstalled,
+  openNewDocument,
+  withProgressNotification,
+} from "../utils/window";
 import Command from "./Command";
 
 export default class FlattenCurrentFileCommand extends Command {
   public async execute(): Promise<void> {
-    const currentHardhatDir = await getCurrentHardhatDir();
+    const currentHardhatDir = await ensureCurrentHardhatDir();
     const currentFile = getCurrentOpenFile();
 
-    if (!currentFile || !currentHardhatDir) {
+    if (currentFile === undefined || currentHardhatDir === undefined) {
+      return;
+    }
+
+    if (!(await ensureHardhatIsInstalled(currentHardhatDir))) {
       return;
     }
 

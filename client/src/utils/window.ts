@@ -1,5 +1,6 @@
 import { TextEditor } from "vscode";
 import * as vscode from "vscode";
+import { isHardhatInstalled } from "./hardhat";
 
 export const openNewDocument = async (text: string): Promise<TextEditor> => {
   const document = await vscode.workspace.openTextDocument({
@@ -24,4 +25,16 @@ export const withProgressNotification = async (
       await callback();
     }
   );
+};
+
+export const ensureHardhatIsInstalled = async (
+  hardhatDir: string
+): Promise<boolean> => {
+  if (!isHardhatInstalled(hardhatDir)) {
+    await vscode.window.showInformationMessage(
+      "Hardhat installation not found. Please install your packages."
+    );
+    return false;
+  }
+  return true;
 };

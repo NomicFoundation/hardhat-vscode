@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { Task } from "vscode";
-import { getCurrentHardhatDir } from "../utils/workspace";
+import { ensureHardhatIsInstalled } from "../utils/window";
+import { ensureCurrentHardhatDir } from "../utils/workspace";
 
 const TASKS = [
   {
@@ -35,9 +36,13 @@ export class HardhatTaskProvider implements vscode.TaskProvider {
   }
 
   public async provideTasks(): Promise<Task[]> {
-    const currentHardhatDir = await getCurrentHardhatDir();
+    const currentHardhatDir = await ensureCurrentHardhatDir();
 
     if (currentHardhatDir === undefined) {
+      return [];
+    }
+
+    if (!(await ensureHardhatIsInstalled(currentHardhatDir))) {
       return [];
     }
 
