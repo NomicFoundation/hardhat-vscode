@@ -8,7 +8,7 @@ import {
 } from "../../helpers/editor";
 
 suite("commands - flatten", function () {
-  this.timeout(20000);
+  this.timeout(30000);
 
   test("flatten via command palette", async () => {
     const uri = getDocUri(__dirname, "./Importer.sol");

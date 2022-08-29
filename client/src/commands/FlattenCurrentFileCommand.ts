@@ -12,7 +12,7 @@ export default class FlattenCurrentFileCommand extends HardhatTaskCommand {
   public hardhatArgs(): string[] {
     const currentFile = getCurrentOpenFile();
 
-    return ["flatten", currentFile?.uri.path ?? ""];
+    return ["flatten", currentFile?.uri.fsPath ?? ""];
   }
 
   public progressLabel(): string {

@@ -7,6 +7,7 @@ import {
   goToPosition,
   openFileInEditor,
   openQuickfixMenu,
+  waitForUI,
 } from "../../helpers/editor";
 
 suite("codeactions - mark abstract", function () {
@@ -52,6 +53,7 @@ suite("codeactions - mark abstract", function () {
       "solidity",
       'Contract "Counter" should be marked as abstract'
     );
+    await waitForUI();
 
     goToPosition(editor, diagStart);
 
