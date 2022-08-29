@@ -14,16 +14,14 @@ export const openNewDocument = async (text: string): Promise<TextEditor> => {
 export const withProgressNotification = async (
   title: string,
   callback: () => Promise<unknown>
-) => {
+): Promise<unknown> => {
   return vscode.window.withProgress(
     {
       location: vscode.ProgressLocation.Notification,
       cancellable: false,
       title,
     },
-    async () => {
-      await callback();
-    }
+    callback
   );
 };
 
@@ -31,8 +29,8 @@ export const ensureHardhatIsInstalled = async (
   hardhatDir: string
 ): Promise<boolean> => {
   if (!isHardhatInstalled(hardhatDir)) {
-    await vscode.window.showInformationMessage(
-      "Hardhat installation not found. Please install your packages."
+    await vscode.window.showErrorMessage(
+      "Hardhat installation not found. Try installing the project's dependencies."
     );
     return false;
   }

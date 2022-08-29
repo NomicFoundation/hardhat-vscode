@@ -2,13 +2,11 @@ import * as vscode from "vscode";
 import { ExtensionState } from "../types";
 
 import CompileCommand from "../commands/CompileCommand";
-import TestCommand from "../commands/TestCommand";
 import FlattenCurrentFileCommand from "../commands/FlattenCurrentFileCommand";
 import CleanCommand from "../commands/CleanCommand";
 
 const commandClasses = [
   CompileCommand,
-  TestCommand,
   FlattenCurrentFileCommand,
   CleanCommand,
 ];

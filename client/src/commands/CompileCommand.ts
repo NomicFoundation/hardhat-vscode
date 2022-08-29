@@ -5,7 +5,11 @@ export default class CompileCommand extends HardhatTaskCommand {
     return "compile";
   }
 
-  public taskName(): string {
-    return this.name();
+  public hardhatArgs(): string[] {
+    return [this.name()];
+  }
+
+  public progressLabel(): string {
+    return "Compiling the project";
   }
 }

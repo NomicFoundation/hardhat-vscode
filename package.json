@@ -161,10 +161,6 @@
         "title": "Solidity + Hardhat: Clear cache and artifacts "
       },
       {
-        "command": "hardhat.solidity.test",
-        "title": "Solidity + Hardhat: Run tests"
-      },
-      {
         "command": "hardhat.solidity.flattenCurrentFile",
         "title": "Solidity + Hardhat: Flatten this file and their dependencies",
         "enablement": "editorLangId == 'solidity'"

@@ -5,7 +5,11 @@ export default class CleanCommand extends HardhatTaskCommand {
     return "clean";
   }
 
-  public taskName(): string {
-    return this.name();
+  public hardhatArgs(): string[] {
+    return [this.name()];
+  }
+
+  public progressLabel(): string {
+    return "Cleaning artifacts and cache";
   }
 }
