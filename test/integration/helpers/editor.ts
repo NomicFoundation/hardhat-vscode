@@ -88,6 +88,6 @@ const deleteFile = (file: vscode.Uri): void => {
 
 // Some editor commands return immediately but the effect happens asynchronously
 // This ensures the effect takes place before continuing execution
-const waitForUI = async () => {
+export const waitForUI = async () => {
   await sleep(500);
 };
