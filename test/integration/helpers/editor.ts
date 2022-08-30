@@ -47,6 +47,7 @@ export const openFileInEditor = async (
 };
 
 export const openQuickfixMenu = async () => {
+  await waitForUI();
   await vscode.commands.executeCommand("editor.action.quickFix");
   await waitForUI();
 };

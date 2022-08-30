@@ -26,7 +26,6 @@ export default class FlattenCurrentFileCommand extends HardhatTaskCommand {
   public async onClose(_status: number): Promise<void> {
     const flattened = this.buffer.join("");
     if (typeof flattened !== "string" || flattened.trim().length === 0) {
-      this.outputChannel.show();
       return;
     }
 

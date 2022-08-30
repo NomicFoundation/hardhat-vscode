@@ -154,6 +154,30 @@ When no license is specified on a contract, the `solidity(1878)` warning is rais
 
 ![Add pragma solidity](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/add-pragma.gif "Add pragma solidity")
 
+### Commands
+
+#### Compile project
+
+When working on a hardhat project, the command `Solidity + Hardhat: Compile project` is present both on the command palette and on the context menu on solidity files. This will trigger a `hardhat compile` run.
+
+![Compile command](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/command-compile.gif "Compile command")
+
+#### Clean artifacts
+
+When working on a hardhat project, the command `Solidity + Hardhat: Clear cache and artifacts` is present on the command palette. This will trigger a `hardhat clean` run.
+
+![Clean command](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/command-clean.gif "Clean command")
+
+#### Flatten contract
+
+When working on a solidity file inside a hardhat project, the command `Solidity + Hardhat: Flatten this file and their dependencies` is present on the command palette and the context menu. This will trigger a `hardhat flatten $FILE` run, and will output the result in a new file tab.
+
+![Flatten command](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/command-flatten.gif "Flatten command")
+
+### Task provider
+
+The extension is registered as a task provider for hardhat projects, in which the `build` task is provided , running `hardhat compile`, and the `test` task, which runs `hardhat test`.
+
 ---
 
 ## Setup

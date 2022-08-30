@@ -1,11 +1,8 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import assert from "assert";
 import * as vscode from "vscode";
-import { getDocPath, getDocUri } from "../../helpers/docPaths";
-import {
-  compareWithFile,
-  openFileInEditor,
-  waitForUI,
-} from "../../helpers/editor";
+import { getDocUri } from "../../helpers/docPaths";
+import { openFileInEditor, waitForUI } from "../../helpers/editor";
 
 suite("commands - flatten", function () {
   this.timeout(30000);
@@ -31,6 +28,8 @@ suite("commands - flatten", function () {
     await waitForUI();
 
     const editor = vscode.window.activeTextEditor!;
-    compareWithFile(editor, getDocPath(__dirname, "./Flattened.sol"));
+    assert.ok(
+      editor.document.getText().includes("Sources flattened with hardhat")
+    );
   });
 });
