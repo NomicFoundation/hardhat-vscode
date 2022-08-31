@@ -13,7 +13,7 @@ const commandClasses = [
 
 export function setupCommands(state: ExtensionState) {
   for (const commandClass of commandClasses) {
-    const command = new commandClass(getOutputChannel(state));
+    const command = new commandClass(state.commandsOutputChannel);
     const disposable = vscode.commands.registerCommand(
       `hardhat.solidity.${command.name()}`,
       () => command.execute()
@@ -21,11 +21,3 @@ export function setupCommands(state: ExtensionState) {
     state.context.subscriptions.push(disposable);
   }
 }
-
-const getOutputChannel = (state: ExtensionState) => {
-  if (!state.commandsOutputChannel) {
-    state.commandsOutputChannel =
-      vscode.window.createOutputChannel("Hardhat Commands");
-  }
-  return state.commandsOutputChannel;
-};

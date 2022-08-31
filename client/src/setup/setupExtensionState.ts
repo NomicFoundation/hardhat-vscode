@@ -20,6 +20,8 @@ export function setupExtensionState(
   );
 
   const outputChannel: OutputChannel = window.createOutputChannel("Hardhat");
+  const commandsOutputChannel: OutputChannel =
+    window.createOutputChannel("Hardhat Commands");
   const telemetry = new SentryClientTelemetry(sentryDsn);
   const logger = new Logger(outputChannel, telemetry);
 
@@ -45,6 +47,7 @@ export function setupExtensionState(
 
     telemetry,
     outputChannel,
+    commandsOutputChannel,
     logger,
   };
 

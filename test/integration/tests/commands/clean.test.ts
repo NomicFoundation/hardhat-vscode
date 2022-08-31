@@ -22,7 +22,7 @@ suite("commands - clean", function () {
 
     // Run clean task
     await vscode.commands.executeCommand("workbench.action.tasks.runTask", {
-      task: "hardhat clean",
+      task: "hardhat: clean",
     });
     await waitForUI();
 

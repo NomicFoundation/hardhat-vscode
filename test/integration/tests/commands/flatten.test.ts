@@ -13,7 +13,7 @@ suite("commands - flatten", function () {
 
     await vscode.commands.executeCommand(
       "workbench.action.quickOpen",
-      ">Solidity + Hardhat: Flatten"
+      ">Hardhat: Flatten"
     );
     await waitForUI();
 

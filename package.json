@@ -154,15 +154,15 @@
     "commands": [
       {
         "command": "hardhat.solidity.compile",
-        "title": "Solidity + Hardhat: Compile project"
+        "title": "Hardhat: Compile project"
       },
       {
         "command": "hardhat.solidity.clean",
-        "title": "Solidity + Hardhat: Clear cache and artifacts "
+        "title": "Hardhat: Clear cache and artifacts "
       },
       {
         "command": "hardhat.solidity.flattenCurrentFile",
-        "title": "Solidity + Hardhat: Flatten this file and their dependencies",
+        "title": "Hardhat: Flatten this file and their dependencies",
         "enablement": "editorLangId == 'solidity'"
       }
     ],

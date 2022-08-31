@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { Task } from "vscode";
-import { ensureHardhatIsInstalled } from "../utils/window";
-import { ensureCurrentHardhatDir } from "../utils/workspace";
+import { isHardhatInstalled } from "../utils/hardhat";
+import { findHardhatDirs } from "../utils/workspace";
 
 const TASKS = [
   {
@@ -36,31 +36,32 @@ export class HardhatTaskProvider implements vscode.TaskProvider {
   }
 
   public async provideTasks(): Promise<Task[]> {
-    const currentHardhatDir = await ensureCurrentHardhatDir();
+    const tasks: Task[] = [];
 
-    if (currentHardhatDir === undefined) {
-      return [];
+    for (const taskDef of TASKS) {
+      const projectDirs = await findHardhatDirs();
+
+      for (const projectDir of projectDirs) {
+        if (!isHardhatInstalled(projectDir)) {
+          continue;
+        }
+
+        const task = new Task(
+          { type: TASK_TYPE, task: taskDef.name },
+          vscode.TaskScope.Workspace,
+          `${taskDef.name} - ${projectDir}`,
+          SOURCE,
+          new vscode.ShellExecution("npx", ["hardhat", taskDef.command], {
+            cwd: projectDir,
+          })
+        );
+
+        task.detail = taskDef.detail;
+        task.group = taskDef.group;
+
+        tasks.push(task);
+      }
     }
-
-    if (!(await ensureHardhatIsInstalled(currentHardhatDir))) {
-      return [];
-    }
-
-    return TASKS.map((taskDef) => {
-      const task = new Task(
-        { type: TASK_TYPE, task: taskDef.name },
-        vscode.TaskScope.Workspace,
-        taskDef.name,
-        SOURCE,
-        new vscode.ShellExecution("npx", ["hardhat", taskDef.command], {
-          cwd: currentHardhatDir,
-        })
-      );
-
-      task.detail = taskDef.detail;
-      task.group = taskDef.group;
-
-      return task;
-    });
+    return tasks;
   }
 }
