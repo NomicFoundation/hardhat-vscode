@@ -119,14 +119,26 @@ async function loadAndParseRemappings(
 }
 
 function parseRemappings(rawRemappings: string, basePath: string) {
-  const remappings = rawRemappings.trim().split("\n");
+  const lines = rawRemappings.trim().split("\n");
+  const remappings: Remapping[] = [];
 
-  return remappings
-    .map((remapping) => {
-      const [from, to] = remapping.split("=", 2);
-      return { from, to: path.join(basePath, to) };
-    })
-    .filter(({ from, to }) => !!from?.length && !!to?.length);
+  for (const line of lines) {
+    const lineTokens = line.split("=", 2);
+
+    if (
+      lineTokens.length !== 2 ||
+      lineTokens[0].length === 0 ||
+      lineTokens[1].length === 0
+    ) {
+      continue;
+    }
+
+    const [from, to] = lineTokens;
+
+    remappings.push({ from, to: path.join(basePath, to) });
+  }
+
+  return remappings;
 }
 
 async function scanForHardhatProjectsAndAppend(

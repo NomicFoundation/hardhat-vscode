@@ -53,6 +53,7 @@ describe("initialization", () => {
             basePath: "/data/example",
             configPath: "/data/example/hardhat.config.ts",
             type: "hardhat",
+            remappings: [],
             workspaceFolder: {
               name: "example",
               uri: "file:///data/example",
@@ -140,6 +141,7 @@ describe("initialization", () => {
             basePath: "/data/example/packages/first",
             configPath: "/data/example/packages/first/hardhat.config.ts",
             type: "hardhat",
+            remappings: [],
             workspaceFolder: {
               name: "example",
               uri: "file:///data/example",
@@ -149,6 +151,7 @@ describe("initialization", () => {
             basePath: "/data/example/packages/second",
             configPath: "/data/example/packages/second/hardhat.config.ts",
             type: "hardhat",
+            remappings: [],
             workspaceFolder: {
               name: "example",
               uri: "file:///data/example",
@@ -270,6 +273,7 @@ describe("initialization", () => {
             basePath: "/data/example/packages/first",
             configPath: "/data/example/packages/first/hardhat.config.ts",
             type: "hardhat",
+            remappings: [],
             workspaceFolder: {
               name: "first",
               uri: "file:///data/example/packages/first",
@@ -279,6 +283,7 @@ describe("initialization", () => {
             basePath: "/data/example/packages/second",
             configPath: "/data/example/packages/second/hardhat.config.js",
             type: "hardhat",
+            remappings: [],
             workspaceFolder: {
               name: "second",
               uri: "file:///data/example/packages/second",
@@ -288,6 +293,7 @@ describe("initialization", () => {
             basePath: "/data/example/packages/third",
             configPath: "/data/example/packages/third/hardhat.config.ts",
             type: "hardhat",
+            remappings: [],
             workspaceFolder: {
               name: "third",
               uri: "file:///data/example/packages/third",
@@ -521,6 +527,7 @@ describe("initialization", () => {
             basePath: "/data/example",
             configPath: "/data/example/hardhat.config.ts",
             type: "hardhat",
+            remappings: [],
             workspaceFolder: {
               name: "example",
               uri: "file:///data/example",
