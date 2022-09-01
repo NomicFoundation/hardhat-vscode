@@ -1,3 +1,4 @@
+import vscode from "vscode";
 import { getCurrentOpenFile } from "../utils/workspace";
 import { openNewDocument } from "../utils/window";
 import HardhatTaskCommand from "./HardhatTaskCommand";
@@ -32,7 +33,20 @@ export default class FlattenCurrentFileCommand extends HardhatTaskCommand {
     await openNewDocument(flattened);
   }
 
-  public beforeExecute(): void {
+  public async beforeExecute() {
     this.buffer = [];
+
+    const currentFile = getCurrentOpenFile();
+
+    if (currentFile === undefined) {
+      return false;
+    } else if (currentFile.isDirty) {
+      await vscode.window.showInformationMessage(
+        "Please save your file first."
+      );
+      return false;
+    } else {
+      return true;
+    }
   }
 }

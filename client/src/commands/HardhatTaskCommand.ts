@@ -21,7 +21,7 @@ export default abstract class HardhatTaskCommand extends Command {
       return;
     }
 
-    this.beforeExecute();
+    if (!(await this.beforeExecute())) return;
 
     const cliPath = getHardhatCLIPath(currentHardhatDir);
 
@@ -61,7 +61,9 @@ export default abstract class HardhatTaskCommand extends Command {
     }
   }
 
-  public beforeExecute() {}
+  public async beforeExecute() {
+    return true;
+  }
 
   public abstract hardhatArgs(): string[];
 
