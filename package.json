@@ -170,10 +170,6 @@
       "editor/context": [
         {
           "when": "editorLangId == 'solidity'",
-          "command": "hardhat.solidity.compile"
-        },
-        {
-          "when": "editorLangId == 'solidity'",
           "command": "hardhat.solidity.flattenCurrentFile"
         }
       ]

@@ -1,3 +1,4 @@
+import path from "path";
 import * as vscode from "vscode";
 import { Task } from "vscode";
 import { isHardhatInstalled } from "../utils/hardhat";
@@ -46,10 +47,19 @@ export class HardhatTaskProvider implements vscode.TaskProvider {
           continue;
         }
 
+        let relativeProjectDir = projectDir;
+
+        for (const workspaceFolder of vscode.workspace.workspaceFolders || []) {
+          relativeProjectDir = relativeProjectDir.replace(
+            path.dirname(workspaceFolder.uri.fsPath) + path.sep,
+            ""
+          );
+        }
+
         const task = new Task(
           { type: TASK_TYPE, task: taskDef.name },
           vscode.TaskScope.Workspace,
-          `${taskDef.name} - ${projectDir}`,
+          `${taskDef.name} - ${relativeProjectDir}`,
           SOURCE,
           new vscode.ShellExecution("npx", ["hardhat", taskDef.command], {
             cwd: projectDir,
