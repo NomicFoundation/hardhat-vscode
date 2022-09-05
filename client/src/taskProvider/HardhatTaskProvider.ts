@@ -1,8 +1,8 @@
 import path from "path";
 import * as vscode from "vscode";
 import { Task } from "vscode";
+import { ExtensionState } from "../types";
 import { isHardhatInstalled } from "../utils/hardhat";
-import { findHardhatDirs } from "../utils/workspace";
 
 const TASKS = [
   {
@@ -29,6 +29,8 @@ const TASK_TYPE = "hardhat";
 const SOURCE = "hardhat";
 
 export class HardhatTaskProvider implements vscode.TaskProvider {
+  constructor(public state: ExtensionState) {}
+
   public async resolveTask(
     _task: vscode.Task,
     _token: vscode.CancellationToken
@@ -39,27 +41,43 @@ export class HardhatTaskProvider implements vscode.TaskProvider {
   public async provideTasks(): Promise<Task[]> {
     const tasks: Task[] = [];
 
-    for (const taskDef of TASKS) {
-      const projectDirs = await findHardhatDirs();
+    // Used for matching projects to workspace folders
+    // These are sorted by length descending, to match longest path first
+    const sortedWorkspaceFolders = (vscode.workspace.workspaceFolders || [])
+      .map((f) => f)
+      .sort((a, b) => b.uri.fsPath.length - a.uri.fsPath.length);
 
-      for (const projectDir of projectDirs) {
+    for (const taskDef of TASKS) {
+      // Provide a set of tasks for each project where hardhat is installed
+      for (const projectDir of this.state.hardhatProjects) {
         if (!isHardhatInstalled(projectDir)) {
           continue;
         }
 
-        let relativeProjectDir = projectDir;
+        // Determine the workspace folder a project belongs to, by path matching
+        const workspaceFolder = sortedWorkspaceFolders.find((folder) =>
+          projectDir.startsWith(folder.uri.fsPath)
+        );
 
-        for (const workspaceFolder of vscode.workspace.workspaceFolders || []) {
-          relativeProjectDir = relativeProjectDir.replace(
-            path.dirname(workspaceFolder.uri.fsPath) + path.sep,
-            ""
-          );
+        if (workspaceFolder === undefined) {
+          continue;
         }
+
+        const relativePathInWorkspace = path.relative(
+          workspaceFolder.uri.fsPath,
+          projectDir
+        );
+
+        const taskName = taskDef.name.concat(
+          relativePathInWorkspace.length > 0
+            ? ` - ${relativePathInWorkspace}`
+            : ""
+        );
 
         const task = new Task(
           { type: TASK_TYPE, task: taskDef.name },
-          vscode.TaskScope.Workspace,
-          `${taskDef.name} - ${relativeProjectDir}`,
+          workspaceFolder,
+          taskName,
           SOURCE,
           new vscode.ShellExecution("npx", ["hardhat", taskDef.command], {
             cwd: projectDir,

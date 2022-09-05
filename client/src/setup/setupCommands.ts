@@ -11,9 +11,9 @@ const commandClasses = [
   CleanCommand,
 ];
 
-export function setupCommands(state: ExtensionState) {
+export async function setupCommands(state: ExtensionState) {
   for (const commandClass of commandClasses) {
-    const command = new commandClass(state.commandsOutputChannel);
+    const command = new commandClass(state);
     const disposable = vscode.commands.registerCommand(
       `hardhat.solidity.${command.name()}`,
       () => command.execute()

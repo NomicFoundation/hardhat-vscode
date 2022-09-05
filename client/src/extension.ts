@@ -1,11 +1,13 @@
 import { ExtensionContext } from "vscode";
 import { showAnalyticsAllowPopup } from "./popups/showAnalyticsAllowPopup";
 import { warnOnOtherSolidityExtensions } from "./popups/warnOnOtherSolidityExtensions";
+import { indexHardhatProjects } from "./setup/indexHardhatProjects";
 import { setupCommands } from "./setup/setupCommands";
 import { setupExtensionState } from "./setup/setupExtensionState";
 import { setupFormatterHook } from "./setup/setupFormatterHook";
 import { setupLanguageServerHooks } from "./setup/setupLanguageServerHooks";
 import { setupTaskProvider } from "./setup/setupTaskProvider";
+import { setupWorkspaceHooks } from "./setup/setupWorkspaceHooks";
 import { ExtensionState } from "./types";
 
 let extensionState: ExtensionState | null = null;
@@ -21,10 +23,13 @@ export async function activate(context: ExtensionContext) {
   logger.info("Hardhat for Visual Studio Code Starting ...");
   logger.info(`env: ${extensionState.env}`);
 
+  await indexHardhatProjects(extensionState);
+
   setupFormatterHook(extensionState);
   setupLanguageServerHooks(extensionState);
   setupTaskProvider(extensionState);
-  setupCommands(extensionState);
+  await setupCommands(extensionState);
+  setupWorkspaceHooks(extensionState);
 
   // We don't want to block for user input, analytics will be turned
   // off from users until they agree.

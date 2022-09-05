@@ -11,7 +11,7 @@ import Command from "./Command";
 
 export default abstract class HardhatTaskCommand extends Command {
   public async execute() {
-    const currentHardhatDir = await ensureCurrentHardhatDir();
+    const currentHardhatDir = await ensureCurrentHardhatDir(this.state);
 
     if (currentHardhatDir === undefined) {
       return;
@@ -25,7 +25,7 @@ export default abstract class HardhatTaskCommand extends Command {
 
     const cliPath = getHardhatCLIPath(currentHardhatDir);
 
-    this.outputChannel.appendLine(
+    this.state.outputChannel.appendLine(
       `Running 'hardhat ${this.hardhatArgs().join(" ")}'\n`
     );
 
@@ -54,7 +54,7 @@ export default abstract class HardhatTaskCommand extends Command {
     );
 
     if (exitStatus !== 0) {
-      this.outputChannel.show();
+      this.state.outputChannel.show();
       await vscode.window.showErrorMessage(
         "Hardhat command errored, please see output logs."
       );
@@ -70,11 +70,11 @@ export default abstract class HardhatTaskCommand extends Command {
   public abstract progressLabel(): string;
 
   public onStdout(data: string): void {
-    this.outputChannel.append(data);
+    this.state.outputChannel.append(data);
   }
 
   public onStderr(data: string): void {
-    this.outputChannel.append(data);
+    this.state.outputChannel.append(data);
   }
 
   public onClose(_status: number): void {}

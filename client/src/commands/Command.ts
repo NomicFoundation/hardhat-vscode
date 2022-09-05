@@ -1,7 +1,7 @@
-import { OutputChannel } from "vscode";
+import { ExtensionState } from "../types";
 
 export default abstract class Command {
-  constructor(public outputChannel: OutputChannel) {}
+  constructor(public state: ExtensionState) {}
 
   public abstract execute(commandArgs: unknown): Promise<unknown>;
 

@@ -49,6 +49,7 @@ export function setupExtensionState(
     outputChannel,
     commandsOutputChannel,
     logger,
+    hardhatProjects: [],
   };
 
   telemetry.init(extensionState);
