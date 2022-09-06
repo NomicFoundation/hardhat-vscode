@@ -4,7 +4,11 @@ import {
   Diagnostic,
   Range,
 } from "@common/types";
-import { convertHardhatErrorToDiagnostic } from "@services/validation/convertHardhatErrorToDiagnostic";
+import {
+  convertHardhatErrorToDiagnostic,
+  IMPORT_FILE_ERROR_CODES,
+  IMPORT_LIBRARY_ERROR_CODES,
+} from "@services/validation/convertHardhatErrorToDiagnostic";
 import { assert } from "chai";
 
 interface ErrorDescription {
@@ -173,6 +177,32 @@ Hardhat's compiler is case sensitive to ensure projects are portable across diff
       });
     });
 
+    describe("411 - Invalid import: missing library", () => {
+      it("should convert to a diagnostic", () => {
+        const errorDescription =
+          "A Solidity file is trying to import another which belongs to a library that is not installed.\n      \nTry installing the library using npm.";
+
+        assertConversionToDiagnostic(
+          "@foo/Bar.sol",
+          {
+            number: 411,
+            message:
+              "The library %library%, imported from %from%, is not installed. Try installing it using npm.",
+            title: "Invalid import: library not installed",
+            description: errorDescription,
+            shouldBeReported: false,
+          },
+          {
+            message: "Invalid import: library not installed",
+            range: {
+              start: { line: 0, character: 8 },
+              end: { line: 0, character: 20 },
+            },
+          }
+        );
+      });
+    });
+
     describe("unhandled - an unknown hardhat error", () => {
       const fileText = `
 //SPDX-License-Identifier: Unlicense
@@ -285,12 +315,19 @@ function assertConversionToDiagnostic(
 
   const document = TextDocument.create(exampleUri, "solidity", 0, fileText);
 
+  let messageArguments = {};
+  if (IMPORT_FILE_ERROR_CODES.includes(errorDescription.number)) {
+    messageArguments = { imported: importLine };
+  } else if (IMPORT_LIBRARY_ERROR_CODES.includes(errorDescription.number)) {
+    messageArguments = { library: importLine };
+  }
+
   const diagnostic: Diagnostic | null = convertHardhatErrorToDiagnostic(
     document,
     {
       name: "HardhatError",
       errorDescriptor: errorDescription,
-      messageArguments: { imported: importLine },
+      messageArguments,
     }
   );
 

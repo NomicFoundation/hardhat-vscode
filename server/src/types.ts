@@ -159,23 +159,26 @@ export interface WorkerState {
   logger: WorkerLogger;
 }
 
-export type ImportLineErrorCode = 404 | 405 | 406 | 407 | 408 | 409;
-
-export interface HardhatImportLineError {
-  name: "HardhatError";
-  errorDescriptor: {
-    number: number;
-    message: string;
-    title: string;
-    description: string;
-    shouldBeReported: boolean;
-  };
+export interface HardhatImportFileError extends HardhatError {
   messageArguments: {
     imported: string;
   };
 }
 
-export interface UnknownHardhatError {
+export interface HardhatImportLibraryError extends HardhatError {
+  messageArguments: {
+    library: string;
+  };
+}
+
+export interface HardhatSourceImportError extends HardhatError {
+  messageArguments: {
+    imported: string;
+    from: string;
+  };
+}
+
+export interface HardhatError {
   name: "HardhatError";
   errorDescriptor: {
     number: number;
@@ -186,18 +189,6 @@ export interface UnknownHardhatError {
   };
   messageArguments?: unknown;
 }
-
-export interface HardhatSourceImportError extends UnknownHardhatError {
-  messageArguments: {
-    imported: string;
-    from: string;
-  };
-}
-
-export type HardhatError =
-  | UnknownHardhatError
-  | HardhatImportLineError
-  | HardhatSourceImportError;
 
 export interface ValidateCommand {
   type: "VALIDATE";
