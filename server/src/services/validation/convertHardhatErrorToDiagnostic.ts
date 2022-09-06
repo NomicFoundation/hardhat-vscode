@@ -1,37 +1,57 @@
 import { Diagnostic, DiagnosticSeverity, Range } from "@common/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import type { HardhatError, HardhatImportLineError } from "../../types";
+import type {
+  HardhatError,
+  HardhatImportFileError,
+  HardhatImportLibraryError,
+} from "../../types";
 
-export const IMPORT_LINE_ERROR_CODES = [404, 405, 406, 407, 408, 409];
+export const IMPORT_FILE_ERROR_CODES = [404, 405, 406, 407, 408, 409];
+export const IMPORT_LIBRARY_ERROR_CODES = [411];
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isHardhatImportLineError(error: any): error is HardhatImportLineError {
-  if (error.errorDescriptor === undefined) {
-    return false;
+function isHardhatImportFileError(
+  error: HardhatError
+): error is HardhatImportFileError {
+  const errorCode = error?.errorDescriptor?.number;
+
+  return IMPORT_FILE_ERROR_CODES.includes(errorCode);
+}
+
+function isHardhatImportLibraryError(
+  error: HardhatError
+): error is HardhatImportLibraryError {
+  const errorCode = error?.errorDescriptor?.number;
+
+  return IMPORT_LIBRARY_ERROR_CODES.includes(errorCode);
+}
+
+function getImportString(err: HardhatError) {
+  if (isHardhatImportFileError(err)) {
+    return err.messageArguments.imported;
+  } else if (isHardhatImportLibraryError(err)) {
+    return err.messageArguments.library;
+  } else {
+    return null;
   }
-
-  const errorCode = error.errorDescriptor.number;
-
-  return IMPORT_LINE_ERROR_CODES.includes(errorCode);
 }
 
 export function convertHardhatErrorToDiagnostic(
   document: TextDocument,
   err: HardhatError
 ): Diagnostic | null {
-  if (!isHardhatImportLineError(err)) {
-    return null;
-  }
+  const importString = getImportString(err);
 
-  return resolveImportLineError(document, err, err.errorDescriptor.title);
+  if (importString === null) return null;
+
+  return resolveImportError(document, err, importString);
 }
 
-function resolveImportLineError(
+function resolveImportError(
   document: TextDocument,
-  err: HardhatImportLineError,
-  message: string
+  err: HardhatError,
+  importString: string
 ) {
-  const range = findRangeForImport(document, err);
+  const range = findRangeForImport(document, importString);
 
   if (!range) {
     return null;
@@ -41,24 +61,22 @@ function resolveImportLineError(
     severity: DiagnosticSeverity.Error,
     code: err.errorDescriptor.number,
     source: "hardhat",
-    message,
+    message: err.errorDescriptor.title,
     range,
   };
 }
 
 function findRangeForImport(
   document: TextDocument,
-  err: HardhatImportLineError
+  importString: string
 ): Range | null {
-  const imported = err.messageArguments.imported;
-
-  const startIndex = document.getText().indexOf(imported);
+  const startIndex = document.getText().indexOf(importString);
 
   if (startIndex === -1) {
     return null;
   }
 
-  const endIndex = startIndex + imported.length;
+  const endIndex = startIndex + importString.length;
 
   return {
     start: document.positionAt(startIndex),
