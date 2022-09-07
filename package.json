@@ -1,8 +1,8 @@
 {
   "name": "hardhat-solidity",
   "publisher": "NomicFoundation",
-  "displayName": "Solidity + Hardhat",
-  "description": "Solidity and Hardhat support for Visual Studio Code",
+  "displayName": "Solidity",
+  "description": "Solidity and Hardhat support by the Hardhat team",
   "license": "MIT",
   "version": "0.5.1",
   "private": true,
