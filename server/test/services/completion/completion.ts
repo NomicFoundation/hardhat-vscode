@@ -126,7 +126,7 @@ describe("Parser", () => {
           completion,
           globalVariablesUri,
           { line: 5, character: 19 },
-          ["data", "sender", "value"]
+          ["data", "sender", "sig", "value"]
         ));
 
       it("should provide block completions", () =>

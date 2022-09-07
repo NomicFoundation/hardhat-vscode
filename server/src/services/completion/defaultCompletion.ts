@@ -204,7 +204,7 @@ export const globalVariables: GlobalVariablesType = {
     "delegatecall",
     "staticcall",
   ],
-  msg: ["data", "sender", "value"],
+  msg: ["data", "sender", "sig", "value"],
   tx: ["gasprice", "origin"],
 };
 
