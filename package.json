@@ -162,7 +162,7 @@
       },
       {
         "command": "hardhat.solidity.flattenCurrentFile",
-        "title": "Hardhat: Flatten this file and their dependencies",
+        "title": "Hardhat: Flatten this file and its dependencies",
         "enablement": "editorLangId == 'solidity'  && hardhat.inHardhatProject"
       }
     ],

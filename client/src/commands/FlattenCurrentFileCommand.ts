@@ -41,8 +41,8 @@ export default class FlattenCurrentFileCommand extends HardhatTaskCommand {
     if (currentFile === undefined) {
       return false;
     } else if (currentFile.isDirty) {
-      await vscode.window.showInformationMessage(
-        "Please save your file first."
+      await vscode.window.showWarningMessage(
+        "Please save your file before flattening"
       );
       return false;
     } else {
