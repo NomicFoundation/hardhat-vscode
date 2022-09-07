@@ -31,9 +31,12 @@ release.
 14. Upload the vsix file to the microsoft marketplace
 15. Upload the vsix file to openvsx, `npx ovsx publish hardhat-solidity-0.5.0.vsix -p zzzzzz-zzzz-zzzzzz`
 16. Create a release on github off of the pushed tag
-  - use the added changelog section as the body of the release
-  - upload the vsix file as an asset
+
+- use the added changelog section as the body of the release
+- upload the vsix file as an asset
+
 17. Rebase `development` onto `main`, and force push back to github
 18. Update the discord announcements channel
-  - link to the release entry on github (i.e. `https://github.com/NomicFoundation/hardhat-vscode/releases/tag/v0.x.x`)
-  - give a few sentences of description of why users should be excited about this release
+
+- link to the release entry on github (i.e. `https://github.com/NomicFoundation/hardhat-vscode/releases/tag/v0.x.x`)
+- give a few sentences of description of why users should be excited about this release
