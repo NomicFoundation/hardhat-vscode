@@ -26,66 +26,76 @@ export async function validate(
   serverState: ServerState,
   change: TextDocumentChangeEvent<TextDocument>
 ): Promise<boolean | null> {
-  return serverState.telemetry.trackTiming("validation", async () => {
-    const internalUri = decodeUriAndRemoveFilePrefix(change.document.uri);
+  return serverState.telemetry.trackTiming(
+    "validation",
+    async (transaction) => {
+      const internalUri = decodeUriAndRemoveFilePrefix(change.document.uri);
 
-    const solFileEntry = serverState.solFileIndex[internalUri];
+      const solFileEntry = serverState.solFileIndex[internalUri];
 
-    if (solFileEntry === undefined) {
-      serverState.logger.error(
-        new Error(
-          `Could not send to valiation process, uri is not indexed: ${internalUri}`
-        )
+      if (solFileEntry === undefined) {
+        serverState.logger.error(
+          new Error(
+            `Could not send to valiation process, uri is not indexed: ${internalUri}`
+          )
+        );
+
+        return { status: "failed_precondition", result: false };
+      }
+
+      if (!isHardhatProject(solFileEntry.project)) {
+        serverState.logger.trace(
+          `No project associated with file, change not propagated to validation process: ${change.document.uri}`
+        );
+
+        return { status: "failed_precondition", result: false };
+      }
+
+      const workerProcess: WorkerProcess | undefined =
+        serverState.workerProcesses[solFileEntry.project.basePath];
+
+      if (workerProcess === undefined) {
+        serverState.logger.error(
+          new Error(
+            `No worker process for project: ${solFileEntry.project.basePath}`
+          )
+        );
+
+        return { status: "failed_precondition", result: false };
+      }
+
+      const openDocuments = getOpenDocumentsInProject(
+        serverState,
+        solFileEntry.project
       );
 
-      return { status: "failed_precondition", result: false };
+      const documentText = change.document.getText();
+
+      const completeMessage = await workerProcess.validate({
+        uri: internalUri,
+        documentText,
+        projectBasePath: solFileEntry.project.basePath,
+        openDocuments: openDocuments.map((openDoc) => ({
+          uri: decodeUriAndRemoveFilePrefix(openDoc.uri),
+          documentText: openDoc.getText(),
+        })),
+      });
+
+      if (
+        completeMessage.status === "VALIDATION_PASS" ||
+        completeMessage.status === "VALIDATION_FAIL"
+      ) {
+        transaction.setTag("version", completeMessage.version);
+      }
+
+      sendResults(serverState, change, completeMessage);
+
+      return {
+        status: "ok",
+        result: completeMessage.status === "VALIDATION_PASS",
+      };
     }
-
-    if (!isHardhatProject(solFileEntry.project)) {
-      serverState.logger.trace(
-        `No project associated with file, change not propagated to validation process: ${change.document.uri}`
-      );
-
-      return { status: "failed_precondition", result: false };
-    }
-
-    const workerProcess: WorkerProcess | undefined =
-      serverState.workerProcesses[solFileEntry.project.basePath];
-
-    if (workerProcess === undefined) {
-      serverState.logger.error(
-        new Error(
-          `No worker process for project: ${solFileEntry.project.basePath}`
-        )
-      );
-
-      return { status: "failed_precondition", result: false };
-    }
-
-    const openDocuments = getOpenDocumentsInProject(
-      serverState,
-      solFileEntry.project
-    );
-
-    const documentText = change.document.getText();
-
-    const completeMessage = await workerProcess.validate({
-      uri: internalUri,
-      documentText,
-      projectBasePath: solFileEntry.project.basePath,
-      openDocuments: openDocuments.map((openDoc) => ({
-        uri: decodeUriAndRemoveFilePrefix(openDoc.uri),
-        documentText: openDoc.getText(),
-      })),
-    });
-
-    sendResults(serverState, change, completeMessage);
-
-    return {
-      status: "ok",
-      result: completeMessage.status === "VALIDATION_PASS",
-    };
-  });
+  );
 }
 
 function sendResults(
