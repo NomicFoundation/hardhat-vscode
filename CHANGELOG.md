@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.5.2 - 2022-09-08
+
+### Added
+
+- Added diagnostic for hardhat error 411 - library not installed ([#242](https://github.com/NomicFoundation/hardhat-vscode/issues/242))
+- Added task provider and commands ([#70](https://github.com/NomicFoundation/hardhat-vscode/issues/70))
+- Added link to error file on incorrect imports ([#238](https://github.com/NomicFoundation/hardhat-vscode/issues/238))
+
 ## 0.5.1 - 2022-08-18
 
 ### Added
