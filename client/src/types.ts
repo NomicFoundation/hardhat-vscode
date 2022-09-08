@@ -24,7 +24,9 @@ export interface ExtensionState {
 
   telemetry: Telemetry;
   outputChannel: OutputChannel;
+  commandsOutputChannel: OutputChannel;
   logger: Logger;
 
   hardhatConfigStatusItem: LanguageStatusItem | null;
+  hardhatProjects: string[];
 }
