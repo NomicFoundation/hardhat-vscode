@@ -135,7 +135,45 @@
         "language": "solidity",
         "path": "./snippets/solidity.json"
       }
-    ]
+    ],
+    "taskDefinitions": [
+      {
+        "type": "hardhat",
+        "required": [
+          "task"
+        ],
+        "properties": {
+          "task": {
+            "type": "string",
+            "description": "%taskdef.task%"
+          }
+        },
+        "when": "shellExecutionSupported"
+      }
+    ],
+    "commands": [
+      {
+        "command": "hardhat.solidity.compile",
+        "title": "Hardhat: Compile project"
+      },
+      {
+        "command": "hardhat.solidity.clean",
+        "title": "Hardhat: Clear cache and artifacts "
+      },
+      {
+        "command": "hardhat.solidity.flattenCurrentFile",
+        "title": "Hardhat: Flatten this file and its dependencies",
+        "enablement": "editorLangId == 'solidity'  && hardhat.inHardhatProject"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "hardhat.solidity.flattenCurrentFile",
+          "when": "editorLangId == 'solidity' && hardhat.inHardhatProject"
+        }
+      ]
+    }
   },
   "__metadata": {
     "id": "dada159b-1dfe-49fc-a369-0e08ecdff9b3",
