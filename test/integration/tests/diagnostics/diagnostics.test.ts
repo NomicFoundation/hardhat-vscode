@@ -48,4 +48,19 @@ suite("diagnostics", function () {
       'Contract "Counter" should be marked as abstract'
     );
   });
+
+  test("[diagnostics] multiple character encodings", async () => {
+    for (const fileName of ["UTF8Characters.sol", "UTF16Characters.sol"]) {
+      const uri = getTestContractUri(`main/contracts/diagnostics/${fileName}`);
+      await openFileInEditor(uri);
+
+      await checkOrWaitDiagnostic(
+        uri,
+        new vscode.Range(7, 4, 7, 14),
+        vscode.DiagnosticSeverity.Error,
+        "solidity",
+        "Different number of arguments in return statement"
+      );
+    }
+  });
 });

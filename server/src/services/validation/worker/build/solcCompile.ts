@@ -43,5 +43,31 @@ export async function solcCompile(
     });
   }
 
+  // Normalize errors' sourceLocation to use utf-8 offsets instead of byte offsets
+  for (const error of output.errors) {
+    const source = input.sources[error.sourceLocation?.file];
+
+    if (source === undefined) {
+      continue;
+    }
+
+    error.sourceLocation.start = normalizeOffset(
+      source.content,
+      error.sourceLocation.start
+    );
+    error.sourceLocation.end = normalizeOffset(
+      source.content,
+      error.sourceLocation.end
+    );
+  }
+
   return { output, solcBuild };
 }
+
+const normalizeOffset = (text: string, offset: number) => {
+  if (offset < 0) {
+    return offset; // don't transform negative offsets
+  } else {
+    return Buffer.from(text, "utf-8").slice(0, offset).toString("utf-8").length;
+  }
+};
