@@ -7,8 +7,6 @@ import { sleep } from "../../helpers/sleep";
 import { getRootPath } from "../../helpers/workspace";
 
 suite("task - clean", function () {
-  this.timeout(30000);
-
   test("run clean task", async () => {
     // Close any active editor - since running a task saves the current file apparently
     await vscode.commands.executeCommand("workbench.action.closeActiveEditor");

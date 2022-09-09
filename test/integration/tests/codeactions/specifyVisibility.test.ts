@@ -10,8 +10,6 @@ import {
 } from "../../helpers/editor";
 
 suite("codeactions - specify visibility", function () {
-  this.timeout(30000);
-
   test("specify public", async () => {
     const uri = getTestContractUri(
       "main/contracts/codeactions/SpecifyVisibility.sol"

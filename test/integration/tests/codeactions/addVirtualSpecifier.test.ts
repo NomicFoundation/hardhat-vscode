@@ -10,8 +10,6 @@ import {
 } from "../../helpers/editor";
 
 suite("codeactions - add virtual specifier", function () {
-  this.timeout(30000);
-
   test("add virtual specifier on multiple occurrences", async () => {
     const uri = getTestContractUri(
       "main/contracts/codeactions/AddVirtualSpecifier.sol"

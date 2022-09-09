@@ -24,7 +24,7 @@ suite("Configuration", function () {
         textDocumentSync: 2,
         codeActionProvider: true,
         completionProvider: {
-          triggerCharacters: [".", "/", '"'],
+          triggerCharacters: [".", "/", '"', "'"],
         },
         signatureHelpProvider: {
           triggerCharacters: ["(", ","],

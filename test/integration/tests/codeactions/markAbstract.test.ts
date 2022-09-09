@@ -10,8 +10,6 @@ import {
 } from "../../helpers/editor";
 
 suite("codeactions - mark abstract", function () {
-  this.timeout(30000);
-
   test("add missing functions from interfaces", async () => {
     const uri = getTestContractUri(
       "main/contracts/codeactions/MarkAbstract.sol"

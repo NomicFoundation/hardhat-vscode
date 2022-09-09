@@ -4,8 +4,6 @@ import { assertLspCommand } from "../../common/assertLspCommand";
 import { getTestContractUri } from "../../helpers/getTestContract";
 
 suite("Single-file Navigation", function () {
-  this.timeout(10000);
-
   const testUri = getTestContractUri("main/contracts/implementation/Test.sol");
 
   let client!: Client;

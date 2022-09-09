@@ -10,8 +10,6 @@ import {
 } from "../../helpers/editor";
 
 suite("codeactions - add license identifier", function () {
-  this.timeout(30000);
-
   test("add MIT license identifier", async () => {
     const uri = getTestContractUri("main/contracts/codeactions/NoLicense.sol");
     const editor = await openFileInEditor(uri);

@@ -7,8 +7,6 @@ import { getTestContractUri } from "../../helpers/getTestContract";
 import { getRootPath } from "../../helpers/workspace";
 
 suite("Single-file Navigation", function () {
-  this.timeout(10000);
-
   const testUri = getTestContractUri("main/contracts/definition/Test.sol");
   const importTestUri = getTestContractUri(
     "main/contracts/definition/ImportTest.sol"

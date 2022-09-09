@@ -5,8 +5,6 @@ import { getTestContractUri } from "../../helpers/getTestContract";
 import { openFileInEditor, waitForUI } from "../../helpers/editor";
 
 suite("commands - flatten", function () {
-  this.timeout(30000);
-
   test("flatten via command palette", async () => {
     const uri = getTestContractUri("main/contracts/commands/Importer.sol");
     await openFileInEditor(uri);

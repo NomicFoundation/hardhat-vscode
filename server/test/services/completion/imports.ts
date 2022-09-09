@@ -13,6 +13,14 @@ import {
 import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
 import { prependWithSlash } from "../../helpers/prependWithSlash";
 
+const semicolonCommand = (position: VSCodePosition) => ({
+  command: {
+    arguments: [position],
+    command: "hardhat.solidity.insertSemicolon",
+    title: "",
+  },
+});
+
 describe("Parser", () => {
   const workspaceFolder = prependWithSlash(
     forceToUnixStyle(path.join(__dirname, "../../../test"))
@@ -591,8 +599,6 @@ describe("Parser", () => {
       });
 
       describe("direct", function () {
-        this.timeout(5000);
-
         before(async () => {
           const openzepplinUri1 = forceToUnixStyle(
             path.join(
@@ -796,6 +802,7 @@ const assertImportCompletion = async (
     .map((comp) => ({
       ...comp,
       documentation: "Imports the package",
+      ...semicolonCommand(position),
     }))
     .sort((left, right) => left.label.localeCompare(right.label));
 
