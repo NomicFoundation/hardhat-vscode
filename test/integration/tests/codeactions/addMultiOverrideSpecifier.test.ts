@@ -10,8 +10,6 @@ import {
 } from "../../helpers/editor";
 
 suite("codeactions - add multi override specifier", function () {
-  this.timeout(30000);
-
   test("add multi override on multiple occurrences", async () => {
     const uri = getTestContractUri(
       "main/contracts/codeactions/AddMultioverrideSpecifier.sol"

@@ -172,6 +172,11 @@
         "title": "Hardhat: Clear cache and artifacts "
       },
       {
+        "command": "hardhat.solidity.insertSemicolon",
+        "title": "Insert semicolon",
+        "enablement": "false"
+      },
+      {
         "command": "hardhat.solidity.flattenCurrentFile",
         "title": "Hardhat: Flatten this file and its dependencies",
         "enablement": "editorLangId == 'solidity'  && hardhat.inHardhatProject"

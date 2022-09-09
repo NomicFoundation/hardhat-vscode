@@ -3,12 +3,20 @@ import path from "path";
 import Mocha from "mocha";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import glob from "glob";
+import { sleep } from "./helpers/sleep";
 
 export function run(): Promise<void> {
   // Create the mocha test
   const mocha = new Mocha({
     ui: "tdd",
     color: true,
+    rootHooks: {
+      beforeAll: async () => {
+        await sleep(5000); // Wait for the extension to be loaded
+      },
+    },
+    timeout: 30000,
+    retries: 1,
   });
 
   const testsRoot = path.resolve(__dirname, "tests");

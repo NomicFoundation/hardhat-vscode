@@ -10,8 +10,6 @@ import {
 } from "../../helpers/editor";
 
 suite("codeactions - constrain mutability", function () {
-  this.timeout(30000);
-
   test("add view modifier", async () => {
     const uri = getTestContractUri(
       "main/contracts/codeactions/ConstrainMutabilityView.sol"

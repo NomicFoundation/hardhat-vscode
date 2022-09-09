@@ -10,8 +10,6 @@ import {
 } from "../../helpers/editor";
 
 suite("codeactions - add solidity pragma", function () {
-  this.timeout(30000);
-
   test("add version of current compiler", async () => {
     const uri = getTestContractUri("main/contracts/codeactions/NoPragma.sol");
     const editor = await openFileInEditor(uri);
