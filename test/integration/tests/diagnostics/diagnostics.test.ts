@@ -4,8 +4,6 @@ import { getTestContractUri } from "../../helpers/getTestContract";
 import { openFileInEditor } from "../../helpers/editor";
 
 suite("diagnostics", function () {
-  this.timeout(30000);
-
   test("[diagnostics] missing semicolon", async () => {
     const uri = getTestContractUri(
       "main/contracts/diagnostics/MissingSemicolon.sol"

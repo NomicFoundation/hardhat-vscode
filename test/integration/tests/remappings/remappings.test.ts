@@ -9,7 +9,6 @@ import {
 import { assertPositionEqual } from "../../helpers/assertions";
 
 suite("remappings", function () {
-  this.timeout(30000);
   test("[remappings] multiple navigations", async () => {
     const importerUri = getTestContractUri("remappings/src/Importer.sol");
     const importedUri = getTestContractUri("remappings/lib/myLib/Imported.sol");

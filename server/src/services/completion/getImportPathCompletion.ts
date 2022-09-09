@@ -21,6 +21,8 @@ export function getImportPathCompletion(
   const currentImport = node.astNode.path.replace("_;", "");
   const importPath = toUnixStyle(path.join(node.realUri, "..", currentImport));
 
+  let items: CompletionItem[];
+
   if (currentImport === "") {
     const relativeImports = getRelativeImportPathCompletions(
       position,
@@ -33,9 +35,9 @@ export function getImportPathCompletion(
     const indexNodeModuleFolders =
       getIndexedNodeModuleFolderCompletions(projCtx);
 
-    return relativeImports.concat(indexNodeModuleFolders);
+    items = relativeImports.concat(indexNodeModuleFolders);
   } else if (isRelativeImport(currentImport)) {
-    return getRelativeImportPathCompletions(
+    items = getRelativeImportPathCompletions(
       position,
       currentImport,
       importPath,
@@ -43,8 +45,19 @@ export function getImportPathCompletion(
       logger
     );
   } else {
-    return getDirectImportPathCompletions(position, currentImport, projCtx);
+    items = getDirectImportPathCompletions(position, currentImport, projCtx);
   }
+
+  // Trigger auto-insertion of semicolon after import completion
+  for (const item of items) {
+    item.command = {
+      command: "hardhat.solidity.insertSemicolon",
+      arguments: [position],
+      title: "",
+    };
+  }
+
+  return items;
 }
 
 function isRelativeImport(currentImport: string) {

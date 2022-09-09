@@ -4,11 +4,16 @@ import { ExtensionState } from "../types";
 import CompileCommand from "../commands/CompileCommand";
 import FlattenCurrentFileCommand from "../commands/FlattenCurrentFileCommand";
 import CleanCommand from "../commands/CleanCommand";
+import InsertSemicolonCommand from "../commands/InsertSemicolonCommand";
+import Command from "../commands/Command";
 
-const commandClasses = [
+type ICommandClass = new (state: ExtensionState) => Command;
+
+const commandClasses: ICommandClass[] = [
   CompileCommand,
   FlattenCurrentFileCommand,
   CleanCommand,
+  InsertSemicolonCommand,
 ];
 
 export async function setupCommands(state: ExtensionState) {
@@ -16,7 +21,7 @@ export async function setupCommands(state: ExtensionState) {
     const command = new commandClass(state);
     const disposable = vscode.commands.registerCommand(
       `hardhat.solidity.${command.name()}`,
-      () => command.execute()
+      (...args) => command.execute(...args)
     );
     state.context.subscriptions.push(disposable);
   }

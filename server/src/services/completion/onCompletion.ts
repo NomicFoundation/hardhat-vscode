@@ -135,7 +135,7 @@ export function doComplete(
   }
 
   if (
-    context?.triggerCharacter === '"' &&
+    ['"', "'"].includes(context?.triggerCharacter ?? "") &&
     (!definitionNode || !isImportDirectiveNode(definitionNode))
   ) {
     return null;
