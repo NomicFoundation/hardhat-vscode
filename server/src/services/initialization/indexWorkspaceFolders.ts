@@ -5,7 +5,7 @@ import { WorkspaceFolder } from "vscode-languageserver-protocol";
 import { Connection } from "vscode-languageserver";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { SolFileEntry } from "@analyzer/SolFileEntry";
-import { SolFileIndexMap, SolProjectMap } from "@common/types";
+import { Remapping, SolFileIndexMap, SolProjectMap } from "@common/types";
 import { getOrInitialiseSolFileEntry } from "@utils/getOrInitialiseSolFileEntry";
 import { analyzeSolFile } from "@analyzer/analyzeSolFile";
 import { HardhatProject } from "@analyzer/HardhatProject";
@@ -105,6 +105,30 @@ export async function indexWorkspaceFolders(
   );
 }
 
+async function loadAndParseRemappings(
+  basePath: string,
+  workspaceFileRetriever: WorkspaceFileRetriever
+): Promise<Remapping[]> {
+  const remappingsPath = path.join(basePath, "remappings.txt");
+  if (await workspaceFileRetriever.fileExists(remappingsPath)) {
+    const rawRemappings = await workspaceFileRetriever.readFile(remappingsPath);
+    return parseRemappings(rawRemappings, basePath);
+  }
+
+  return [];
+}
+
+function parseRemappings(rawRemappings: string, basePath: string) {
+  const remappings = rawRemappings.trim().split("\n");
+
+  return remappings
+    .map((remapping) => {
+      const [from, to] = remapping.split("=", 2);
+      return { from, to: path.join(basePath, to) };
+    })
+    .filter(({ from, to }) => !!from?.length && !!to?.length);
+}
+
 async function scanForHardhatProjectsAndAppend(
   indexJobId: number,
   workspaceFolder: WorkspaceFolder,
@@ -118,20 +142,27 @@ async function scanForHardhatProjectsAndAppend(
   );
 
   const uri = decodeUriAndRemoveFilePrefix(workspaceFolder.uri);
-
   const hardhatConfigFiles = await workspaceFileRetriever.findFiles(
     uri,
     "**/hardhat.config.{ts,js}",
     ["**/node_modules/**"]
   );
 
-  const foundProjects = hardhatConfigFiles.map(
-    (hhcf) =>
-      new HardhatProject(
-        path.dirname(decodeUriAndRemoveFilePrefix(hhcf)),
+  const foundProjects = await Promise.all(
+    hardhatConfigFiles.map(async (hhcf) => {
+      const basePath = path.dirname(decodeUriAndRemoveFilePrefix(hhcf));
+      const parsedRemappings = await loadAndParseRemappings(
+        basePath,
+        workspaceFileRetriever
+      );
+
+      return new HardhatProject(
+        basePath,
         hhcf,
-        workspaceFolder
-      )
+        workspaceFolder,
+        parsedRemappings
+      );
+    })
   );
 
   for (const project of foundProjects) {

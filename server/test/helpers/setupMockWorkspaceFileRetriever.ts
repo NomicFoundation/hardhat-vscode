@@ -39,8 +39,13 @@ export function setupMockWorkspaceFileRetriever(
     return "";
   };
 
+  const fileExists = async () => {
+    return false;
+  };
+
   return {
     findFiles: sinon.spy(findFiles),
     readFile: sinon.spy(readFile),
+    fileExists: sinon.spy(fileExists),
   };
 }

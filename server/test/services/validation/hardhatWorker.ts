@@ -12,6 +12,7 @@ describe("Hardhat Worker", () => {
     type: "hardhat",
     basePath: "/example",
     configPath: "/example/hardhat.config.js",
+    remappings: [],
     workspaceFolder: {
       name: "example",
       uri: "/example",

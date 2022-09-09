@@ -1,12 +1,23 @@
 import * as fs from "fs";
-import { ImportDirective } from "@common/types";
+import * as path from "path";
+import { Remapping } from "@common/types";
 import { toUnixStyle } from "../../../utils";
 
 export function resolveDependency(
   cwd: string,
-  importDirective: ImportDirective
+  originalPath: string,
+  pathRemappings: Remapping[] = []
 ): string {
-  const resolvedPath = require.resolve(importDirective.path, {
+  if (pathRemappings.length && !originalPath.startsWith(".")) {
+    for (const { from, to } of pathRemappings) {
+      if (originalPath.startsWith(from)) {
+        const remappedPath = path.join(to, originalPath.slice(from.length));
+        return toUnixStyle(fs.realpathSync(remappedPath));
+      }
+    }
+  }
+
+  const resolvedPath = require.resolve(originalPath, {
     paths: [fs.realpathSync(cwd)],
   });
 

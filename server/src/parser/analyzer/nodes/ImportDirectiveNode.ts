@@ -33,12 +33,15 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
       documentsAnalyzer,
       importDirective.path
     );
+
     this.realUri = toUnixStyle(fs.realpathSync(uri));
+    const remappings = documentsAnalyzer[this.realUri]?.project.remappings;
 
     try {
       this.uri = resolveDependency(
-        path.resolve(this.realUri, ".."),
-        importDirective
+        path.dirname(this.realUri),
+        importDirective.path,
+        remappings
       );
     } catch (err) {
       this.uri = "";
