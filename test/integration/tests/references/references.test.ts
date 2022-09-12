@@ -1,18 +1,19 @@
 import { getClient } from "../../client";
 import { Client } from "../../common/types";
 import { assertLspCommand } from "../../common/assertLspCommand";
-import { getDocUri } from "../../helpers/docPaths";
+import { getTestContractUri } from "../../helpers/getTestContract";
 
 suite("Single-file Navigation", function () {
   this.timeout(10000);
 
-  const testUri = getDocUri(__dirname, "./Test.sol");
-  const importedUri = getDocUri(__dirname, "./Imported.sol");
-  const modifierInvocationUri = getDocUri(
-    __dirname,
-    "./ModifierInvocation.sol"
+  const testUri = getTestContractUri("main/contracts/references/Test.sol");
+  const importedUri = getTestContractUri(
+    "main/contracts/references/Imported.sol"
   );
-  const fooUri = getDocUri(__dirname, "./Foo.sol");
+  const modifierInvocationUri = getTestContractUri(
+    "main/contracts/references/ModifierInvocation.sol"
+  );
+  const fooUri = getTestContractUri("main/contracts/references/Foo.sol");
 
   let client!: Client;
 
@@ -33,7 +34,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: "./Test.sol",
+            path: testUri.fsPath,
           },
           range: [
             {
@@ -48,7 +49,7 @@ suite("Single-file Navigation", function () {
         },
         {
           uri: {
-            path: "./Test.sol",
+            path: testUri.fsPath,
           },
           range: [
             {
@@ -63,7 +64,7 @@ suite("Single-file Navigation", function () {
         },
         {
           uri: {
-            path: "./Test.sol",
+            path: testUri.fsPath,
           },
           range: [
             {
@@ -78,7 +79,7 @@ suite("Single-file Navigation", function () {
         },
         {
           uri: {
-            path: "./Test.sol",
+            path: testUri.fsPath,
           },
           range: [
             {
@@ -108,7 +109,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: "./Imported.sol",
+            path: importedUri.fsPath,
           },
           range: [
             {
@@ -123,7 +124,7 @@ suite("Single-file Navigation", function () {
         },
         {
           uri: {
-            path: "./Imported.sol",
+            path: importedUri.fsPath,
           },
           range: [
             {
@@ -138,7 +139,8 @@ suite("Single-file Navigation", function () {
         },
         {
           uri: {
-            path: "./ImportTest.sol",
+            path: getTestContractUri("main/contracts/references/ImportTest.sol")
+              .fsPath,
           },
           range: [
             {
@@ -168,7 +170,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: "./Imported.sol",
+            path: importedUri.fsPath,
           },
           range: [
             {
@@ -183,7 +185,7 @@ suite("Single-file Navigation", function () {
         },
         {
           uri: {
-            path: "./Imported.sol",
+            path: importedUri.fsPath,
           },
           range: [
             {
@@ -198,7 +200,8 @@ suite("Single-file Navigation", function () {
         },
         {
           uri: {
-            path: "./ImportTest.sol",
+            path: getTestContractUri("main/contracts/references/ImportTest.sol")
+              .fsPath,
           },
           range: [
             {
@@ -228,7 +231,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: "./ModifierInvocation.sol",
+            path: modifierInvocationUri.fsPath,
           },
           range: [
             {
@@ -243,7 +246,7 @@ suite("Single-file Navigation", function () {
         },
         {
           uri: {
-            path: "./ModifierInvocation.sol",
+            path: modifierInvocationUri.fsPath,
           },
           range: [
             {
@@ -273,7 +276,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: "./ModifierInvocation.sol",
+            path: modifierInvocationUri.fsPath,
           },
           range: [
             {
@@ -288,7 +291,7 @@ suite("Single-file Navigation", function () {
         },
         {
           uri: {
-            path: "./ModifierInvocation.sol",
+            path: modifierInvocationUri.fsPath,
           },
           range: [
             {
@@ -318,7 +321,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: "./ModifierInvocation.sol",
+            path: modifierInvocationUri.fsPath,
           },
           range: [
             {
@@ -333,7 +336,7 @@ suite("Single-file Navigation", function () {
         },
         {
           uri: {
-            path: "./ModifierInvocation.sol",
+            path: modifierInvocationUri.fsPath,
           },
           range: [
             {
@@ -363,7 +366,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: "./ModifierInvocation.sol",
+            path: modifierInvocationUri.fsPath,
           },
           range: [
             {
@@ -378,7 +381,7 @@ suite("Single-file Navigation", function () {
         },
         {
           uri: {
-            path: "./ModifierInvocation.sol",
+            path: modifierInvocationUri.fsPath,
           },
           range: [
             {
@@ -408,7 +411,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: "./Foo.sol",
+            path: fooUri.fsPath,
           },
           range: [
             {
@@ -423,7 +426,9 @@ suite("Single-file Navigation", function () {
         },
         {
           uri: {
-            path: "./MultiImport.sol",
+            path: getTestContractUri(
+              "main/contracts/references/MultiImport.sol"
+            ).fsPath,
           },
           range: [
             {
@@ -438,7 +443,9 @@ suite("Single-file Navigation", function () {
         },
         {
           uri: {
-            path: "./MultiImport.sol",
+            path: getTestContractUri(
+              "main/contracts/references/MultiImport.sol"
+            ).fsPath,
           },
           range: [
             {

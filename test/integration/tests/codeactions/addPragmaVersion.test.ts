@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { checkOrWaitDiagnostic } from "../../helpers/assertions";
-import { getDocPath, getDocUri } from "../../helpers/docPaths";
+import { getTestContractUri } from "../../helpers/getTestContract";
 import {
   applyQuickfix,
   compareWithFile,
@@ -13,7 +13,7 @@ suite("codeactions - add solidity pragma", function () {
   this.timeout(30000);
 
   test("add version of current compiler", async () => {
-    const uri = getDocUri(__dirname, "./NoPragma.sol");
+    const uri = getTestContractUri("main/contracts/codeactions/NoPragma.sol");
     const editor = await openFileInEditor(uri);
 
     const diagStart = new vscode.Position(0, 0);
@@ -32,6 +32,9 @@ suite("codeactions - add solidity pragma", function () {
     await openQuickfixMenu();
     await applyQuickfix(0);
 
-    compareWithFile(editor, getDocPath(__dirname, "./NoPragma_fixed.sol"));
+    compareWithFile(
+      editor,
+      getTestContractUri("main/contracts/codeactions/NoPragma_fixed.sol")
+    );
   });
 });

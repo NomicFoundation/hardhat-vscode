@@ -11,16 +11,6 @@ const config: HardhatUserConfig = {
       outputSelection: {},
     },
   },
-  networks: {
-    ropsten: {
-      url: "",
-      accounts:
-        process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
-    },
-  },
-  paths: {
-    sources: "tests",
-  },
 };
 
 export default config;

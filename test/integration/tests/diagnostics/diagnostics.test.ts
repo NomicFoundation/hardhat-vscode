@@ -1,13 +1,15 @@
 import * as vscode from "vscode";
 import { checkOrWaitDiagnostic } from "../../helpers/assertions";
-import { getDocUri } from "../../helpers/docPaths";
+import { getTestContractUri } from "../../helpers/getTestContract";
 import { openFileInEditor } from "../../helpers/editor";
 
 suite("diagnostics", function () {
   this.timeout(30000);
 
   test("[diagnostics] missing semicolon", async () => {
-    const uri = getDocUri(__dirname, "./MissingSemicolon.sol");
+    const uri = getTestContractUri(
+      "main/contracts/diagnostics/MissingSemicolon.sol"
+    );
     await openFileInEditor(uri);
 
     await checkOrWaitDiagnostic(
@@ -20,7 +22,9 @@ suite("diagnostics", function () {
   });
 
   test("[diagnostics] invalid assignment", async () => {
-    const uri = getDocUri(__dirname, "./InvalidAssignment.sol");
+    const uri = getTestContractUri(
+      "main/contracts/diagnostics/InvalidAssignment.sol"
+    );
     await openFileInEditor(uri);
 
     await checkOrWaitDiagnostic(
@@ -33,7 +37,9 @@ suite("diagnostics", function () {
   });
 
   test("[diagnostics] mark abstract", async () => {
-    const uri = getDocUri(__dirname, "./MarkAbstract.sol");
+    const uri = getTestContractUri(
+      "main/contracts/diagnostics/MarkAbstract.sol"
+    );
     await openFileInEditor(uri);
 
     await checkOrWaitDiagnostic(
