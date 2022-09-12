@@ -1,12 +1,12 @@
 import { getClient } from "../../client";
 import { Client } from "../../common/types";
 import { assertLspCommand } from "../../common/assertLspCommand";
-import { getDocUri } from "../../helpers/docPaths";
+import { getTestContractUri } from "../../helpers/getTestContract";
 
 suite("Single-file Navigation", function () {
   this.timeout(10000);
 
-  const testUri = getDocUri(__dirname, "./Test.sol");
+  const testUri = getTestContractUri("main/contracts/implementation/Test.sol");
 
   let client!: Client;
 
@@ -27,7 +27,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: "./Test.sol",
+            path: testUri.fsPath,
           },
           range: [
             {
@@ -42,7 +42,7 @@ suite("Single-file Navigation", function () {
         },
         {
           uri: {
-            path: "./Test.sol",
+            path: testUri.fsPath,
           },
           range: [
             {
@@ -57,7 +57,7 @@ suite("Single-file Navigation", function () {
         },
         {
           uri: {
-            path: "./Test.sol",
+            path: testUri.fsPath,
           },
           range: [
             {
@@ -72,7 +72,7 @@ suite("Single-file Navigation", function () {
         },
         {
           uri: {
-            path: "./Test.sol",
+            path: testUri.fsPath,
           },
           range: [
             {

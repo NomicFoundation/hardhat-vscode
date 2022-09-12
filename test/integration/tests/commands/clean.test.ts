@@ -6,15 +6,15 @@ import { waitForUI } from "../../helpers/editor";
 import { sleep } from "../../helpers/sleep";
 import { getRootPath } from "../../helpers/workspace";
 
-suite("commands - clean", function () {
+suite("task - clean", function () {
   this.timeout(30000);
 
-  test("clean via command palette", async () => {
+  test("run clean task", async () => {
     // Close any active editor - since running a task saves the current file apparently
     await vscode.commands.executeCommand("workbench.action.closeActiveEditor");
 
     // Create an artifacts folder to be cleaned up
-    const artifactsPath = path.join(getRootPath(), "artifacts");
+    const artifactsPath = path.join(getRootPath(), "projects/main/artifacts");
     if (!existsSync(artifactsPath)) {
       mkdirSync(artifactsPath);
     }
@@ -22,7 +22,7 @@ suite("commands - clean", function () {
 
     // Run clean task
     await vscode.commands.executeCommand("workbench.action.tasks.runTask", {
-      task: "hardhat: clean",
+      task: "hardhat: clean main",
     });
     await waitForUI();
 

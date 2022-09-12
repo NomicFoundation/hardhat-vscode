@@ -1,13 +1,15 @@
 import { getClient } from "../../client";
 import { Client } from "../../common/types";
 import { assertLspCommand } from "../../common/assertLspCommand";
-import { getDocUri } from "../../helpers/docPaths";
+import { getTestContractUri } from "../../helpers/getTestContract";
 
 suite("Single-file Navigation", function () {
   this.timeout(10000);
 
-  const testUri = getDocUri(__dirname, "./Test.sol");
-  const importTestUri = getDocUri(__dirname, "./MultiImport.sol");
+  const testUri = getTestContractUri("main/contracts/rename/Test.sol");
+  const importTestUri = getTestContractUri(
+    "main/contracts/rename/MultiImport.sol"
+  );
 
   let client!: Client;
 
@@ -29,7 +31,7 @@ suite("Single-file Navigation", function () {
       expected: [
         [
           {
-            path: "./Test.sol",
+            path: testUri.fsPath,
           },
           [
             {
@@ -104,7 +106,7 @@ suite("Single-file Navigation", function () {
       expected: [
         [
           {
-            path: "./Test.sol",
+            path: testUri.fsPath,
           },
           [
             {
@@ -166,7 +168,7 @@ suite("Single-file Navigation", function () {
       expected: [
         [
           {
-            path: "./Foo.sol",
+            path: getTestContractUri("main/contracts/rename/Foo.sol").fsPath,
           },
           [
             {
@@ -186,7 +188,7 @@ suite("Single-file Navigation", function () {
         ],
         [
           {
-            path: "./MultiImport.sol",
+            path: importTestUri.fsPath,
           },
           [
             {

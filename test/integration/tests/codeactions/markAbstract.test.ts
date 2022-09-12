@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { checkOrWaitDiagnostic } from "../../helpers/assertions";
-import { getDocPath, getDocUri } from "../../helpers/docPaths";
+import { getTestContractUri } from "../../helpers/getTestContract";
 import {
   applyQuickfix,
   compareWithFile,
@@ -13,7 +13,9 @@ suite("codeactions - mark abstract", function () {
   this.timeout(30000);
 
   test("add missing functions from interfaces", async () => {
-    const uri = getDocUri(__dirname, "./MarkAbstract.sol");
+    const uri = getTestContractUri(
+      "main/contracts/codeactions/MarkAbstract.sol"
+    );
     const editor = await openFileInEditor(uri);
 
     const diagStart = new vscode.Position(7, 9);
@@ -34,12 +36,16 @@ suite("codeactions - mark abstract", function () {
 
     compareWithFile(
       editor,
-      getDocPath(__dirname, "./MarkAbstract_implementedInterface.sol")
+      getTestContractUri(
+        "main/contracts/codeactions/MarkAbstract_implementedInterface.sol"
+      )
     );
   });
 
   test("mark contract as abstract", async () => {
-    const uri = getDocUri(__dirname, "./MarkAbstract.sol");
+    const uri = getTestContractUri(
+      "main/contracts/codeactions/MarkAbstract.sol"
+    );
     const editor = await openFileInEditor(uri);
 
     const diagStart = new vscode.Position(7, 9);
@@ -60,7 +66,9 @@ suite("codeactions - mark abstract", function () {
 
     compareWithFile(
       editor,
-      getDocPath(__dirname, "./MarkAbstract_markedAbstract.sol")
+      getTestContractUri(
+        "main/contracts/codeactions/MarkAbstract_markedAbstract.sol"
+      )
     );
   });
 });
