@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { checkOrWaitDiagnostic } from "../../helpers/assertions";
-import { getDocPath, getDocUri } from "../../helpers/docPaths";
+import { getTestContractUri } from "../../helpers/getTestContract";
 import {
   applyQuickfix,
   compareWithFile,
@@ -13,7 +13,9 @@ suite("codeactions - add virtual specifier", function () {
   this.timeout(30000);
 
   test("add virtual specifier on multiple occurrences", async () => {
-    const uri = getDocUri(__dirname, "./AddVirtualSpecifier.sol");
+    const uri = getTestContractUri(
+      "main/contracts/codeactions/AddVirtualSpecifier.sol"
+    );
     const editor = await openFileInEditor(uri);
 
     const diagStart = new vscode.Position(4, 11);
@@ -33,7 +35,9 @@ suite("codeactions - add virtual specifier", function () {
 
     compareWithFile(
       editor,
-      getDocPath(__dirname, "AddVirtualSpecifier_fixed.sol")
+      getTestContractUri(
+        "main/contracts/codeactions/AddVirtualSpecifier_fixed.sol"
+      )
     );
   });
 });

@@ -69,9 +69,12 @@ export const goToPosition = (
 
 export const compareWithFile = (
   editor: vscode.TextEditor,
-  filePath: string
+  fileUri: vscode.Uri
 ) => {
-  assert.equal(editor.document.getText(), fs.readFileSync(filePath).toString());
+  assert.equal(
+    editor.document.getText(),
+    fs.readFileSync(fileUri.fsPath).toString()
+  );
 };
 
 const createRandomFile = async (

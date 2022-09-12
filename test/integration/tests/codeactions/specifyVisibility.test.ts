@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { checkOrWaitDiagnostic } from "../../helpers/assertions";
-import { getDocPath, getDocUri } from "../../helpers/docPaths";
+import { getTestContractUri } from "../../helpers/getTestContract";
 import {
   applyQuickfix,
   compareWithFile,
@@ -13,7 +13,9 @@ suite("codeactions - specify visibility", function () {
   this.timeout(30000);
 
   test("specify public", async () => {
-    const uri = getDocUri(__dirname, "./SpecifyVisibility.sol");
+    const uri = getTestContractUri(
+      "main/contracts/codeactions/SpecifyVisibility.sol"
+    );
     const editor = await openFileInEditor(uri);
 
     const diagStart = new vscode.Position(4, 11);
@@ -34,12 +36,16 @@ suite("codeactions - specify visibility", function () {
 
     compareWithFile(
       editor,
-      getDocPath(__dirname, "./SpecifyVisibility_addedPublic.sol")
+      getTestContractUri(
+        "main/contracts/codeactions/SpecifyVisibility_addedPublic.sol"
+      )
     );
   });
 
   test("specify private", async () => {
-    const uri = getDocUri(__dirname, "./SpecifyVisibility.sol");
+    const uri = getTestContractUri(
+      "main/contracts/codeactions/SpecifyVisibility.sol"
+    );
     const editor = await openFileInEditor(uri);
 
     const diagStart = new vscode.Position(4, 11);
@@ -60,7 +66,9 @@ suite("codeactions - specify visibility", function () {
 
     compareWithFile(
       editor,
-      getDocPath(__dirname, "./SpecifyVisibility_addedPrivate.sol")
+      getTestContractUri(
+        "main/contracts/codeactions/SpecifyVisibility_addedPrivate.sol"
+      )
     );
   });
 });

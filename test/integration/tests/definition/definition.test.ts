@@ -1,14 +1,17 @@
-import * as path from "path";
+import path from "path";
 import { getClient } from "../../client";
 import { Client } from "../../common/types";
 import { assertLspCommand } from "../../common/assertLspCommand";
-import { getDocUri } from "../../helpers/docPaths";
+import { getTestContractUri } from "../../helpers/getTestContract";
+import { getRootPath } from "../../helpers/workspace";
 
 suite("Single-file Navigation", function () {
   this.timeout(10000);
 
-  const testUri = getDocUri(__dirname, "./Test.sol");
-  const importTestUri = getDocUri(__dirname, "./ImportTest.sol");
+  const testUri = getTestContractUri("main/contracts/definition/Test.sol");
+  const importTestUri = getTestContractUri(
+    "main/contracts/definition/ImportTest.sol"
+  );
 
   let client!: Client;
 
@@ -29,7 +32,8 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: "Test.sol",
+            path: getTestContractUri("main/contracts/definition/Test.sol")
+              .fsPath,
           },
           range: [
             {
@@ -59,7 +63,8 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: "./Test.sol",
+            path: getTestContractUri("main/contracts/definition/Test.sol")
+              .fsPath,
           },
           range: [
             {
@@ -89,7 +94,8 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: "./Test.sol",
+            path: getTestContractUri("main/contracts/definition/Test.sol")
+              .fsPath,
           },
           range: [
             {
@@ -119,7 +125,8 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: "./Test.sol",
+            path: getTestContractUri("main/contracts/definition/Test.sol")
+              .fsPath,
           },
           range: [
             {
@@ -149,7 +156,8 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: "./Foo.sol",
+            path: getTestContractUri("main/contracts/definition/Foo.sol")
+              .fsPath,
           },
           range: [
             {
@@ -167,19 +175,6 @@ suite("Single-file Navigation", function () {
   });
 
   test("Jump to import dependency file", async () => {
-    let expectedPath = path
-      .join(
-        __dirname,
-        "../../node_modules/@openzeppelin/contracts/access/Ownable.sol"
-      )
-      .replace("/out/", "/")
-      .replace("\\out\\", "\\")
-      .replace(/\\/g, "/");
-
-    expectedPath = expectedPath.startsWith("/")
-      ? expectedPath
-      : `/${expectedPath}`;
-
     await assertLspCommand(client, {
       action: "DefinitionRequest",
       uri: importTestUri.path,
@@ -192,7 +187,10 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: expectedPath,
+            path: path.join(
+              getRootPath(),
+              "node_modules/@openzeppelin/contracts/access/Ownable.sol"
+            ),
           },
           range: [
             {

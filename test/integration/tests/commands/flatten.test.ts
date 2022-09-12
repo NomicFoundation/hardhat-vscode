@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import assert from "assert";
 import * as vscode from "vscode";
-import { getDocUri } from "../../helpers/docPaths";
+import { getTestContractUri } from "../../helpers/getTestContract";
 import { openFileInEditor, waitForUI } from "../../helpers/editor";
 
 suite("commands - flatten", function () {
   this.timeout(30000);
 
   test("flatten via command palette", async () => {
-    const uri = getDocUri(__dirname, "./Importer.sol");
+    const uri = getTestContractUri("main/contracts/commands/Importer.sol");
     await openFileInEditor(uri);
 
     await vscode.commands.executeCommand(

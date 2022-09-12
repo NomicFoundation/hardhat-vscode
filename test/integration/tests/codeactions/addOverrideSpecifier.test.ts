@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { checkOrWaitDiagnostic } from "../../helpers/assertions";
-import { getDocPath, getDocUri } from "../../helpers/docPaths";
+import { getTestContractUri } from "../../helpers/getTestContract";
 import {
   applyQuickfix,
   compareWithFile,
@@ -13,7 +13,9 @@ suite("codeactions - add override specifier", function () {
   this.timeout(30000);
 
   test("add override on multiple occurrences", async () => {
-    const uri = getDocUri(__dirname, "./AddOverrideSpecifier.sol");
+    const uri = getTestContractUri(
+      "main/contracts/codeactions/AddOverrideSpecifier.sol"
+    );
     const editor = await openFileInEditor(uri);
 
     const diagStart = new vscode.Position(20, 11);
@@ -34,7 +36,9 @@ suite("codeactions - add override specifier", function () {
 
     compareWithFile(
       editor,
-      getDocPath(__dirname, "./AddOverrideSpecifier_fixed.sol")
+      getTestContractUri(
+        "main/contracts/codeactions/AddOverrideSpecifier_fixed.sol"
+      )
     );
   });
 });
