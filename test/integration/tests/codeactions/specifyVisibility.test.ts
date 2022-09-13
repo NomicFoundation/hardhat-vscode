@@ -29,7 +29,7 @@ suite("codeactions - specify visibility", function () {
       "No visibility specified"
     );
 
-    goToPosition(editor, diagStart);
+    goToPosition(diagStart);
 
     await openQuickfixMenu();
     await applyQuickfix(0);
@@ -59,7 +59,7 @@ suite("codeactions - specify visibility", function () {
       "No visibility specified"
     );
 
-    goToPosition(editor, diagStart);
+    goToPosition(diagStart);
 
     await openQuickfixMenu();
     await applyQuickfix(1);

@@ -27,7 +27,7 @@ suite("codeactions - add solidity pragma", function () {
       "Source file does not specify required compiler version"
     );
 
-    goToPosition(editor, diagStart);
+    goToPosition(diagStart);
 
     await openQuickfixMenu();
     await applyQuickfix(0);

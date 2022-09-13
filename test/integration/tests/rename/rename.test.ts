@@ -31,7 +31,7 @@ suite("Single-file Navigation", function () {
       expected: [
         [
           {
-            path: testUri.fsPath,
+            path: testUri.path,
           },
           [
             {
@@ -106,7 +106,7 @@ suite("Single-file Navigation", function () {
       expected: [
         [
           {
-            path: testUri.fsPath,
+            path: testUri.path,
           },
           [
             {
@@ -168,7 +168,7 @@ suite("Single-file Navigation", function () {
       expected: [
         [
           {
-            path: getTestContractUri("main/contracts/rename/Foo.sol").fsPath,
+            path: getTestContractUri("main/contracts/rename/Foo.sol").path,
           },
           [
             {
@@ -188,7 +188,7 @@ suite("Single-file Navigation", function () {
         ],
         [
           {
-            path: importTestUri.fsPath,
+            path: importTestUri.path,
           },
           [
             {

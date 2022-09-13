@@ -28,7 +28,7 @@ suite("codeactions - add virtual specifier", function () {
       "Trying to override non-virtual function"
     );
 
-    goToPosition(editor, diagStart);
+    goToPosition(diagStart);
 
     await openQuickfixMenu();
     await applyQuickfix(0);

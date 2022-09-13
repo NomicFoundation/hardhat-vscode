@@ -46,7 +46,7 @@ suite("codeactions - add multi override specifier", function () {
         "needs to specify overridden contracts"
       );
 
-      goToPosition(editor, diagStart);
+      goToPosition(diagStart);
 
       await openQuickfixMenu();
       await applyQuickfix(0);
