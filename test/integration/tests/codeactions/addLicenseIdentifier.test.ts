@@ -27,7 +27,7 @@ suite("codeactions - add license identifier", function () {
       "SPDX license identifier not provided"
     );
 
-    goToPosition(editor, diagStart);
+    goToPosition(diagStart);
 
     await openQuickfixMenu();
     await applyQuickfix(0);

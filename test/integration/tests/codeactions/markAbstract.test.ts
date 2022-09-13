@@ -29,7 +29,7 @@ suite("codeactions - mark abstract", function () {
       'Contract "Counter" should be marked as abstract'
     );
 
-    goToPosition(editor, diagStart);
+    goToPosition(diagStart);
 
     await openQuickfixMenu();
     await applyQuickfix(0);
@@ -59,7 +59,7 @@ suite("codeactions - mark abstract", function () {
       'Contract "Counter" should be marked as abstract'
     );
 
-    goToPosition(editor, diagStart);
+    goToPosition(diagStart);
 
     await openQuickfixMenu();
     await applyQuickfix(1);

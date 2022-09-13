@@ -1,4 +1,7 @@
 {
   "private": true,
-  "workspaces": ["projects/main", "projects/remappings"]
+  "workspaces": [
+    "projects/main",
+    "projects/remappings"
+  ]
 }

@@ -30,7 +30,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: testUri.fsPath,
+            path: testUri.path,
           },
           range: [
             {
@@ -60,7 +60,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: testUri.fsPath,
+            path: testUri.path,
           },
           range: [
             {
@@ -90,7 +90,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: testUri.fsPath,
+            path: testUri.path,
           },
           range: [
             {
@@ -105,7 +105,7 @@ suite("Single-file Navigation", function () {
         },
         {
           uri: {
-            path: testUri.fsPath,
+            path: testUri.path,
           },
           range: [
             {
@@ -135,7 +135,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: importedUri.fsPath,
+            path: importedUri.path,
           },
           range: [
             {
