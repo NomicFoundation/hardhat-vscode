@@ -29,7 +29,7 @@ suite("codeactions - add override specifier", function () {
       'Overriding function is missing "override" specifier'
     );
 
-    goToPosition(editor, diagStart);
+    goToPosition(diagStart);
 
     await openQuickfixMenu();
     await applyQuickfix(0);

@@ -60,11 +60,8 @@ export const applyQuickfix = async (index: number) => {
   await waitForUI();
 };
 
-export const goToPosition = (
-  editor: vscode.TextEditor,
-  position: vscode.Position
-) => {
-  editor.selection = new vscode.Selection(position, position);
+export const goToPosition = (position: vscode.Position) => {
+  getCurrentEditor().selection = new vscode.Selection(position, position);
 };
 
 export const compareWithFile = (
@@ -94,4 +91,9 @@ const deleteFile = (file: vscode.Uri): void => {
 // This ensures the effect takes place before continuing execution
 export const waitForUI = async () => {
   await sleep(500);
+};
+
+export const getCurrentEditor = () => {
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return vscode.window.activeTextEditor!;
 };

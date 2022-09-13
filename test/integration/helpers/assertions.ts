@@ -16,6 +16,14 @@ export function rangeEqual(
   assert.strictEqual(range.end.character, ec);
 }
 
+export function assertPositionEqual(
+  position1: vscode.Position,
+  position2: vscode.Position
+): void {
+  assert.strictEqual(position1.character, position2.character);
+  assert.strictEqual(position1.line, position2.line);
+}
+
 export function uriEqual(
   actual: vscode.Uri,
   expected: vscode.Uri,

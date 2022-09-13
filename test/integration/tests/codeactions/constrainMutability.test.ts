@@ -29,7 +29,7 @@ suite("codeactions - constrain mutability", function () {
       "Function state mutability"
     );
 
-    goToPosition(editor, diagStart);
+    goToPosition(diagStart);
 
     await openQuickfixMenu();
     await applyQuickfix(0);
@@ -59,7 +59,7 @@ suite("codeactions - constrain mutability", function () {
       "Function state mutability"
     );
 
-    goToPosition(editor, diagStart);
+    goToPosition(diagStart);
 
     await openQuickfixMenu();
     await applyQuickfix(0);
@@ -89,7 +89,7 @@ suite("codeactions - constrain mutability", function () {
       "Function state mutability"
     );
 
-    goToPosition(editor, diagStart);
+    goToPosition(diagStart);
 
     await openQuickfixMenu();
     await applyQuickfix(0);

@@ -1,4 +1,5 @@
 import path from "path";
+import { Uri } from "vscode";
 import { getClient } from "../../client";
 import { Client } from "../../common/types";
 import { assertLspCommand } from "../../common/assertLspCommand";
@@ -32,8 +33,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: getTestContractUri("main/contracts/definition/Test.sol")
-              .fsPath,
+            path: getTestContractUri("main/contracts/definition/Test.sol").path,
           },
           range: [
             {
@@ -63,8 +63,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: getTestContractUri("main/contracts/definition/Test.sol")
-              .fsPath,
+            path: getTestContractUri("main/contracts/definition/Test.sol").path,
           },
           range: [
             {
@@ -94,8 +93,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: getTestContractUri("main/contracts/definition/Test.sol")
-              .fsPath,
+            path: getTestContractUri("main/contracts/definition/Test.sol").path,
           },
           range: [
             {
@@ -125,8 +123,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: getTestContractUri("main/contracts/definition/Test.sol")
-              .fsPath,
+            path: getTestContractUri("main/contracts/definition/Test.sol").path,
           },
           range: [
             {
@@ -156,8 +153,7 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: getTestContractUri("main/contracts/definition/Foo.sol")
-              .fsPath,
+            path: getTestContractUri("main/contracts/definition/Foo.sol").path,
           },
           range: [
             {
@@ -187,10 +183,12 @@ suite("Single-file Navigation", function () {
       expected: [
         {
           uri: {
-            path: path.join(
-              getRootPath(),
-              "node_modules/@openzeppelin/contracts/access/Ownable.sol"
-            ),
+            path: Uri.file(
+              path.join(
+                getRootPath(),
+                "node_modules/@openzeppelin/contracts/access/Ownable.sol"
+              )
+            ).path,
           },
           range: [
             {
