@@ -363,7 +363,7 @@ export enum ClientTrackingState {
   TRACKED = "TRACKED",
 }
 
-export type SolProjectType = "hardhat" | "none";
+export type SolProjectType = "hardhat" | "foundry" | "none";
 
 export interface Remapping {
   from: string;

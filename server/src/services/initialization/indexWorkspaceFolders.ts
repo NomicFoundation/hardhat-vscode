@@ -5,12 +5,18 @@ import { WorkspaceFolder } from "vscode-languageserver-protocol";
 import { Connection } from "vscode-languageserver";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { SolFileEntry } from "@analyzer/SolFileEntry";
-import { Remapping, SolFileIndexMap, SolProjectMap } from "@common/types";
+import {
+  ISolProject,
+  Remapping,
+  SolFileIndexMap,
+  SolProjectMap,
+} from "@common/types";
 import { getOrInitialiseSolFileEntry } from "@utils/getOrInitialiseSolFileEntry";
 import { analyzeSolFile } from "@analyzer/analyzeSolFile";
 import { HardhatProject } from "@analyzer/HardhatProject";
 import { findProjectFor } from "@utils/findProjectFor";
 import { decodeUriAndRemoveFilePrefix, toUnixStyle } from "../../utils/index";
+import { FoundryProject } from "../../parser/analyzer/FoundryProject";
 import { resolveTopLevelWorkspaceFolders } from "./resolveTopLevelWorkspaceFolders";
 
 export interface IndexWorkspaceFoldersContext {
@@ -23,33 +29,33 @@ export interface IndexWorkspaceFoldersContext {
 }
 
 export async function indexWorkspaceFolders(
-  indexWorkspaceFoldersContext: IndexWorkspaceFoldersContext,
+  context: IndexWorkspaceFoldersContext,
   workspaceFileRetriever: WorkspaceFileRetriever,
   workspaceFolders: WorkspaceFolder[]
 ) {
-  const { logger } = indexWorkspaceFoldersContext;
+  const { logger } = context;
 
   if (workspaceFolders.some((wf) => wf.uri.includes("\\"))) {
     throw new Error("Unexpect windows style path");
   }
 
-  indexWorkspaceFoldersContext.indexJobCount++;
-  const indexJobId = indexWorkspaceFoldersContext.indexJobCount;
+  context.indexJobCount++;
+  const indexJobId = context.indexJobCount;
 
   const indexJobStartTime = new Date();
   logger.info(`[indexing:${indexJobId}] Starting indexing job ...`);
 
-  notifyStartIndexing(indexJobId, indexWorkspaceFoldersContext);
+  notifyStartIndexing(indexJobId, context);
 
   const topLevelWorkspaceFolders = resolveTopLevelWorkspaceFolders(
-    indexWorkspaceFoldersContext,
+    context,
     workspaceFolders
   );
 
   if (topLevelWorkspaceFolders.length === 0) {
     notifyNoOpIndexing(
       indexJobId,
-      indexWorkspaceFoldersContext,
+      context,
       `[indexing:${indexJobId}] Workspace folders already indexed`
     );
 
@@ -57,27 +63,59 @@ export async function indexWorkspaceFolders(
   }
 
   logger.info(`[indexing:${indexJobId}] Workspace folders`);
-  for (const workspaceFolder of topLevelWorkspaceFolders) {
-    logger.info(`[indexing:${indexJobId}]   ${workspaceFolder.name}`);
-  }
 
   for (const workspaceFolder of topLevelWorkspaceFolders) {
-    try {
-      await scanForHardhatProjectsAndAppend(
-        indexJobId,
-        workspaceFolder,
-        indexWorkspaceFoldersContext.projects,
-        workspaceFileRetriever,
-        logger
-      );
-    } catch (err) {
-      logger.error(err);
+    logger.info(`[indexing:${indexJobId}]   ${workspaceFolder.name}`);
+
+    const hardhatConfigFiles = await findHardhatConfigFiles(
+      workspaceFolder,
+      workspaceFileRetriever
+    );
+
+    const foundryConfigFiles = await findFoundryConfigFiles(
+      workspaceFolder,
+      workspaceFileRetriever
+    );
+
+    const hardhatProjects = await Promise.all(
+      hardhatConfigFiles.map((configFile) =>
+        buildProject<HardhatProject>(
+          HardhatProject,
+          configFile,
+          workspaceFolder,
+          workspaceFileRetriever
+        )
+      )
+    );
+
+    const foundryProjects = await Promise.all(
+      foundryConfigFiles.map((configFile) =>
+        buildProject<FoundryProject>(
+          FoundryProject,
+          configFile,
+          workspaceFolder,
+          workspaceFileRetriever
+        )
+      )
+    );
+
+    for (const project of [...hardhatProjects, ...foundryProjects]) {
+      if (project.basePath in context.projects) {
+        logger.info(
+          `[indexing:${indexJobId}]     Skipping ${project.basePath} (${project.type}) as it's already registered`
+        );
+      } else {
+        logger.info(
+          `[indexing:${indexJobId}]     Registering ${project.basePath} as a ${project.type} project`
+        );
+        context.projects[project.basePath] = project;
+      }
     }
   }
 
   const solFiles = await scanForSolFiles(
     indexJobId,
-    indexWorkspaceFoldersContext,
+    context,
     workspaceFileRetriever,
     topLevelWorkspaceFolders
   );
@@ -85,9 +123,9 @@ export async function indexWorkspaceFolders(
   try {
     await analyzeSolFiles(
       indexJobId,
-      indexWorkspaceFoldersContext,
+      context,
       workspaceFileRetriever,
-      indexWorkspaceFoldersContext.projects,
+      context.projects,
       solFiles
     );
   } catch (err) {
@@ -95,7 +133,7 @@ export async function indexWorkspaceFolders(
   }
 
   for (const workspaceFolder of topLevelWorkspaceFolders) {
-    indexWorkspaceFoldersContext.workspaceFolders.push(workspaceFolder);
+    context.workspaceFolders.push(workspaceFolder);
   }
 
   logger.info(
@@ -141,65 +179,44 @@ function parseRemappings(rawRemappings: string, basePath: string) {
   return remappings;
 }
 
-async function scanForHardhatProjectsAndAppend(
-  indexJobId: number,
+async function findFoundryConfigFiles(
   workspaceFolder: WorkspaceFolder,
-  projects: SolProjectMap,
-  workspaceFileRetriever: WorkspaceFileRetriever,
-  logger: Logger
-): Promise<void> {
-  const scanningStartTime = new Date();
-  logger.info(
-    `[indexing:${indexJobId}] Scanning ${workspaceFolder.name} for hardhat projects`
-  );
-
+  workspaceFileRetriever: WorkspaceFileRetriever
+) {
   const uri = decodeUriAndRemoveFilePrefix(workspaceFolder.uri);
-  const hardhatConfigFiles = await workspaceFileRetriever.findFiles(
-    uri,
-    "**/hardhat.config.{ts,js}",
-    ["**/node_modules/**"]
+  return workspaceFileRetriever.findFiles(uri, "**/foundry.toml", [
+    "**/lib/**",
+  ]);
+}
+
+async function findHardhatConfigFiles(
+  workspaceFolder: WorkspaceFolder,
+  workspaceFileRetriever: WorkspaceFileRetriever
+) {
+  const uri = decodeUriAndRemoveFilePrefix(workspaceFolder.uri);
+  return workspaceFileRetriever.findFiles(uri, "**/hardhat.config.{ts,js}", [
+    "**/node_modules/**",
+  ]);
+}
+
+async function buildProject<T extends ISolProject>(
+  klass: new (
+    basePath: string,
+    configFile: string,
+    workspaceFolder: WorkspaceFolder,
+    parsedRemappings: Remapping[]
+  ) => T,
+  configFile: string,
+  workspaceFolder: WorkspaceFolder,
+  workspaceFileRetriever: WorkspaceFileRetriever
+): Promise<T> {
+  const basePath = path.dirname(decodeUriAndRemoveFilePrefix(configFile));
+  const parsedRemappings = await loadAndParseRemappings(
+    basePath,
+    workspaceFileRetriever
   );
 
-  const foundProjects = await Promise.all(
-    hardhatConfigFiles.map(async (hhcf) => {
-      const basePath = path.dirname(decodeUriAndRemoveFilePrefix(hhcf));
-      const parsedRemappings = await loadAndParseRemappings(
-        basePath,
-        workspaceFileRetriever
-      );
-
-      return new HardhatProject(
-        basePath,
-        hhcf,
-        workspaceFolder,
-        parsedRemappings
-      );
-    })
-  );
-
-  for (const project of foundProjects) {
-    if (project.basePath in project) {
-      continue;
-    }
-
-    projects[project.basePath] = project;
-  }
-
-  if (foundProjects.length === 0) {
-    logger.info(
-      `[indexing:${indexJobId}]   No hardhat projects found in ${workspaceFolder.name}`
-    );
-  } else {
-    logger.info(
-      `[indexing:${indexJobId}]   Hardhat projects found in ${
-        workspaceFolder.name
-      } (${(new Date().getTime() - scanningStartTime.getTime()) / 1000}s):`
-    );
-
-    for (const foundProject of foundProjects) {
-      logger.info(`[indexing:${indexJobId}]     ${foundProject.basePath}`);
-    }
-  }
+  return new klass(basePath, configFile, workspaceFolder, parsedRemappings);
 }
 
 async function scanForSolFiles(
