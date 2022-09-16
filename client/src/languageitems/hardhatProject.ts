@@ -1,4 +1,4 @@
-import { languages, LanguageStatusSeverity } from "vscode";
+import { languages, LanguageStatusSeverity, Uri } from "vscode";
 import { RequestType } from "vscode-languageclient/node";
 import { ExtensionState } from "../types";
 import { ensureFilePrefix } from "../utils/files";
@@ -62,7 +62,7 @@ export async function updateHardhatProjectLanguageItem(
     extensionState.hardhatConfigStatusItem.command = {
       title: "Open config file",
       command: "vscode.open",
-      arguments: [ensureFilePrefix(response.configPath)],
+      arguments: [Uri.file(response.configPath)],
     };
 
     return;
