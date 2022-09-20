@@ -44,7 +44,7 @@ export async function solcCompile(
   }
 
   // Normalize errors' sourceLocation to use utf-8 offsets instead of byte offsets
-  for (const error of output.errors) {
+  for (const error of output.errors || []) {
     const source = input.sources[error.sourceLocation?.file];
 
     if (source === undefined) {
