@@ -9,6 +9,7 @@ import {
   WorkerState,
   BuildJob,
   ValidationCompleteMessage,
+  JobCompletionError,
 } from "../../../../types";
 import { runningOnWindows } from "../../../../utils/operatingSystem";
 
@@ -101,6 +102,10 @@ export async function buildInputsToSolc(
   }
 
   getValidationFile(workerState, buildJob);
+
+  if (buildJob.context.file === undefined) {
+    return jobCompletionError(buildJob, "contract-not-in-project");
+  }
 
   const result = await getCompilationJob(workerState, buildJob);
 
@@ -338,6 +343,25 @@ function cancel({ jobId, projectBasePath }: BuildJob): {
       status: "CANCELLED",
       jobId,
       projectBasePath,
+    },
+  };
+}
+
+function jobCompletionError(
+  { jobId, projectBasePath }: BuildJob,
+  reason: string
+): {
+  built: false;
+  result: JobCompletionError;
+} {
+  return {
+    built: false,
+    result: {
+      type: "VALIDATION_COMPLETE",
+      status: "JOB_COMPLETION_ERROR",
+      jobId,
+      projectBasePath,
+      reason,
     },
   };
 }
