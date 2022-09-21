@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.5.3 - 2022-09-21
+
+### Added
+
+- Added support for remappings.txt file ([#237](https://github.com/NomicFoundation/hardhat-vscode/pull/237))
+- Add forge formatter as a formatting option ([#239](https://github.com/NomicFoundation/hardhat-vscode/pull/239))
+- Auto insert semicolon on import completion ([#104](https://github.com/NomicFoundation/hardhat-vscode/pull/104))
+
+### Fixed
+
+- Opening hardhat.config file fails on vscode web ([#227](https://github.com/NomicFoundation/hardhat-vscode/issues/227))
+- Incorrect diagnostic ranges on files with multibyte unicode characters ([#248](https://github.com/NomicFoundation/hardhat-vscode/issues/248))
+
 ## 0.5.2 - 2022-09-08
 
 ### Added
