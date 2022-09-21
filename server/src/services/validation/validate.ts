@@ -298,6 +298,13 @@ function jobStatusFrom({
         reason,
         displayText: "validator in unexpected state",
       };
+    case "contract-not-in-project":
+      return {
+        validationRun: false,
+        projectBasePath,
+        reason,
+        displayText: "not part of hardhat project",
+      };
     default:
       return {
         validationRun: false,

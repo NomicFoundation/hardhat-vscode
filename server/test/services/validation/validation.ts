@@ -782,6 +782,14 @@ describe("Parser", () => {
             ));
         });
 
+        describe("contract not in project", () => {
+          it("sends a failure status message", async () =>
+            assertJobCompletionError(
+              "contract-not-in-project",
+              "not part of hardhat project"
+            ));
+        });
+
         describe("unknown reason", () => {
           it("sends a failure status message", async () =>
             assertJobCompletionError(
