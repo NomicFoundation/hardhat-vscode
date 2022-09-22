@@ -2,54 +2,45 @@ import * as path from "path";
 import { IndexFileData } from "@common/event";
 import { Logger } from "@utils/Logger";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
-import { Connection } from "vscode-languageserver";
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { SolFileEntry } from "@analyzer/SolFileEntry";
-import { Remapping, SolFileIndexMap, SolProjectMap } from "@common/types";
+import { Remapping, SolProjectMap } from "@common/types";
 import { getOrInitialiseSolFileEntry } from "@utils/getOrInitialiseSolFileEntry";
 import { analyzeSolFile } from "@analyzer/analyzeSolFile";
 import { HardhatProject } from "@analyzer/HardhatProject";
 import { findProjectFor } from "@utils/findProjectFor";
 import { decodeUriAndRemoveFilePrefix, toUnixStyle } from "../../utils/index";
+import { ServerState } from "../../types";
 import { resolveTopLevelWorkspaceFolders } from "./resolveTopLevelWorkspaceFolders";
 
-export interface IndexWorkspaceFoldersContext {
-  indexJobCount: number;
-  connection: Connection;
-  solFileIndex: SolFileIndexMap;
-  workspaceFolders: WorkspaceFolder[];
-  projects: SolProjectMap;
-  logger: Logger;
-}
-
 export async function indexWorkspaceFolders(
-  indexWorkspaceFoldersContext: IndexWorkspaceFoldersContext,
+  serverState: ServerState,
   workspaceFileRetriever: WorkspaceFileRetriever,
   workspaceFolders: WorkspaceFolder[]
 ) {
-  const { logger } = indexWorkspaceFoldersContext;
+  const { logger } = serverState;
 
   if (workspaceFolders.some((wf) => wf.uri.includes("\\"))) {
     throw new Error("Unexpect windows style path");
   }
 
-  indexWorkspaceFoldersContext.indexJobCount++;
-  const indexJobId = indexWorkspaceFoldersContext.indexJobCount;
+  serverState.indexJobCount++;
+  const indexJobId = serverState.indexJobCount;
 
   const indexJobStartTime = new Date();
   logger.info(`[indexing:${indexJobId}] Starting indexing job ...`);
 
-  notifyStartIndexing(indexJobId, indexWorkspaceFoldersContext);
+  notifyStartIndexing(indexJobId, serverState);
 
   const topLevelWorkspaceFolders = resolveTopLevelWorkspaceFolders(
-    indexWorkspaceFoldersContext,
+    serverState,
     workspaceFolders
   );
 
   if (topLevelWorkspaceFolders.length === 0) {
     notifyNoOpIndexing(
       indexJobId,
-      indexWorkspaceFoldersContext,
+      serverState,
       `[indexing:${indexJobId}] Workspace folders already indexed`
     );
 
@@ -66,7 +57,7 @@ export async function indexWorkspaceFolders(
       await scanForHardhatProjectsAndAppend(
         indexJobId,
         workspaceFolder,
-        indexWorkspaceFoldersContext.projects,
+        serverState.projects,
         workspaceFileRetriever,
         logger
       );
@@ -77,7 +68,7 @@ export async function indexWorkspaceFolders(
 
   const solFiles = await scanForSolFiles(
     indexJobId,
-    indexWorkspaceFoldersContext,
+    serverState,
     workspaceFileRetriever,
     topLevelWorkspaceFolders
   );
@@ -85,9 +76,9 @@ export async function indexWorkspaceFolders(
   try {
     await analyzeSolFiles(
       indexJobId,
-      indexWorkspaceFoldersContext,
+      serverState,
       workspaceFileRetriever,
-      indexWorkspaceFoldersContext.projects,
+      serverState.projects,
       solFiles
     );
   } catch (err) {
@@ -95,7 +86,7 @@ export async function indexWorkspaceFolders(
   }
 
   for (const workspaceFolder of topLevelWorkspaceFolders) {
-    indexWorkspaceFoldersContext.workspaceFolders.push(workspaceFolder);
+    serverState.workspaceFolders.push(workspaceFolder);
   }
 
   logger.info(
@@ -204,7 +195,7 @@ async function scanForHardhatProjectsAndAppend(
 
 async function scanForSolFiles(
   indexJobId: number,
-  { logger }: IndexWorkspaceFoldersContext,
+  { logger }: ServerState,
   workspaceFileRetriever: WorkspaceFileRetriever,
   workspaceFolders: WorkspaceFolder[]
 ): Promise<string[]> {
@@ -245,14 +236,14 @@ async function scanForSolFiles(
   return solFileUris;
 }
 
-async function analyzeSolFiles(
+export async function analyzeSolFiles(
   indexJobId: number,
-  indexWorkspaceFoldersContext: IndexWorkspaceFoldersContext,
+  serverState: ServerState,
   workspaceFileRetriever: WorkspaceFileRetriever,
   projects: SolProjectMap,
   solFileUris: string[]
 ) {
-  const { connection, solFileIndex, logger } = indexWorkspaceFoldersContext;
+  const { connection, solFileIndex, logger } = serverState;
   const analysisStart = new Date();
 
   try {
@@ -262,7 +253,7 @@ async function analyzeSolFiles(
     for (const solFileUri of solFileUris) {
       try {
         const docText = await workspaceFileRetriever.readFile(solFileUri);
-        const project = findProjectFor({ projects }, solFileUri);
+        const project = findProjectFor(serverState, solFileUri);
 
         solFileIndex[solFileUri] = SolFileEntry.createLoadedUntrackedEntry(
           solFileUri,
@@ -294,7 +285,7 @@ async function analyzeSolFiles(
           logger.trace(`Indexing file ${i}/${solFileUris.length}`, data);
 
           const solFileEntry = getOrInitialiseSolFileEntry(
-            { projects, solFileIndex },
+            serverState,
             documentUri
           );
 
@@ -307,11 +298,7 @@ async function analyzeSolFiles(
         }
       }
     } else {
-      notifyNoOpIndexing(
-        indexJobId,
-        indexWorkspaceFoldersContext,
-        "No files to index"
-      );
+      notifyNoOpIndexing(indexJobId, serverState, "No files to index");
     }
   } catch (err) {
     logger.error(err);
@@ -326,7 +313,7 @@ async function analyzeSolFiles(
 
 function notifyNoOpIndexing(
   indexJobId: number,
-  indexWorkspaceFoldersContext: IndexWorkspaceFoldersContext,
+  indexWorkspaceFoldersContext: ServerState,
   logMessage: string
 ) {
   const data: IndexFileData = {
@@ -346,7 +333,7 @@ function notifyNoOpIndexing(
 
 function notifyStartIndexing(
   indexJobId: number,
-  indexWorkspaceFoldersContext: IndexWorkspaceFoldersContext
+  indexWorkspaceFoldersContext: ServerState
 ) {
   const data: IndexFileData = {
     jobId: indexJobId,

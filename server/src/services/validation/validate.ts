@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Diagnostic, TextDocumentChangeEvent } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { isHardhatProject } from "@analyzer/HardhatProject";
@@ -18,18 +19,25 @@ import {
   ValidationJobStatusNotification,
   ValidationPass,
   ValidatorError,
-  WorkerProcess,
 } from "../../types";
 import { getOpenDocumentsInProject } from "../../queries/getOpenDocumentsInProject";
 import { runningOnWindows } from "../../utils/operatingSystem";
+import Project from "../../projects/base/Project";
 import { DiagnosticConverter } from "./DiagnosticConverter";
 import { convertHardhatErrorToDiagnostic } from "./convertHardhatErrorToDiagnostic";
+import CompilationService from "./CompilationService";
+import OutputConverter from "./OutputConverter";
 
 export async function validate(
   serverState: ServerState,
   change: TextDocumentChangeEvent<TextDocument>
 ): Promise<boolean | null> {
   return serverState.telemetry.trackTiming("validation", async () => {
+    if (!serverState.indexingFinished) {
+      serverState.logger.trace(`Can't validate before indexing is finished`);
+      return { status: "failed_precondition", result: false };
+    }
+
     const internalUri = decodeUriAndRemoveFilePrefix(change.document.uri);
 
     const solFileEntry = serverState.solFileIndex[internalUri];
@@ -44,49 +52,74 @@ export async function validate(
       return { status: "failed_precondition", result: false };
     }
 
-    if (!isHardhatProject(solFileEntry.project)) {
-      serverState.logger.trace(
-        `No project associated with file, change not propagated to validation process: ${change.document.uri}`
-      );
-
-      return { status: "failed_precondition", result: false };
-    }
-
-    const workerProcess: WorkerProcess | undefined =
-      serverState.workerProcesses[solFileEntry.project.basePath];
-
-    if (workerProcess === undefined) {
-      serverState.logger.error(
-        new Error(
-          `No worker process for project: ${solFileEntry.project.basePath}`
-        )
-      );
-
-      return { status: "failed_precondition", result: false };
-    }
-
     const openDocuments = getOpenDocumentsInProject(
       serverState,
       solFileEntry.project
-    );
+    ).map((openDoc) => ({
+      uri: decodeUriAndRemoveFilePrefix(openDoc.uri),
+      documentText: openDoc.getText(),
+    }));
 
     const documentText = change.document.getText();
 
-    const completeMessage = await workerProcess.validate({
-      uri: internalUri,
-      documentText,
-      projectBasePath: solFileEntry.project.basePath,
-      openDocuments: openDocuments.map((openDoc) => ({
-        uri: decodeUriAndRemoveFilePrefix(openDoc.uri),
-        documentText: openDoc.getText(),
-      })),
-    });
+    let validationResult: ValidationCompleteMessage;
 
-    sendResults(serverState, change, completeMessage);
+    const { project } = solFileEntry;
+
+    if (isHardhatProject(project)) {
+      const workerProcess =
+        serverState.workerProcesses[solFileEntry.project.basePath];
+
+      if (workerProcess === undefined) {
+        serverState.logger.error(
+          new Error(
+            `No worker process for project: ${solFileEntry.project.basePath}`
+          )
+        );
+
+        return { status: "failed_precondition", result: false };
+      }
+
+      validationResult = await workerProcess.validate({
+        uri: internalUri,
+        documentText,
+        projectBasePath: solFileEntry.project.basePath,
+        openDocuments,
+      });
+    } else if (project instanceof Project) {
+      try {
+        const compilationDetails = await project.builder.buildCompilation(
+          internalUri,
+          openDocuments
+        );
+        const compilerOutput = await CompilationService.compile(
+          compilationDetails
+        );
+
+        validationResult = OutputConverter.getValidationResults(
+          compilationDetails,
+          compilerOutput,
+          project.basePath
+        );
+      } catch (error: any) {
+        serverState.logger.error(`Error building compilation: ${error}`);
+        validationResult = {
+          type: "VALIDATION_COMPLETE",
+          status: "JOB_COMPLETION_ERROR",
+          jobId: 1,
+          projectBasePath: project.basePath,
+          reason: error.message,
+        };
+      }
+    } else {
+      throw new Error("No project associated with sol file");
+    }
+
+    sendResults(serverState, change, validationResult);
 
     return {
       status: "ok",
-      result: completeMessage.status === "VALIDATION_PASS",
+      result: validationResult.status === "VALIDATION_PASS",
     };
   });
 }
@@ -98,21 +131,29 @@ function sendResults(
 ) {
   switch (completeMessage.status) {
     case "HARDHAT_ERROR":
-      return hardhatThrownFail(serverState, change, completeMessage);
+      hardhatThrownFail(serverState, change, completeMessage);
+      break;
     case "JOB_COMPLETION_ERROR":
-      return jobCompletionErrorFail(serverState, change, completeMessage);
+      jobCompletionErrorFail(serverState, change, completeMessage);
+      break;
     case "VALIDATOR_ERROR":
-      return validatorErrorFail(serverState, change, completeMessage);
+      validatorErrorFail(serverState, change, completeMessage);
+      break;
     case "UNKNOWN_ERROR":
-      return unknownErrorFail(serverState, change, completeMessage);
+      unknownErrorFail(serverState, change, completeMessage);
+      break;
     case "VALIDATION_FAIL":
-      return validationFail(serverState, change, completeMessage);
+      validationFail(serverState, change, completeMessage);
+      break;
     case "VALIDATION_PASS":
-      return validationPass(serverState, change, completeMessage);
+      validationPass(serverState, change, completeMessage);
+      break;
     case "CANCELLED":
-      return cancelled(serverState, change, completeMessage);
+      cancelled(serverState, change, completeMessage);
+      break;
     default:
-      return assertUnknownMessageStatus(completeMessage);
+      assertUnknownMessageStatus(completeMessage);
+      break;
   }
 }
 
@@ -310,7 +351,7 @@ function jobStatusFrom({
         validationRun: false,
         projectBasePath,
         reason,
-        displayText: "unknown failure reason",
+        displayText: reason,
       };
   }
 }
@@ -348,7 +389,9 @@ function validationFail(
     diagnosticConverter.convertErrors(change.document, message.errors);
 
   const diagnosticsInOpenEditor = Object.entries(diagnostics)
-    .filter(([diagnosticUri]) => document.uri.includes(diagnosticUri))
+    .filter(([diagnosticUri]) =>
+      decodeURIComponent(document.uri).includes(diagnosticUri)
+    )
     .flatMap(([, diagnostic]) => diagnostic);
 
   serverState.connection.sendDiagnostics({

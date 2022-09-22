@@ -790,7 +790,7 @@ describe("Parser", () => {
         describe("unknown reason", () => {
           it("sends a failure status message", async () =>
             assertJobCompletionError(
-              "unknown-failure-reason",
+              "unknown failure reason",
               "unknown failure reason"
             ));
         });
@@ -1002,6 +1002,7 @@ describe("Parser", () => {
             solFileIndex: {},
             telemetry: setupMockTelemetry(),
             logger: mockLogger,
+            indexingFinished: true,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any;
 
@@ -1047,6 +1048,7 @@ describe("Parser", () => {
             },
             logger: mockLogger,
             telemetry: setupMockTelemetry(),
+            indexingFinished: true,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
           } as any;
 
@@ -1123,6 +1125,7 @@ async function validateReturningWorkerMessage(
     },
     telemetry: setupMockTelemetry(),
     logger: mockLogger,
+    indexingFinished: true,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any;
 
