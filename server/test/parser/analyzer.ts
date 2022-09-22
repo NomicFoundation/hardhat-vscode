@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as path from "path";
 import { assert } from "chai";
 import { IndexFileData } from "@common/event";
@@ -147,7 +148,7 @@ async function runIndexing(
       projects: exampleProjects,
       logger: mockLogger,
       workspaceFolders: [],
-    },
+    } as any,
     mockWorkspaceFileRetriever,
     [exampleWorkspaceFolder]
   );

@@ -1,17 +1,17 @@
-import { NoProject } from "@analyzer/NoProject";
-import { ISolProject, SolProjectMap } from "@common/types";
-
-const noProj = new NoProject();
+import { ISolProject } from "@common/types";
+import path from "path";
+import ProjectlessProject from "../projects/Projectless/ProjectlessProject";
+import { ServerState } from "../types";
 
 export function findProjectFor(
-  { projects }: { projects: SolProjectMap },
+  serverState: ServerState,
   uri: string
 ): ISolProject {
-  for (const project of Object.values(projects)) {
+  for (const project of Object.values(serverState.projects)) {
     if (uri.startsWith(project.basePath)) {
       return project;
     }
   }
 
-  return noProj;
+  return new ProjectlessProject(serverState, path.dirname(uri));
 }
