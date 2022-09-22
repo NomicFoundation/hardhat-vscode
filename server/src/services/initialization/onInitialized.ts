@@ -10,6 +10,7 @@ export const onInitialized = (
 ) => {
   const { logger } = serverState;
 
+  // set up listener for workspace folder changes
   return async () => {
     logger.trace("onInitialized");
 
@@ -33,23 +34,24 @@ export const onInitialized = (
       });
     }
 
+    // index folders
     await serverState.telemetry.trackTiming("indexing", async () => {
       await indexWorkspaceFolders(
         { ...serverState, workspaceFolders: [] },
         workspaceFileRetriever,
         serverState.workspaceFolders
       );
+      serverState.indexingFinished = true;
 
       return { status: "ok", result: null };
     });
 
+    // set up validation workers
     serverState.telemetry.trackTimingSync("worker setup", () => {
       setupWorkerProcesses(serverState);
 
       return { status: "ok", result: null };
     });
-
-    logger.info("Language server ready");
   };
 };
 

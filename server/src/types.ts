@@ -32,9 +32,7 @@ export type CompilerProcessFactory = (
   connection: Connection
 ) => WorkerProcess;
 
-export interface WorkerProcess {
-  project: HardhatProject;
-  init: () => void;
+export interface BaseWorkerProcess {
   validate: (details: {
     uri: string;
     documentText: string;
@@ -44,6 +42,11 @@ export interface WorkerProcess {
       documentText: string;
     }>;
   }) => Promise<ValidationCompleteMessage>;
+}
+
+export interface WorkerProcess extends BaseWorkerProcess {
+  project: HardhatProject;
+  init: () => void;
   invalidatePreprocessingCache: () => Promise<boolean>;
   kill: () => void;
   restart: () => Promise<void>;
@@ -72,6 +75,8 @@ export interface ServerState {
 
   telemetry: Telemetry;
   logger: Logger;
+  solcVersions: string[];
+  indexingFinished: boolean;
 }
 
 export interface WorkerLogger {

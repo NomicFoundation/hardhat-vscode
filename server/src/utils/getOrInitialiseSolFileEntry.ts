@@ -1,7 +1,8 @@
 import * as fs from "fs";
-import { SolFileIndexMap, ISolFileEntry, SolProjectMap } from "@common/types";
+import { ISolFileEntry } from "@common/types";
 import { findProjectFor } from "@utils/findProjectFor";
 import { SolFileEntry } from "../parser/analyzer/SolFileEntry";
+import { ServerState } from "../types";
 
 /**
  * Get or create a Solidity file entry for the servers file index.
@@ -10,19 +11,13 @@ import { SolFileEntry } from "../parser/analyzer/SolFileEntry";
  * Uri needs to be decoded and without the "file://" prefix.
  */
 export function getOrInitialiseSolFileEntry(
-  {
-    projects,
-    solFileIndex,
-  }: {
-    projects: SolProjectMap;
-    solFileIndex: SolFileIndexMap;
-  },
+  serverState: ServerState,
   uri: string
 ): ISolFileEntry {
-  let solFileEntry = solFileIndex[uri];
+  let solFileEntry = serverState.solFileIndex[uri];
 
   if (solFileEntry === undefined) {
-    const project = findProjectFor({ projects }, uri);
+    const project = findProjectFor(serverState, uri);
 
     if (fs.existsSync(uri)) {
       const docText = fs.readFileSync(uri).toString();
@@ -38,7 +33,7 @@ export function getOrInitialiseSolFileEntry(
       solFileEntry = SolFileEntry.createUnloadedEntry(uri, project);
     }
 
-    solFileIndex[uri] = solFileEntry;
+    serverState.solFileIndex[uri] = solFileEntry;
   }
 
   return solFileEntry;

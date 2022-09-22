@@ -205,5 +205,7 @@ function setupServerState(): ServerState {
 
     telemetry: mockTelemetry,
     logger,
+    solcVersions: [],
+    indexingFinished: true,
   };
 }

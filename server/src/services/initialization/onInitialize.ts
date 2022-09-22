@@ -4,11 +4,12 @@ import {
   InitializeResult,
 } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
+import { updateAvailableSolcVersions } from "./updateAvailableSolcVersions";
 
 export const onInitialize = (serverState: ServerState) => {
   const { logger } = serverState;
 
-  return (params: InitializeParams) => {
+  return async (params: InitializeParams) => {
     logger.trace("onInitialize");
     logger.info("Language server starting");
 
@@ -29,6 +30,11 @@ export const onInitialize = (serverState: ServerState) => {
       extensionName,
       extensionVersion,
     });
+
+    // fetch available solidity versions
+    await updateAvailableSolcVersions(serverState);
+
+    logger.info("Language server ready");
 
     const result: InitializeResult = {
       serverInfo: {

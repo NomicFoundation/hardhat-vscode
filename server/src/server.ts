@@ -84,6 +84,8 @@ function setupUninitializedServerState(
     workerProcesses: {},
     telemetry,
     logger,
+    solcVersions: [],
+    indexingFinished: false,
   };
 
   return serverState;

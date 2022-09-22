@@ -149,7 +149,7 @@ describe("Code Actions", () => {
             connection: mockConnection,
             solFileIndex: {},
             logger: mockLogger,
-          };
+          } as ServerState;
 
           await indexWorkspaceFolders(
             serverState,

@@ -38,7 +38,7 @@ export async function assertCodeAction(
     connection: mockConnection,
     solFileIndex: {},
     logger: mockLogger,
-  };
+  } as ServerState;
 
   const solFileEntry = getOrInitialiseSolFileEntry(serverState, exampleUri);
 

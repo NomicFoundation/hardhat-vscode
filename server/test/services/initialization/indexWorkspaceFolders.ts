@@ -1,12 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
-import {
-  indexWorkspaceFolders,
-  IndexWorkspaceFoldersContext,
-} from "@services/initialization/indexWorkspaceFolders";
+import { indexWorkspaceFolders } from "@services/initialization/indexWorkspaceFolders";
 import { assert } from "chai";
 import * as sinon from "sinon";
 import { WorkspaceFolder } from "vscode-languageserver";
+import { ServerState } from "../../../src/types";
 import { setupMockConnection } from "../../helpers/setupMockConnection";
 import { setupMockLogger } from "../../helpers/setupMockLogger";
 import { setupMockWorkspaceFileRetriever } from "../../helpers/setupMockWorkspaceFileRetriever";
@@ -14,7 +12,7 @@ import { setupMockWorkspaceFileRetriever } from "../../helpers/setupMockWorkspac
 describe("initialization", () => {
   describe("indexing workspace folders", () => {
     describe("adding single workspace with projects and sol files", () => {
-      let serverState: IndexWorkspaceFoldersContext;
+      let serverState: ServerState;
       let addedFolders: WorkspaceFolder[];
 
       before(async () => {
@@ -94,7 +92,7 @@ describe("initialization", () => {
     });
 
     describe("adding single workspace with multiple projects", () => {
-      let serverState: IndexWorkspaceFoldersContext;
+      let serverState: ServerState;
       let addedFolders: WorkspaceFolder[];
 
       before(async () => {
@@ -207,7 +205,7 @@ describe("initialization", () => {
     });
 
     describe("adding multiple workspaces with projects and sol files", () => {
-      let serverState: IndexWorkspaceFoldersContext;
+      let serverState: ServerState;
       let addedFolders: WorkspaceFolder[];
 
       before(async () => {
@@ -357,7 +355,7 @@ describe("initialization", () => {
     });
 
     describe("adding single workspace with no projects or sol files", () => {
-      let serverState: IndexWorkspaceFoldersContext;
+      let serverState: ServerState;
       let addedFolders: WorkspaceFolder[];
 
       before(async () => {
@@ -414,7 +412,7 @@ describe("initialization", () => {
     });
 
     describe("adding single workspace that has been previously indexed", () => {
-      let serverState: IndexWorkspaceFoldersContext;
+      let serverState: ServerState;
       let existingFolders: WorkspaceFolder[];
       let addedFolders: WorkspaceFolder[];
       let mockWorkspaceFileRetriever: WorkspaceFileRetriever;
@@ -476,7 +474,7 @@ describe("initialization", () => {
     });
 
     describe("adding two workspaces, one nested within the other", () => {
-      let serverState: IndexWorkspaceFoldersContext;
+      let serverState: ServerState;
       let existingFolders: WorkspaceFolder[];
       let addedFolders: WorkspaceFolder[];
 
@@ -564,7 +562,7 @@ describe("initialization", () => {
     });
 
     describe("adding a workspace that is nested in already indexed workspaces", () => {
-      let serverState: IndexWorkspaceFoldersContext;
+      let serverState: ServerState;
       let existingFolders: WorkspaceFolder[];
       let addedFolders: WorkspaceFolder[];
 
@@ -646,7 +644,7 @@ function buildServerState({
   existingFolders,
 }: {
   existingFolders: WorkspaceFolder[];
-}): IndexWorkspaceFoldersContext {
+}): ServerState {
   const mockConnection = setupMockConnection();
   const mockLogger = setupMockLogger();
 
@@ -658,5 +656,5 @@ function buildServerState({
     workspaceFolders: existingFolders,
     projects: {},
     logger: mockLogger,
-  };
+  } as ServerState;
 }
