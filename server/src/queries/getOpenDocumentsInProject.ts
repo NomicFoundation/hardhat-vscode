@@ -1,4 +1,3 @@
-import { isHardhatProject } from "@analyzer/HardhatProject";
 import {
   ClientTrackingState,
   ISolFileEntry,
@@ -12,14 +11,9 @@ export function getOpenDocumentsInProject(
   serverState: ServerState,
   project: ISolProject
 ): TextDocument[] {
-  if (!isHardhatProject(project)) {
-    throw new Error("Cannot query for docs in non-hardhat project");
-  }
-
   const openSolFilesInProj = Object.values(serverState.solFileIndex).filter(
     (solfile) =>
       solfile.tracking === ClientTrackingState.TRACKED &&
-      isHardhatProject(solfile.project) &&
       solfile.project.basePath === project.basePath
   );
 

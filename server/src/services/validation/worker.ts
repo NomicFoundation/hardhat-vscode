@@ -7,6 +7,8 @@ import { dispatch } from "./worker/dispatch";
 import { initialiseWorkerState } from "./worker/initialiseWorkerState";
 import { setupWorkerLogger } from "./worker/setupWorkerLogger";
 
+delete process.env.HARDHAT_CONFIG; // remove hack from parent process
+
 const initialiseWorker = async () => {
   const workerLogger = setupWorkerLogger();
 

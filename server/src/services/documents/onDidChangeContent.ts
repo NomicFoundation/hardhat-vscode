@@ -30,7 +30,7 @@ export function onDidChangeContent(serverState: ServerState) {
     analyse: {
       action: analyse,
       changeActions: {},
-      wait: 500,
+      wait: 240,
     },
     validate: {
       action: validate,

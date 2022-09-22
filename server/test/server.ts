@@ -33,7 +33,7 @@ describe("Solidity Language Server", () => {
         const initialize = mockConnection.onInitialize.getCall(0).firstArg;
         assert(initialize);
 
-        const initializeResponse = initialize({
+        const initializeResponse = await initialize({
           rootUri: null,
           capabilities: {},
         });

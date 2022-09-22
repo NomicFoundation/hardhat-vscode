@@ -6,21 +6,18 @@ import { decodeUriAndRemoveFilePrefix } from "../../utils/index";
 import { ServerState } from "../../types";
 
 export function analyse(
-  { projects, solFileIndex, logger }: ServerState,
+  serverState: ServerState,
   { document: changeDoc }: TextDocumentChangeEvent<TextDocument>
 ) {
-  logger.trace("analyse");
+  serverState.logger.trace("analyse");
 
   try {
     const internalUri = decodeUriAndRemoveFilePrefix(changeDoc.uri);
-    const solFileEntry = getOrInitialiseSolFileEntry(
-      { projects, solFileIndex },
-      internalUri
-    );
+    const solFileEntry = getOrInitialiseSolFileEntry(serverState, internalUri);
 
     solFileEntry.track();
-    analyzeSolFile({ solFileIndex }, solFileEntry, changeDoc.getText());
+    analyzeSolFile(serverState, solFileEntry, changeDoc.getText());
   } catch (err) {
-    logger.error(err);
+    serverState.logger.error(err);
   }
 }
