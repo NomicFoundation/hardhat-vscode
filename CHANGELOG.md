@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.5.4 - 2022-09-27
+
+### Fixed
+
+- Validation not working on windows with the latest hardhat version ([#264](https://github.com/NomicFoundation/hardhat-vscode/issues/264))
+
 ## 0.5.3 - 2022-09-21
 
 ### Added
