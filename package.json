@@ -4,7 +4,7 @@
   "displayName": "Solidity",
   "description": "Solidity and Hardhat support by the Hardhat team",
   "license": "MIT",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "private": true,
   "main": "./client/out/extension.js",
   "module": "./client/out/extension.js",
