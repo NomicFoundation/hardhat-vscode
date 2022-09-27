@@ -1,6 +1,6 @@
-import * as os from "os";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { TextDocumentIdentifier } from "vscode-languageserver-protocol";
+import { runningOnWindows } from "./operatingSystem";
 
 export function getUriFromDocument(
   document: TextDocument | TextDocumentIdentifier
@@ -17,7 +17,7 @@ export function lowercaseDriveLetter(uri: string) {
 }
 
 export function decodeUriAndRemoveFilePrefix(uri: string): string {
-  if (os.platform() === "win32" && uri && uri.includes("file:///")) {
+  if (runningOnWindows() && uri && uri.includes("file:///")) {
     uri = uri.replace("file:///", "");
   } else if (uri && uri.includes("file://")) {
     uri = uri.replace("file://", "");

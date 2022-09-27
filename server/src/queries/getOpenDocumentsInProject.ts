@@ -1,4 +1,3 @@
-import os from "os";
 import { isHardhatProject } from "@analyzer/HardhatProject";
 import {
   ClientTrackingState,
@@ -7,6 +6,7 @@ import {
   TextDocument,
 } from "@common/types";
 import { ServerState } from "../types";
+import { runningOnWindows } from "../utils/operatingSystem";
 
 export function getOpenDocumentsInProject(
   serverState: ServerState,
@@ -38,10 +38,9 @@ function lookupDocForSolFileEntry(
   serverState: ServerState,
   solFile: ISolFileEntry
 ): TextDocument | undefined {
-  const convertedUri =
-    os.platform() === "win32"
-      ? `file:///${solFile.uri.replace(":", "%3A")}`
-      : `file://${solFile.uri}`;
+  const convertedUri = runningOnWindows()
+    ? `file:///${solFile.uri.replace(":", "%3A")}`
+    : `file://${solFile.uri}`;
 
   return serverState.documents.get(convertedUri);
 }
