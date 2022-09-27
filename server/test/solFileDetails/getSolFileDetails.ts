@@ -1,13 +1,13 @@
 import { lowercaseDriveLetter, toUnixStyle } from "@utils/index";
 import * as assert from "assert";
 import * as path from "path";
-import os from "os";
 import { forceToUnixStyle } from "../helpers/forceToUnixStyle";
 import { prependWithSlash } from "../helpers/prependWithSlash";
 import {
   OnRequest,
   setupMockLanguageServer,
 } from "../helpers/setupMockLanguageServer";
+import { runningOnWindows } from "../../src/utils/operatingSystem";
 
 describe("Solidity Language Server", () => {
   describe("get sol file details", () => {
@@ -82,7 +82,5 @@ describe("Solidity Language Server", () => {
 });
 
 function prependWithFilePrefix(filePath: string) {
-  return os.platform() === "win32"
-    ? `file:///${filePath}`
-    : `file://${filePath}`;
+  return runningOnWindows() ? `file:///${filePath}` : `file://${filePath}`;
 }

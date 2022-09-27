@@ -1,4 +1,3 @@
-import os from "os";
 import { Diagnostic, TextDocumentChangeEvent } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { isHardhatProject } from "@analyzer/HardhatProject";
@@ -22,6 +21,7 @@ import {
   WorkerProcess,
 } from "../../types";
 import { getOpenDocumentsInProject } from "../../queries/getOpenDocumentsInProject";
+import { runningOnWindows } from "../../utils/operatingSystem";
 import { DiagnosticConverter } from "./DiagnosticConverter";
 import { convertHardhatErrorToDiagnostic } from "./convertHardhatErrorToDiagnostic";
 
@@ -314,7 +314,7 @@ function validationPass(
   message: ValidationPass
 ): void {
   for (const source of message.sources) {
-    const uri = os.platform() === "win32" ? `/${source}` : source;
+    const uri = runningOnWindows() ? `/${source}` : source;
 
     serverState.connection.sendDiagnostics({
       uri,
@@ -387,7 +387,7 @@ function resolveErrorFilePath(
     path.join(projectBasePath, hardhatError.messageArguments.from)
   );
 
-  const osPath = os.platform() === "win32" ? `/${errorPath}` : errorPath;
+  const osPath = runningOnWindows() ? `/${errorPath}` : errorPath;
 
   return osPath;
 }

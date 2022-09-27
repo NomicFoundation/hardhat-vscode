@@ -10,6 +10,7 @@ import {
   BuildJob,
   ValidationCompleteMessage,
 } from "../../../../types";
+import { runningOnWindows } from "../../../../utils/operatingSystem";
 
 export interface SolcInput {
   built: true;
@@ -204,9 +205,8 @@ function getValidationFile(
 ): void {
   context.file = context.dependencyGraph
     .getResolvedFiles()
-    .filter(
-      (f: { absolutePath: string }) =>
-        f.absolutePath.replaceAll("\\", "/") === uri
+    .filter((f: { absolutePath: string }) =>
+      uriEquals(f.absolutePath.replaceAll("\\", "/"), uri)
     )[0];
 }
 
@@ -344,4 +344,10 @@ function cancel({ jobId, projectBasePath }: BuildJob): {
 
 function isJobCancelled(buildJob: BuildJob) {
   return buildJob.status === "cancelled";
+}
+
+function uriEquals(uri1: string, uri2: string) {
+  return runningOnWindows()
+    ? uri1.toLowerCase() === uri2.toLowerCase()
+    : uri1 === uri2;
 }

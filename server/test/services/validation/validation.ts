@@ -1,4 +1,3 @@
-import os from "os";
 import { validate } from "@services/validation/validate";
 import { Logger } from "@utils/Logger";
 import { assert } from "chai";
@@ -22,6 +21,7 @@ import { setupMockLanguageServer } from "../../helpers/setupMockLanguageServer";
 import { setupMockLogger } from "../../helpers/setupMockLogger";
 import { waitUntil } from "../../helpers/waitUntil";
 import { setupMockTelemetry } from "../../helpers/setupMockTelemetry";
+import { runningOnWindows } from "../../../src/utils/operatingSystem";
 
 describe("Parser", () => {
   describe("Validation", function () {
@@ -520,7 +520,7 @@ describe("Parser", () => {
           version: "0.8.0",
           projectBasePath: "/projects/example",
           sources: [
-            os.platform() === "win32"
+            runningOnWindows()
               ? "c:/projects/example/contracts/first.sol"
               : "/projects/example/contracts/first.sol",
           ],
@@ -537,10 +537,9 @@ describe("Parser", () => {
         assert(sendDiagnostics.called);
         assert.deepStrictEqual(sendDiagnostics.args[0][0], {
           diagnostics: [],
-          uri:
-            os.platform() === "win32"
-              ? "/c:/projects/example/contracts/first.sol"
-              : "/projects/example/contracts/first.sol",
+          uri: runningOnWindows()
+            ? "/c:/projects/example/contracts/first.sol"
+            : "/projects/example/contracts/first.sol",
         });
       });
 
@@ -648,14 +647,12 @@ describe("Parser", () => {
           let sendDiagnostics: sinon.SinonSpy<unknown[], unknown>;
           let sendNotification: sinon.SinonSpy<unknown[], unknown>;
           let logger: Logger;
-          const projectBasePath =
-            os.platform() === "win32"
-              ? "c:/projects/example"
-              : "/projects/example";
-          const errorFile =
-            os.platform() === "win32"
-              ? "/c:/projects/example/importing.sol"
-              : "/projects/example/importing.sol";
+          const projectBasePath = runningOnWindows()
+            ? "c:/projects/example"
+            : "/projects/example";
+          const errorFile = runningOnWindows()
+            ? "/c:/projects/example/importing.sol"
+            : "/projects/example/importing.sol";
 
           before(async () => {
             sendDiagnostics = sinon.spy();
