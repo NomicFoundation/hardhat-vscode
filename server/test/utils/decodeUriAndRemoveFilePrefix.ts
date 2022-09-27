@@ -1,11 +1,11 @@
-import os from "os";
 import { assert } from "chai";
 import { decodeUriAndRemoveFilePrefix } from "@utils/index";
+import { runningOnWindows } from "../../src/utils/operatingSystem";
 
 describe("utils", () => {
   describe("decodeUriAndRemoveFilePrefix", () => {
     it("should strip the file prefix", () => {
-      if (os.platform() === "win32") {
+      if (runningOnWindows()) {
         assertDecode(
           "file:///c:/Users/example/somefile.sol",
           "c:/Users/example/somefile.sol"
