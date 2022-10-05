@@ -3,13 +3,14 @@
 import { existsSync } from "fs";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import path from "path";
-import CompilationDetails from "../../projects/base/CompilationDetails";
+import { CompilationDetails } from "../../frameworks/base/CompilationDetails";
 
-export default class CompilationService {
+export class CompilationService {
   public static async compile(
     compilationDetails: CompilationDetails
   ): Promise<any> {
     const hre = this._getHRE();
+    const { input } = compilationDetails;
 
     // Find or download solc compiler
     const { compilerPath } = await hre.run("compile:solidity:solc:get-build", {
@@ -18,10 +19,30 @@ export default class CompilationService {
     });
 
     // Compile
-    return hre.run("compile:solidity:solc:run", {
-      input: compilationDetails.input,
+    const output = await hre.run("compile:solidity:solc:run", {
+      input,
       solcPath: compilerPath,
     });
+
+    // Normalize errors' sourceLocation to use utf-8 offsets instead of byte offsets
+    for (const error of output.errors || []) {
+      const source = input.sources[error.sourceLocation?.file];
+
+      if (source === undefined) {
+        continue;
+      }
+
+      error.sourceLocation.start = this._normalizeOffset(
+        source.content,
+        error.sourceLocation.start
+      );
+      error.sourceLocation.end = this._normalizeOffset(
+        source.content,
+        error.sourceLocation.end
+      );
+    }
+
+    return output;
   }
 
   // Workaround to load hardhat, since it requires a hardhat.config file to exist
@@ -40,5 +61,14 @@ export default class CompilationService {
       directory = path.dirname(directory);
     }
     throw new Error(`Couldn't load bundled hardhat library`);
+  }
+
+  private static _normalizeOffset(text: string, offset: number) {
+    if (offset < 0) {
+      return offset; // don't transform negative offsets
+    } else {
+      return Buffer.from(text, "utf-8").slice(0, offset).toString("utf-8")
+        .length;
+    }
   }
 }

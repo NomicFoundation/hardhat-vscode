@@ -6,4 +6,14 @@ module.exports = {
     project: `${__dirname}/tsconfig.json`,
     sourceType: "module",
   },
+  overrides: [
+    {
+      files: ["**/*.ts"],
+      rules: {
+        "@typescript-eslint/no-unused-vars": "warn",
+        "@typescript-eslint/no-empty-function": "warn",
+        "no-empty": "warn",
+      },
+    },
+  ],
 };

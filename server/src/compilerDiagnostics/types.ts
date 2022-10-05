@@ -1,6 +1,6 @@
 import { CodeAction, Diagnostic } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { HardhatCompilerError, ServerState } from "../types";
+import { SolcError, ServerState } from "../types";
 
 export interface ResolveActionsContext {
   document: TextDocument;
@@ -19,6 +19,6 @@ export interface CompilerDiagnostic {
 
   fromHardhatCompilerError: (
     document: TextDocument,
-    error: HardhatCompilerError
+    error: SolcError
   ) => Diagnostic;
 }

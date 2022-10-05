@@ -2,7 +2,7 @@ import { CodeAction, Diagnostic } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { CompilerDiagnostic, ResolveActionsContext } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
-import { HardhatCompilerError, ServerState } from "../../types";
+import { SolcError, ServerState } from "../../types";
 import { resolveInsertSpecifierQuickFix } from "./common/resolveInsertSpecifierQuickFix";
 
 export class AddVirtualSpecifier implements CompilerDiagnostic {
@@ -11,7 +11,7 @@ export class AddVirtualSpecifier implements CompilerDiagnostic {
 
   public fromHardhatCompilerError(
     document: TextDocument,
-    error: HardhatCompilerError
+    error: SolcError
   ): Diagnostic {
     return attemptConstrainToFunctionName(document, error);
   }

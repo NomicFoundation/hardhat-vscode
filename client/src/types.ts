@@ -27,6 +27,13 @@ export interface ExtensionState {
   commandsOutputChannel: OutputChannel;
   logger: Logger;
 
-  hardhatConfigStatusItem: LanguageStatusItem | null;
+  projectStatusItems: LanguageStatusItem[]; // 1 per indexed contract. shows project info for that contract
   hardhatProjects: string[];
+
+  indexingFinished: boolean;
+}
+
+export interface Project {
+  configPath?: string;
+  frameworkName: string;
 }

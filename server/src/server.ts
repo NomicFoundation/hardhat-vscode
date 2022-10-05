@@ -2,57 +2,33 @@ import { Connection } from "vscode-languageserver";
 import { TextDocuments } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Logger } from "@utils/Logger";
-import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
+import { WorkspaceFileRetriever } from "@utils/WorkspaceFileRetriever";
 import { onHover } from "@services/hover/onHover";
 import { onInitialize } from "@services/initialization/onInitialize";
 import { onInitialized } from "@services/initialization/onInitialized";
 import { onSignatureHelp } from "@services/signaturehelp/onSignatureHelp";
 import { onCompletion } from "@services/completion/onCompletion";
 import { onCodeAction } from "@services/codeactions/onCodeAction";
-import { compilerProcessFactory } from "@services/validation/compilerProcessFactory";
 import { onDefinition } from "@services/definition/onDefinition";
 import { onTypeDefinition } from "@services/typeDefinition/onTypeDefinition";
 import { onReferences } from "@services/references/onReferences";
 import { onImplementation } from "@services/implementation/onImplementation";
 import { onRename } from "@services/rename/onRename";
-import { RequestType } from "vscode-languageserver-protocol";
-import path = require("path");
-import { decodeUriAndRemoveFilePrefix, toUnixStyle } from "./utils";
-import { CompilerProcessFactory, ServerState } from "./types";
+import { ServerState } from "./types";
 import { Telemetry } from "./telemetry/types";
 import { attachDocumentHooks } from "./services/documents/attachDocumentHooks";
 
-export interface GetSolFileDetailsParams {
-  uri: string;
-}
-export type GetSolFileDetailsResponse =
-  | { found: false }
-  | { found: true; hardhat: false }
-  | {
-      found: true;
-      hardhat: true;
-      configPath: string;
-      configDisplayPath: string;
-    };
-
-const GetSolFileDetails = new RequestType<
-  GetSolFileDetailsParams,
-  GetSolFileDetailsResponse,
-  void
->("solidity/getSolFileDetails");
-
 export default function setupServer(
   connection: Connection,
-  compProcessFactory: typeof compilerProcessFactory,
   workspaceFileRetriever: WorkspaceFileRetriever,
   telemetry: Telemetry,
   logger: Logger
 ): ServerState {
   const serverState = setupUninitializedServerState(
     connection,
-    compProcessFactory,
     telemetry,
-    logger
+    logger,
+    workspaceFileRetriever
   );
 
   attachLanguageServerLifeCycleHooks(serverState, workspaceFileRetriever);
@@ -65,27 +41,28 @@ export default function setupServer(
 
 function setupUninitializedServerState(
   connection: Connection,
-  compProcessFactory: CompilerProcessFactory,
   telemetry: Telemetry,
-  logger: Logger
+  logger: Logger,
+  workspaceFileRetriever: WorkspaceFileRetriever
 ) {
   const serverState: ServerState = {
     env: "production",
     hasWorkspaceFolderCapability: false,
     globalTelemetryEnabled: false,
     hardhatTelemetryEnabled: false,
-    indexJobCount: 0,
-    compProcessFactory,
     connection,
-    workspaceFolders: [],
+    indexedWorkspaceFolders: [],
+    workspaceFoldersToIndex: [],
     projects: {},
     documents: new TextDocuments(TextDocument),
     solFileIndex: {},
-    workerProcesses: {},
     telemetry,
     logger,
     solcVersions: [],
     indexingFinished: false,
+    validationCount: 0,
+    lastValidationId: {},
+    workspaceFileRetriever,
   };
 
   return serverState;
@@ -146,41 +123,6 @@ function attachCustomHooks(serverState: ServerState) {
       }
 
       serverState.hardhatTelemetryEnabled = enabled;
-    }
-  );
-
-  serverState.connection.onRequest(
-    GetSolFileDetails,
-    (params: GetSolFileDetailsParams): GetSolFileDetailsResponse => {
-      try {
-        const solFil =
-          serverState.solFileIndex[decodeUriAndRemoveFilePrefix(params.uri)];
-
-        if (solFil === undefined) {
-          return { found: false };
-        }
-
-        if (solFil.project.type !== "hardhat") {
-          return { found: true, hardhat: false };
-        }
-
-        const displayConfigPath = toUnixStyle(
-          path.relative(
-            decodeUriAndRemoveFilePrefix(solFil.project.workspaceFolder.uri),
-            solFil.project.configPath
-          )
-        );
-
-        return {
-          found: true,
-          hardhat: true,
-          configPath: solFil.project.configPath,
-          configDisplayPath: displayConfigPath,
-        };
-      } catch (err) {
-        serverState.logger.error(err);
-        return { found: false };
-      }
     }
   );
 }

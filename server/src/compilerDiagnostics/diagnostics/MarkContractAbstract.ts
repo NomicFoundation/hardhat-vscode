@@ -7,7 +7,7 @@ import {
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { attemptConstrainToContractName } from "@compilerDiagnostics/conversions/attemptConstrainToContractName";
 import { ResolveActionsContext } from "../types";
-import { HardhatCompilerError, ServerState } from "../../types";
+import { SolcError, ServerState } from "../../types";
 import {
   parseContractDefinition,
   ParseContractDefinitionResult,
@@ -20,7 +20,7 @@ export class MarkContractAbstract {
 
   public fromHardhatCompilerError(
     document: TextDocument,
-    error: HardhatCompilerError
+    error: SolcError
   ): Diagnostic {
     return attemptConstrainToContractName(document, error);
   }

@@ -18,10 +18,6 @@ export function onDidOpen(serverState: ServerState) {
 
     const solFileEntry = getOrInitialiseSolFileEntry(serverState, uri);
 
-    // Mark the file as being tracked by the client, but without
-    // known changes from the file system version
-    solFileEntry.track();
-
     // Ensure it is analysed
     analyzeSolFile(serverState, solFileEntry, solFileText);
   };

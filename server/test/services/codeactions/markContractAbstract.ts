@@ -144,17 +144,17 @@ describe("Code Actions", () => {
 
           const serverState = {
             indexJobCount: 0,
-            workspaceFolders: [{ name: "example", uri: exampleUri }],
+            indexedWorkspaceFolders: [{ name: "example", uri: exampleUri }],
             projects: {},
             connection: mockConnection,
             solFileIndex: {},
             logger: mockLogger,
-          } as ServerState;
+          } as unknown as ServerState;
 
           await indexWorkspaceFolders(
             serverState,
             mockWorkspaceFileRetriever,
-            serverState.workspaceFolders
+            serverState.indexedWorkspaceFolders
           );
 
           const actions = markContractAbstract.resolveActions(

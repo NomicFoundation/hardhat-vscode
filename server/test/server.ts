@@ -1,6 +1,5 @@
 import assert from "assert";
 import setupServer from "../src/server";
-import { setupMockCompilerProcessFactory } from "./helpers/setupMockCompilerProcessFactory";
 import { setupMockConnection } from "./helpers/setupMockConnection";
 import { setupMockLogger } from "./helpers/setupMockLogger";
 import { setupMockTelemetry } from "./helpers/setupMockTelemetry";
@@ -15,7 +14,6 @@ describe("Solidity Language Server", () => {
 
       before(async () => {
         mockConnection = setupMockConnection();
-        const mockCompilerProcessFactory = setupMockCompilerProcessFactory();
         const mockLogger = setupMockLogger();
         const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
         const mockTelemetry = setupMockTelemetry();
@@ -23,7 +21,6 @@ describe("Solidity Language Server", () => {
         await setupServer(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           mockConnection as any,
-          mockCompilerProcessFactory,
           mockWorkspaceFileRetriever,
           mockTelemetry,
           mockLogger

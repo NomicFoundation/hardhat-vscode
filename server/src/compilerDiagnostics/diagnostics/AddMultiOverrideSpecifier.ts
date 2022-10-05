@@ -6,7 +6,7 @@ import {
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { CompilerDiagnostic, ResolveActionsContext } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
-import { HardhatCompilerError, ServerState } from "../../types";
+import { SolcError, ServerState } from "../../types";
 import {
   Multioverride,
   resolveInsertSpecifierQuickFix,
@@ -20,7 +20,7 @@ export class AddMultiOverrideSpecifier implements CompilerDiagnostic {
 
   public fromHardhatCompilerError(
     document: TextDocument,
-    error: HardhatCompilerError
+    error: SolcError
   ): Diagnostic {
     return attemptConstrainToFunctionName(document, error);
   }

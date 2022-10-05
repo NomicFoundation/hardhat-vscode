@@ -2,9 +2,8 @@
 import "module-alias/register";
 import { createConnection, ProposedFeatures } from "vscode-languageserver/node";
 import { ConnectionLogger } from "@utils/Logger";
-import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
+import { WorkspaceFileRetriever } from "@utils/WorkspaceFileRetriever";
 import setupServer from "./server";
-import { compilerProcessFactory } from "./services/validation/compilerProcessFactory";
 import { SentryServerTelemetry } from "./telemetry/SentryServerTelemetry";
 import { GoogleAnalytics } from "./analytics/GoogleAnalytics";
 
@@ -29,13 +28,7 @@ const telemetry = new SentryServerTelemetry(
 );
 const logger = new ConnectionLogger(connection, telemetry);
 
-setupServer(
-  connection,
-  compilerProcessFactory,
-  workspaceFileRetriever,
-  telemetry,
-  logger
-);
+setupServer(connection, workspaceFileRetriever, telemetry, logger);
 
 // Listen on the connection
 connection.listen();

@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import assert from "assert";
 import { getTestContractUri } from "../../helpers/getTestContract";
 import {
   getCurrentEditor,
@@ -7,6 +6,7 @@ import {
   openFileInEditor,
 } from "../../helpers/editor";
 import {
+  assertCurrentTabFile,
   assertPositionEqual,
   checkOrWaitDiagnostic,
 } from "../../helpers/assertions";
@@ -28,7 +28,7 @@ suite("projectless", function () {
 
     await vscode.commands.executeCommand("editor.action.goToDeclaration");
 
-    assert.equal(getCurrentEditor().document.fileName, importedUri.fsPath);
+    await assertCurrentTabFile(importedUri.fsPath);
     assertPositionEqual(
       getCurrentEditor().selection.active,
       new vscode.Position(2, 0)
@@ -41,7 +41,8 @@ suite("projectless", function () {
 
     await vscode.commands.executeCommand("editor.action.goToDeclaration");
 
-    assert.equal(getCurrentEditor().document.fileName, importedUri.fsPath);
+    await assertCurrentTabFile(importedUri.fsPath);
+
     assertPositionEqual(
       getCurrentEditor().selection.active,
       new vscode.Position(4, 9)

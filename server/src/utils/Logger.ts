@@ -9,6 +9,11 @@ export interface Logger {
   info(arg: string): void;
   error(err: unknown): void;
   trace(message: string, verbose?: {} | undefined): void;
+  trackTime(
+    description: string,
+    callback: () => Promise<unknown>
+  ): Promise<void>;
+  tag?: string;
 }
 
 export type ExceptionCapturer = (err: unknown) => void;
@@ -17,6 +22,7 @@ export class ConnectionLogger implements Logger {
   private connection: Connection;
   private telemetry: Telemetry;
   private workspaceName: string | null;
+  public tag?: string;
 
   constructor(connection: Connection, telemetry: Telemetry) {
     this.connection = connection;
@@ -65,10 +71,11 @@ export class ConnectionLogger implements Logger {
   }
 
   private _tryPrepend(arg: string) {
+    const text = this._printTag() + arg;
     if (this.workspaceName === null) {
-      return arg;
+      return text;
     } else {
-      return `[LS: ${this.workspaceName}] ${arg}`;
+      return `[LS: ${this.workspaceName}] ${text}`;
     }
   }
 
@@ -80,5 +87,22 @@ export class ConnectionLogger implements Logger {
     }
 
     return "errorDescriptor" in err;
+  }
+
+  public async trackTime(
+    description: string,
+    callback: () => Promise<unknown>
+  ) {
+    this.trace(`${description}: Start`);
+    const startTime = new Date().getTime();
+    try {
+      await callback();
+    } finally {
+      this.trace(`${description}: End (${new Date().getTime() - startTime}ms)`);
+    }
+  }
+
+  private _printTag() {
+    return this.tag !== undefined ? `[${this.tag}] ` : "";
   }
 }
