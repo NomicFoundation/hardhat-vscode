@@ -52,7 +52,7 @@
     "typescript": "4.5.4"
   },
   "dependencies": {
-    "@nomicfoundation/solidity-analyzer": "0.0.3",
+    "@nomicfoundation/solidity-analyzer": "0.1.0",
     "@sentry/node": "6.19.1",
     "@sentry/tracing": "6.19.1",
     "@solidity-parser/parser": "^0.14.0",

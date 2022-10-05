@@ -1,0 +1,330 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
+import { ChildProcess, fork } from "child_process";
+import fs from "fs";
+import _ from "lodash";
+import path from "path";
+import { DidChangeWatchedFilesParams } from "vscode-languageserver-protocol";
+import { OpenDocuments, ServerState } from "../../types";
+import { toUnixStyle } from "../../utils";
+import { directoryContains } from "../../utils/directoryContains";
+import { Logger } from "../../utils/Logger";
+import { CompilationDetails } from "../base/CompilationDetails";
+import { Project } from "../base/Project";
+import { LogLevel } from "./worker/WorkerLogger";
+import {
+  BuildCompilationRequest,
+  BuildCompilationResponse,
+  ErrorResponseMessage,
+  FileBelongsRequest,
+  FileBelongsResponse,
+  InitializationFailureMessage,
+  InvalidateBuildCacheMessage,
+  LogMessage,
+  Message,
+  MessageType,
+} from "./worker/WorkerProtocol";
+
+export enum WorkerStatus {
+  UNINITIALIZED,
+  INITIALIZING,
+  RUNNING,
+  ERRORED,
+}
+
+const REQUEST_TIMEOUT = 5000;
+
+export class HardhatProject extends Project {
+  public priority = 2;
+
+  public workerProcess?: ChildProcess;
+
+  public workerStatus = WorkerStatus.UNINITIALIZED;
+
+  public workerLoadFailureReason = "";
+
+  private _onInitialized!: () => void;
+
+  private requestId = 0;
+
+  private _onResponse: { [requestId: number]: (result: any) => void } = {};
+  private _onError: { [requestId: number]: (result: any) => void } = {};
+
+  private logger: Logger;
+
+  private name: string;
+
+  constructor(
+    serverState: ServerState,
+    basePath: string,
+    public configPath: string
+  ) {
+    super(serverState, basePath);
+    this.logger = _.clone(serverState.logger);
+    this.name = path.basename(basePath);
+    this.logger.tag = `${this.name}`;
+  }
+
+  public id(): string {
+    return this.configPath;
+  }
+
+  public frameworkName(): string {
+    return "Hardhat";
+  }
+
+  public async initialize(): Promise<void> {
+    return new Promise((resolve, _reject) => {
+      this._onInitialized = resolve;
+
+      // Fork WorkerProcess as child process
+      this.workerProcess = fork(
+        path.resolve(__dirname, "worker/WorkerProcess.js"),
+        {
+          cwd: this.basePath,
+          detached: true,
+          execArgv: [],
+        }
+      );
+      this.workerStatus = WorkerStatus.INITIALIZING;
+
+      this.workerProcess.on("message", async (message: Message) => {
+        try {
+          await this._handleMessage(message);
+        } catch (error) {
+          this.serverState.telemetry.captureException(error);
+          this.logger.error(
+            `Error while handling worker message: ${error}. Full Message: ${JSON.stringify(
+              message
+            )}`
+          );
+        }
+      });
+
+      this.workerProcess.on("error", (err) => {
+        this.logger.error(err);
+      });
+
+      this.workerProcess.on("exit", async (code) => {
+        this.logger.error(`Child process exited: ${code}`);
+        this.workerStatus = WorkerStatus.ERRORED;
+        this._onInitialized();
+      });
+    });
+  }
+
+  public async fileBelongs(sourceURI: string): Promise<boolean> {
+    const workerPromise = new Promise((resolve, reject) => {
+      this._checkWorkerExists();
+      this._checkWorkerNotInitializing();
+
+      if (this.workerStatus === WorkerStatus.RUNNING) {
+        // HRE was loaded successfully. Delegate to the worker that will use the configured sources path
+        const requestId = this._prepareRequest(resolve, reject);
+
+        this.workerProcess!.send(new FileBelongsRequest(requestId, sourceURI));
+      } else {
+        // HRE could not be loaded. Claim ownership of all solidity files under root folder
+        // This is to avoid potential hardhat-owned contracts being assigned to i.e. projectless
+        resolve(directoryContains(this.basePath, sourceURI));
+      }
+    });
+
+    return Promise.race([
+      workerPromise,
+      this._requestTimeout("fileBelongs"),
+    ]) as Promise<boolean>;
+  }
+
+  public async buildCompilation(
+    sourceUri: string,
+    openDocuments: OpenDocuments
+  ): Promise<CompilationDetails> {
+    const workerPromise = new Promise((resolve, reject) => {
+      this._checkWorkerExists();
+      this._checkWorkerNotInitializing();
+
+      if (this.workerStatus === WorkerStatus.ERRORED) {
+        throw new Error(this.workerLoadFailureReason);
+      }
+
+      const requestId = this._prepareRequest(resolve, reject);
+
+      this.workerProcess!.send(
+        new BuildCompilationRequest(requestId, sourceUri, openDocuments)
+      );
+    });
+
+    return Promise.race([
+      workerPromise,
+      this._requestTimeout("buildCompilation"),
+    ]) as Promise<CompilationDetails>;
+  }
+
+  private _prepareRequest(
+    resolve: (value: unknown) => void,
+    reject: (reason?: any) => void
+  ): number {
+    this.requestId++;
+
+    this._onResponse[this.requestId] = resolve;
+    this._onError[this.requestId] = reject;
+
+    return this.requestId;
+  }
+
+  public async onWatchedFilesChanges({
+    changes,
+  }: DidChangeWatchedFilesParams): Promise<void> {
+    for (const change of changes) {
+      if (change.uri.endsWith(".sol")) {
+        this.workerProcess?.send(new InvalidateBuildCacheMessage());
+      } else if (change.uri === this.configPath) {
+        this.logger.info(`Config file changed. Restarting worker process.`);
+
+        // Kill existing worker process
+        this.workerProcess?.kill("SIGKILL");
+
+        // Spawn new worker process
+        await this.initialize();
+      }
+    }
+  }
+
+  public resolveImportPath(file: string, importPath: string) {
+    try {
+      const resolvedPath = require.resolve(importPath, {
+        paths: [fs.realpathSync(path.dirname(file))],
+      });
+
+      return toUnixStyle(fs.realpathSync(resolvedPath));
+    } catch (error) {
+      return undefined;
+    }
+  }
+
+  public invalidateBuildCache() {
+    this.workerProcess?.send(new InvalidateBuildCacheMessage());
+  }
+
+  private _requestTimeout(label: string) {
+    return new Promise((_resolve, reject) => {
+      setTimeout(() => {
+        reject(`Request (${label}) timed out`);
+      }, REQUEST_TIMEOUT);
+    });
+  }
+
+  private async _handleMessage(message: Message) {
+    switch (message.type) {
+      case MessageType.INITIALIZED:
+        this._handleInitialized();
+        break;
+
+      case MessageType.LOG:
+        this._handleLog(message as LogMessage);
+        break;
+
+      case MessageType.ERROR_RESPONSE:
+        this._handleErrorResponse(message as ErrorResponseMessage);
+        break;
+
+      case MessageType.FILE_BELONGS_RESPONSE:
+        this._handleFileBelongsResponse(message as FileBelongsResponse);
+        break;
+
+      case MessageType.BUILD_COMPILATION_RESPONSE:
+        this._handleBuildCompilationResponse(
+          message as BuildCompilationResponse
+        );
+        break;
+
+      case MessageType.INITIALIZATION_FAILURE:
+        this._handleInitializationFailure(
+          message as InitializationFailureMessage
+        );
+        break;
+
+      default:
+        this.logger.error(
+          `Unknown message received from worker: ${JSON.stringify(message)}`
+        );
+        break;
+    }
+  }
+
+  private _handleLog(message: LogMessage) {
+    switch (message.level) {
+      case LogLevel.TRACE:
+        this.logger.trace(message.logMessage);
+        break;
+      case LogLevel.INFO:
+        this.logger.info(message.logMessage);
+        break;
+      case LogLevel.ERROR:
+        this.logger.error(message.logMessage);
+        break;
+    }
+  }
+
+  private _handleInitialized() {
+    this.workerStatus = WorkerStatus.RUNNING;
+    this.logger.info("Local HRE loaded");
+    this.serverState.connection.sendNotification("custom/worker-initialized", {
+      projectBasePath: this.basePath,
+    });
+    this._onInitialized();
+  }
+
+  private _handleInitializationFailure(msg: InitializationFailureMessage) {
+    this.workerLoadFailureReason = msg.reason;
+  }
+
+  private _handleErrorResponse(msg: ErrorResponseMessage) {
+    const errorFunction = this._onError[msg.requestId];
+
+    if (errorFunction === undefined) {
+      this.logger.error(
+        `Error function not found for request id ${msg.requestId}`
+      );
+    } else {
+      delete this._onError[msg.requestId];
+      delete this._onResponse[msg.requestId];
+      errorFunction(msg.error);
+    }
+  }
+
+  private _handleFileBelongsResponse(msg: FileBelongsResponse) {
+    this._handleResponse(msg.requestId, msg.belongs);
+  }
+
+  private _handleBuildCompilationResponse(msg: BuildCompilationResponse) {
+    this._handleResponse(msg.requestId, msg.compilationDetails);
+  }
+
+  private _handleResponse(requestId: number, result: any) {
+    const resolveFunction = this._onResponse[requestId];
+    if (resolveFunction === undefined) {
+      this.logger.error(
+        `Resolve function not found for request id ${requestId}`
+      );
+    } else {
+      delete this._onResponse[requestId];
+      delete this._onError[requestId];
+      resolveFunction(result);
+    }
+  }
+
+  private _checkWorkerExists() {
+    if (this.workerProcess === undefined) {
+      throw new Error("Worker process not spawned");
+    }
+  }
+
+  private _checkWorkerNotInitializing() {
+    if (this.workerStatus === WorkerStatus.INITIALIZING) {
+      throw new Error("Worker is initializing");
+    }
+  }
+}

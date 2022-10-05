@@ -1,9 +1,9 @@
 import { TextDocument, Range, DiagnosticSeverity } from "@common/types";
-import { HardhatCompilerError } from "../../types";
+import { SolcError } from "../../types";
 
 export function passThroughConversion(
   document: TextDocument,
-  error: HardhatCompilerError
+  error: SolcError
 ) {
   if (!error.sourceLocation) {
     throw new Error("No source location");

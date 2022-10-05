@@ -2,6 +2,8 @@
 "use strict";
 import * as vscode from "vscode";
 import * as assert from "assert";
+import { getCurrentEditor } from "./editor";
+import { sleep } from "./sleep";
 
 export function rangeEqual(
   range: vscode.Range,
@@ -114,4 +116,20 @@ export async function checkOrWaitDiagnostic(
     checkDiagnostics();
     vscode.languages.onDidChangeDiagnostics(checkDiagnostics);
   });
+}
+
+const TIMEOUT = 10000;
+export async function assertCurrentTabFile(expectedUri: string) {
+  const start = new Date().getTime();
+  let currentUri = "";
+
+  while (new Date().getTime() - start < TIMEOUT) {
+    currentUri = getCurrentEditor().document.fileName;
+    if (currentUri === expectedUri) return;
+    await sleep(100);
+  }
+
+  throw new Error(
+    `Waited ${TIMEOUT} ms for current tab to be ${expectedUri} but it was ${currentUri}`
+  );
 }

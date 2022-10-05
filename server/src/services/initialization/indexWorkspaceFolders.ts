@@ -1,16 +1,17 @@
-import * as path from "path";
-import { IndexFileData } from "@common/event";
-import { Logger } from "@utils/Logger";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
-import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
+import { WorkspaceFileRetriever } from "@utils/WorkspaceFileRetriever";
 import { SolFileEntry } from "@analyzer/SolFileEntry";
-import { Remapping, SolProjectMap } from "@common/types";
-import { getOrInitialiseSolFileEntry } from "@utils/getOrInitialiseSolFileEntry";
-import { analyzeSolFile } from "@analyzer/analyzeSolFile";
-import { HardhatProject } from "@analyzer/HardhatProject";
-import { findProjectFor } from "@utils/findProjectFor";
+import _ from "lodash";
+import path from "path";
 import { decodeUriAndRemoveFilePrefix, toUnixStyle } from "../../utils/index";
 import { ServerState } from "../../types";
+import { HardhatIndexer } from "../../frameworks/Hardhat/HardhatIndexer";
+import { Project } from "../../frameworks/base/Project";
+import { ProjectlessProject } from "../../frameworks/Projectless/ProjectlessProject";
+import { Logger } from "../../utils/Logger";
+import { analyzeSolFile } from "../../parser/analyzer/analyzeSolFile";
+import { getOrInitialiseSolFileEntry } from "../../utils/getOrInitialiseSolFileEntry";
+import { FoundryIndexer } from "../../frameworks/Foundry/FoundryIndexer";
 import { resolveTopLevelWorkspaceFolders } from "./resolveTopLevelWorkspaceFolders";
 
 export async function indexWorkspaceFolders(
@@ -18,191 +19,101 @@ export async function indexWorkspaceFolders(
   workspaceFileRetriever: WorkspaceFileRetriever,
   workspaceFolders: WorkspaceFolder[]
 ) {
-  const { logger } = serverState;
+  const logger = _.clone(serverState.logger);
+  logger.tag = "indexing";
 
   if (workspaceFolders.some((wf) => wf.uri.includes("\\"))) {
     throw new Error("Unexpect windows style path");
   }
-
-  serverState.indexJobCount++;
-  const indexJobId = serverState.indexJobCount;
-
-  const indexJobStartTime = new Date();
-  logger.info(`[indexing:${indexJobId}] Starting indexing job ...`);
-
-  notifyStartIndexing(indexJobId, serverState);
 
   const topLevelWorkspaceFolders = resolveTopLevelWorkspaceFolders(
     serverState,
     workspaceFolders
   );
 
+  // workspace change events are received duplicated, so return early if there's nothing new to index
   if (topLevelWorkspaceFolders.length === 0) {
-    notifyNoOpIndexing(
-      indexJobId,
-      serverState,
-      `[indexing:${indexJobId}] Workspace folders already indexed`
-    );
-
     return;
   }
 
-  logger.info(`[indexing:${indexJobId}] Workspace folders`);
-  for (const workspaceFolder of topLevelWorkspaceFolders) {
-    logger.info(`[indexing:${indexJobId}]   ${workspaceFolder.name}`);
+  // Store workspace folders to mark them as indexed
+  serverState.indexedWorkspaceFolders.push(...topLevelWorkspaceFolders);
+
+  if (topLevelWorkspaceFolders.length === 0) {
+    return;
   }
 
-  for (const workspaceFolder of topLevelWorkspaceFolders) {
-    try {
-      await scanForHardhatProjectsAndAppend(
-        indexJobId,
-        workspaceFolder,
-        serverState.projects,
-        workspaceFileRetriever,
-        logger
-      );
-    } catch (err) {
-      logger.error(err);
+  notifyStartIndexing(serverState);
+
+  // Scan for projects
+  const indexers = [
+    new HardhatIndexer(serverState, workspaceFileRetriever),
+    new FoundryIndexer(serverState, workspaceFileRetriever),
+  ];
+  const foundProjects: Project[] = [];
+  await logger.trackTime("Indexing projects", async () => {
+    for (const indexer of indexers) {
+      for (const wsFolder of topLevelWorkspaceFolders) {
+        foundProjects.push(...(await indexer.index(wsFolder)));
+      }
     }
-  }
+  });
 
-  const solFiles = await scanForSolFiles(
-    indexJobId,
-    serverState,
-    workspaceFileRetriever,
-    topLevelWorkspaceFolders
-  );
-
-  try {
-    await analyzeSolFiles(
-      indexJobId,
-      serverState,
-      workspaceFileRetriever,
-      serverState.projects,
-      solFiles
-    );
-  } catch (err) {
-    logger.error(err);
-  }
-
-  for (const workspaceFolder of topLevelWorkspaceFolders) {
-    serverState.workspaceFolders.push(workspaceFolder);
-  }
-
-  logger.info(
-    `[indexing:${indexJobId}] Indexing complete (${
-      (new Date().getTime() - indexJobStartTime.getTime()) / 1000
-    }s)`
-  );
-}
-
-async function loadAndParseRemappings(
-  basePath: string,
-  workspaceFileRetriever: WorkspaceFileRetriever
-): Promise<Remapping[]> {
-  const remappingsPath = path.join(basePath, "remappings.txt");
-  if (await workspaceFileRetriever.fileExists(remappingsPath)) {
-    const rawRemappings = await workspaceFileRetriever.readFile(remappingsPath);
-    return parseRemappings(rawRemappings, basePath);
-  }
-
-  return [];
-}
-
-function parseRemappings(rawRemappings: string, basePath: string) {
-  const lines = rawRemappings.trim().split("\n");
-  const remappings: Remapping[] = [];
-
-  for (const line of lines) {
-    const lineTokens = line.split("=", 2);
-
-    if (
-      lineTokens.length !== 2 ||
-      lineTokens[0].length === 0 ||
-      lineTokens[1].length === 0
-    ) {
-      continue;
-    }
-
-    const [from, to] = lineTokens;
-
-    remappings.push({ from, to: path.join(basePath, to) });
-  }
-
-  return remappings;
-}
-
-async function scanForHardhatProjectsAndAppend(
-  indexJobId: number,
-  workspaceFolder: WorkspaceFolder,
-  projects: SolProjectMap,
-  workspaceFileRetriever: WorkspaceFileRetriever,
-  logger: Logger
-): Promise<void> {
-  const scanningStartTime = new Date();
-  logger.info(
-    `[indexing:${indexJobId}] Scanning ${workspaceFolder.name} for hardhat projects`
-  );
-
-  const uri = decodeUriAndRemoveFilePrefix(workspaceFolder.uri);
-  const hardhatConfigFiles = await workspaceFileRetriever.findFiles(
-    uri,
-    "**/hardhat.config.{ts,js}",
-    ["**/node_modules/**"]
-  );
-
-  const foundProjects = await Promise.all(
-    hardhatConfigFiles.map(async (hhcf) => {
-      const basePath = path.dirname(decodeUriAndRemoveFilePrefix(hhcf));
-      const parsedRemappings = await loadAndParseRemappings(
-        basePath,
-        workspaceFileRetriever
-      );
-
-      return new HardhatProject(
-        basePath,
-        hhcf,
-        workspaceFolder,
-        parsedRemappings
-      );
-    })
-  );
-
+  logger.info(`Found projects:`);
   for (const project of foundProjects) {
-    if (project.basePath in project) {
-      continue;
-    }
-
-    projects[project.basePath] = project;
+    logger.info(`-  Type: ${project.frameworkName()}`);
+    logger.info(`   Base path: ${project.basePath}`);
+    logger.info(`   Config file: ${project.configPath}`);
   }
 
-  if (foundProjects.length === 0) {
-    logger.info(
-      `[indexing:${indexJobId}]   No hardhat projects found in ${workspaceFolder.name}`
+  // Append to global project map if they are not already indexed
+  await logger.trackTime("Initializing projects", async () => {
+    await Promise.all(
+      foundProjects.map(async (foundProject) => {
+        if (foundProject.id() in serverState.projects) {
+          return;
+        }
+
+        serverState.projects[foundProject.id()] = foundProject;
+        logger.info(`Initializing ${foundProject.id()}`);
+        await foundProject.initialize();
+        logger.info(`Done ${foundProject.id()}`);
+      })
     );
-  } else {
-    logger.info(
-      `[indexing:${indexJobId}]   Hardhat projects found in ${
-        workspaceFolder.name
-      } (${(new Date().getTime() - scanningStartTime.getTime()) / 1000}s):`
+  });
+
+  // Find all sol files
+  let solFileUris: string[];
+  await logger.trackTime("Indexing solidity files", async () => {
+    solFileUris = await scanForSolFiles(
+      logger,
+      workspaceFileRetriever,
+      topLevelWorkspaceFolders
     );
 
-    for (const foundProject of foundProjects) {
-      logger.info(`[indexing:${indexJobId}]     ${foundProject.basePath}`);
-    }
+    // Index sol files, and associate the matching project
+    await indexSolidityFiles(serverState, solFileUris);
+  });
+
+  // Store workspace folders to mark them as indexed
+  for (const workspaceFolder of topLevelWorkspaceFolders) {
+    serverState.indexedWorkspaceFolders.push(workspaceFolder);
   }
+
+  // Analyze files
+  await logger.trackTime("Analyzing solidity files", async () => {
+    await analyzeSolFiles(serverState, logger, solFileUris);
+  });
+
+  notifyEndIndexing(serverState);
 }
 
 async function scanForSolFiles(
-  indexJobId: number,
-  { logger }: ServerState,
+  logger: Logger,
   workspaceFileRetriever: WorkspaceFileRetriever,
   workspaceFolders: WorkspaceFolder[]
 ): Promise<string[]> {
-  const solFileScanStart = new Date();
-  logger.info(
-    `[indexing:${indexJobId}] Scanning workspace folders for sol files`
-  );
+  logger.info(`Scanning workspace folders for sol files`);
 
   const batches: string[][] = [];
 
@@ -225,125 +136,101 @@ async function scanForSolFiles(
 
   const solFileUris = batches.reduce((acc, batch) => acc.concat(batch), []);
 
-  logger.info(
-    `[indexing:${indexJobId}]   Scan complete, ${
-      solFileUris.length
-    } sol files found (${
-      (new Date().getTime() - solFileScanStart.getTime()) / 1000
-    }s)`
-  );
+  logger.info(`Scan complete, ${solFileUris.length} sol files found`);
 
   return solFileUris;
 }
 
-export async function analyzeSolFiles(
-  indexJobId: number,
+export async function indexSolidityFiles(
   serverState: ServerState,
-  workspaceFileRetriever: WorkspaceFileRetriever,
-  projects: SolProjectMap,
-  solFileUris: string[]
+  fileUris: string[]
 ) {
-  const { connection, solFileIndex, logger } = serverState;
-  const analysisStart = new Date();
+  const indexedProjects = Object.values(serverState.projects);
 
-  try {
-    logger.info(`[indexing:${indexJobId}] Analysing Sol files`);
-
-    // Init all documentAnalyzers
-    for (const solFileUri of solFileUris) {
-      try {
-        const docText = await workspaceFileRetriever.readFile(solFileUri);
-        const project = findProjectFor(serverState, solFileUri);
-
-        solFileIndex[solFileUri] = SolFileEntry.createLoadedUntrackedEntry(
-          solFileUri,
-          project,
-          docText.toString()
-        );
-      } catch (err) {
-        logger.error(err);
-      }
-    }
-
-    if (solFileUris.length > 0) {
-      // We will initialize all DocumentAnalizers first, because when we analyze documents we enter to their imports and
-      // if they are not analyzed we analyze them, in order to be able to analyze imports we need to have DocumentAnalizer and
-      // therefore we initiate everything first. The isAnalyzed serves to check if the document was analyzed so we don't analyze the document twice.
-      for (let i = 0; i < solFileUris.length; i++) {
-        const documentUri = solFileUris[i];
-
-        try {
-          const data: IndexFileData = {
-            jobId: indexJobId,
-            path: documentUri,
-            current: i + 1,
-            total: solFileUris.length,
-          };
-
-          connection.sendNotification("custom/indexing-file", data);
-
-          logger.trace(`Indexing file ${i}/${solFileUris.length}`, data);
-
-          const solFileEntry = getOrInitialiseSolFileEntry(
-            serverState,
-            documentUri
-          );
-
-          if (!solFileEntry.isAnalyzed()) {
-            analyzeSolFile({ solFileIndex }, solFileEntry);
-          }
-        } catch (err) {
-          logger.error(err);
-          logger.trace("Analysis of file failed", { documentUri });
-        }
-      }
-    } else {
-      notifyNoOpIndexing(indexJobId, serverState, "No files to index");
-    }
-  } catch (err) {
-    logger.error(err);
-  } finally {
-    logger.info(
-      `[indexing:${indexJobId}]   Analysis complete (${
-        (new Date().getTime() - analysisStart.getTime()) / 1000
-      }s)`
+  for (const fileUri of fileUris) {
+    let project: Project = new ProjectlessProject(
+      serverState,
+      path.dirname(fileUri)
     );
+
+    for (const indexedProject of indexedProjects) {
+      try {
+        const belongs = await indexedProject.fileBelongs(fileUri);
+        if (belongs && indexedProject.priority > project.priority) {
+          project = indexedProject;
+        }
+      } catch (error) {
+        serverState.logger.trace(`Error on fileBelongs: ${error}`);
+        continue;
+      }
+    }
+
+    serverState.logger.trace(`Associating ${project.id()} to ${fileUri}`);
+
+    const docText = await serverState.workspaceFileRetriever.readFile(fileUri);
+    serverState.solFileIndex[fileUri] = SolFileEntry.createLoadedEntry(
+      fileUri,
+      project,
+      docText
+    );
+
+    notifyFileIndexed(serverState, fileUri, project);
   }
 }
 
-function notifyNoOpIndexing(
-  indexJobId: number,
-  indexWorkspaceFoldersContext: ServerState,
-  logMessage: string
-) {
-  const data: IndexFileData = {
-    jobId: indexJobId,
-    path: "",
-    current: 0,
-    total: 0,
-  };
-
-  indexWorkspaceFoldersContext.connection.sendNotification(
-    "custom/indexing-file",
-    data
-  );
-
-  indexWorkspaceFoldersContext.logger.trace(logMessage, data);
+function notifyStartIndexing(serverState: ServerState) {
+  serverState.connection.sendNotification("custom/indexing-start");
 }
 
-function notifyStartIndexing(
-  indexJobId: number,
-  indexWorkspaceFoldersContext: ServerState
-) {
-  const data: IndexFileData = {
-    jobId: indexJobId,
-    path: "",
-    current: 0,
-    total: 0,
-  };
+function notifyEndIndexing(serverState: ServerState) {
+  serverState.connection.sendNotification("custom/indexing-end");
+}
 
-  indexWorkspaceFoldersContext.connection.sendNotification(
-    "custom/indexing-start",
-    data
-  );
+function notifyFileIndexed(
+  serverState: ServerState,
+  uri: string,
+  project: Project
+) {
+  serverState.connection.sendNotification("custom/file-indexed", {
+    uri,
+    project: {
+      configPath: project.configPath,
+      frameworkName: project.frameworkName(),
+    },
+  });
+}
+
+async function analyzeSolFiles(
+  serverState: ServerState,
+  logger: Logger,
+  solFileUris: string[]
+) {
+  const { solFileIndex } = serverState;
+
+  try {
+    // We will initialize all DocumentAnalizers first, because when we analyze documents we enter to their imports and
+    // if they are not analyzed we analyze them, in order to be able to analyze imports we need to have DocumentAnalizer and
+    // therefore we initiate everything first. The isAnalyzed serves to check if the document was analyzed so we don't analyze the document twice.
+    for (let i = 0; i < solFileUris.length; i++) {
+      const documentUri = solFileUris[i];
+
+      try {
+        logger.trace(`Analyzing file ${i}/${solFileUris.length}`);
+
+        const solFileEntry = getOrInitialiseSolFileEntry(
+          serverState,
+          documentUri
+        );
+
+        if (!solFileEntry.isAnalyzed()) {
+          analyzeSolFile({ solFileIndex }, solFileEntry);
+        }
+      } catch (err) {
+        logger.error(err);
+        logger.trace("Analysis of file failed", { documentUri });
+      }
+    }
+  } catch (err) {
+    logger.error(err);
+  }
 }

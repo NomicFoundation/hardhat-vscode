@@ -1,5 +1,4 @@
-import { isHardhatProject } from "@analyzer/HardhatProject";
-import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
+import { WorkspaceFileRetriever } from "@utils/WorkspaceFileRetriever";
 import { ServerState } from "../../types";
 import { indexWorkspaceFolders } from "./indexWorkspaceFolders";
 import { removeWorkspaceFolders } from "./removeWorkspaceFolders";
@@ -16,10 +15,6 @@ export const onInitialized = (
 
     if (serverState.hasWorkspaceFolderCapability) {
       serverState.connection.workspace.onDidChangeWorkspaceFolders((e) => {
-        logger.trace(
-          `Workspace folder change event received. ${e.added} ${e.removed}`
-        );
-
         if (e.added.length > 0) {
           return indexWorkspaceFolders(
             serverState,
@@ -37,43 +32,13 @@ export const onInitialized = (
     // index folders
     await serverState.telemetry.trackTiming("indexing", async () => {
       await indexWorkspaceFolders(
-        { ...serverState, workspaceFolders: [] },
+        serverState,
         workspaceFileRetriever,
-        serverState.workspaceFolders
+        serverState.workspaceFoldersToIndex
       );
       serverState.indexingFinished = true;
 
       return { status: "ok", result: null };
     });
-
-    // set up validation workers
-    serverState.telemetry.trackTimingSync("worker setup", () => {
-      setupWorkerProcesses(serverState);
-
-      return { status: "ok", result: null };
-    });
   };
 };
-
-function setupWorkerProcesses(serverState: ServerState) {
-  const workerProcesses = serverState.workerProcesses;
-  for (const project of Object.values(serverState.projects)) {
-    if (project.basePath in workerProcesses) {
-      continue;
-    }
-
-    if (!isHardhatProject(project)) {
-      continue;
-    }
-
-    const workerProcess = serverState.compProcessFactory(
-      project,
-      serverState.logger,
-      serverState.connection
-    );
-
-    workerProcesses[project.basePath] = workerProcess;
-
-    workerProcess.init();
-  }
-}

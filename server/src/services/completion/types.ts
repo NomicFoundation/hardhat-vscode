@@ -1,6 +1,7 @@
-import { SolFileIndexMap, ISolProject } from "@common/types";
+import { SolFileIndexMap } from "@common/types";
+import { Project } from "../../frameworks/base/Project";
 
 export interface ProjectContext {
-  project: ISolProject;
+  project: Project;
   solFileIndex: SolFileIndexMap;
 }

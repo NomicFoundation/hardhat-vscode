@@ -1,6 +1,6 @@
-import { WorkspaceFileRetriever } from "@analyzer/WorkspaceFileRetriever";
 import { decodeUriAndRemoveFilePrefix } from "@utils/index";
 import sinon from "sinon";
+import { WorkspaceFileRetriever } from "../../src/utils/WorkspaceFileRetriever";
 
 export function setupMockWorkspaceFileRetriever(
   projects: { [key: string]: string[] } = {},

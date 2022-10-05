@@ -13,7 +13,8 @@ export function removeWorkspaceFolders(
   // projects and files that are still part
   // of a parent workspace). This is punted on
   // for the moment.
-  serverState.workspaceFolders = serverState.workspaceFolders.filter(
-    (wf) => !removed.some((r) => r.uri === wf.uri)
-  );
+  serverState.indexedWorkspaceFolders =
+    serverState.indexedWorkspaceFolders.filter(
+      (wf) => !removed.some((r) => r.uri === wf.uri)
+    );
 }

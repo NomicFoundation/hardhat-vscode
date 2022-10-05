@@ -5,11 +5,11 @@ import {
   CompletionItem,
   CompletionItemKind,
   ImportDirectiveNode,
-  ISolProject,
   VSCodePosition,
 } from "@common/types";
 import { Logger } from "@utils/Logger";
 import { toUnixStyle } from "../../utils/index";
+import { Project } from "../../frameworks/base/Project";
 import { ProjectContext } from "./types";
 
 export function getImportPathCompletion(
@@ -111,7 +111,7 @@ function getRelativeImportPathCompletions(
 function getIndexedNodeModuleFolderCompletions(
   projCtx: ProjectContext
 ): CompletionItem[] {
-  if (projCtx.project.type === "none" || !projCtx.project.basePath) {
+  if (!projCtx.project.basePath) {
     return [];
   }
 
@@ -305,7 +305,7 @@ function findNodeModulePackagesInIndex({
   return Array.from(new Set(modulePackages));
 }
 
-function resolvePotentialNodeModulesPathsFor(project: ISolProject): string[] {
+function resolvePotentialNodeModulesPathsFor(project: Project): string[] {
   let current = project.basePath;
   const nodeModulesPaths = [];
 

@@ -1,7 +1,5 @@
-import * as path from "path";
 import * as fs from "fs";
 
-import { resolveDependency } from "@analyzer/resolver";
 import {
   ImportDirective,
   FinderType,
@@ -35,17 +33,13 @@ export class ImportDirectiveNode extends AbstractImportDirectiveNode {
     );
 
     this.realUri = toUnixStyle(fs.realpathSync(uri));
-    const remappings = documentsAnalyzer[this.realUri]?.project.remappings;
 
-    try {
-      this.uri = resolveDependency(
-        path.dirname(this.realUri),
-        importDirective.path,
-        remappings
-      );
-    } catch (err) {
-      this.uri = "";
-    }
+    const solFileEntry = this.solFileIndex[this.realUri];
+    this.uri =
+      solFileEntry.project.resolveImportPath(
+        this.realUri,
+        importDirective.path
+      ) ?? "";
 
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (importDirective.pathLiteral && importDirective.pathLiteral.loc) {

@@ -1,10 +1,10 @@
 {
   "extends": "@istanbuljs/nyc-config-typescript",
   "check-coverage": true,
-  "statements": 71,
-  "branches": 55,
-  "functions": 66,
-  "lines": 71,
+  "statements": 50,
+  "branches": 40,
+  "functions": 50,
+  "lines": 50,
   "all": true,
   "include": [
     "src/**/*.ts"

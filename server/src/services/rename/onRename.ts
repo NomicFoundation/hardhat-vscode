@@ -11,12 +11,8 @@ import {
 
 import { getParserPositionFromVSCodePosition, getRange } from "@common/utils";
 import { findReferencesFor } from "@utils/findReferencesFor";
-import { invalidateWorkerPreprocessCache } from "@services/validation/invalidateWorkerPreprocessCache";
 import { ServerState } from "../../types";
-import {
-  convertHardhatUriToVscodeUri,
-  decodeUriAndRemoveFilePrefix,
-} from "../../utils/index";
+import { convertHardhatUriToVscodeUri } from "../../utils/index";
 
 export const onRename = (serverState: ServerState) => {
   return async (params: RenameParams) => {
@@ -25,19 +21,7 @@ export const onRename = (serverState: ServerState) => {
         serverState,
         "onRenameRequest",
         params.textDocument.uri,
-        (documentAnalyzer) =>
-          rename(documentAnalyzer, params.position, params.newName)
-      );
-
-      // Renames are multifile, if the change to the current
-      // editor goes to validation before any file changes
-      // are recorded, preprocessing won't recognise that
-      // the cache is no longer valid, hence we clear it
-      // before returning
-      await invalidateWorkerPreprocessCache(
-        serverState,
-        decodeUriAndRemoveFilePrefix(params.textDocument.uri),
-        true
+        (solFileEntry) => rename(solFileEntry, params.position, params.newName)
       );
 
       return workspaceEdit;
@@ -48,14 +32,16 @@ export const onRename = (serverState: ServerState) => {
 };
 
 function rename(
-  documentAnalyzer: ISolFileEntry,
+  solFileEntry: ISolFileEntry,
   position: VSCodePosition,
   newName: string
 ): WorkspaceEdit {
-  const originRenameNode = documentAnalyzer.searcher.findRenameNodeByPosition(
-    documentAnalyzer.uri,
+  solFileEntry.project.invalidateBuildCache();
+
+  const originRenameNode = solFileEntry.searcher.findRenameNodeByPosition(
+    solFileEntry.uri,
     getParserPositionFromVSCodePosition(position),
-    documentAnalyzer.analyzerTree.tree
+    solFileEntry.analyzerTree.tree
   );
 
   if (!originRenameNode) {

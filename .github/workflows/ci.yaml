@@ -46,6 +46,12 @@ jobs:
       - name: Lint
         run: yarn lint
 
+      - name: Download foundryup
+        run: curl -L https://foundry.paradigm.xyz | bash
+
+      - name: Install foundry
+        run: ~/.foundry/bin/foundryup
+
       - name: Run server tests
         run: yarn run test:codecov
 

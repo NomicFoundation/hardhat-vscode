@@ -1,4 +1,4 @@
-import { workspace, env, window } from "vscode";
+import { workspace, env } from "vscode";
 import {
   LanguageClient,
   LanguageClientOptions,
@@ -6,9 +6,8 @@ import {
   TransportKind,
 } from "vscode-languageclient/node";
 import { ExtensionState } from "../types";
-import { setupIndexingHooks } from "../popups/setupIndexingHooks";
-import { setupValidationJobHooks } from "../popups/setupValidationJobHooks";
-import { onDidChangeActiveTextEditor } from "./onDidChangeActiveTextEditor";
+import { setupIndexingHooks } from "./setupIndexingHooks";
+import { setupValidationJobHooks } from "./setupValidationJobHooks";
 
 export function setupLanguageServerHooks(extensionState: ExtensionState) {
   startLanguageServer(extensionState);
@@ -46,7 +45,9 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
     synchronize: {
       fileEvents: [
         workspace.createFileSystemWatcher("**/hardhat.config.{ts,js}"),
-        workspace.createFileSystemWatcher("**/contracts/**/*.sol"),
+        workspace.createFileSystemWatcher("**/foundry.toml"),
+        workspace.createFileSystemWatcher("**/remappings.txt"),
+        workspace.createFileSystemWatcher("**/*.sol"),
       ],
     },
     diagnosticCollectionName: "hardhat-language-server",
@@ -106,10 +107,6 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
 
   extensionState.listenerDisposables.push(telemetryChangeDisposable);
   extensionState.listenerDisposables.push(hardhatTelemetryChangeDisposable);
-
-  window.onDidChangeActiveTextEditor(
-    onDidChangeActiveTextEditor(extensionState)
-  );
 
   client.start();
 

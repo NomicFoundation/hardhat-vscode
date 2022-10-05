@@ -15,7 +15,6 @@ export function analyse(
     const internalUri = decodeUriAndRemoveFilePrefix(changeDoc.uri);
     const solFileEntry = getOrInitialiseSolFileEntry(serverState, internalUri);
 
-    solFileEntry.track();
     analyzeSolFile(serverState, solFileEntry, changeDoc.getText());
   } catch (err) {
     serverState.logger.error(err);
