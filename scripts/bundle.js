@@ -55,7 +55,8 @@ async function main() {
       "./client/out/extension": "./client/src/extension.ts",
       "./server/out/index": "./server/src/index.ts",
       "./server/out/hardhat.config": "./server/src/hardhat.config.ts",
-      "./server/out/worker": "./server/src/services/validation/worker.ts",
+      "./server/out/worker/WorkerProcess":
+        "./server/src/frameworks/Hardhat/worker/WorkerProcess.ts",
     },
     bundle: true,
     minifyWhitespace: true,

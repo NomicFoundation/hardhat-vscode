@@ -1,10 +1,10 @@
 import { TextDocument, Range } from "@common/types";
-import { HardhatCompilerError } from "../../types";
+import { SolcError } from "../../types";
 import { passThroughConversion } from "./passThroughConversion";
 
 export function constrainByRegex(
   document: TextDocument,
-  error: HardhatCompilerError,
+  error: SolcError,
   regex: RegExp
 ) {
   if (error.sourceLocation === undefined) {

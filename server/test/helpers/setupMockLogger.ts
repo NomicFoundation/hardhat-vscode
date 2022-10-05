@@ -8,5 +8,6 @@ export function setupMockLogger(): Logger {
     info: sinon.spy(),
     error: sinon.spy(),
     trace: sinon.spy(),
+    trackTime: sinon.spy(),
   };
 }

@@ -2,8 +2,6 @@ import { ServerState } from "../../types";
 import { onDidChangeWatchedFiles } from "./onDidChangeWatchedFiles";
 import { onDidChangeContent } from "./onDidChangeContent";
 import { onDidOpen } from "./onDidOpen";
-import { onDidClose } from "./onDidClose";
-import { onDidSave } from "./onDidSave";
 
 /**
  * Establish a sync between the client and the `serverState.documents`
@@ -17,8 +15,6 @@ export function attachDocumentHooks(serverState: ServerState) {
   // responsibility for the file (onOpen/onSave/onClose) as
   // opposed to files where the cannonical version is on disk
   serverState.documents.onDidOpen(onDidOpen(serverState));
-  serverState.documents.onDidClose(onDidClose(serverState));
-  serverState.documents.onDidSave(onDidSave(serverState));
 
   // The content of a text document has changed. This event is emitted
   // when the text document first opened or when its content has changed.

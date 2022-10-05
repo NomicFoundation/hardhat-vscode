@@ -1,11 +1,12 @@
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
+import { ServerState } from "../../types";
 
 /**
  * Workspaces can be nested, we are only concerned with new folders
  * that are top level for indexing.
  */
 export function resolveTopLevelWorkspaceFolders(
-  { workspaceFolders }: { workspaceFolders: WorkspaceFolder[] },
+  serverState: ServerState,
   addedWorkspaceFolders: WorkspaceFolder[]
 ): WorkspaceFolder[] {
   const addedUris = addedWorkspaceFolders.map((awf) => awf.uri);
@@ -17,7 +18,7 @@ export function resolveTopLevelWorkspaceFolders(
 
   const notAlreadyProcessed = rootAddedWorkspaces.filter(
     (awf) =>
-      !workspaceFolders.some(
+      !serverState.indexedWorkspaceFolders.some(
         (wf) => awf.uri === wf.uri || awf.uri.startsWith(wf.uri)
       )
   );

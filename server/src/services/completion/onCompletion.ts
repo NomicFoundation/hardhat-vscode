@@ -23,8 +23,6 @@ import {
   CompletionParams,
 } from "vscode-languageserver/node";
 import { applyEditToDocumentAnalyzer } from "@utils/applyEditToDocumentAnalyzer";
-import { findProjectFor } from "@utils/findProjectFor";
-import { decodeUriAndRemoveFilePrefix } from "@utils/index";
 import { ServerState } from "../../types";
 import { ProjectContext } from "./types";
 import { getImportPathCompletion } from "./getImportPathCompletion";
@@ -53,10 +51,7 @@ export const onCompletion = (serverState: ServerState) => {
         return { status: "failed_precondition", result: null };
       }
 
-      const project = findProjectFor(
-        serverState,
-        decodeUriAndRemoveFilePrefix(document.uri)
-      );
+      const project = documentAnalyzer.project;
 
       const projCtx: ProjectContext = {
         project,

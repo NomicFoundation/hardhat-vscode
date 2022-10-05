@@ -22,12 +22,8 @@ import {
 } from "vscode-languageserver/node";
 import { getOrInitialiseSolFileEntry } from "@utils/getOrInitialiseSolFileEntry";
 import { getUriFromDocument } from "../../src/utils/index";
-import setupServer, {
-  GetSolFileDetailsParams,
-  GetSolFileDetailsResponse,
-} from "../../src/server";
-import type { HardhatCompilerError } from "../../src/types";
-import { setupMockCompilerProcessFactory } from "./setupMockCompilerProcessFactory";
+import setupServer from "../../src/server";
+import type { SolcError } from "../../src/types";
 import { setupMockConnection } from "./setupMockConnection";
 import { waitUntil } from "./waitUntil";
 import { setupMockLogger } from "./setupMockLogger";
@@ -57,24 +53,19 @@ export type OnRenameRequest = (
   params: RenameParams
 ) => WorkspaceEdit | undefined | null;
 export type OnHover = (params: HoverParams) => Hover | null;
-export type OnRequest = (
-  params: GetSolFileDetailsParams
-) => GetSolFileDetailsResponse;
 
 export async function setupMockLanguageServer({
   projects,
   documents,
-  errors,
 }: {
   projects?: { [key: string]: string[] };
   documents: Array<{ uri: string; content?: string; analyze: boolean }>;
-  errors: HardhatCompilerError[];
+  errors: SolcError[];
 }) {
   const exampleRootUri = forceToUnixStyle(path.join(__dirname, ".."));
   const exampleWorkspaceFolders = [{ name: "example", uri: exampleRootUri }];
 
   const mockConnection = setupMockConnection();
-  const mockCompilerProcessFactory = setupMockCompilerProcessFactory(errors);
   const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever(
     projects ?? {}
   );
@@ -84,7 +75,6 @@ export async function setupMockLanguageServer({
   const serverState = await setupServer(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockConnection as any,
-    mockCompilerProcessFactory,
     mockWorkspaceFileRetriever,
     mockTelemetry,
     mockLogger
@@ -122,7 +112,6 @@ export async function setupMockLanguageServer({
   const renameRequest: OnRenameRequest =
     mockConnection.onRenameRequest.getCall(0).firstArg;
   const hover: OnHover = mockConnection.onHover.getCall(0).firstArg;
-  const request: OnRequest = mockConnection.onRequest.getCall(0).args[1];
 
   const didOpenTextDocument =
     mockConnection.onDidOpenTextDocument.getCall(0).firstArg;
@@ -183,7 +172,6 @@ export async function setupMockLanguageServer({
       implementation,
       renameRequest,
       hover,
-      request,
     },
   };
 }

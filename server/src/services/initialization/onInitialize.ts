@@ -100,7 +100,7 @@ function updateServerStateFromParams(
   serverState.hardhatTelemetryEnabled =
     params.initializationOptions?.hardhatTelemetryEnabled ?? false;
 
-  serverState.workspaceFolders = params.workspaceFolders ?? [];
+  serverState.workspaceFoldersToIndex = params.workspaceFolders ?? [];
 
   serverState.hasWorkspaceFolderCapability =
     params.capabilities.workspace !== undefined &&
@@ -133,11 +133,11 @@ function logInitializationInfo(
     );
   }
 
-  if (serverState.workspaceFolders.length === 0) {
+  if (serverState.workspaceFoldersToIndex.length === 0) {
     logger.info(`  Workspace Folders: none`);
   } else {
     logger.info(`  Workspace Folders:`);
-    for (const folder of serverState.workspaceFolders) {
+    for (const folder of serverState.workspaceFoldersToIndex) {
       logger.info(`    ${folder.name} (${folder.uri})`);
     }
   }

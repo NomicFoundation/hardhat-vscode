@@ -18,7 +18,7 @@
       "@services/*": ["./src/services/*"],
       "@utils/*": ["./src/utils/*"]
     }
-  }
-  // "include": ["src", "test"],
+  },
+  "include": ["src", "test"]
   // "exclude": ["node_modules", ".vscode-test", ".eslintrc.js"]
 }

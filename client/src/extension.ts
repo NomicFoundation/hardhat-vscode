@@ -38,6 +38,10 @@ export async function activate(context: ExtensionContext) {
   showAnalyticsAllowPopup(extensionState);
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   warnOnOtherSolidityExtensions(extensionState);
+
+  return {
+    isReady: () => extensionState?.indexingFinished,
+  };
 }
 
 export function deactivate() {

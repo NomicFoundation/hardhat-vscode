@@ -7,7 +7,7 @@ import {
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { ResolveActionsContext } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
-import { HardhatCompilerError, ServerState } from "../../types";
+import { SolcError, ServerState } from "../../types";
 import { parseFunctionDefinition } from "./parsing/parseFunctionDefinition";
 import { lookupToken } from "./parsing/lookupToken";
 
@@ -21,7 +21,7 @@ export class SpecifyVisibility {
 
   public fromHardhatCompilerError(
     document: TextDocument,
-    error: HardhatCompilerError
+    error: SolcError
   ): Diagnostic {
     return attemptConstrainToFunctionName(document, error);
   }

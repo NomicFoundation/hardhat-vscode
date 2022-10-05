@@ -4,14 +4,13 @@ import { assert } from "chai";
 import { IndexFileData } from "@common/event";
 import { indexWorkspaceFolders } from "@services/initialization/indexWorkspaceFolders";
 import { Connection } from "vscode-languageserver";
-import { HardhatProject } from "@analyzer/HardhatProject";
 import { forceToUnixStyle } from "../helpers/forceToUnixStyle";
 import { setupMockLogger } from "../helpers/setupMockLogger";
 
 describe("Analyzer", () => {
   describe("indexing", () => {
     const exampleRootPath = forceToUnixStyle(__dirname);
-    let collectedData: Array<[string, IndexFileData]>;
+    let collectedData: Array<[string, IndexFileData | undefined]>;
     let foundSolFiles: string[];
 
     describe("with multiple files", () => {
@@ -22,45 +21,11 @@ describe("Analyzer", () => {
         await runIndexing(exampleRootPath, foundSolFiles, collectedData);
       });
 
-      it("should emit an indexing event for each", () => {
-        assert.equal(collectedData.length, 4);
+      it("should emit an indexing-start event", () => {
+        assert.equal(collectedData.length, 2);
         assert.deepEqual(collectedData, [
-          [
-            "custom/indexing-start",
-            {
-              jobId: 1,
-              path: "",
-              current: 0,
-              total: 0,
-            },
-          ],
-          [
-            "custom/indexing-file",
-            {
-              jobId: 1,
-              path: forceToUnixStyle(path.join(__dirname, "example1.sol")),
-              current: 1,
-              total: 3,
-            },
-          ],
-          [
-            "custom/indexing-file",
-            {
-              jobId: 1,
-              path: forceToUnixStyle(path.join(__dirname, "example2.sol")),
-              current: 2,
-              total: 3,
-            },
-          ],
-          [
-            "custom/indexing-file",
-            {
-              jobId: 1,
-              path: forceToUnixStyle(path.join(__dirname, "example3.sol")),
-              current: 3,
-              total: 3,
-            },
-          ],
+          ["custom/indexing-start", undefined],
+          ["custom/indexing-end", undefined],
         ]);
       });
     });
@@ -73,27 +38,11 @@ describe("Analyzer", () => {
         await runIndexing(exampleRootPath, foundSolFiles, collectedData);
       });
 
-      it("should emit an indexing event for each", () => {
+      it("should emit an indexing-start event", () => {
         assert.equal(collectedData.length, 2);
         assert.deepEqual(collectedData, [
-          [
-            "custom/indexing-start",
-            {
-              jobId: 1,
-              path: "",
-              current: 0,
-              total: 0,
-            },
-          ],
-          [
-            "custom/indexing-file",
-            {
-              jobId: 1,
-              path: "",
-              current: 0,
-              total: 0,
-            },
-          ],
+          ["custom/indexing-start", undefined],
+          ["custom/indexing-end", undefined],
         ]);
       });
     });
@@ -103,17 +52,11 @@ describe("Analyzer", () => {
 async function runIndexing(
   rootPath: string,
   foundSolFiles: string[],
-  collectedData: Array<[string, IndexFileData]>
+  collectedData: Array<[string, IndexFileData | undefined]>
 ) {
   const exampleWorkspaceFolder = { name: "example", uri: rootPath };
 
-  const exampleProjects = {
-    [rootPath]: new HardhatProject(
-      exampleWorkspaceFolder.uri,
-      path.join(exampleWorkspaceFolder.uri, "hardhat.config.ts"),
-      exampleWorkspaceFolder
-    ),
-  };
+  const exampleProjects = {};
   const solFileIndex = {};
 
   const mockLogger = setupMockLogger();
@@ -147,7 +90,7 @@ async function runIndexing(
       solFileIndex,
       projects: exampleProjects,
       logger: mockLogger,
-      workspaceFolders: [],
+      indexedWorkspaceFolders: [],
     } as any,
     mockWorkspaceFileRetriever,
     [exampleWorkspaceFolder]

@@ -33,12 +33,12 @@ export async function assertCodeAction(
 
   const serverState = {
     indexJobCount: 0,
-    workspaceFolders: [] as WorkspaceFolder[],
+    indexedWorkspaceFolders: [] as WorkspaceFolder[],
     projects: {},
     connection: mockConnection,
     solFileIndex: {},
     logger: mockLogger,
-  } as ServerState;
+  } as unknown as ServerState;
 
   const solFileEntry = getOrInitialiseSolFileEntry(serverState, exampleUri);
 

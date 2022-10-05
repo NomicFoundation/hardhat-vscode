@@ -49,3 +49,9 @@ export function isCharacterALetter(char: string): boolean {
 export function isCharacterANumber(char: string): boolean {
   return /[0-9]/.test(char);
 }
+
+export function uriEquals(uri1: string, uri2: string) {
+  return runningOnWindows()
+    ? uri1.toLowerCase() === uri2.toLowerCase()
+    : uri1 === uri2;
+}

@@ -6,7 +6,7 @@ import {
   Range,
 } from "vscode-languageserver/node";
 import { CompilerDiagnostic, ResolveActionsContext } from "../types";
-import { HardhatCompilerError, ServerState } from "../../types";
+import { SolcError, ServerState } from "../../types";
 import { passThroughConversion } from "../conversions/passThroughConversion";
 
 const LICENSE_STATEMENT = "// SPDX-License-Identifier: $LICENSE";
@@ -29,7 +29,7 @@ export class AddLicenseIdentifier implements CompilerDiagnostic {
 
   public fromHardhatCompilerError(
     document: TextDocument,
-    error: HardhatCompilerError
+    error: SolcError
   ): Diagnostic {
     return passThroughConversion(document, error);
   }

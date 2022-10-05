@@ -1,10 +1,14 @@
-import path from "path";
-import { Uri } from "vscode";
-import { getClient } from "../../client";
-import { Client } from "../../common/types";
-import { assertLspCommand } from "../../common/assertLspCommand";
+import vscode from "vscode";
 import { getTestContractUri } from "../../helpers/getTestContract";
-import { getRootPath } from "../../helpers/workspace";
+import {
+  getCurrentEditor,
+  goToPosition,
+  openFileInEditor,
+} from "../../helpers/editor";
+import {
+  assertCurrentTabFile,
+  assertPositionEqual,
+} from "../../helpers/assertions";
 
 suite("Single-file Navigation", function () {
   const testUri = getTestContractUri("main/contracts/definition/Test.sol");
@@ -12,194 +16,95 @@ suite("Single-file Navigation", function () {
     "main/contracts/definition/ImportTest.sol"
   );
 
-  let client!: Client;
-
-  suiteSetup(async () => {
-    client = await getClient();
-  });
-
   test("[Single-file] - Go to Definition", async () => {
-    await assertLspCommand(client, {
-      action: "DefinitionRequest",
-      uri: testUri.path,
-      params: {
-        position: {
-          line: 14,
-          character: 25,
-        },
-      },
-      expected: [
-        {
-          uri: {
-            path: getTestContractUri("main/contracts/definition/Test.sol").path,
-          },
-          range: [
-            {
-              line: 9,
-              character: 11,
-            },
-            {
-              line: 9,
-              character: 16,
-            },
-          ],
-        },
-      ],
-    });
+    await openFileInEditor(testUri);
+
+    goToPosition(new vscode.Position(14, 25));
+
+    await vscode.commands.executeCommand("editor.action.goToDeclaration");
+
+    await assertCurrentTabFile(testUri.fsPath);
+    assertPositionEqual(
+      getCurrentEditor().selection.active,
+      new vscode.Position(9, 11)
+    );
   });
 
   test("[Single-file][Defined after usage] - Go to Definition", async () => {
-    await assertLspCommand(client, {
-      action: "DefinitionRequest",
-      uri: testUri.path,
-      params: {
-        position: {
-          line: 15,
-          character: 9,
-        },
-      },
-      expected: [
-        {
-          uri: {
-            path: getTestContractUri("main/contracts/definition/Test.sol").path,
-          },
-          range: [
-            {
-              line: 53,
-              character: 11,
-            },
-            {
-              line: 53,
-              character: 19,
-            },
-          ],
-        },
-      ],
-    });
+    await openFileInEditor(testUri);
+
+    goToPosition(new vscode.Position(15, 9));
+
+    await vscode.commands.executeCommand("editor.action.goToDeclaration");
+
+    await assertCurrentTabFile(testUri.fsPath);
+    assertPositionEqual(
+      getCurrentEditor().selection.active,
+      new vscode.Position(53, 11)
+    );
   });
 
   test("[Single-file][MemberAccess] - Go to Definition", async () => {
-    await assertLspCommand(client, {
-      action: "DefinitionRequest",
-      uri: testUri.path,
-      params: {
-        position: {
-          line: 26,
-          character: 25,
-        },
-      },
-      expected: [
-        {
-          uri: {
-            path: getTestContractUri("main/contracts/definition/Test.sol").path,
-          },
-          range: [
-            {
-              line: 10,
-              character: 13,
-            },
-            {
-              line: 10,
-              character: 18,
-            },
-          ],
-        },
-      ],
-    });
+    // vscode.extensions.getExtension("nomicfoundation.hardhat-solidity");
+
+    await openFileInEditor(testUri);
+
+    goToPosition(new vscode.Position(26, 25));
+
+    await vscode.commands.executeCommand("editor.action.goToDeclaration");
+
+    await assertCurrentTabFile(testUri.fsPath);
+    assertPositionEqual(
+      getCurrentEditor().selection.active,
+      new vscode.Position(10, 13)
+    );
   });
 
   test("[Single-file][MemberAccess][Defined after usage] - Go to Definition", async () => {
-    await assertLspCommand(client, {
-      action: "DefinitionRequest",
-      uri: testUri.path,
-      params: {
-        position: {
-          line: 50,
-          character: 50,
-        },
-      },
-      expected: [
-        {
-          uri: {
-            path: getTestContractUri("main/contracts/definition/Test.sol").path,
-          },
-          range: [
-            {
-              line: 54,
-              character: 16,
-            },
-            {
-              line: 54,
-              character: 20,
-            },
-          ],
-        },
-      ],
-    });
+    await openFileInEditor(testUri);
+
+    goToPosition(new vscode.Position(50, 50));
+
+    await vscode.commands.executeCommand("editor.action.goToDeclaration");
+
+    await assertCurrentTabFile(testUri.fsPath);
+    assertPositionEqual(
+      getCurrentEditor().selection.active,
+      new vscode.Position(54, 16)
+    );
   });
 
   test("Jump to import file", async () => {
-    await assertLspCommand(client, {
-      action: "DefinitionRequest",
-      uri: importTestUri.path,
-      params: {
-        position: {
-          line: 3,
-          character: 25,
-        },
-      },
-      expected: [
-        {
-          uri: {
-            path: getTestContractUri("main/contracts/definition/Foo.sol").path,
-          },
-          range: [
-            {
-              line: 1,
-              character: 0,
-            },
-            {
-              line: 6,
-              character: 0,
-            },
-          ],
-        },
-      ],
-    });
+    await openFileInEditor(importTestUri);
+
+    goToPosition(new vscode.Position(3, 25));
+
+    await vscode.commands.executeCommand("editor.action.goToDeclaration");
+
+    await assertCurrentTabFile(
+      getTestContractUri("main/contracts/definition/Foo.sol").fsPath
+    );
+    assertPositionEqual(
+      getCurrentEditor().selection.active,
+      new vscode.Position(1, 0)
+    );
   });
 
   test("Jump to import dependency file", async () => {
-    await assertLspCommand(client, {
-      action: "DefinitionRequest",
-      uri: importTestUri.path,
-      params: {
-        position: {
-          line: 4,
-          character: 73,
-        },
-      },
-      expected: [
-        {
-          uri: {
-            path: Uri.file(
-              path.join(
-                getRootPath(),
-                "node_modules/@openzeppelin/contracts/access/Ownable.sol"
-              )
-            ).path,
-          },
-          range: [
-            {
-              line: 3,
-              character: 0,
-            },
-            {
-              line: 76,
-              character: 0,
-            },
-          ],
-        },
-      ],
-    });
+    await openFileInEditor(importTestUri);
+
+    goToPosition(new vscode.Position(4, 73));
+
+    await vscode.commands.executeCommand("editor.action.goToDeclaration");
+
+    await assertCurrentTabFile(
+      getTestContractUri(
+        "../node_modules/@openzeppelin/contracts/access/Ownable.sol"
+      ).fsPath
+    );
+    assertPositionEqual(
+      getCurrentEditor().selection.active,
+      new vscode.Position(3, 0)
+    );
   });
 });

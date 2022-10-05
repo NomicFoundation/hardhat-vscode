@@ -1,35 +1,34 @@
-import { decodeUriAndRemoveFilePrefix } from "@utils/index";
-import { DidChangeWatchedFilesParams } from "vscode-languageserver";
+import {
+  DidChangeWatchedFilesParams,
+  FileChangeType,
+} from "vscode-languageserver";
 import { ServerState } from "../../types";
-import { restartWorker } from "../validation/restartWorker";
-import { invalidateWorkerPreprocessCache } from "../validation/invalidateWorkerPreprocessCache";
+import { decodeUriAndRemoveFilePrefix } from "../../utils";
+import { indexSolidityFiles } from "../initialization/indexWorkspaceFolders";
 
 export function onDidChangeWatchedFiles(serverState: ServerState) {
-  return async ({
-    changes,
-  }: DidChangeWatchedFilesParams): Promise<boolean[]> => {
-    const results = [];
+  return async (params: DidChangeWatchedFilesParams) => {
+    // Normalize file uris
+    const normalizedParams = {
+      changes: params.changes.map((change) => ({
+        ...change,
+        uri: decodeUriAndRemoveFilePrefix(change.uri),
+      })),
+    };
 
-    for (const change of changes) {
-      const internalUri = decodeUriAndRemoveFilePrefix(change.uri);
-
-      if (internalUri.endsWith(".sol")) {
-        const result = await invalidateWorkerPreprocessCache(
-          serverState,
-          internalUri
-        );
-
-        results.push(result ?? false);
-      } else if (
-        internalUri.endsWith("hardhat.config.ts") ||
-        internalUri.endsWith("hardhat.config.js")
+    // Index new solidity files
+    for (const change of normalizedParams.changes) {
+      if (
+        change.uri.endsWith(".sol") &&
+        change.type === FileChangeType.Created
       ) {
-        const result = await restartWorker(serverState, internalUri);
-
-        results.push(result ?? false);
+        await indexSolidityFiles(serverState, [change.uri]);
       }
     }
 
-    return results;
+    // Notify all registered projects of the file changes
+    for (const project of Object.values(serverState.projects)) {
+      await project.onWatchedFilesChanges(normalizedParams);
+    }
   };
 }

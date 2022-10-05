@@ -89,7 +89,7 @@ const availableVersions = [
 ];
 
 export async function updateAvailableSolcVersions(state: ServerState) {
-  const latestVersions = await fetchLatestVersions();
+  const latestVersions = await fetchLatestVersions(state);
 
   state.solcVersions = _.union(availableVersions, latestVersions);
 }
@@ -97,7 +97,7 @@ export async function updateAvailableSolcVersions(state: ServerState) {
 interface VersionsResponse {
   builds: Array<{ version: string }>;
 }
-async function fetchLatestVersions() {
+async function fetchLatestVersions(state: ServerState) {
   try {
     const data: VersionsResponse = await got
       .get("https://binaries.soliditylang.org/wasm/list.json", {
@@ -107,6 +107,7 @@ async function fetchLatestVersions() {
 
     return _.map(data.builds, "version");
   } catch (error) {
+    state.telemetry.captureException(error);
     return [];
   }
 }
