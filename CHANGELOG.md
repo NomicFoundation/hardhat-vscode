@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.5.5 - 2022-10-06
+
+### Fixed
+
+- Attempting to validate non-hardhat contracts triggering a task error ([#255](https://github.com/NomicFoundation/hardhat-vscode/issues/255))
+
 ## 0.5.4 - 2022-09-27
 
 ### Fixed
