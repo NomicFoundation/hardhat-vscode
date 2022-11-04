@@ -223,7 +223,7 @@ async function analyzeSolFiles(
         );
 
         if (!solFileEntry.isAnalyzed()) {
-          analyzeSolFile({ solFileIndex }, solFileEntry);
+          await analyzeSolFile({ solFileIndex }, solFileEntry);
         }
       } catch (err) {
         logger.error(err);

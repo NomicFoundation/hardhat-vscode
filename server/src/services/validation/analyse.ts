@@ -5,7 +5,7 @@ import { analyzeSolFile } from "@analyzer/analyzeSolFile";
 import { decodeUriAndRemoveFilePrefix } from "../../utils/index";
 import { ServerState } from "../../types";
 
-export function analyse(
+export async function analyse(
   serverState: ServerState,
   { document: changeDoc }: TextDocumentChangeEvent<TextDocument>
 ) {
@@ -15,7 +15,7 @@ export function analyse(
     const internalUri = decodeUriAndRemoveFilePrefix(changeDoc.uri);
     const solFileEntry = getOrInitialiseSolFileEntry(serverState, internalUri);
 
-    analyzeSolFile(serverState, solFileEntry, changeDoc.getText());
+    await analyzeSolFile(serverState, solFileEntry, changeDoc.getText());
   } catch (err) {
     serverState.logger.error(err);
   }

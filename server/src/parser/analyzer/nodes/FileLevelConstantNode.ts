@@ -44,12 +44,12 @@ export class FileLevelConstantNode extends Node {
     return this;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     if (parent) {
@@ -58,11 +58,13 @@ export class FileLevelConstantNode extends Node {
 
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (this.astNode.typeName) {
-      let typeNode = find(
-        this.astNode.typeName,
-        this.uri,
-        this.rootPath,
-        this.solFileIndex
+      let typeNode = await (
+        await find(
+          this.astNode.typeName,
+          this.uri,
+          this.rootPath,
+          this.solFileIndex
+        )
       ).accept(find, orphanNodes, this);
 
       this.addTypeNode(typeNode);
@@ -79,11 +81,13 @@ export class FileLevelConstantNode extends Node {
 
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (this.astNode.initialValue) {
-      find(
-        this.astNode.initialValue,
-        this.uri,
-        this.rootPath,
-        this.solFileIndex
+      await (
+        await find(
+          this.astNode.initialValue,
+          this.uri,
+          this.rootPath,
+          this.solFileIndex
+        )
       ).accept(find, orphanNodes, parent);
     }
 

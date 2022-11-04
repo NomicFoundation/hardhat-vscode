@@ -60,19 +60,21 @@ export class MemberAccessNode extends IMemberAccessNode {
     }
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
-    const expressionNode = find(
-      this.astNode.expression,
-      this.uri,
-      this.rootPath,
-      this.solFileIndex
+    const expressionNode = await (
+      await find(
+        this.astNode.expression,
+        this.uri,
+        this.rootPath,
+        this.solFileIndex
+      )
     ).accept(find, orphanNodes, parent, this);
     this.setPreviousMemberAccessNode(expressionNode);
 

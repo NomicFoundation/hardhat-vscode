@@ -8,11 +8,11 @@ import {
   SolFileState,
 } from "@common/types";
 
-export function analyzeSolFile(
+export async function analyzeSolFile(
   { solFileIndex }: { solFileIndex: SolFileIndexMap },
   solFileEntry: ISolFileEntry,
   newText?: string
-): Node | undefined {
+): Promise<Node | undefined> {
   try {
     solFileEntry.orphanNodes = [];
 
@@ -42,14 +42,16 @@ export function analyzeSolFile(
     }
 
     solFileEntry.status = SolFileState.ANALYZED;
-    solFileEntry.analyzerTree.tree = matcher
-      .find(
-        solFileEntry.ast,
-        solFileEntry.uri,
-        solFileEntry.project.basePath,
-        solFileIndex
-      )
-      .accept(matcher.find, solFileEntry.orphanNodes);
+    const node = await matcher.find(
+      solFileEntry.ast,
+      solFileEntry.uri,
+      solFileEntry.project.basePath,
+      solFileIndex
+    );
+    solFileEntry.analyzerTree.tree = await node.accept(
+      matcher.find,
+      solFileEntry.orphanNodes
+    );
 
     return solFileEntry.analyzerTree.tree;
   } catch {

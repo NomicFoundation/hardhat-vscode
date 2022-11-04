@@ -1,6 +1,7 @@
 import { assert } from "chai";
 import * as path from "path";
 import { SignatureHelp } from "vscode-languageserver/node";
+import { sleep } from "../../../src/utils/sleep";
 import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
 import {
   setupMockLanguageServer,
@@ -24,6 +25,7 @@ describe("Parser", () => {
     });
 
     it("should return signature info", async () => {
+      await sleep(500);
       const response = (await signatureHelp({
         textDocument: { uri: basicUri },
         position: { line: 21, character: 21 },

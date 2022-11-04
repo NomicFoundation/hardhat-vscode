@@ -13,25 +13,20 @@ export class IndexAccessNode extends Node {
     this.astNode = indexAccess;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
-    const typeNode = find(
-      this.astNode.base,
-      this.uri,
-      this.rootPath,
-      this.solFileIndex
+    const typeNode = await (
+      await find(this.astNode.base, this.uri, this.rootPath, this.solFileIndex)
     ).accept(find, orphanNodes, parent, this);
-    find(this.astNode.index, this.uri, this.rootPath, this.solFileIndex).accept(
-      find,
-      orphanNodes,
-      parent
-    );
+    await (
+      await find(this.astNode.index, this.uri, this.rootPath, this.solFileIndex)
+    ).accept(find, orphanNodes, parent);
 
     return typeNode;
   }

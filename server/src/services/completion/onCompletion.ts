@@ -30,14 +30,14 @@ import { globalVariables, defaultCompletion } from "./defaultCompletion";
 import { arrayCompletions } from "./arrayCompletions";
 
 export const onCompletion = (serverState: ServerState) => {
-  return (params: CompletionParams): CompletionList | null => {
+  return async (params: CompletionParams): Promise<CompletionList | null> => {
     const { logger } = serverState;
 
     logger.trace("onCompletion");
 
-    return serverState.telemetry.trackTimingSync("onCompletion", () => {
+    return serverState.telemetry.trackTiming("onCompletion", async () => {
       const { found, errorMessage, documentAnalyzer, document } =
-        applyEditToDocumentAnalyzer(
+        await applyEditToDocumentAnalyzer(
           serverState,
           params.textDocument.uri,
           (doc) => resolveChangedDocText(params, doc)

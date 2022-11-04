@@ -18,19 +18,21 @@ export class UnaryOperationNode extends Node {
     this.astNode = unaryOperation;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
-    find(
-      this.astNode.subExpression,
-      this.uri,
-      this.rootPath,
-      this.solFileIndex
+    await (
+      await find(
+        this.astNode.subExpression,
+        this.uri,
+        this.rootPath,
+        this.solFileIndex
+      )
     ).accept(find, orphanNodes, parent);
 
     return this;

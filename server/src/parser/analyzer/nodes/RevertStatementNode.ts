@@ -18,19 +18,21 @@ export class RevertStatementNode extends Node {
     this.astNode = revertStatement;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
-    find(
-      this.astNode.revertCall,
-      this.uri,
-      this.rootPath,
-      this.solFileIndex
+    await (
+      await find(
+        this.astNode.revertCall,
+        this.uri,
+        this.rootPath,
+        this.solFileIndex
+      )
     ).accept(find, orphanNodes, parent, this);
 
     return this;

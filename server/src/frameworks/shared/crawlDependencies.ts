@@ -27,7 +27,7 @@ export async function getDependenciesAndPragmas(
     );
 
     if (!solFileEntry.isAnalyzed()) {
-      analyzeSolFile(project.serverState, solFileEntry);
+      await analyzeSolFile(project.serverState, solFileEntry);
     }
   }
 
@@ -48,14 +48,14 @@ export async function getDependenciesAndPragmas(
   ];
 
   // Recursively crawl dependencies and append. Skip non-existing imports
-  const importsUris = imports.reduce((list, _import) => {
-    const resolvedImport = project.resolveImportPath(sourceUri, _import);
-    if (resolvedImport === undefined) {
-      return list;
-    } else {
-      return list.concat([resolvedImport]);
+  const importsUris: string[] = [];
+  for (const _import of imports) {
+    const resolvedImport = await project.resolveImportPath(sourceUri, _import);
+
+    if (resolvedImport !== undefined) {
+      importsUris.push(resolvedImport);
     }
-  }, [] as string[]);
+  }
 
   for (const importUri of importsUris) {
     dependencyDetails.push(

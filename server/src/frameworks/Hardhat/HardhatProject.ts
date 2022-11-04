@@ -2,12 +2,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import { ChildProcess, fork } from "child_process";
-import fs from "fs";
 import _ from "lodash";
 import path from "path";
 import { DidChangeWatchedFilesParams } from "vscode-languageserver-protocol";
 import { OpenDocuments, ServerState } from "../../types";
-import { toUnixStyle } from "../../utils";
 import { directoryContains } from "../../utils/directoryContains";
 import { Logger } from "../../utils/Logger";
 import { CompilationDetails } from "../base/CompilationDetails";
@@ -24,6 +22,8 @@ import {
   LogMessage,
   Message,
   MessageType,
+  ResolveImportRequest,
+  ResolveImportResponse,
 } from "./worker/WorkerProtocol";
 
 export enum WorkerStatus {
@@ -144,10 +144,7 @@ export class HardhatProject extends Project {
     const workerPromise = new Promise((resolve, reject) => {
       this._checkWorkerExists();
       this._checkWorkerNotInitializing();
-
-      if (this.workerStatus === WorkerStatus.ERRORED) {
-        throw new Error(this.workerLoadFailureReason);
-      }
+      this._checkWorkerNotErrored();
 
       const requestId = this._prepareRequest(resolve, reject);
 
@@ -192,16 +189,23 @@ export class HardhatProject extends Project {
     }
   }
 
-  public resolveImportPath(file: string, importPath: string) {
-    try {
-      const resolvedPath = require.resolve(importPath, {
-        paths: [fs.realpathSync(path.dirname(file))],
-      });
+  public async resolveImportPath(from: string, importPath: string) {
+    const workerPromise = new Promise((resolve, reject) => {
+      this._checkWorkerExists();
+      this._checkWorkerIsRunning();
 
-      return toUnixStyle(fs.realpathSync(resolvedPath));
-    } catch (error) {
-      return undefined;
-    }
+      // HRE was loaded successfully. Delegate to the worker that will use the configured sources path
+      const requestId = this._prepareRequest(resolve, reject);
+
+      this.workerProcess!.send(
+        new ResolveImportRequest(requestId, from, importPath, this.basePath)
+      );
+    });
+
+    return Promise.race([
+      workerPromise,
+      this._requestTimeout("fileBelongs"),
+    ]) as Promise<string>;
   }
 
   public invalidateBuildCache() {
@@ -232,6 +236,10 @@ export class HardhatProject extends Project {
 
       case MessageType.FILE_BELONGS_RESPONSE:
         this._handleFileBelongsResponse(message as FileBelongsResponse);
+        break;
+
+      case MessageType.RESOLVE_IMPORT_RESPONSE:
+        this._handleResolveImportResponse(message as ResolveImportResponse);
         break;
 
       case MessageType.BUILD_COMPILATION_RESPONSE:
@@ -299,6 +307,10 @@ export class HardhatProject extends Project {
     this._handleResponse(msg.requestId, msg.belongs);
   }
 
+  private _handleResolveImportResponse(msg: ResolveImportResponse) {
+    this._onResponse[msg.requestId](msg.path);
+  }
+
   private _handleBuildCompilationResponse(msg: BuildCompilationResponse) {
     this._handleResponse(msg.requestId, msg.compilationDetails);
   }
@@ -325,6 +337,20 @@ export class HardhatProject extends Project {
   private _checkWorkerNotInitializing() {
     if (this.workerStatus === WorkerStatus.INITIALIZING) {
       throw new Error("Worker is initializing");
+    }
+  }
+
+  private _checkWorkerIsRunning() {
+    if (this.workerStatus !== WorkerStatus.RUNNING) {
+      throw new Error(
+        `Worker is not running. Status: ${this.workerStatus}, error: ${this.workerLoadFailureReason}`
+      );
+    }
+  }
+
+  private _checkWorkerNotErrored() {
+    if (this.workerStatus === WorkerStatus.ERRORED) {
+      throw new Error(this.workerLoadFailureReason);
     }
   }
 }

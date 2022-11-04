@@ -68,12 +68,12 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
     return this;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     const searcher = this.solFileIndex[this.uri]?.searcher;
@@ -83,11 +83,8 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
     }
 
     for (const baseContract of this.astNode.baseContracts) {
-      const inheritanceNode = find(
-        baseContract,
-        this.uri,
-        this.rootPath,
-        this.solFileIndex
+      const inheritanceNode = await (
+        await find(baseContract, this.uri, this.rootPath, this.solFileIndex)
       ).accept(find, orphanNodes, this);
 
       const inheritanceNodeDefinition = inheritanceNode.getDefinitionNode();
@@ -101,11 +98,9 @@ export class ContractDefinitionNode extends AbstractContractDefinitionNode {
     }
 
     for (const subNode of this.astNode.subNodes) {
-      find(subNode, this.uri, this.rootPath, this.solFileIndex).accept(
-        find,
-        orphanNodes,
-        this
-      );
+      await (
+        await find(subNode, this.uri, this.rootPath, this.solFileIndex)
+      ).accept(find, orphanNodes, this);
     }
 
     // Find parent for orphanNodes from this contract in inheritance Nodes

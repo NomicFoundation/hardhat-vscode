@@ -18,27 +18,27 @@ export class InheritanceSpecifierNode extends Node {
     this.astNode = inheritanceSpecifier;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
-    const baseNode = find(
-      this.astNode.baseName,
-      this.uri,
-      this.rootPath,
-      this.solFileIndex
+    const baseNode = await (
+      await find(
+        this.astNode.baseName,
+        this.uri,
+        this.rootPath,
+        this.solFileIndex
+      )
     ).accept(find, orphanNodes, parent);
 
     for (const argument of this.astNode.arguments) {
-      find(argument, this.uri, this.rootPath, this.solFileIndex).accept(
-        find,
-        orphanNodes,
-        parent
-      );
+      await (
+        await find(argument, this.uri, this.rootPath, this.solFileIndex)
+      ).accept(find, orphanNodes, parent);
     }
 
     return baseNode;

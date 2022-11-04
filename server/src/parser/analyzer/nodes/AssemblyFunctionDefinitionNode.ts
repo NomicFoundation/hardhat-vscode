@@ -49,12 +49,12 @@ export class AssemblyFunctionDefinitionNode extends Node {
     return this;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     if (parent) {
@@ -64,29 +64,22 @@ export class AssemblyFunctionDefinitionNode extends Node {
     this._findChildren(orphanNodes);
 
     for (const argument of this.astNode.arguments) {
-      find(argument, this.uri, this.rootPath, this.solFileIndex).accept(
-        find,
-        orphanNodes,
-        this
-      );
+      await (
+        await find(argument, this.uri, this.rootPath, this.solFileIndex)
+      ).accept(find, orphanNodes, this);
     }
 
     for (const returnArgument of this.astNode.returnArguments) {
-      const typeNode = find(
-        returnArgument,
-        this.uri,
-        this.rootPath,
-        this.solFileIndex
+      const typeNode = await (
+        await find(returnArgument, this.uri, this.rootPath, this.solFileIndex)
       ).accept(find, orphanNodes, this);
 
       this.addTypeNode(typeNode);
     }
 
-    find(this.astNode.body, this.uri, this.rootPath, this.solFileIndex).accept(
-      find,
-      orphanNodes,
-      this
-    );
+    await (
+      await find(this.astNode.body, this.uri, this.rootPath, this.solFileIndex)
+    ).accept(find, orphanNodes, this);
 
     parent?.addChild(this);
 
