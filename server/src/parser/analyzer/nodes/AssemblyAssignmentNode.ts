@@ -18,30 +18,33 @@ export class AssemblyAssignmentNode extends Node {
     this.astNode = assemblyAssignment;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     for (const name of this.astNode.names ?? []) {
-      find(name, this.uri, this.rootPath, this.solFileIndex).accept(
-        find,
-        orphanNodes,
-        parent
+      const foundNode = await find(
+        name,
+        this.uri,
+        this.rootPath,
+        this.solFileIndex
       );
+      await foundNode.accept(find, orphanNodes, parent);
     }
 
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (this.astNode.expression) {
-      find(
+      const foundNode = await find(
         this.astNode.expression,
         this.uri,
         this.rootPath,
         this.solFileIndex
-      ).accept(find, orphanNodes, parent);
+      );
+      await foundNode.accept(find, orphanNodes, parent);
     }
 
     return this;

@@ -28,28 +28,28 @@ export class StateVariableDeclarationNode extends Node {
     return this;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     for (const variable of this.astNode.variables) {
-      find(variable, this.uri, this.rootPath, this.solFileIndex).accept(
-        find,
-        orphanNodes,
-        parent
-      );
+      await (
+        await find(variable, this.uri, this.rootPath, this.solFileIndex)
+      ).accept(find, orphanNodes, parent);
     }
 
     if (this.astNode.initialValue) {
-      find(
-        this.astNode.initialValue,
-        this.uri,
-        this.rootPath,
-        this.solFileIndex
+      await (
+        await find(
+          this.astNode.initialValue,
+          this.uri,
+          this.rootPath,
+          this.solFileIndex
+        )
       ).accept(find, orphanNodes, parent);
     }
 

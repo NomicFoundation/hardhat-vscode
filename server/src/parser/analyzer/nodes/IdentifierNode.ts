@@ -68,12 +68,12 @@ export class IdentifierNode extends AbstractIdentifierNode {
     }
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     if (expression?.type === "ImportDirective" && parent) {

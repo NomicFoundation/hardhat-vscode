@@ -18,24 +18,20 @@ export class BinaryOperationNode extends Node {
     this.astNode = binaryOperation;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
-    find(this.astNode.left, this.uri, this.rootPath, this.solFileIndex).accept(
-      find,
-      orphanNodes,
-      parent
-    );
-    find(this.astNode.right, this.uri, this.rootPath, this.solFileIndex).accept(
-      find,
-      orphanNodes,
-      parent
-    );
+    await (
+      await find(this.astNode.left, this.uri, this.rootPath, this.solFileIndex)
+    ).accept(find, orphanNodes, parent);
+    await (
+      await find(this.astNode.right, this.uri, this.rootPath, this.solFileIndex)
+    ).accept(find, orphanNodes, parent);
 
     return this;
   }

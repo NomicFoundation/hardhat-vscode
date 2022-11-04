@@ -57,12 +57,12 @@ export class StructDefinitionNode extends Node {
     return this;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     if (parent) {
@@ -70,11 +70,9 @@ export class StructDefinitionNode extends Node {
     }
 
     for (const member of this.astNode.members) {
-      find(member, this.uri, this.rootPath, this.solFileIndex).accept(
-        find,
-        orphanNodes,
-        this
-      );
+      await (
+        await find(member, this.uri, this.rootPath, this.solFileIndex)
+      ).accept(find, orphanNodes, this);
     }
 
     const rootNode = findSourceUnitNode(parent);

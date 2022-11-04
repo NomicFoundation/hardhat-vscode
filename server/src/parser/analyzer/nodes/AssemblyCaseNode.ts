@@ -13,12 +13,12 @@ export class AssemblyCaseNode extends Node {
     this.astNode = assemblyCase;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     if (parent) {
@@ -26,19 +26,18 @@ export class AssemblyCaseNode extends Node {
     }
 
     if (this.astNode.value) {
-      find(
+      const foundNode = await find(
         this.astNode.value,
         this.uri,
         this.rootPath,
         this.solFileIndex
-      ).accept(find, orphanNodes, this);
+      );
+      await foundNode.accept(find, orphanNodes, this);
     }
 
-    find(this.astNode.block, this.uri, this.rootPath, this.solFileIndex).accept(
-      find,
-      orphanNodes,
-      this
-    );
+    await (
+      await find(this.astNode.block, this.uri, this.rootPath, this.solFileIndex)
+    ).accept(find, orphanNodes, this);
 
     parent?.addChild(this);
 

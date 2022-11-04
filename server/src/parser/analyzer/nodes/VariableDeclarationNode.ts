@@ -56,12 +56,12 @@ export class VariableDeclarationNode extends AbstractVariableDeclarationNode {
     return this;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     if (parent) {
@@ -69,11 +69,13 @@ export class VariableDeclarationNode extends AbstractVariableDeclarationNode {
     }
 
     if (this.astNode.typeName) {
-      let typeNode = find(
-        this.astNode.typeName,
-        this.uri,
-        this.rootPath,
-        this.solFileIndex
+      let typeNode = await (
+        await find(
+          this.astNode.typeName,
+          this.uri,
+          this.rootPath,
+          this.solFileIndex
+        )
       ).accept(find, orphanNodes, this);
 
       this.addTypeNode(typeNode);

@@ -13,25 +13,29 @@ export class MappingNode extends Node {
     this.astNode = mapping;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
-    find(
-      this.astNode.keyType,
-      this.uri,
-      this.rootPath,
-      this.solFileIndex
+    await (
+      await find(
+        this.astNode.keyType,
+        this.uri,
+        this.rootPath,
+        this.solFileIndex
+      )
     ).accept(find, orphanNodes, parent);
-    const typeNode = find(
-      this.astNode.valueType,
-      this.uri,
-      this.rootPath,
-      this.solFileIndex
+    const typeNode = await (
+      await find(
+        this.astNode.valueType,
+        this.uri,
+        this.rootPath,
+        this.solFileIndex
+      )
     ).accept(find, orphanNodes, parent);
 
     this.addTypeNode(typeNode);

@@ -16,6 +16,13 @@ suite("Single-file Navigation", function () {
     "main/contracts/definition/ImportTest.sol"
   );
 
+  const circular1Uri = getTestContractUri(
+    "main/contracts/definition/Circular1.sol"
+  );
+  const circular2Uri = getTestContractUri(
+    "main/contracts/definition/Circular2.sol"
+  );
+
   test("[Single-file] - Go to Definition", async () => {
     await openFileInEditor(testUri);
 
@@ -105,6 +112,30 @@ suite("Single-file Navigation", function () {
     assertPositionEqual(
       getCurrentEditor().selection.active,
       new vscode.Position(3, 0)
+    );
+  });
+
+  test("Circular dependencies navigation", async () => {
+    await openFileInEditor(circular1Uri);
+
+    goToPosition(new vscode.Position(6, 6));
+
+    await vscode.commands.executeCommand("editor.action.goToDeclaration");
+
+    await assertCurrentTabFile(circular2Uri.fsPath);
+    assertPositionEqual(
+      getCurrentEditor().selection.active,
+      new vscode.Position(5, 9)
+    );
+
+    goToPosition(new vscode.Position(3, 14));
+
+    await vscode.commands.executeCommand("editor.action.goToDeclaration");
+
+    await assertCurrentTabFile(circular1Uri.fsPath);
+    assertPositionEqual(
+      getCurrentEditor().selection.active,
+      new vscode.Position(1, 0)
     );
   });
 });

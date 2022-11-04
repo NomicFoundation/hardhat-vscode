@@ -18,20 +18,26 @@ export class ArrayTypeNameNode extends Node {
     this.astNode = arrayTypeName;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
-    const typeNode = find(
+    const foundTypeNode = await find(
       this.astNode.baseTypeName,
       this.uri,
       this.rootPath,
       this.solFileIndex
-    ).accept(find, orphanNodes, parent, this);
+    );
+    const typeNode = await foundTypeNode.accept(
+      find,
+      orphanNodes,
+      parent,
+      this
+    );
 
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (typeNode) {

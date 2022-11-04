@@ -85,7 +85,7 @@ export class FoundryProject extends Project {
     }
   }
 
-  public resolveImportPath(file: string, importPath: string) {
+  public async resolveImportPath(file: string, importPath: string) {
     try {
       let transformedPath = importPath;
 

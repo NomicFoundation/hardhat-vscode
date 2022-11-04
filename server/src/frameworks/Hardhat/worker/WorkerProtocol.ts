@@ -9,6 +9,8 @@ export enum MessageType {
   ERROR_RESPONSE,
   FILE_BELONGS_REQUEST,
   FILE_BELONGS_RESPONSE,
+  RESOLVE_IMPORT_REQUEST,
+  RESOLVE_IMPORT_RESPONSE,
   BUILD_COMPILATION_REQUEST,
   BUILD_COMPILATION_RESPONSE,
   INITIALIZATION_FAILURE,
@@ -62,6 +64,26 @@ export class FileBelongsRequest extends RequestMessage {
 export class FileBelongsResponse extends ResponseMessage {
   public type = MessageType.FILE_BELONGS_RESPONSE;
   constructor(requestId: number, public belongs: boolean) {
+    super(requestId);
+  }
+}
+
+export class ResolveImportRequest extends RequestMessage {
+  public type = MessageType.RESOLVE_IMPORT_REQUEST;
+
+  constructor(
+    requestId: number,
+    public from: string,
+    public importPath: string,
+    public projectBasePath: string
+  ) {
+    super(requestId);
+  }
+}
+
+export class ResolveImportResponse extends ResponseMessage {
+  public type = MessageType.RESOLVE_IMPORT_RESPONSE;
+  constructor(requestId: number, public path: string | undefined) {
     super(requestId);
   }
 }

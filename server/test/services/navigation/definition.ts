@@ -226,7 +226,6 @@ describe("Parser", () => {
             documents: [
               { uri: parentUri, analyze: true },
               { uri: childUri, analyze: true },
-              { uri: parentUri, analyze: true },
             ],
             errors: [],
           }));

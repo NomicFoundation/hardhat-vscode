@@ -80,12 +80,12 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
     return this;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     if (parent) {
@@ -102,49 +102,41 @@ export class FunctionDefinitionNode extends AbstractFunctionDefinitionNode {
     this._findChildren(orphanNodes);
 
     for (const override of this.astNode.override || []) {
-      find(override, this.uri, this.rootPath, this.solFileIndex).accept(
-        find,
-        orphanNodes,
-        this
-      );
+      await (
+        await find(override, this.uri, this.rootPath, this.solFileIndex)
+      ).accept(find, orphanNodes, this);
     }
 
     for (const param of this.astNode.parameters) {
-      find(param, this.uri, this.rootPath, this.solFileIndex).accept(
-        find,
-        orphanNodes,
-        this
-      );
+      await (
+        await find(param, this.uri, this.rootPath, this.solFileIndex)
+      ).accept(find, orphanNodes, this);
     }
 
     for (const returnParam of this.astNode.returnParameters ?? []) {
-      const typeNode = find(
-        returnParam,
-        this.uri,
-        this.rootPath,
-        this.solFileIndex
+      const typeNode = await (
+        await find(returnParam, this.uri, this.rootPath, this.solFileIndex)
       ).accept(find, orphanNodes, this);
 
       this.addTypeNode(typeNode);
     }
 
     for (const modifier of this.astNode.modifiers ?? []) {
-      const typeNode = find(
-        modifier,
-        this.uri,
-        this.rootPath,
-        this.solFileIndex
+      const typeNode = await (
+        await find(modifier, this.uri, this.rootPath, this.solFileIndex)
       ).accept(find, orphanNodes, this);
 
       this.addTypeNode(typeNode);
     }
 
     if (this.astNode.body) {
-      find(
-        this.astNode.body,
-        this.uri,
-        this.rootPath,
-        this.solFileIndex
+      await (
+        await find(
+          this.astNode.body,
+          this.uri,
+          this.rootPath,
+          this.solFileIndex
+        )
       ).accept(find, orphanNodes, this);
     }
 

@@ -41,20 +41,18 @@ export class ModifierInvocationNode extends Node {
     }
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     for (const argument of this.astNode.arguments || []) {
-      find(argument, this.uri, this.rootPath, this.solFileIndex).accept(
-        find,
-        orphanNodes,
-        parent
-      );
+      await (
+        await find(argument, this.uri, this.rootPath, this.solFileIndex)
+      ).accept(find, orphanNodes, parent);
     }
 
     if (!parent) {

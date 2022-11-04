@@ -5,11 +5,11 @@ import { ServerState } from "../types";
 import { LookupResult } from "./lookupEntryForUri";
 import { getUriFromDocument } from "./index";
 
-export function applyEditToDocumentAnalyzer(
+export async function applyEditToDocumentAnalyzer(
   serverState: ServerState,
   uri: string,
   edit: (document: TextDocument) => string
-): LookupResult {
+): Promise<LookupResult> {
   const document = serverState.documents.get(uri);
 
   if (!document) {
@@ -23,7 +23,7 @@ export function applyEditToDocumentAnalyzer(
   const newDocumentText = edit(document);
 
   const solFileEntry = getOrInitialiseSolFileEntry(serverState, documentURI);
-  analyzeSolFile(serverState, solFileEntry, newDocumentText);
+  await analyzeSolFile(serverState, solFileEntry, newDocumentText);
 
   if (!solFileEntry.isAnalyzed()) {
     return {

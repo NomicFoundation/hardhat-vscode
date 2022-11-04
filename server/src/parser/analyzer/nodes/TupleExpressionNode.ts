@@ -18,21 +18,19 @@ export class TupleExpressionNode extends Node {
     this.astNode = tupleExpression;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     for (const component of this.astNode.components) {
       if (component) {
-        find(component, this.uri, this.rootPath, this.solFileIndex).accept(
-          find,
-          orphanNodes,
-          parent
-        );
+        await (
+          await find(component, this.uri, this.rootPath, this.solFileIndex)
+        ).accept(find, orphanNodes, parent);
       }
     }
 
