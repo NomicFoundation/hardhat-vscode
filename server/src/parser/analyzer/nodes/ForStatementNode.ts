@@ -17,12 +17,12 @@ export class ForStatementNode extends Node {
     return undefined;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     if (parent) {
@@ -30,38 +30,42 @@ export class ForStatementNode extends Node {
     }
 
     if (this.astNode.initExpression) {
-      find(
-        this.astNode.initExpression,
-        this.uri,
-        this.rootPath,
-        this.solFileIndex
+      await (
+        await find(
+          this.astNode.initExpression,
+          this.uri,
+          this.rootPath,
+          this.solFileIndex
+        )
       ).accept(find, orphanNodes, this);
     }
 
     if (this.astNode.conditionExpression) {
-      find(
-        this.astNode.conditionExpression,
-        this.uri,
-        this.rootPath,
-        this.solFileIndex
+      await (
+        await find(
+          this.astNode.conditionExpression,
+          this.uri,
+          this.rootPath,
+          this.solFileIndex
+        )
       ).accept(find, orphanNodes, this);
     }
 
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (this.astNode.loopExpression) {
-      find(
-        this.astNode.loopExpression,
-        this.uri,
-        this.rootPath,
-        this.solFileIndex
+      await (
+        await find(
+          this.astNode.loopExpression,
+          this.uri,
+          this.rootPath,
+          this.solFileIndex
+        )
       ).accept(find, orphanNodes, this);
     }
 
-    find(this.astNode.body, this.uri, this.rootPath, this.solFileIndex).accept(
-      find,
-      orphanNodes,
-      this
-    );
+    await (
+      await find(this.astNode.body, this.uri, this.rootPath, this.solFileIndex)
+    ).accept(find, orphanNodes, this);
 
     parent?.addChild(this);
 

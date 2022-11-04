@@ -34,7 +34,7 @@ export class ProjectlessProject extends Project {
     return true;
   }
 
-  public resolveImportPath(file: string, importPath: string) {
+  public async resolveImportPath(file: string, importPath: string) {
     try {
       const resolvedPath = require.resolve(importPath, {
         paths: [fs.realpathSync(path.dirname(file))],

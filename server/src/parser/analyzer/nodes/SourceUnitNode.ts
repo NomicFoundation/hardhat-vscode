@@ -23,12 +23,12 @@ export class SourceUnitNode extends AbstractSourceUnitNode {
     return undefined;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     const documentAnalyzer = this.solFileIndex[this.uri];
@@ -47,11 +47,9 @@ export class SourceUnitNode extends AbstractSourceUnitNode {
     }
 
     for (const child of this.astNode.children) {
-      find(child, this.uri, this.rootPath, this.solFileIndex).accept(
-        find,
-        orphanNodes,
-        this
-      );
+      await (
+        await find(child, this.uri, this.rootPath, this.solFileIndex)
+      ).accept(find, orphanNodes, this);
     }
 
     return this;

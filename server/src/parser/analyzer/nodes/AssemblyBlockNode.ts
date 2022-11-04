@@ -18,12 +18,12 @@ export class AssemblyBlockNode extends Node {
     this.astNode = assemblyBlock;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     if (parent) {
@@ -31,11 +31,13 @@ export class AssemblyBlockNode extends Node {
     }
 
     for (const operation of this.astNode.operations ?? []) {
-      find(operation, this.uri, this.rootPath, this.solFileIndex).accept(
-        find,
-        orphanNodes,
-        this
+      const foundNode = await find(
+        operation,
+        this.uri,
+        this.rootPath,
+        this.solFileIndex
       );
+      await foundNode.accept(find, orphanNodes, this);
     }
 
     parent?.addChild(this);

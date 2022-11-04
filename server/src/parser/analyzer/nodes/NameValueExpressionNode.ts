@@ -18,25 +18,29 @@ export class NameValueExpressionNode extends Node {
     this.astNode = nameValueExpression;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
-    find(
-      this.astNode.expression,
-      this.uri,
-      this.rootPath,
-      this.solFileIndex
+    await (
+      await find(
+        this.astNode.expression,
+        this.uri,
+        this.rootPath,
+        this.solFileIndex
+      )
     ).accept(find, orphanNodes, parent);
-    find(
-      this.astNode.arguments,
-      this.uri,
-      this.rootPath,
-      this.solFileIndex
+    await (
+      await find(
+        this.astNode.arguments,
+        this.uri,
+        this.rootPath,
+        this.solFileIndex
+      )
     ).accept(find, orphanNodes, parent);
 
     return this;

@@ -18,20 +18,18 @@ export class NameValueListNode extends Node {
     this.astNode = nameValueList;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     for (const identifier of this.astNode.identifiers) {
-      find(identifier, this.uri, this.rootPath, this.solFileIndex).accept(
-        find,
-        orphanNodes,
-        parent
-      );
+      await (
+        await find(identifier, this.uri, this.rootPath, this.solFileIndex)
+      ).accept(find, orphanNodes, parent);
     }
     return this;
   }

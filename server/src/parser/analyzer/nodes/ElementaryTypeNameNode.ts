@@ -25,12 +25,12 @@ export class ElementaryTypeNameNode extends Node {
     // TO-DO: Implement name location for rename
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
     // TO-DO: Method not implemented
     return this;

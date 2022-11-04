@@ -66,12 +66,12 @@ export class UserDefinedTypeNameNode extends Node {
     }
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     if (!parent) {

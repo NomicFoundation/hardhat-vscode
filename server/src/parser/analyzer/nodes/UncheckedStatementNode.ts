@@ -18,21 +18,23 @@ export class UncheckedStatementNode extends Node {
     this.astNode = uncheckedStatement;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
     if (this.astNode.block) {
-      find(
-        this.astNode.block,
-        this.uri,
-        this.rootPath,
-        this.solFileIndex
+      await (
+        await find(
+          this.astNode.block,
+          this.uri,
+          this.rootPath,
+          this.solFileIndex
+        )
       ).accept(find, orphanNodes, parent);
     }
 

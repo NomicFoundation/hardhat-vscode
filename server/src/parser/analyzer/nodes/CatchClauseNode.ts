@@ -13,12 +13,12 @@ export class CatchClauseNode extends Node {
     this.astNode = catchClause;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     if (parent) {
@@ -26,18 +26,14 @@ export class CatchClauseNode extends Node {
     }
 
     for (const param of this.astNode.parameters || []) {
-      find(param, this.uri, this.rootPath, this.solFileIndex).accept(
-        find,
-        orphanNodes,
-        this
-      );
+      await (
+        await find(param, this.uri, this.rootPath, this.solFileIndex)
+      ).accept(find, orphanNodes, this);
     }
 
-    find(this.astNode.body, this.uri, this.rootPath, this.solFileIndex).accept(
-      find,
-      orphanNodes,
-      this
-    );
+    await (
+      await find(this.astNode.body, this.uri, this.rootPath, this.solFileIndex)
+    ).accept(find, orphanNodes, this);
 
     parent?.addChild(this);
 

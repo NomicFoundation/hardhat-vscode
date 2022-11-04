@@ -13,45 +13,41 @@ export class TryStatementNode extends Node {
     this.astNode = tryStatement;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     if (parent) {
       this.setParent(parent);
     }
 
-    find(
-      this.astNode.expression,
-      this.uri,
-      this.rootPath,
-      this.solFileIndex
+    await (
+      await find(
+        this.astNode.expression,
+        this.uri,
+        this.rootPath,
+        this.solFileIndex
+      )
     ).accept(find, orphanNodes, this);
 
     for (const returnParameter of this.astNode.returnParameters || []) {
-      find(returnParameter, this.uri, this.rootPath, this.solFileIndex).accept(
-        find,
-        orphanNodes,
-        this
-      );
+      await (
+        await find(returnParameter, this.uri, this.rootPath, this.solFileIndex)
+      ).accept(find, orphanNodes, this);
     }
 
-    find(this.astNode.body, this.uri, this.rootPath, this.solFileIndex).accept(
-      find,
-      orphanNodes,
-      this
-    );
+    await (
+      await find(this.astNode.body, this.uri, this.rootPath, this.solFileIndex)
+    ).accept(find, orphanNodes, this);
 
     for (const catchClause of this.astNode.catchClauses ?? []) {
-      find(catchClause, this.uri, this.rootPath, this.solFileIndex).accept(
-        find,
-        orphanNodes,
-        this
-      );
+      await (
+        await find(catchClause, this.uri, this.rootPath, this.solFileIndex)
+      ).accept(find, orphanNodes, this);
     }
 
     parent?.addChild(this);

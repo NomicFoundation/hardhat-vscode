@@ -20,7 +20,7 @@ export abstract class Project {
   public abstract resolveImportPath(
     file: string,
     importPath: string
-  ): string | undefined;
+  ): Promise<string | undefined>;
 
   // Any tasks the project need to run to be in an operative state
   public abstract initialize(): Promise<void>;

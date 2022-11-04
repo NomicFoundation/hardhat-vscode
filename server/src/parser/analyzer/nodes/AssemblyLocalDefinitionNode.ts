@@ -39,16 +39,16 @@ export class AssemblyLocalDefinitionNode extends Node {
     return this;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     for (const name of this.astNode.names ?? []) {
-      const identifierNode = find(
+      const identifierNode = await find(
         name,
         this.uri,
         this.rootPath,
@@ -66,11 +66,13 @@ export class AssemblyLocalDefinitionNode extends Node {
     }
 
     if (this.astNode.expression) {
-      find(
-        this.astNode.expression,
-        this.uri,
-        this.rootPath,
-        this.solFileIndex
+      await (
+        await find(
+          this.astNode.expression,
+          this.uri,
+          this.rootPath,
+          this.solFileIndex
+        )
       ).accept(find, orphanNodes, parent);
     }
 

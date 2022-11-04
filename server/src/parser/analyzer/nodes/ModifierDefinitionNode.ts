@@ -53,12 +53,12 @@ export class ModifierDefinitionNode extends Node {
     return this;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     if (parent) {
@@ -66,27 +66,25 @@ export class ModifierDefinitionNode extends Node {
     }
 
     for (const override of this.astNode.override || []) {
-      find(override, this.uri, this.rootPath, this.solFileIndex).accept(
-        find,
-        orphanNodes,
-        this
-      );
+      await (
+        await find(override, this.uri, this.rootPath, this.solFileIndex)
+      ).accept(find, orphanNodes, this);
     }
 
     for (const param of this.astNode.parameters || []) {
-      find(param, this.uri, this.rootPath, this.solFileIndex).accept(
-        find,
-        orphanNodes,
-        this
-      );
+      await (
+        await find(param, this.uri, this.rootPath, this.solFileIndex)
+      ).accept(find, orphanNodes, this);
     }
 
     if (this.astNode.body) {
-      find(
-        this.astNode.body,
-        this.uri,
-        this.rootPath,
-        this.solFileIndex
+      await (
+        await find(
+          this.astNode.body,
+          this.uri,
+          this.rootPath,
+          this.solFileIndex
+        )
       ).accept(find, orphanNodes, this);
     }
 

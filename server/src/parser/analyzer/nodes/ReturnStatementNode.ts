@@ -18,20 +18,22 @@ export class ReturnStatementNode extends Node {
     this.astNode = returnStatement;
   }
 
-  public accept(
+  public async accept(
     find: FinderType,
     orphanNodes: Node[],
     parent?: Node,
     expression?: Node
-  ): Node {
+  ): Promise<Node> {
     this.setExpressionNode(expression);
 
     if (this.astNode.expression) {
-      find(
-        this.astNode.expression,
-        this.uri,
-        this.rootPath,
-        this.solFileIndex
+      await (
+        await find(
+          this.astNode.expression,
+          this.uri,
+          this.rootPath,
+          this.solFileIndex
+        )
       ).accept(find, orphanNodes, parent);
     }
 

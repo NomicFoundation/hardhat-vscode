@@ -42,7 +42,7 @@ export async function assertCodeAction(
 
   const solFileEntry = getOrInitialiseSolFileEntry(serverState, exampleUri);
 
-  analyzeSolFile(serverState, solFileEntry, docText);
+  await analyzeSolFile(serverState, solFileEntry, docText);
 
   const actions = compilerDiagnostic.resolveActions(
     serverState as ServerState,

@@ -18,6 +18,7 @@ import {
 } from "hardhat/builtin-tasks/task-names";
 import { SolidityFilesCache } from "hardhat/builtin-tasks/utils/solidity-files-cache";
 import { HardhatError } from "hardhat/internal/core/errors";
+import { realpathSync } from "fs";
 import { CompilationDetails } from "../../base/CompilationDetails";
 import { toUnixStyle, uriEquals } from "../../../utils";
 import { directoryContains } from "../../../utils/directoryContains";
@@ -32,6 +33,8 @@ import {
   InitializationFailureMessage,
   Message,
   MessageType,
+  ResolveImportRequest,
+  ResolveImportResponse,
 } from "./WorkerProtocol";
 
 delete process.env.HARDHAT_CONFIG; // remove hack from parent process
@@ -116,6 +119,9 @@ export class WorkerProcess {
       case MessageType.FILE_BELONGS_REQUEST:
         await this._handleFileBelongs(msg as FileBelongsRequest);
         break;
+      case MessageType.RESOLVE_IMPORT_REQUEST:
+        await this._handleResolveImport(msg as ResolveImportRequest);
+        break;
       case MessageType.BUILD_COMPILATION_REQUEST:
         await this._handleCompilationRequest(msg as BuildCompilationRequest);
         break;
@@ -147,6 +153,45 @@ export class WorkerProcess {
       directoryContains(nodeModulesPath, uri);
 
     await this.send(new FileBelongsResponse(requestId, belongs));
+  }
+
+  private async _handleResolveImport({
+    requestId,
+    from,
+    importPath,
+    projectBasePath,
+  }: ResolveImportRequest) {
+    const transformTaskName = "compile:solidity:transform-import-name";
+
+    let finalImportPath = importPath;
+    if (this.hre.tasks[transformTaskName] !== undefined) {
+      finalImportPath = await this.hre.run(transformTaskName, {
+        importName: importPath,
+      });
+    }
+
+    let resolvedPath: string | undefined;
+    // 1st try: resolve as local path, i.e. `foo/bar.sol`
+    try {
+      const requiredPath = require.resolve(finalImportPath, {
+        paths: [realpathSync(path.dirname(from))],
+      });
+
+      resolvedPath = toUnixStyle(realpathSync(requiredPath));
+    } catch (error) {
+      // 2nd try: resolve as relative path to project root, i.e. `./foo/bar.sol`
+      try {
+        const requiredPath = require.resolve(`./${finalImportPath}`, {
+          paths: [projectBasePath],
+        });
+
+        resolvedPath = toUnixStyle(realpathSync(requiredPath));
+      } catch (innerError) {
+        resolvedPath = undefined;
+      }
+    }
+
+    await this.send(new ResolveImportResponse(requestId, resolvedPath));
   }
 
   private async _handleCompilationRequest(request: BuildCompilationRequest) {
