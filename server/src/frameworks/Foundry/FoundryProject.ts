@@ -2,7 +2,11 @@
 import fs from "fs";
 import _ from "lodash";
 import path from "path";
-import { DidChangeWatchedFilesParams } from "vscode-languageserver-protocol";
+import {
+  CompletionItem,
+  DidChangeWatchedFilesParams,
+  Position,
+} from "vscode-languageserver-protocol";
 import { OpenDocuments, ServerState } from "../../types";
 import { toUnixStyle } from "../../utils";
 import { directoryContains } from "../../utils/directoryContains";
@@ -10,6 +14,7 @@ import { runCmd, runningOnWindows } from "../../utils/operatingSystem";
 import { CompilationDetails } from "../base/CompilationDetails";
 import { Project } from "../base/Project";
 import { buildBasicCompilation } from "../shared/buildBasicCompilation";
+import { getImportCompletions } from "./getImportCompletions";
 import { Remapping } from "./Remapping";
 
 export class FoundryProject extends Project {
@@ -145,6 +150,20 @@ export class FoundryProject extends Project {
       }
     }
     return;
+  }
+
+  public getImportCompletions(
+    position: Position,
+    currentImport: string
+  ): CompletionItem[] {
+    return getImportCompletions(
+      {
+        remappings: this.remappings,
+        solFileIndex: this.serverState.solFileIndex,
+      },
+      position,
+      currentImport
+    );
   }
 
   private _parseRemappings(rawRemappings: string) {
