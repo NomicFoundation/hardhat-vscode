@@ -4,12 +4,17 @@
 import { ChildProcess, fork } from "child_process";
 import _ from "lodash";
 import path from "path";
-import { DidChangeWatchedFilesParams } from "vscode-languageserver-protocol";
+import {
+  CompletionItem,
+  DidChangeWatchedFilesParams,
+  Position,
+} from "vscode-languageserver-protocol";
 import { OpenDocuments, ServerState } from "../../types";
 import { directoryContains } from "../../utils/directoryContains";
 import { Logger } from "../../utils/Logger";
 import { CompilationDetails } from "../base/CompilationDetails";
 import { Project } from "../base/Project";
+import { getImportCompletions } from "./getImportCompletions";
 import { LogLevel } from "./worker/WorkerLogger";
 import {
   BuildCompilationRequest,
@@ -210,6 +215,17 @@ export class HardhatProject extends Project {
 
   public invalidateBuildCache() {
     this.workerProcess?.send(new InvalidateBuildCacheMessage());
+  }
+
+  public getImportCompletions(
+    position: Position,
+    currentImport: string
+  ): CompletionItem[] {
+    return getImportCompletions(
+      { basePath: this.basePath, solFileIndex: this.serverState.solFileIndex },
+      position,
+      currentImport
+    );
   }
 
   private _requestTimeout(label: string) {

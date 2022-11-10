@@ -1,5 +1,6 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { TextDocumentIdentifier } from "vscode-languageserver-protocol";
+import path from "path";
 import { runningOnWindows } from "./operatingSystem";
 
 export function getUriFromDocument(
@@ -54,4 +55,8 @@ export function uriEquals(uri1: string, uri2: string) {
   return runningOnWindows()
     ? uri1.toLowerCase() === uri2.toLowerCase()
     : uri1 === uri2;
+}
+
+export function normalizeSlashes(p: string) {
+  return path.sep === "\\" ? p.replace(/\\/g, "/") : p;
 }
