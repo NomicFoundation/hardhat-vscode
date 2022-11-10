@@ -9,7 +9,6 @@ import {
 } from "@common/types";
 import { Logger } from "@utils/Logger";
 import { toUnixStyle } from "../../utils/index";
-import { Project } from "../../frameworks/base/Project";
 import { ProjectContext } from "./types";
 
 export function getImportPathCompletion(
@@ -19,6 +18,7 @@ export function getImportPathCompletion(
   { logger }: { logger: Logger }
 ): CompletionItem[] {
   const currentImport = node.astNode.path.replace("_;", "");
+
   const importPath = toUnixStyle(path.join(node.realUri, "..", currentImport));
 
   let items: CompletionItem[];
@@ -32,10 +32,12 @@ export function getImportPathCompletion(
       logger
     );
 
-    const indexNodeModuleFolders =
-      getIndexedNodeModuleFolderCompletions(projCtx);
+    const projectImportCompletions = projCtx.project.getImportCompletions(
+      position,
+      currentImport
+    );
 
-    items = relativeImports.concat(indexNodeModuleFolders);
+    items = relativeImports.concat(projectImportCompletions);
   } else if (isRelativeImport(currentImport)) {
     items = getRelativeImportPathCompletions(
       position,
@@ -45,7 +47,7 @@ export function getImportPathCompletion(
       logger
     );
   } else {
-    items = getDirectImportPathCompletions(position, currentImport, projCtx);
+    items = projCtx.project.getImportCompletions(position, currentImport);
   }
 
   // Trigger auto-insertion of semicolon after import completion
@@ -108,25 +110,7 @@ function getRelativeImportPathCompletions(
   );
 }
 
-function getIndexedNodeModuleFolderCompletions(
-  projCtx: ProjectContext
-): CompletionItem[] {
-  if (!projCtx.project.basePath) {
-    return [];
-  }
-
-  const uniqueFolders = findNodeModulePackagesInIndex(projCtx);
-
-  return uniqueFolders.map(
-    (p): CompletionItem => ({
-      label: p,
-      kind: CompletionItemKind.Folder,
-      documentation: "Imports the package",
-    })
-  );
-}
-
-function replaceFor(
+export function replaceFor(
   filePath: string,
   position: VSCodePosition,
   currentImport: string
@@ -140,31 +124,6 @@ function replaceFor(
     lsp.Range.create(startingPosition, position),
     filePath
   );
-}
-
-function getDirectImportPathCompletions(
-  position: VSCodePosition,
-  currentImport: string,
-  projCtx: ProjectContext
-): CompletionItem[] {
-  const contractFilePaths =
-    currentImport.includes("/") || currentImport.includes(path.sep)
-      ? findNodeModulesContractFilesInIndex(projCtx, currentImport)
-      : findNodeModulePackagesInIndex(projCtx);
-
-  return contractFilePaths.map((pathFromNodeModules): CompletionItem => {
-    const normalizedPath = normalizeSlashes(pathFromNodeModules);
-
-    const completionItem: CompletionItem = {
-      label: normalizedPath,
-      textEdit: replaceFor(normalizedPath, position, currentImport),
-
-      kind: CompletionItemKind.Module,
-      documentation: "Imports the package",
-    };
-
-    return completionItem;
-  });
 }
 
 function getCompletionsFromFiles(
@@ -281,74 +240,4 @@ function convertFileToCompletion(
     logger.error(err);
     return null;
   }
-}
-
-function findNodeModulePackagesInIndex({
-  project,
-  solFileIndex,
-}: ProjectContext): string[] {
-  const nodeModulePaths = resolvePotentialNodeModulesPathsFor(project);
-
-  let modulePackages: string[] = [];
-  for (const nodeModulesPath of nodeModulePaths) {
-    const allNodeModulePaths = Object.keys(solFileIndex)
-      .filter((p) => p.startsWith(nodeModulesPath))
-      .map((p) => p.replace(nodeModulesPath, ""));
-
-    const uniqueFolders = Array.from(
-      new Set(allNodeModulePaths.map((p) => p.split("/")[1]))
-    );
-
-    modulePackages = modulePackages.concat(uniqueFolders);
-  }
-
-  return Array.from(new Set(modulePackages));
-}
-
-function resolvePotentialNodeModulesPathsFor(project: Project): string[] {
-  let current = project.basePath;
-  const nodeModulesPaths = [];
-
-  while (current !== "/") {
-    const previous = current;
-
-    const potentialPath = toUnixStyle(path.join(current, "node_modules"));
-    nodeModulesPaths.push(potentialPath);
-
-    current = path.resolve(current, "..");
-
-    if (previous === current) {
-      break;
-    }
-  }
-
-  return nodeModulesPaths;
-}
-
-function findNodeModulesContractFilesInIndex(
-  { project, solFileIndex }: ProjectContext,
-  currentImport: string
-): string[] {
-  const nodeModulesPaths = resolvePotentialNodeModulesPathsFor(project);
-
-  let allContractFilePaths: string[] = [];
-  for (const nodeModulesPath of nodeModulesPaths) {
-    const basePath = toUnixStyle(path.join(nodeModulesPath, path.sep));
-
-    const basePathWithCurrentImport = toUnixStyle(
-      path.join(basePath, currentImport)
-    );
-
-    const contractFilePaths = Object.keys(solFileIndex)
-      .filter((fullPath) => fullPath.startsWith(basePathWithCurrentImport))
-      .map((fullPath) => fullPath.replace(basePath, ""));
-
-    allContractFilePaths = allContractFilePaths.concat(contractFilePaths);
-  }
-
-  return allContractFilePaths;
-}
-
-function normalizeSlashes(p: string) {
-  return path.sep === "\\" ? p.replace(/\\/g, "/") : p;
 }

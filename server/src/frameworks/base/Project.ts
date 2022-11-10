@@ -1,4 +1,5 @@
 import { DidChangeWatchedFilesParams } from "vscode-languageserver-protocol";
+import { CompletionItem, Position } from "vscode-languageserver-types";
 import { OpenDocuments, ServerState } from "../../types";
 import { CompilationDetails } from "./CompilationDetails";
 
@@ -40,5 +41,12 @@ export abstract class Project {
 
   public invalidateBuildCache() {
     // to be overriden if necessary
+  }
+
+  public getImportCompletions(
+    _position: Position,
+    _currentImport: string
+  ): CompletionItem[] {
+    return [];
   }
 }
