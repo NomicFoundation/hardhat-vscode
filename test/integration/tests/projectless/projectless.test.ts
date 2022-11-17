@@ -14,7 +14,7 @@ import { sleep } from "../../helpers/sleep";
 
 suite("projectless", function () {
   this.beforeEach(async () => {
-    await sleep(1000);
+    await sleep(2000);
   });
 
   test("[navigation] jump to definition", async () => {
