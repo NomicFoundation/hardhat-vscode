@@ -143,30 +143,30 @@ export async function validate(
 function sendResults(
   serverState: ServerState,
   change: TextDocumentChangeEvent<TextDocument>,
-  completeMessage: ValidationResult,
+  validationResult: ValidationResult,
   openDocuments: OpenDocuments,
   projectBasePath: string
 ) {
-  switch (completeMessage.status) {
+  switch (validationResult.status) {
     case "JOB_COMPLETION_ERROR":
-      jobCompletionErrorFail(serverState, change, completeMessage);
+      jobCompletionErrorFail(serverState, change, validationResult);
       break;
     case "VALIDATION_FAIL":
-      validationFail(serverState, change, completeMessage);
+      validationFail(serverState, change, validationResult);
       break;
     case "VALIDATION_PASS":
-      validationPass(serverState, change, completeMessage, openDocuments);
+      validationPass(serverState, change, validationResult, openDocuments);
       break;
     case "BUILD_INPUT_ERROR":
       handleBuildInputError(
         serverState,
         change,
-        completeMessage,
+        validationResult,
         projectBasePath
       );
       break;
     default:
-      assertUnknownMessageStatus(completeMessage);
+      assertUnknownMessageStatus(validationResult);
       break;
   }
 }
