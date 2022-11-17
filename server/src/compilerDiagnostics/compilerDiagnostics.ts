@@ -8,6 +8,7 @@ import { MarkContractAbstract } from "./diagnostics/MarkContractAbstract";
 import { SpecifyVisibility } from "./diagnostics/SpecifyVisibility";
 import { SpecifyCompilerVersion } from "./diagnostics/SpecifyCompilerVersion";
 import { CompilerDiagnostic } from "./types";
+import { SpecifyDataLocation } from "./diagnostics/SpecifyDataLocation";
 
 export const compilerDiagnostics: { [key: string]: CompilerDiagnostic } = [
   new AddOverrideSpecifier(),
@@ -19,4 +20,5 @@ export const compilerDiagnostics: { [key: string]: CompilerDiagnostic } = [
   new MarkContractAbstract(),
   new SpecifyVisibility(),
   new SpecifyCompilerVersion(),
+  new SpecifyDataLocation(),
 ].reduce((acc, item) => ({ ...acc, [item.code]: item }), {});
