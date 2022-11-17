@@ -154,6 +154,12 @@ When no license is specified on a contract, the `solidity(1878)` warning is rais
 
 ![Add pragma solidity](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/add-pragma.gif "Add pragma solidity")
 
+#### Specifying data location for variables
+
+Some types require you to specify a data location (memory, storage, calldata), depending on where they are defined. The available code actions allow the user to add, change or remove data locations depending on the error being raised.
+
+![Data location quickfix](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/data-location.gif "Specify data location")
+
 ### Commands
 
 #### Compile project
