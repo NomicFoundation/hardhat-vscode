@@ -25,7 +25,7 @@ export function run(): Promise<void> {
       },
     },
     timeout: 30000,
-    retries: 1,
+    retries: 5,
   });
 
   const testsRoot = path.resolve(__dirname, "tests");

@@ -98,7 +98,7 @@ class Client implements IClient {
     await this.client.onReady();
 
     // Wait for analyzer to indexing all files
-    await sleep(5000);
+    await sleep(10000);
   }
 
   public async changeDocument(docUri: vscode.Uri) {

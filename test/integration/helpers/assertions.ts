@@ -118,7 +118,7 @@ export async function checkOrWaitDiagnostic(
   });
 }
 
-const TIMEOUT = 10000;
+const TIMEOUT = 20000;
 export async function assertCurrentTabFile(expectedUri: string) {
   const start = new Date().getTime();
   let currentUri = "";

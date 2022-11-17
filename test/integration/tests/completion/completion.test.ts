@@ -72,7 +72,7 @@ suite("completion", function () {
     const document = editor.document;
 
     await type(document, "import '@");
-    await sleep(2000);
+    await sleep(3000);
     await vscode.commands.executeCommand("acceptSelectedSuggestion");
     await waitForUI();
     assert.equal(document.getText(), "import '@lib';");

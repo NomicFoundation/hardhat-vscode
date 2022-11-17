@@ -12,6 +12,9 @@ export class CompilationService {
     const hre = this._getHRE();
     const { input } = compilationDetails;
 
+    // This makes the compilation up to 10x faster
+    delete (input.settings as any).outputSelection;
+
     // Find or download solc compiler
     const { compilerPath } = await hre.run("compile:solidity:solc:get-build", {
       solcVersion: compilationDetails.solcVersion,
