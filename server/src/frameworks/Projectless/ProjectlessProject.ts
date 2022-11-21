@@ -23,7 +23,7 @@ export class ProjectlessProject extends Project {
   }
 
   public frameworkName(): string {
-    return "Projectless";
+    return "None";
   }
 
   public async initialize(): Promise<void> {
