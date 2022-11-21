@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.6.0 - 2022-11-21
+
+### Added
+
+- Validation for "standalone" solidity files not belonging to any project
+- Experimental support for pure foundry projects and hybrid hardhat - foundry projects.
+- Faster validation by tuning solc settings
+
+### Fixed
+
+- Validation blocked on the entire project when there's an invalid import on a single file ([#238](https://github.com/NomicFoundation/hardhat-vscode/issues/238))
+- "Validator blocked" error before extension finished analysis stage
+- Improved error messaging on failure to load hardhat
+
 ## 0.5.5 - 2022-10-06
 
 ### Fixed
