@@ -8,6 +8,7 @@ import {
 import { TextDocument, Range } from "vscode-languageserver-textdocument";
 import _ from "lodash";
 import path from "path";
+import { URI } from "vscode-uri";
 import { decodeUriAndRemoveFilePrefix, toUnixStyle } from "../../utils/index";
 import {
   JobCompletionError,
@@ -26,7 +27,6 @@ import { CompilationDetails } from "../../frameworks/base/CompilationDetails";
 import { DiagnosticConverter } from "./DiagnosticConverter";
 import { CompilationService } from "./CompilationService";
 import { OutputConverter } from "./OutputConverter";
-
 export async function validate(
   serverState: ServerState,
   change: TextDocumentChangeEvent<TextDocument>
@@ -196,7 +196,7 @@ function handleBuildInputError(
       }));
 
     serverState.connection.sendDiagnostics({
-      uri: sourceUri,
+      uri: URI.file(sourceUri).toString(),
       diagnostics,
     });
 

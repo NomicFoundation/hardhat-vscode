@@ -390,9 +390,8 @@ export class WorkerProcess {
           ];
         } else {
           // Get uri of file with import error
-          const errorFileUri = path.join(
-            this.hre.config.paths.root,
-            error.messageArguments.from
+          const errorFileUri = toUnixStyle(
+            path.join(this.hre.config.paths.root, error.messageArguments.from)
           );
 
           // If file is in open docs, get the position of the error
