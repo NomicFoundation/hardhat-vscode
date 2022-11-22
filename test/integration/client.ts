@@ -97,7 +97,10 @@ class Client implements IClient {
 
     await this.client.onReady();
 
-    // Wait for analyzer to indexing all files
+    // while (ext.exports.isReady() !== true) {
+    //   await sleep(100);
+    // }
+
     await sleep(10000);
   }
 
