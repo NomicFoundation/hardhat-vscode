@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.6.1 - 2022-11-24
+
+### Added
+
+- Quickfixes for adding/removing data location keywords ([#281](https://github.com/NomicFoundation/hardhat-vscode/pull/281))
+
+### Changed
+
+- Update the version of `prettier-plugin-solidity` ([#282](https://github.com/NomicFoundation/hardhat-vscode/pull/282))
+
+### Fixed
+
+- Suppress errors when encountering a folder with a `.sol` ending ([#285](https://github.com/NomicFoundation/hardhat-vscode/pull/285))
+
 ## 0.6.0 - 2022-11-21
 
 ### Added
