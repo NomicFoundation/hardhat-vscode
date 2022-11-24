@@ -148,6 +148,10 @@ export async function indexSolidityFiles(
   const indexedProjects = Object.values(serverState.projects);
 
   for (const fileUri of fileUris) {
+    if (!(await serverState.workspaceFileRetriever.isFile(fileUri))) {
+      continue;
+    }
+
     let project: Project = new ProjectlessProject(
       serverState,
       path.dirname(fileUri)
