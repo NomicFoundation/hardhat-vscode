@@ -32,4 +32,8 @@ export class WorkspaceFileRetriever {
   public async readFile(documentUri: string): Promise<string> {
     return (await fs.promises.readFile(documentUri)).toString();
   }
+
+  public async isFile(fsPath: string) {
+    return (await fs.promises.stat(fsPath)).isFile();
+  }
 }

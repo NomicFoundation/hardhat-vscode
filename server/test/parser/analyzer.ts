@@ -81,6 +81,7 @@ async function runIndexing(
     },
     readFile: async () => "",
     fileExists: async () => false,
+    isFile: async () => false,
   };
 
   await indexWorkspaceFolders(
