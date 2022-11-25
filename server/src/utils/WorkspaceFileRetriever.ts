@@ -34,6 +34,10 @@ export class WorkspaceFileRetriever {
   }
 
   public async isFile(fsPath: string) {
-    return (await fs.promises.stat(fsPath)).isFile();
+    try {
+      return (await fs.promises.stat(fsPath)).isFile();
+    } catch (error) {
+      return false;
+    }
   }
 }
