@@ -1,7 +1,7 @@
 import { ISolFileEntry, TextDocument } from "@common/types";
+import { URI } from "vscode-uri";
 import { Project } from "../frameworks/base/Project";
 import { ServerState } from "../types";
-import { runningOnWindows } from "../utils/operatingSystem";
 
 export function getOpenDocumentsInProject(
   serverState: ServerState,
@@ -22,9 +22,7 @@ function lookupDocForSolFileEntry(
   serverState: ServerState,
   solFile: ISolFileEntry
 ): TextDocument | undefined {
-  const convertedUri = runningOnWindows()
-    ? `file:///${solFile.uri.replace(":", "%3A")}`
-    : `file://${solFile.uri}`;
+  const convertedUri = URI.file(solFile.uri).toString();
 
   return serverState.documents.get(convertedUri);
 }
