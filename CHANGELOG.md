@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.6.2 - 2022-11-25
+
+### Fixed
+
+- Fix issue with calling fstat on non existent files
+- Fix validation not working on files with whitespaces on their path ([#289](https://github.com/NomicFoundation/hardhat-vscode/pull/289))
+
 ## 0.6.1 - 2022-11-24
 
 ### Added
