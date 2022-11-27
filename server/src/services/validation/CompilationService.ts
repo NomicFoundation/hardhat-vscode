@@ -23,13 +23,13 @@ export class CompilationService {
 
     // Compile
     let output;
-    if(isSolcJs){
-        output = await hre.run("compile:solidity:solcjs:run", {
+    if (isSolcJs) {
+      output = await hre.run("compile:solidity:solcjs:run", {
         input,
         solcPath: compilerPath,
       });
-    }else{
-        output = await hre.run("compile:solidity:solc:run", {
+    } else {
+      output = await hre.run("compile:solidity:solc:run", {
         input,
         solcPath: compilerPath,
       });
