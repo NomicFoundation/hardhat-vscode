@@ -16,10 +16,13 @@ export class CompilationService {
     delete (input.settings as any).outputSelection;
 
     // Find or download solc compiler
-    const { compilerPath, isSolcJs } = await hre.run("compile:solidity:solc:get-build", {
-      solcVersion: compilationDetails.solcVersion,
-      quiet: true,
-    });
+    const { compilerPath, isSolcJs } = await hre.run(
+      "compile:solidity:solc:get-build",
+      {
+        solcVersion: compilationDetails.solcVersion,
+        quiet: true,
+      }
+    );
 
     // Compile
     let output;
