@@ -16,17 +16,27 @@ export class CompilationService {
     delete (input.settings as any).outputSelection;
 
     // Find or download solc compiler
-    const { compilerPath } = await hre.run("compile:solidity:solc:get-build", {
-      solcVersion: compilationDetails.solcVersion,
-      quiet: true,
-    });
+    const { compilerPath, isSolcJs } = await hre.run(
+      "compile:solidity:solc:get-build",
+      {
+        solcVersion: compilationDetails.solcVersion,
+        quiet: true,
+      }
+    );
 
     // Compile
-    const output = await hre.run("compile:solidity:solc:run", {
-      input,
-      solcPath: compilerPath,
-    });
-
+    let output;
+    if (isSolcJs) {
+      output = await hre.run("compile:solidity:solcjs:run", {
+        input,
+        solcJsPath: compilerPath,
+      });
+    } else {
+      output = await hre.run("compile:solidity:solc:run", {
+        input,
+        solcPath: compilerPath,
+      });
+    }
     // Normalize errors' sourceLocation to use utf-8 offsets instead of byte offsets
     for (const error of output.errors || []) {
       const source = input.sources[error.sourceLocation?.file];
