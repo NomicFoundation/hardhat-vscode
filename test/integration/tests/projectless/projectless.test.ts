@@ -10,13 +10,8 @@ import {
   assertPositionEqual,
   checkOrWaitDiagnostic,
 } from "../../helpers/assertions";
-import { sleep } from "../../helpers/sleep";
 
 suite("projectless", function () {
-  this.beforeEach(async () => {
-    await sleep(2000);
-  });
-
   test("[navigation] jump to definition", async () => {
     const importerUri = getTestContractUri("projectless/src/Foo.sol");
     const importedUri = getTestContractUri("projectless/lib/Quz.sol");
