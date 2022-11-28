@@ -32,7 +32,7 @@ import {
 } from "./worker/WorkerProtocol";
 
 export enum WorkerStatus {
-  UNINITIALIZED,
+  STOPPED,
   INITIALIZING,
   RUNNING,
   ERRORED,
@@ -45,7 +45,7 @@ export class HardhatProject extends Project {
 
   public workerProcess?: ChildProcess;
 
-  public workerStatus = WorkerStatus.UNINITIALIZED;
+  public workerStatus = WorkerStatus.STOPPED;
 
   public workerLoadFailureReason = "";
 
@@ -112,8 +112,15 @@ export class HardhatProject extends Project {
       });
 
       this.workerProcess.on("exit", async (code) => {
-        this.logger.error(`Child process exited: ${code}`);
-        this.workerStatus = WorkerStatus.ERRORED;
+        this.logger.info(`Child process exited: ${code}`);
+
+        // Worker may exit gracefully on restart (i.e. hardhat.config file changed)
+        if ([0, null].includes(code)) {
+          this.workerStatus = WorkerStatus.STOPPED;
+        } else {
+          this.workerStatus = WorkerStatus.ERRORED;
+        }
+
         this._onInitialized();
       });
     });
@@ -121,8 +128,8 @@ export class HardhatProject extends Project {
 
   public async fileBelongs(sourceURI: string): Promise<boolean> {
     const workerPromise = new Promise((resolve, reject) => {
-      this._checkWorkerExists();
-      this._checkWorkerNotInitializing();
+      this._assertWorkerExists();
+      this._assertWorkerNotInitializing();
 
       if (this.workerStatus === WorkerStatus.RUNNING) {
         // HRE was loaded successfully. Delegate to the worker that will use the configured sources path
@@ -147,8 +154,8 @@ export class HardhatProject extends Project {
     openDocuments: OpenDocuments
   ): Promise<CompilationDetails> {
     const workerPromise = new Promise((resolve, reject) => {
-      this._checkWorkerExists();
-      this._checkWorkerNotInitializing();
+      this._assertWorkerExists();
+      this._assertWorkerNotInitializing();
       this._checkWorkerNotErrored();
 
       const requestId = this._prepareRequest(resolve, reject);
@@ -181,7 +188,9 @@ export class HardhatProject extends Project {
   }: DidChangeWatchedFilesParams): Promise<void> {
     for (const change of changes) {
       if (change.uri.endsWith(".sol")) {
-        this.workerProcess?.send(new InvalidateBuildCacheMessage());
+        if (this._isWorkerRunning()) {
+          this.workerProcess!.send(new InvalidateBuildCacheMessage());
+        }
       } else if (change.uri === this.configPath) {
         this.logger.info(`Config file changed. Restarting worker process.`);
 
@@ -196,8 +205,8 @@ export class HardhatProject extends Project {
 
   public async resolveImportPath(from: string, importPath: string) {
     const workerPromise = new Promise((resolve, reject) => {
-      this._checkWorkerExists();
-      this._checkWorkerIsRunning();
+      this._assertWorkerExists();
+      this._assertWorkerIsRunning();
 
       // HRE was loaded successfully. Delegate to the worker that will use the configured sources path
       const requestId = this._prepareRequest(resolve, reject);
@@ -344,24 +353,28 @@ export class HardhatProject extends Project {
     }
   }
 
-  private _checkWorkerExists() {
+  private _assertWorkerExists() {
     if (this.workerProcess === undefined) {
       throw new Error("Worker process not spawned");
     }
   }
 
-  private _checkWorkerNotInitializing() {
+  private _assertWorkerNotInitializing() {
     if (this.workerStatus === WorkerStatus.INITIALIZING) {
       throw new Error("Worker is initializing");
     }
   }
 
-  private _checkWorkerIsRunning() {
-    if (this.workerStatus !== WorkerStatus.RUNNING) {
+  private _assertWorkerIsRunning() {
+    if (!this._isWorkerRunning()) {
       throw new Error(
         `Worker is not running. Status: ${this.workerStatus}, error: ${this.workerLoadFailureReason}`
       );
     }
+  }
+
+  private _isWorkerRunning() {
+    return this.workerStatus === WorkerStatus.RUNNING;
   }
 
   private _checkWorkerNotErrored() {
