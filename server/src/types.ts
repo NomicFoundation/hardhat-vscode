@@ -31,6 +31,9 @@ export interface ServerState {
   validationCount: number;
   lastValidationId: { [uri: string]: number };
   workspaceFileRetriever: WorkspaceFileRetriever;
+  cachedCompilerInfo: {
+    [solcVersion: string]: { isSolcJs: boolean; compilerPath: string };
+  };
 }
 
 export interface SolcError {

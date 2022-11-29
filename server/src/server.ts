@@ -63,6 +63,7 @@ function setupUninitializedServerState(
     validationCount: 0,
     lastValidationId: {},
     workspaceFileRetriever,
+    cachedCompilerInfo: {},
   };
 
   return serverState;
