@@ -7,22 +7,38 @@ import { CompilationDetails } from "../../frameworks/base/CompilationDetails";
 
 export class CompilationService {
   public static async compile(
+    {
+      cachedCompilerInfo,
+    }: {
+      cachedCompilerInfo: {
+        [solcVersion: string]: { isSolcJs: boolean; compilerPath: string };
+      };
+    },
     compilationDetails: CompilationDetails
   ): Promise<any> {
     const hre = this._getHRE();
-    const { input } = compilationDetails;
+    const { input, solcVersion } = compilationDetails;
 
-    // This makes the compilation up to 10x faster
+    // Empty outputSelection for faster compilation
     delete (input.settings as any).outputSelection;
 
     // Find or download solc compiler
-    const { compilerPath, isSolcJs } = await hre.run(
-      "compile:solidity:solc:get-build",
-      {
-        solcVersion: compilationDetails.solcVersion,
+    let compilerPath: string;
+    let isSolcJs: boolean;
+
+    if (cachedCompilerInfo[solcVersion] !== undefined) {
+      compilerPath = cachedCompilerInfo[solcVersion].compilerPath;
+      isSolcJs = cachedCompilerInfo[solcVersion].isSolcJs;
+    } else {
+      const solcBuild = await hre.run("compile:solidity:solc:get-build", {
+        solcVersion,
         quiet: true,
-      }
-    );
+      });
+      compilerPath = solcBuild.compilerPath;
+      isSolcJs = solcBuild.isSolcJs;
+
+      cachedCompilerInfo[solcVersion] = { compilerPath, isSolcJs };
+    }
 
     // Compile
     let output;

@@ -95,7 +95,10 @@ export async function validate(
 
       // Use bundled hardhat to compile
       await logger.trackTime("Compiling", async () => {
-        compilerOutput = await CompilationService.compile(compilationDetails!);
+        compilerOutput = await CompilationService.compile(
+          serverState,
+          compilationDetails!
+        );
       });
 
       validationResult = OutputConverter.getValidationResults(
