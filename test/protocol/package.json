@@ -9,7 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "vscode-languageserver-protocol": "~3.16.0"
+    "vscode-languageserver-protocol": "~3.16.0",
+    "vscode-uri": "^3.0.6"
   },
   "devDependencies": {
     "@types/node": "^18.11.9",
