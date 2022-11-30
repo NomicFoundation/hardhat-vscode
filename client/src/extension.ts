@@ -40,7 +40,7 @@ export async function activate(context: ExtensionContext) {
   warnOnOtherSolidityExtensions(extensionState);
 
   return {
-    isReady: () => extensionState?.indexingFinished,
+    isReady: () => !!extensionState?.client?.initializeResult,
   };
 }
 
