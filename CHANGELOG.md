@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.6.3 - 2022-12-01
+
+### Fixed
+
+- Fixed validation with solcjs ([#294](https://github.com/NomicFoundation/hardhat-vscode/issues/294))
+- Suppress output channel warnings around worker exit codes ([#298](https://github.com/NomicFoundation/hardhat-vscode/pull/298))
+
+### Changed
+
+- cache solc compiler paths for all adapters ([#299](https://github.com/NomicFoundation/hardhat-vscode/pull/299))
+
 ## 0.6.2 - 2022-11-25
 
 ### Fixed
