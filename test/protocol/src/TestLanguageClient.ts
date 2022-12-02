@@ -8,6 +8,8 @@ import {
   Diagnostic,
   DidChangeTextDocumentNotification,
   DidOpenTextDocumentNotification,
+  ImplementationParams,
+  ImplementationRequest,
   InitializedNotification,
   InitializeParams,
   InitializeRequest,
@@ -132,6 +134,19 @@ export class TestLanguageClient {
       },
     }
     const result = await this.connection!.sendRequest(ReferencesRequest.type, params)
+
+    return result ?? []
+  }
+
+  public async findImplementations(uri: string, position: Position) {
+    const params: ImplementationParams = {
+      textDocument: {
+        uri,
+      },
+      position,
+    }
+
+    const result = await this.connection!.sendRequest(ImplementationRequest.type, params)
 
     return result ?? []
   }
