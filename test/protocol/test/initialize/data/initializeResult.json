@@ -1,0 +1,35 @@
+{
+  "serverInfo": {
+    "name": "Hardhat Language Server"
+  },
+  "capabilities": {
+    "textDocumentSync": 2,
+    "completionProvider": {
+      "triggerCharacters": [
+        ".",
+        "/",
+        "\"",
+        "'"
+      ]
+    },
+    "signatureHelpProvider": {
+      "triggerCharacters": [
+        "(",
+        ","
+      ]
+    },
+    "definitionProvider": true,
+    "typeDefinitionProvider": true,
+    "referencesProvider": true,
+    "implementationProvider": true,
+    "renameProvider": true,
+    "codeActionProvider": true,
+    "hoverProvider": true,
+    "workspace": {
+      "workspaceFolders": {
+        "supported": true,
+        "changeNotifications": true
+      }
+    }
+  }
+}

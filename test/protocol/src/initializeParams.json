@@ -1,12 +1,9 @@
 {
-  "processId": 47360,
   "clientInfo": {
     "name": "Visual Studio Code",
     "version": "1.73.1"
   },
   "locale": "en-us",
-  "rootPath": "/home/antico/webapps/solidity_projects/1_smoke",
-  "rootUri": "file:///home/antico/webapps/solidity_projects/1_smoke",
   "capabilities": {
     "workspace": {
       "applyEdit": true,
@@ -398,11 +395,5 @@
     "hardhatTelemetryEnabled": true,
     "machineId": "7a74ba5bd661daf8317a6893cb3647e107a89fc53780dc443165b011315f4d74"
   },
-  "trace": "verbose",
-  "workspaceFolders": [
-    {
-      "uri": "file:///home/antico/webapps/solidity_projects/1_smoke",
-      "name": "1_smoke"
-    }
-  ]
+  "trace": "verbose"
 }
