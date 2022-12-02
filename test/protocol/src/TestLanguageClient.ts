@@ -12,7 +12,10 @@ import {
   InitializeParams,
   InitializeRequest,
   LogMessageNotification,
+  Position,
   PublishDiagnosticsNotification,
+  ReferenceParams,
+  ReferencesRequest,
 } from 'vscode-languageserver-protocol/node'
 import { toUri } from './helpers'
 import baseInitializeParams from './initializeParams.json'
@@ -116,6 +119,21 @@ export class TestLanguageClient {
         }
       }, 10)
     })
+  }
+
+  public async findReferences(uri: string, position: Position) {
+    const params: ReferenceParams = {
+      textDocument: {
+        uri,
+      },
+      position,
+      context: {
+        includeDeclaration: true,
+      },
+    }
+    const result = await this.connection!.sendRequest(ReferencesRequest.type, params)
+
+    return result ?? []
   }
 
   public clearDiagnostics() {

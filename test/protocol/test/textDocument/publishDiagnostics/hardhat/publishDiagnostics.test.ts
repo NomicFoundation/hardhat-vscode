@@ -5,7 +5,7 @@ import { getProjectPath } from '../../../helpers'
 
 let client!: TestLanguageClient
 
-describe('publishDiagnostics', () => {
+describe('[hardhat] publishDiagnostics', () => {
   beforeEach(async () => {
     client = await getInitializedClient()
     client.clearDiagnostics()

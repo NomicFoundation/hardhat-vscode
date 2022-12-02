@@ -89,6 +89,11 @@ const availableVersions = [
 ];
 
 export async function updateAvailableSolcVersions(state: ServerState) {
+  if (process.env.NODE_ENV === "test") {
+    return;
+  }
+  state.logger.info("Fetching latest solidity versions");
+
   const latestVersions = await fetchLatestVersions(state);
 
   state.solcVersions = _.union(availableVersions, latestVersions);

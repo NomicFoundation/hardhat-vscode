@@ -5,16 +5,16 @@ import initializeResult from './data/initializeResult.json'
 
 let client!: TestLanguageClient
 
-beforeEach(async () => {
-  client = buildClient(__dirname)
-  await client.start()
-})
-
-afterEach(async () => {
-  client.stop()
-})
-
 describe('initialize', () => {
+  beforeEach(async () => {
+    client = buildClient(__dirname)
+    await client.start()
+  })
+
+  afterEach(async () => {
+    client.stop()
+  })
+
   it('should return InitializeResult with capabilities', async () => {
     const result = await client.initialize()
 
