@@ -1,6 +1,7 @@
 import { DiagnosticSeverity } from 'vscode-languageserver-protocol'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
+import { getProjectPath } from '../../../helpers'
 
 let client!: TestLanguageClient
 
@@ -12,8 +13,7 @@ describe('publishDiagnostics', () => {
 
   describe('missing semicolon', function () {
     it('should publish diagnostics', async () => {
-      const documentPath =
-        '/home/antico/webapps/vscode/hh-vscode/test/integration/projects/main/contracts/diagnostics/MissingSemicolon.sol'
+      const documentPath = getProjectPath('hardhat/contracts/diagnostics/MissingSemicolon.sol')
 
       client.openDocument(documentPath)
 

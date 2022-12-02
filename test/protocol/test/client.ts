@@ -1,6 +1,7 @@
 import path from 'path'
 import { TestLanguageClient } from '../src/TestLanguageClient'
 import { Logger, LogLevel } from '../src/utils/Logger'
+import { getProjectPath } from './helpers'
 
 export function buildClient(rootPath: string) {
   const logger = new Logger(process.env.DEBUG === undefined ? LogLevel.INFO : LogLevel.TRACE)
@@ -17,7 +18,7 @@ export async function getInitializedClient() {
     return client
   }
 
-  const rootPath = path.join(__dirname, '..', '..', 'integration', 'projects')
+  const rootPath = getProjectPath('/')
 
   client = buildClient(rootPath)
 
