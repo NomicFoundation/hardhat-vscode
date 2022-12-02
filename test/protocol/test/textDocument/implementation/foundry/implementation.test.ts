@@ -18,9 +18,9 @@ describe('[foundry] implementation', () => {
 
       client.openDocument(documentPath)
 
-      const positions = await client.findImplementations(documentUri, makePosition(53, 15))
+      const locations = await client.findImplementations(documentUri, makePosition(53, 15))
 
-      expect(positions).to.deep.equal([
+      expect(locations).to.deep.equal([
         {
           uri: documentPath,
           range: makeRange(53, 11, 53, 19),

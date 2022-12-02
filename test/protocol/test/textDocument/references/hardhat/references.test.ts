@@ -18,9 +18,9 @@ describe('[hardhat] references', () => {
 
       client.openDocument(documentPath)
 
-      const positions = await client.findReferences(documentUri, makePosition(9, 14))
+      const locations = await client.findReferences(documentUri, makePosition(9, 14))
 
-      expect(positions).to.deep.equal([
+      expect(locations).to.deep.equal([
         {
           uri: documentPath,
           range: makeRange(9, 11, 9, 16),

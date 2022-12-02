@@ -5,6 +5,8 @@ import _ from 'lodash'
 import path from 'path'
 import * as rpc from 'vscode-jsonrpc/node'
 import {
+  DefinitionParams,
+  DefinitionRequest,
   Diagnostic,
   DidChangeTextDocumentNotification,
   DidOpenTextDocumentNotification,
@@ -74,7 +76,6 @@ export class TestLanguageClient {
       },
     }
     this.connection.sendNotification(DidOpenTextDocumentNotification.type, documentParams)
-    this.connection.sendNotification(DidChangeTextDocumentNotification.type, { ...documentParams, contentChanges: [] })
   }
 
   public async assertDiagnostic(documentPath: string, filter: Partial<Diagnostic>) {
@@ -147,6 +148,19 @@ export class TestLanguageClient {
     }
 
     const result = await this.connection!.sendRequest(ImplementationRequest.type, params)
+
+    return result ?? []
+  }
+
+  public async findDefinition(uri: string, position: Position) {
+    const params: DefinitionParams = {
+      textDocument: {
+        uri,
+      },
+      position,
+    }
+
+    const result = await this.connection!.sendRequest(DefinitionRequest.type, params)
 
     return result ?? []
   }

@@ -30,12 +30,12 @@ export function onDidChangeContent(serverState: ServerState) {
     analyse: {
       action: analyse,
       changeActions: {},
-      wait: 240,
+      wait: process.env.NODE_ENV === "test" ? 0 : 240,
     },
     validate: {
       action: validate,
       changeActions: {},
-      wait: 250,
+      wait: process.env.NODE_ENV === "test" ? 0 : 250,
     },
   };
 
