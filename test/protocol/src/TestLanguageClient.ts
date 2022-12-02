@@ -20,6 +20,8 @@ import {
   PublishDiagnosticsNotification,
   ReferenceParams,
   ReferencesRequest,
+  RenameParams,
+  RenameRequest,
   TypeDefinitionParams,
   TypeDefinitionRequest,
 } from 'vscode-languageserver-protocol/node'
@@ -174,6 +176,18 @@ export class TestLanguageClient {
     }
 
     return this.connection!.sendRequest(TypeDefinitionRequest.type, params)
+  }
+
+  public async rename(uri: string, position: Position, newName: string) {
+    const params: RenameParams = {
+      textDocument: {
+        uri,
+      },
+      position,
+      newName,
+    }
+
+    return this.connection!.sendRequest(RenameRequest.type, params)
   }
 
   public clearDiagnostics() {
