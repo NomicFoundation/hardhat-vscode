@@ -1,5 +1,5 @@
 {
-  "name": "integration-remappings",
+  "name": "e2e-remappings",
   "version": "1.0.0",
   "devDependencies": {
     "@openzeppelin/contracts": "4.5.0",

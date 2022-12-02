@@ -36,7 +36,8 @@ jobs:
             node_modules
             client/node_modules
             server/node_modules
-            test/integration/node_modules
+            test/e2e/node_modules
+            test/protocol/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install dependencies
@@ -55,6 +56,9 @@ jobs:
       - name: Run server tests
         run: yarn run test:codecov
 
+      - name: Run protocol tests
+        run: yarn run test:protocol
+
       - name: Cache VS Code client
         id: cache-vscode
         uses: actions/cache@v3
@@ -64,10 +68,10 @@ jobs:
           path: .vscode-test
           key: ${{ runner.os }}-vscode-1.70.2
 
-      - name: Run integration tests
+      - name: Run E2E tests
         uses: GabrielBB/xvfb-action@v1.0
         with:
-          run: yarn run test:integration
+          run: yarn run test:e2e
         env:
           CODE_VERSION: ${{ matrix.version }}
           VSCODEGO_BEFORE_RELEASE_TESTS: true

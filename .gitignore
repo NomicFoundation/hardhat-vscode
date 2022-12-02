@@ -49,7 +49,7 @@ dist/
 # nyc
 .nyc_output/
 
-# hardhat artifacts for integration tests
-test/integration/artifacts
-test/integration/cache
-test/integration/contracts
+# hardhat artifacts for e2e tests
+test/e2e/artifacts
+test/e2e/cache
+test/e2e/contracts

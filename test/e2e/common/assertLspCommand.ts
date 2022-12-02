@@ -2,13 +2,13 @@ import * as lsclient from "vscode-languageclient/node";
 import * as vscode from "vscode";
 import * as assert from "assert";
 
-import { Client, Action } from "../common/types";
 import {
   isArray,
   isDefined,
   rangeEqual,
   uriEqual,
 } from "../helpers/assertions";
+import { Client, Action } from "./types";
 
 export async function assertLspCommand(client: Client, action: Action) {
   await ensureValidationOfDoc(client, action);
