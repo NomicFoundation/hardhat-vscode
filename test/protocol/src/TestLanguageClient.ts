@@ -20,6 +20,8 @@ import {
   PublishDiagnosticsNotification,
   ReferenceParams,
   ReferencesRequest,
+  TypeDefinitionParams,
+  TypeDefinitionRequest,
 } from 'vscode-languageserver-protocol/node'
 import { toUri } from './helpers'
 import baseInitializeParams from './initializeParams.json'
@@ -160,9 +162,18 @@ export class TestLanguageClient {
       position,
     }
 
-    const result = await this.connection!.sendRequest(DefinitionRequest.type, params)
+    return this.connection!.sendRequest(DefinitionRequest.type, params)
+  }
 
-    return result ?? []
+  public async findTypeDefinition(uri: string, position: Position) {
+    const params: TypeDefinitionParams = {
+      textDocument: {
+        uri,
+      },
+      position,
+    }
+
+    return this.connection!.sendRequest(TypeDefinitionRequest.type, params)
   }
 
   public clearDiagnostics() {
