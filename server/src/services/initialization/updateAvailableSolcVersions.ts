@@ -2,7 +2,7 @@ import _ from "lodash";
 import got from "got";
 import { ServerState } from "../../types";
 
-const availableVersions = [
+export const availableVersions = [
   "0.3.6",
   "0.4.0",
   "0.4.1",
