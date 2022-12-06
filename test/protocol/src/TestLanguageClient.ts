@@ -5,6 +5,8 @@ import _ from 'lodash'
 import path from 'path'
 import * as rpc from 'vscode-jsonrpc/node'
 import {
+  CodeActionParams,
+  CodeActionRequest,
   DefinitionParams,
   DefinitionRequest,
   Diagnostic,
@@ -25,6 +27,7 @@ import {
   TypeDefinitionParams,
   TypeDefinitionRequest,
 } from 'vscode-languageserver-protocol/node'
+import { makeRange } from '../test/helpers'
 import { toUri } from './helpers'
 import baseInitializeParams from './initializeParams.json'
 import { Logger } from './utils/Logger'
@@ -106,7 +109,7 @@ export class TestLanguageClient {
 
     // Wait for the expected diagnostic to arrive
     const timeout = 2000
-    await new Promise<void>((resolve) => {
+    return new Promise<Diagnostic>((resolve) => {
       const start = new Date().getTime()
       const intervalId = setInterval(() => {
         const existingDiagnostics = this.diagnostics[uri] ?? []
@@ -120,12 +123,28 @@ export class TestLanguageClient {
           for (const existingDiagnostic of existingDiagnostics) {
             if (diagnosticMatcher(existingDiagnostic)) {
               clearInterval(intervalId)
-              resolve()
+              resolve(existingDiagnostic)
             }
           }
         }
       }, 10)
     })
+  }
+
+  public async getCodeActions(uri: string, diagnostic: Diagnostic) {
+    const params: CodeActionParams = {
+      textDocument: {
+        uri,
+      },
+      context: {
+        diagnostics: [diagnostic],
+      },
+      range: diagnostic.range,
+    }
+
+    const result = await this.connection!.sendRequest(CodeActionRequest.type, params)
+
+    return result ?? []
   }
 
   public async findReferences(uri: string, position: Position) {

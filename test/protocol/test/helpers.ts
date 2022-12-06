@@ -24,3 +24,21 @@ export function makeRange(startLine: number, startChar: number, endLine: number,
     },
   }
 }
+
+export function makeCodeAction(uri: string, title: string, range: Range, newText: string, isPreferred = false) {
+  return {
+    title,
+    edit: {
+      changes: {
+        [uri]: [
+          {
+            range,
+            newText,
+          },
+        ],
+      },
+    },
+    isPreferred,
+    kind: 'quickfix',
+  }
+}

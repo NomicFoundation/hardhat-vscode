@@ -1,3 +1,4 @@
+import { Range } from 'vscode-languageserver-protocol'
 import { URI } from 'vscode-uri'
 
 export function toUri(path: string) {
