@@ -1,4 +1,5 @@
 import { expect } from 'chai'
+import { test } from 'mocha'
 import { toUri } from '../../../../src/helpers'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
@@ -11,19 +12,17 @@ describe('[hardhat] definition', () => {
     client = await getInitializedClient()
   })
 
-  describe('[single-file] - go to definition', function () {
-    it('should go to definition', async () => {
-      const documentPath = getProjectPath('hardhat/contracts/definition/Test.sol')
-      const documentUri = toUri(documentPath)
+  test('[single-file] - go to definition', async () => {
+    const documentPath = getProjectPath('hardhat/contracts/definition/Test.sol')
+    const documentUri = toUri(documentPath)
 
-      client.openDocument(documentPath)
+    client.openDocument(documentPath)
 
-      const location = await client.findDefinition(documentUri, makePosition(14, 25))
+    const location = await client.findDefinition(documentUri, makePosition(14, 25))
 
-      expect(location).to.deep.equal({
-        uri: documentPath,
-        range: makeRange(9, 11, 9, 16),
-      })
+    expect(location).to.deep.equal({
+      uri: documentPath,
+      range: makeRange(9, 11, 9, 16),
     })
   })
 })

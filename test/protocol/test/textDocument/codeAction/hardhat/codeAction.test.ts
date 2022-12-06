@@ -2,7 +2,7 @@ import { test } from 'mocha'
 import { expect } from 'chai'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
-import { getProjectPath, makeCodeAction, makeRange } from '../../../helpers'
+import { getProjectPath, makeRange } from '../../../helpers'
 import { toUri } from '../../../../src/helpers'
 
 let client!: TestLanguageClient
@@ -23,30 +23,106 @@ describe('[hardhat][codeAction]', () => {
     const codeActions = await client.getCodeActions(documentUri, diagnostic)
 
     const expected = [
-      makeCodeAction(
-        documentUri,
-        'Add license identifier: MIT',
-        makeRange(0, 0, 0, 0),
-        '// SPDX-License-Identifier: MIT\n'
-      ),
-      makeCodeAction(
-        documentUri,
-        'Add license identifier: GPL-2.0-or-later',
-        makeRange(0, 0, 0, 0),
-        '// SPDX-License-Identifier: GPL-2.0-or-later\n'
-      ),
-      makeCodeAction(
-        documentUri,
-        'Add license identifier: GPL-3.0-or-later',
-        makeRange(0, 0, 0, 0),
-        '// SPDX-License-Identifier: GPL-3.0-or-later\n'
-      ),
-      makeCodeAction(
-        documentUri,
-        'Add license identifier: Unlicense',
-        makeRange(0, 0, 0, 0),
-        '// SPDX-License-Identifier: Unlicense\n'
-      ),
+      {
+        title: 'Add license identifier: MIT',
+        kind: 'quickfix',
+        isPreferred: false,
+        edit: {
+          changes: {
+            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/NoLicense.sol':
+              [
+                {
+                  range: {
+                    start: {
+                      character: 0,
+                      line: 0,
+                    },
+                    end: {
+                      character: 0,
+                      line: 0,
+                    },
+                  },
+                  newText: '// SPDX-License-Identifier: MIT\n',
+                },
+              ],
+          },
+        },
+      },
+      {
+        title: 'Add license identifier: GPL-2.0-or-later',
+        kind: 'quickfix',
+        isPreferred: false,
+        edit: {
+          changes: {
+            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/NoLicense.sol':
+              [
+                {
+                  range: {
+                    start: {
+                      character: 0,
+                      line: 0,
+                    },
+                    end: {
+                      character: 0,
+                      line: 0,
+                    },
+                  },
+                  newText: '// SPDX-License-Identifier: GPL-2.0-or-later\n',
+                },
+              ],
+          },
+        },
+      },
+      {
+        title: 'Add license identifier: GPL-3.0-or-later',
+        kind: 'quickfix',
+        isPreferred: false,
+        edit: {
+          changes: {
+            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/NoLicense.sol':
+              [
+                {
+                  range: {
+                    start: {
+                      character: 0,
+                      line: 0,
+                    },
+                    end: {
+                      character: 0,
+                      line: 0,
+                    },
+                  },
+                  newText: '// SPDX-License-Identifier: GPL-3.0-or-later\n',
+                },
+              ],
+          },
+        },
+      },
+      {
+        title: 'Add license identifier: Unlicense',
+        kind: 'quickfix',
+        isPreferred: false,
+        edit: {
+          changes: {
+            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/NoLicense.sol':
+              [
+                {
+                  range: {
+                    start: {
+                      character: 0,
+                      line: 0,
+                    },
+                    end: {
+                      character: 0,
+                      line: 0,
+                    },
+                  },
+                  newText: '// SPDX-License-Identifier: Unlicense\n',
+                },
+              ],
+          },
+        },
+      },
     ]
 
     expect(codeActions).to.have.deep.members(expected)
@@ -66,13 +142,31 @@ describe('[hardhat][codeAction]', () => {
     let codeActions = await client.getCodeActions(documentUri, diagnostic)
 
     let expected = [
-      makeCodeAction(
-        documentUri,
-        'Add override(...) specifier to function definition',
-        makeRange(20, 23, 20, 23),
-        ' override(Alpha, Gamma)',
-        true
-      ),
+      {
+        title: 'Add override(...) specifier to function definition',
+        kind: 'quickfix',
+        isPreferred: true,
+        edit: {
+          changes: {
+            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/AddMultioverrideSpecifier.sol':
+              [
+                {
+                  newText: ' override(Alpha, Gamma)',
+                  range: {
+                    start: {
+                      line: 20,
+                      character: 23,
+                    },
+                    end: {
+                      line: 20,
+                      character: 23,
+                    },
+                  },
+                },
+              ],
+          },
+        },
+      },
     ]
 
     expect(codeActions).to.have.deep.members(expected)
@@ -85,13 +179,31 @@ describe('[hardhat][codeAction]', () => {
     codeActions = await client.getCodeActions(documentUri, diagnostic)
 
     expected = [
-      makeCodeAction(
-        documentUri,
-        'Add missing contracts to specifier',
-        makeRange(22, 32, 22, 47),
-        'override(Alpha, Beta, Gamma)',
-        true
-      ),
+      {
+        title: 'Add missing contracts to specifier',
+        kind: 'quickfix',
+        isPreferred: true,
+        edit: {
+          changes: {
+            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/AddMultioverrideSpecifier.sol':
+              [
+                {
+                  range: {
+                    start: {
+                      line: 22,
+                      character: 32,
+                    },
+                    end: {
+                      line: 22,
+                      character: 47,
+                    },
+                  },
+                  newText: 'override(Alpha, Beta, Gamma)',
+                },
+              ],
+          },
+        },
+      },
     ]
 
     expect(codeActions).to.have.deep.members(expected)
@@ -110,13 +222,31 @@ describe('[hardhat][codeAction]', () => {
     const codeActions = await client.getCodeActions(documentUri, diagnostic)
 
     const expected = [
-      makeCodeAction(
-        documentUri,
-        'Add override specifier to function definition',
-        makeRange(22, 0, 22, 0),
-        '    override\n',
-        true
-      ),
+      {
+        title: 'Add override specifier to function definition',
+        kind: 'quickfix',
+        isPreferred: true,
+        edit: {
+          changes: {
+            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/AddOverrideSpecifier.sol':
+              [
+                {
+                  newText: '    override\n',
+                  range: {
+                    start: {
+                      line: 22,
+                      character: 0,
+                    },
+                    end: {
+                      line: 22,
+                      character: 0,
+                    },
+                  },
+                },
+              ],
+          },
+        },
+      },
     ]
 
     expect(codeActions).to.have.deep.members(expected)
