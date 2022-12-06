@@ -7,6 +7,9 @@ import * as rpc from 'vscode-jsonrpc/node'
 import {
   CodeActionParams,
   CodeActionRequest,
+  CompletionParams,
+  CompletionRequest,
+  CompletionTriggerKind,
   DefinitionParams,
   DefinitionRequest,
   Diagnostic,
@@ -145,6 +148,32 @@ export class TestLanguageClient {
     const result = await this.connection!.sendRequest(CodeActionRequest.type, params)
 
     return result ?? []
+  }
+
+  public async getCompletions(
+    uri: string,
+    line: number,
+    character: number,
+    triggerKind: CompletionTriggerKind = CompletionTriggerKind.Invoked,
+    triggerCharacter: string | undefined = undefined
+  ) {
+    const params: CompletionParams = {
+      textDocument: {
+        uri,
+      },
+      position: {
+        line,
+        character,
+      },
+      context: {
+        triggerKind,
+        triggerCharacter,
+      },
+    }
+
+    const completions = await this.connection!.sendRequest(CompletionRequest.type, params)
+
+    return completions ?? []
   }
 
   public async findReferences(uri: string, position: Position) {
