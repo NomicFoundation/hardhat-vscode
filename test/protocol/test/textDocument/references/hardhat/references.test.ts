@@ -11,6 +11,10 @@ describe('[hardhat] references', () => {
     client = await getInitializedClient()
   })
 
+  afterEach(async () => {
+    client.closeAllDocuments()
+  })
+
   describe('[single-file] - find all references', function () {
     it('should should find references', async () => {
       const documentPath = getProjectPath('hardhat/contracts/references/Test.sol')

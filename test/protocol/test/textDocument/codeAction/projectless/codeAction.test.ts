@@ -12,13 +12,17 @@ describe('[projectless][codeAction]', () => {
     client = await getInitializedClient()
   })
 
+  afterEach(async () => {
+    client.closeAllDocuments()
+  })
+
   test('add license identifier', async () => {
     const documentPath = getProjectPath('projectless/src/codeAction/NoLicense.sol')
     const documentUri = toUri(documentPath)
 
     await client.openDocument(documentPath)
 
-    const diagnostic = await client.assertDiagnostic(documentPath, { message: 'SPDX license identifier not provided' })
+    const diagnostic = await client.getDiagnostic(documentPath, { message: 'SPDX license identifier not provided' })
 
     const codeActions = await client.getCodeActions(documentUri, diagnostic)
 

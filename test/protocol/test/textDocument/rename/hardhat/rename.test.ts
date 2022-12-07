@@ -11,6 +11,10 @@ describe('[hardhat] rename', () => {
     client = await getInitializedClient()
   })
 
+  afterEach(async () => {
+    client.closeAllDocuments()
+  })
+
   describe('[single-file][identifier] - rename', function () {
     it('should rename', async () => {
       const documentPath = getProjectPath('hardhat/contracts/rename/Test.sol')

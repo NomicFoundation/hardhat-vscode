@@ -7,7 +7,7 @@ import { getProjectPath, makePosition, makeRange, sleep } from '../../../helpers
 
 let client!: TestLanguageClient
 
-describe.only('[hardhat] definition', () => {
+describe('[hardhat] definition', () => {
   let testDocPath: string
   let importDocPath: string
   let circular1DocPath: string
@@ -28,9 +28,7 @@ describe.only('[hardhat] definition', () => {
   })
 
   after(async () => {
-    client.closeDocument(testDocPath)
-    client.closeDocument(importDocPath)
-    client.closeDocument(circular1DocPath)
+    client.closeAllDocuments()
   })
 
   test('[single-file] - go to definition', async () => {

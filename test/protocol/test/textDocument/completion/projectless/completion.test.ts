@@ -12,6 +12,10 @@ describe('[projectless][completion]', () => {
     client = await getInitializedClient()
   })
 
+  afterEach(async () => {
+    client.closeAllDocuments()
+  })
+
   describe('imports', function () {
     test('relative import', async () => {
       const documentPath = getProjectPath('projectless/src/completion/A.sol')

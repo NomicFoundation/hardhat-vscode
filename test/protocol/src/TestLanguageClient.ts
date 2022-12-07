@@ -41,19 +41,22 @@ import { Logger } from './utils/Logger'
 class Document {
   public waitAnalyzed: Promise<void>
   public onAnalyzed!: (value: void) => void
+  public diagnostics: Diagnostic[] = []
 
   constructor(public uri: string, public text: string) {
     this.waitAnalyzed = new Promise<void>((resolve) => {
       this.onAnalyzed = resolve
     })
   }
+
+  public clearDiagnostics() {
+    this.diagnostics = []
+  }
 }
 
 export class TestLanguageClient {
   protected serverProcess?: cp.ChildProcess
   public connection?: rpc.MessageConnection
-  public diagnostics: Record<string, Diagnostic[]> = {}
-  // public onAnalyzed: Record<string, Promise<void>> = {} // promises that resolve once an opened file is analyzed
   public documents: Record<string, Document> = {}
 
   constructor(protected serverModulePath: string, protected workspaceFolderPaths: string[], protected logger: Logger) {}
@@ -108,9 +111,14 @@ export class TestLanguageClient {
     await document.waitAnalyzed
   }
 
-  public closeDocument(documentPath: string) {
+  public closeAllDocuments() {
+    for (const [uri] of Object.entries(this.documents)) {
+      this.closeDocument(uri)
+    }
+  }
+
+  public closeDocument(uri: string) {
     this._checkConnection()
-    const uri = toUri(documentPath)
 
     const params: DidCloseTextDocumentParams = {
       textDocument: {
@@ -127,7 +135,7 @@ export class TestLanguageClient {
   //   await this.documents[uri].waitAnalyzed
   // }
 
-  public async assertDiagnostic(documentPath: string, filter: Partial<Diagnostic>) {
+  public async getDiagnostic(documentPath: string, filter: Partial<Diagnostic>) {
     const uri = toUri(documentPath)
     // Function to check if a diagnostic matches the given filter
     const diagnosticMatcher = (diag: Diagnostic) => {
@@ -154,7 +162,7 @@ export class TestLanguageClient {
     return new Promise<Diagnostic>((resolve) => {
       const start = new Date().getTime()
       const intervalId = setInterval(() => {
-        const existingDiagnostics = this.diagnostics[uri] ?? []
+        const existingDiagnostics = this.documents[uri].diagnostics ?? []
 
         if (new Date().getTime() - start > timeout) {
           clearInterval(intervalId)
@@ -278,7 +286,9 @@ export class TestLanguageClient {
   }
 
   public clearDiagnostics() {
-    this.diagnostics = {}
+    for (const [uri, document] of Object.entries(this.documents)) {
+      document.clearDiagnostics()
+    }
   }
 
   protected _spawnServerProcess() {
@@ -327,8 +337,8 @@ export class TestLanguageClient {
 
     // textDocument/publishDiagnostics
     this.connection!.onNotification(PublishDiagnosticsNotification.type, (params) => {
-      this.logger.trace(`Diagnostic received for ${params.uri}`)
-      this.diagnostics[params.uri] = params.diagnostics
+      this.logger.trace(`Diagnostic received for ${params.uri}: ${JSON.stringify(params.diagnostics, null, 2)}`)
+      this.documents[params.uri].diagnostics = params.diagnostics
     })
   }
 

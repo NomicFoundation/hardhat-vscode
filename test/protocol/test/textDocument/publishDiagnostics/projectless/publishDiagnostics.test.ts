@@ -1,3 +1,4 @@
+import { test } from 'mocha'
 import { DiagnosticSeverity } from 'vscode-languageserver-protocol'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
@@ -11,27 +12,51 @@ describe('[projectless] publishDiagnostics', () => {
     client.clearDiagnostics()
   })
 
-  describe('missing semicolon', function () {
-    it('should publish diagnostics', async () => {
-      const documentPath = getProjectPath('projectless/src/diagnostics/MissingSemicolon.sol')
+  afterEach(async () => {
+    client.closeAllDocuments()
+  })
 
-      await client.openDocument(documentPath)
+  test('missing semicolon', async function () {
+    const documentPath = getProjectPath('projectless/src/diagnostics/MissingSemicolon.sol')
 
-      await client.assertDiagnostic(documentPath, {
-        source: 'solidity',
-        severity: DiagnosticSeverity.Error,
-        message: "Expected ';' but got '}'",
-        range: {
-          start: {
-            line: 5,
-            character: 0,
-          },
-          end: {
-            line: 5,
-            character: 1,
-          },
+    await client.openDocument(documentPath)
+
+    await client.getDiagnostic(documentPath, {
+      source: 'solidity',
+      severity: DiagnosticSeverity.Error,
+      message: "Expected ';' but got '}'",
+      range: {
+        start: {
+          line: 5,
+          character: 0,
         },
-      })
+        end: {
+          line: 5,
+          character: 1,
+        },
+      },
+    })
+  })
+
+  test('non existing import', async function () {
+    const documentPath = getProjectPath('projectless/src/diagnostics/ImportNonexistent.sol')
+
+    await client.openDocument(documentPath)
+
+    await client.getDiagnostic(documentPath, {
+      source: 'solidity',
+      severity: DiagnosticSeverity.Error,
+      message: 'File not found',
+      range: {
+        start: {
+          line: 4,
+          character: 0,
+        },
+        end: {
+          line: 4,
+          character: 27,
+        },
+      },
     })
   })
 })

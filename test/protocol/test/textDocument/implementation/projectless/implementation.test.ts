@@ -11,6 +11,10 @@ describe('[projectless] implementation', () => {
     client = await getInitializedClient()
   })
 
+  afterEach(async () => {
+    client.closeAllDocuments()
+  })
+
   describe('[single-file] - find all implementations', function () {
     it('should should find implementations', async () => {
       const documentPath = getProjectPath('projectless/src/implementation/Test.sol')

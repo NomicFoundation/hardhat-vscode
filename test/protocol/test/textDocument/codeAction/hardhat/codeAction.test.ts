@@ -12,13 +12,17 @@ describe('[hardhat][codeAction]', () => {
     client = await getInitializedClient()
   })
 
+  afterEach(async () => {
+    client.closeAllDocuments()
+  })
+
   test('add license identifier', async () => {
     const documentPath = getProjectPath('hardhat/contracts/codeAction/NoLicense.sol')
     const documentUri = toUri(documentPath)
 
     await client.openDocument(documentPath)
 
-    const diagnostic = await client.assertDiagnostic(documentPath, { message: 'SPDX license identifier not provided' })
+    const diagnostic = await client.getDiagnostic(documentPath, { message: 'SPDX license identifier not provided' })
 
     const codeActions = await client.getCodeActions(documentUri, diagnostic)
 
@@ -134,7 +138,7 @@ describe('[hardhat][codeAction]', () => {
 
     await client.openDocument(documentPath)
 
-    let diagnostic = await client.assertDiagnostic(documentPath, {
+    let diagnostic = await client.getDiagnostic(documentPath, {
       message: 'needs to specify overridden contracts',
       range: makeRange(20, 11, 20, 14),
     })
@@ -171,7 +175,7 @@ describe('[hardhat][codeAction]', () => {
 
     expect(codeActions).to.have.deep.members(expected)
 
-    diagnostic = await client.assertDiagnostic(documentPath, {
+    diagnostic = await client.getDiagnostic(documentPath, {
       message: 'needs to specify overridden contracts',
       range: makeRange(22, 32, 22, 47),
     })
@@ -215,7 +219,7 @@ describe('[hardhat][codeAction]', () => {
 
     await client.openDocument(documentPath)
 
-    const diagnostic = await client.assertDiagnostic(documentPath, {
+    const diagnostic = await client.getDiagnostic(documentPath, {
       range: makeRange(20, 11, 20, 25),
     })
 
@@ -258,7 +262,7 @@ describe('[hardhat][codeAction]', () => {
 
     await client.openDocument(documentPath)
 
-    const diagnostic = await client.assertDiagnostic(documentPath, {
+    const diagnostic = await client.getDiagnostic(documentPath, {
       range: makeRange(0, 0, 0, 0),
     })
 
@@ -301,7 +305,7 @@ describe('[hardhat][codeAction]', () => {
 
     await client.openDocument(documentPath)
 
-    const diagnostic = await client.assertDiagnostic(documentPath, {
+    const diagnostic = await client.getDiagnostic(documentPath, {
       range: makeRange(4, 11, 4, 15),
     })
 
@@ -344,7 +348,7 @@ describe('[hardhat][codeAction]', () => {
 
     await client.openDocument(documentPath)
 
-    const diagnostic = await client.assertDiagnostic(documentPath, {
+    const diagnostic = await client.getDiagnostic(documentPath, {
       range: makeRange(6, 11, 6, 21),
     })
 
@@ -387,7 +391,7 @@ describe('[hardhat][codeAction]', () => {
 
     await client.openDocument(documentPath)
 
-    const diagnostic = await client.assertDiagnostic(documentPath, {
+    const diagnostic = await client.getDiagnostic(documentPath, {
       range: makeRange(4, 11, 4, 18),
     })
 
@@ -430,7 +434,7 @@ describe('[hardhat][codeAction]', () => {
 
     await client.openDocument(documentPath)
 
-    const diagnostic = await client.assertDiagnostic(documentPath, {
+    const diagnostic = await client.getDiagnostic(documentPath, {
       range: makeRange(4, 11, 4, 21),
     })
 
@@ -473,7 +477,7 @@ describe('[hardhat][codeAction]', () => {
 
     await client.openDocument(documentPath)
 
-    const diagnostic = await client.assertDiagnostic(documentPath, {
+    const diagnostic = await client.getDiagnostic(documentPath, {
       range: makeRange(7, 9, 7, 16),
     })
 
@@ -541,7 +545,7 @@ describe('[hardhat][codeAction]', () => {
 
     await client.openDocument(documentPath)
 
-    let diagnostic = await client.assertDiagnostic(documentPath, {
+    let diagnostic = await client.getDiagnostic(documentPath, {
       range: makeRange(5, 14, 5, 26),
     })
 
@@ -602,7 +606,7 @@ describe('[hardhat][codeAction]', () => {
 
     expect(codeActions).to.have.deep.members(expected)
 
-    diagnostic = await client.assertDiagnostic(documentPath, {
+    diagnostic = await client.getDiagnostic(documentPath, {
       range: makeRange(5, 28, 5, 46),
     })
 
@@ -663,7 +667,7 @@ describe('[hardhat][codeAction]', () => {
 
     expect(codeActions).to.have.deep.members(expected)
 
-    diagnostic = await client.assertDiagnostic(documentPath, {
+    diagnostic = await client.getDiagnostic(documentPath, {
       range: makeRange(8, 15, 8, 35),
     })
 
@@ -724,7 +728,7 @@ describe('[hardhat][codeAction]', () => {
 
     expect(codeActions).to.have.deep.members(expected)
 
-    diagnostic = await client.assertDiagnostic(documentPath, {
+    diagnostic = await client.getDiagnostic(documentPath, {
       range: makeRange(8, 37, 8, 46),
     })
 
@@ -785,7 +789,7 @@ describe('[hardhat][codeAction]', () => {
 
     expect(codeActions).to.have.deep.members(expected)
 
-    diagnostic = await client.assertDiagnostic(documentPath, {
+    diagnostic = await client.getDiagnostic(documentPath, {
       range: makeRange(10, 13, 10, 18),
     })
 
@@ -846,7 +850,7 @@ describe('[hardhat][codeAction]', () => {
 
     expect(codeActions).to.have.deep.members(expected)
 
-    diagnostic = await client.assertDiagnostic(documentPath, {
+    diagnostic = await client.getDiagnostic(documentPath, {
       range: makeRange(10, 20, 10, 34),
     })
 
@@ -907,7 +911,7 @@ describe('[hardhat][codeAction]', () => {
 
     expect(codeActions).to.have.deep.members(expected)
 
-    diagnostic = await client.assertDiagnostic(documentPath, {
+    diagnostic = await client.getDiagnostic(documentPath, {
       range: makeRange(13, 4, 13, 29),
     })
 
@@ -950,7 +954,7 @@ describe('[hardhat][codeAction]', () => {
 
     await client.openDocument(documentPath)
 
-    const diagnostic = await client.assertDiagnostic(documentPath, {
+    const diagnostic = await client.getDiagnostic(documentPath, {
       range: makeRange(4, 11, 4, 14),
     })
 

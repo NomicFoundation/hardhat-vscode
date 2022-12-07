@@ -11,6 +11,10 @@ describe('[foundry] implementation', () => {
     client = await getInitializedClient()
   })
 
+  afterEach(async () => {
+    client.closeAllDocuments()
+  })
+
   describe('[single-file] - find all implementations', function () {
     it('should should find implementations', async () => {
       const documentPath = getProjectPath('foundry/src/implementation/Test.sol')

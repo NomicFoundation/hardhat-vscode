@@ -11,6 +11,10 @@ describe('[foundry] rename', () => {
     client = await getInitializedClient()
   })
 
+  afterEach(async () => {
+    client.closeAllDocuments()
+  })
+
   describe('[single-file][identifier] - rename', function () {
     it('should rename', async () => {
       const documentPath = getProjectPath('foundry/src/rename/Test.sol')

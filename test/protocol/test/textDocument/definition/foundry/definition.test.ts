@@ -11,6 +11,10 @@ describe('[foundry] definition', () => {
     client = await getInitializedClient()
   })
 
+  afterEach(async () => {
+    client.closeAllDocuments()
+  })
+
   describe('[single-file] - go to definition', function () {
     it('should go to definition', async () => {
       const documentPath = getProjectPath('foundry/src/definition/Test.sol')

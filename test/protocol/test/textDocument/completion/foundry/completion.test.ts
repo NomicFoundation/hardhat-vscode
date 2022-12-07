@@ -12,6 +12,10 @@ describe('[foundry][completion]', () => {
     client = await getInitializedClient()
   })
 
+  afterEach(async () => {
+    client.closeAllDocuments()
+  })
+
   describe('imports', function () {
     test('base lib import through remappings', async () => {
       const documentPath = getProjectPath('foundry/src/completion/Imports.sol')

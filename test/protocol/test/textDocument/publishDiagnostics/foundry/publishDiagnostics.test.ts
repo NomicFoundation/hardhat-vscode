@@ -11,13 +11,17 @@ describe('[foundry] publishDiagnostics', () => {
     client.clearDiagnostics()
   })
 
+  afterEach(async () => {
+    client.closeAllDocuments()
+  })
+
   describe('missing semicolon', function () {
     it('should publish diagnostics', async () => {
       const documentPath = getProjectPath('foundry/src/diagnostics/MissingSemicolon.sol')
 
       await client.openDocument(documentPath)
 
-      await client.assertDiagnostic(documentPath, {
+      await client.getDiagnostic(documentPath, {
         source: 'solidity',
         severity: DiagnosticSeverity.Error,
         message: "Expected ';' but got '}'",

@@ -12,6 +12,10 @@ describe('[hardhat][completion]', () => {
     client = await getInitializedClient()
   })
 
+  afterEach(async () => {
+    client.closeAllDocuments()
+  })
+
   describe('imports', function () {
     test('hardhat node_modules contract import completion on empty', async () => {
       const documentPath = getProjectPath('hardhat/contracts/completion/Imports.sol')
