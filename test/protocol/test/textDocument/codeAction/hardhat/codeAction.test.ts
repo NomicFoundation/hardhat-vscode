@@ -16,7 +16,7 @@ describe('[hardhat][codeAction]', () => {
     const documentPath = getProjectPath('hardhat/contracts/codeAction/NoLicense.sol')
     const documentUri = toUri(documentPath)
 
-    client.openDocument(documentPath)
+    await client.openDocument(documentPath)
 
     const diagnostic = await client.assertDiagnostic(documentPath, { message: 'SPDX license identifier not provided' })
 
@@ -132,7 +132,7 @@ describe('[hardhat][codeAction]', () => {
     const documentPath = getProjectPath('hardhat/contracts/codeAction/AddMultioverrideSpecifier.sol')
     const documentUri = toUri(documentPath)
 
-    client.openDocument(documentPath)
+    await client.openDocument(documentPath)
 
     let diagnostic = await client.assertDiagnostic(documentPath, {
       message: 'needs to specify overridden contracts',
@@ -213,7 +213,7 @@ describe('[hardhat][codeAction]', () => {
     const documentPath = getProjectPath('hardhat/contracts/codeAction/AddOverrideSpecifier.sol')
     const documentUri = toUri(documentPath)
 
-    client.openDocument(documentPath)
+    await client.openDocument(documentPath)
 
     const diagnostic = await client.assertDiagnostic(documentPath, {
       range: makeRange(20, 11, 20, 25),
@@ -256,7 +256,7 @@ describe('[hardhat][codeAction]', () => {
     const documentPath = getProjectPath('hardhat/contracts/codeAction/NoPragma.sol')
     const documentUri = toUri(documentPath)
 
-    client.openDocument(documentPath)
+    await client.openDocument(documentPath)
 
     const diagnostic = await client.assertDiagnostic(documentPath, {
       range: makeRange(0, 0, 0, 0),
@@ -299,7 +299,7 @@ describe('[hardhat][codeAction]', () => {
     const documentPath = getProjectPath('hardhat/contracts/codeAction/AddVirtualSpecifier.sol')
     const documentUri = toUri(documentPath)
 
-    client.openDocument(documentPath)
+    await client.openDocument(documentPath)
 
     const diagnostic = await client.assertDiagnostic(documentPath, {
       range: makeRange(4, 11, 4, 15),
@@ -342,7 +342,7 @@ describe('[hardhat][codeAction]', () => {
     const documentPath = getProjectPath('hardhat/contracts/codeAction/ConstrainMutabilityView.sol')
     const documentUri = toUri(documentPath)
 
-    client.openDocument(documentPath)
+    await client.openDocument(documentPath)
 
     const diagnostic = await client.assertDiagnostic(documentPath, {
       range: makeRange(6, 11, 6, 21),
@@ -385,7 +385,7 @@ describe('[hardhat][codeAction]', () => {
     const documentPath = getProjectPath('hardhat/contracts/codeAction/ConstrainMutabilityPure.sol')
     const documentUri = toUri(documentPath)
 
-    client.openDocument(documentPath)
+    await client.openDocument(documentPath)
 
     const diagnostic = await client.assertDiagnostic(documentPath, {
       range: makeRange(4, 11, 4, 18),
@@ -428,7 +428,7 @@ describe('[hardhat][codeAction]', () => {
     const documentPath = getProjectPath('hardhat/contracts/codeAction/ConstrainMutabilityModifyToPure.sol')
     const documentUri = toUri(documentPath)
 
-    client.openDocument(documentPath)
+    await client.openDocument(documentPath)
 
     const diagnostic = await client.assertDiagnostic(documentPath, {
       range: makeRange(4, 11, 4, 21),
@@ -471,7 +471,7 @@ describe('[hardhat][codeAction]', () => {
     const documentPath = getProjectPath('hardhat/contracts/codeAction/MarkAbstract.sol')
     const documentUri = toUri(documentPath)
 
-    client.openDocument(documentPath)
+    await client.openDocument(documentPath)
 
     const diagnostic = await client.assertDiagnostic(documentPath, {
       range: makeRange(7, 9, 7, 16),
@@ -539,7 +539,7 @@ describe('[hardhat][codeAction]', () => {
     const documentPath = getProjectPath('hardhat/contracts/codeAction/SpecifyDataLocation.sol')
     const documentUri = toUri(documentPath)
 
-    client.openDocument(documentPath)
+    await client.openDocument(documentPath)
 
     let diagnostic = await client.assertDiagnostic(documentPath, {
       range: makeRange(5, 14, 5, 26),
@@ -948,7 +948,7 @@ describe('[hardhat][codeAction]', () => {
     const documentPath = getProjectPath('hardhat/contracts/codeAction/SpecifyVisibility.sol')
     const documentUri = toUri(documentPath)
 
-    client.openDocument(documentPath)
+    await client.openDocument(documentPath)
 
     const diagnostic = await client.assertDiagnostic(documentPath, {
       range: makeRange(4, 11, 4, 14),

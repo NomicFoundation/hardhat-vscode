@@ -16,7 +16,7 @@ describe('[projectless] rename', () => {
       const documentPath = getProjectPath('projectless/src/rename/Test.sol')
       const documentUri = toUri(documentPath)
 
-      client.openDocument(documentPath)
+      await client.openDocument(documentPath)
 
       const workspaceEdit = await client.rename(documentUri, makePosition(21, 17), 'newName')
 

@@ -10,6 +10,7 @@ module.exports = {
     {
       files: ['**/*.ts'],
       rules: {
+        '@typescript-eslint/no-floating-promises': 'error',
         '@typescript-eslint/no-unused-vars': 'warn',
         '@typescript-eslint/no-empty-function': 'warn',
         '@typescript-eslint/no-non-null-assertion': 'off',

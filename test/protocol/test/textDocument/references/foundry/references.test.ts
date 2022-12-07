@@ -16,7 +16,7 @@ describe('[foundry] references', () => {
       const documentPath = getProjectPath('foundry/src/references/Test.sol')
       const documentUri = toUri(documentPath)
 
-      client.openDocument(documentPath)
+      await client.openDocument(documentPath)
 
       const locations = await client.findReferences(documentUri, makePosition(9, 14))
 

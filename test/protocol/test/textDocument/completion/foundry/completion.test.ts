@@ -16,7 +16,7 @@ describe('[foundry][completion]', () => {
     test('base lib import through remappings', async () => {
       const documentPath = getProjectPath('foundry/src/completion/Imports.sol')
       const documentUri = toUri(documentPath)
-      client.openDocument(documentPath)
+      await client.openDocument(documentPath)
 
       const completions = await client.getCompletions(documentUri, 0, 8)
 
@@ -62,7 +62,7 @@ describe('[foundry][completion]', () => {
     test('lib contract import through remappings on partial specification', async () => {
       const documentPath = getProjectPath('foundry/src/completion/Imports.sol')
       const documentUri = toUri(documentPath)
-      client.openDocument(documentPath)
+      await client.openDocument(documentPath)
 
       const completions = await client.getCompletions(documentUri, 2, 13)
 

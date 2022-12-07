@@ -16,7 +16,7 @@ describe('[projectless] implementation', () => {
       const documentPath = getProjectPath('projectless/src/implementation/Test.sol')
       const documentUri = toUri(documentPath)
 
-      client.openDocument(documentPath)
+      await client.openDocument(documentPath)
 
       const locations = await client.findImplementations(documentUri, makePosition(53, 15))
 

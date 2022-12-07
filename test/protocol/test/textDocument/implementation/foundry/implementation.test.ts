@@ -16,7 +16,7 @@ describe('[foundry] implementation', () => {
       const documentPath = getProjectPath('foundry/src/implementation/Test.sol')
       const documentUri = toUri(documentPath)
 
-      client.openDocument(documentPath)
+      await client.openDocument(documentPath)
 
       const locations = await client.findImplementations(documentUri, makePosition(53, 15))
 

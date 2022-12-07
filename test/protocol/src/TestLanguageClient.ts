@@ -14,7 +14,10 @@ import {
   DefinitionRequest,
   Diagnostic,
   DidChangeTextDocumentNotification,
+  DidCloseTextDocumentNotification,
+  DidCloseTextDocumentParams,
   DidOpenTextDocumentNotification,
+  DidOpenTextDocumentParams,
   ImplementationParams,
   ImplementationRequest,
   InitializedNotification,
@@ -35,10 +38,23 @@ import { toUri } from './helpers'
 import baseInitializeParams from './initializeParams.json'
 import { Logger } from './utils/Logger'
 
+class Document {
+  public waitAnalyzed: Promise<void>
+  public onAnalyzed!: (value: void) => void
+
+  constructor(public uri: string, public text: string) {
+    this.waitAnalyzed = new Promise<void>((resolve) => {
+      this.onAnalyzed = resolve
+    })
+  }
+}
+
 export class TestLanguageClient {
   protected serverProcess?: cp.ChildProcess
   public connection?: rpc.MessageConnection
   public diagnostics: Record<string, Diagnostic[]> = {}
+  // public onAnalyzed: Record<string, Promise<void>> = {} // promises that resolve once an opened file is analyzed
+  public documents: Record<string, Document> = {}
 
   constructor(protected serverModulePath: string, protected workspaceFolderPaths: string[], protected logger: Logger) {}
 
@@ -70,23 +86,46 @@ export class TestLanguageClient {
     return result
   }
 
-  public openDocument(documentPath: string) {
-    if (this.connection === undefined) {
-      throw new Error(`No connection`)
-    }
+  public async openDocument(documentPath: string) {
+    this._checkConnection()
 
     const uri = toUri(documentPath)
+    const text = readFileSync(documentPath).toString()
 
-    const documentParams = {
+    const documentParams: DidOpenTextDocumentParams = {
       textDocument: {
         uri,
         languageId: 'solidity',
         version: 1,
-        text: readFileSync(documentPath).toString(),
+        text,
       },
     }
-    this.connection.sendNotification(DidOpenTextDocumentNotification.type, documentParams)
+    this.connection!.sendNotification(DidOpenTextDocumentNotification.type, documentParams)
+
+    const document = new Document(uri, text)
+    this.documents[uri] = document
+
+    await document.waitAnalyzed
   }
+
+  public closeDocument(documentPath: string) {
+    this._checkConnection()
+    const uri = toUri(documentPath)
+
+    const params: DidCloseTextDocumentParams = {
+      textDocument: {
+        uri,
+      },
+    }
+
+    this.connection!.sendNotification(DidCloseTextDocumentNotification.type, params)
+
+    delete this.documents[uri]
+  }
+
+  // public async waitAnalyzed(uri: string) {
+  //   await this.documents[uri].waitAnalyzed
+  // }
 
   public async assertDiagnostic(documentPath: string, filter: Partial<Diagnostic>) {
     const uri = toUri(documentPath)
@@ -281,6 +320,11 @@ export class TestLanguageClient {
       /* */
     })
 
+    // custom/analyzed
+    this.connection!.onNotification('custom/analyzed', ({ uri }: { uri: string }) => {
+      this.documents[uri].onAnalyzed()
+    })
+
     // textDocument/publishDiagnostics
     this.connection!.onNotification(PublishDiagnosticsNotification.type, (params) => {
       this.logger.trace(`Diagnostic received for ${params.uri}`)
@@ -305,5 +349,11 @@ export class TestLanguageClient {
   private _initialized() {
     this.connection!.sendNotification(InitializedNotification.type, {})
     this.logger.trace('Sent Initialized')
+  }
+
+  private _checkConnection() {
+    if (this.connection === undefined) {
+      throw new Error(`No connection`)
+    }
   }
 }

@@ -16,7 +16,7 @@ describe('[foundry][codeAction]', () => {
     const documentPath = getProjectPath('foundry/src/codeAction/NoLicense.sol')
     const documentUri = toUri(documentPath)
 
-    client.openDocument(documentPath)
+    await client.openDocument(documentPath)
 
     const diagnostic = await client.assertDiagnostic(documentPath, { message: 'SPDX license identifier not provided' })
 

@@ -15,7 +15,7 @@ describe('[projectless] publishDiagnostics', () => {
     it('should publish diagnostics', async () => {
       const documentPath = getProjectPath('projectless/src/diagnostics/MissingSemicolon.sol')
 
-      client.openDocument(documentPath)
+      await client.openDocument(documentPath)
 
       await client.assertDiagnostic(documentPath, {
         source: 'solidity',

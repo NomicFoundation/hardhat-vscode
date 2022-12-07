@@ -15,7 +15,7 @@ describe('[foundry] publishDiagnostics', () => {
     it('should publish diagnostics', async () => {
       const documentPath = getProjectPath('foundry/src/diagnostics/MissingSemicolon.sol')
 
-      client.openDocument(documentPath)
+      await client.openDocument(documentPath)
 
       await client.assertDiagnostic(documentPath, {
         source: 'solidity',

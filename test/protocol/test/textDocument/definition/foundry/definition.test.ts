@@ -16,7 +16,7 @@ describe('[foundry] definition', () => {
       const documentPath = getProjectPath('foundry/src/definition/Test.sol')
       const documentUri = toUri(documentPath)
 
-      client.openDocument(documentPath)
+      await client.openDocument(documentPath)
 
       const location = await client.findDefinition(documentUri, makePosition(14, 25))
 

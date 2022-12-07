@@ -16,6 +16,11 @@ export async function analyse(
     const solFileEntry = getOrInitialiseSolFileEntry(serverState, internalUri);
 
     await analyzeSolFile(serverState, solFileEntry, changeDoc.getText());
+
+    // Notify that a file was successfully analyzed
+    serverState.connection.sendNotification("custom/analyzed", {
+      uri: changeDoc.uri,
+    });
   } catch (err) {
     serverState.logger.error(err);
   }

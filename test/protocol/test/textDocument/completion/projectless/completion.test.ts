@@ -16,7 +16,7 @@ describe('[projectless][completion]', () => {
     test('relative import', async () => {
       const documentPath = getProjectPath('projectless/src/completion/A.sol')
       const documentUri = toUri(documentPath)
-      client.openDocument(documentPath)
+      await client.openDocument(documentPath)
 
       const completions = await client.getCompletions(documentUri, 0, 8)
 
@@ -62,7 +62,7 @@ describe('[projectless][completion]', () => {
     test('lib contract import through remappings on partial specification', async () => {
       const documentPath = getProjectPath('foundry/src/completion/Imports.sol')
       const documentUri = toUri(documentPath)
-      client.openDocument(documentPath)
+      await client.openDocument(documentPath)
 
       const completions = await client.getCompletions(documentUri, 2, 13)
 

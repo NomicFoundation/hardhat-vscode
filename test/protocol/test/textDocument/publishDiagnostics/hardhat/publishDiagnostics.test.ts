@@ -15,7 +15,7 @@ describe('[hardhat] publishDiagnostics', () => {
     it('should publish diagnostics', async () => {
       const documentPath = getProjectPath('hardhat/contracts/diagnostics/MissingSemicolon.sol')
 
-      client.openDocument(documentPath)
+      await client.openDocument(documentPath)
 
       await client.assertDiagnostic(documentPath, {
         source: 'solidity',

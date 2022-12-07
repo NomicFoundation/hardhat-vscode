@@ -16,7 +16,7 @@ describe('[projectless] type definition', () => {
       const documentPath = getProjectPath('projectless/src/typedefinition/Test.sol')
       const documentUri = toUri(documentPath)
 
-      client.openDocument(documentPath)
+      await client.openDocument(documentPath)
 
       const locations = await client.findTypeDefinition(documentUri, makePosition(26, 12))
 

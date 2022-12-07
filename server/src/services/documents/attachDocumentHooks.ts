@@ -1,7 +1,6 @@
 import { ServerState } from "../../types";
 import { onDidChangeWatchedFiles } from "./onDidChangeWatchedFiles";
 import { onDidChangeContent } from "./onDidChangeContent";
-import { onDidOpen } from "./onDidOpen";
 
 /**
  * Establish a sync between the client and the `serverState.documents`
@@ -11,11 +10,6 @@ import { onDidOpen } from "./onDidOpen";
  * @param serverState the combined state of the lsp
  */
 export function attachDocumentHooks(serverState: ServerState) {
-  // Our server state trackes whether the client has taken
-  // responsibility for the file (onOpen/onSave/onClose) as
-  // opposed to files where the cannonical version is on disk
-  serverState.documents.onDidOpen(onDidOpen(serverState));
-
   // The content of a text document has changed. This event is emitted
   // when the text document first opened or when its content has changed.
   // This is the start of our validation pipeline

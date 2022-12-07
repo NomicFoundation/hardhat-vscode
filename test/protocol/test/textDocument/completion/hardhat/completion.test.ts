@@ -16,7 +16,7 @@ describe('[hardhat][completion]', () => {
     test('hardhat node_modules contract import completion on empty', async () => {
       const documentPath = getProjectPath('hardhat/contracts/completion/Imports.sol')
       const documentUri = toUri(documentPath)
-      client.openDocument(documentPath)
+      await client.openDocument(documentPath)
 
       const completions = await client.getCompletions(documentUri, 0, 8)
 
@@ -86,7 +86,7 @@ describe('[hardhat][completion]', () => {
     test('hardhat node_modules contract import completion on partial specification', async () => {
       const documentPath = getProjectPath('hardhat/contracts/completion/Imports.sol')
       const documentUri = toUri(documentPath)
-      client.openDocument(documentPath)
+      await client.openDocument(documentPath)
 
       const completions = await client.getCompletions(documentUri, 2, 16)
 
@@ -156,7 +156,7 @@ describe('[hardhat][completion]', () => {
     test('hardhat node_modules contract import completion on module specified', async () => {
       const documentPath = getProjectPath('hardhat/contracts/completion/Imports.sol')
       const documentUri = toUri(documentPath)
-      client.openDocument(documentPath)
+      await client.openDocument(documentPath)
 
       const completions = await client.getCompletions(documentUri, 4, 16)
 
@@ -226,7 +226,7 @@ describe('[hardhat][completion]', () => {
     test('hardhat node_modules contract import completion on module and partial contract', async () => {
       const documentPath = getProjectPath('hardhat/contracts/completion/Imports.sol')
       const documentUri = toUri(documentPath)
-      client.openDocument(documentPath)
+      await client.openDocument(documentPath)
 
       const completions = await client.getCompletions(documentUri, 6, 42)
 
