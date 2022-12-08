@@ -13,7 +13,6 @@ import {
   DefinitionParams,
   DefinitionRequest,
   Diagnostic,
-  DidChangeTextDocumentNotification,
   DidCloseTextDocumentNotification,
   DidCloseTextDocumentParams,
   DidOpenTextDocumentNotification,
@@ -61,12 +60,10 @@ export class TestLanguageClient {
 
   constructor(protected serverModulePath: string, protected workspaceFolderPaths: string[], protected logger: Logger) {}
 
-  public async start() {
+  public start() {
     this._spawnServerProcess()
     this._setupConnection()
     this._setupRequestHandlers()
-    // await this._initialize()
-    // this._initialized()
   }
 
   public stop() {

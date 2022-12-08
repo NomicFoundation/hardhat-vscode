@@ -27,7 +27,3 @@ export async function getInitializedClient() {
 
   return client
 }
-
-after(() => {
-  client?.stop()
-})
