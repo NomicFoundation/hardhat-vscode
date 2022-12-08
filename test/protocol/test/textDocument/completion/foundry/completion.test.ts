@@ -59,6 +59,22 @@ describe('[foundry][completion]', () => {
               title: '',
             },
           },
+          {
+            label: 'myLib',
+            insertText: 'myLib',
+            kind: 9,
+            documentation: 'Imports the package',
+            command: {
+              command: 'hardhat.solidity.insertSemicolon',
+              arguments: [
+                {
+                  line: 0,
+                  character: 8,
+                },
+              ],
+              title: '',
+            },
+          },
         ],
       })
     })
@@ -68,14 +84,14 @@ describe('[foundry][completion]', () => {
       const documentUri = toUri(documentPath)
       await client.openDocument(documentPath)
 
-      const completions = await client.getCompletions(documentUri, 2, 13)
+      const completions = await client.getCompletions(documentUri, 2, 15)
 
       expect(completions).to.deep.equal({
         isIncomplete: false,
         items: [
           {
-            label: 'LibContract.sol',
-            insertText: 'LibContract.sol',
+            label: 'Imported.sol',
+            insertText: 'Imported.sol',
             kind: 17,
             documentation: 'Imports the package',
             command: {
@@ -83,7 +99,23 @@ describe('[foundry][completion]', () => {
               arguments: [
                 {
                   line: 2,
-                  character: 13,
+                  character: 15,
+                },
+              ],
+              title: '',
+            },
+          },
+          {
+            label: 'OtherImported.sol',
+            insertText: 'OtherImported.sol',
+            kind: 17,
+            documentation: 'Imports the package',
+            command: {
+              command: 'hardhat.solidity.insertSemicolon',
+              arguments: [
+                {
+                  line: 2,
+                  character: 15,
                 },
               ],
               title: '',

@@ -7,7 +7,7 @@ import { getProjectPath, makePosition, makeRange } from '../../../helpers'
 
 let client!: TestLanguageClient
 
-describe.only('[hardhat] rename', () => {
+describe('[hardhat] rename', () => {
   let testPath: string
   let multiImportPath: string
 

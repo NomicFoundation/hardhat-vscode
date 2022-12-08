@@ -62,35 +62,5 @@ describe('[projectless][completion]', () => {
         ],
       })
     })
-
-    test('lib contract import through remappings on partial specification', async () => {
-      const documentPath = getProjectPath('foundry/src/completion/Imports.sol')
-      const documentUri = toUri(documentPath)
-      await client.openDocument(documentPath)
-
-      const completions = await client.getCompletions(documentUri, 2, 13)
-
-      expect(completions).to.deep.equal({
-        isIncomplete: false,
-        items: [
-          {
-            label: 'LibContract.sol',
-            insertText: 'LibContract.sol',
-            kind: 17,
-            documentation: 'Imports the package',
-            command: {
-              command: 'hardhat.solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 2,
-                  character: 13,
-                },
-              ],
-              title: '',
-            },
-          },
-        ],
-      })
-    })
   })
 })

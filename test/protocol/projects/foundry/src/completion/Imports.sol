@@ -1,3 +1,3 @@
 import '';
 
-import '@lib/';
+import '@myLib/';

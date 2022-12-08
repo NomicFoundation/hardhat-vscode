@@ -1,8 +1,8 @@
-import { HardhatUserConfig } from "hardhat/config";
+import { HardhatUserConfig } from 'hardhat/config'
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: "0.8.8",
+    version: '0.8.8',
     settings: {
       optimizer: {
         enabled: false,
@@ -11,6 +11,6 @@ const config: HardhatUserConfig = {
       outputSelection: {},
     },
   },
-};
+}
 
-export default config;
+export default config

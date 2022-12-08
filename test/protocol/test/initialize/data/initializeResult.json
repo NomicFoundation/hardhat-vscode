@@ -5,18 +5,10 @@
   "capabilities": {
     "textDocumentSync": 2,
     "completionProvider": {
-      "triggerCharacters": [
-        ".",
-        "/",
-        "\"",
-        "'"
-      ]
+      "triggerCharacters": [".", "/", "\"", "'"]
     },
     "signatureHelpProvider": {
-      "triggerCharacters": [
-        "(",
-        ","
-      ]
+      "triggerCharacters": ["(", ","]
     },
     "definitionProvider": true,
     "typeDefinitionProvider": true,

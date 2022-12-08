@@ -2,21 +2,14 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "es2020",
-    "lib": [
-      "es2020"
-    ],
+    "lib": ["es2020"],
     "outDir": "out",
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "strict": true
   },
-  "include": [
-    "./client",
-    "./server",
-    "./test",
-    "./test/**/*.json"
-  ],
+  "include": ["./client", "./server", "./test", "./test/**/*.json"],
   "exclude": [
     "node_modules",
     ".vscode-test",
