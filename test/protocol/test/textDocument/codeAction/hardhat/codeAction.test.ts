@@ -33,22 +33,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/NoLicense.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      character: 0,
-                      line: 0,
-                    },
-                    end: {
-                      character: 0,
-                      line: 0,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/NoLicense.sol'))]: [
+              {
+                range: {
+                  start: {
+                    character: 0,
+                    line: 0,
                   },
-                  newText: '// SPDX-License-Identifier: MIT\n',
+                  end: {
+                    character: 0,
+                    line: 0,
+                  },
                 },
-              ],
+                newText: '// SPDX-License-Identifier: MIT\n',
+              },
+            ],
           },
         },
       },
@@ -58,22 +57,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/NoLicense.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      character: 0,
-                      line: 0,
-                    },
-                    end: {
-                      character: 0,
-                      line: 0,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/NoLicense.sol'))]: [
+              {
+                range: {
+                  start: {
+                    character: 0,
+                    line: 0,
                   },
-                  newText: '// SPDX-License-Identifier: GPL-2.0-or-later\n',
+                  end: {
+                    character: 0,
+                    line: 0,
+                  },
                 },
-              ],
+                newText: '// SPDX-License-Identifier: GPL-2.0-or-later\n',
+              },
+            ],
           },
         },
       },
@@ -83,22 +81,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/NoLicense.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      character: 0,
-                      line: 0,
-                    },
-                    end: {
-                      character: 0,
-                      line: 0,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/NoLicense.sol'))]: [
+              {
+                range: {
+                  start: {
+                    character: 0,
+                    line: 0,
                   },
-                  newText: '// SPDX-License-Identifier: GPL-3.0-or-later\n',
+                  end: {
+                    character: 0,
+                    line: 0,
+                  },
                 },
-              ],
+                newText: '// SPDX-License-Identifier: GPL-3.0-or-later\n',
+              },
+            ],
           },
         },
       },
@@ -108,22 +105,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/NoLicense.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      character: 0,
-                      line: 0,
-                    },
-                    end: {
-                      character: 0,
-                      line: 0,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/NoLicense.sol'))]: [
+              {
+                range: {
+                  start: {
+                    character: 0,
+                    line: 0,
                   },
-                  newText: '// SPDX-License-Identifier: Unlicense\n',
+                  end: {
+                    character: 0,
+                    line: 0,
+                  },
                 },
-              ],
+                newText: '// SPDX-License-Identifier: Unlicense\n',
+              },
+            ],
           },
         },
       },
@@ -152,22 +148,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: true,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/AddMultioverrideSpecifier.sol':
-              [
-                {
-                  newText: ' override(Alpha, Gamma)',
-                  range: {
-                    start: {
-                      line: 20,
-                      character: 23,
-                    },
-                    end: {
-                      line: 20,
-                      character: 23,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/AddMultioverrideSpecifier.sol'))]: [
+              {
+                newText: ' override(Alpha, Gamma)',
+                range: {
+                  start: {
+                    line: 20,
+                    character: 23,
+                  },
+                  end: {
+                    line: 20,
+                    character: 23,
                   },
                 },
-              ],
+              },
+            ],
           },
         },
       },
@@ -189,22 +184,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: true,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/AddMultioverrideSpecifier.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 22,
-                      character: 32,
-                    },
-                    end: {
-                      line: 22,
-                      character: 47,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/AddMultioverrideSpecifier.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 22,
+                    character: 32,
                   },
-                  newText: 'override(Alpha, Beta, Gamma)',
+                  end: {
+                    line: 22,
+                    character: 47,
+                  },
                 },
-              ],
+                newText: 'override(Alpha, Beta, Gamma)',
+              },
+            ],
           },
         },
       },
@@ -232,22 +226,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: true,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/AddOverrideSpecifier.sol':
-              [
-                {
-                  newText: '    override\n',
-                  range: {
-                    start: {
-                      line: 22,
-                      character: 0,
-                    },
-                    end: {
-                      line: 22,
-                      character: 0,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/AddOverrideSpecifier.sol'))]: [
+              {
+                newText: '    override\n',
+                range: {
+                  start: {
+                    line: 22,
+                    character: 0,
+                  },
+                  end: {
+                    line: 22,
+                    character: 0,
                   },
                 },
-              ],
+              },
+            ],
           },
         },
       },
@@ -275,22 +268,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: true,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/NoPragma.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      character: 0,
-                      line: 1,
-                    },
-                    end: {
-                      character: 0,
-                      line: 1,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/NoPragma.sol'))]: [
+              {
+                range: {
+                  start: {
+                    character: 0,
+                    line: 1,
                   },
-                  newText: 'pragma solidity ^0.8.8;\n',
+                  end: {
+                    character: 0,
+                    line: 1,
+                  },
                 },
-              ],
+                newText: 'pragma solidity ^0.8.8;\n',
+              },
+            ],
           },
         },
       },
@@ -318,22 +310,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: true,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/AddVirtualSpecifier.sol':
-              [
-                {
-                  newText: ' virtual',
-                  range: {
-                    start: {
-                      line: 4,
-                      character: 29,
-                    },
-                    end: {
-                      line: 4,
-                      character: 29,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/AddVirtualSpecifier.sol'))]: [
+              {
+                newText: ' virtual',
+                range: {
+                  start: {
+                    line: 4,
+                    character: 29,
+                  },
+                  end: {
+                    line: 4,
+                    character: 29,
                   },
                 },
-              ],
+              },
+            ],
           },
         },
       },
@@ -361,22 +352,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: true,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/ConstrainMutabilityView.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 6,
-                      character: 32,
-                    },
-                    end: {
-                      line: 6,
-                      character: 32,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/ConstrainMutabilityView.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 6,
+                    character: 32,
                   },
-                  newText: 'view ',
+                  end: {
+                    line: 6,
+                    character: 32,
+                  },
                 },
-              ],
+                newText: 'view ',
+              },
+            ],
           },
         },
       },
@@ -404,22 +394,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: true,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/ConstrainMutabilityPure.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 4,
-                      character: 29,
-                    },
-                    end: {
-                      line: 4,
-                      character: 29,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/ConstrainMutabilityPure.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 4,
+                    character: 29,
                   },
-                  newText: 'pure ',
+                  end: {
+                    line: 4,
+                    character: 29,
+                  },
                 },
-              ],
+                newText: 'pure ',
+              },
+            ],
           },
         },
       },
@@ -447,22 +436,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: true,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/ConstrainMutabilityModifyToPure.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 4,
-                      character: 32,
-                    },
-                    end: {
-                      line: 4,
-                      character: 36,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/ConstrainMutabilityModifyToPure.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 4,
+                    character: 32,
                   },
-                  newText: 'pure',
+                  end: {
+                    line: 4,
+                    character: 36,
+                  },
                 },
-              ],
+                newText: 'pure',
+              },
+            ],
           },
         },
       },
@@ -490,22 +478,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/MarkAbstract.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 7,
-                      character: 0,
-                    },
-                    end: {
-                      line: 7,
-                      character: 31,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/MarkAbstract.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 7,
+                    character: 0,
                   },
-                  newText: 'contract Counter is ICounter {\n  function increment() external pure override {}\n}',
+                  end: {
+                    line: 7,
+                    character: 31,
+                  },
                 },
-              ],
+                newText: 'contract Counter is ICounter {\n  function increment() external pure override {}\n}',
+              },
+            ],
           },
         },
       },
@@ -515,22 +502,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/MarkAbstract.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 7,
-                      character: 0,
-                    },
-                    end: {
-                      line: 7,
-                      character: 0,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/MarkAbstract.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 7,
+                    character: 0,
                   },
-                  newText: 'abstract ',
+                  end: {
+                    line: 7,
+                    character: 0,
+                  },
                 },
-              ],
+                newText: 'abstract ',
+              },
+            ],
           },
         },
       },
@@ -558,22 +544,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/SpecifyDataLocation.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 5,
-                      character: 14,
-                    },
-                    end: {
-                      line: 5,
-                      character: 26,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/SpecifyDataLocation.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 5,
+                    character: 14,
                   },
-                  newText: 'uint256[] memory p1',
+                  end: {
+                    line: 5,
+                    character: 26,
+                  },
                 },
-              ],
+                newText: 'uint256[] memory p1',
+              },
+            ],
           },
         },
       },
@@ -583,22 +568,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/SpecifyDataLocation.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 5,
-                      character: 14,
-                    },
-                    end: {
-                      line: 5,
-                      character: 26,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/SpecifyDataLocation.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 5,
+                    character: 14,
                   },
-                  newText: 'uint256[] storage p1',
+                  end: {
+                    line: 5,
+                    character: 26,
+                  },
                 },
-              ],
+                newText: 'uint256[] storage p1',
+              },
+            ],
           },
         },
       },
@@ -619,22 +603,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/SpecifyDataLocation.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 5,
-                      character: 28,
-                    },
-                    end: {
-                      line: 5,
-                      character: 46,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/SpecifyDataLocation.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 5,
+                    character: 28,
                   },
-                  newText: 'string memory p2',
+                  end: {
+                    line: 5,
+                    character: 46,
+                  },
                 },
-              ],
+                newText: 'string memory p2',
+              },
+            ],
           },
         },
       },
@@ -644,22 +627,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/SpecifyDataLocation.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 5,
-                      character: 28,
-                    },
-                    end: {
-                      line: 5,
-                      character: 46,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/SpecifyDataLocation.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 5,
+                    character: 28,
                   },
-                  newText: 'string storage p2',
+                  end: {
+                    line: 5,
+                    character: 46,
+                  },
                 },
-              ],
+                newText: 'string storage p2',
+              },
+            ],
           },
         },
       },
@@ -680,22 +662,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/SpecifyDataLocation.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 8,
-                      character: 15,
-                    },
-                    end: {
-                      line: 8,
-                      character: 35,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/SpecifyDataLocation.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 8,
+                    character: 15,
                   },
-                  newText: 'uint256[] memory p3',
+                  end: {
+                    line: 8,
+                    character: 35,
+                  },
                 },
-              ],
+                newText: 'uint256[] memory p3',
+              },
+            ],
           },
         },
       },
@@ -705,22 +686,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/SpecifyDataLocation.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 8,
-                      character: 15,
-                    },
-                    end: {
-                      line: 8,
-                      character: 35,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/SpecifyDataLocation.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 8,
+                    character: 15,
                   },
-                  newText: 'uint256[] calldata p3',
+                  end: {
+                    line: 8,
+                    character: 35,
+                  },
                 },
-              ],
+                newText: 'uint256[] calldata p3',
+              },
+            ],
           },
         },
       },
@@ -741,22 +721,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/SpecifyDataLocation.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 8,
-                      character: 37,
-                    },
-                    end: {
-                      line: 8,
-                      character: 46,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/SpecifyDataLocation.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 8,
+                    character: 37,
                   },
-                  newText: 'string memory p4',
+                  end: {
+                    line: 8,
+                    character: 46,
+                  },
                 },
-              ],
+                newText: 'string memory p4',
+              },
+            ],
           },
         },
       },
@@ -766,22 +745,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/SpecifyDataLocation.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 8,
-                      character: 37,
-                    },
-                    end: {
-                      line: 8,
-                      character: 46,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/SpecifyDataLocation.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 8,
+                    character: 37,
                   },
-                  newText: 'string calldata p4',
+                  end: {
+                    line: 8,
+                    character: 46,
+                  },
                 },
-              ],
+                newText: 'string calldata p4',
+              },
+            ],
           },
         },
       },
@@ -802,22 +780,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/SpecifyDataLocation.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 10,
-                      character: 13,
-                    },
-                    end: {
-                      line: 10,
-                      character: 18,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/SpecifyDataLocation.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 10,
+                    character: 13,
                   },
-                  newText: 'bytes memory',
+                  end: {
+                    line: 10,
+                    character: 18,
+                  },
                 },
-              ],
+                newText: 'bytes memory',
+              },
+            ],
           },
         },
       },
@@ -827,22 +804,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/SpecifyDataLocation.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 10,
-                      character: 13,
-                    },
-                    end: {
-                      line: 10,
-                      character: 18,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/SpecifyDataLocation.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 10,
+                    character: 13,
                   },
-                  newText: 'bytes calldata',
+                  end: {
+                    line: 10,
+                    character: 18,
+                  },
                 },
-              ],
+                newText: 'bytes calldata',
+              },
+            ],
           },
         },
       },
@@ -863,22 +839,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/SpecifyDataLocation.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 10,
-                      character: 20,
-                    },
-                    end: {
-                      line: 10,
-                      character: 34,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/SpecifyDataLocation.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 10,
+                    character: 20,
                   },
-                  newText: 'string memory ',
+                  end: {
+                    line: 10,
+                    character: 34,
+                  },
                 },
-              ],
+                newText: 'string memory ',
+              },
+            ],
           },
         },
       },
@@ -888,22 +863,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/SpecifyDataLocation.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 10,
-                      character: 20,
-                    },
-                    end: {
-                      line: 10,
-                      character: 34,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/SpecifyDataLocation.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 10,
+                    character: 20,
                   },
-                  newText: 'string calldata ',
+                  end: {
+                    line: 10,
+                    character: 34,
+                  },
                 },
-              ],
+                newText: 'string calldata ',
+              },
+            ],
           },
         },
       },
@@ -924,22 +898,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/SpecifyDataLocation.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 13,
-                      character: 4,
-                    },
-                    end: {
-                      line: 13,
-                      character: 29,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/SpecifyDataLocation.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 13,
+                    character: 4,
                   },
-                  newText: 'uint256 singleUint',
+                  end: {
+                    line: 13,
+                    character: 29,
+                  },
                 },
-              ],
+                newText: 'uint256 singleUint',
+              },
+            ],
           },
         },
       },
@@ -967,22 +940,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/SpecifyVisibility.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 4,
-                      character: 16,
-                    },
-                    end: {
-                      line: 4,
-                      character: 16,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/SpecifyVisibility.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 4,
+                    character: 16,
                   },
-                  newText: ' public',
+                  end: {
+                    line: 4,
+                    character: 16,
+                  },
                 },
-              ],
+                newText: ' public',
+              },
+            ],
           },
         },
       },
@@ -992,22 +964,21 @@ describe('[hardhat][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/hardhat/contracts/codeAction/SpecifyVisibility.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      line: 4,
-                      character: 16,
-                    },
-                    end: {
-                      line: 4,
-                      character: 16,
-                    },
+            [toUri(getProjectPath('hardhat/contracts/codeAction/SpecifyVisibility.sol'))]: [
+              {
+                range: {
+                  start: {
+                    line: 4,
+                    character: 16,
                   },
-                  newText: ' private',
+                  end: {
+                    line: 4,
+                    character: 16,
+                  },
                 },
-              ],
+                newText: ' private',
+              },
+            ],
           },
         },
       },

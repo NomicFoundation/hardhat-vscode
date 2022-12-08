@@ -33,22 +33,21 @@ describe('[projectless][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/projectless/src/codeAction/NoLicense.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      character: 0,
-                      line: 0,
-                    },
-                    end: {
-                      character: 0,
-                      line: 0,
-                    },
+            [toUri(getProjectPath('projectless/src/codeAction/NoLicense.sol'))]: [
+              {
+                range: {
+                  start: {
+                    character: 0,
+                    line: 0,
                   },
-                  newText: '// SPDX-License-Identifier: MIT\n',
+                  end: {
+                    character: 0,
+                    line: 0,
+                  },
                 },
-              ],
+                newText: '// SPDX-License-Identifier: MIT\n',
+              },
+            ],
           },
         },
       },
@@ -58,22 +57,21 @@ describe('[projectless][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/projectless/src/codeAction/NoLicense.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      character: 0,
-                      line: 0,
-                    },
-                    end: {
-                      character: 0,
-                      line: 0,
-                    },
+            [toUri(getProjectPath('projectless/src/codeAction/NoLicense.sol'))]: [
+              {
+                range: {
+                  start: {
+                    character: 0,
+                    line: 0,
                   },
-                  newText: '// SPDX-License-Identifier: GPL-2.0-or-later\n',
+                  end: {
+                    character: 0,
+                    line: 0,
+                  },
                 },
-              ],
+                newText: '// SPDX-License-Identifier: GPL-2.0-or-later\n',
+              },
+            ],
           },
         },
       },
@@ -83,22 +81,21 @@ describe('[projectless][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/projectless/src/codeAction/NoLicense.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      character: 0,
-                      line: 0,
-                    },
-                    end: {
-                      character: 0,
-                      line: 0,
-                    },
+            [toUri(getProjectPath('projectless/src/codeAction/NoLicense.sol'))]: [
+              {
+                range: {
+                  start: {
+                    character: 0,
+                    line: 0,
                   },
-                  newText: '// SPDX-License-Identifier: GPL-3.0-or-later\n',
+                  end: {
+                    character: 0,
+                    line: 0,
+                  },
                 },
-              ],
+                newText: '// SPDX-License-Identifier: GPL-3.0-or-later\n',
+              },
+            ],
           },
         },
       },
@@ -108,22 +105,21 @@ describe('[projectless][codeAction]', () => {
         isPreferred: false,
         edit: {
           changes: {
-            'file:///home/antico/webapps/vscode/hh-vscode/test/protocol/projects/projectless/src/codeAction/NoLicense.sol':
-              [
-                {
-                  range: {
-                    start: {
-                      character: 0,
-                      line: 0,
-                    },
-                    end: {
-                      character: 0,
-                      line: 0,
-                    },
+            [toUri(getProjectPath('projectless/src/codeAction/NoLicense.sol'))]: [
+              {
+                range: {
+                  start: {
+                    character: 0,
+                    line: 0,
                   },
-                  newText: '// SPDX-License-Identifier: Unlicense\n',
+                  end: {
+                    character: 0,
+                    line: 0,
+                  },
                 },
-              ],
+                newText: '// SPDX-License-Identifier: Unlicense\n',
+              },
+            ],
           },
         },
       },

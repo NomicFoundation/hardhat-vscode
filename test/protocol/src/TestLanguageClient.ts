@@ -155,7 +155,7 @@ export class TestLanguageClient {
     }
 
     // Wait for the expected diagnostic to arrive
-    const timeout = 2000
+    const timeout = 20000
     return new Promise<Diagnostic>((resolve) => {
       const start = new Date().getTime()
       const intervalId = setInterval(() => {
