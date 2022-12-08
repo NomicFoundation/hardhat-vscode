@@ -53,6 +53,9 @@ jobs:
       - name: Install foundry
         run: ~/.foundry/bin/foundryup
 
+      - name: Build project
+        run: yarn build
+
       - name: Run server tests
         run: yarn run test:codecov
 
