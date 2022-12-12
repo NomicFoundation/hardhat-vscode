@@ -100,6 +100,7 @@ export class FoundryProject extends Project {
   public async resolveImportPath(file: string, importPath: string) {
     let transformedPath = importPath;
 
+    // Apply remappings to importPath if it's not a relative import
     if (!importPath.startsWith(".")) {
       for (const { from, to } of this.remappings) {
         if (importPath.startsWith(from)) {
