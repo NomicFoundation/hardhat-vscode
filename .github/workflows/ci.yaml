@@ -38,6 +38,7 @@ jobs:
             server/node_modules
             test/e2e/node_modules
             test/protocol/node_modules
+            test/protocol/projects/hardhat/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install dependencies
