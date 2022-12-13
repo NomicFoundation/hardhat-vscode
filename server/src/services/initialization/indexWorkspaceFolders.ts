@@ -22,10 +22,6 @@ export async function indexWorkspaceFolders(
   const logger = _.clone(serverState.logger);
   logger.tag = "indexing";
 
-  if (workspaceFolders.some((wf) => wf.uri.includes("\\"))) {
-    throw new Error("Unexpect windows style path");
-  }
-
   const topLevelWorkspaceFolders = resolveTopLevelWorkspaceFolders(
     serverState,
     workspaceFolders
