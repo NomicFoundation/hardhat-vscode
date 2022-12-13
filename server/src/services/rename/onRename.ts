@@ -12,7 +12,7 @@ import {
 import { getParserPositionFromVSCodePosition, getRange } from "@common/utils";
 import { findReferencesFor } from "@utils/findReferencesFor";
 import { ServerState } from "../../types";
-import { convertHardhatUriToVscodeUri } from "../../utils/index";
+import { toUri } from "../../utils";
 
 export const onRename = (serverState: ServerState) => {
   return async (params: RenameParams) => {
@@ -91,7 +91,7 @@ function convertRefNodesToUpdates(referenceNodes: Node[], newName: string) {
       return;
     }
 
-    const uri = convertHardhatUriToVscodeUri(potentialUpdate.uri);
+    const uri = toUri(potentialUpdate.uri);
 
     if (
       workspaceEdit.changes !== undefined &&

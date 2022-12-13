@@ -30,7 +30,7 @@ describe('[hardhat] rename', () => {
 
     expect(workspaceEdit).to.deep.equal({
       changes: {
-        [testPath]: [
+        [toUri(testPath)]: [
           {
             range: makeRange(15, 22, 15, 31),
             newText: 'newName',
@@ -57,7 +57,7 @@ describe('[hardhat] rename', () => {
 
     expect(workspaceEdit).to.deep.equal({
       changes: {
-        [testPath]: [
+        [toUri(testPath)]: [
           {
             range: makeRange(11, 16, 11, 24),
             newText: 'memberAccess',
@@ -80,13 +80,13 @@ describe('[hardhat] rename', () => {
 
     expect(workspaceEdit).to.deep.equal({
       changes: {
-        [getProjectPath('hardhat/contracts/rename/Foo.sol')]: [
+        [toUri(getProjectPath('hardhat/contracts/rename/Foo.sol'))]: [
           {
             range: makeRange(6, 18, 6, 22),
             newText: 'name1',
           },
         ],
-        [multiImportPath]: [
+        [toUri(multiImportPath)]: [
           {
             range: makeRange(13, 19, 13, 23),
             newText: 'name1',

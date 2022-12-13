@@ -30,7 +30,7 @@ describe('[hardhat] type definition', () => {
 
     expect(locations).to.deep.equal([
       {
-        uri: testPath,
+        uri: toUri(testPath),
         range: makeRange(9, 11, 9, 16),
       },
     ])
@@ -41,7 +41,7 @@ describe('[hardhat] type definition', () => {
 
     expect(locations).to.deep.equal([
       {
-        uri: testPath,
+        uri: toUri(testPath),
         range: makeRange(53, 11, 53, 19),
       },
     ])
@@ -52,11 +52,11 @@ describe('[hardhat] type definition', () => {
 
     expect(locations).to.deep.equal([
       {
-        uri: testPath,
+        uri: toUri(testPath),
         range: makeRange(53, 11, 53, 19),
       },
       {
-        uri: testPath,
+        uri: toUri(testPath),
         range: makeRange(9, 11, 9, 16),
       },
     ])
@@ -67,7 +67,7 @@ describe('[hardhat] type definition', () => {
 
     expect(locations).to.deep.equal([
       {
-        uri: importedPath,
+        uri: toUri(importedPath),
         range: makeRange(3, 7, 3, 14),
       },
     ])

@@ -25,7 +25,7 @@ describe('[projectless] definition', () => {
       const location = await client.findDefinition(documentUri, makePosition(14, 25))
 
       expect(location).to.deep.equal({
-        uri: documentPath,
+        uri: toUri(documentPath),
         range: makeRange(9, 11, 9, 16),
       })
     })

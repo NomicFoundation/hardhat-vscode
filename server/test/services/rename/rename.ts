@@ -6,7 +6,7 @@ import {
   setupMockLanguageServer,
 } from "../../helpers/setupMockLanguageServer";
 import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
-import { convertHardhatUriToVscodeUri } from "../../../src/utils/index";
+import { toUri } from "../../../src/utils";
 
 describe("Parser", () => {
   describe("Rename", () => {
@@ -272,7 +272,7 @@ const assertRename = async (
     assert.fail();
   }
 
-  const fileChanges = response.changes[convertHardhatUriToVscodeUri(uri)].sort(
+  const fileChanges = response.changes[toUri(uri)].sort(
     (left, right) => left.range.start.line - right.range.start.line
   );
 

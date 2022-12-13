@@ -26,7 +26,7 @@ describe('[projectless] rename', () => {
 
       expect(workspaceEdit).to.deep.equal({
         changes: {
-          [documentPath]: [
+          [toUri(documentPath)]: [
             {
               range: makeRange(15, 22, 15, 31),
               newText: 'newName',

@@ -3,11 +3,15 @@ import { test } from 'mocha'
 import { toUri } from '../../../../src/helpers'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
-import { getProjectPath, makePosition, makeRange } from '../../../helpers'
+import { getProjectPath, makePosition, makeRange, runningOnWindows } from '../../../helpers'
 
 let client!: TestLanguageClient
 
 describe('[foundry] definition', () => {
+  if (runningOnWindows()) {
+    return // skip foundry on windows
+  }
+
   let testPath: string
   let importerPath: string
   let importedPath: string
@@ -32,7 +36,7 @@ describe('[foundry] definition', () => {
     const location = await client.findDefinition(toUri(testPath), makePosition(14, 25))
 
     expect(location).to.deep.equal({
-      uri: testPath,
+      uri: toUri(testPath),
       range: makeRange(9, 11, 9, 16),
     })
   })
@@ -41,7 +45,7 @@ describe('[foundry] definition', () => {
     const location = await client.findDefinition(toUri(importerPath), makePosition(4, 22))
 
     expect(location).to.deep.equal({
-      uri: importedPath,
+      uri: toUri(importedPath),
       range: makeRange(2, 0, 9, 0),
     })
   })
@@ -50,7 +54,7 @@ describe('[foundry] definition', () => {
     const location = await client.findDefinition(toUri(importerPath), makePosition(5, 22))
 
     expect(location).to.deep.equal({
-      uri: otherImportedPath,
+      uri: toUri(otherImportedPath),
       range: makeRange(2, 0, 9, 0),
     })
   })
@@ -59,7 +63,7 @@ describe('[foundry] definition', () => {
     const location = await client.findDefinition(toUri(importerPath), makePosition(8, 5))
 
     expect(location).to.deep.equal({
-      uri: importedPath,
+      uri: toUri(importedPath),
       range: makeRange(4, 9, 4, 17),
     })
   })
@@ -68,7 +72,7 @@ describe('[foundry] definition', () => {
     const location = await client.findDefinition(toUri(importerPath), makePosition(9, 5))
 
     expect(location).to.deep.equal({
-      uri: otherImportedPath,
+      uri: toUri(otherImportedPath),
       range: makeRange(4, 9, 4, 22),
     })
   })

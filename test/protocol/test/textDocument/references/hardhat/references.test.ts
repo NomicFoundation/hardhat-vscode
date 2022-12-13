@@ -40,19 +40,19 @@ describe('[hardhat] references', () => {
 
     expect(locations).to.deep.equal([
       {
-        uri: testPath,
+        uri: toUri(testPath),
         range: makeRange(9, 11, 9, 16),
       },
       {
-        uri: testPath,
+        uri: toUri(testPath),
         range: makeRange(14, 23, 14, 28),
       },
       {
-        uri: testPath,
+        uri: toUri(testPath),
         range: makeRange(38, 119, 38, 124),
       },
       {
-        uri: testPath,
+        uri: toUri(testPath),
         range: makeRange(43, 12, 43, 17),
       },
     ])
@@ -63,15 +63,15 @@ describe('[hardhat] references', () => {
 
     expect(locations).to.deep.equal([
       {
-        uri: importedPath,
+        uri: toUri(importedPath),
         range: makeRange(11, 6, 11, 25),
       },
       {
-        uri: getProjectPath('hardhat/contracts/references/ImportTest.sol'),
+        uri: toUri(getProjectPath('hardhat/contracts/references/ImportTest.sol')),
         range: makeRange(12, 19, 12, 38),
       },
       {
-        uri: importedPath,
+        uri: toUri(importedPath),
         range: makeRange(20, 19, 20, 38),
       },
     ])
@@ -82,15 +82,15 @@ describe('[hardhat] references', () => {
 
     expect(locations).to.deep.equal([
       {
-        uri: importedPath,
+        uri: toUri(importedPath),
         range: makeRange(11, 34, 11, 41),
       },
       {
-        uri: getProjectPath('hardhat/contracts/references/ImportTest.sol'),
+        uri: toUri(getProjectPath('hardhat/contracts/references/ImportTest.sol')),
         range: makeRange(13, 16, 13, 23),
       },
       {
-        uri: importedPath,
+        uri: toUri(importedPath),
         range: makeRange(21, 16, 21, 23),
       },
     ])
@@ -101,11 +101,11 @@ describe('[hardhat] references', () => {
 
     expect(locations).to.deep.equal([
       {
-        uri: modifierInvocationPath,
+        uri: toUri(modifierInvocationPath),
         range: makeRange(5, 4, 5, 15),
       },
       {
-        uri: modifierInvocationPath,
+        uri: toUri(modifierInvocationPath),
         range: makeRange(16, 19, 16, 32),
       },
     ])
@@ -116,11 +116,11 @@ describe('[hardhat] references', () => {
 
     expect(locations).to.deep.equal([
       {
-        uri: modifierInvocationPath,
+        uri: toUri(modifierInvocationPath),
         range: makeRange(9, 13, 9, 16),
       },
       {
-        uri: modifierInvocationPath,
+        uri: toUri(modifierInvocationPath),
         range: makeRange(24, 53, 24, 56),
       },
     ])
@@ -131,11 +131,11 @@ describe('[hardhat] references', () => {
 
     expect(locations).to.deep.equal([
       {
-        uri: modifierInvocationPath,
+        uri: toUri(modifierInvocationPath),
         range: makeRange(20, 13, 20, 17),
       },
       {
-        uri: modifierInvocationPath,
+        uri: toUri(modifierInvocationPath),
         range: makeRange(24, 70, 24, 74),
       },
     ])
@@ -146,11 +146,11 @@ describe('[hardhat] references', () => {
 
     expect(locations).to.deep.equal([
       {
-        uri: modifierInvocationPath,
+        uri: toUri(modifierInvocationPath),
         range: makeRange(28, 13, 28, 17),
       },
       {
-        uri: modifierInvocationPath,
+        uri: toUri(modifierInvocationPath),
         range: makeRange(24, 88, 24, 92),
       },
     ])
@@ -161,15 +161,15 @@ describe('[hardhat] references', () => {
 
     expect(locations).to.deep.equal([
       {
-        uri: fooPath,
+        uri: toUri(fooPath),
         range: makeRange(6, 18, 6, 22),
       },
       {
-        uri: getProjectPath('hardhat/contracts/references/MultiImport.sol'),
+        uri: toUri(getProjectPath('hardhat/contracts/references/MultiImport.sol')),
         range: makeRange(13, 19, 13, 23),
       },
       {
-        uri: getProjectPath('hardhat/contracts/references/MultiImport.sol'),
+        uri: toUri(getProjectPath('hardhat/contracts/references/MultiImport.sol')),
         range: makeRange(17, 40, 17, 44),
       },
     ])

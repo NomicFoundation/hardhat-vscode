@@ -26,19 +26,19 @@ describe('[hardhat] implementation', () => {
 
       expect(locations).to.deep.equal([
         {
-          uri: documentPath,
+          uri: toUri(documentPath),
           range: makeRange(53, 11, 53, 19),
         },
         {
-          uri: documentPath,
+          uri: toUri(documentPath),
           range: makeRange(15, 4, 15, 12),
         },
         {
-          uri: documentPath,
+          uri: toUri(documentPath),
           range: makeRange(18, 8, 18, 16),
         },
         {
-          uri: documentPath,
+          uri: toUri(documentPath),
           range: makeRange(38, 100, 38, 108),
         },
       ])

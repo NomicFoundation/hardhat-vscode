@@ -35,7 +35,7 @@ describe('[hardhat] definition', () => {
     const location = await client.findDefinition(toUri(testDocPath), makePosition(14, 25))
 
     expect(location).to.deep.equal({
-      uri: testDocPath,
+      uri: toUri(testDocPath),
       range: makeRange(9, 11, 9, 16),
     })
   })
@@ -44,7 +44,7 @@ describe('[hardhat] definition', () => {
     const location = await client.findDefinition(toUri(testDocPath), makePosition(15, 9))
 
     expect(location).to.deep.equal({
-      uri: testDocPath,
+      uri: toUri(testDocPath),
       range: makeRange(53, 11, 53, 19),
     })
   })
@@ -53,7 +53,7 @@ describe('[hardhat] definition', () => {
     const location = await client.findDefinition(toUri(testDocPath), makePosition(26, 25))
 
     expect(location).to.deep.equal({
-      uri: testDocPath,
+      uri: toUri(testDocPath),
       range: makeRange(10, 13, 10, 18),
     })
   })
@@ -62,7 +62,7 @@ describe('[hardhat] definition', () => {
     const location = await client.findDefinition(toUri(testDocPath), makePosition(50, 50))
 
     expect(location).to.deep.equal({
-      uri: testDocPath,
+      uri: toUri(testDocPath),
       range: makeRange(54, 16, 54, 20),
     })
   })
@@ -71,7 +71,7 @@ describe('[hardhat] definition', () => {
     const location = await client.findDefinition(toUri(testDocPath), makePosition(50, 50))
 
     expect(location).to.deep.equal({
-      uri: testDocPath,
+      uri: toUri(testDocPath),
       range: makeRange(54, 16, 54, 20),
     })
   })
@@ -80,7 +80,7 @@ describe('[hardhat] definition', () => {
     const location = await client.findDefinition(toUri(importDocPath), makePosition(3, 25))
 
     expect(location).to.deep.equal({
-      uri: getProjectPath('hardhat/contracts/definition/Foo.sol'),
+      uri: toUri(getProjectPath('hardhat/contracts/definition/Foo.sol')),
       range: makeRange(1, 0, 6, 0),
     })
   })
@@ -89,7 +89,7 @@ describe('[hardhat] definition', () => {
     const location = await client.findDefinition(toUri(importDocPath), makePosition(4, 73))
 
     expect(location).to.deep.equal({
-      uri: getProjectPath('hardhat/node_modules/@openzeppelin/contracts/access/Ownable.sol'),
+      uri: toUri(getProjectPath('hardhat/node_modules/@openzeppelin/contracts/access/Ownable.sol')),
       range: makeRange(3, 0, 76, 0),
     })
   })
@@ -98,7 +98,7 @@ describe('[hardhat] definition', () => {
     const location = await client.findDefinition(toUri(circular1DocPath), makePosition(6, 6))
 
     expect(location).to.deep.equal({
-      uri: circular2DocPath,
+      uri: toUri(circular2DocPath),
       range: makeRange(5, 9, 5, 18),
     })
   })
@@ -107,7 +107,7 @@ describe('[hardhat] definition', () => {
     const location = await client.findDefinition(toUri(circular2DocPath), makePosition(6, 6))
 
     expect(location).to.deep.equal({
-      uri: circular1DocPath,
+      uri: toUri(circular1DocPath),
       range: makeRange(5, 9, 5, 18),
     })
   })

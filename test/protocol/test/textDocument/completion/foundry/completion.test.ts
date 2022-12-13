@@ -3,11 +3,15 @@ import { test } from 'mocha'
 import { toUri } from '../../../../src/helpers'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
-import { getProjectPath } from '../../../helpers'
+import { getProjectPath, runningOnWindows } from '../../../helpers'
 
 let client!: TestLanguageClient
 
 describe('[foundry][completion]', () => {
+  if (runningOnWindows()) {
+    return // skip foundry on windows
+  }
+
   beforeEach(async () => {
     client = await getInitializedClient()
   })
@@ -80,6 +84,10 @@ describe('[foundry][completion]', () => {
     })
 
     test('lib contract import through remappings on partial specification', async () => {
+      if (runningOnWindows()) {
+        return // skip foundry on windows
+      }
+
       const documentPath = getProjectPath('foundry/src/completion/Imports.sol')
       const documentUri = toUri(documentPath)
       await client.openDocument(documentPath)

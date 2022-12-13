@@ -26,19 +26,19 @@ describe('[projectless] references', () => {
 
       expect(locations).to.deep.equal([
         {
-          uri: documentPath,
+          uri: toUri(documentPath),
           range: makeRange(9, 11, 9, 16),
         },
         {
-          uri: documentPath,
+          uri: toUri(documentPath),
           range: makeRange(14, 23, 14, 28),
         },
         {
-          uri: documentPath,
+          uri: toUri(documentPath),
           range: makeRange(38, 119, 38, 124),
         },
         {
-          uri: documentPath,
+          uri: toUri(documentPath),
           range: makeRange(43, 12, 43, 17),
         },
       ])

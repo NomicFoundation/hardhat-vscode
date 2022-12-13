@@ -2,11 +2,15 @@ import { expect } from 'chai'
 import { toUri } from '../../../../src/helpers'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
-import { getProjectPath, makePosition, makeRange } from '../../../helpers'
+import { getProjectPath, makePosition, makeRange, runningOnWindows } from '../../../helpers'
 
 let client!: TestLanguageClient
 
 describe('[foundry] type definition', () => {
+  if (runningOnWindows()) {
+    return // skip foundry on windows
+  }
+
   beforeEach(async () => {
     client = await getInitializedClient()
   })
@@ -26,7 +30,7 @@ describe('[foundry] type definition', () => {
 
       expect(locations).to.deep.equal([
         {
-          uri: documentPath,
+          uri: toUri(documentPath),
           range: makeRange(9, 11, 9, 16),
         },
       ])
