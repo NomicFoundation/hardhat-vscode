@@ -4,13 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "postinstall": "yarn install --cwd ./projects/hardhat",
     "start": "tsc && node out/index.js",
-    "test": "NODE_ENV=test mocha"
+    "test": "cross-env NODE_ENV=test mocha"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@types/lodash": "^4.14.191",
+    "cross-env": "^7.0.3",
     "lodash": "^4.17.21",
     "vscode-languageserver-protocol": "~3.16.0",
     "vscode-uri": "^3.0.6"
