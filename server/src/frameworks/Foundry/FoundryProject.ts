@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import fs from "fs";
+import { existsSync } from "fs";
 import _ from "lodash";
 import path from "path";
 import {
@@ -98,24 +98,33 @@ export class FoundryProject extends Project {
   }
 
   public async resolveImportPath(file: string, importPath: string) {
-    try {
-      let transformedPath = importPath;
+    let transformedPath = importPath;
 
-      if (!importPath.startsWith(".")) {
-        for (const { from, to } of this.remappings) {
-          if (importPath.startsWith(from)) {
-            transformedPath = path.join(to, importPath.slice(from.length));
-          }
+    // Apply remappings to importPath if it's not a relative import
+    if (!importPath.startsWith(".")) {
+      for (const { from, to } of this.remappings) {
+        if (importPath.startsWith(from)) {
+          transformedPath = path.join(to, importPath.slice(from.length));
         }
       }
-      const resolvedPath = require.resolve(transformedPath, {
-        paths: [fs.realpathSync(path.dirname(file))],
-      });
-
-      return toUnixStyle(fs.realpathSync(resolvedPath));
-    } catch (error) {
-      return undefined;
     }
+
+    // Try to resolve the import recursively, start from source directory up to project root
+    let testBaseDirectory = path.dirname(file);
+    let resolvedPath: string | undefined;
+
+    while (directoryContains(this.basePath, testBaseDirectory)) {
+      const testResolvedPath = path.resolve(testBaseDirectory, transformedPath);
+
+      if (existsSync(testResolvedPath)) {
+        resolvedPath = testResolvedPath;
+        break;
+      }
+
+      testBaseDirectory = path.dirname(testBaseDirectory);
+    }
+
+    return resolvedPath !== undefined ? toUnixStyle(resolvedPath) : undefined;
   }
 
   public async buildCompilation(
@@ -132,6 +141,16 @@ export class FoundryProject extends Project {
       openDocuments,
       this.configSolcVersion
     );
+
+    const sources = basicCompilation.input.sources;
+
+    // Modify source keys to be root-relative instead of absolute
+    // i,e, '/home/user/myProject/src/Contract.sol' => 'src/Contract.sol'
+    for (const [sourceKey, sourceValue] of Object.entries(sources)) {
+      const transformedSourceKey = path.relative(this.basePath, sourceKey);
+      sources[transformedSourceKey] = sourceValue;
+      delete sources[sourceKey];
+    }
 
     const remappings = this.remappings.map(
       (remapping) => `${remapping.from}=${remapping.to}`

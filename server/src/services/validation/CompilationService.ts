@@ -4,15 +4,18 @@ import { existsSync } from "fs";
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import path from "path";
 import { CompilationDetails } from "../../frameworks/base/CompilationDetails";
+import { Logger } from "../../utils/Logger";
 
 export class CompilationService {
   public static async compile(
     {
       cachedCompilerInfo,
+      logger,
     }: {
       cachedCompilerInfo: {
         [solcVersion: string]: { isSolcJs: boolean; compilerPath: string };
       };
+      logger: Logger;
     },
     compilationDetails: CompilationDetails
   ): Promise<any> {
@@ -21,6 +24,17 @@ export class CompilationService {
 
     // Empty outputSelection for faster compilation
     delete (input.settings as any).outputSelection;
+
+    logger.trace(
+      `Solc Input: ${JSON.stringify(
+        {
+          ...compilationDetails.input,
+          sources: Object.keys(compilationDetails.input.sources),
+        },
+        null,
+        2
+      )}`
+    );
 
     // Find or download solc compiler
     let compilerPath: string;
