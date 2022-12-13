@@ -2,7 +2,7 @@ import { test } from 'mocha'
 import { expect } from 'chai'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
-import { getProjectPath, makeRange } from '../../../helpers'
+import { getProjectPath } from '../../../helpers'
 import { toUri } from '../../../../src/helpers'
 
 let client!: TestLanguageClient

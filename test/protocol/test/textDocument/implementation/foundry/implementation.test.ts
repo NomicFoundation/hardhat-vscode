@@ -1,5 +1,4 @@
 import { expect } from 'chai'
-import { platform } from 'os'
 import { toUri } from '../../../../src/helpers'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'

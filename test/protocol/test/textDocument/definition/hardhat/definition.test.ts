@@ -3,7 +3,7 @@ import { test } from 'mocha'
 import { toUri } from '../../../../src/helpers'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
-import { getProjectPath, makePosition, makeRange, sleep } from '../../../helpers'
+import { getProjectPath, makePosition, makeRange } from '../../../helpers'
 
 let client!: TestLanguageClient
 

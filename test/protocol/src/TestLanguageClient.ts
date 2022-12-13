@@ -32,7 +32,6 @@ import {
   TypeDefinitionParams,
   TypeDefinitionRequest,
 } from 'vscode-languageserver-protocol/node'
-import { makeRange } from '../test/helpers'
 import { toUri } from './helpers'
 import baseInitializeParams from './initializeParams.json'
 import { Logger } from './utils/Logger'
@@ -283,7 +282,7 @@ export class TestLanguageClient {
   }
 
   public clearDiagnostics() {
-    for (const [uri, document] of Object.entries(this.documents)) {
+    for (const document of Object.values(this.documents)) {
       document.clearDiagnostics()
     }
   }

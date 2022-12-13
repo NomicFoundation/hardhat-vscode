@@ -1,5 +1,4 @@
 import { expect } from 'chai'
-import { TestLanguageClient } from '../../src/TestLanguageClient'
 import { buildClient } from '../client'
 import initializeResult from './data/initializeResult.json'
 
