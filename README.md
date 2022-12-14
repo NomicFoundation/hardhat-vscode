@@ -1,6 +1,6 @@
-# Hardhat for Visual Studio Code
+# Solidity for VS Code by Nomic Foundation
 
-**Hardhat for Visual Studio Code** is a [Visual Studio Code](https://code.visualstudio.com/) extension that provides enhanced [Solidity language](https://soliditylang.org/) features.
+**Solidity for VS Code by Nomic Foundation** is a [Visual Studio Code](https://code.visualstudio.com/) extension that provides enhanced [Solidity language](https://soliditylang.org/) features.
 
 Built by the [Nomic Foundation](https://nomic.foundation/) for the Ethereum community.
 
@@ -22,13 +22,13 @@ Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay u
 
 ## Installation
 
-**Hardhat for Visual Studio Code** can be installed by [using the Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity).
+**Solidity for VS Code by Nomic Foundation** can be installed by [using the Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity).
 
 ## Contributing
 
 Contributions are always welcome! Feel free to [open any issue](https://github.com/NomicFoundation/hardhat-vscode/issues) or send a pull request.
 
-Go to [CONTRIBUTING.md](./CONTRIBUTING.md) to learn about how to set up **Hardhat for Visual Studio Code**'s development environment.
+Go to [CONTRIBUTING.md](./CONTRIBUTING.md) to learn about how to set up the extension's development environment.
 
 ## Feedback, help and news
 
