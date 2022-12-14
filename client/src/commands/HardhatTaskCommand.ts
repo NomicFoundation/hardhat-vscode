@@ -56,7 +56,7 @@ export default abstract class HardhatTaskCommand extends Command {
     if (exitStatus !== 0) {
       this.state.outputChannel.show();
       await vscode.window.showErrorMessage(
-        "Hardhat command errored, please see output logs."
+        "Solidity command errored, please see output logs."
       );
     }
   }

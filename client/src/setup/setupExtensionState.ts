@@ -19,9 +19,9 @@ export function setupExtensionState(
     path.join("server", "out", "index.js")
   );
 
-  const outputChannel: OutputChannel = window.createOutputChannel("Hardhat");
+  const outputChannel: OutputChannel = window.createOutputChannel("Solidity");
   const commandsOutputChannel: OutputChannel =
-    window.createOutputChannel("Hardhat Commands");
+    window.createOutputChannel("Solidity Commands");
   const telemetry = new SentryClientTelemetry(sentryDsn);
   const logger = new Logger(outputChannel, telemetry);
 
@@ -40,7 +40,7 @@ export function setupExtensionState(
     listenerDisposables: [],
     projectsValidationStatus: {},
     hardhatTelemetryEnabled:
-      workspace.getConfiguration("hardhat").get<boolean>("telemetry") ?? false,
+      workspace.getConfiguration("solidity").get<boolean>("telemetry") ?? false,
     globalTelemetryEnabled: env.isTelemetryEnabled,
     projectStatusItems: [],
 

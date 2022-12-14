@@ -27,7 +27,7 @@ export async function showAnalyticsAllowPopup({
 
   const isAccepted = item === "Accept" ? true : false;
 
-  const config = workspace.getConfiguration("hardhat");
+  const config = workspace.getConfiguration("solidity");
 
   await config.update("telemetry", isAccepted, ConfigurationTarget.Global);
 

@@ -53,7 +53,7 @@ export function getImportPathCompletion(
   // Trigger auto-insertion of semicolon after import completion
   for (const item of items) {
     item.command = {
-      command: "hardhat.solidity.insertSemicolon",
+      command: "solidity.insertSemicolon",
       arguments: [position],
       title: "",
     };
