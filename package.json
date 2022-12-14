@@ -8,7 +8,7 @@
   "private": true,
   "main": "./client/out/extension.js",
   "module": "./client/out/extension.js",
-  "icon": "docs/images/hardhat-vscode-logo.png",
+  "icon": "docs/images/vscode-logo.png",
   "categories": [
     "Programming Languages",
     "Snippets",
