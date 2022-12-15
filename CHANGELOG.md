@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.6.4 - 2022-12-15
+
+### Added
+
+- Solidity survey 2022 invitation ([#312](https://github.com/NomicFoundation/hardhat-vscode/issues/312))
+
+### Fixed
+
+- Updated hardhat version to latest, fixing validation for solcjs users ([#305](https://github.com/NomicFoundation/hardhat-vscode/issues/305))
+- Improved foundry import resolution ([#308](https://github.com/NomicFoundation/hardhat-vscode/pull/308))
+
 ## 0.6.3 - 2022-12-01
 
 ### Fixed
