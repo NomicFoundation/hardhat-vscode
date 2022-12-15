@@ -1,5 +1,6 @@
 import { ExtensionContext } from "vscode";
 import { showAnalyticsAllowPopup } from "./popups/showAnalyticsAllowPopup";
+import { showSoliditySurveyPopup } from "./popups/showSoliditySurveyPopup";
 import { warnOnOtherSolidityExtensions } from "./popups/warnOnOtherSolidityExtensions";
 import { indexHardhatProjects } from "./setup/indexHardhatProjects";
 import { setupCommands } from "./setup/setupCommands";
@@ -36,6 +37,8 @@ export async function activate(context: ExtensionContext) {
   //
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   showAnalyticsAllowPopup(extensionState);
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  showSoliditySurveyPopup(extensionState); // TODO: Remove this after 2023-01-07
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   warnOnOtherSolidityExtensions(extensionState);
 
