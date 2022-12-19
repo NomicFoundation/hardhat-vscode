@@ -9,10 +9,10 @@ export const onInitialized = (
 ) => {
   const { logger } = serverState;
 
-  // set up listener for workspace folder changes
   return async () => {
     logger.trace("onInitialized");
 
+    // set up listener for workspace folder changes
     if (serverState.hasWorkspaceFolderCapability) {
       serverState.connection.workspace.onDidChangeWorkspaceFolders((e) => {
         if (e.added.length > 0) {
@@ -29,16 +29,17 @@ export const onInitialized = (
       });
     }
 
-    // index folders
-    await serverState.telemetry.trackTiming("indexing", async () => {
-      await indexWorkspaceFolders(
-        serverState,
-        workspaceFileRetriever,
-        serverState.workspaceFoldersToIndex
-      );
-      serverState.indexingFinished = true;
-
-      return { status: "ok", result: null };
-    });
+    // Send project info for each indexed file to show status item
+    for (const [uri, solFileEntry] of Object.entries(
+      serverState.solFileIndex
+    )) {
+      serverState.connection.sendNotification("custom/file-indexed", {
+        uri,
+        project: {
+          configPath: solFileEntry.project.configPath,
+          frameworkName: solFileEntry.project.frameworkName(),
+        },
+      });
+    }
   };
 };

@@ -18,14 +18,12 @@ export interface ServerState {
   connection: Connection;
   documents: TextDocuments<TextDocument>;
   indexedWorkspaceFolders: WorkspaceFolder[];
-  workspaceFoldersToIndex: WorkspaceFolder[];
   projects: SolProjectMap;
   solFileIndex: SolFileIndexMap;
 
   telemetry: Telemetry;
   logger: Logger;
   solcVersions: string[];
-  indexingFinished: boolean;
 
   // Associate validation request ids to files to solve parallel validation jobs on the same file
   validationCount: number;

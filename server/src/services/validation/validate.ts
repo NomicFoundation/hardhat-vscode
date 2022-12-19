@@ -32,12 +32,6 @@ export async function validate(
   change: TextDocumentChangeEvent<TextDocument>
 ): Promise<boolean | null> {
   return serverState.telemetry.trackTiming("validation", async () => {
-    // Ensure file indexing finished
-    if (!serverState.indexingFinished) {
-      serverState.logger.trace(`Can't validate before indexing is finished`);
-      return { status: "failed_precondition", result: false };
-    }
-
     // Ensure file is analyzed
     const sourceUri = decodeUriAndRemoveFilePrefix(change.document.uri);
     const solFileEntry = serverState.solFileIndex[sourceUri];

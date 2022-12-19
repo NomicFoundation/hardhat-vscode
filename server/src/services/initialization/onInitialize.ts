@@ -2,8 +2,10 @@ import {
   InitializeParams,
   TextDocumentSyncKind,
   InitializeResult,
+  WorkspaceFolder,
 } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
+import { indexWorkspaceFolders } from "./indexWorkspaceFolders";
 import { updateAvailableSolcVersions } from "./updateAvailableSolcVersions";
 
 export const onInitialize = (serverState: ServerState) => {
@@ -13,7 +15,7 @@ export const onInitialize = (serverState: ServerState) => {
     logger.trace("onInitialize");
     logger.info("Language server starting");
 
-    const { machineId, extensionName, extensionVersion } =
+    const { machineId, extensionName, extensionVersion, workspaceFolders } =
       getSessionInfo(params);
 
     updateServerStateFromParams(serverState, params);
@@ -29,6 +31,7 @@ export const onInitialize = (serverState: ServerState) => {
       machineId,
       extensionName,
       extensionVersion,
+      workspaceFolders,
     });
 
     // fetch available solidity versions
@@ -36,6 +39,18 @@ export const onInitialize = (serverState: ServerState) => {
 
     logger.info("Language server ready");
 
+    // Index and analysis
+    await serverState.telemetry.trackTiming("indexing", async () => {
+      await indexWorkspaceFolders(
+        serverState,
+        serverState.workspaceFileRetriever,
+        workspaceFolders
+      );
+
+      return { status: "ok", result: null };
+    });
+
+    // Build and return InitializeResult
     const result: InitializeResult = {
       serverInfo: {
         name: "Hardhat Language Server",
@@ -86,7 +101,9 @@ function getSessionInfo(params: InitializeParams) {
   const extensionVersion: string | undefined =
     params.initializationOptions?.extensionVersion;
 
-  return { machineId, extensionName, extensionVersion };
+  const workspaceFolders = params.workspaceFolders || [];
+
+  return { machineId, extensionName, extensionVersion, workspaceFolders };
 }
 
 function updateServerStateFromParams(
@@ -100,8 +117,6 @@ function updateServerStateFromParams(
   serverState.hardhatTelemetryEnabled =
     params.initializationOptions?.hardhatTelemetryEnabled ?? false;
 
-  serverState.workspaceFoldersToIndex = params.workspaceFolders ?? [];
-
   serverState.hasWorkspaceFolderCapability =
     params.capabilities.workspace !== undefined &&
     params.capabilities.workspace.workspaceFolders !== undefined;
@@ -113,10 +128,12 @@ function logInitializationInfo(
     machineId,
     extensionName,
     extensionVersion,
+    workspaceFolders,
   }: {
     machineId: string | undefined;
     extensionName: string | undefined;
     extensionVersion: string | undefined;
+    workspaceFolders: WorkspaceFolder[];
   }
 ) {
   const { logger } = serverState;
@@ -133,11 +150,11 @@ function logInitializationInfo(
     );
   }
 
-  if (serverState.workspaceFoldersToIndex.length === 0) {
+  if (workspaceFolders.length === 0) {
     logger.info(`  Workspace Folders: none`);
   } else {
     logger.info(`  Workspace Folders:`);
-    for (const folder of serverState.workspaceFoldersToIndex) {
+    for (const folder of workspaceFolders) {
       logger.info(`    ${folder.name} (${folder.uri})`);
     }
   }

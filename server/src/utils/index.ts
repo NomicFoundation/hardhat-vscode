@@ -1,6 +1,7 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { TextDocumentIdentifier } from "vscode-languageserver-protocol";
 import path from "path";
+import { URI } from "vscode-uri";
 import { runningOnWindows } from "./operatingSystem";
 
 export function getUriFromDocument(
@@ -33,14 +34,8 @@ export function decodeUriAndRemoveFilePrefix(uri: string): string {
   return lowercaseDriveLetter(uri);
 }
 
-export function convertHardhatUriToVscodeUri(uri: string) {
-  const lowercasedDriveLetterUri = lowercaseDriveLetter(uri);
-
-  if (lowercasedDriveLetterUri.startsWith("/")) {
-    return lowercasedDriveLetterUri;
-  } else {
-    return `/${lowercasedDriveLetterUri}`;
-  }
+export function toUri(filePath: string) {
+  return URI.file(filePath).toString();
 }
 
 export function isCharacterALetter(char: string): boolean {
@@ -59,4 +54,8 @@ export function uriEquals(uri1: string, uri2: string) {
 
 export function normalizeSlashes(p: string) {
   return path.sep === "\\" ? p.replace(/\\/g, "/") : p;
+}
+
+export function isTestMode() {
+  return process.env.NODE_ENV === "test";
 }

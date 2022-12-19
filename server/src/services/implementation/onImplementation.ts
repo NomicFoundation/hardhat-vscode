@@ -10,10 +10,10 @@ import {
 } from "@common/types";
 import { getParserPositionFromVSCodePosition, getRange } from "@common/utils";
 import { findReferencesFor } from "@utils/findReferencesFor";
-import { convertHardhatUriToVscodeUri } from "@utils/index";
 import { onCommand } from "@utils/onCommand";
 import { ImplementationParams } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
+import { toUri } from "../../utils";
 
 export const onImplementation = (serverState: ServerState) => {
   return (params: ImplementationParams) => {
@@ -54,7 +54,7 @@ function findImplementation(
         implNode.nameLoc !== undefined
     )
     .map((refNode) => ({
-      uri: convertHardhatUriToVscodeUri(refNode.uri),
+      uri: toUri(refNode.uri),
       range: getRange(refNode.nameLoc),
     }));
 }

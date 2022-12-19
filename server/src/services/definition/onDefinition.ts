@@ -1,9 +1,9 @@
 import { ISolFileEntry, VSCodePosition, Node, Location } from "@common/types";
 import { getParserPositionFromVSCodePosition, getRange } from "@common/utils";
-import { convertHardhatUriToVscodeUri } from "@utils/index";
 import { onCommand } from "@utils/onCommand";
 import { DefinitionParams } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
+import { toUri } from "../../utils";
 
 export const onDefinition = (serverState: ServerState) => {
   return (params: DefinitionParams) => {
@@ -43,7 +43,7 @@ function findDefinition(
   }
 
   return {
-    uri: convertHardhatUriToVscodeUri(definitionNode.uri),
+    uri: toUri(definitionNode.uri),
     range: getRange(location),
   };
 }

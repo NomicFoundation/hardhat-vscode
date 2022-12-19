@@ -22,10 +22,6 @@ export async function indexWorkspaceFolders(
   const logger = _.clone(serverState.logger);
   logger.tag = "indexing";
 
-  if (workspaceFolders.some((wf) => wf.uri.includes("\\"))) {
-    throw new Error("Unexpect windows style path");
-  }
-
   const topLevelWorkspaceFolders = resolveTopLevelWorkspaceFolders(
     serverState,
     workspaceFolders
@@ -42,8 +38,6 @@ export async function indexWorkspaceFolders(
   if (topLevelWorkspaceFolders.length === 0) {
     return;
   }
-
-  notifyStartIndexing(serverState);
 
   // Scan for projects
   const indexers = [
@@ -104,8 +98,6 @@ export async function indexWorkspaceFolders(
   await logger.trackTime("Analyzing solidity files", async () => {
     await analyzeSolFiles(serverState, logger, solFileUris);
   });
-
-  notifyEndIndexing(serverState);
 }
 
 async function scanForSolFiles(
@@ -177,31 +169,7 @@ export async function indexSolidityFiles(
       project,
       docText
     );
-
-    notifyFileIndexed(serverState, fileUri, project);
   }
-}
-
-function notifyStartIndexing(serverState: ServerState) {
-  serverState.connection.sendNotification("custom/indexing-start");
-}
-
-function notifyEndIndexing(serverState: ServerState) {
-  serverState.connection.sendNotification("custom/indexing-end");
-}
-
-function notifyFileIndexed(
-  serverState: ServerState,
-  uri: string,
-  project: Project
-) {
-  serverState.connection.sendNotification("custom/file-indexed", {
-    uri,
-    project: {
-      configPath: project.configPath,
-      frameworkName: project.frameworkName(),
-    },
-  });
 }
 
 async function analyzeSolFiles(

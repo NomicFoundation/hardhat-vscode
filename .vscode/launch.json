@@ -30,8 +30,8 @@
       "runtimeExecutable": "${execPath}",
       "args": [
         "--extensionDevelopmentPath=${workspaceRoot}",
-        "--extensionTestsPath=${workspaceRoot}/out/test/integration/index",
-        "${workspaceRoot}/test/integration"
+        "--extensionTestsPath=${workspaceRoot}/out/test/e2e/index",
+        "${workspaceRoot}/test/e2e"
       ],
       "outFiles": ["${workspaceRoot}/out/test/**/*.js"]
     },

@@ -16,8 +16,16 @@
     "./server/test",
     "./client/out",
     "./server/out",
+    "./test/protocol",
     "./out",
     ".eslintrc.js"
   ],
-  "references": [{ "path": "./client" }, { "path": "./server" }]
+  "references": [
+    {
+      "path": "./client"
+    },
+    {
+      "path": "./server"
+    }
+  ]
 }

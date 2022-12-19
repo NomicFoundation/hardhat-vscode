@@ -17,6 +17,7 @@ import { onRename } from "@services/rename/onRename";
 import { ServerState } from "./types";
 import { Telemetry } from "./telemetry/types";
 import { attachDocumentHooks } from "./services/documents/attachDocumentHooks";
+import { availableVersions } from "./services/initialization/updateAvailableSolcVersions";
 
 export default function setupServer(
   connection: Connection,
@@ -52,14 +53,12 @@ function setupUninitializedServerState(
     hardhatTelemetryEnabled: false,
     connection,
     indexedWorkspaceFolders: [],
-    workspaceFoldersToIndex: [],
     projects: {},
     documents: new TextDocuments(TextDocument),
     solFileIndex: {},
     telemetry,
     logger,
-    solcVersions: [],
-    indexingFinished: false,
+    solcVersions: availableVersions,
     validationCount: 0,
     lastValidationId: {},
     workspaceFileRetriever,
