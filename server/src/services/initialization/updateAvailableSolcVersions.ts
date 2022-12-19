@@ -1,6 +1,7 @@
 import _ from "lodash";
 import got from "got";
 import { ServerState } from "../../types";
+import { isTestMode } from "../../utils";
 
 export const availableVersions = [
   "0.3.6",
@@ -89,7 +90,7 @@ export const availableVersions = [
 ];
 
 export async function updateAvailableSolcVersions(state: ServerState) {
-  if (process.env.NODE_ENV === "test") {
+  if (isTestMode()) {
     return;
   }
   state.logger.info("Fetching latest solidity versions");

@@ -55,3 +55,7 @@ export function uriEquals(uri1: string, uri2: string) {
 export function normalizeSlashes(p: string) {
   return path.sep === "\\" ? p.replace(/\\/g, "/") : p;
 }
+
+export function isTestMode() {
+  return process.env.NODE_ENV === "test";
+}
