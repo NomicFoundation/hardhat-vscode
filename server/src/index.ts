@@ -1,5 +1,16 @@
+#!/usr/bin/env node
 /* istanbul ignore file: setup file */
 import "module-alias/register";
+
+import { addAliases } from "module-alias";
+addAliases({
+  "@compilerDiagnostics": `${__dirname}/compilerDiagnostics/`,
+  "@analyzer": `${__dirname}/parser/analyzer/`,
+  "@common": `${__dirname}/parser/common/`,
+  "@services": `${__dirname}/services/`,
+  "@utils": `${__dirname}/utils/`,
+});
+
 import { createConnection, ProposedFeatures } from "vscode-languageserver/node";
 import { ConnectionLogger } from "@utils/Logger";
 import { WorkspaceFileRetriever } from "@utils/WorkspaceFileRetriever";

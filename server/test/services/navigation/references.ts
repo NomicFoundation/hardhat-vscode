@@ -5,8 +5,8 @@ import {
   OnReferences,
   setupMockLanguageServer,
 } from "../../helpers/setupMockLanguageServer";
-import { convertHardhatUriToVscodeUri } from "../../../src/utils/index";
 import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
+import { toUri } from "../../../src/utils";
 
 describe("Parser", () => {
   describe("Navigation", () => {
@@ -148,6 +148,6 @@ const assertReferencesNavigation = async (
 
   assert.deepInclude(response, {
     ...expectedPositions,
-    uri: convertHardhatUriToVscodeUri(expectedPositions.uri),
+    uri: toUri(expectedPositions.uri),
   });
 };

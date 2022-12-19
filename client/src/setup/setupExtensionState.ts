@@ -38,7 +38,6 @@ export function setupExtensionState(
 
     client: null,
     listenerDisposables: [],
-    currentIndexingJobs: [],
     projectsValidationStatus: {},
     hardhatTelemetryEnabled:
       workspace.getConfiguration("hardhat").get<boolean>("telemetry") ?? false,
@@ -50,7 +49,6 @@ export function setupExtensionState(
     commandsOutputChannel,
     logger,
     hardhatProjects: [],
-    indexingFinished: false,
   };
 
   telemetry.init(extensionState);

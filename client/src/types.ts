@@ -15,7 +15,6 @@ export interface ExtensionState {
   serverModulePath: string;
 
   client: LanguageClient | null;
-  currentIndexingJobs: LanguageStatusItem[];
   projectsValidationStatus: { [key: string]: LanguageStatusItem };
   listenerDisposables: Disposable[];
 
@@ -29,8 +28,6 @@ export interface ExtensionState {
 
   projectStatusItems: LanguageStatusItem[]; // 1 per indexed contract. shows project info for that contract
   hardhatProjects: string[];
-
-  indexingFinished: boolean;
 }
 
 export interface Project {

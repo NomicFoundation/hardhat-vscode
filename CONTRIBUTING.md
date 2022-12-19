@@ -12,7 +12,8 @@ This document contains details on how to collaborate and develop on the **Hardha
     - [4. Debug](#4-debug)
   - [Testing](#testing)
     - [Unit](#unit)
-    - [Integration](#integration)
+    - [Protocol](#protocol)
+    - [E2E](#e2e)
   - [Code Formatting](#code-formatting)
   - [Linting](#linting)
   - [Changeset](#changeset)
@@ -26,7 +27,7 @@ This document contains details on how to collaborate and develop on the **Hardha
 
 - `./client` - the vscode extension, which mainly delegates onto the language server for functionality
 - `./server` - the Hardhat language server, which supports the validation, quickfixes and other solidity language features of the extension
-- `./test` - integration tests that combine both client and server
+- `./test/e2e` - e2e tests that combine both client and server
 - `./snippets` - the code snippets the extension contributes on install
 - `./syntaxes` - the solidity syntax highlighting rules
 
@@ -87,7 +88,7 @@ To do this, you need:
 
 ## Testing
 
-**Hardhat for Visual Studio Code** has both unit and integration tests. Components of the server should be tested with unit tests, with a small set of integration tests providing confidence that component interactions work.
+**Hardhat for Visual Studio Code** has unit, protocol and e2e tests. Components of the server should be tested with unit tests, with a small set of integration tests providing confidence that component interactions work.
 
 A complete test run involves both test suites and can be run, from repo root, with:
 
@@ -115,14 +116,24 @@ Code coverage is available with:
 yarn test:coverage
 ```
 
-### Integration
+### Protocol
 
-Integration tests that run a VSCode instance and exercise its workspace, files, Hardhat Client / Server, and VS Code commands. The integration tests are run using **mocha** and are contained in the [./test](./test) folder. The individual End-to-End tests are in the [./test/testdata/](./test/testdata/) directory.
+Protocol tests boot up only the LSP and interact with it using a custom test language client.
+
+To run the protocol tests from the command line, in the repo root run:
+
+```shell
+yarn test:protocol
+```
+
+### E2E
+
+End to end tests that run a VSCode instance and exercise its workspace, files, Hardhat Client / Server, and VS Code commands. The integration tests are run using **mocha** and are contained in the [./test/e2e](./test/e2e) folder.
 
 To run the End-to-End tests from the command line, in the repo root run:
 
 ```shell
-yarn test:integration
+yarn test:e2e
 ```
 
 To run the End-to-End tests within VSCode, open the Run view (`Ctrl+Shift+D`), select `Language Server E2E Test`, and click the Play button (`F5`). \

@@ -1,0 +1,35 @@
+{
+  "name": "protocol",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "yarn install --cwd ./projects/hardhat",
+    "start": "tsc && node out/index.js",
+    "test": "cross-env NODE_ENV=test mocha",
+    "lint": "yarn prettier --check && yarn eslint",
+    "lint:fix": "yarn prettier --write && yarn lint --fix",
+    "eslint": "eslint --max-warnings 0 \"./src/**/*.ts\" \"./test/**/*.ts\"",
+    "prettier": "prettier \"*.json\" \"src/**/*.{ts,js,md,json,yml}\" \"test/**/*.{ts,js,md,json,yml}\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/lodash": "^4.14.191",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.29.0",
+    "lodash": "^4.17.21",
+    "prettier": "^2.8.1",
+    "vscode-languageserver-protocol": "~3.16.0",
+    "vscode-uri": "^3.0.6"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.11.9",
+    "chai": "^4.3.7",
+    "mocha": "^10.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.3"
+  }
+}

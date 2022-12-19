@@ -6,10 +6,10 @@ import {
   Overwrite,
 } from "@common/types";
 import { getParserPositionFromVSCodePosition, getRange } from "@common/utils";
-import { convertHardhatUriToVscodeUri } from "@utils/index";
 import { onCommand } from "@utils/onCommand";
 import { TypeDefinitionParams } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
+import { toUri } from "../../utils";
 
 export const onTypeDefinition = (serverState: ServerState) => {
   return (params: TypeDefinitionParams) => {
@@ -51,7 +51,7 @@ function findTypeDefinition(
         typeNode.nameLoc !== undefined
     )
     .map((typeNode) => ({
-      uri: convertHardhatUriToVscodeUri(typeNode.uri),
+      uri: toUri(typeNode.uri),
       range: getRange(typeNode.nameLoc),
     }));
 }

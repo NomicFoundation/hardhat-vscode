@@ -9,11 +9,11 @@ import { runTests } from "@vscode/test-electron";
 
     // The path to test runner
     // Passed to --extensionTestsPath
-    const extensionTestsPath = path.resolve(__dirname, "integration", "index");
+    const extensionTestsPath = path.resolve(__dirname, "e2e", "index");
 
-    const folder = path.resolve(__dirname, "..", "..", "test", "integration");
+    const folder = path.resolve(__dirname, "..", "..", "test", "e2e");
 
-    // Download VS Code, unzip it and run the integration test
+    // Download VS Code, unzip it and run the e2e test
     await runTests({
       version: "1.70.2",
       extensionDevelopmentPath,

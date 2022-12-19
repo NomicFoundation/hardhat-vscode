@@ -4,6 +4,7 @@ import { debounce } from "../../utils/debounce";
 import { ServerState } from "../../types";
 import { analyse } from "../validation/analyse";
 import { validate } from "../validation/validate";
+import { isTestMode } from "../../utils";
 
 type ChangeAction = (
   serverState: ServerState,
@@ -30,12 +31,12 @@ export function onDidChangeContent(serverState: ServerState) {
     analyse: {
       action: analyse,
       changeActions: {},
-      wait: 240,
+      wait: isTestMode() ? 0 : 240,
     },
     validate: {
       action: validate,
       changeActions: {},
-      wait: 250,
+      wait: isTestMode() ? 0 : 250,
     },
   };
 

@@ -1,8 +1,9 @@
 import _ from "lodash";
 import got from "got";
 import { ServerState } from "../../types";
+import { isTestMode } from "../../utils";
 
-const availableVersions = [
+export const availableVersions = [
   "0.3.6",
   "0.4.0",
   "0.4.1",
@@ -89,6 +90,11 @@ const availableVersions = [
 ];
 
 export async function updateAvailableSolcVersions(state: ServerState) {
+  if (isTestMode()) {
+    return;
+  }
+  state.logger.info("Fetching latest solidity versions");
+
   const latestVersions = await fetchLatestVersions(state);
 
   state.solcVersions = _.union(availableVersions, latestVersions);
