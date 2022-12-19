@@ -1,8 +1,8 @@
-# How to contribute to Solidity for VS Code by Nomic Foundation
+# How to contribute to Solidity for Visual Studio Code by Nomic Foundation
 
 This document contains details on how to collaborate and develop on the **Solidity for VS Code by Nomic Foundation** project.
 
-- [How to contribute to Solidity for VS Code by Nomic Foundation](#how-to-contribute-to-solidity-for-vs-code-by-nomic-foundation)
+- [How to contribute to Solidity for Visual Studio Code by Nomic Foundation](#how-to-contribute-to-solidity-for-visual-studio-code-by-nomic-foundation)
   - [Project structure](#project-structure)
   - [Installing](#installing)
   - [Running Locally](#running-locally)

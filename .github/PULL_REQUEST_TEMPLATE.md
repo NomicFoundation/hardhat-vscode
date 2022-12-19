@@ -1,5 +1,5 @@
 <!--
-Thank you for using **Solidity for VS Code by Nomic Foundation** and taking the time to send a Pull Request!
+Thank you for using **Solidity for Visual Studio Code by Nomic Foundation** and taking the time to send a Pull Request!
 
 If you are introducing a new feature, please discuss it in an Issue or with someone from the team before submitting your change.
 
