@@ -5,6 +5,7 @@ import {
   WorkspaceFolder,
 } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
+import { isTelemetryEnabled } from "../../utils/serverStateUtils";
 import { indexWorkspaceFolders } from "./indexWorkspaceFolders";
 import { updateAvailableSolcVersions } from "./updateAvailableSolcVersions";
 
@@ -140,7 +141,7 @@ function logInitializationInfo(
 
   logger.info(`  Release: ${extensionName}@${extensionVersion}`);
   logger.info(`  Environment: ${serverState.env}`);
-  logger.info(`  Telemetry Enabled: ${serverState.globalTelemetryEnabled}`);
+  logger.info(`  Telemetry Enabled: ${isTelemetryEnabled(serverState)}`);
 
   if (machineId !== undefined) {
     logger.info(
