@@ -1,6 +1,6 @@
 {
-  "files.exclude": {
-    "client/out": true,
-    "server/out": true
-  }
+  // "files.exclude": {
+  //   "client/out": true,
+  //   "server/out": true
+  // }
 }
