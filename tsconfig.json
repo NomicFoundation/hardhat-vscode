@@ -7,15 +7,17 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "strict": true
+    "strict": true,
+    "skipLibCheck": true
   },
-  "include": ["./client", "./server", "./test", "./test/**/*.json"],
+  "include": ["./client", "./server", "./coc", "./test", "./test/**/*.json"],
   "exclude": [
     "node_modules",
     ".vscode-test",
     "./server/test",
     "./client/out",
     "./server/out",
+    "./coc/out",
     "./test/protocol",
     "./out",
     ".eslintrc.js"
@@ -26,6 +28,9 @@
     },
     {
       "path": "./server"
+    },
+    {
+      "path": "./coc"
     }
   ]
 }

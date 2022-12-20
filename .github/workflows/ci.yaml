@@ -36,6 +36,7 @@ jobs:
             node_modules
             client/node_modules
             server/node_modules
+            coc/node_modules
             test/e2e/node_modules
             test/protocol/node_modules
             test/protocol/projects/hardhat/node_modules

@@ -1,22 +1,36 @@
 {
-  "name": "solidity-language-server",
-  "description": "",
-  "version": "1.0.0",
+  "name": "@ignored/solidity-language-server",
+  "description": "Solidity language server by Nomic Foundation",
   "license": "MIT",
+  "version": "0.0.8",
+  "author": "Nomic Foundation",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NomicFoundation/hardhat-vscode"
+  },
+  "keywords": [
+    "language server",
+    "solidity",
+    "ethereum",
+    "hardhat"
+  ],
   "main": "./out/index.js",
   "types": "./out/index.d.ts",
-  "bin": {
-    "solidity-lsp": "./out/index.js"
-  },
+  "files": [
+    "out/**/*"
+  ],
   "engines": {
     "node": "*"
   },
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
+    "prebundle": "yarn clean",
+    "bundle": "node scripts/bundle.js",
+    "prepublish": "yarn bundle",
     "test": "cross-env TS_NODE_FILES=true mocha",
     "test:coverage": "cross-env TS_NODE_FILES=true nyc mocha",
     "lint": "yarn prettier --check && yarn eslint",
-    "lint:fix": "yarn prettier --write && yarn lint --fix",
+    "lint:fix": "yarn prettier --write && yarn eslint --fix",
     "eslint": "eslint --max-warnings 0 \"./src/**/*.ts\" \"./test/**/*.ts\"",
     "prettier": "prettier \"*.json\" \"src/**/*.{ts,js,md,json,yml}\" \"test/**/*.{ts,js,md,json,yml}\"",
     "clean": "rimraf out .nyc_output coverage *.tsbuildinfo",
@@ -33,6 +47,7 @@
     "@types/node": "^14.14.37",
     "@types/qs": "^6.9.7",
     "@types/module-alias": "^2.0.1",
+    "@types/prettier": "2.4.3",
     "@types/semver": "^7.3.12",
     "@types/sinon": "10.0.6",
     "@types/uuid": "^8.3.1",
@@ -52,7 +67,6 @@
     "@sentry/node": "6.19.1",
     "@sentry/tracing": "6.19.1",
     "@solidity-parser/parser": "^0.14.0",
-    "@types/prettier": "2.4.3",
     "c3-linearization": "0.3.0",
     "fast-glob": "3.2.11",
     "fs-extra": "^10.0.0",
