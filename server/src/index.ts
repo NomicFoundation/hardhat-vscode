@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 /* istanbul ignore file: setup file */
-import "module-alias/register";
 
 import { addAliases } from "module-alias";
 addAliases({
