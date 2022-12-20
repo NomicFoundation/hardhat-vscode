@@ -1,0 +1,69 @@
+{
+  "name": "@ignored/coc-solidity",
+  "description": "Solidity and Hardhat support for coc.nvim",
+  "license": "MIT",
+  "version": "0.0.8",
+  "author": "Nomic Foundation",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NomicFoundation/hardhat-vscode"
+  },
+  "keywords": [
+    "coc.nvim",
+    "solidity",
+    "ethereum",
+    "hardhat"
+  ],
+  "main": "out/index.js",
+  "files": [
+    "out/index.js"
+  ],
+  "scripts": {
+    "bundle": "esbuild src/index.ts --platform=node --bundle --external:coc.nvim --external:@ignored/solidity-language-server --outdir=out",
+    "prepublish": "yarn bundle",
+    "lint": "yarn prettier --check && yarn eslint",
+    "lint:fix": "yarn prettier --write && yarn eslint --fix",
+    "eslint": "eslint --max-warnings 0 \"./src/**/*.ts\"",
+    "prettier": "prettier \"*.json\" \"src/**/*.{ts,js,md,json,yml}\"",
+    "clean": "rimraf out .nyc_output coverage *.tsbuildinfo *.log"
+  },
+  "dependencies": {
+    "@ignored/solidity-language-server": "0.0.8"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.21",
+    "coc.nvim": "^0.0.80",
+    "esbuild": "^0.16.0",
+    "eslint": "^7.23.0"
+  },
+  "engines": {
+    "coc": "^0.0.80"
+  },
+  "activationEvents": [
+    "onLanguage:solidity"
+  ],
+  "contributes": {
+    "rootPatterns": [
+      {
+        "filetype": "solidity",
+        "patterns": [
+          ".git/",
+          "hardhat.config.js",
+          "hardhat.config.ts",
+          "foundry.toml"
+        ]
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "@ignored/coc-solidity configuration",
+      "properties": {
+        "@ignored/coc-solidity.telemetry": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow this extension to send telemetry. This helps us understand how it is used and how it is performing. Read more in our [privacy policy](https://hardhat.org/privacy-policy.html)."
+        }
+      }
+    }
+  }
+}
