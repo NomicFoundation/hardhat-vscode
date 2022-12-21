@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.6.5 - 2022-12-21
+
+### Added
+
+- Custom protocol testing framework + test suite
+
+### Fixed
+
+- Bundled extension properly, including hardhat 2.12.4 which fixes the `.js on undefined` error on solcjs users.
+
 ## 0.6.4 - 2022-12-15
 
 ### Added
