@@ -50,7 +50,7 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
         workspace.createFileSystemWatcher("**/*.sol"),
       ],
     },
-    diagnosticCollectionName: "hardhat-language-server",
+    diagnosticCollectionName: "solidity-language-server",
     outputChannel: extensionState.outputChannel,
     initializationOptions: {
       extensionName: extensionState.name,
@@ -67,8 +67,8 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
   // Create the language client and start the client.
   // Start the client. This will also launch the server
   const client = new LanguageClient(
-    "hardhat-language-server",
-    "Hardhat Language Server",
+    "solidity-language-server",
+    "Solidity Language Server",
     serverOptions,
     clientOptions
   );
@@ -91,12 +91,12 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
 
   const hardhatTelemetryChangeDisposable = workspace.onDidChangeConfiguration(
     (e) => {
-      if (!e.affectsConfiguration("hardhat.telemetry")) {
+      if (!e.affectsConfiguration("solidity.telemetry")) {
         return;
       }
 
       extensionState.hardhatTelemetryEnabled =
-        workspace.getConfiguration("hardhat").get<boolean>("telemetry") ??
+        workspace.getConfiguration("solidity").get<boolean>("telemetry") ??
         false;
 
       client.sendNotification("custom/didChangeHardhatTelemetryEnabled", {

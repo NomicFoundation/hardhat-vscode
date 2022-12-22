@@ -45,7 +45,7 @@ describe('[hardhat][completion]', () => {
             kind: 9,
             documentation: 'Imports the package',
             command: {
-              command: 'hardhat.solidity.insertSemicolon',
+              command: 'solidity.insertSemicolon',
               arguments: [
                 {
                   line: 0,
@@ -73,7 +73,7 @@ describe('[hardhat][completion]', () => {
             kind: 9,
             documentation: 'Imports the package',
             command: {
-              command: 'hardhat.solidity.insertSemicolon',
+              command: 'solidity.insertSemicolon',
               arguments: [
                 {
                   line: 0,
@@ -115,7 +115,7 @@ describe('[hardhat][completion]', () => {
             kind: 9,
             documentation: 'Imports the package',
             command: {
-              command: 'hardhat.solidity.insertSemicolon',
+              command: 'solidity.insertSemicolon',
               arguments: [
                 {
                   line: 2,
@@ -143,7 +143,7 @@ describe('[hardhat][completion]', () => {
             kind: 9,
             documentation: 'Imports the package',
             command: {
-              command: 'hardhat.solidity.insertSemicolon',
+              command: 'solidity.insertSemicolon',
               arguments: [
                 {
                   line: 2,
@@ -185,7 +185,7 @@ describe('[hardhat][completion]', () => {
             kind: 9,
             documentation: 'Imports the package',
             command: {
-              command: 'hardhat.solidity.insertSemicolon',
+              command: 'solidity.insertSemicolon',
               arguments: [
                 {
                   line: 4,
@@ -213,7 +213,7 @@ describe('[hardhat][completion]', () => {
             kind: 9,
             documentation: 'Imports the package',
             command: {
-              command: 'hardhat.solidity.insertSemicolon',
+              command: 'solidity.insertSemicolon',
               arguments: [
                 {
                   line: 4,
@@ -255,7 +255,7 @@ describe('[hardhat][completion]', () => {
             kind: 9,
             documentation: 'Imports the package',
             command: {
-              command: 'hardhat.solidity.insertSemicolon',
+              command: 'solidity.insertSemicolon',
               arguments: [
                 {
                   line: 6,

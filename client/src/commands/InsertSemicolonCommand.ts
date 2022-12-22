@@ -2,6 +2,10 @@ import vscode, { Position } from "vscode";
 import Command from "./Command";
 
 export default class InsertSemicolonCommand extends Command {
+  public name(): string {
+    return "solidity.insertSemicolon";
+  }
+
   public async execute(position: Position) {
     const editor = vscode.window.activeTextEditor;
 
@@ -18,9 +22,5 @@ export default class InsertSemicolonCommand extends Command {
     await editor.edit((builder) =>
       builder.insert(new Position(position.line, lineText.length), ";")
     );
-  }
-
-  public name(): string {
-    return "insertSemicolon";
   }
 }

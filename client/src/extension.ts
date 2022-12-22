@@ -21,7 +21,7 @@ export async function activate(context: ExtensionContext) {
 
   const { logger } = extensionState;
 
-  logger.info("Hardhat for Visual Studio Code Starting ...");
+  logger.info("Solidity by Nomic Foundation Starting ...");
   logger.info(`env: ${extensionState.env}`);
 
   await indexHardhatProjects(extensionState);

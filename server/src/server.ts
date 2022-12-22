@@ -117,9 +117,9 @@ function attachCustomHooks(serverState: ServerState) {
     "custom/didChangeHardhatTelemetryEnabled",
     ({ enabled }: { enabled: boolean }) => {
       if (enabled) {
-        logger.info(`Hardhat telemetry enabled`);
+        logger.info(`Solidity telemetry enabled`);
       } else {
-        logger.info(`Hardhat telemetry disabled`);
+        logger.info(`Solidity telemetry disabled`);
       }
 
       serverState.hardhatTelemetryEnabled = enabled;
