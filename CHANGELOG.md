@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.6.6 - 2022-12-22
+
+### Changed
+
+- Updated logo and extension naming in docs ([#311](https://github.com/NomicFoundation/hardhat-vscode/pull/311))
+
+### Fixed
+
+- Forge fmt respects project's foundry.toml ([#316](https://github.com/NomicFoundation/hardhat-vscode/pull/316))
+
 ## 0.6.5 - 2022-12-21
 
 ### Added
