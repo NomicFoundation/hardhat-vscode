@@ -1,8 +1,8 @@
-# How to contribute to Hardhat for Visual Studio Code
+# How to contribute to Solidity for Visual Studio Code by Nomic Foundation
 
-This document contains details on how to collaborate and develop on the **Hardhat for Visual Studio Code** project.
+This document contains details on how to collaborate and develop on the **Solidity for VS Code by Nomic Foundation** project.
 
-- [How to contribute to Hardhat for Visual Studio Code](#how-to-contribute-to-hardhat-for-visual-studio-code)
+- [How to contribute to Solidity for Visual Studio Code by Nomic Foundation](#how-to-contribute-to-solidity-for-visual-studio-code-by-nomic-foundation)
   - [Project structure](#project-structure)
   - [Installing](#installing)
   - [Running Locally](#running-locally)
@@ -23,7 +23,7 @@ This document contains details on how to collaborate and develop on the **Hardha
 
 ## Project structure
 
-**Hardhat for Visual Studio Code** is a typescript vscode extension and language server. The code is organised into:
+The vscode extension and language server are written in typescript. The code is organised into:
 
 - `./client` - the vscode extension, which mainly delegates onto the language server for functionality
 - `./server` - the Hardhat language server, which supports the validation, quickfixes and other solidity language features of the extension
@@ -33,7 +33,7 @@ This document contains details on how to collaborate and develop on the **Hardha
 
 ## Installing
 
-[node](https://nodejs.org/en/) and [yarn](https://yarnpkg.com/) are required for **Hardhat for Visual Studio Code** development.
+[node](https://nodejs.org/en/) and [yarn](https://yarnpkg.com/) are required for development.
 
 To install the project's dependencies, run `yarn` in the root directory of the repository. This will install node dependencies at the top level, and in both the `./server` and `./client` package directories.
 
@@ -88,7 +88,7 @@ To do this, you need:
 
 ## Testing
 
-**Hardhat for Visual Studio Code** has unit, protocol and e2e tests. Components of the server should be tested with unit tests, with a small set of integration tests providing confidence that component interactions work.
+The project has unit, protocol and e2e tests. Components of the server should be tested with unit tests, with a small set of integration tests providing confidence that component interactions work.
 
 A complete test run involves both test suites and can be run, from repo root, with:
 

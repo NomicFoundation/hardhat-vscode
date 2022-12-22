@@ -16,7 +16,7 @@ import { prependWithSlash } from "../../helpers/prependWithSlash";
 const semicolonCommand = (position: VSCodePosition) => ({
   command: {
     arguments: [position],
-    command: "hardhat.solidity.insertSemicolon",
+    command: "solidity.insertSemicolon",
     title: "",
   },
 });

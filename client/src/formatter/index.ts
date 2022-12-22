@@ -8,7 +8,7 @@ export async function formatDocument(
 ): Promise<vscode.TextEdit[]> {
   try {
     const formatter = vscode.workspace
-      .getConfiguration("hardhat")
+      .getConfiguration("solidity")
       .get("formatter");
 
     switch (formatter) {

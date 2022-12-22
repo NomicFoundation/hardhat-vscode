@@ -236,7 +236,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 
-- Remove unnecessary setting for turning off formatting, use vscode formatting config if you want to turn **Hardhat for Visual Studio Code** formatting off ([#102](https://github.com/NomicFoundation/hardhat-vscode/issues/102))
+- Remove unnecessary setting for turning off formatting, use vscode formatting config if you want to turn formatting off ([#102](https://github.com/NomicFoundation/hardhat-vscode/issues/102))
 
 ### Fixed
 

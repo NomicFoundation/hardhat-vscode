@@ -8,7 +8,7 @@
   "private": true,
   "main": "./client/out/extension.js",
   "module": "./client/out/extension.js",
-  "icon": "docs/images/hardhat-vscode-logo.png",
+  "icon": "docs/images/vscode-logo.png",
   "categories": [
     "Programming Languages",
     "Snippets",
@@ -26,7 +26,7 @@
     "blockchain",
     "compiler"
   ],
-  "homepage": "https://hardhat.org/",
+  "homepage": "https://hardhat.org/hardhat-vscode/",
   "repository": {
     "type": "git",
     "url": "https://github.com/NomicFoundation/hardhat-vscode"
@@ -94,9 +94,9 @@
   "contributes": {
     "configuration": {
       "type": "object",
-      "title": "Hardhat",
+      "title": "Solidity",
       "properties": {
-        "hardhat-language-server.trace.server.verbosity": {
+        "solidity-language-server.trace.server.verbosity": {
           "type": "string",
           "description": "Traces the communication between VS Code and the solidity language server.",
           "enum": [
@@ -106,12 +106,12 @@
           ],
           "default": "off"
         },
-        "hardhat.telemetry": {
+        "solidity.telemetry": {
           "type": "boolean",
-          "markdownDescription": "Allow **Hardhat for Visual Studio Code** to send extension telemetry. This helps us understand how **Hardhat for Visual Studio Code** is used and how it is performing. Read more in our [privacy policy](https://hardhat.org/privacy-policy.html).\n\n&nbsp;\n\n*__Note:__ **Hardhat for Visual Studio Code** respects the global **Telemetry Level** setting, and will only send telemetry if enabled at both global and extension level.*",
+          "markdownDescription": "Allow **Solidity** to send extension telemetry. This helps us understand how the extension is used and how it is performing. Read more in our [privacy policy](https://hardhat.org/privacy-policy.html).\n\n&nbsp;\n\n*__Note:__ **Solidity** respects the global **Telemetry Level** setting, and will only send telemetry if enabled at both global and extension level.*",
           "default": false
         },
-        "hardhat.formatter": {
+        "solidity.formatter": {
           "type": "string",
           "default": "prettier",
           "enum": [
@@ -166,29 +166,29 @@
     ],
     "commands": [
       {
-        "command": "hardhat.solidity.compile",
-        "title": "Hardhat: Compile project"
-      },
-      {
-        "command": "hardhat.solidity.clean",
-        "title": "Hardhat: Clear cache and artifacts "
-      },
-      {
-        "command": "hardhat.solidity.insertSemicolon",
+        "command": "solidity.insertSemicolon",
         "title": "Insert semicolon",
         "enablement": "false"
       },
       {
-        "command": "hardhat.solidity.flattenCurrentFile",
+        "command": "solidity.hardhat.compile",
+        "title": "Hardhat: Compile project"
+      },
+      {
+        "command": "solidity.hardhat.clean",
+        "title": "Hardhat: Clear cache and artifacts "
+      },
+      {
+        "command": "solidity.hardhat.flattenCurrentFile",
         "title": "Hardhat: Flatten this file and its dependencies",
-        "enablement": "editorLangId == 'solidity'  && hardhat.inHardhatProject"
+        "enablement": "editorLangId == 'solidity' && solidity.inHardhatProject"
       }
     ],
     "menus": {
       "editor/context": [
         {
-          "command": "hardhat.solidity.flattenCurrentFile",
-          "when": "editorLangId == 'solidity' && hardhat.inHardhatProject"
+          "command": "solidity.hardhat.flattenCurrentFile",
+          "when": "editorLangId == 'solidity' && solidity.inHardhatProject"
         }
       ]
     }

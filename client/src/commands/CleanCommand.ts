@@ -2,11 +2,11 @@ import HardhatTaskCommand from "./HardhatTaskCommand";
 
 export default class CleanCommand extends HardhatTaskCommand {
   public name(): string {
-    return "clean";
+    return "solidity.hardhat.clean";
   }
 
   public hardhatArgs(): string[] {
-    return [this.name()];
+    return ["clean"];
   }
 
   public progressLabel(): string {

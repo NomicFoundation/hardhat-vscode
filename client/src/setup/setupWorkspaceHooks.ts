@@ -21,7 +21,7 @@ function onDidOpenTextDocument(state: ExtensionState) {
 
     await vscode.commands.executeCommand(
       "setContext",
-      "hardhat.inHardhatProject",
+      "solidity.inHardhatProject",
       folder !== undefined
     );
   };

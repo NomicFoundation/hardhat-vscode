@@ -37,7 +37,7 @@ describe('[foundry][completion]', () => {
             kind: 9,
             documentation: 'Imports the package',
             command: {
-              command: 'hardhat.solidity.insertSemicolon',
+              command: 'solidity.insertSemicolon',
               arguments: [
                 {
                   line: 0,
@@ -53,7 +53,7 @@ describe('[foundry][completion]', () => {
             kind: 9,
             documentation: 'Imports the package',
             command: {
-              command: 'hardhat.solidity.insertSemicolon',
+              command: 'solidity.insertSemicolon',
               arguments: [
                 {
                   line: 0,
@@ -69,7 +69,7 @@ describe('[foundry][completion]', () => {
             kind: 9,
             documentation: 'Imports the package',
             command: {
-              command: 'hardhat.solidity.insertSemicolon',
+              command: 'solidity.insertSemicolon',
               arguments: [
                 {
                   line: 0,
@@ -103,7 +103,7 @@ describe('[foundry][completion]', () => {
             kind: 17,
             documentation: 'Imports the package',
             command: {
-              command: 'hardhat.solidity.insertSemicolon',
+              command: 'solidity.insertSemicolon',
               arguments: [
                 {
                   line: 2,
@@ -119,7 +119,7 @@ describe('[foundry][completion]', () => {
             kind: 17,
             documentation: 'Imports the package',
             command: {
-              command: 'hardhat.solidity.insertSemicolon',
+              command: 'solidity.insertSemicolon',
               arguments: [
                 {
                   line: 2,
