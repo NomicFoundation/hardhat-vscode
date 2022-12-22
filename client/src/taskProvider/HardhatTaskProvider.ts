@@ -90,6 +90,7 @@ export class HardhatTaskProvider implements vscode.TaskProvider {
         tasks.push(task);
       }
     }
+
     return tasks;
   }
 }

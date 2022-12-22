@@ -7,7 +7,7 @@ export default class FlattenCurrentFileCommand extends HardhatTaskCommand {
   private buffer: string[] = [];
 
   public name(): string {
-    return "flattenCurrentFile";
+    return "solidity.hardhat.flattenCurrentFile";
   }
 
   public hardhatArgs(): string[] {

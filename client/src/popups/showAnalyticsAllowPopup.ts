@@ -19,7 +19,7 @@ export async function showAnalyticsAllowPopup({
   }
 
   const item = await window.showInformationMessage(
-    "Help us improve the Hardhat for Visual Studio Code extension with anonymous crash reports & basic usage data?",
+    "Help us improve the Solidity by Nomic Foundation extension with anonymous crash reports & basic usage data?",
     { modal: true },
     "Accept",
     "Decline"
@@ -27,7 +27,7 @@ export async function showAnalyticsAllowPopup({
 
   const isAccepted = item === "Accept" ? true : false;
 
-  const config = workspace.getConfiguration("hardhat");
+  const config = workspace.getConfiguration("solidity");
 
   await config.update("telemetry", isAccepted, ConfigurationTarget.Global);
 

@@ -33,7 +33,7 @@ describe('[projectless][completion]', () => {
             kind: 17,
             documentation: 'Imports the package',
             command: {
-              command: 'hardhat.solidity.insertSemicolon',
+              command: 'solidity.insertSemicolon',
               arguments: [
                 {
                   line: 0,
@@ -49,7 +49,7 @@ describe('[projectless][completion]', () => {
             kind: 19,
             documentation: 'Imports the package',
             command: {
-              command: 'hardhat.solidity.insertSemicolon',
+              command: 'solidity.insertSemicolon',
               arguments: [
                 {
                   line: 0,

@@ -1,9 +1,8 @@
 {
-  "name": "hardhat-language-server",
+  "name": "solidity-language-server",
   "description": "",
   "version": "1.0.0",
   "license": "MIT",
-  "author": "Riphal <bjankovic998@gmail.com>",
   "main": "./out/index.js",
   "types": "./out/index.d.ts",
   "bin": {
