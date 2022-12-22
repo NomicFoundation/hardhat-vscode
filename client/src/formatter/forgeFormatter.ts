@@ -12,13 +12,22 @@ export async function formatDocument(
   );
 
   const formatted = await new Promise<string>((resolve, reject) => {
-    const forge = cp.execFile("forge", ["fmt", "--raw", "-"], (err, stdout) => {
-      if (err !== null) {
-        return reject(err);
-      }
+    const currentDocument = vscode.window.activeTextEditor?.document.uri;
+    const rootPath = currentDocument
+      ? vscode.workspace.getWorkspaceFolder(currentDocument)?.uri.fsPath
+      : undefined;
+    const forge = cp.execFile(
+      "forge",
+      ["fmt", "--raw", "-"],
+      { cwd: rootPath },
+      (err, stdout) => {
+        if (err !== null) {
+          return reject(err);
+        }
 
-      resolve(stdout);
-    });
+        resolve(stdout);
+      }
+    );
 
     forge.stdin?.write(document.getText());
     forge.stdin?.end();
