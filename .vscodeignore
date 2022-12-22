@@ -23,7 +23,7 @@ client/package.json
 server/package.json
 
 **/docs
-!**/docs/images/hardhat-vscode-logo.png
+!**/docs/images/vscode-logo.png
 
 !server/node_modules/@nomicfoundation/solidity-analyzer/package.json
 !server/node_modules/@nomicfoundation/solidity-analyzer/index.js

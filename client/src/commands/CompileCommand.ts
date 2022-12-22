@@ -2,11 +2,11 @@ import HardhatTaskCommand from "./HardhatTaskCommand";
 
 export default class CompileCommand extends HardhatTaskCommand {
   public name(): string {
-    return "compile";
+    return "solidity.hardhat.compile";
   }
 
   public hardhatArgs(): string[] {
-    return [this.name()];
+    return ["compile"];
   }
 
   public progressLabel(): string {
