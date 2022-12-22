@@ -32,7 +32,8 @@ export class SentryServerTelemetry implements Telemetry {
     machineId: string | undefined,
     extensionName: string | undefined,
     extensionVersion: string | undefined,
-    serverState: ServerState
+    serverState: ServerState,
+    clientName: string | undefined
   ) {
     this.serverState = serverState;
 
@@ -53,12 +54,13 @@ export class SentryServerTelemetry implements Telemetry {
         user: { id: machineId },
         tags: {
           component: "lsp",
+          client: clientName,
         },
       },
       beforeSend: (event) => (isTelemetryEnabled(serverState) ? event : null),
     });
 
-    this.analytics.init(machineId, extensionVersion, serverState);
+    this.analytics.init(machineId, extensionVersion, serverState, clientName);
 
     this.enableHeartbeat();
   }

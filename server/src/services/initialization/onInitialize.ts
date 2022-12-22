@@ -16,8 +16,13 @@ export const onInitialize = (serverState: ServerState) => {
     logger.trace("onInitialize");
     logger.info("Language server starting");
 
-    const { machineId, extensionName, extensionVersion, workspaceFolders } =
-      getSessionInfo(params);
+    const {
+      machineId,
+      extensionName,
+      extensionVersion,
+      workspaceFolders,
+      clientName,
+    } = getSessionInfo(params);
 
     updateServerStateFromParams(serverState, params);
 
@@ -25,7 +30,8 @@ export const onInitialize = (serverState: ServerState) => {
       machineId,
       extensionName,
       extensionVersion,
-      serverState
+      serverState,
+      clientName
     );
 
     logInitializationInfo(serverState, {
@@ -104,7 +110,15 @@ function getSessionInfo(params: InitializeParams) {
 
   const workspaceFolders = params.workspaceFolders || [];
 
-  return { machineId, extensionName, extensionVersion, workspaceFolders };
+  const clientName = params.clientInfo?.name;
+
+  return {
+    machineId,
+    extensionName,
+    extensionVersion,
+    workspaceFolders,
+    clientName,
+  };
 }
 
 function updateServerStateFromParams(

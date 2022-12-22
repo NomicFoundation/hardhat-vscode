@@ -1,5 +1,9 @@
 import { ExtensionContext, LanguageClient, services } from "coc.nvim";
 import * as coc from "coc.nvim";
+import * as packageJson from "../package.json";
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { machineId } = require("./vendor/machineId");
 
 export async function activate(context: ExtensionContext): Promise<void> {
   await showTelemetryPrompt(context);
@@ -26,9 +30,11 @@ export async function activate(context: ExtensionContext): Promise<void> {
       },
       initializationOptions: {
         extensionName: "@ignored/coc-solidity",
+        extensionVersion: packageJson.version,
         env: "production",
         globalTelemetryEnabled: true,
         hardhatTelemetryEnabled: telemetryEnabled,
+        machineId: await machineId(),
       },
     }
   );

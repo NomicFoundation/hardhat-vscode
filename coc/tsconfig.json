@@ -11,7 +11,8 @@
     "composite": true,
     "declaration": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "resolveJsonModule": true
   },
-  "include": ["src"]
+  "include": ["package.json", "src"]
 }

@@ -18,6 +18,7 @@ export interface DefaultRawAnalyticsPayload {
   t: string;
   dp: string;
   cd1: string;
+  ds?: string;
 }
 
 export interface RawAnalyticsPayload {
@@ -33,7 +34,8 @@ export interface Analytics {
   init(
     trackingId: string | undefined,
     extensionVersion: string | undefined,
-    serverState: ServerState
+    serverState: ServerState,
+    clientName: string | undefined
   ): void;
 
   sendPageView(taskName: string, more?: RawAnalyticsPayload): Promise<void>;
