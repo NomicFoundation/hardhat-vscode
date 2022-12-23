@@ -160,8 +160,8 @@ describe("Parser", () => {
           [
             "decode",
             "encode",
+            "encodeCall",
             "encodePacked",
-            "encodeWithSelector",
             "encodeWithSelector",
             "encodeWithSignature",
           ]
