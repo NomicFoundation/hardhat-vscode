@@ -4,6 +4,7 @@ import { compilerDiagnostics } from "@compilerDiagnostics/compilerDiagnostics";
 import { CompilerDiagnostic } from "@compilerDiagnostics/types";
 import { Logger } from "@utils/Logger";
 import { SolcError } from "../../types";
+import { toUnixStyle } from "../../utils";
 
 export class DiagnosticConverter {
   private logger: Logger;
@@ -22,14 +23,15 @@ export class DiagnosticConverter {
       if (error.sourceLocation === undefined) {
         continue;
       }
+      const diagnosticPath = toUnixStyle(error.sourceLocation.file);
 
-      if (!(error.sourceLocation.file in diagnostics)) {
-        diagnostics[error.sourceLocation.file] = [];
+      if (!(diagnosticPath in diagnostics)) {
+        diagnostics[diagnosticPath] = [];
       }
 
       const diagnostic = this.convert(document, error);
 
-      diagnostics[error.sourceLocation.file].push(diagnostic);
+      diagnostics[diagnosticPath].push(diagnostic);
     }
 
     return diagnostics;
