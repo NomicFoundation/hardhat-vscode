@@ -986,4 +986,46 @@ describe('[hardhat][codeAction]', () => {
 
     expect(codeActions).to.have.deep.members(expected)
   })
+
+  test('invalid checksum addresses', async () => {
+    const documentPath = getProjectPath('hardhat/contracts/codeAction/InvalidChecksum.sol')
+    const documentUri = toUri(documentPath)
+
+    await client.openDocument(documentPath)
+
+    const diagnostic = await client.getDiagnostic(documentPath, {
+      range: makeRange(4, 14, 4, 56),
+    })
+
+    const codeActions = await client.getCodeActions(documentUri, diagnostic)
+
+    const expected = [
+      {
+        title: 'Convert to checksummed address',
+        kind: 'quickfix',
+        isPreferred: true,
+        edit: {
+          changes: {
+            [toUri(documentPath)]: [
+              {
+                range: {
+                  start: {
+                    line: 4,
+                    character: 14,
+                  },
+                  end: {
+                    line: 4,
+                    character: 56,
+                  },
+                },
+                newText: '0xc01c693cb0Cf2Ae645e83B27a3e166e87D26E071',
+              },
+            ],
+          },
+        },
+      },
+    ]
+
+    expect(codeActions).to.have.deep.members(expected)
+  })
 })
