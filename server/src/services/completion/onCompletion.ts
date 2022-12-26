@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   VSCodePosition,
   CompletionList,
@@ -15,8 +16,9 @@ import {
   TextDocument,
   MemberAccessNode,
 } from "@common/types";
+import * as parser from "@solidity-parser/parser";
+import { FunctionDefinition } from "@solidity-parser/parser/src/ast-types";
 import { getParserPositionFromVSCodePosition } from "@common/utils";
-import { Logger } from "@utils/Logger";
 import { isImportDirectiveNode } from "@analyzer/utils/typeGuards";
 import {
   CompletionContext,
@@ -32,8 +34,6 @@ import { arrayCompletions } from "./arrayCompletions";
 export const onCompletion = (serverState: ServerState) => {
   return async (params: CompletionParams): Promise<CompletionList | null> => {
     const { logger } = serverState;
-
-    logger.trace("onCompletion");
 
     return serverState.telemetry.trackTiming("onCompletion", async () => {
       const { found, errorMessage, documentAnalyzer, document } =
@@ -63,7 +63,8 @@ export const onCompletion = (serverState: ServerState) => {
         params.position,
         params.context,
         projCtx,
-        logger
+        serverState,
+        document
       );
 
       return { status: "ok", result: completions };
@@ -102,9 +103,68 @@ export function doComplete(
   position: VSCodePosition,
   context: CompletionContext | undefined,
   projCtx: ProjectContext,
-  logger: Logger
+  { logger }: ServerState,
+  document: TextDocument
 ): CompletionList | null {
   const result: CompletionList = { isIncomplete: false, items: [] };
+
+  if (context?.triggerCharacter === "*") {
+    const searchString = "/** */";
+    const lineText = document.getText({
+      start: { line: position.line, character: 0 },
+      end: { line: position.line + 1, character: 0 },
+    });
+    const isJsDoc = lineText.includes(searchString);
+
+    if (!isJsDoc) {
+      return null;
+    }
+
+    const currentOffset = document.offsetAt(position);
+    let nextFunction: FunctionDefinition | undefined;
+
+    parser.visit(documentAnalyzer.analyzerTree.tree.astNode, {
+      FunctionDefinition(node) {
+        if (!node.range || node.range[0] < currentOffset) {
+          return;
+        }
+        if (
+          nextFunction === undefined ||
+          node.range[0] < nextFunction.range![0]
+        ) {
+          nextFunction = node;
+        }
+      },
+    });
+
+    if (nextFunction === undefined) {
+      return null;
+    }
+
+    const range = {
+      start: position,
+      end: position,
+    };
+
+    let text = `\n * @dev Function description\n`;
+
+    for (const param of nextFunction.parameters) {
+      text += ` * @param ${param.name} \n`;
+    }
+
+    for (const _param of nextFunction.returnParameters ?? []) {
+      text += ` * @return  \n`;
+    }
+
+    result.items.push({
+      label: "NatSpec documentation",
+      textEdit: {
+        range,
+        newText: text,
+      },
+    });
+    return result;
+  }
 
   let definitionNode = documentAnalyzer.searcher.findNodeByPosition(
     documentAnalyzer.uri,
