@@ -45,6 +45,22 @@ describe('[hardhat][completion]', () => {
             },
           },
           {
+            label: './Natspec.sol',
+            insertText: './Natspec.sol',
+            kind: 17,
+            documentation: 'Imports the package',
+            command: {
+              command: 'solidity.insertSemicolon',
+              arguments: [
+                {
+                  line: 0,
+                  character: 8,
+                },
+              ],
+              title: '',
+            },
+          },
+          {
             label: 'hardhat',
             textEdit: {
               range: {
@@ -326,6 +342,69 @@ describe('[hardhat][completion]', () => {
           ],
         })
       })
+    })
+  })
+
+  describe('natspec', function () {
+    test('natspec completion on function with return value', async () => {
+      const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
+      const documentUri = toUri(documentPath)
+      await client.openDocument(documentPath)
+
+      const completions = await client.getCompletions(documentUri, 4, 5, CompletionTriggerKind.TriggerCharacter, '*')
+
+      expect(completions).to.deep.equal({
+        isIncomplete: false,
+        items: [
+          {
+            label: 'NatSpec documentation',
+            textEdit: {
+              range: {
+                start: {
+                  line: 4,
+                  character: 5,
+                },
+                end: {
+                  line: 4,
+                  character: 5,
+                },
+              },
+              newText:
+                '\n * @dev Function description\n * @param a parameter description\n * @param b parameter description\n * @return return value description\n',
+            },
+          },
+        ],
+      })
+    })
+  })
+
+  test('natspec completion on function without return value', async () => {
+    const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
+    const documentUri = toUri(documentPath)
+    await client.openDocument(documentPath)
+
+    const completions = await client.getCompletions(documentUri, 9, 5, CompletionTriggerKind.TriggerCharacter, '*')
+
+    expect(completions).to.deep.equal({
+      isIncomplete: false,
+      items: [
+        {
+          label: 'NatSpec documentation',
+          textEdit: {
+            range: {
+              start: {
+                line: 9,
+                character: 5,
+              },
+              end: {
+                line: 9,
+                character: 5,
+              },
+            },
+            newText: '\n * @dev Function description\n * @param a parameter description\n',
+          },
+        },
+      ],
     })
   })
 })
