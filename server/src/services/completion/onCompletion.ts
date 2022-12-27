@@ -113,65 +113,11 @@ export function doComplete(
   { logger }: ServerState,
   document: TextDocument
 ): CompletionList | null {
-  const result: CompletionList = { isIncomplete: false, items: [] };
-
-  if (context?.triggerCharacter === "*") {
-    const searchString = "/** */";
-    const lineText = document.getText({
-      start: { line: position.line, character: 0 },
-      end: { line: position.line + 1, character: 0 },
-    });
-    const isJsDoc = lineText.includes(searchString);
-
-    if (!isJsDoc) {
-      return null;
-    }
-
-    const currentOffset = document.offsetAt(position);
-    let nextFunction: FunctionDefinition | undefined;
-
-    parser.visit(documentAnalyzer.analyzerTree.tree.astNode, {
-      FunctionDefinition(node) {
-        if (!node.range || node.range[0] < currentOffset) {
-          return;
-        }
-        if (
-          nextFunction === undefined ||
-          node.range[0] < nextFunction.range![0]
-        ) {
-          nextFunction = node;
-        }
-      },
-    });
-
-    if (nextFunction === undefined) {
-      return null;
-    }
-
-    const range = {
-      start: position,
-      end: position,
-    };
-
-    let text = `\n * @dev Function description\n`;
-
-    for (const param of nextFunction.parameters) {
-      text += ` * @param ${param.name} \n`;
-    }
-
-    for (const _param of nextFunction.returnParameters ?? []) {
-      text += ` * @return  \n`;
-    }
-
-    result.items.push({
-      label: "NatSpec documentation",
-      textEdit: {
-        range,
-        newText: text,
-      },
-    });
-    return result;
+  if (isNatspecTrigger(context)) {
+    return getNatspecCompletion(documentAnalyzer, document, position);
   }
+
+  const result: CompletionList = { isIncomplete: false, items: [] };
 
   let definitionNode = documentAnalyzer.searcher.findNodeByPosition(
     documentAnalyzer.uri,
@@ -231,6 +177,10 @@ export function doComplete(
   }
 
   return result;
+}
+
+function isNatspecTrigger(context: CompletionContext | undefined) {
+  return context?.triggerCharacter === "*";
 }
 
 function getThisCompletions(
@@ -615,4 +565,72 @@ const getFullName = (node: Node | undefined): string | undefined => {
   } else {
     return node.name;
   }
+};
+
+const getNatspecCompletion = (
+  documentAnalyzer: ISolFileEntry,
+  document: TextDocument,
+  position: VSCodePosition
+) => {
+  // Check that the current line has the natspec string
+  const searchString = "/** */";
+  const lineText = document.getText({
+    start: { line: position.line, character: 0 },
+    end: { line: position.line + 1, character: 0 },
+  });
+
+  if (!lineText.includes(searchString)) {
+    return null;
+  }
+
+  // Find the first function definition after current position
+  const currentOffset = document.offsetAt(position);
+  let nextFunction: FunctionDefinition | undefined;
+
+  parser.visit(documentAnalyzer.analyzerTree.tree.astNode, {
+    FunctionDefinition(node) {
+      if (!node.range || node.range[0] < currentOffset) {
+        return;
+      }
+      if (
+        nextFunction === undefined ||
+        node.range[0] < nextFunction.range![0]
+      ) {
+        nextFunction = node;
+      }
+    },
+  });
+
+  if (nextFunction === undefined) {
+    return null;
+  }
+
+  // Autocomplete with @dev, @param and @return tags
+  const range = {
+    start: position,
+    end: position,
+  };
+
+  let text = `\n * @dev Function description\n`;
+
+  for (const param of nextFunction.parameters) {
+    text += ` * @param ${param.name} parameter description\n`;
+  }
+
+  for (const _param of nextFunction.returnParameters ?? []) {
+    text += ` * @return return value description\n`;
+  }
+
+  return {
+    isIncomplete: false,
+    items: [
+      {
+        label: "NatSpec documentation",
+        textEdit: {
+          range,
+          newText: text,
+        },
+      },
+    ],
+  };
 };
