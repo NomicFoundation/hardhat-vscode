@@ -178,9 +178,11 @@ function handleBuildInputError(
   clearDiagnostics(serverState, document.uri);
 
   // Handle file-specific errors
-  for (const [sourceUri, fileErrors] of Object.entries(
+  for (const [sourcePath, fileErrors] of Object.entries(
     error.fileSpecificErrors
   )) {
+    const sourceUri = URI.file(sourcePath).toString();
+
     // Send diagnostics if the position is specified
     const diagnostics = fileErrors
       .filter((e) => e.startOffset !== undefined && e.endOffset !== undefined)
@@ -193,7 +195,7 @@ function handleBuildInputError(
       }));
 
     serverState.connection.sendDiagnostics({
-      uri: URI.file(sourceUri).toString(),
+      uri: sourceUri,
       diagnostics,
     });
 
