@@ -25,6 +25,12 @@ export class CompilationService {
     // Empty outputSelection for faster compilation
     delete (input.settings as any).outputSelection;
 
+    input.settings.outputSelection = {
+      "*": {
+        "*": ["evm.methodIdentifiers"],
+      },
+    };
+
     logger.trace(
       `Solc Input: ${JSON.stringify(
         {

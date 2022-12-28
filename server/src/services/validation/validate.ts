@@ -27,6 +27,27 @@ import { CompilationDetails } from "../../frameworks/base/CompilationDetails";
 import { DiagnosticConverter } from "./DiagnosticConverter";
 import { CompilationService } from "./CompilationService";
 import { OutputConverter } from "./OutputConverter";
+
+interface ContractOutput {
+  [sourceName: string]: {
+    [contractName: string]: {
+      evm: {
+        methodIdentifiers: {
+          [methodName: string]: string;
+        };
+      };
+    };
+  };
+}
+
+export interface SignatureIndex {
+  [sourceName: string]: {
+    [contractName: string]: {
+      [methodName: string]: string;
+    };
+  };
+}
+
 export async function validate(
   serverState: ServerState,
   change: TextDocumentChangeEvent<TextDocument>
@@ -93,6 +114,33 @@ export async function validate(
           serverState,
           compilationDetails!
         );
+
+        // SIGNATURES
+        const contractData = compilerOutput.contracts as ContractOutput;
+        if (contractData !== undefined) {
+          console.log(JSON.stringify(contractData, null, 2));
+
+          const signatureIndex: SignatureIndex = {};
+          for (const [sourceName, sourceData] of Object.entries(contractData)) {
+            const sourceSignatureIndex: any = {};
+            signatureIndex[sourceName] = sourceSignatureIndex;
+            for (const [contractName, theContractData] of Object.entries(
+              sourceData
+            )) {
+              const contractSignatureIndex: any = {};
+              sourceSignatureIndex[contractName] = contractSignatureIndex;
+              for (const [methodName, identifier] of Object.entries(
+                theContractData.evm.methodIdentifiers
+              )) {
+                const strippedMethodName = methodName.replace(/\(.*\)/, ""); // myFunc(uint) => myFunc
+
+                contractSignatureIndex[strippedMethodName] = identifier;
+              }
+            }
+          }
+          serverState.signatureIndex = signatureIndex;
+          // console.log(JSON.stringify(signatureIndex, null, 2));
+        }
       });
 
       validationResult = OutputConverter.getValidationResults(
@@ -129,6 +177,8 @@ export async function validate(
         project.basePath
       );
     }
+
+    await serverState.connection.sendRequest("workspace/codeLens/refresh");
 
     return {
       status: "ok",

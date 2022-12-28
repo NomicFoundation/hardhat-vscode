@@ -14,6 +14,7 @@ import { onTypeDefinition } from "@services/typeDefinition/onTypeDefinition";
 import { onReferences } from "@services/references/onReferences";
 import { onImplementation } from "@services/implementation/onImplementation";
 import { onRename } from "@services/rename/onRename";
+import { onCodeLens } from "@services/codeLens/onCodeLens";
 import { ServerState } from "./types";
 import { Telemetry } from "./telemetry/types";
 import { attachDocumentHooks } from "./services/documents/attachDocumentHooks";
@@ -63,6 +64,7 @@ function setupUninitializedServerState(
     lastValidationId: {},
     workspaceFileRetriever,
     cachedCompilerInfo: {},
+    signatureIndex: {},
   };
 
   return serverState;
@@ -95,6 +97,7 @@ function attachLanguageServerCommandHooks(serverState: ServerState) {
   connection.onRenameRequest(onRename(serverState));
   connection.onCodeAction(onCodeAction(serverState));
   connection.onHover(onHover(serverState));
+  connection.onCodeLens(onCodeLens(serverState));
 }
 
 function attachCustomHooks(serverState: ServerState) {

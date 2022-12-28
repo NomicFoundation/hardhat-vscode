@@ -72,7 +72,9 @@ export const onInitialize = (serverState: ServerState) => {
         renameProvider: true,
         codeActionProvider: true,
         hoverProvider: true,
-
+        codeLensProvider: {
+          resolveProvider: false,
+        },
         workspace: {
           workspaceFolders: {
             supported: false,
