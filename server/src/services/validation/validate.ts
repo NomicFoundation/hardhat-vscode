@@ -36,6 +36,9 @@ interface ContractOutput {
           [methodName: string]: string;
         };
       };
+      storageLayout: {
+        storage: StorageDetails[];
+      };
     };
   };
 }
@@ -44,6 +47,20 @@ export interface SignatureIndex {
   [sourceName: string]: {
     [contractName: string]: {
       [methodName: string]: string;
+    };
+  };
+}
+
+export interface StorageDetails {
+  label: string;
+  offset: number;
+  slot: string;
+}
+
+export interface StorageLayoutIndex {
+  [sourceName: string]: {
+    [contractName: string]: {
+      [variable: string]: StorageDetails;
     };
   };
 }
@@ -115,11 +132,11 @@ export async function validate(
           compilationDetails!
         );
 
-        // SIGNATURES
         const contractData = compilerOutput.contracts as ContractOutput;
         if (contractData !== undefined) {
-          console.log(JSON.stringify(contractData, null, 2));
+          // console.log(JSON.stringify(contractData, null, 2));
 
+          // SIGNATURES
           const signatureIndex: SignatureIndex = {};
           for (const [sourceName, sourceData] of Object.entries(contractData)) {
             const sourceSignatureIndex: any = {};
@@ -139,7 +156,25 @@ export async function validate(
             }
           }
           serverState.signatureIndex = signatureIndex;
-          // console.log(JSON.stringify(signatureIndex, null, 2));
+
+          // LAYOUT
+          const storageLayoutIndex: StorageLayoutIndex = {};
+          for (const [sourceName, sourceData] of Object.entries(contractData)) {
+            const sourceLayoutIndex: any = {};
+            storageLayoutIndex[sourceName] = sourceLayoutIndex;
+            for (const [contractName, theContractData] of Object.entries(
+              sourceData
+            )) {
+              const contractLayoutIndex: any = {};
+              sourceLayoutIndex[contractName] = contractLayoutIndex;
+              for (const storageDetails of theContractData?.storageLayout
+                .storage ?? []) {
+                contractLayoutIndex[storageDetails.label] = storageDetails;
+              }
+            }
+          }
+
+          console.log(JSON.stringify(storageLayoutIndex, null, 2));
         }
       });
 

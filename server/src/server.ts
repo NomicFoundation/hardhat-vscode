@@ -65,6 +65,7 @@ function setupUninitializedServerState(
     workspaceFileRetriever,
     cachedCompilerInfo: {},
     signatureIndex: {},
+    storageLayoutIndex: {},
   };
 
   return serverState;

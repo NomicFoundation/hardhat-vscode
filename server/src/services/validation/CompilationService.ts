@@ -27,7 +27,7 @@ export class CompilationService {
 
     input.settings.outputSelection = {
       "*": {
-        "*": ["evm.methodIdentifiers"],
+        "*": ["evm.methodIdentifiers", "storageLayout"],
       },
     };
 

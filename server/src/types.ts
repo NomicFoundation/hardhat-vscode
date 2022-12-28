@@ -7,7 +7,10 @@ import type { SolFileIndexMap, SolProjectMap } from "@common/types";
 import type { Telemetry } from "./telemetry/types";
 import { BuildInputError } from "./frameworks/base/Errors";
 import { WorkspaceFileRetriever } from "./utils/WorkspaceFileRetriever";
-import { SignatureIndex } from "./services/validation/validate";
+import {
+  SignatureIndex,
+  StorageLayoutIndex,
+} from "./services/validation/validate";
 
 export interface ServerState {
   env: "production" | "development";
@@ -34,6 +37,7 @@ export interface ServerState {
     [solcVersion: string]: { isSolcJs: boolean; compilerPath: string };
   };
   signatureIndex: SignatureIndex;
+  storageLayoutIndex: StorageLayoutIndex;
 }
 
 export interface SolcError {
