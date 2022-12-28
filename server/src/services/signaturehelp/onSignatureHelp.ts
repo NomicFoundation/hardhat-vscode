@@ -82,7 +82,6 @@ function signatureHelp(
 
   return {
     signatures: [definitionSignature],
-    activeSignature: null,
     activeParameter: declarationSignature.activeParameter,
   };
 }

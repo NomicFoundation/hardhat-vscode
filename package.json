@@ -89,7 +89,7 @@
     "yarn": "^1.22.11"
   },
   "dependencies": {
-    "vscode-languageclient": "^7.0.0"
+    "vscode-languageclient": "^8.0.0"
   },
   "contributes": {
     "configuration": {

@@ -339,10 +339,10 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz#b520529ec21d8e5945a1851dfd1c32e94e39ff45"
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
 
-"@ignored/solidity-language-server@0.0.8":
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/@ignored/solidity-language-server/-/solidity-language-server-0.0.8.tgz#90164b703b987b5d850cdaa84cbb346b98f374bc"
-  integrity sha512-NmyoACufvohw50jVwI+TIz/uPX64SqsbGrEleF5oKN7WkDSv5rwF4R/rXCqL2OOIy8NNLd0tkWW903+H3IwSCw==
+"@ignored/solidity-language-server@0.6.6":
+  version "0.6.6"
+  resolved "https://registry.yarnpkg.com/@ignored/solidity-language-server/-/solidity-language-server-0.6.6.tgz#82c73759603f71f971a62d4fd8ef9d1e1114b690"
+  integrity sha512-SpkwMGWSwqiAmusVsChQu4pdRek+r8+BQayrQAJf1NTriu50XTKJRwKwLrt8rr3nm2w1UtPcF8XHvXt7P3uH9w==
   dependencies:
     "@nomicfoundation/solidity-analyzer" "0.1.0"
     "@sentry/node" "6.19.1"

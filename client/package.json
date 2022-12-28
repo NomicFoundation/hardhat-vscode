@@ -24,6 +24,6 @@
     "@sentry/node": "6.19.1",
     "prettier": "2.5.1",
     "prettier-plugin-solidity": "1.0.0",
-    "vscode-languageclient": "^7.0.0"
+    "vscode-languageclient": "^8.0.0"
   }
 }
