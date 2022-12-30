@@ -74,6 +74,7 @@ export class SentryServerTelemetry implements Telemetry {
     const transaction = this.startTransaction({ op: "task", name: taskName });
     this.actionTaken = true;
 
+    console.log(`${taskName} start`);
     try {
       const trackingResult = await action(transaction);
 
@@ -85,6 +86,7 @@ export class SentryServerTelemetry implements Telemetry {
       transaction.setStatus("internal_error");
       return null;
     } finally {
+      console.log(`${taskName} end`);
       transaction.finish();
     }
   }
@@ -97,6 +99,8 @@ export class SentryServerTelemetry implements Telemetry {
     this.actionTaken = true;
 
     try {
+      console.log(`${taskName} start`);
+
       const trackingResult = action(transaction);
 
       transaction.setStatus(trackingResult.status);
@@ -108,6 +112,7 @@ export class SentryServerTelemetry implements Telemetry {
       return null;
     } finally {
       transaction.finish();
+      console.log(`${taskName} end`);
     }
   }
 

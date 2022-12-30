@@ -21,9 +21,11 @@ interface DeclarationSignature {
 }
 
 export const onSignatureHelp = (serverState: ServerState) => {
-  return (params: SignatureHelpParams): SignatureHelp | null | undefined => {
+  return async (
+    params: SignatureHelpParams
+  ): Promise<SignatureHelp | null | undefined> => {
     try {
-      return onCommand(
+      return await onCommand(
         serverState,
         "onSignatureHelp",
         params.textDocument.uri,
@@ -43,12 +45,12 @@ export const onSignatureHelp = (serverState: ServerState) => {
   };
 };
 
-function signatureHelp(
+async function signatureHelp(
   document: TextDocument,
   vsCodePosition: VSCodePosition,
   documentAnalyzer: ISolFileEntry,
   logger: Logger
-): SignatureHelp | undefined {
+): Promise<SignatureHelp | undefined> {
   if (documentAnalyzer.text === undefined) {
     return undefined;
   }
@@ -60,6 +62,7 @@ function signatureHelp(
     document
   );
 
+  console.log({ declarationSignature });
   if (!declarationSignature) {
     return undefined;
   }

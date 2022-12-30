@@ -13,6 +13,8 @@ export async function analyzeSolFile(
   solFileEntry: ISolFileEntry,
   newText?: string
 ): Promise<Node | undefined> {
+  console.log(`analyzeSolFile ${solFileEntry.uri}`);
+
   try {
     solFileEntry.orphanNodes = [];
 
@@ -26,8 +28,11 @@ export async function analyzeSolFile(
         range: true,
         tolerant: true,
       });
+      // console.log("VALID", solFileEntry.text);
     } catch {
       solFileEntry.status = SolFileState.ERRORED;
+      // console.log("INVALID", solFileEntry.text);
+
       return solFileEntry.analyzerTree.tree;
     }
 

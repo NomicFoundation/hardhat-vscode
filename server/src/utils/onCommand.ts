@@ -13,9 +13,9 @@ export function onCommand<T>(
 
   logger.trace(commandName);
 
-  return telemetry.trackTimingSync(commandName, () => {
+  return telemetry.trackTiming(commandName, async () => {
     const { found, errorMessage, documentAnalyzer, document } =
-      lookupEntryForUri(serverState, uri);
+      await lookupEntryForUri(serverState, uri);
 
     if (!found || !documentAnalyzer || !document) {
       if (errorMessage !== undefined) {

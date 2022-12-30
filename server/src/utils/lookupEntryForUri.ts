@@ -2,6 +2,7 @@ import { ISolFileEntry } from "@common/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { getOrInitialiseSolFileEntry } from "@utils/getOrInitialiseSolFileEntry";
 import { ServerState } from "../types";
+import { analyzeSolFile } from "../parser/analyzer/analyzeSolFile";
 import { decodeUriAndRemoveFilePrefix } from "./index";
 
 export interface LookupResult {
@@ -11,10 +12,10 @@ export interface LookupResult {
   document?: TextDocument;
 }
 
-export function lookupEntryForUri(
+export async function lookupEntryForUri(
   serverState: ServerState,
   uri: string
-): LookupResult {
+): Promise<LookupResult> {
   const document = serverState.documents.get(uri);
 
   if (!document) {
@@ -26,6 +27,8 @@ export function lookupEntryForUri(
 
   const internalUri = decodeUriAndRemoveFilePrefix(uri);
   const solFileEntry = getOrInitialiseSolFileEntry(serverState, internalUri);
+
+  // await analyzeSolFile(serverState, solFileEntry, document.getText());
 
   if (!solFileEntry.isAnalyzed()) {
     return {

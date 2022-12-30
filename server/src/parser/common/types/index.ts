@@ -678,6 +678,16 @@ export abstract class Node {
     parent?: Node,
     expression?: Node
   ): Promise<Node>;
+
+  public toString(visited: Node[] = [], indentation = ""): string {
+    visited.push(this);
+    const str = `${indentation}${this.name} (${this.type}) ${JSON.stringify(this.nameLoc)}`;
+
+    const children = this.children
+      .filter((child) => !visited.includes(child))
+      .map((child) => child.toString(visited, indentation.concat("  ")));
+    return [str, ...children].join("\n");
+  }
 }
 
 export class EmptyNode extends Node {

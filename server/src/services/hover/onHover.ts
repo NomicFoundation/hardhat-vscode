@@ -11,9 +11,9 @@ import { astToText } from "./utils/astToText";
 import { textToHover } from "./utils/textTohover";
 
 export function onHover(serverState: ServerState) {
-  return (params: HoverParams): Hover | null => {
+  return async (params: HoverParams): Promise<Hover | null> => {
     try {
-      return onCommand(
+      return await onCommand(
         serverState,
         "onHover",
         params.textDocument.uri,

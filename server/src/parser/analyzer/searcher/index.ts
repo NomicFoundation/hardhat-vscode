@@ -424,6 +424,8 @@ export class Searcher implements ISearcher {
     returnDefinitionNode = true,
     searchInExpression = false
   ): Node | undefined {
+    // console.log({ position, from });
+
     const node = this._walk(
       uri,
       position,
@@ -688,6 +690,7 @@ export class Searcher implements ISearcher {
     if (visitedNodes.includes(from)) {
       return undefined;
     }
+    console.log(from.type, from.name, from.nameLoc);
 
     // Add as visited node
     visitedNodes.push(from);
