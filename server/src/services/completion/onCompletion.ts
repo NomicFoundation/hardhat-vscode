@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   VSCodePosition,
@@ -23,6 +24,7 @@ import { isImportDirectiveNode } from "@analyzer/utils/typeGuards";
 import {
   CompletionContext,
   CompletionParams,
+  InsertTextFormat,
 } from "vscode-languageserver/node";
 import { applyEditToDocumentAnalyzer } from "@utils/applyEditToDocumentAnalyzer";
 import { ServerState } from "../../types";
@@ -611,14 +613,17 @@ const getNatspecCompletion = (
     end: position,
   };
 
-  let text = `\n * @dev Function description\n`;
+  let text = "\n * @dev $0\n";
 
+  let tabIndex = 1;
   for (const param of nextFunction.parameters) {
-    text += ` * @param ${param.name} parameter description\n`;
+    text += ` * @param ${param.name} $\{${tabIndex++}}\n`;
   }
 
-  for (const _param of nextFunction.returnParameters ?? []) {
-    text += ` * @return return value description\n`;
+  for (const param of nextFunction.returnParameters ?? []) {
+    text += ` * @return ${
+      typeof param.name === "string" ? `${param.name} ` : ""
+    }$\{${tabIndex++}}\n`;
   }
 
   return {
@@ -630,6 +635,7 @@ const getNatspecCompletion = (
           range,
           newText: text,
         },
+        insertTextFormat: InsertTextFormat.Snippet,
       },
     ],
   };
