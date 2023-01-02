@@ -1,3 +1,4 @@
+/* eslint-disable no-template-curly-in-string */
 import { expect } from 'chai'
 import { test } from 'mocha'
 import { CompletionTriggerKind } from 'vscode-languageserver-protocol'
@@ -346,7 +347,7 @@ describe('[hardhat][completion]', () => {
   })
 
   describe('natspec', function () {
-    test('natspec completion on function with return value', async () => {
+    test('natspec completion on function with named return value', async () => {
       const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
       const documentUri = toUri(documentPath)
       await client.openDocument(documentPath)
@@ -369,42 +370,74 @@ describe('[hardhat][completion]', () => {
                   character: 5,
                 },
               },
-              newText:
-                '\n * @dev Function description\n * @param a parameter description\n * @param b parameter description\n * @return return value description\n',
+              newText: '\n * @dev $0\n * @param a ${1}\n * @param b ${2}\n * @return retVal ${3}\n',
             },
+            insertTextFormat: 2,
           },
         ],
       })
     })
-  })
 
-  test('natspec completion on function without return value', async () => {
-    const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
-    const documentUri = toUri(documentPath)
-    await client.openDocument(documentPath)
+    test('natspec completion on function with named return value', async () => {
+      const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
+      const documentUri = toUri(documentPath)
+      await client.openDocument(documentPath)
 
-    const completions = await client.getCompletions(documentUri, 9, 5, CompletionTriggerKind.TriggerCharacter, '*')
+      const completions = await client.getCompletions(documentUri, 9, 5, CompletionTriggerKind.TriggerCharacter, '*')
 
-    expect(completions).to.deep.equal({
-      isIncomplete: false,
-      items: [
-        {
-          label: 'NatSpec documentation',
-          textEdit: {
-            range: {
-              start: {
-                line: 9,
-                character: 5,
+      expect(completions).to.deep.equal({
+        isIncomplete: false,
+        items: [
+          {
+            label: 'NatSpec documentation',
+            textEdit: {
+              range: {
+                start: {
+                  line: 9,
+                  character: 5,
+                },
+                end: {
+                  line: 9,
+                  character: 5,
+                },
               },
-              end: {
-                line: 9,
-                character: 5,
-              },
+              newText: '\n * @dev $0\n * @param a ${1}\n * @param b ${2}\n * @return ${3}\n',
             },
-            newText: '\n * @dev Function description\n * @param a parameter description\n',
+            insertTextFormat: 2,
           },
-        },
-      ],
+        ],
+      })
+    })
+
+    test('natspec completion on function without return value', async () => {
+      const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
+      const documentUri = toUri(documentPath)
+      await client.openDocument(documentPath)
+
+      const completions = await client.getCompletions(documentUri, 14, 5, CompletionTriggerKind.TriggerCharacter, '*')
+
+      expect(completions).to.deep.equal({
+        isIncomplete: false,
+        items: [
+          {
+            label: 'NatSpec documentation',
+            textEdit: {
+              range: {
+                start: {
+                  line: 14,
+                  character: 5,
+                },
+                end: {
+                  line: 14,
+                  character: 5,
+                },
+              },
+              newText: '\n * @dev $0\n * @param a ${1}\n',
+            },
+            insertTextFormat: 2,
+          },
+        ],
+      })
     })
   })
 })
