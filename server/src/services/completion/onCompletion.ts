@@ -24,6 +24,7 @@ import {
 } from "vscode-languageserver/node";
 import { applyEditToDocumentAnalyzer } from "@utils/applyEditToDocumentAnalyzer";
 import { ServerState } from "../../types";
+import { addFrameworkTag } from "../../telemetry/tags";
 import { ProjectContext } from "./types";
 import { getImportPathCompletion } from "./getImportPathCompletion";
 import { globalVariables, defaultCompletion } from "./defaultCompletion";
@@ -35,39 +36,43 @@ export const onCompletion = (serverState: ServerState) => {
 
     logger.trace("onCompletion");
 
-    return serverState.telemetry.trackTiming("onCompletion", async () => {
-      const { found, errorMessage, documentAnalyzer, document } =
-        await applyEditToDocumentAnalyzer(
-          serverState,
-          params.textDocument.uri,
-          (doc) => resolveChangedDocText(params, doc)
+    return serverState.telemetry.trackTiming(
+      "onCompletion",
+      async (transaction) => {
+        const { found, errorMessage, documentAnalyzer, document } =
+          await applyEditToDocumentAnalyzer(
+            serverState,
+            params.textDocument.uri,
+            (doc) => resolveChangedDocText(params, doc)
+          );
+
+        if (!found || !documentAnalyzer || !document) {
+          logger.trace(
+            `Error editing and analyzing doc within onCompletion: ${errorMessage}`
+          );
+
+          return { status: "failed_precondition", result: null };
+        }
+
+        const project = documentAnalyzer.project;
+
+        const projCtx: ProjectContext = {
+          project,
+          solFileIndex: serverState.solFileIndex,
+        };
+
+        addFrameworkTag(transaction, project);
+        const completions = doComplete(
+          documentAnalyzer,
+          params.position,
+          params.context,
+          projCtx,
+          logger
         );
 
-      if (!found || !documentAnalyzer || !document) {
-        logger.trace(
-          `Error editing and analyzing doc within onCompletion: ${errorMessage}`
-        );
-
-        return { status: "failed_precondition", result: null };
+        return { status: "ok", result: completions };
       }
-
-      const project = documentAnalyzer.project;
-
-      const projCtx: ProjectContext = {
-        project,
-        solFileIndex: serverState.solFileIndex,
-      };
-
-      const completions = doComplete(
-        documentAnalyzer,
-        params.position,
-        params.context,
-        projCtx,
-        logger
-      );
-
-      return { status: "ok", result: completions };
-    });
+    );
   };
 };
 

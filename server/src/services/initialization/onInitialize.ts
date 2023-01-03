@@ -47,11 +47,12 @@ export const onInitialize = (serverState: ServerState) => {
     logger.info("Language server ready");
 
     // Index and analysis
-    await serverState.telemetry.trackTiming("indexing", async () => {
+    await serverState.telemetry.trackTiming("indexing", async (transaction) => {
       await indexWorkspaceFolders(
         serverState,
         serverState.workspaceFileRetriever,
-        workspaceFolders
+        workspaceFolders,
+        transaction
       );
 
       return { status: "ok", result: null };

@@ -1,5 +1,5 @@
 import { SpanStatusType } from "@sentry/tracing";
-import type { Transaction } from "@sentry/types";
+import type { Primitive, Transaction } from "@sentry/types";
 import { ServerState } from "../types";
 
 export interface TrackingResult<T> {
@@ -18,11 +18,13 @@ export interface Telemetry {
   captureException(err: unknown): void;
   trackTiming<T>(
     taskName: string,
-    action: (transaction: Transaction) => Promise<TrackingResult<T>>
+    action: (transaction: Transaction) => Promise<TrackingResult<T>>,
+    tags?: Record<string, Primitive>
   ): Promise<T | null>;
   trackTimingSync<T>(
     taskName: string,
-    action: (transaction: Transaction) => TrackingResult<T>
+    action: (transaction: Transaction) => TrackingResult<T>,
+    tags?: Record<string, Primitive>
   ): T | null;
   startTransaction({ op, name }: { op: string; name: string }): Transaction;
   enableHeartbeat(): void;

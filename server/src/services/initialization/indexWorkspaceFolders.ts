@@ -3,6 +3,7 @@ import { WorkspaceFileRetriever } from "@utils/WorkspaceFileRetriever";
 import { SolFileEntry } from "@analyzer/SolFileEntry";
 import _ from "lodash";
 import path from "path";
+import { Transaction } from "@sentry/types";
 import { decodeUriAndRemoveFilePrefix, toUnixStyle } from "../../utils/index";
 import { ServerState } from "../../types";
 import { HardhatIndexer } from "../../frameworks/Hardhat/HardhatIndexer";
@@ -12,12 +13,14 @@ import { Logger } from "../../utils/Logger";
 import { analyzeSolFile } from "../../parser/analyzer/analyzeSolFile";
 import { getOrInitialiseSolFileEntry } from "../../utils/getOrInitialiseSolFileEntry";
 import { FoundryIndexer } from "../../frameworks/Foundry/FoundryIndexer";
+import { frameworkTag } from "../../telemetry/tags";
 import { resolveTopLevelWorkspaceFolders } from "./resolveTopLevelWorkspaceFolders";
 
 export async function indexWorkspaceFolders(
   serverState: ServerState,
   workspaceFileRetriever: WorkspaceFileRetriever,
-  workspaceFolders: WorkspaceFolder[]
+  workspaceFolders: WorkspaceFolder[],
+  sentryTransaction?: Transaction
 ) {
   const logger = _.clone(serverState.logger);
   logger.tag = "indexing";
@@ -70,7 +73,14 @@ export async function indexWorkspaceFolders(
 
         serverState.projects[foundProject.id()] = foundProject;
         logger.info(`Initializing ${foundProject.id()}`);
+        const span = sentryTransaction?.startChild({
+          op: "initializeProject",
+          tags: frameworkTag(foundProject),
+        });
+
         await foundProject.initialize();
+
+        span?.finish();
         logger.info(`Done ${foundProject.id()}`);
       })
     );
@@ -79,6 +89,7 @@ export async function indexWorkspaceFolders(
   // Find all sol files
   let solFileUris: string[];
   await logger.trackTime("Indexing solidity files", async () => {
+    const span = sentryTransaction?.startChild({ op: "findSolidityFiles" });
     solFileUris = await scanForSolFiles(
       logger,
       workspaceFileRetriever,
@@ -87,6 +98,7 @@ export async function indexWorkspaceFolders(
 
     // Index sol files, and associate the matching project
     await indexSolidityFiles(serverState, solFileUris);
+    span?.finish();
   });
 
   // Store workspace folders to mark them as indexed
@@ -96,7 +108,9 @@ export async function indexWorkspaceFolders(
 
   // Analyze files
   await logger.trackTime("Analyzing solidity files", async () => {
+    const span = sentryTransaction?.startChild({ op: "analyzeSolidityFiles" });
     await analyzeSolFiles(serverState, logger, solFileUris);
+    span?.finish();
   });
 }
 
