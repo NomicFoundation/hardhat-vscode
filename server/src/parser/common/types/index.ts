@@ -103,6 +103,7 @@ import {
 } from "vscode-languageserver-types";
 
 import { TextDocument } from "vscode-languageserver-textdocument";
+import path from "path";
 import { Project } from "../../../frameworks/base/Project";
 
 export {
@@ -681,12 +682,22 @@ export abstract class Node {
 
   public toString(visited: Node[] = [], indentation = ""): string {
     visited.push(this);
-    const str = `${indentation}${this.name} (${this.type}) ${JSON.stringify(this.nameLoc)}`;
+    const str = `${indentation}${this.name} (${this.type}) ${JSON.stringify(
+      this.nameLoc
+    )}`;
 
     const children = this.children
       .filter((child) => !visited.includes(child))
       .map((child) => child.toString(visited, indentation.concat("  ")));
     return [str, ...children].join("\n");
+  }
+
+  public toShortString() {
+    return `${this.name}(${this.type})(${path.basename(this.uri)} ${
+      this.nameLoc?.start.line
+    },${this.nameLoc?.start.column}:${this.nameLoc?.end.line},${
+      this.nameLoc?.end.column
+    })`;
   }
 }
 

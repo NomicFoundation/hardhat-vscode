@@ -13,7 +13,7 @@ export async function analyzeSolFile(
   solFileEntry: ISolFileEntry,
   newText?: string
 ): Promise<Node | undefined> {
-  console.log(`analyzeSolFile ${solFileEntry.uri}`);
+  // console.log(`analyzeSolFile ${solFileEntry.uri}`);
 
   try {
     solFileEntry.orphanNodes = [];
@@ -41,6 +41,12 @@ export async function analyzeSolFile(
         .tree as SourceUnitNode;
 
       for (const importNode of oldDocumentsAnalyzerTree.getImportNodes()) {
+        console.log(
+          `import node: ${importNode.toShortString()}, parent: ${importNode
+            .getParent()
+            ?.toShortString()}`
+        );
+
         importNode.getParent()?.removeChild(importNode);
         importNode.setParent(undefined);
       }

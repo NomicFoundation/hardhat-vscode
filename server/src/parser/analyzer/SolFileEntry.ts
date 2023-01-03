@@ -60,7 +60,7 @@ export class SolFileEntry implements ISolFileEntry {
   }
 
   public isAnalyzed(): boolean {
-    console.log(`${this.uri}: ${this.status}`);
+    // console.log(`${this.uri}: ${this.status}`);
 
     return this.status === SolFileState.ANALYZED;
   }

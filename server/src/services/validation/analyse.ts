@@ -21,11 +21,15 @@ export async function analyse(
 
     // console.log(JSON.stringify(solFileEntry.ast, null, 2));
 
-    const ast = parse(changeDoc.getText(), { tolerant: true });
-    visit(ast, {
-      MemberAccess: (node) => console.log(JSON.stringify(node, null, 2)),
+    const ast = parse(changeDoc.getText(), {
+      tolerant: true,
+      loc: true,
+      range: true,
     });
-    console.log(solFileEntry.analyzerTree.tree.toString());
+    // visit(ast, {
+    //   MemberAccess: (node) => console.log(JSON.stringify(node, null, 2)),
+    // });
+    // console.log(solFileEntry.analyzerTree.tree.toString());
 
     // Notify that a file was successfully
     if (isTestMode()) {
@@ -36,5 +40,5 @@ export async function analyse(
   } catch (err) {
     serverState.logger.error(err);
   }
-  console.log(`Analyze: end`);
+  // console.log(`Analyze: end`);
 }

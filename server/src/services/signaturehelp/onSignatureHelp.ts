@@ -62,7 +62,7 @@ async function signatureHelp(
     document
   );
 
-  console.log({ declarationSignature });
+  // console.log({ declarationSignature });
   if (!declarationSignature) {
     return undefined;
   }
