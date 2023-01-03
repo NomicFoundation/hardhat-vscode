@@ -160,6 +160,12 @@ Some types require you to specify a data location (memory, storage, calldata), d
 
 ![Data location quickfix](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/data-location.gif "Specify data location")
 
+#### Fix addresses checksum
+
+The solidity compiler requires explicit addresses to be in the correct checksummed format. This quickfix transforms any address to the correct checksummed version.
+
+![Address checksum](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/checksum-address.gif "Fix address checksum")
+
 ### Commands
 
 #### Compile project
