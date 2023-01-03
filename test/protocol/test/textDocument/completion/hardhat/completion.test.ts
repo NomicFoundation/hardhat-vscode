@@ -1,5 +1,6 @@
 import { expect } from 'chai'
 import { test } from 'mocha'
+import { CompletionTriggerKind } from 'vscode-languageserver-protocol'
 import { toUri } from '../../../../src/helpers'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
@@ -17,7 +18,7 @@ describe('[hardhat][completion]', () => {
   })
 
   describe('imports', function () {
-    test('hardhat node_modules contract import completion on empty', async () => {
+    test('hardhat import completion on empty', async () => {
       const documentPath = getProjectPath('hardhat/contracts/completion/Imports.sol')
       const documentUri = toUri(documentPath)
       await client.openDocument(documentPath)
@@ -27,6 +28,22 @@ describe('[hardhat][completion]', () => {
       expect(completions).to.deep.equal({
         isIncomplete: false,
         items: [
+          {
+            label: './Globals.sol',
+            insertText: './Globals.sol',
+            kind: 17,
+            documentation: 'Imports the package',
+            command: {
+              command: 'solidity.insertSemicolon',
+              arguments: [
+                {
+                  line: 0,
+                  character: 8,
+                },
+              ],
+              title: '',
+            },
+          },
           {
             label: 'hardhat',
             textEdit: {
@@ -266,6 +283,48 @@ describe('[hardhat][completion]', () => {
             },
           },
         ],
+      })
+    })
+  })
+
+  describe('globals', function () {
+    describe('abi', function () {
+      test('gives completion for all of abi methods', async () => {
+        const documentPath = getProjectPath('hardhat/contracts/completion/Globals.sol')
+        const documentUri = toUri(documentPath)
+        await client.openDocument(documentPath)
+
+        const completions = await client.getCompletions(documentUri, 5, 8, CompletionTriggerKind.TriggerCharacter, '.')
+
+        expect(completions).to.deep.equal({
+          isIncomplete: false,
+          items: [
+            {
+              label: 'decode',
+              kind: 3,
+            },
+            {
+              label: 'encode',
+              kind: 3,
+            },
+            {
+              label: 'encodePacked',
+              kind: 3,
+            },
+            {
+              label: 'encodeWithSelector',
+              kind: 3,
+            },
+            {
+              label: 'encodeWithSignature',
+              kind: 3,
+            },
+            {
+              label: 'encodeCall',
+              kind: 3,
+            },
+          ],
+        })
       })
     })
   })
