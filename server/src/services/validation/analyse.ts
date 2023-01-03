@@ -11,19 +11,27 @@ export async function analyse(
 ) {
   serverState.logger.trace("analyse");
 
-  try {
-    const internalUri = decodeUriAndRemoveFilePrefix(changeDoc.uri);
-    const solFileEntry = getOrInitialiseSolFileEntry(serverState, internalUri);
+  return serverState.telemetry.trackTiming("analysis", async () => {
+    try {
+      const internalUri = decodeUriAndRemoveFilePrefix(changeDoc.uri);
+      const solFileEntry = getOrInitialiseSolFileEntry(
+        serverState,
+        internalUri
+      );
 
-    await analyzeSolFile(serverState, solFileEntry, changeDoc.getText());
+      await analyzeSolFile(serverState, solFileEntry, changeDoc.getText());
 
-    // Notify that a file was successfully
-    if (isTestMode()) {
-      serverState.connection.sendNotification("custom/analyzed", {
-        uri: changeDoc.uri,
-      });
+      // Notify that a file was successfully
+      if (isTestMode()) {
+        serverState.connection.sendNotification("custom/analyzed", {
+          uri: changeDoc.uri,
+        });
+      }
+
+      return { status: "ok", result: true };
+    } catch (err) {
+      serverState.logger.error(err);
+      return { status: "internal_error", result: false };
     }
-  } catch (err) {
-    serverState.logger.error(err);
-  }
+  });
 }
