@@ -1,6 +1,6 @@
 /* istanbul ignore file: external system */
 import * as Sentry from "@sentry/node";
-import type { Transaction } from "@sentry/types";
+import type { Primitive, Transaction } from "@sentry/types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as tracing from "@sentry/tracing";
 import { isTelemetryEnabled } from "@utils/serverStateUtils";
@@ -71,9 +71,14 @@ export class SentryServerTelemetry implements Telemetry {
 
   public async trackTiming<T>(
     taskName: string,
-    action: (transaction: Transaction) => Promise<TrackingResult<T>>
+    action: (transaction: Transaction) => Promise<TrackingResult<T>>,
+    tags?: Record<string, Primitive>
   ): Promise<T | null> {
-    const transaction = this.startTransaction({ op: "task", name: taskName });
+    const transaction = this.startTransaction({
+      op: "task",
+      name: taskName,
+      tags,
+    });
     this.actionTaken = true;
 
     try {
@@ -93,9 +98,14 @@ export class SentryServerTelemetry implements Telemetry {
 
   public trackTimingSync<T>(
     taskName: string,
-    action: (transaction: Transaction) => TrackingResult<T>
+    action: (transaction: Transaction) => TrackingResult<T>,
+    tags?: Record<string, Primitive>
   ): T | null {
-    const transaction = this.startTransaction({ op: "task", name: taskName });
+    const transaction = this.startTransaction({
+      op: "task",
+      name: taskName,
+      tags,
+    });
     this.actionTaken = true;
 
     try {
@@ -116,13 +126,16 @@ export class SentryServerTelemetry implements Telemetry {
   public startTransaction({
     op,
     name,
+    tags,
   }: {
     op: string;
     name: string;
+    tags?: Record<string, Primitive>;
   }): Transaction {
     const transaction = Sentry.startTransaction({
       op,
       name,
+      tags,
     });
 
     Sentry.getCurrentHub().configureScope((scope) =>
