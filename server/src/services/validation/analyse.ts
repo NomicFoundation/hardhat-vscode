@@ -4,6 +4,7 @@ import { getOrInitialiseSolFileEntry } from "@utils/getOrInitialiseSolFileEntry"
 import { analyzeSolFile } from "@analyzer/analyzeSolFile";
 import { decodeUriAndRemoveFilePrefix, isTestMode } from "../../utils/index";
 import { ServerState } from "../../types";
+import { addFrameworkTag } from "../../telemetry/tags";
 
 export async function analyse(
   serverState: ServerState,
@@ -11,7 +12,7 @@ export async function analyse(
 ) {
   serverState.logger.trace("analyse");
 
-  return serverState.telemetry.trackTiming("analysis", async () => {
+  return serverState.telemetry.trackTiming("analysis", async (transaction) => {
     try {
       const internalUri = decodeUriAndRemoveFilePrefix(changeDoc.uri);
       const solFileEntry = getOrInitialiseSolFileEntry(
@@ -28,6 +29,7 @@ export async function analyse(
         });
       }
 
+      addFrameworkTag(transaction, solFileEntry.project);
       return { status: "ok", result: true };
     } catch (err) {
       serverState.logger.error(err);

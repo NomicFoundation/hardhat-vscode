@@ -1,5 +1,6 @@
 import { ISolFileEntry } from "@common/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { addFrameworkTag } from "../telemetry/tags";
 import { ServerState } from "../types";
 import { lookupEntryForUri } from "./lookupEntryForUri";
 
@@ -13,7 +14,7 @@ export function onCommand<T>(
 
   logger.trace(commandName);
 
-  return telemetry.trackTimingSync(commandName, () => {
+  return telemetry.trackTimingSync(commandName, (transaction) => {
     const { found, errorMessage, documentAnalyzer, document } =
       lookupEntryForUri(serverState, uri);
 
@@ -24,6 +25,8 @@ export function onCommand<T>(
 
       return { status: "failed_precondition", result: null };
     }
+
+    addFrameworkTag(transaction, documentAnalyzer.project);
 
     return { status: "ok", result: action(documentAnalyzer, document) };
   });
