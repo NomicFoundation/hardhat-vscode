@@ -185,7 +185,7 @@ export const globalVariables: GlobalVariablesType = {
     "encodePacked",
     "encodeWithSelector",
     "encodeWithSignature",
-    "encodeWithSelector",
+    "encodeCall",
   ],
   bytes: ["concat"],
   block: [
