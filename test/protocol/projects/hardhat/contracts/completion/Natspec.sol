@@ -33,3 +33,14 @@ contract Calc {
     retVal = uint160(a * b);
   }
 }
+
+contract MyContract {
+  /** */
+  uint public publicCounter;
+
+  /** */
+  uint privateCounter;
+
+  /** */
+  event MyEvent(uint a, uint b);
+}
