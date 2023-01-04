@@ -18,7 +18,10 @@ import {
   MemberAccessNode,
 } from "@common/types";
 import * as parser from "@solidity-parser/parser";
-import { FunctionDefinition } from "@solidity-parser/parser/src/ast-types";
+import {
+  FunctionDefinition,
+  ContractDefinition,
+} from "@solidity-parser/parser/src/ast-types";
 import { getParserPositionFromVSCodePosition } from "@common/utils";
 import { isImportDirectiveNode } from "@analyzer/utils/typeGuards";
 import {
@@ -585,58 +588,77 @@ const getNatspecCompletion = (
     return null;
   }
 
-  // Find the first function definition after current position
+  // Find the first node definition that allows natspec
   const currentOffset = document.offsetAt(position);
-  let nextFunction: FunctionDefinition | undefined;
+  let closestNode: FunctionDefinition | ContractDefinition | undefined;
 
+  const storeAsClosest = (node: FunctionDefinition | ContractDefinition) => {
+    if (!node.range || node.range[0] < currentOffset) {
+      return;
+    }
+    if (closestNode === undefined || node.range[0] < closestNode.range![0]) {
+      closestNode = node;
+    }
+  };
   parser.visit(documentAnalyzer.analyzerTree.tree.astNode, {
-    FunctionDefinition(node) {
-      if (!node.range || node.range[0] < currentOffset) {
-        return;
-      }
-      if (
-        nextFunction === undefined ||
-        node.range[0] < nextFunction.range![0]
-      ) {
-        nextFunction = node;
-      }
-    },
+    FunctionDefinition: storeAsClosest,
+    ContractDefinition: storeAsClosest,
   });
 
-  if (nextFunction === undefined) {
+  if (closestNode === undefined) {
     return null;
   }
 
-  // Autocomplete with @dev, @param and @return tags
+  const items: CompletionItem[] = [];
   const range = {
     start: position,
     end: position,
   };
 
-  let text = "\n * @dev $0\n";
+  // Generate natspec completion depending on node type
+  if (closestNode.type === "FunctionDefinition") {
+    // Include @notice only on public or external functions
+    let text = ["public", "external"].includes(closestNode.visibility)
+      ? "\n * @notice $0\n * @dev $1\n"
+      : "\n * @dev $0\n";
 
-  let tabIndex = 1;
-  for (const param of nextFunction.parameters) {
-    text += ` * @param ${param.name} $\{${tabIndex++}}\n`;
-  }
+    let tabIndex = 2;
+    for (const param of closestNode.parameters) {
+      text += ` * @param ${param.name} $\{${tabIndex++}}\n`;
+    }
 
-  for (const param of nextFunction.returnParameters ?? []) {
-    text += ` * @return ${
-      typeof param.name === "string" ? `${param.name} ` : ""
-    }$\{${tabIndex++}}\n`;
+    for (const param of closestNode.returnParameters ?? []) {
+      text += ` * @return ${
+        typeof param.name === "string" ? `${param.name} ` : ""
+      }$\{${tabIndex++}}\n`;
+    }
+
+    items.push({
+      label: "NatSpec function documentation",
+      textEdit: {
+        range,
+        newText: text,
+      },
+      insertTextFormat: InsertTextFormat.Snippet,
+    });
+  } else if (closestNode.type === "ContractDefinition") {
+    let text = "\n * @title $1\n";
+    text += " * @author $2\n";
+    text += " * @notice $3\n";
+    text += " * @dev $4\n";
+
+    items.push({
+      label: "NatSpec contract documentation",
+      textEdit: {
+        range,
+        newText: text,
+      },
+      insertTextFormat: InsertTextFormat.Snippet,
+    });
   }
 
   return {
     isIncomplete: false,
-    items: [
-      {
-        label: "NatSpec documentation",
-        textEdit: {
-          range,
-          newText: text,
-        },
-        insertTextFormat: InsertTextFormat.Snippet,
-      },
-    ],
+    items,
   };
 };
