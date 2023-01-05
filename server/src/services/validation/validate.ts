@@ -22,7 +22,6 @@ import {
   BuildInputFailed,
 } from "../../types";
 import { getOpenDocumentsInProject } from "../../queries/getOpenDocumentsInProject";
-import { runningOnWindows } from "../../utils/operatingSystem";
 import { CompilationDetails } from "../../frameworks/base/CompilationDetails";
 import { DiagnosticConverter } from "./DiagnosticConverter";
 import { CompilationService } from "./CompilationService";
@@ -323,14 +322,14 @@ function validationPass(
 ): void {
   for (const source of message.sources) {
     // TODO: improve this. Currently necessary because on hardhat source names are not full paths
-    let uri = openDocuments
+    const docPath = openDocuments
       .map((doc) => doc.uri)
       .find((u) => toUnixStyle(u).endsWith(source));
-    if (uri === undefined) {
+    if (docPath === undefined) {
       continue;
     }
 
-    uri = runningOnWindows() ? `/${uri}` : uri;
+    const uri = URI.file(docPath).toString();
 
     clearDiagnostics(serverState, uri);
   }
