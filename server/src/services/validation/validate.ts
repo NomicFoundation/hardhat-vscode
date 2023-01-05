@@ -324,7 +324,7 @@ function validationPass(
     // TODO: improve this. Currently necessary because on hardhat source names are not full paths
     const docPath = openDocuments
       .map((doc) => doc.uri)
-      .find((u) => toUnixStyle(u).endsWith(source));
+      .find((u) => toUnixStyle(u).endsWith(toUnixStyle(source)));
     if (docPath === undefined) {
       continue;
     }
@@ -353,8 +353,8 @@ function validationFail(
     diagnosticConverter.convertErrors(change.document, message.errors);
 
   const diagnosticsInOpenEditor = Object.entries(diagnostics)
-    .filter(([diagnosticUri]) =>
-      decodeURIComponent(document.uri).includes(diagnosticUri)
+    .filter(([diagSourceName]) =>
+      decodeURIComponent(document.uri).includes(toUnixStyle(diagSourceName))
     )
     .flatMap(([, diagnostic]) => diagnostic);
 
