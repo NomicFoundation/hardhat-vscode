@@ -19,6 +19,9 @@
   "files": [
     "out/**/*"
   ],
+  "bin": {
+    "nomicfoundation-solidity-language-server": "./out/index.js"
+  },
   "engines": {
     "node": "*"
   },
