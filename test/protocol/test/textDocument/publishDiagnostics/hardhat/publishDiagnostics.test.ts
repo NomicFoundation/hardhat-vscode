@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import _ from 'lodash'
 import { test } from 'mocha'
-import { DiagnosticSeverity, PublishDiagnosticsParams } from 'vscode-languageserver-protocol'
+import { DiagnosticSeverity } from 'vscode-languageserver-protocol'
 import { toUri } from '../../../../src/helpers'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
