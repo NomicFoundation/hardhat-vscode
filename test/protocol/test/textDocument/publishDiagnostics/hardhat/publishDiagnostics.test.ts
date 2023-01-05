@@ -12,7 +12,7 @@ describe('[hardhat] publishDiagnostics', () => {
   })
 
   afterEach(async () => {
-    client.clearDiagnostics()
+    client.clear()
     client.closeAllDocuments()
   })
 
