@@ -56,6 +56,7 @@ export class TestLanguageClient {
   protected serverProcess?: cp.ChildProcess
   public connection?: rpc.MessageConnection
   public documents: Record<string, Document> = {}
+  public customNotifications: Record<string, any[]> = {}
 
   constructor(protected serverModulePath: string, protected workspaceFolderPaths: string[], protected logger: Logger) {}
 
@@ -127,10 +128,6 @@ export class TestLanguageClient {
     delete this.documents[uri]
   }
 
-  // public async waitAnalyzed(uri: string) {
-  //   await this.documents[uri].waitAnalyzed
-  // }
-
   public async getDiagnostic(documentPath: string, filter: Partial<Diagnostic>) {
     const uri = toUri(documentPath)
     // Function to check if a diagnostic matches the given filter
@@ -170,6 +167,33 @@ export class TestLanguageClient {
             if (diagnosticMatcher(existingDiagnostic)) {
               clearInterval(intervalId)
               resolve(existingDiagnostic)
+            }
+          }
+        }
+      }, 10)
+    })
+  }
+
+  // get a custom notification or wait it for some time if it didn't arrive yet
+  public async getOrWaitCustomNotification(notificationType: string, dataMatcher: any = {}, timeout = 2000) {
+    return new Promise<any>((resolve) => {
+      const start = new Date().getTime()
+      const intervalId = setInterval(() => {
+        const existingNotifications = this.customNotifications[notificationType] ?? []
+        if (new Date().getTime() - start > timeout) {
+          clearInterval(intervalId)
+          throw new Error(
+            `Notification ${notificationType} with matcher ${JSON.stringify(
+              dataMatcher,
+              null,
+              2
+            )} not found, but have: ${JSON.stringify(existingNotifications, null, 2)}`
+          )
+        } else {
+          for (const existingNotification of existingNotifications) {
+            if (_.isMatch(existingNotification, dataMatcher)) {
+              clearInterval(intervalId)
+              resolve(existingNotification)
             }
           }
         }
@@ -281,10 +305,14 @@ export class TestLanguageClient {
     return this.connection!.sendRequest(RenameRequest.type, params)
   }
 
-  public clearDiagnostics() {
+  public clear() {
+    // Diagnostics
     for (const document of Object.values(this.documents)) {
       document.clearDiagnostics()
     }
+
+    // Custom notifications
+    this.customNotifications = {}
   }
 
   protected _spawnServerProcess() {
@@ -306,10 +334,6 @@ export class TestLanguageClient {
     this.connection.onError((e) => this.logger.error('Worker error:', e))
     this.connection.onDispose((e) => this.logger.trace('Connection disposed:', e))
     this.connection.onRequest((request, data) => this.logger.trace('Received request:', request, data))
-    this.connection.onNotification((notif, data) => this.logger.trace('Received notification:', notif, data))
-    this.connection.onUnhandledNotification((notification) =>
-      this.logger.trace('Unhandled notification:', notification)
-    )
 
     this.connection.listen()
     this.logger.trace('Connection ready')
@@ -335,6 +359,15 @@ export class TestLanguageClient {
     this.connection!.onNotification(PublishDiagnosticsNotification.type, (params) => {
       this.logger.trace(`Diagnostic received for ${params.uri}: ${JSON.stringify(params.diagnostics, null, 2)}`)
       this.documents[params.uri].diagnostics = params.diagnostics
+    })
+
+    // Other notifications
+    this.connection!.onNotification((notificationType, data) => {
+      this.logger.trace('Received notification:', notificationType, data)
+      if (notificationType.startsWith('custom/')) {
+        this.customNotifications[notificationType] = this.customNotifications[notificationType] ?? []
+        this.customNotifications[notificationType].push(data)
+      }
     })
   }
 
