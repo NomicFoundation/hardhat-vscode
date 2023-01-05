@@ -19,6 +19,51 @@ Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay u
   - Meet inheritance requirements by adding `virtual`/`override` on function signature
   - Provide accessibility by adding `public`/`private` to function signature
 
+## Install
+
+The language server can be installed via npm:
+
+```sh
+npm install @ignored/solidity-language-server -g
+
+```
+
+To run the server standalone:
+
+```sh
+nomicfoundation-solidity-language-server --stdio
+```
+
+### coc.nvim
+
+For coc the extension for this language server (found [here](https://www.npmjs.com/package/@ignored/coc-solidity)) can be installed through the coc vim command:
+
+```vim
+:CocInstall @ignored/coc-solidity
+```
+
+### neovim lsp
+
+To run the language server directly through the neovim lsp (assuming [neovim/nvim-lspconfig](https://github.com/neovim/nvim-lspconfig))
+
+```sh
+local lspconfig = require 'lspconfig'
+local configs = require 'lspconfig.configs'
+
+configs.solidity = {
+  default_config = {
+    cmd = {'nomicfoundation-solidity-language-server', '--stdio'},
+    filetypes = { 'solidity' },
+    root_dir = lspconfig.util.find_git_ancestor,
+    single_file_support = true,
+  },
+}
+
+lspconfig.solidity.setup {}
+```
+
+
+
 ## Contributing
 
 Contributions are always welcome! Feel free to [open any issue](https://github.com/NomicFoundation/hardhat-vscode/issues) or send a pull request.
