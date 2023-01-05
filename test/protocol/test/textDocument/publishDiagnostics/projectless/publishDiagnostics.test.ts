@@ -9,7 +9,7 @@ let client!: TestLanguageClient
 describe('[projectless] publishDiagnostics', () => {
   beforeEach(async () => {
     client = await getInitializedClient()
-    client.clearDiagnostics()
+    client.clear()
   })
 
   afterEach(async () => {
