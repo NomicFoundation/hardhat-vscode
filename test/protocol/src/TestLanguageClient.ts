@@ -13,6 +13,7 @@ import {
   DefinitionParams,
   DefinitionRequest,
   Diagnostic,
+  DidChangeTextDocumentParams,
   DidCloseTextDocumentNotification,
   DidCloseTextDocumentParams,
   DidOpenTextDocumentNotification,
@@ -25,6 +26,7 @@ import {
   LogMessageNotification,
   Position,
   PublishDiagnosticsNotification,
+  Range,
   ReferenceParams,
   ReferencesRequest,
   RenameParams,
@@ -106,6 +108,18 @@ export class TestLanguageClient {
     this.documents[uri] = document
 
     await document.waitAnalyzed
+  }
+
+  public changeDocument(documentPath: string, range: Range, text: string) {
+    const params: DidChangeTextDocumentParams = {
+      textDocument: {
+        uri: toUri(documentPath),
+        version: 2,
+      },
+      contentChanges: [{ range, text }],
+    }
+
+    this.connection!.sendNotification('textDocument/didChange', params)
   }
 
   public closeAllDocuments() {

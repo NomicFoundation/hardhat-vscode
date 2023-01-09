@@ -1,8 +1,11 @@
+import { expect } from 'chai'
+import _ from 'lodash'
 import { test } from 'mocha'
 import { DiagnosticSeverity } from 'vscode-languageserver-protocol'
+import { toUri } from '../../../../src/helpers'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
-import { getProjectPath } from '../../../helpers'
+import { getProjectPath, makeRange, sleep } from '../../../helpers'
 
 let client!: TestLanguageClient
 
@@ -139,5 +142,23 @@ describe('[hardhat] publishDiagnostics', () => {
         },
       },
     })
+  })
+
+  test('clear diagnostics on valid compilation', async function () {
+    const documentPath = getProjectPath('hardhat/contracts/diagnostics/NoLicense.sol')
+    await client.openDocument(documentPath)
+
+    // First assert the diagnostic is present
+    await client.getDiagnostic(documentPath, {
+      message: 'SPDX license identifier not provided',
+    })
+    expect(client.documents[toUri(documentPath)].diagnostics.length).to.eq(1)
+
+    // Edit the file to make it correct
+    client.changeDocument(documentPath, makeRange(0, 0, 0, 0), '// SPDX-License-Identifier: MIT\n')
+
+    // Assert diagnostics are gone
+    await sleep(300) // TODO: change this to proper event listening for diagnostics
+    expect(client.documents[toUri(documentPath)].diagnostics.length).to.eq(0)
   })
 })
