@@ -8,6 +8,8 @@ import { ServerState } from "../types";
 import { Analytics } from "../analytics/types";
 import { Telemetry, TrackingResult } from "./types";
 
+import { sentryEventFilter } from "./sentryEventFilter";
+
 const SENTRY_CLOSE_TIMEOUT = 2000;
 
 export class SentryServerTelemetry implements Telemetry {
@@ -18,7 +20,12 @@ export class SentryServerTelemetry implements Telemetry {
   private heartbeatInterval: NodeJS.Timeout | null;
   private heartbeatPeriod: number;
 
-  constructor(dsn: string, heartbeatPeriod: number, analytics: Analytics) {
+  constructor(
+    dsn: string,
+    heartbeatPeriod: number,
+    analytics: Analytics,
+    public eventFilter = sentryEventFilter
+  ) {
     this.dsn = dsn;
     this.heartbeatPeriod = heartbeatPeriod;
     this.serverState = null;
@@ -57,7 +64,10 @@ export class SentryServerTelemetry implements Telemetry {
           client: clientName,
         },
       },
-      beforeSend: (event) => (isTelemetryEnabled(serverState) ? event : null),
+      beforeSend: (event) =>
+        isTelemetryEnabled(serverState) && this.eventFilter(event)
+          ? event
+          : null,
     });
 
     this.analytics.init(machineId, extensionVersion, serverState, clientName);
