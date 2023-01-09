@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.6.7 - 2023-01-09
+
+### Added
+
+- Quickfix for non checksummed addresses
+- Track timing on analysis
+- Add `encodeCall` completion to `abi`
+
+### Fixed
+
+- Status item links on windows
+- Foundry validation on windows
+
 ## 0.6.6 - 2022-12-22
 
 ### Changed
