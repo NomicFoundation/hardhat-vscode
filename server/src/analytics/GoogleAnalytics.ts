@@ -18,6 +18,7 @@ export class GoogleAnalytics implements Analytics {
   private serverState: ServerState | null;
   private machineId: string | undefined;
   private extensionVersion: string | undefined;
+  private clientName: string | undefined;
 
   constructor(googleTrackingId: string) {
     this.googleTrackingId = googleTrackingId;
@@ -30,11 +31,13 @@ export class GoogleAnalytics implements Analytics {
   public init(
     machineId: string | undefined,
     extensionVersion: string | undefined,
-    serverState: ServerState
+    serverState: ServerState,
+    clientName: string | undefined
   ): void {
     this.machineId = machineId;
     this.extensionVersion = extensionVersion;
     this.serverState = serverState;
+    this.clientName = clientName;
   }
 
   public async sendPageView(
@@ -89,6 +92,9 @@ export class GoogleAnalytics implements Analytics {
       // Custom dimension 1: extension version
       //	 Example: 'v1.0.0'.
       cd1: `v${this.extensionVersion}`,
+
+      // Data source -> vs code or coc
+      ds: this.clientName,
     };
 
     return { ...defaultAnalytics, ...(more || {}) };

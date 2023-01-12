@@ -53,7 +53,7 @@
     "test:coverage": "yarn --cwd ./server run test:coverage",
     "test:codecov": "yarn --cwd ./server run test:codecov",
     "lint": "yarn prettier --check && yarn eslint && yarn --cwd ./client lint && yarn --cwd ./server lint && yarn --cwd ./coc lint && yarn --cwd ./test/protocol lint",
-    "lint:fix": "yarn prettier --write && yarn eslint --fix && yarn --cwd ./client lint:fix && yarn --cwd ./server lint:fix && yarn --cws ./coc lint:fix && yarn --cwd ./test/protocol lint:fix",
+    "lint:fix": "yarn prettier --write && yarn eslint --fix && yarn --cwd ./client lint:fix && yarn --cwd ./server lint:fix && yarn --cwd ./coc lint:fix && yarn --cwd ./test/protocol lint:fix",
     "prettier": "prettier *.md *.json \"{docs,syntaxes,.github,.vscode}/**/*.{md,yml,json}\" \"test/**/*.{ts,json}\"",
     "eslint": "eslint ./test/**/*.ts",
     "clean": "rimraf ./dist ./out && yarn --cwd ./client clean && yarn --cwd ./server clean",
@@ -109,7 +109,11 @@
         "solidity.telemetry": {
           "type": "boolean",
           "markdownDescription": "Allow **Solidity** to send extension telemetry. This helps us understand how the extension is used and how it is performing. Read more in our [privacy policy](https://hardhat.org/privacy-policy.html).\n\n&nbsp;\n\n*__Note:__ **Solidity** respects the global **Telemetry Level** setting, and will only send telemetry if enabled at both global and extension level.*",
-          "default": false
+          "default": false,
+          "tags": [
+            "usesOnlineServices",
+            "telemetry"
+          ]
         },
         "solidity.formatter": {
           "type": "string",
