@@ -5,13 +5,18 @@ import {
   ConfigurationTarget,
 } from "vscode";
 
+const PREVIOUSLY_SHOWN_TELEMETRY_LABEL = "previouslyShownTelemetryMessage";
+
 export async function showAnalyticsAllowPopup({
   context,
 }: {
   context: ExtensionContext;
 }): Promise<void> {
+  // TODO: remove this once we are happy we have most people reconfirmed
+  await context.globalState.update("shownTelemetryMessage", undefined);
+
   const shownTelemetryMessage = context.globalState.get<boolean>(
-    "shownTelemetryMessage"
+    PREVIOUSLY_SHOWN_TELEMETRY_LABEL
   );
 
   if (shownTelemetryMessage === true) {
@@ -31,5 +36,5 @@ export async function showAnalyticsAllowPopup({
 
   await config.update("telemetry", isAccepted, ConfigurationTarget.Global);
 
-  await context.globalState.update("shownTelemetryMessage", true);
+  await context.globalState.update(PREVIOUSLY_SHOWN_TELEMETRY_LABEL, true);
 }
