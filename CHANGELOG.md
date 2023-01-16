@@ -4,18 +4,29 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.6.8 - 2023-01-16
+
+### Added
+
+- Provide cli invocation for standalone language server ([#341](https://github.com/NomicFoundation/hardhat-vscode/issues/341))
+
+### Changed
+
+- Re-ask to allow telemetry ([#370](https://github.com/NomicFoundation/hardhat-vscode/pull/370))
+- Refine telemetry for coc and different development frameworks ([#320](https://github.com/NomicFoundation/hardhat-vscode/issues/320), [#338](https://github.com/NomicFoundation/hardhat-vscode/issues/338) & [#340](https://github.com/NomicFoundation/hardhat-vscode/issues/340))
+
 ## 0.6.7 - 2023-01-09
 
 ### Added
 
-- Quickfix for non checksummed addresses
-- Track timing on analysis
-- Add `encodeCall` completion to `abi`
+- Quickfix for non checksummed addresses ([#321](https://github.com/NomicFoundation/hardhat-vscode/issues/321))
+- Track timing on analysis ([#332](https://github.com/NomicFoundation/hardhat-vscode/issues/332))
+- Add `encodeCall` completion to `abi` ([#319](https://github.com/NomicFoundation/hardhat-vscode/issues/319))
 
 ### Fixed
 
-- Status item links on windows
-- Foundry validation on windows
+- Status item links on windows ([#288](https://github.com/NomicFoundation/hardhat-vscode/issues/288))
+- Foundry validation on windows ([#355](https://github.com/NomicFoundation/hardhat-vscode/issues/355))
 
 ## 0.6.6 - 2022-12-22
 
