@@ -10,6 +10,7 @@ import {
   CompletionContext,
   CompletionItem,
   InsertTextFormat,
+  Position,
 } from "vscode-languageserver-protocol";
 import {
   ISolFileEntry,
@@ -17,19 +18,32 @@ import {
   VSCodePosition,
 } from "../../parser/common/types";
 
+enum NatspecStyle {
+  "SINGLE_LINE",
+  "MULTI_LINE",
+}
+
 export const getNatspecCompletion = (
   documentAnalyzer: ISolFileEntry,
   document: TextDocument,
   position: VSCodePosition
 ) => {
   // Check that the current line has the natspec string
-  const searchString = "/** */";
+  const multiLineSearchstring = "/** */";
+  const singleLineSearchstring = "///";
+
   const lineText = document.getText({
     start: { line: position.line, character: 0 },
     end: { line: position.line + 1, character: 0 },
   });
 
-  if (!lineText.includes(searchString)) {
+  let style: NatspecStyle;
+
+  if (lineText.includes(multiLineSearchstring)) {
+    style = NatspecStyle.MULTI_LINE;
+  } else if (lineText.includes(singleLineSearchstring)) {
+    style = NatspecStyle.SINGLE_LINE;
+  } else {
     return null;
   }
 
@@ -76,16 +90,16 @@ export const getNatspecCompletion = (
   // Generate natspec completion depending on node type
   switch (closestNode.type) {
     case "ContractDefinition":
-      items.push(buildContractCompletion(closestNode, range));
+      items.push(buildContractCompletion(closestNode, range, style));
       break;
     case "FunctionDefinition":
-      items.push(buildFunctionCompletion(closestNode, range));
+      items.push(buildFunctionCompletion(closestNode, range, style));
       break;
     case "StateVariableDeclaration":
-      items.push(buildStateVariableCompletion(closestNode, range));
+      items.push(buildStateVariableCompletion(closestNode, range, style));
       break;
     case "EventDefinition":
-      items.push(buildEventCompletion(closestNode, range));
+      items.push(buildEventCompletion(closestNode, range, style));
       break;
   }
 
@@ -95,8 +109,17 @@ export const getNatspecCompletion = (
   };
 };
 
-export const isNatspecTrigger = (context: CompletionContext | undefined) => {
-  return context?.triggerCharacter === "*";
+export const isNatspecTrigger = (
+  context: CompletionContext | undefined,
+  document: TextDocument,
+  position: Position
+) => {
+  const leadingText = document.getText({
+    start: { line: position.line, character: position.character - 3 },
+    end: { line: position.line, character: position.character },
+  });
+
+  return context?.triggerCharacter === "*" || leadingText === "///";
 };
 
 function buildContractCompletion(
@@ -104,12 +127,21 @@ function buildContractCompletion(
   range: {
     start: VSCodePosition;
     end: VSCodePosition;
-  }
+  },
+  style: NatspecStyle
 ) {
-  let text = "\n * @title $1\n";
-  text += " * @author $2\n";
-  text += " * @notice $3\n";
-  text += " * @dev $4\n";
+  let text = "";
+  if (style === NatspecStyle.MULTI_LINE) {
+    text += "\n * @title $1\n";
+    text += " * @author $2\n";
+    text += " * @notice $3\n";
+    text += " * @dev $4\n";
+  } else if (style === NatspecStyle.SINGLE_LINE) {
+    text += " @title $1\n";
+    text += "/// @author $2\n";
+    text += "/// @notice $3\n";
+    text += "/// @dev $4";
+  }
 
   return {
     label: "NatSpec contract documentation",
@@ -123,13 +155,24 @@ function buildContractCompletion(
 
 function buildEventCompletion(
   node: EventDefinition,
-  range: { start: VSCodePosition; end: VSCodePosition }
+  range: { start: VSCodePosition; end: VSCodePosition },
+  style: NatspecStyle
 ) {
-  let text = "\n * @notice $0\n * @dev $1\n";
-
+  let text = "";
   let tabIndex = 2;
-  for (const param of node.parameters) {
-    text += ` * @param ${param.name} $\{${tabIndex++}}\n`;
+
+  if (style === NatspecStyle.MULTI_LINE) {
+    text += "\n * @notice $0\n * @dev $1\n";
+
+    for (const param of node.parameters) {
+      text += ` * @param ${param.name} $\{${tabIndex++}}\n`;
+    }
+  } else if (style === NatspecStyle.SINGLE_LINE) {
+    text += " @notice $0\n/// @dev $1";
+
+    for (const param of node.parameters) {
+      text += `\n/// @param ${param.name} $\{${tabIndex++}}`;
+    }
   }
 
   return {
@@ -147,19 +190,37 @@ function buildStateVariableCompletion(
   range: {
     start: VSCodePosition;
     end: VSCodePosition;
-  }
+  },
+  style: NatspecStyle
 ) {
   const tags = [
     { name: "@notice", onlyPublic: true },
     { name: "@dev", onlyPublic: false },
     { name: "@return", onlyPublic: true },
   ];
-  let text = "\n";
+
+  let text = "";
   let tabIndex = 1;
-  for (const tag of tags) {
-    if (!tag.onlyPublic || node.variables[0].visibility === "public") {
-      text += ` * ${tag.name} $\{${tabIndex++}}\n`;
+
+  if (style === NatspecStyle.MULTI_LINE) {
+    text += "\n";
+    for (const tag of tags) {
+      if (!tag.onlyPublic || node.variables[0].visibility === "public") {
+        text += ` * ${tag.name} $\{${tabIndex++}}\n`;
+      }
     }
+  } else if (style === NatspecStyle.SINGLE_LINE) {
+    const linesToAdd = [];
+
+    for (const tag of tags) {
+      if (!tag.onlyPublic || node.variables[0].visibility === "public") {
+        linesToAdd.push(`${tag.name} $\{${tabIndex++}}`);
+      }
+    }
+
+    text = linesToAdd
+      .map((line, index) => (index === 0 ? ` ${line}` : `/// ${line}`))
+      .join("\n");
   }
 
   return {
@@ -174,22 +235,44 @@ function buildStateVariableCompletion(
 
 function buildFunctionCompletion(
   node: FunctionDefinition,
-  range: { start: VSCodePosition; end: VSCodePosition }
+  range: { start: VSCodePosition; end: VSCodePosition },
+  style: NatspecStyle
 ) {
+  const isMultiLine = style === NatspecStyle.MULTI_LINE;
+  const prefix = isMultiLine ? " *" : "///";
+  const linesToAdd = [];
+
   // Include @notice only on public or external functions
-  let text = ["public", "external"].includes(node.visibility)
-    ? "\n * @notice $0\n * @dev $1\n"
-    : "\n * @dev $0\n";
+  if (["public", "external"].includes(node.visibility)) {
+    linesToAdd.push(`@notice $0`);
+    linesToAdd.push(`@dev $1`);
+  } else {
+    linesToAdd.push(`@dev $0`);
+  }
 
   let tabIndex = 2;
   for (const param of node.parameters) {
-    text += ` * @param ${param.name} $\{${tabIndex++}}\n`;
+    linesToAdd.push(`@param ${param.name} $\{${tabIndex++}}`);
   }
 
   for (const param of node.returnParameters ?? []) {
-    text += ` * @return ${
-      typeof param.name === "string" ? `${param.name} ` : ""
-    }$\{${tabIndex++}}\n`;
+    linesToAdd.push(
+      `@return ${
+        typeof param.name === "string" ? `${param.name} ` : ""
+      }$\{${tabIndex++}}`
+    );
+  }
+
+  let text = isMultiLine ? "\n" : "";
+
+  text += linesToAdd
+    .map((line, index) =>
+      index !== 0 || isMultiLine ? `${prefix} ${line}` : ` ${line}`
+    )
+    .join("\n");
+
+  if (isMultiLine) {
+    text += "\n";
   }
 
   return {

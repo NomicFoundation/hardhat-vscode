@@ -113,7 +113,7 @@ export function doComplete(
   { logger }: ServerState,
   document: TextDocument
 ): CompletionList | null {
-  if (isNatspecTrigger(context)) {
+  if (isNatspecTrigger(context, document, position)) {
     return getNatspecCompletion(documentAnalyzer, document, position);
   }
 

@@ -62,6 +62,22 @@ describe('[hardhat][completion]', () => {
             },
           },
           {
+            label: './NatspecSingle.sol',
+            insertText: './NatspecSingle.sol',
+            kind: 17,
+            documentation: 'Imports the package',
+            command: {
+              command: 'solidity.insertSemicolon',
+              arguments: [
+                {
+                  line: 0,
+                  character: 8,
+                },
+              ],
+              title: '',
+            },
+          },
+          {
             label: 'hardhat',
             textEdit: {
               range: {
@@ -347,124 +363,368 @@ describe('[hardhat][completion]', () => {
   })
 
   describe('natspec', function () {
-    describe('function natspec', function () {
-      test('natspec completion on function with named return value', async () => {
-        const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
-        const documentUri = toUri(documentPath)
-        await client.openDocument(documentPath)
+    describe('multi line', function () {
+      describe('function natspec', function () {
+        test('natspec completion on function with named return value', async () => {
+          const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
+          const documentUri = toUri(documentPath)
+          await client.openDocument(documentPath)
 
-        const completions = await client.getCompletions(documentUri, 15, 5, CompletionTriggerKind.TriggerCharacter, '*')
+          const completions = await client.getCompletions(
+            documentUri,
+            15,
+            5,
+            CompletionTriggerKind.TriggerCharacter,
+            '*'
+          )
 
-        expect(completions).to.deep.equal({
-          isIncomplete: false,
-          items: [
-            {
-              label: 'NatSpec function documentation',
-              textEdit: {
-                range: {
-                  start: {
-                    line: 15,
-                    character: 5,
+          expect(completions).to.deep.equal({
+            isIncomplete: false,
+            items: [
+              {
+                label: 'NatSpec function documentation',
+                textEdit: {
+                  range: {
+                    start: {
+                      line: 15,
+                      character: 5,
+                    },
+                    end: {
+                      line: 15,
+                      character: 5,
+                    },
                   },
-                  end: {
-                    line: 15,
-                    character: 5,
-                  },
+                  newText: '\n * @notice $0\n * @dev $1\n * @param a ${2}\n * @param b ${3}\n * @return retVal ${4}\n',
                 },
-                newText: '\n * @notice $0\n * @dev $1\n * @param a ${2}\n * @param b ${3}\n * @return retVal ${4}\n',
+                insertTextFormat: 2,
               },
-              insertTextFormat: 2,
-            },
-          ],
+            ],
+          })
+        })
+
+        test('natspec completion on function with named return value', async () => {
+          const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
+          const documentUri = toUri(documentPath)
+          await client.openDocument(documentPath)
+
+          const completions = await client.getCompletions(
+            documentUri,
+            20,
+            5,
+            CompletionTriggerKind.TriggerCharacter,
+            '*'
+          )
+
+          expect(completions).to.deep.equal({
+            isIncomplete: false,
+            items: [
+              {
+                label: 'NatSpec function documentation',
+                textEdit: {
+                  range: {
+                    start: {
+                      line: 20,
+                      character: 5,
+                    },
+                    end: {
+                      line: 20,
+                      character: 5,
+                    },
+                  },
+                  newText: '\n * @notice $0\n * @dev $1\n * @param a ${2}\n * @param b ${3}\n * @return ${4}\n',
+                },
+                insertTextFormat: 2,
+              },
+            ],
+          })
+        })
+
+        test('natspec completion on function without return value', async () => {
+          const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
+          const documentUri = toUri(documentPath)
+          await client.openDocument(documentPath)
+
+          const completions = await client.getCompletions(
+            documentUri,
+            25,
+            5,
+            CompletionTriggerKind.TriggerCharacter,
+            '*'
+          )
+
+          expect(completions).to.deep.equal({
+            isIncomplete: false,
+            items: [
+              {
+                label: 'NatSpec function documentation',
+                textEdit: {
+                  range: {
+                    start: {
+                      line: 25,
+                      character: 5,
+                    },
+                    end: {
+                      line: 25,
+                      character: 5,
+                    },
+                  },
+                  newText: '\n * @notice $0\n * @dev $1\n * @param a ${2}\n',
+                },
+                insertTextFormat: 2,
+              },
+            ],
+          })
+        })
+
+        test('natspec completion on private function should not include notice', async () => {
+          const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
+          const documentUri = toUri(documentPath)
+          await client.openDocument(documentPath)
+
+          const completions = await client.getCompletions(
+            documentUri,
+            30,
+            5,
+            CompletionTriggerKind.TriggerCharacter,
+            '*'
+          )
+
+          expect(completions).to.deep.equal({
+            isIncomplete: false,
+            items: [
+              {
+                label: 'NatSpec function documentation',
+                textEdit: {
+                  range: {
+                    start: {
+                      line: 30,
+                      character: 5,
+                    },
+                    end: {
+                      line: 30,
+                      character: 5,
+                    },
+                  },
+                  newText: '\n * @dev $0\n * @param a ${2}\n * @param b ${3}\n * @return retVal ${4}\n',
+                },
+                insertTextFormat: 2,
+              },
+            ],
+          })
         })
       })
 
-      test('natspec completion on function with named return value', async () => {
-        const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
-        const documentUri = toUri(documentPath)
-        await client.openDocument(documentPath)
+      describe('contract/library/interface natspec', function () {
+        test('natspec completion for contract', async () => {
+          const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
+          const documentUri = toUri(documentPath)
+          await client.openDocument(documentPath)
 
-        const completions = await client.getCompletions(documentUri, 20, 5, CompletionTriggerKind.TriggerCharacter, '*')
+          const completions = await client.getCompletions(
+            documentUri,
+            13,
+            3,
+            CompletionTriggerKind.TriggerCharacter,
+            '*'
+          )
 
-        expect(completions).to.deep.equal({
-          isIncomplete: false,
-          items: [
-            {
-              label: 'NatSpec function documentation',
-              textEdit: {
-                range: {
-                  start: {
-                    line: 20,
-                    character: 5,
+          expect(completions).to.deep.equal({
+            isIncomplete: false,
+            items: [
+              {
+                label: 'NatSpec contract documentation',
+                textEdit: {
+                  range: {
+                    start: {
+                      line: 13,
+                      character: 3,
+                    },
+                    end: {
+                      line: 13,
+                      character: 3,
+                    },
                   },
-                  end: {
-                    line: 20,
-                    character: 5,
-                  },
+                  newText: '\n * @title $1\n * @author $2\n * @notice $3\n * @dev $4\n',
                 },
-                newText: '\n * @notice $0\n * @dev $1\n * @param a ${2}\n * @param b ${3}\n * @return ${4}\n',
+                insertTextFormat: 2,
               },
-              insertTextFormat: 2,
-            },
-          ],
+            ],
+          })
+        })
+        test('natspec completion for library', async () => {
+          const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
+          const documentUri = toUri(documentPath)
+          await client.openDocument(documentPath)
+
+          const completions = await client.getCompletions(
+            documentUri,
+            3,
+            3,
+            CompletionTriggerKind.TriggerCharacter,
+            '*'
+          )
+
+          expect(completions).to.deep.equal({
+            isIncomplete: false,
+            items: [
+              {
+                label: 'NatSpec contract documentation',
+                textEdit: {
+                  range: {
+                    start: {
+                      line: 3,
+                      character: 3,
+                    },
+                    end: {
+                      line: 3,
+                      character: 3,
+                    },
+                  },
+                  newText: '\n * @title $1\n * @author $2\n * @notice $3\n * @dev $4\n',
+                },
+                insertTextFormat: 2,
+              },
+            ],
+          })
+        })
+        test('natspec completion for interface', async () => {
+          const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
+          const documentUri = toUri(documentPath)
+          await client.openDocument(documentPath)
+
+          const completions = await client.getCompletions(
+            documentUri,
+            8,
+            3,
+            CompletionTriggerKind.TriggerCharacter,
+            '*'
+          )
+
+          expect(completions).to.deep.equal({
+            isIncomplete: false,
+            items: [
+              {
+                label: 'NatSpec contract documentation',
+                textEdit: {
+                  range: {
+                    start: {
+                      line: 8,
+                      character: 3,
+                    },
+                    end: {
+                      line: 8,
+                      character: 3,
+                    },
+                  },
+                  newText: '\n * @title $1\n * @author $2\n * @notice $3\n * @dev $4\n',
+                },
+                insertTextFormat: 2,
+              },
+            ],
+          })
         })
       })
 
-      test('natspec completion on function without return value', async () => {
-        const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
-        const documentUri = toUri(documentPath)
-        await client.openDocument(documentPath)
+      describe('state variable natspec', function () {
+        test('natspec completion on public state variable', async () => {
+          const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
+          const documentUri = toUri(documentPath)
+          await client.openDocument(documentPath)
 
-        const completions = await client.getCompletions(documentUri, 25, 5, CompletionTriggerKind.TriggerCharacter, '*')
+          const completions = await client.getCompletions(
+            documentUri,
+            37,
+            5,
+            CompletionTriggerKind.TriggerCharacter,
+            '*'
+          )
 
-        expect(completions).to.deep.equal({
-          isIncomplete: false,
-          items: [
-            {
-              label: 'NatSpec function documentation',
-              textEdit: {
-                range: {
-                  start: {
-                    line: 25,
-                    character: 5,
+          expect(completions).to.deep.equal({
+            isIncomplete: false,
+            items: [
+              {
+                label: 'NatSpec variable documentation',
+                textEdit: {
+                  range: {
+                    start: {
+                      line: 37,
+                      character: 5,
+                    },
+                    end: {
+                      line: 37,
+                      character: 5,
+                    },
                   },
-                  end: {
-                    line: 25,
-                    character: 5,
-                  },
+                  newText: '\n * @notice ${1}\n * @dev ${2}\n * @return ${3}\n',
                 },
-                newText: '\n * @notice $0\n * @dev $1\n * @param a ${2}\n',
+                insertTextFormat: 2,
               },
-              insertTextFormat: 2,
-            },
-          ],
+            ],
+          })
+        })
+
+        test('natspec completion on private state variable', async () => {
+          const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
+          const documentUri = toUri(documentPath)
+          await client.openDocument(documentPath)
+
+          const completions = await client.getCompletions(
+            documentUri,
+            40,
+            5,
+            CompletionTriggerKind.TriggerCharacter,
+            '*'
+          )
+
+          expect(completions).to.deep.equal({
+            isIncomplete: false,
+            items: [
+              {
+                label: 'NatSpec variable documentation',
+                textEdit: {
+                  range: {
+                    start: {
+                      line: 40,
+                      character: 5,
+                    },
+                    end: {
+                      line: 40,
+                      character: 5,
+                    },
+                  },
+                  newText: '\n * @dev ${1}\n',
+                },
+                insertTextFormat: 2,
+              },
+            ],
+          })
         })
       })
 
-      test('natspec completion on private function should not include notice', async () => {
+      test('natspec completion on event', async () => {
         const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
         const documentUri = toUri(documentPath)
         await client.openDocument(documentPath)
 
-        const completions = await client.getCompletions(documentUri, 30, 5, CompletionTriggerKind.TriggerCharacter, '*')
+        const completions = await client.getCompletions(documentUri, 43, 5, CompletionTriggerKind.TriggerCharacter, '*')
 
         expect(completions).to.deep.equal({
           isIncomplete: false,
           items: [
             {
-              label: 'NatSpec function documentation',
+              label: 'NatSpec event documentation',
               textEdit: {
                 range: {
                   start: {
-                    line: 30,
+                    line: 43,
                     character: 5,
                   },
                   end: {
-                    line: 30,
+                    line: 43,
                     character: 5,
                   },
                 },
-                newText: '\n * @dev $0\n * @param a ${2}\n * @param b ${3}\n * @return retVal ${4}\n',
+                newText: '\n * @notice $0\n * @dev $1\n * @param a ${2}\n * @param b ${3}\n',
               },
               insertTextFormat: 2,
             },
@@ -473,43 +733,52 @@ describe('[hardhat][completion]', () => {
       })
     })
 
-    describe('contract/library/interface natspec', function () {
+    describe('single line', function () {
+      describe('function natspec', function () {
+        test('natspec completion on function with named return value', async () => {
+          const documentPath = getProjectPath('hardhat/contracts/completion/NatspecSingle.sol')
+          const documentUri = toUri(documentPath)
+          await client.openDocument(documentPath)
+
+          const completions = await client.getCompletions(
+            documentUri,
+            5,
+            5,
+            CompletionTriggerKind.TriggerCharacter,
+            '/'
+          )
+
+          expect(completions).to.deep.equal({
+            isIncomplete: false,
+            items: [
+              {
+                label: 'NatSpec function documentation',
+                textEdit: {
+                  range: {
+                    start: {
+                      line: 5,
+                      character: 5,
+                    },
+                    end: {
+                      line: 5,
+                      character: 5,
+                    },
+                  },
+                  newText: ' @notice $0\n/// @dev $1\n/// @param a ${2}\n/// @param b ${3}\n/// @return retVal ${4}',
+                },
+                insertTextFormat: 2,
+              },
+            ],
+          })
+        })
+      })
+
       test('natspec completion for contract', async () => {
-        const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
+        const documentPath = getProjectPath('hardhat/contracts/completion/NatspecSingle.sol')
         const documentUri = toUri(documentPath)
         await client.openDocument(documentPath)
 
-        const completions = await client.getCompletions(documentUri, 13, 3, CompletionTriggerKind.TriggerCharacter, '*')
-
-        expect(completions).to.deep.equal({
-          isIncomplete: false,
-          items: [
-            {
-              label: 'NatSpec contract documentation',
-              textEdit: {
-                range: {
-                  start: {
-                    line: 13,
-                    character: 3,
-                  },
-                  end: {
-                    line: 13,
-                    character: 3,
-                  },
-                },
-                newText: '\n * @title $1\n * @author $2\n * @notice $3\n * @dev $4\n',
-              },
-              insertTextFormat: 2,
-            },
-          ],
-        })
-      })
-      test('natspec completion for library', async () => {
-        const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
-        const documentUri = toUri(documentPath)
-        await client.openDocument(documentPath)
-
-        const completions = await client.getCompletions(documentUri, 3, 3, CompletionTriggerKind.TriggerCharacter, '*')
+        const completions = await client.getCompletions(documentUri, 3, 3, CompletionTriggerKind.TriggerCharacter, '/')
 
         expect(completions).to.deep.equal({
           isIncomplete: false,
@@ -527,52 +796,51 @@ describe('[hardhat][completion]', () => {
                     character: 3,
                   },
                 },
-                newText: '\n * @title $1\n * @author $2\n * @notice $3\n * @dev $4\n',
+                newText: ' @title $1\n/// @author $2\n/// @notice $3\n/// @dev $4',
               },
               insertTextFormat: 2,
             },
           ],
         })
       })
-      test('natspec completion for interface', async () => {
-        const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
+
+      test('natspec completion on event', async () => {
+        const documentPath = getProjectPath('hardhat/contracts/completion/NatspecSingle.sol')
         const documentUri = toUri(documentPath)
         await client.openDocument(documentPath)
 
-        const completions = await client.getCompletions(documentUri, 8, 3, CompletionTriggerKind.TriggerCharacter, '*')
+        const completions = await client.getCompletions(documentUri, 15, 5, CompletionTriggerKind.TriggerCharacter, '/')
 
         expect(completions).to.deep.equal({
           isIncomplete: false,
           items: [
             {
-              label: 'NatSpec contract documentation',
+              label: 'NatSpec event documentation',
               textEdit: {
                 range: {
                   start: {
-                    line: 8,
-                    character: 3,
+                    line: 15,
+                    character: 5,
                   },
                   end: {
-                    line: 8,
-                    character: 3,
+                    line: 15,
+                    character: 5,
                   },
                 },
-                newText: '\n * @title $1\n * @author $2\n * @notice $3\n * @dev $4\n',
+                newText: ' @notice $0\n/// @dev $1\n/// @param a ${2}\n/// @param b ${3}',
               },
               insertTextFormat: 2,
             },
           ],
         })
       })
-    })
 
-    describe('state variable natspec', function () {
       test('natspec completion on public state variable', async () => {
-        const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
+        const documentPath = getProjectPath('hardhat/contracts/completion/NatspecSingle.sol')
         const documentUri = toUri(documentPath)
         await client.openDocument(documentPath)
 
-        const completions = await client.getCompletions(documentUri, 37, 5, CompletionTriggerKind.TriggerCharacter, '*')
+        const completions = await client.getCompletions(documentUri, 12, 5, CompletionTriggerKind.TriggerCharacter, '/')
 
         expect(completions).to.deep.equal({
           isIncomplete: false,
@@ -582,82 +850,20 @@ describe('[hardhat][completion]', () => {
               textEdit: {
                 range: {
                   start: {
-                    line: 37,
+                    line: 12,
                     character: 5,
                   },
                   end: {
-                    line: 37,
+                    line: 12,
                     character: 5,
                   },
                 },
-                newText: '\n * @notice ${1}\n * @dev ${2}\n * @return ${3}\n',
+                newText: ' @notice ${1}\n/// @dev ${2}\n/// @return ${3}',
               },
               insertTextFormat: 2,
             },
           ],
         })
-      })
-
-      test('natspec completion on private state variable', async () => {
-        const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
-        const documentUri = toUri(documentPath)
-        await client.openDocument(documentPath)
-
-        const completions = await client.getCompletions(documentUri, 40, 5, CompletionTriggerKind.TriggerCharacter, '*')
-
-        expect(completions).to.deep.equal({
-          isIncomplete: false,
-          items: [
-            {
-              label: 'NatSpec variable documentation',
-              textEdit: {
-                range: {
-                  start: {
-                    line: 40,
-                    character: 5,
-                  },
-                  end: {
-                    line: 40,
-                    character: 5,
-                  },
-                },
-                newText: '\n * @dev ${1}\n',
-              },
-              insertTextFormat: 2,
-            },
-          ],
-        })
-      })
-    })
-
-    test('natspec completion on event', async () => {
-      const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
-      const documentUri = toUri(documentPath)
-      await client.openDocument(documentPath)
-
-      const completions = await client.getCompletions(documentUri, 43, 5, CompletionTriggerKind.TriggerCharacter, '*')
-
-      expect(completions).to.deep.equal({
-        isIncomplete: false,
-        items: [
-          {
-            label: 'NatSpec event documentation',
-            textEdit: {
-              range: {
-                start: {
-                  line: 43,
-                  character: 5,
-                },
-                end: {
-                  line: 43,
-                  character: 5,
-                },
-              },
-              newText: '\n * @notice $0\n * @dev $1\n * @param a ${2}\n * @param b ${3}\n',
-            },
-            insertTextFormat: 2,
-          },
-        ],
       })
     })
   })
