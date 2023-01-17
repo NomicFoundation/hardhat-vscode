@@ -21,11 +21,14 @@ export class UsingForDeclarationNode extends Node {
       uri,
       rootPath,
       documentsAnalyzer,
-      usingForDeclaration.libraryName
+      usingForDeclaration.libraryName ?? undefined
     );
     this.astNode = usingForDeclaration;
 
-    if (usingForDeclaration.loc && usingForDeclaration.libraryName) {
+    if (
+      usingForDeclaration.loc &&
+      usingForDeclaration.libraryName !== undefined
+    ) {
       this.nameLoc = {
         start: {
           line: usingForDeclaration.loc.start.line,
