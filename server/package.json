@@ -69,7 +69,7 @@
     "@nomicfoundation/solidity-analyzer": "0.1.0",
     "@sentry/node": "6.19.1",
     "@sentry/tracing": "6.19.1",
-    "@solidity-parser/parser": "^0.14.0",
+    "@solidity-parser/parser": "^0.14.5",
     "c3-linearization": "0.3.0",
     "fast-glob": "3.2.11",
     "fs-extra": "^10.0.0",

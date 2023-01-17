@@ -68,7 +68,6 @@ import type {
   ThrowStatement,
   TryStatement,
   TupleExpression,
-  TypeNameExpression,
   UnaryOperation,
   UncheckedStatement,
   UserDefinedTypeName,
@@ -175,7 +174,6 @@ export {
   ThrowStatement,
   TryStatement,
   TupleExpression,
-  TypeNameExpression,
   UnaryOperation,
   UncheckedStatement,
   UserDefinedTypeName,
@@ -902,7 +900,6 @@ export const expressionNodeTypes = [
   "NumberLiteral",
   "Identifier",
   "TupleExpression",
-  "TypeNameExpression",
 ];
 
 /**
