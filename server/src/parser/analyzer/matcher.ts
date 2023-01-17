@@ -52,7 +52,6 @@ import { AssemblyIfNode } from "@analyzer/nodes/AssemblyIfNode";
 import { SubAssemblyNode } from "@analyzer/nodes/SubAssemblyNode";
 import { NewExpressionNode } from "@analyzer/nodes/NewExpressionNode";
 import { TupleExpressionNode } from "@analyzer/nodes/TupleExpressionNode";
-import { TypeNameExpressionNode } from "@analyzer/nodes/TypeNameExpressionNode";
 import { NameValueExpressionNode } from "@analyzer/nodes/NameValueExpressionNode";
 import { NumberLiteralNode } from "@analyzer/nodes/NumberLiteralNode";
 import { BooleanLiteralNode } from "@analyzer/nodes/BooleanLiteralNode";
@@ -588,18 +587,6 @@ export const find = matcher<Promise<Node>>({
     documentsAnalyzer: SolFileIndexMap
   ) =>
     new TupleExpressionNode(tupleExpression, uri, rootPath, documentsAnalyzer),
-  TypeNameExpression: async (
-    typeNameExpression: astTypes.TypeNameExpression,
-    uri: string,
-    rootPath: string,
-    documentsAnalyzer: SolFileIndexMap
-  ) =>
-    new TypeNameExpressionNode(
-      typeNameExpression,
-      uri,
-      rootPath,
-      documentsAnalyzer
-    ),
   NameValueExpression: async (
     nameValueExpression: astTypes.NameValueExpression,
     uri: string,
