@@ -135,7 +135,7 @@ function updateServerStateFromParams(
 
   serverState.hasWorkspaceFolderCapability =
     params.capabilities.workspace !== undefined &&
-    params.capabilities.workspace.workspaceFolders !== undefined;
+    params.capabilities.workspace.workspaceFolders === true;
 }
 
 function logInitializationInfo(
