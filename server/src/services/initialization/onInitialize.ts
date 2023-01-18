@@ -48,6 +48,7 @@ export const onInitialize = (serverState: ServerState) => {
 
     // Index and analysis
     await serverState.telemetry.trackTiming("indexing", async (transaction) => {
+      transaction.setMeasurement("memoryUsed", 123, "byte");
       await indexWorkspaceFolders(
         serverState,
         serverState.workspaceFileRetriever,
