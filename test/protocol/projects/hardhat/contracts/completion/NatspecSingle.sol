@@ -4,8 +4,8 @@ pragma solidity ^0.8.8;
 ///
 contract Calc {
   ///
-  function sum(uint a, uint b) public pure returns (uint160 retVal) {
-    retVal = uint160(a + b);
+  function sum(uint a, uint b) public pure returns (uint160 retVal, uint160) {
+    return (1, 2);
   }
 }
 

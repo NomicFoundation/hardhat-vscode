@@ -52,7 +52,9 @@ Relative imports pull their suggestions from the file system based on the curren
 
 Natspec documentation completion is also supported
 
-![Natspec completions](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/natspec-completion.gif "Natspec completion")
+![Natspec contract completions](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/natspec-contract.gif "Natspec contract completion")
+
+![Natspec function completions](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/natspec-function.gif "Natspec function completion")
 
 ---
 

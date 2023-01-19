@@ -135,12 +135,10 @@ function buildContractCompletion(
     text += "\n * @title $1\n";
     text += " * @author $2\n";
     text += " * @notice $3\n";
-    text += " * @dev $4\n";
   } else if (style === NatspecStyle.SINGLE_LINE) {
     text += " @title $1\n";
     text += "/// @author $2\n";
-    text += "/// @notice $3\n";
-    text += "/// @dev $4";
+    text += "/// @notice $3";
   }
 
   return {
@@ -159,16 +157,16 @@ function buildEventCompletion(
   style: NatspecStyle
 ) {
   let text = "";
-  let tabIndex = 2;
+  let tabIndex = 1;
 
   if (style === NatspecStyle.MULTI_LINE) {
-    text += "\n * @notice $0\n * @dev $1\n";
+    text += "\n * $0\n";
 
     for (const param of node.parameters) {
       text += ` * @param ${param.name} $\{${tabIndex++}}\n`;
     }
   } else if (style === NatspecStyle.SINGLE_LINE) {
-    text += " @notice $0\n/// @dev $1";
+    text += " $0";
 
     for (const param of node.parameters) {
       text += `\n/// @param ${param.name} $\{${tabIndex++}}`;
@@ -196,7 +194,6 @@ function buildStateVariableCompletion(
   const tags = [
     { name: "@notice", onlyPublic: true },
     { name: "@dev", onlyPublic: false },
-    { name: "@return", onlyPublic: true },
   ];
 
   let text = "";
@@ -243,24 +240,22 @@ function buildFunctionCompletion(
   const linesToAdd = [];
 
   // Include @notice only on public or external functions
-  if (["public", "external"].includes(node.visibility)) {
-    linesToAdd.push(`@notice $0`);
-    linesToAdd.push(`@dev $1`);
-  } else {
-    linesToAdd.push(`@dev $0`);
-  }
 
-  let tabIndex = 2;
+  linesToAdd.push(`$0`);
+
+  let tabIndex = 1;
   for (const param of node.parameters) {
     linesToAdd.push(`@param ${param.name} $\{${tabIndex++}}`);
   }
 
-  for (const param of node.returnParameters ?? []) {
-    linesToAdd.push(
-      `@return ${
-        typeof param.name === "string" ? `${param.name} ` : ""
-      }$\{${tabIndex++}}`
-    );
+  if ((node.returnParameters ?? []).length >= 2) {
+    for (const param of node.returnParameters ?? []) {
+      linesToAdd.push(
+        `@return ${
+          typeof param.name === "string" ? `${param.name} ` : ""
+        }$\{${tabIndex++}}`
+      );
+    }
   }
 
   let text = isMultiLine ? "\n" : "";

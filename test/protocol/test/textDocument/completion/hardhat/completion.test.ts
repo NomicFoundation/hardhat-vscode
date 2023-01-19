@@ -365,7 +365,7 @@ describe('[hardhat][completion]', () => {
   describe('natspec', function () {
     describe('multi line', function () {
       describe('function natspec', function () {
-        test('natspec completion on function with named return value', async () => {
+        test('natspec completion on function with 2 return values, 1 named 1 unnamed', async () => {
           const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
           const documentUri = toUri(documentPath)
           await client.openDocument(documentPath)
@@ -394,7 +394,7 @@ describe('[hardhat][completion]', () => {
                       character: 5,
                     },
                   },
-                  newText: '\n * @notice $0\n * @dev $1\n * @param a ${2}\n * @param b ${3}\n * @return retVal ${4}\n',
+                  newText: '\n * $0\n * @param a ${1}\n * @param b ${2}\n * @return retVal ${3}\n * @return ${4}\n',
                 },
                 insertTextFormat: 2,
               },
@@ -402,7 +402,7 @@ describe('[hardhat][completion]', () => {
           })
         })
 
-        test('natspec completion on function with named return value', async () => {
+        test('natspec completion on function with 1 return value', async () => {
           const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
           const documentUri = toUri(documentPath)
           await client.openDocument(documentPath)
@@ -431,7 +431,7 @@ describe('[hardhat][completion]', () => {
                       character: 5,
                     },
                   },
-                  newText: '\n * @notice $0\n * @dev $1\n * @param a ${2}\n * @param b ${3}\n * @return ${4}\n',
+                  newText: '\n * $0\n * @param a ${1}\n * @param b ${2}\n',
                 },
                 insertTextFormat: 2,
               },
@@ -468,44 +468,7 @@ describe('[hardhat][completion]', () => {
                       character: 5,
                     },
                   },
-                  newText: '\n * @notice $0\n * @dev $1\n * @param a ${2}\n',
-                },
-                insertTextFormat: 2,
-              },
-            ],
-          })
-        })
-
-        test('natspec completion on private function should not include notice', async () => {
-          const documentPath = getProjectPath('hardhat/contracts/completion/Natspec.sol')
-          const documentUri = toUri(documentPath)
-          await client.openDocument(documentPath)
-
-          const completions = await client.getCompletions(
-            documentUri,
-            30,
-            5,
-            CompletionTriggerKind.TriggerCharacter,
-            '*'
-          )
-
-          expect(completions).to.deep.equal({
-            isIncomplete: false,
-            items: [
-              {
-                label: 'NatSpec function documentation',
-                textEdit: {
-                  range: {
-                    start: {
-                      line: 30,
-                      character: 5,
-                    },
-                    end: {
-                      line: 30,
-                      character: 5,
-                    },
-                  },
-                  newText: '\n * @dev $0\n * @param a ${2}\n * @param b ${3}\n * @return retVal ${4}\n',
+                  newText: '\n * $0\n * @param a ${1}\n',
                 },
                 insertTextFormat: 2,
               },
@@ -544,7 +507,7 @@ describe('[hardhat][completion]', () => {
                       character: 3,
                     },
                   },
-                  newText: '\n * @title $1\n * @author $2\n * @notice $3\n * @dev $4\n',
+                  newText: '\n * @title $1\n * @author $2\n * @notice $3\n',
                 },
                 insertTextFormat: 2,
               },
@@ -580,7 +543,7 @@ describe('[hardhat][completion]', () => {
                       character: 3,
                     },
                   },
-                  newText: '\n * @title $1\n * @author $2\n * @notice $3\n * @dev $4\n',
+                  newText: '\n * @title $1\n * @author $2\n * @notice $3\n',
                 },
                 insertTextFormat: 2,
               },
@@ -616,7 +579,7 @@ describe('[hardhat][completion]', () => {
                       character: 3,
                     },
                   },
-                  newText: '\n * @title $1\n * @author $2\n * @notice $3\n * @dev $4\n',
+                  newText: '\n * @title $1\n * @author $2\n * @notice $3\n',
                 },
                 insertTextFormat: 2,
               },
@@ -633,7 +596,7 @@ describe('[hardhat][completion]', () => {
 
           const completions = await client.getCompletions(
             documentUri,
-            37,
+            32,
             5,
             CompletionTriggerKind.TriggerCharacter,
             '*'
@@ -647,15 +610,15 @@ describe('[hardhat][completion]', () => {
                 textEdit: {
                   range: {
                     start: {
-                      line: 37,
+                      line: 32,
                       character: 5,
                     },
                     end: {
-                      line: 37,
+                      line: 32,
                       character: 5,
                     },
                   },
-                  newText: '\n * @notice ${1}\n * @dev ${2}\n * @return ${3}\n',
+                  newText: '\n * @notice ${1}\n * @dev ${2}\n',
                 },
                 insertTextFormat: 2,
               },
@@ -670,7 +633,7 @@ describe('[hardhat][completion]', () => {
 
           const completions = await client.getCompletions(
             documentUri,
-            40,
+            35,
             5,
             CompletionTriggerKind.TriggerCharacter,
             '*'
@@ -684,11 +647,11 @@ describe('[hardhat][completion]', () => {
                 textEdit: {
                   range: {
                     start: {
-                      line: 40,
+                      line: 35,
                       character: 5,
                     },
                     end: {
-                      line: 40,
+                      line: 35,
                       character: 5,
                     },
                   },
@@ -706,7 +669,7 @@ describe('[hardhat][completion]', () => {
         const documentUri = toUri(documentPath)
         await client.openDocument(documentPath)
 
-        const completions = await client.getCompletions(documentUri, 43, 5, CompletionTriggerKind.TriggerCharacter, '*')
+        const completions = await client.getCompletions(documentUri, 38, 5, CompletionTriggerKind.TriggerCharacter, '*')
 
         expect(completions).to.deep.equal({
           isIncomplete: false,
@@ -716,15 +679,15 @@ describe('[hardhat][completion]', () => {
               textEdit: {
                 range: {
                   start: {
-                    line: 43,
+                    line: 38,
                     character: 5,
                   },
                   end: {
-                    line: 43,
+                    line: 38,
                     character: 5,
                   },
                 },
-                newText: '\n * @notice $0\n * @dev $1\n * @param a ${2}\n * @param b ${3}\n',
+                newText: '\n * $0\n * @param a ${1}\n * @param b ${2}\n',
               },
               insertTextFormat: 2,
             },
@@ -735,7 +698,7 @@ describe('[hardhat][completion]', () => {
 
     describe('single line', function () {
       describe('function natspec', function () {
-        test('natspec completion on function with named return value', async () => {
+        test('natspec completion on function with 2 return values', async () => {
           const documentPath = getProjectPath('hardhat/contracts/completion/NatspecSingle.sol')
           const documentUri = toUri(documentPath)
           await client.openDocument(documentPath)
@@ -764,7 +727,7 @@ describe('[hardhat][completion]', () => {
                       character: 5,
                     },
                   },
-                  newText: ' @notice $0\n/// @dev $1\n/// @param a ${2}\n/// @param b ${3}\n/// @return retVal ${4}',
+                  newText: ' $0\n/// @param a ${1}\n/// @param b ${2}\n/// @return retVal ${3}\n/// @return ${4}',
                 },
                 insertTextFormat: 2,
               },
@@ -796,7 +759,7 @@ describe('[hardhat][completion]', () => {
                     character: 3,
                   },
                 },
-                newText: ' @title $1\n/// @author $2\n/// @notice $3\n/// @dev $4',
+                newText: ' @title $1\n/// @author $2\n/// @notice $3',
               },
               insertTextFormat: 2,
             },
@@ -827,7 +790,7 @@ describe('[hardhat][completion]', () => {
                     character: 5,
                   },
                 },
-                newText: ' @notice $0\n/// @dev $1\n/// @param a ${2}\n/// @param b ${3}',
+                newText: ' $0\n/// @param a ${1}\n/// @param b ${2}',
               },
               insertTextFormat: 2,
             },
@@ -858,7 +821,7 @@ describe('[hardhat][completion]', () => {
                     character: 5,
                   },
                 },
-                newText: ' @notice ${1}\n/// @dev ${2}\n/// @return ${3}',
+                newText: ' @notice ${1}\n/// @dev ${2}',
               },
               insertTextFormat: 2,
             },
