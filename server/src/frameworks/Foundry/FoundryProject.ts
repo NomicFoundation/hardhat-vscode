@@ -102,8 +102,12 @@ export class FoundryProject extends Project {
     // Apply remappings to importPath if it's not a relative import
     if (!importPath.startsWith(".")) {
       for (const { from, to } of this.remappings) {
+        const toAbsolutePath = path.join(this.basePath, to);
         if (importPath.startsWith(from)) {
-          transformedPath = path.join(to, importPath.slice(from.length));
+          transformedPath = path.join(
+            toAbsolutePath,
+            importPath.slice(from.length)
+          );
         }
       }
     }
@@ -183,7 +187,7 @@ export class FoundryProject extends Project {
   ): CompletionItem[] {
     return getImportCompletions(
       {
-        remappings: this.remappings,
+        project: this,
         solFileIndex: this.serverState.solFileIndex,
       },
       position,
@@ -210,7 +214,10 @@ export class FoundryProject extends Project {
         token.endsWith("/") ? token : `${token}/`
       );
 
-      remappings.push({ from, to: path.join(this.basePath, to) });
+      remappings.push({
+        from,
+        to,
+      });
     }
 
     return remappings;

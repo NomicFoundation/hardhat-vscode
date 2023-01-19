@@ -1,13 +1,14 @@
+import path from "path";
 import {
   CompletionItem,
   CompletionItemKind,
   Position,
 } from "vscode-languageserver-types";
 import { SolFileIndexMap } from "../../parser/common/types";
-import { Remapping } from "./Remapping";
+import { FoundryProject } from "./FoundryProject";
 
 interface ImportCompletionContext {
-  remappings: Remapping[];
+  project: FoundryProject;
   solFileIndex: SolFileIndexMap;
 }
 
@@ -26,7 +27,7 @@ export function getImportCompletions(
 function _getRemappingKeyCompletions(
   ctx: ImportCompletionContext
 ): CompletionItem[] {
-  return ctx.remappings.map((r) => {
+  return ctx.project.remappings.map((r) => {
     const strippedKey = r.from.replace(/\/$/, ""); // Remove trailing slash
     return {
       label: strippedKey,
@@ -45,11 +46,12 @@ function _getRemappedContractCompletions(
 ): CompletionItem[] {
   let currentImportRemapped = currentImport;
 
-  for (const remapping of ctx.remappings) {
+  for (const remapping of ctx.project.remappings) {
     if (currentImportRemapped.startsWith(remapping.from)) {
+      const toAbsolutePath = path.join(ctx.project.basePath, remapping.to);
       currentImportRemapped = currentImportRemapped.replace(
         remapping.from,
-        remapping.to
+        toAbsolutePath
       );
       break;
     }
