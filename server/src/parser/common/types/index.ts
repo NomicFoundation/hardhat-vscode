@@ -246,8 +246,6 @@ export interface Searcher {
    * @param uri Path to the file. Uri needs to be decoded and without the "file://" prefix.
    * @param position Position in the file.
    * @param from From which Node do we start searching.
-   * @param returnDefinitionNode If it is true, we will return the definition Node of found Node,
-   * otherwise we will return found Node. Default is true.
    * @param searchInExpression If it is true, we will also look at the expressionNode for Node
    * otherwise, we won't. Default is false.
    * @returns Founded Node.
