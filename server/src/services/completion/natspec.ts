@@ -191,33 +191,19 @@ function buildStateVariableCompletion(
   },
   style: NatspecStyle
 ) {
-  const tags = [
-    { name: "@notice", onlyPublic: true },
-    { name: "@dev", onlyPublic: false },
-  ];
-
   let text = "";
-  let tabIndex = 1;
-
   if (style === NatspecStyle.MULTI_LINE) {
-    text += "\n";
-    for (const tag of tags) {
-      if (!tag.onlyPublic || node.variables[0].visibility === "public") {
-        text += ` * ${tag.name} $\{${tabIndex++}}\n`;
-      }
+    if (node.variables[0].visibility === "public") {
+      text = `\n * @notice $\{0}\n`;
+    } else {
+      text = `\n * @dev $\{0}\n`;
     }
   } else if (style === NatspecStyle.SINGLE_LINE) {
-    const linesToAdd = [];
-
-    for (const tag of tags) {
-      if (!tag.onlyPublic || node.variables[0].visibility === "public") {
-        linesToAdd.push(`${tag.name} $\{${tabIndex++}}`);
-      }
+    if (node.variables[0].visibility === "public") {
+      text = ` @notice $\{0}`;
+    } else {
+      text = ` @dev $\{0}`;
     }
-
-    text = linesToAdd
-      .map((line, index) => (index === 0 ? ` ${line}` : `/// ${line}`))
-      .join("\n");
   }
 
   return {
