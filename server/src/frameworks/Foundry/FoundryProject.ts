@@ -44,12 +44,12 @@ export class FoundryProject extends Project {
   }
 
   public async initialize(): Promise<void> {
+    this.initializeError = undefined; // clear any potential error on restart
+
     try {
-      const forgePath = runningOnWindows()
-        ? "%USERPROFILE%\\.cargo\\bin\\forge"
-        : "~/.foundry/bin/forge";
+      const forgeCommand = await this._resolveForgeCommand();
       const config = JSON.parse(
-        await runCmd(`${forgePath} config --json`, this.basePath)
+        await runCmd(`${forgeCommand} config --json`, this.basePath)
       );
       this.sourcesPath = path.join(this.basePath, config.src);
       this.testsPath = path.join(this.basePath, config.test);
@@ -58,7 +58,7 @@ export class FoundryProject extends Project {
       this.configSolcVersion = config.solc || undefined; // may come as null otherwise
 
       const rawRemappings = await runCmd(
-        `${forgePath} remappings`,
+        `${forgeCommand} remappings`,
         this.basePath
       );
       this.remappings = this._parseRemappings(rawRemappings);
@@ -66,13 +66,12 @@ export class FoundryProject extends Project {
       this.serverState.logger.error(error.toString());
 
       switch (error.code) {
-        case 127:
-          this.initializeError =
-            "Couldn't run `forge`. Please check that your foundry installation is correct.";
-          break;
         case 134:
           this.initializeError =
             "Running `forge` failed. Please check that your foundry.toml file is correct.";
+          break;
+        case undefined:
+          this.initializeError = `${error}`;
           break;
         default:
           this.initializeError = `Unexpected error while running \`forge\`: ${error}`;
@@ -215,5 +214,41 @@ export class FoundryProject extends Project {
     }
 
     return remappings;
+  }
+
+  // Returns the forge binary path
+  private async _resolveForgeCommand() {
+    const potentialForgeCommands = ["forge"];
+
+    if (runningOnWindows()) {
+      potentialForgeCommands.push("%USERPROFILE%\\.cargo\\bin\\forge");
+    } else {
+      potentialForgeCommands.push("~/.foundry/bin/forge");
+    }
+
+    for (const potentialForgeCommand of potentialForgeCommands) {
+      try {
+        await runCmd(`${potentialForgeCommand} --version`);
+        return potentialForgeCommand;
+      } catch (error: any) {
+        if (
+          error.code === 127 || // unix
+          error.toString().includes("is not recognized") || // windows (code: 1)
+          error.toString().includes("cannot find the path") // windows (code: 1)
+        ) {
+          // command not found, then try the next potential command
+          continue;
+        } else {
+          // command found but execution failed
+          throw error;
+        }
+      }
+    }
+
+    throw new Error(
+      `Couldn't find forge binary. Performed lookup: ${JSON.stringify(
+        potentialForgeCommands
+      )}`
+    );
   }
 }
