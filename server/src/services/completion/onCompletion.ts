@@ -1,3 +1,5 @@
+/* eslint-disable no-template-curly-in-string */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import {
   VSCodePosition,
   CompletionList,
@@ -16,7 +18,6 @@ import {
   MemberAccessNode,
 } from "@common/types";
 import { getParserPositionFromVSCodePosition } from "@common/utils";
-import { Logger } from "@utils/Logger";
 import { isImportDirectiveNode } from "@analyzer/utils/typeGuards";
 import {
   CompletionContext,
@@ -29,6 +30,7 @@ import { ProjectContext } from "./types";
 import { getImportPathCompletion } from "./getImportPathCompletion";
 import { globalVariables, defaultCompletion } from "./defaultCompletion";
 import { arrayCompletions } from "./arrayCompletions";
+import { getNatspecCompletion, isNatspecTrigger } from "./natspec";
 
 export const onCompletion = (serverState: ServerState) => {
   return async (params: CompletionParams): Promise<CompletionList | null> => {
@@ -67,7 +69,8 @@ export const onCompletion = (serverState: ServerState) => {
           params.position,
           params.context,
           projCtx,
-          logger
+          serverState,
+          document
         );
 
         return { status: "ok", result: completions };
@@ -107,8 +110,13 @@ export function doComplete(
   position: VSCodePosition,
   context: CompletionContext | undefined,
   projCtx: ProjectContext,
-  logger: Logger
+  { logger }: ServerState,
+  document: TextDocument
 ): CompletionList | null {
+  if (isNatspecTrigger(context, document, position)) {
+    return getNatspecCompletion(documentAnalyzer, document, position);
+  }
+
   const result: CompletionList = { isIncomplete: false, items: [] };
 
   let definitionNode = documentAnalyzer.searcher.findNodeByPosition(
