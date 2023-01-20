@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.6.9 - 2023-01-20
+
+### Added
+
+- Natspec completions ([#342](https://github.com/NomicFoundation/hardhat-vscode/issues/342))([#343](https://github.com/NomicFoundation/hardhat-vscode/issues/343))([#296](https://github.com/NomicFoundation/hardhat-vscode/issues/296))
+- Updated parser to support latest solidity syntax
+
+### Fixed
+
+- Improve forge binary lookup ([#354](https://github.com/NomicFoundation/hardhat-vscode/pull/354))
+- Fix logic on checking workspace folder capability ([#375](https://github.com/NomicFoundation/hardhat-vscode/pull/375))
+
 ## 0.6.8 - 2023-01-16
 
 ### Added
