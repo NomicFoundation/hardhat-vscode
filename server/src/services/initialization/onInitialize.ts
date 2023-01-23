@@ -5,7 +5,6 @@ import {
   WorkspaceFolder,
 } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
-import { isTelemetryEnabled } from "../../utils/serverStateUtils";
 import { indexWorkspaceFolders } from "./indexWorkspaceFolders";
 import { updateAvailableSolcVersions } from "./updateAvailableSolcVersions";
 
@@ -128,10 +127,8 @@ function updateServerStateFromParams(
 ) {
   serverState.env = params.initializationOptions?.env ?? "production";
 
-  serverState.globalTelemetryEnabled =
-    params.initializationOptions?.globalTelemetryEnabled ?? false;
-  serverState.hardhatTelemetryEnabled =
-    params.initializationOptions?.hardhatTelemetryEnabled ?? false;
+  serverState.telemetryEnabled =
+    params.initializationOptions?.telemetryEnabled ?? false;
 
   serverState.hasWorkspaceFolderCapability =
     params.capabilities.workspace !== undefined &&
@@ -156,7 +153,7 @@ function logInitializationInfo(
 
   logger.info(`  Release: ${extensionName}@${extensionVersion}`);
   logger.info(`  Environment: ${serverState.env}`);
-  logger.info(`  Telemetry Enabled: ${isTelemetryEnabled(serverState)}`);
+  logger.info(`  Telemetry Enabled: ${serverState.telemetryEnabled}`);
 
   if (machineId !== undefined) {
     logger.info(

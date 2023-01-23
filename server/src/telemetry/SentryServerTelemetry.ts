@@ -3,7 +3,6 @@ import * as Sentry from "@sentry/node";
 import type { Primitive, Transaction } from "@sentry/types";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as tracing from "@sentry/tracing";
-import { isTelemetryEnabled } from "@utils/serverStateUtils";
 import { ServerState } from "../types";
 import { Analytics } from "../analytics/types";
 import { Telemetry, TrackingResult } from "./types";
@@ -65,9 +64,7 @@ export class SentryServerTelemetry implements Telemetry {
         },
       },
       beforeSend: (event) =>
-        isTelemetryEnabled(serverState) && this.eventFilter(event)
-          ? event
-          : null,
+        serverState.telemetryEnabled && this.eventFilter(event) ? event : null,
     });
 
     this.analytics.init(machineId, extensionVersion, serverState, clientName);

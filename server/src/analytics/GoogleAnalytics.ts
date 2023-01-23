@@ -2,7 +2,6 @@
 import * as os from "os";
 import got from "got";
 import * as qs from "qs";
-import { isTelemetryEnabled } from "@utils/serverStateUtils";
 import { ServerState } from "../types";
 import {
   Analytics,
@@ -47,7 +46,7 @@ export class GoogleAnalytics implements Analytics {
     try {
       if (
         this.serverState?.env !== "production" ||
-        !isTelemetryEnabled(this.serverState) ||
+        !this.serverState.telemetryEnabled ||
         this.machineId === undefined
       ) {
         return;

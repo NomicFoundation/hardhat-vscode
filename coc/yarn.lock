@@ -339,15 +339,15 @@
   resolved "https://registry.yarnpkg.com/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz#b520529ec21d8e5945a1851dfd1c32e94e39ff45"
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
 
-"@ignored/solidity-language-server@0.6.7":
-  version "0.6.7"
-  resolved "https://registry.yarnpkg.com/@ignored/solidity-language-server/-/solidity-language-server-0.6.7.tgz#a61e1f92b939ae40941a62fc7db357ce3bab3961"
-  integrity sha512-AaaiCes8dog88QstXCGceAxC1al7P5Mfno+6LMxilz4HJDG82Q1rhRYcq6TMjzr/k6id78dugPInIXmCj7vMXA==
+"@ignored/solidity-language-server@0.6.9":
+  version "0.6.9"
+  resolved "https://registry.yarnpkg.com/@ignored/solidity-language-server/-/solidity-language-server-0.6.9.tgz#3e2196a9c5ed6f8e385f3c41d870782b21d7fb4d"
+  integrity sha512-5x7pRJXCk2sfuMOU6CBjIXMzX0Bo5LzygxSRdmdZs/RHgt77kkpUDrZYsYxNNDjlejGpoifsEg7YTI4Z+ncsIg==
   dependencies:
     "@nomicfoundation/solidity-analyzer" "0.1.0"
     "@sentry/node" "6.19.1"
     "@sentry/tracing" "6.19.1"
-    "@solidity-parser/parser" "^0.14.0"
+    "@solidity-parser/parser" "^0.14.5"
     c3-linearization "0.3.0"
     fast-glob "3.2.11"
     fs-extra "^10.0.0"
@@ -775,7 +775,7 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-4.6.0.tgz#3c7c9c46e678feefe7a2e5bb609d3dbd665ffb3f"
   integrity sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==
 
-"@solidity-parser/parser@^0.14.0", "@solidity-parser/parser@^0.14.5":
+"@solidity-parser/parser@^0.14.5":
   version "0.14.5"
   resolved "https://registry.yarnpkg.com/@solidity-parser/parser/-/parser-0.14.5.tgz#87bc3cc7b068e08195c219c91cd8ddff5ef1a804"
   integrity sha512-6dKnHZn7fg/iQATVEzqyUOyEidbn05q7YA2mQ9hC0MMXhhV3/JrsxmFSYZAcr7j1yUP700LLhTruvJ3MiQmjJg==

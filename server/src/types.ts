@@ -12,8 +12,7 @@ export interface ServerState {
   env: "production" | "development";
   hasWorkspaceFolderCapability: boolean;
 
-  globalTelemetryEnabled: boolean;
-  hardhatTelemetryEnabled: boolean;
+  telemetryEnabled: boolean;
 
   connection: Connection;
   documents: TextDocuments<TextDocument>;
