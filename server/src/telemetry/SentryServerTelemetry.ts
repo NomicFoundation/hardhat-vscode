@@ -63,8 +63,12 @@ export class SentryServerTelemetry implements Telemetry {
           client: clientName,
         },
       },
+
       beforeSend: (event) =>
         serverState.telemetryEnabled && this.eventFilter(event) ? event : null,
+
+      beforeSendTransaction: (transactionEvent) =>
+        serverState.telemetryEnabled ? transactionEvent : null,
     });
 
     this.analytics.init(machineId, extensionVersion, serverState, clientName);
