@@ -1,7 +1,4 @@
 {
-  "private": true,
-  "workspaces": [
-    "projects/main",
-    "projects/remappings"
-  ]
+  "name": "hardhat-vscode-e2e-tests",
+  "version": "1.0.0"
 }
