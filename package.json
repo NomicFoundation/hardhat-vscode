@@ -6,6 +6,14 @@
   "license": "MIT",
   "version": "0.6.9",
   "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "coc",
+    "test/e2e",
+    "test/e2e/projects/main",
+    "test/protocol"
+  ],
   "main": "./client/out/extension.js",
   "module": "./client/out/extension.js",
   "icon": "docs/images/vscode-logo.png",
@@ -45,7 +53,6 @@
   "scripts": {
     "build": "tsc -b ./client/tsconfig.json && tsc -b ./server/tsconfig.build.json && tsc -b ./coc/tsconfig.json && tsc -b",
     "watch": "concurrently -n client,server \"tsc -b -w ./client/tsconfig.json\" \"tsc -b -w ./server/tsconfig.build.json\"",
-    "postinstall": "yarn install --cwd ./client && yarn install --ignore-platform --cwd ./server && yarn install --cwd ./test/protocol && yarn install --cwd ./test/e2e && yarn install --cwd ./coc",
     "test:unit": "yarn --cwd ./server run test",
     "test:protocol": "yarn --cwd ./test/protocol run test",
     "test:e2e": "yarn run build && node ./out/test/runTests.js",

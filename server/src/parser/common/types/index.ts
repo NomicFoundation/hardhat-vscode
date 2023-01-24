@@ -99,7 +99,7 @@ import {
   SignatureHelp,
   SignatureInformation,
   ParameterInformation,
-} from "vscode-languageserver-types";
+} from "vscode-languageserver-protocol";
 
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Project } from "../../../frameworks/base/Project";
