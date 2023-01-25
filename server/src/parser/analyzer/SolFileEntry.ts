@@ -19,12 +19,14 @@ export class SolFileEntry implements ISolFileEntry {
   public analyzerTree: { tree: Node };
   public searcher: ISearcher;
   public orphanNodes: Node[] = [];
+  public isLocal: boolean;
 
   private constructor(uri: string, project: Project) {
     this.uri = uri;
     this.project = project;
     this.text = "";
     this.status = SolFileState.UNLOADED;
+    this.isLocal = true;
 
     this.analyzerTree = {
       tree: new EmptyNode(

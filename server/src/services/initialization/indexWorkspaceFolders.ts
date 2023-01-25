@@ -106,10 +106,13 @@ export async function indexWorkspaceFolders(
     serverState.indexedWorkspaceFolders.push(workspaceFolder);
   }
 
-  // Analyze files
+  // Analyze local files
   await logger.trackTime("Analyzing solidity files", async () => {
     const span = sentryTransaction?.startChild({ op: "analyzeSolidityFiles" });
-    await analyzeSolFiles(serverState, logger, solFileUris);
+    const localSolFileUris = solFileUris.filter(
+      (uri) => serverState.solFileIndex[uri]?.isLocal === true
+    );
+    await analyzeSolFiles(serverState, logger, localSolFileUris);
     span?.finish();
   });
 }
@@ -162,12 +165,14 @@ export async function indexSolidityFiles(
       serverState,
       path.dirname(fileUri)
     );
+    let isLocal = true;
 
     for (const indexedProject of indexedProjects) {
       try {
-        const belongs = await indexedProject.fileBelongs(fileUri);
-        if (belongs && indexedProject.priority > project.priority) {
+        const result = await indexedProject.fileBelongs(fileUri);
+        if (result.belongs && indexedProject.priority > project.priority) {
           project = indexedProject;
+          isLocal = result.isLocal;
         }
       } catch (error) {
         serverState.logger.trace(`Error on fileBelongs: ${error}`);
@@ -175,7 +180,9 @@ export async function indexSolidityFiles(
       }
     }
 
-    serverState.logger.trace(`Associating ${project.id()} to ${fileUri}`);
+    serverState.logger.trace(
+      `Associating ${project.id()} to ${fileUri}. Local: ${isLocal}`
+    );
 
     const docText = await serverState.workspaceFileRetriever.readFile(fileUri);
     serverState.solFileIndex[fileUri] = SolFileEntry.createLoadedEntry(
@@ -183,6 +190,7 @@ export async function indexSolidityFiles(
       project,
       docText
     );
+    serverState.solFileIndex[fileUri].isLocal = isLocal;
   }
 }
 

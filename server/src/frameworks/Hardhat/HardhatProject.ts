@@ -13,7 +13,7 @@ import { OpenDocuments, ServerState } from "../../types";
 import { directoryContains } from "../../utils/directoryContains";
 import { Logger } from "../../utils/Logger";
 import { CompilationDetails } from "../base/CompilationDetails";
-import { Project } from "../base/Project";
+import { FileBelongsResult, Project } from "../base/Project";
 import { getImportCompletions } from "./getImportCompletions";
 import { LogLevel } from "./worker/WorkerLogger";
 import {
@@ -126,7 +126,7 @@ export class HardhatProject extends Project {
     });
   }
 
-  public async fileBelongs(sourceURI: string): Promise<boolean> {
+  public async fileBelongs(sourceURI: string): Promise<FileBelongsResult> {
     const workerPromise = new Promise((resolve, reject) => {
       this._assertWorkerExists();
       this._assertWorkerNotInitializing();
@@ -139,14 +139,17 @@ export class HardhatProject extends Project {
       } else {
         // HRE could not be loaded. Claim ownership of all solidity files under root folder
         // This is to avoid potential hardhat-owned contracts being assigned to i.e. projectless
-        resolve(directoryContains(this.basePath, sourceURI));
+        resolve({
+          belongs: directoryContains(this.basePath, sourceURI),
+          isLocal: true,
+        });
       }
     });
 
     return Promise.race([
       workerPromise,
       this._requestTimeout("fileBelongs"),
-    ]) as Promise<boolean>;
+    ]) as Promise<FileBelongsResult>;
   }
 
   public async buildCompilation(
@@ -329,7 +332,7 @@ export class HardhatProject extends Project {
   }
 
   private _handleFileBelongsResponse(msg: FileBelongsResponse) {
-    this._handleResponse(msg.requestId, msg.belongs);
+    this._handleResponse(msg.requestId, msg.result);
   }
 
   private _handleResolveImportResponse(msg: ResolveImportResponse) {
