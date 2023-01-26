@@ -15,8 +15,8 @@ import { CompilationDetails } from "../base/CompilationDetails";
 import { InitializationFailedError } from "../base/Errors";
 import { Project } from "../base/Project";
 import { buildBasicCompilation } from "../shared/buildBasicCompilation";
+import { Remapping } from "../base/Remapping";
 import { getImportCompletions } from "./getImportCompletions";
-import { Remapping } from "./Remapping";
 
 export class FoundryProject extends Project {
   public priority = 1;
