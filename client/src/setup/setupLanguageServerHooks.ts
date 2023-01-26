@@ -46,6 +46,7 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
     synchronize: {
       fileEvents: [
         workspace.createFileSystemWatcher("**/hardhat.config.{ts,js}"),
+        workspace.createFileSystemWatcher("**/truffle-config.js"),
         workspace.createFileSystemWatcher("**/foundry.toml"),
         workspace.createFileSystemWatcher("**/remappings.txt"),
         workspace.createFileSystemWatcher("**/*.sol"),
