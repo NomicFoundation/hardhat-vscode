@@ -49,8 +49,7 @@ function setupUninitializedServerState(
   const serverState: ServerState = {
     env: "production",
     hasWorkspaceFolderCapability: false,
-    globalTelemetryEnabled: false,
-    hardhatTelemetryEnabled: false,
+    telemetryEnabled: false,
     connection,
     indexedWorkspaceFolders: [],
     projects: {},
@@ -101,28 +100,15 @@ function attachCustomHooks(serverState: ServerState) {
   const { connection, logger } = serverState;
 
   connection.onNotification(
-    "custom/didChangeGlobalTelemetryEnabled",
+    "custom/didChangeTelemetryEnabled",
     ({ enabled }: { enabled: boolean }) => {
       if (enabled) {
-        logger.info(`Global telemetry enabled`);
+        logger.info(`Telemetry enabled`);
       } else {
-        logger.info(`Global telemetry disabled`);
+        logger.info(`Telemetry disabled`);
       }
 
-      serverState.globalTelemetryEnabled = enabled;
-    }
-  );
-
-  connection.onNotification(
-    "custom/didChangeHardhatTelemetryEnabled",
-    ({ enabled }: { enabled: boolean }) => {
-      if (enabled) {
-        logger.info(`Solidity telemetry enabled`);
-      } else {
-        logger.info(`Solidity telemetry disabled`);
-      }
-
-      serverState.hardhatTelemetryEnabled = enabled;
+      serverState.telemetryEnabled = enabled;
     }
   );
 }

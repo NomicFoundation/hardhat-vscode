@@ -1,15 +1,10 @@
 import * as path from "path";
-import {
-  window,
-  workspace,
-  env,
-  ExtensionContext,
-  OutputChannel,
-} from "vscode";
+import { window, env, ExtensionContext, OutputChannel } from "vscode";
 import { SentryClientTelemetry } from "../telemetry/SentryClientTelemetry";
 
 import { ExtensionState } from "../types";
 import { Logger } from "../utils/Logger";
+import { isTelemetryEnabled } from "../utils/telemetry";
 
 export function setupExtensionState(
   context: ExtensionContext,
@@ -39,9 +34,7 @@ export function setupExtensionState(
     client: null,
     listenerDisposables: [],
     projectsValidationStatus: {},
-    hardhatTelemetryEnabled:
-      workspace.getConfiguration("solidity").get<boolean>("telemetry") ?? false,
-    globalTelemetryEnabled: env.isTelemetryEnabled,
+    telemetryEnabled: isTelemetryEnabled(),
     projectStatusItems: [],
 
     telemetry,
