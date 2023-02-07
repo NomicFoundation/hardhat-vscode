@@ -278,8 +278,7 @@
     "extensionName": "hardhat-solidity",
     "extensionVersion": "0.6.2",
     "env": "development",
-    "globalTelemetryEnabled": true,
-    "hardhatTelemetryEnabled": true,
+    "telemetryEnabled": false,
     "machineId": "7a74ba5bd661daf8317a6893cb3647e107a89fc53780dc443165b011315f4d74"
   },
   "trace": "verbose"

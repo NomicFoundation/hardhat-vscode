@@ -32,8 +32,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
         extensionName: "@ignored/coc-solidity",
         extensionVersion: packageJson.version,
         env: "production",
-        globalTelemetryEnabled: true,
-        hardhatTelemetryEnabled: telemetryEnabled,
+        telemetryEnabled,
         machineId: await machineId(),
       },
     }

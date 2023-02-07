@@ -6,6 +6,7 @@ import {
   TransportKind,
 } from "vscode-languageclient/node";
 import { ExtensionState } from "../types";
+import { isTelemetryEnabled } from "../utils/telemetry";
 import { setupIndexingHooks } from "./setupIndexingHooks";
 import { setupValidationJobHooks } from "./setupValidationJobHooks";
 
@@ -56,8 +57,7 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
       extensionName: extensionState.name,
       extensionVersion: extensionState.version,
       env: extensionState.env,
-      globalTelemetryEnabled: extensionState.globalTelemetryEnabled,
-      hardhatTelemetryEnabled: extensionState.hardhatTelemetryEnabled,
+      telemetryEnabled: extensionState.telemetryEnabled,
       machineId: extensionState.machineId,
     },
   };
@@ -79,33 +79,24 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
     .then((disposable) => extensionState.listenerDisposables.push(disposable))
     .catch((err) => extensionState.logger.error(err));
 
-  const telemetryChangeDisposable = env.onDidChangeTelemetryEnabled(
-    (enabled: boolean) => {
-      extensionState.globalTelemetryEnabled = enabled;
+  const notifyTelemetryChanged = () => {
+    const telemetryEnabled = isTelemetryEnabled();
 
-      client.sendNotification("custom/didChangeGlobalTelemetryEnabled", {
-        enabled,
-      });
-    }
+    extensionState.telemetryEnabled = telemetryEnabled;
+    client.sendNotification("custom/didChangeTelemetryEnabled", {
+      enabled: telemetryEnabled,
+    });
+  };
+
+  const globalTelemetryChangeDisposable = env.onDidChangeTelemetryEnabled(
+    notifyTelemetryChanged
   );
 
   const hardhatTelemetryChangeDisposable = workspace.onDidChangeConfiguration(
-    (e) => {
-      if (!e.affectsConfiguration("solidity.telemetry")) {
-        return;
-      }
-
-      extensionState.hardhatTelemetryEnabled =
-        workspace.getConfiguration("solidity").get<boolean>("telemetry") ??
-        false;
-
-      client.sendNotification("custom/didChangeHardhatTelemetryEnabled", {
-        enabled: extensionState.hardhatTelemetryEnabled,
-      });
-    }
+    notifyTelemetryChanged
   );
 
-  extensionState.listenerDisposables.push(telemetryChangeDisposable);
+  extensionState.listenerDisposables.push(globalTelemetryChangeDisposable);
   extensionState.listenerDisposables.push(hardhatTelemetryChangeDisposable);
 
   client.start();

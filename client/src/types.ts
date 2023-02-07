@@ -18,8 +18,7 @@ export interface ExtensionState {
   projectsValidationStatus: { [key: string]: LanguageStatusItem };
   listenerDisposables: Disposable[];
 
-  globalTelemetryEnabled: boolean;
-  hardhatTelemetryEnabled: boolean;
+  telemetryEnabled: boolean;
 
   telemetry: Telemetry;
   outputChannel: OutputChannel;

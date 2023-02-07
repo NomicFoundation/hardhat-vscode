@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/node";
 import { ExtensionState } from "../types";
+import { isTelemetryEnabled } from "../utils/telemetry";
 import { Telemetry } from "./types";
 
 const SENTRY_CLOSE_TIMEOUT = 2000;
@@ -34,8 +35,7 @@ export class SentryClientTelemetry implements Telemetry {
             integration.name !== "OnUnhandledRejection"
           );
         }),
-      beforeSend: (event) =>
-        isTelemetryEnabled(this.extensionState) ? event : null,
+      beforeSend: (event) => (isTelemetryEnabled() ? event : null),
     });
   }
 
@@ -46,12 +46,4 @@ export class SentryClientTelemetry implements Telemetry {
   public close(): Promise<boolean> {
     return Sentry.close(SENTRY_CLOSE_TIMEOUT);
   }
-}
-
-function isTelemetryEnabled(extensionState: ExtensionState | null): boolean {
-  return (
-    extensionState !== null &&
-    extensionState.globalTelemetryEnabled &&
-    extensionState.hardhatTelemetryEnabled
-  );
 }

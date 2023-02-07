@@ -64,8 +64,7 @@ class Client implements IClient {
         extensionName: "nomicfoundation.hardhat-solidity",
         extensionVersion: "0.0.0",
         env: "development",
-        globalTelemetryEnabled: false,
-        hardhatTelemetryEnabled: false,
+        telemetryEnabled: false,
         machineId: "fake-interagtion-machine-id",
       },
     };
