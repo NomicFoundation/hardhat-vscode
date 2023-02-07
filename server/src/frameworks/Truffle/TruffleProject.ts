@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { execSync } from "child_process";
 import path from "path";
@@ -10,6 +11,7 @@ import { Remapping } from "../base/Remapping";
 export class TruffleProject extends Project {
   public priority = 3;
   public sourcesPath!: string;
+  public testsPath!: string;
   public remappings: Remapping[] = [];
   public initializeError?: string;
   public configSolcVersion?: string;
@@ -32,10 +34,11 @@ export class TruffleProject extends Project {
 
   public async initialize(): Promise<void> {
     this.sourcesPath = path.join(this.basePath, "contracts");
+    this.testsPath = path.join(this.basePath, "test");
   }
 
   public async fileBelongs(file: string): Promise<boolean> {
-    return file.startsWith(this.sourcesPath);
+    return file.startsWith(this.sourcesPath) || file.startsWith(this.testsPath);
   }
 
   public async resolveImportPath(
@@ -52,19 +55,32 @@ export class TruffleProject extends Project {
 
     // console.log(`(${file},${importPath}) => ${resolved}`);
 
+    // Absolute path
     if (path.isAbsolute(importPath)) {
       return importPath;
     }
 
+    // Relative path
     if (importPath.startsWith(".") || importPath.startsWith("..")) {
       return path.resolve(path.dirname(file), importPath);
     }
 
+    // Truffle direct imports
+    const globalNodeModulesPath = execSync("npm root --quiet -g").toString();
     if (importPath.startsWith("truffle")) {
-      return require.resolve(importPath.replace("truffle", "truffle/build"), {
-        paths: [this.basePath, execSync("npm root --quiet -g").toString()],
-      });
+      try {
+        return require.resolve(importPath.replace("truffle", "truffle/build"), {
+          paths: [this.basePath, globalNodeModulesPath],
+        });
+      } catch (error) {}
     }
+
+    // Node modules direct imports (local and global)
+    try {
+      return require.resolve(importPath, {
+        paths: [this.basePath, globalNodeModulesPath],
+      });
+    } catch (error) {}
 
     return undefined;
   }
