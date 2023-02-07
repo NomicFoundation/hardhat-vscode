@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { execSync } from "child_process";
+import path from "path";
 import { DidChangeWatchedFilesParams } from "vscode-languageserver-protocol";
 import { OpenDocuments, ServerState } from "../../types";
 import { CompilationDetails } from "../base/CompilationDetails";
@@ -29,18 +31,42 @@ export class TruffleProject extends Project {
   }
 
   public async initialize(): Promise<void> {
-    //
+    this.sourcesPath = path.join(this.basePath, "contracts");
   }
 
   public async fileBelongs(file: string): Promise<boolean> {
-    return false;
+    return file.startsWith(this.sourcesPath);
   }
 
-  public resolveImportPath(
+  public async resolveImportPath(
     file: string,
     importPath: string
   ): Promise<string | undefined> {
-    throw new Error("Method not implemented.");
+    // const resolver = new Resolver({
+    //   contracts_directory: this.sourcesPath,
+    //   working_directory: this.basePath,
+    //   contracts_build_directory: path.join(this.basePath, "build"),
+    // });
+
+    // const resolved = resolver.resolve(importPath, file);
+
+    // console.log(`(${file},${importPath}) => ${resolved}`);
+
+    if (path.isAbsolute(importPath)) {
+      return importPath;
+    }
+
+    if (importPath.startsWith(".") || importPath.startsWith("..")) {
+      return path.resolve(path.dirname(file), importPath);
+    }
+
+    if (importPath.startsWith("truffle")) {
+      return require.resolve(importPath.replace("truffle", "truffle/build"), {
+        paths: [this.basePath, execSync("npm root --quiet -g").toString()],
+      });
+    }
+
+    return undefined;
   }
 
   public buildCompilation(
