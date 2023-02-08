@@ -1,12 +1,15 @@
 /* eslint-disable no-empty */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { execSync } from "child_process";
+import _ from "lodash";
 import path from "path";
 import { DidChangeWatchedFilesParams } from "vscode-languageserver-protocol";
 import { OpenDocuments, ServerState } from "../../types";
+import { isRelativeImport } from "../../utils";
 import { CompilationDetails } from "../base/CompilationDetails";
 import { Project } from "../base/Project";
 import { Remapping } from "../base/Remapping";
+import { getDependenciesAndPragmas } from "../shared/crawlDependencies";
 
 export class TruffleProject extends Project {
   public priority = 3;
@@ -35,6 +38,7 @@ export class TruffleProject extends Project {
   public async initialize(): Promise<void> {
     this.sourcesPath = path.join(this.basePath, "contracts");
     this.testsPath = path.join(this.basePath, "test");
+    this.configSolcVersion = "0.8.13"; // TODO: read config
   }
 
   public async fileBelongs(file: string): Promise<boolean> {
@@ -85,11 +89,69 @@ export class TruffleProject extends Project {
     return undefined;
   }
 
-  public buildCompilation(
+  public async buildCompilation(
     sourceUri: string,
     openDocuments: OpenDocuments
   ): Promise<CompilationDetails> {
-    throw new Error("Method not implemented.");
+    // Load contract text from openDocuments
+    const documentText = openDocuments.find(
+      (doc) => doc.uri === sourceUri
+    )?.documentText;
+
+    if (documentText === undefined) {
+      throw new Error(
+        `sourceUri (${sourceUri}) should be included in openDocuments ${JSON.stringify(
+          openDocuments.map((doc) => doc.uri)
+        )} `
+      );
+    }
+
+    // Get list of all dependencies (deep) and their pragma statements
+    const dependencyDetails = await getDependenciesAndPragmas(this, sourceUri);
+
+    // Use specified solc version from config
+    const solcVersion = this.configSolcVersion!;
+
+    // Build solc input
+    const sources: { [uri: string]: { content: string } } = {};
+    const remappings: string[] = [];
+
+    for (const { sourceName, absolutePath } of dependencyDetails) {
+      // Read all sol files via openDocuments or solFileIndex
+      const contractText =
+        openDocuments.find((doc) => doc.uri === absolutePath)?.documentText ??
+        this.serverState.solFileIndex[absolutePath].text;
+
+      if (contractText === undefined) {
+        throw new Error(`Contract not indexed: ${absolutePath}`);
+      }
+
+      // Build the sources input
+      sources[absolutePath] = { content: contractText };
+
+      // Add an entry to remappings
+      if (!isRelativeImport(sourceName) && sourceName !== absolutePath) {
+        remappings.push(`${sourceName}=${absolutePath}`);
+      }
+    }
+
+    sources[sourceUri] = { content: documentText };
+
+    return {
+      input: {
+        language: "Solidity",
+        sources,
+        settings: {
+          outputSelection: {},
+          remappings,
+          optimizer: {
+            enabled: false,
+            runs: 200,
+          },
+        },
+      },
+      solcVersion,
+    } as any;
   }
 
   public async onWatchedFilesChanges(
