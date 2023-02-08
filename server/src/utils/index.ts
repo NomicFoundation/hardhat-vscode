@@ -59,3 +59,7 @@ export function normalizeSlashes(p: string) {
 export function isTestMode() {
   return process.env.VSCODE_NODE_ENV === "development";
 }
+
+export function isRelativeImport(importName: string) {
+  return importName.startsWith(".");
+}
