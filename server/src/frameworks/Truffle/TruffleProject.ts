@@ -1,15 +1,26 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-empty */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { execSync } from "child_process";
 import _ from "lodash";
 import path from "path";
+import semver from "semver";
 import { DidChangeWatchedFilesParams } from "vscode-languageserver-protocol";
 import { OpenDocuments, ServerState } from "../../types";
 import { isRelativeImport } from "../../utils";
+import { directoryContains } from "../../utils/directoryContains";
 import { CompilationDetails } from "../base/CompilationDetails";
 import { Project } from "../base/Project";
 import { Remapping } from "../base/Remapping";
 import { getDependenciesAndPragmas } from "../shared/crawlDependencies";
+
+enum Status {
+  NOT_INITIALIZED,
+  INITIALIZING,
+  INITIALIZED_SUCCESS,
+  INITIALIZED_FAILURE,
+}
 
 export class TruffleProject extends Project {
   public priority = 3;
@@ -17,7 +28,8 @@ export class TruffleProject extends Project {
   public testsPath!: string;
   public remappings: Remapping[] = [];
   public initializeError?: string;
-  public configSolcVersion?: string;
+  public resolvedSolcVersion?: string;
+  public status: Status = Status.NOT_INITIALIZED;
 
   constructor(
     serverState: ServerState,
@@ -36,13 +48,55 @@ export class TruffleProject extends Project {
   }
 
   public async initialize(): Promise<void> {
-    this.sourcesPath = path.join(this.basePath, "contracts");
+    this.status = Status.INITIALIZING;
     this.testsPath = path.join(this.basePath, "test");
-    this.configSolcVersion = "0.8.13"; // TODO: read config
+
+    try {
+      // Load config file
+      const config = require(this.configPath);
+
+      // Find solc version statement
+      const configSolcVersion = config?.compilers?.solc?.version;
+      if (configSolcVersion === undefined) {
+        throw new Error(
+          `Missing solc version on config file (compilers.solc.version)`
+        );
+      }
+
+      // Resolve version statement with available versions
+      const resolvedSolcVersion = semver.maxSatisfying(
+        this.serverState.solcVersions,
+        configSolcVersion
+      );
+      if (resolvedSolcVersion === null) {
+        throw new Error(
+          `No version satisfies ${configSolcVersion}. Available versions are: ${this.serverState.solcVersions}`
+        );
+      }
+      this.resolvedSolcVersion = resolvedSolcVersion;
+
+      // Load contracts directory
+      this.sourcesPath = path.resolve(
+        this.basePath,
+        config?.contracts_directory ?? "contracts"
+      );
+      this.status = Status.INITIALIZED_SUCCESS;
+    } catch (error) {
+      this.status = Status.INITIALIZED_FAILURE;
+      this.initializeError = `${error}`;
+      throw new Error(`Error loading config file ${this.configPath}: ${error}`);
+    }
   }
 
   public async fileBelongs(file: string): Promise<boolean> {
-    return file.startsWith(this.sourcesPath) || file.startsWith(this.testsPath);
+    if (this.status === Status.INITIALIZED_SUCCESS) {
+      return [this.sourcesPath, this.testsPath].some((dir) =>
+        directoryContains(dir, path.dirname(file))
+      );
+    } else {
+      // Claim ownership under all contracts on the base folder if initialization failed
+      return directoryContains(this.basePath, file);
+    }
   }
 
   public async resolveImportPath(
@@ -110,7 +164,7 @@ export class TruffleProject extends Project {
     const dependencyDetails = await getDependenciesAndPragmas(this, sourceUri);
 
     // Use specified solc version from config
-    const solcVersion = this.configSolcVersion!;
+    const solcVersion = this.resolvedSolcVersion!;
 
     // Build solc input
     const sources: { [uri: string]: { content: string } } = {};
