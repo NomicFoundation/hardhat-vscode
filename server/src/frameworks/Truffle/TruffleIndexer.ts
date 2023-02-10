@@ -9,7 +9,7 @@ export class TruffleIndexer extends ProjectIndexer {
     const uri = decodeUriAndRemoveFilePrefix(folder.uri);
     const configFiles = await this.fileRetriever.findFiles(
       uri,
-      "**/truffle-config.js",
+      "**/{truffle-config,truffle}.js",
       ["**/node_modules/**"]
     );
 

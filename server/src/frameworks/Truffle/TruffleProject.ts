@@ -11,6 +11,7 @@ import { OpenDocuments, ServerState } from "../../types";
 import { isRelativeImport } from "../../utils";
 import { directoryContains } from "../../utils/directoryContains";
 import { CompilationDetails } from "../base/CompilationDetails";
+import { BuildInputError } from "../base/Errors";
 import { Project } from "../base/Project";
 import { Remapping } from "../base/Remapping";
 import { getDependenciesAndPragmas } from "../shared/crawlDependencies";
@@ -49,10 +50,12 @@ export class TruffleProject extends Project {
 
   public async initialize(): Promise<void> {
     this.status = Status.INITIALIZING;
+    this.initializeError = undefined;
     this.testsPath = path.join(this.basePath, "test");
 
     try {
       // Load config file
+      delete require.cache[require.resolve(this.configPath)]
       const config = require(this.configPath);
 
       // Find solc version statement
@@ -82,9 +85,10 @@ export class TruffleProject extends Project {
       );
       this.status = Status.INITIALIZED_SUCCESS;
     } catch (error) {
+      const errorMessage = `Error loading config file ${this.configPath}: ${error}`;
       this.status = Status.INITIALIZED_FAILURE;
-      this.initializeError = `${error}`;
-      throw new Error(`Error loading config file ${this.configPath}: ${error}`);
+      this.initializeError = errorMessage;
+      throw new Error(errorMessage);
     }
   }
 
@@ -147,6 +151,22 @@ export class TruffleProject extends Project {
     sourceUri: string,
     openDocuments: OpenDocuments
   ): Promise<CompilationDetails> {
+    // Ensure project is initialized
+    if (this.status !== Status.INITIALIZED_SUCCESS) {
+      const buildError: BuildInputError = {
+        _isBuildInputError: true,
+        fileSpecificErrors: {},
+        projectWideErrors: [
+          {
+            type: "general",
+            message: `Truffle project couldn't initialize correctly: ${this.initializeError}`,
+            source: "truffle",
+          },
+        ],
+      };
+      throw buildError;
+    }
+
     // Load contract text from openDocuments
     const documentText = openDocuments.find(
       (doc) => doc.uri === sourceUri
@@ -208,9 +228,18 @@ export class TruffleProject extends Project {
     } as any;
   }
 
-  public async onWatchedFilesChanges(
-    params: DidChangeWatchedFilesParams
-  ): Promise<void> {
+  public async onWatchedFilesChanges({
+    changes,
+  }: DidChangeWatchedFilesParams): Promise<void> {
+    for (const change of changes) {
+      if (this.configPath === change.uri) {
+        this.serverState.logger.info(
+          `Reinitializing truffle project: ${this.id()}`
+        );
+
+        await this.initialize();
+      }
+    }
     return;
   }
 }
