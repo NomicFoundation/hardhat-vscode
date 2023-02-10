@@ -78,8 +78,11 @@ export async function indexWorkspaceFolders(
         op: "initializeProject",
         tags: frameworkTag(foundProject),
       });
-
-      await foundProject.initialize();
+      try {
+        await foundProject.initialize();
+      } catch (error) {
+        logger.error(`Error initializing ${foundProject.basePath}: ${error}`);
+      }
 
       span?.finish();
       logger.info(`Done ${foundProject.id()}`);
