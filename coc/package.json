@@ -51,6 +51,7 @@
           "hardhat.config.js",
           "hardhat.config.ts",
           "truffle-config.js",
+          "truffle.js",
           "foundry.toml"
         ]
       }

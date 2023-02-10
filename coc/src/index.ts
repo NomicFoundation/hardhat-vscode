@@ -24,7 +24,9 @@ export async function activate(context: ExtensionContext): Promise<void> {
         fileEvents: [
           coc.workspace.createFileSystemWatcher("**/hardhat.config.{ts,js}"),
           coc.workspace.createFileSystemWatcher("**/foundry.toml"),
-          coc.workspace.createFileSystemWatcher("**/truffle-config.js"),
+          coc.workspace.createFileSystemWatcher(
+            "**/{truffle-config,truffle}.js"
+          ),
           coc.workspace.createFileSystemWatcher("**/remappings.txt"),
           coc.workspace.createFileSystemWatcher("**/*.sol"),
         ],
