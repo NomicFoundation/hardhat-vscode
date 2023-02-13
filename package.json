@@ -53,29 +53,28 @@
   "scripts": {
     "build": "tsc -b ./client/tsconfig.json && tsc -b ./server/tsconfig.build.json && tsc -b ./coc/tsconfig.json && tsc -b",
     "watch": "concurrently -n client,server \"tsc -b -w ./client/tsconfig.json\" \"tsc -b -w ./server/tsconfig.build.json\"",
-    "test:unit": "yarn --cwd ./server run test",
-    "test:protocol": "yarn --cwd ./test/protocol run test",
-    "test:e2e": "yarn run build && node ./out/test/runTests.js",
-    "test": "yarn run test:unit && yarn run test:protocol && yarn run test:e2e",
-    "test:coverage": "yarn --cwd ./server run test:coverage",
-    "test:codecov": "yarn --cwd ./server run test:codecov",
-    "lint": "yarn prettier --check && yarn eslint && yarn --cwd ./client lint && yarn --cwd ./server lint && yarn --cwd ./coc lint && yarn --cwd ./test/protocol lint",
-    "lint:fix": "yarn prettier --write && yarn eslint --fix && yarn --cwd ./client lint:fix && yarn --cwd ./server lint:fix && yarn --cwd ./coc lint:fix && yarn --cwd ./test/protocol lint:fix",
+    "test:unit": "npm -w server run test",
+    "test:protocol": "npm -w test/protocol run test",
+    "test:e2e": "npm run build && node ./out/test/runTests.js",
+    "test": "npm run test:unit && npm run test:protocol && npm run test:e2e",
+    "test:coverage": "npm -w server run test:coverage",
+    "test:codecov": "npm -w server run test:codecov",
+    "lint": "npm run prettier -- --check && npm run eslint && npm -w client run lint && npm -w server run lint && npm -w coc run lint && npm -w test/protocol run lint",
+    "lint:fix": "npm run prettier -- --write && npm run eslint -- --fix && npm run -w client lint:fix && npm run -w server lint:fix && npm run -w coc lint:fix && npm -w test/protocol lint:fix",
     "prettier": "prettier *.md *.json \"{docs,syntaxes,.github,.vscode}/**/*.{md,yml,json}\" \"test/**/*.{ts,json}\"",
     "eslint": "eslint ./test/**/*.ts",
-    "clean": "rimraf ./dist ./out && yarn --cwd ./client clean && yarn --cwd ./server clean",
-    "prepackage": "yarn clean && node ./scripts/bundle.js",
+    "clean": "rimraf ./dist ./out && npm -w client run clean && npm -w server run clean",
+    "prepackage": "npm run clean && node ./scripts/bundle.js",
     "package": "node ./scripts/package.js",
-    "postpackage": "yarn clean && yarn build",
-    "prefullcheck": "yarn clean",
-    "fullcheck": "yarn lint && yarn build && yarn test && yarn package"
+    "postpackage": "npm run clean && npm run build",
+    "prefullcheck": "npm run clean",
+    "fullcheck": "npm run lint && npm run build && npm run test && npm run package"
   },
   "devDependencies": {
     "@changesets/cli": "2.21.1",
     "@types/glob": "^7.1.3",
     "@types/mocha": "^8.2.2",
     "@types/module-alias": "2.0.1",
-    "@types/node": "^16.9.1",
     "@types/vscode": "^1.70",
     "@typescript-eslint/eslint-plugin": "5.8.0",
     "@typescript-eslint/parser": "5.8.0",
@@ -92,8 +91,7 @@
     "ts-node": "^10.9.1",
     "typescript": "^4.4.3",
     "vsce": "2.6.7",
-    "wsrun": "5.2.4",
-    "yarn": "^1.22.11"
+    "wsrun": "5.2.4"
   },
   "dependencies": {
     "vscode-languageclient": "^7.0.0"

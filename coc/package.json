@@ -20,9 +20,9 @@
   ],
   "scripts": {
     "bundle": "esbuild src/index.ts --platform=node --bundle --external:coc.nvim --external:@ignored/solidity-language-server --outdir=out",
-    "prepublish": "yarn bundle",
-    "lint": "yarn prettier --check && yarn eslint",
-    "lint:fix": "yarn prettier --write && yarn eslint --fix",
+    "prepublish": "npm run bundle",
+    "lint": "npm run prettier -- --check && npm run eslint",
+    "lint:fix": "npm run prettier --write && npm run eslint --fix",
     "eslint": "eslint --max-warnings 0 \"./src/**/*.ts\"",
     "prettier": "prettier \"*.json\" \"src/**/*.{ts,js,md,json,yml}\"",
     "clean": "rimraf out .nyc_output coverage *.tsbuildinfo *.log"
@@ -31,7 +31,6 @@
     "@ignored/solidity-language-server": "0.6.9"
   },
   "devDependencies": {
-    "@types/node": "^17.0.21",
     "coc.nvim": "^0.0.80",
     "esbuild": "^0.16.0",
     "eslint": "^7.23.0"

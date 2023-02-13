@@ -27,13 +27,13 @@
   },
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
-    "prebundle": "yarn clean",
+    "prebundle": "npm run clean",
     "bundle": "node scripts/bundle.js",
-    "prepublish": "yarn bundle",
+    "prepublish": "npm run bundle",
     "test": "cross-env TS_NODE_FILES=true mocha",
     "test:coverage": "cross-env TS_NODE_FILES=true nyc mocha",
-    "lint": "yarn prettier --check && yarn eslint",
-    "lint:fix": "yarn prettier --write && yarn eslint --fix",
+    "lint": "npm run prettier -- --check && npm run eslint",
+    "lint:fix": "npm run prettier -- --write && npm run eslint -- --fix",
     "eslint": "eslint --max-warnings 0 \"./src/**/*.ts\" \"./test/**/*.ts\"",
     "prettier": "prettier \"*.json\" \"src/**/*.{ts,js,md,json,yml}\" \"test/**/*.{ts,js,md,json,yml}\"",
     "clean": "rimraf out .nyc_output coverage *.tsbuildinfo",
@@ -48,7 +48,7 @@
     "@types/lodash": "^4.14.185",
     "@types/mocha": "9.0.0",
     "@types/module-alias": "^2.0.1",
-    "@types/node": "^14.14.37",
+    "@types/node": "^16.18.12",
     "@types/prettier": "2.4.3",
     "@types/qs": "^6.9.7",
     "@types/semver": "^7.3.12",
@@ -88,6 +88,16 @@
     "vscode-uri": "^3.0.6"
   },
   "dependencies": {
-    "@nomicfoundation/solidity-analyzer": "0.1.0"
+    "@nomicfoundation/solidity-analyzer": "0.1.0",
+    "@nomicfoundation/solidity-analyzer-darwin-arm64": "0.1.0",
+    "@nomicfoundation/solidity-analyzer-win32-arm64-msvc": "0.1.0",
+    "@nomicfoundation/solidity-analyzer-linux-arm64-gnu": "0.1.0",
+    "@nomicfoundation/solidity-analyzer-linux-arm64-musl": "0.1.0",
+    "@nomicfoundation/solidity-analyzer-win32-ia32-msvc": "0.1.0",
+    "@nomicfoundation/solidity-analyzer-darwin-x64": "0.1.0",
+    "@nomicfoundation/solidity-analyzer-win32-x64-msvc": "0.1.0",
+    "@nomicfoundation/solidity-analyzer-linux-x64-gnu": "0.1.0",
+    "@nomicfoundation/solidity-analyzer-linux-x64-musl": "0.1.0",
+    "@nomicfoundation/solidity-analyzer-freebsd-x64": "0.1.0"
   }
 }
