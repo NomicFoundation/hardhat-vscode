@@ -3,8 +3,8 @@
 To publish `hardhat-solidity` you need to do next steps:
 
 1. `git fetch`, Checkout out `development`, then ensure your branch is up to date `git pull --ff-only`
-2. Perform a clean install and build (will lose all uncommited changes) `git clean -fdx .`, `yarn install`, `yarn build`
-3. Run a full check, stopping on failure: `yarn fullcheck`, you can check that each commit meets our build requirements with: `git rebase main --exec "yarn && yarn fullcheck"`
+2. Perform a clean install and build (will lose all uncommited changes) `git clean -fdx .`, `npm install`, `npm run build`
+3. Run a full check, stopping on failure: `npm run fullcheck`, you can check that each commit meets our build requirements with: `git rebase main --exec "npm install && npm run fullcheck"`
 4. Confirm the commits represent the features for the release
 5. Branch into a release branch named for the current date: `git checkout -b release/yyyy-mm-dd`
 6. Update the version based on semver, ensure it is updated in:
@@ -24,7 +24,7 @@ release.
 ```
 
 9. Push the release branch and open a pull request using the new changelog entry as the PR description
-10. Generate a release candidate vsix file with `yarn package`, the vsix file should appear in the root of the repo with the new version number
+10. Generate a release candidate vsix file with `npm run package`, the vsix file should appear in the root of the repo with the new version number
 11. Manually run smoke tests on the new features across:
 
 - mac os x
@@ -34,8 +34,8 @@ release.
 12. On a successful check, `rebase merge` the release branch into main
 13. Switch to main branch and pull the latest changes
 14. Git tag the version, `g tag -a v0.x.x -m "v0.x.x"` and push the tag `git push --follow-tags`
-15. Publish the language server npm package, `cd ./server && yarn publish --non-interactive`
-16. Publish the coc extension, `cd ./coc && yarn publish --non-interactive`
+15. Publish the language server npm package, `cd ./server && npm run publish --non-interactive`
+16. Publish the coc extension, `cd ./coc && npm run publish --non-interactive`
 17. Upload the vsix file to the microsoft marketplace: `npx vsce publish -p $VSCE_TOKEN --packagePath hardhat-solidity-0.X.X.vsix`
 18. Upload the vsix file to openvsx, `npx ovsx publish hardhat-solidity-0.X.X.vsix -p $OVSX_TOKEN`
 19. Create a release on github off of the pushed tag
