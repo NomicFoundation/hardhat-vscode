@@ -47,9 +47,11 @@ export class SolFileEntry implements ISolFileEntry {
   public static createLoadedEntry(
     uri: string,
     project: Project,
-    text: string
+    text: string,
+    isLocal: boolean
   ): ISolFileEntry {
     const unloaded = new SolFileEntry(uri, project);
+    unloaded.isLocal = isLocal;
 
     return unloaded.loadText(text);
   }

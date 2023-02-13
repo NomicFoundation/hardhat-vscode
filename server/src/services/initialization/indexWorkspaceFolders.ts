@@ -154,31 +154,12 @@ export async function indexSolidityFiles(
   serverState: ServerState,
   fileUris: string[]
 ) {
-  const indexedProjects = Object.values(serverState.projects);
-
   for (const fileUri of fileUris) {
     if (!(await serverState.workspaceFileRetriever.isFile(fileUri))) {
       continue;
     }
 
-    let project: Project = new ProjectlessProject(
-      serverState,
-      path.dirname(fileUri)
-    );
-    let isLocal = true;
-
-    for (const indexedProject of indexedProjects) {
-      try {
-        const result = await indexedProject.fileBelongs(fileUri);
-        if (result.belongs && indexedProject.priority > project.priority) {
-          project = indexedProject;
-          isLocal = result.isLocal;
-        }
-      } catch (error) {
-        serverState.logger.trace(`Error on fileBelongs: ${error}`);
-        continue;
-      }
-    }
+    const { project, isLocal } = await findProjectForFile(serverState, fileUri);
 
     serverState.logger.trace(
       `Associating ${project.id()} to ${fileUri}. Local: ${isLocal}`
@@ -188,9 +169,9 @@ export async function indexSolidityFiles(
     serverState.solFileIndex[fileUri] = SolFileEntry.createLoadedEntry(
       fileUri,
       project,
-      docText
+      docText,
+      isLocal
     );
-    serverState.solFileIndex[fileUri].isLocal = isLocal;
   }
 }
 
@@ -227,4 +208,27 @@ async function analyzeSolFiles(
   } catch (err) {
     logger.error(err);
   }
+}
+
+async function findProjectForFile(serverState: ServerState, fileUri: string) {
+  let project: Project = new ProjectlessProject(
+    serverState,
+    path.dirname(fileUri)
+  );
+  let isLocal = true;
+
+  for (const indexedProject of Object.values(serverState.projects)) {
+    try {
+      const result = await indexedProject.fileBelongs(fileUri);
+      if (result.belongs && indexedProject.priority > project.priority) {
+        project = indexedProject;
+        isLocal = result.isLocal;
+      }
+    } catch (error) {
+      serverState.logger.trace(`Error on fileBelongs: ${error}`);
+      continue;
+    }
+  }
+
+  return { project, isLocal };
 }
