@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: "16.x"
+          node-version: "14.x"
 
       - name: Cache Node Modules
         id: cache-node-modules
@@ -40,14 +40,14 @@ jobs:
             test/e2e/node_modules
             test/protocol/node_modules
             test/protocol/projects/hardhat/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
 
       - name: Install dependencies
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: yarn install
+        run: npm install
 
       - name: Lint
-        run: yarn lint
+        run: npm run lint
 
       - name: Download foundryup
         run: curl -L https://foundry.paradigm.xyz | bash
@@ -56,13 +56,13 @@ jobs:
         run: ~/.foundry/bin/foundryup
 
       - name: Build project
-        run: yarn build
+        run: npm run build
 
       - name: Run server tests
-        run: yarn run test:codecov
+        run: npm run test:codecov
 
       - name: Run protocol tests
-        run: yarn run test:protocol
+        run: npm run test:protocol
 
       - name: Cache VS Code client
         id: cache-vscode
@@ -76,10 +76,10 @@ jobs:
       - name: Run E2E tests
         uses: GabrielBB/xvfb-action@v1.0
         with:
-          run: yarn run test:e2e
+          run: npm run test:e2e
         env:
           CODE_VERSION: ${{ matrix.version }}
           VSCODEGO_BEFORE_RELEASE_TESTS: true
 
       - name: Package the extension
-        run: yarn run package
+        run: npm run package

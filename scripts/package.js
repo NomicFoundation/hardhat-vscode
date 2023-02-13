@@ -10,7 +10,7 @@ async function main() {
   fs.renameSync("EXTENSION.md", "README.md");
 
   exec(
-    "node node_modules/vsce/vsce package --yarn",
+    "node node_modules/vsce/vsce package --no-yarn",
     (error, stdout, stderr) => {
       // Swap back `README.md` and `EXTENSION.md`,
       // under all circumstances

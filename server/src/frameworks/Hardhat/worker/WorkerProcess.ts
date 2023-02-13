@@ -58,7 +58,7 @@ export class WorkerProcess {
   }
 
   public async start() {
-    process.on("message", async (msg) => {
+    process.on("message", async (msg: any) => {
       try {
         await this._handleMessage(msg);
       } catch (error: any) {
