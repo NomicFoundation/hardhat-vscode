@@ -27,6 +27,7 @@ export class TruffleProject extends Project {
   public priority = 3;
   public sourcesPath!: string;
   public testsPath!: string;
+  public globalNodeModulesPath!: string;
   public remappings: Remapping[] = [];
   public initializeError?: string;
   public resolvedSolcVersion?: string;
@@ -53,9 +54,11 @@ export class TruffleProject extends Project {
     this.initializeError = undefined;
     this.testsPath = path.join(this.basePath, "test");
 
+    this.globalNodeModulesPath = execSync("npm root --quiet -g").toString();
+
     try {
       // Load config file
-      delete require.cache[require.resolve(this.configPath)]
+      delete require.cache[require.resolve(this.configPath)];
       const config = require(this.configPath);
 
       // Find solc version statement
@@ -128,11 +131,10 @@ export class TruffleProject extends Project {
     }
 
     // Truffle direct imports
-    const globalNodeModulesPath = execSync("npm root --quiet -g").toString();
     if (importPath.startsWith("truffle")) {
       try {
         return require.resolve(importPath.replace("truffle", "truffle/build"), {
-          paths: [this.basePath, globalNodeModulesPath],
+          paths: [this.basePath, this.globalNodeModulesPath],
         });
       } catch (error) {}
     }
@@ -140,7 +142,7 @@ export class TruffleProject extends Project {
     // Node modules direct imports (local and global)
     try {
       return require.resolve(importPath, {
-        paths: [this.basePath, globalNodeModulesPath],
+        paths: [this.basePath, this.globalNodeModulesPath],
       });
     } catch (error) {}
 
