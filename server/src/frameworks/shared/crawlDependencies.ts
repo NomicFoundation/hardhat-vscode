@@ -14,11 +14,13 @@ export async function getDependenciesAndPragmas(
   project: Project,
   sourcePath: string,
   sourceName: string = sourcePath,
-  visited: Array<{ importName: string; resolvedPath: string }> = []
+  visited: Set<string> = new Set() // importName => resolvedPath => bool
 ): Promise<DependencyDetail[]> {
-  if (_.some(visited, { importName: sourceName, resolvedPath: sourcePath })) {
+  const visitedKey = `${sourceName}${sourcePath}`;
+  if (visited.has(visitedKey)) {
     return [];
   }
+  visited.add(visitedKey);
 
   let text = project.serverState.solFileIndex[sourcePath]?.text;
 
@@ -28,7 +30,6 @@ export async function getDependenciesAndPragmas(
       project.serverState,
       sourcePath
     );
-
     if (!solFileEntry.isAnalyzed()) {
       await analyzeSolFile(project.serverState, solFileEntry);
     }
@@ -40,8 +41,6 @@ export async function getDependenciesAndPragmas(
     throw new Error(`Couldnt find/index ${sourcePath}`);
   }
 
-  visited.push({ importName: sourceName, resolvedPath: sourcePath });
-
   // Analyze current file for import strings and pragmas
   const { imports, versionPragmas } = analyze(text);
 
@@ -51,8 +50,10 @@ export async function getDependenciesAndPragmas(
   ];
 
   // Recursively crawl dependencies and append. Skip non-existing imports
-  const resolvedImports: Array<{ importName: string; resolvedPath: string }> =
-    [];
+  const resolvedImports: Array<{
+    importName: string;
+    resolvedPath: string;
+  }> = [];
   for (const importName of imports) {
     const resolvedPath = await project.resolveImportPath(
       sourcePath,
