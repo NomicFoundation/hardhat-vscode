@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { OpenDocuments } from "../../../types";
 import { CompilationDetails } from "../../base/CompilationDetails";
+import { FileBelongsResult } from "../../base/Project";
 import { LogLevel } from "./WorkerLogger";
 
 export enum MessageType {
@@ -63,7 +64,7 @@ export class FileBelongsRequest extends RequestMessage {
 
 export class FileBelongsResponse extends ResponseMessage {
   public type = MessageType.FILE_BELONGS_RESPONSE;
-  constructor(requestId: number, public belongs: boolean) {
+  constructor(requestId: number, public result: FileBelongsResult) {
     super(requestId);
   }
 }

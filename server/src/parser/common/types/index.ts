@@ -398,6 +398,11 @@ export interface ISolFileEntry {
    * Has an analysis pass succeeded, allowing a user to operate on the ast.
    */
   isAnalyzed(): boolean;
+
+  /**
+   * Local means the file is part of the project's scope, and not external, dependency or library
+   */
+  isLocal: boolean;
 }
 
 /**

@@ -22,7 +22,12 @@ export function getOrInitialiseSolFileEntry(
 
     if (fs.existsSync(uri)) {
       const docText = fs.readFileSync(uri).toString();
-      solFileEntry = SolFileEntry.createLoadedEntry(uri, project, docText);
+      solFileEntry = SolFileEntry.createLoadedEntry(
+        uri,
+        project,
+        docText,
+        false
+      );
     } else {
       // TODO: figure out what happens if we just don't do this
       // why bother with non-existant files? Maybe untitled but unsaved

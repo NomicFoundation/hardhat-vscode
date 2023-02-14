@@ -106,10 +106,13 @@ export async function indexWorkspaceFolders(
     serverState.indexedWorkspaceFolders.push(workspaceFolder);
   }
 
-  // Analyze files
+  // Analyze local files
   await logger.trackTime("Analyzing solidity files", async () => {
     const span = sentryTransaction?.startChild({ op: "analyzeSolidityFiles" });
-    await analyzeSolFiles(serverState, logger, solFileUris);
+    const localSolFileUris = solFileUris.filter(
+      (uri) => serverState.solFileIndex[uri]?.isLocal === true
+    );
+    await analyzeSolFiles(serverState, logger, localSolFileUris);
     span?.finish();
   });
 }
@@ -151,37 +154,23 @@ export async function indexSolidityFiles(
   serverState: ServerState,
   fileUris: string[]
 ) {
-  const indexedProjects = Object.values(serverState.projects);
-
   for (const fileUri of fileUris) {
     if (!(await serverState.workspaceFileRetriever.isFile(fileUri))) {
       continue;
     }
 
-    let project: Project = new ProjectlessProject(
-      serverState,
-      path.dirname(fileUri)
+    const { project, isLocal } = await findProjectForFile(serverState, fileUri);
+
+    serverState.logger.trace(
+      `Associating ${project.id()} to ${fileUri}. Local: ${isLocal}`
     );
-
-    for (const indexedProject of indexedProjects) {
-      try {
-        const belongs = await indexedProject.fileBelongs(fileUri);
-        if (belongs && indexedProject.priority > project.priority) {
-          project = indexedProject;
-        }
-      } catch (error) {
-        serverState.logger.trace(`Error on fileBelongs: ${error}`);
-        continue;
-      }
-    }
-
-    serverState.logger.trace(`Associating ${project.id()} to ${fileUri}`);
 
     const docText = await serverState.workspaceFileRetriever.readFile(fileUri);
     serverState.solFileIndex[fileUri] = SolFileEntry.createLoadedEntry(
       fileUri,
       project,
-      docText
+      docText,
+      isLocal
     );
   }
 }
@@ -219,4 +208,27 @@ async function analyzeSolFiles(
   } catch (err) {
     logger.error(err);
   }
+}
+
+async function findProjectForFile(serverState: ServerState, fileUri: string) {
+  let project: Project = new ProjectlessProject(
+    serverState,
+    path.dirname(fileUri)
+  );
+  let isLocal = true;
+
+  for (const indexedProject of Object.values(serverState.projects)) {
+    try {
+      const result = await indexedProject.fileBelongs(fileUri);
+      if (result.belongs && indexedProject.priority > project.priority) {
+        project = indexedProject;
+        isLocal = result.isLocal;
+      }
+    } catch (error) {
+      serverState.logger.trace(`Error on fileBelongs: ${error}`);
+      continue;
+    }
+  }
+
+  return { project, isLocal };
 }
