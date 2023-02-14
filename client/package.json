@@ -42,7 +42,6 @@
     "workspaceContains:**/hardhat.config.{ts,js}",
     "workspaceContains:**/foundry.toml",
     "workspaceContains:**/truffle-config.js"
-
   ],
   "scripts": {
     "build": "tsc -b",
