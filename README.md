@@ -24,6 +24,10 @@ Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay u
 
 **Solidity for VS Code by Nomic Foundation** can be installed by [using the Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity).
 
+## Coc.nvim extension
+
+Please refer to the [coc extension readme](./coc/README.md) for additional instructions.
+
 ## Contributing
 
 Contributions are always welcome! Feel free to [open any issue](https://github.com/NomicFoundation/hardhat-vscode/issues) or send a pull request.
