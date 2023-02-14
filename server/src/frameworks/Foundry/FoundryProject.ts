@@ -84,15 +84,18 @@ export class FoundryProject extends Project {
   public async fileBelongs(uri: string) {
     if (this.initializeError === undefined) {
       // Project was initialized correctly, then check contract is inside source or test folders
-      return [
+      const belongs = [
         this.sourcesPath,
         this.testsPath,
         this.libPath,
         this.scriptPath,
       ].some((dir) => directoryContains(dir, uri));
+      const isLocal = directoryContains(this.sourcesPath, uri);
+
+      return { belongs, isLocal };
     } else {
       // Project could not be initialized. Claim all files under base path to avoid them being incorrectly assigned to other projects
-      return directoryContains(this.basePath, uri);
+      return { belongs: directoryContains(this.basePath, uri), isLocal: true };
     }
   }
 

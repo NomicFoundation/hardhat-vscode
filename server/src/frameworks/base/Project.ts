@@ -3,6 +3,11 @@ import { CompletionItem, Position } from "vscode-languageserver-types";
 import { OpenDocuments, ServerState } from "../../types";
 import { CompilationDetails } from "./CompilationDetails";
 
+export interface FileBelongsResult {
+  belongs: boolean;
+  isLocal: boolean;
+}
+
 export abstract class Project {
   constructor(public serverState: ServerState, public basePath: string) {}
 
@@ -15,7 +20,7 @@ export abstract class Project {
   public abstract id(): string;
 
   // Check if a solidity file belongs to this project
-  public abstract fileBelongs(file: string): Promise<boolean>;
+  public abstract fileBelongs(file: string): Promise<FileBelongsResult>;
 
   // Resolve the full path of an import statement
   public abstract resolveImportPath(

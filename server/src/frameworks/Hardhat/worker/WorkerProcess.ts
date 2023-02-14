@@ -148,11 +148,11 @@ export class WorkerProcess {
       this.hre.config.paths.root,
       "node_modules"
     );
-    const belongs =
-      directoryContains(sourcesPath, uri) ||
-      directoryContains(nodeModulesPath, uri);
+    const isLocal = directoryContains(sourcesPath, uri);
 
-    await this.send(new FileBelongsResponse(requestId, belongs));
+    const belongs = isLocal || directoryContains(nodeModulesPath, uri);
+
+    await this.send(new FileBelongsResponse(requestId, { belongs, isLocal }));
   }
 
   private async _handleResolveImport({

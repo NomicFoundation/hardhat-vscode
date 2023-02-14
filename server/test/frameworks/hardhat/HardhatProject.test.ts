@@ -59,14 +59,18 @@ describe("HardhatProject", function () {
       });
 
       it("claims every contract under project basePath, to avoid it being assigned other project", async () => {
-        assert.isTrue(
+        assert.deepEqual(
           await project.fileBelongs(
             `/my_hardhat_project/any_folder/contract.sol`
-          )
+          ),
+          { belongs: true, isLocal: true }
         );
 
-        assert.isFalse(
-          await project.fileBelongs("/other_project/any_folder/contract.sol")
+        assert.include(
+          await project.fileBelongs("/other_project/any_folder/contract.sol"),
+          {
+            belongs: false,
+          }
         );
       });
     });

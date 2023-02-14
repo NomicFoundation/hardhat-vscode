@@ -31,7 +31,7 @@ export class ProjectlessProject extends Project {
   }
 
   public async fileBelongs(_file: string) {
-    return true;
+    return { belongs: true, isLocal: true };
   }
 
   public async resolveImportPath(file: string, importPath: string) {
