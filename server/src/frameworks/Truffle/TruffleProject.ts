@@ -13,7 +13,7 @@ import { isRelativeImport } from "../../utils";
 import { directoryContains } from "../../utils/directoryContains";
 import { CompilationDetails } from "../base/CompilationDetails";
 import { BuildInputError } from "../base/Errors";
-import { Project } from "../base/Project";
+import { FileBelongsResult, Project } from "../base/Project";
 import { Remapping } from "../base/Remapping";
 import { getDependenciesAndPragmas } from "../shared/crawlDependencies";
 
@@ -96,15 +96,21 @@ export class TruffleProject extends Project {
     }
   }
 
-  public async fileBelongs(file: string): Promise<boolean> {
+  public async fileBelongs(file: string): Promise<FileBelongsResult> {
+    let belongs: boolean;
     if (this.status === Status.INITIALIZED_SUCCESS) {
-      return [this.sourcesPath, this.testsPath].some((dir) =>
+      belongs = [this.sourcesPath, this.testsPath].some((dir) =>
         directoryContains(dir, path.dirname(file))
       );
     } else {
       // Claim ownership under all contracts on the base folder if initialization failed
-      return directoryContains(this.basePath, file);
+      belongs = directoryContains(this.basePath, file);
     }
+
+    return {
+      belongs,
+      isLocal: true,
+    };
   }
 
   public async resolveImportPath(
