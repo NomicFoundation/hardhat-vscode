@@ -29,6 +29,14 @@ In your vim/neovim, run this command:
   - Meet inheritance requirements by adding `virtual`/`override` on function signature
   - Provide accessibility by adding `public`/`private` to function signature
 
+## Language server logs
+
+If you encounter an issue with the plugin, you can inspect the server logs by running `:CocCommand workspace.showOutput`. This can help troubleshooting the problem.
+
+## Restarting the server
+
+Sometimes, e.g. when installing node dependencies or switching branches, the language server may not pick up all the file system changes. If you are facing an issue, try running `:CocRestart`, which will in turn restart the solidity language server.
+
 ## Contributing
 
 Contributions are always welcome! Feel free to [open any issue](https://github.com/NomicFoundation/hardhat-vscode/issues) or send a pull request.
