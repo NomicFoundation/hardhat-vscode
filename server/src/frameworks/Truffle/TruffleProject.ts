@@ -3,6 +3,7 @@
 /* eslint-disable no-empty */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { execSync } from "child_process";
+import { existsSync } from "fs";
 import _ from "lodash";
 import path from "path";
 import semver from "semver";
@@ -110,24 +111,15 @@ export class TruffleProject extends Project {
     file: string,
     importPath: string
   ): Promise<string | undefined> {
-    // const resolver = new Resolver({
-    //   contracts_directory: this.sourcesPath,
-    //   working_directory: this.basePath,
-    //   contracts_build_directory: path.join(this.basePath, "build"),
-    // });
-
-    // const resolved = resolver.resolve(importPath, file);
-
-    // console.log(`(${file},${importPath}) => ${resolved}`);
-
     // Absolute path
     if (path.isAbsolute(importPath)) {
-      return importPath;
+      return existsSync(importPath) ? importPath : undefined;
     }
 
     // Relative path
     if (importPath.startsWith(".") || importPath.startsWith("..")) {
-      return path.resolve(path.dirname(file), importPath);
+      const resolvedPath = path.resolve(path.dirname(file), importPath);
+      return existsSync(resolvedPath) ? resolvedPath : undefined;
     }
 
     // Truffle direct imports
