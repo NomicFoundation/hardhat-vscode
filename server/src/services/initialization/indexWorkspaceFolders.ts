@@ -65,25 +65,23 @@ export async function indexWorkspaceFolders(
 
   // Append to global project map if they are not already indexed
   await logger.trackTime("Initializing projects", async () => {
-    await Promise.all(
-      foundProjects.map(async (foundProject) => {
-        if (foundProject.id() in serverState.projects) {
-          return;
-        }
+    for (const foundProject of foundProjects) {
+      if (foundProject.id() in serverState.projects) {
+        return;
+      }
 
-        serverState.projects[foundProject.id()] = foundProject;
-        logger.info(`Initializing ${foundProject.id()}`);
-        const span = sentryTransaction?.startChild({
-          op: "initializeProject",
-          tags: frameworkTag(foundProject),
-        });
+      serverState.projects[foundProject.id()] = foundProject;
+      logger.info(`Initializing ${foundProject.id()}`);
+      const span = sentryTransaction?.startChild({
+        op: "initializeProject",
+        tags: frameworkTag(foundProject),
+      });
 
-        await foundProject.initialize();
+      await foundProject.initialize();
 
-        span?.finish();
-        logger.info(`Done ${foundProject.id()}`);
-      })
-    );
+      span?.finish();
+      logger.info(`Done ${foundProject.id()}`);
+    }
   });
 
   // Find all sol files
@@ -112,6 +110,7 @@ export async function indexWorkspaceFolders(
     const localSolFileUris = solFileUris.filter(
       (uri) => serverState.solFileIndex[uri]?.isLocal === true
     );
+    logger.info(`Analyzing ${localSolFileUris.length} solidity files`);
     await analyzeSolFiles(serverState, logger, localSolFileUris);
     span?.finish();
   });
