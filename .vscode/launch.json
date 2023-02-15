@@ -7,7 +7,7 @@
       "request": "launch",
       "name": "Launch Client",
       "runtimeExecutable": "${execPath}",
-      "args": ["--extensionDevelopmentPath=${workspaceRoot}"],
+      "args": ["--extensionDevelopmentPath=${workspaceRoot}/client"],
       "outFiles": ["${workspaceRoot}/client/out/**/*.js"],
       "env": { "NODE_ENV": "development" },
       "preLaunchTask": {
