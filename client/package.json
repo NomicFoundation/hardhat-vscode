@@ -1,17 +1,57 @@
 {
-  "name": "solidity-lsp-client",
-  "description": "",
+  "name": "hardhat-solidity",
+  "publisher": "NomicFoundation",
+  "displayName": "Solidity",
+  "description": "Solidity and Hardhat support by the Hardhat team",
   "license": "MIT",
-  "version": "0.6.6",
+  "version": "0.6.9",
   "private": true,
   "main": "./out/extension.js",
   "module": "./out/extension.js",
+  "icon": "docs/images/vscode-logo.png",
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Linters",
+    "Formatters"
+  ],
+  "extensionKind": [
+    "workspace"
+  ],
+  "keywords": [
+    "solidity",
+    "ethereum",
+    "hardhat",
+    "evm",
+    "blockchain",
+    "compiler"
+  ],
+  "homepage": "https://hardhat.org/hardhat-vscode/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NomicFoundation/hardhat-vscode"
+  },
+  "bugs": {
+    "url": "https://github.com/NomicFoundation/hardhat-vscode/issues"
+  },
+  "engines": {
+    "vscode": "^1.70.2"
+  },
+  "activationEvents": [
+    "onLanguage:solidity",
+    "workspaceContains:**/hardhat.config.{ts,js}",
+    "workspaceContains:**/foundry.toml"
+  ],
   "scripts": {
+    "build": "tsc -b",
     "lint": "npm run prettier -- --check && npm run eslint",
     "lint:fix": "npm run prettier -- --write && npm run lint -- --fix",
     "eslint": "eslint ./src/**/*.ts",
     "prettier": "prettier *.json \"src/**/*.{ts,js,md,json,yml}\"",
-    "clean": "rimraf out tsconfig.tsbuildinfo"
+    "clean": "rimraf out tmp tsconfig.tsbuildinfo",
+    "prepackage": "npm run clean && node scripts/bundle.js",
+    "package": "cd ./tmp && vsce package --no-dependencies --no-yarn -o ..",
+    "postpackage": "rimraf ./tmp"
   },
   "devDependencies": {
     "@sentry/types": "6.19.1",
@@ -21,9 +61,122 @@
     "rimraf": "3.0.2"
   },
   "dependencies": {
+    "@ignored/solidity-language-server": "0.6.9",
     "@sentry/node": "6.19.1",
     "prettier": "2.5.1",
     "prettier-plugin-solidity": "1.0.0",
     "vscode-languageclient": "^7.0.0"
+  },
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Solidity",
+      "properties": {
+        "solidity-language-server.trace.server.verbosity": {
+          "type": "string",
+          "description": "Traces the communication between VS Code and the solidity language server.",
+          "enum": [
+            "off",
+            "message",
+            "verbose"
+          ],
+          "default": "off"
+        },
+        "solidity.telemetry": {
+          "type": "boolean",
+          "markdownDescription": "Allow **Solidity** to send extension telemetry. This helps us understand how the extension is used and how it is performing. Read more in our [privacy policy](https://hardhat.org/privacy-policy.html).\n\n&nbsp;\n\n*__Note:__ **Solidity** respects the global **Telemetry Level** setting, and will only send telemetry if enabled at both global and extension level.*",
+          "default": false,
+          "tags": [
+            "usesOnlineServices",
+            "telemetry"
+          ]
+        },
+        "solidity.formatter": {
+          "type": "string",
+          "default": "prettier",
+          "enum": [
+            "none",
+            "prettier",
+            "forge"
+          ],
+          "description": "Enables / disables the solidity formatter (prettier solidity default)"
+        }
+      }
+    },
+    "languages": [
+      {
+        "id": "solidity",
+        "aliases": [
+          "Solidity",
+          "solidity"
+        ],
+        "extensions": [
+          ".sol"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "solidity",
+        "scopeName": "source.solidity",
+        "path": "./syntaxes/solidity.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "solidity",
+        "path": "./snippets/solidity.json"
+      }
+    ],
+    "taskDefinitions": [
+      {
+        "type": "hardhat",
+        "required": [
+          "task"
+        ],
+        "properties": {
+          "task": {
+            "type": "string",
+            "description": "%taskdef.task%"
+          }
+        },
+        "when": "shellExecutionSupported"
+      }
+    ],
+    "commands": [
+      {
+        "command": "solidity.insertSemicolon",
+        "title": "Insert semicolon",
+        "enablement": "false"
+      },
+      {
+        "command": "solidity.hardhat.compile",
+        "title": "Hardhat: Compile project"
+      },
+      {
+        "command": "solidity.hardhat.clean",
+        "title": "Hardhat: Clear cache and artifacts "
+      },
+      {
+        "command": "solidity.hardhat.flattenCurrentFile",
+        "title": "Hardhat: Flatten this file and its dependencies",
+        "enablement": "editorLangId == 'solidity' && solidity.inHardhatProject"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "solidity.hardhat.flattenCurrentFile",
+          "when": "editorLangId == 'solidity' && solidity.inHardhatProject"
+        }
+      ]
+    }
+  },
+  "__metadata": {
+    "id": "dada159b-1dfe-49fc-a369-0e08ecdff9b3",
+    "publisherDisplayName": "Nomic Foundation",
+    "publisherId": "973909a1-f7d7-44c0-9261-c2e7903bf2dd",
+    "isPreReleaseVersion": false
   }
 }

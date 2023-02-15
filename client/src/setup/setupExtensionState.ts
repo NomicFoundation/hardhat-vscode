@@ -10,8 +10,17 @@ export function setupExtensionState(
   context: ExtensionContext,
   { sentryDsn }: { sentryDsn: string }
 ): ExtensionState {
+  const environment =
+    process.env.NODE_ENV === "development"
+      ? process.env.NODE_ENV
+      : "production";
+
   const serverModulePath = context.asAbsolutePath(
-    path.join("server", "out", "index.js")
+    environment === "development"
+      ? path.join(
+          "../node_modules/@ignored/solidity-language-server/out/index.js"
+        )
+      : path.join("./server/out/index.js")
   );
 
   const outputChannel: OutputChannel = window.createOutputChannel("Solidity");
@@ -22,10 +31,7 @@ export function setupExtensionState(
 
   const extensionState: ExtensionState = {
     context,
-    env:
-      process.env.NODE_ENV === "development"
-        ? process.env.NODE_ENV
-        : "production",
+    env: environment,
     version: context.extension.packageJSON.version,
     name: context.extension.packageJSON.name,
     serverModulePath,

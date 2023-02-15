@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "cd ./projects/hardhat && npm install",
     "start": "tsc && node out/index.js",
-    "test": "cross-env NODE_ENV=test mocha",
+    "test": "cross-env NODE_ENV=development mocha",
     "lint": "npm run prettier -- --check && npm run eslint",
     "lint:fix": "npm run prettier -- --write && npm run lint -- --fix",
     "eslint": "eslint --max-warnings 0 \"./src/**/*.ts\" \"./test/**/*.ts\"",
