@@ -1,4 +1,8 @@
 {
   "name": "hardhat-vscode-e2e-tests",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "cd ./projects/main && npm install"
+  }
 }

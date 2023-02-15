@@ -5,7 +5,12 @@ import { runTests } from "@vscode/test-electron";
   try {
     // The folder containing the Extension Manifest package.json
     // Passed to `--extensionDevelopmentPath`
-    const extensionDevelopmentPath = path.resolve(__dirname, "..", "..");
+    const extensionDevelopmentPath = path.resolve(
+      __dirname,
+      "..",
+      "..",
+      "client"
+    );
 
     // The path to test runner
     // Passed to --extensionTestsPath
@@ -25,6 +30,9 @@ import { runTests } from "@vscode/test-electron";
         // https://github.com/microsoft/vscode/issues/115794#issuecomment-774283222
         "--force-disable-user-env",
       ],
+      extensionTestsEnv: {
+        NODE_ENV: "development",
+      },
     });
   } catch (err) {
     // eslint-disable-next-line no-console
