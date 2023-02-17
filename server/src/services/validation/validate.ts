@@ -3,6 +3,7 @@
 import {
   Diagnostic,
   DiagnosticSeverity,
+  MessageType,
   TextDocumentChangeEvent,
 } from "vscode-languageserver";
 import { TextDocument, Range } from "vscode-languageserver-textdocument";
@@ -20,10 +21,12 @@ import {
   ValidationPass,
   OpenDocuments,
   BuildInputFailed,
+  InitializationFailed,
 } from "../../types";
 import { getOpenDocumentsInProject } from "../../queries/getOpenDocumentsInProject";
 import { CompilationDetails } from "../../frameworks/base/CompilationDetails";
 import { addFrameworkTag } from "../../telemetry/tags";
+import { Project } from "../../frameworks/base/Project";
 import { DiagnosticConverter } from "./DiagnosticConverter";
 import { CompilationService } from "./CompilationService";
 import { OutputConverter } from "./OutputConverter";
@@ -114,6 +117,12 @@ export async function validate(
             status: "BUILD_INPUT_ERROR",
             error,
           };
+        } else if (error._isInitializationFailedError) {
+          // Project could not be initialized correctly
+          validationResult = {
+            status: "INITIALIZATION_FAILED_ERROR",
+            error,
+          };
         } else {
           // Generic catch-all error
           validationResult = {
@@ -131,7 +140,7 @@ export async function validate(
           change,
           validationResult,
           openDocuments,
-          project.basePath
+          project
         );
       }
 
@@ -148,7 +157,7 @@ function sendResults(
   change: TextDocumentChangeEvent<TextDocument>,
   validationResult: ValidationResult,
   openDocuments: OpenDocuments,
-  projectBasePath: string
+  project: Project
 ) {
   switch (validationResult.status) {
     case "JOB_COMPLETION_ERROR":
@@ -161,12 +170,10 @@ function sendResults(
       validationPass(serverState, change, validationResult, openDocuments);
       break;
     case "BUILD_INPUT_ERROR":
-      handleBuildInputError(
-        serverState,
-        change,
-        validationResult,
-        projectBasePath
-      );
+      handleBuildInputError(serverState, change, validationResult, project);
+      break;
+    case "INITIALIZATION_FAILED_ERROR":
+      handleInitializationFailedError(serverState, validationResult, project);
       break;
     default:
       assertUnknownMessageStatus(validationResult);
@@ -178,7 +185,7 @@ function handleBuildInputError(
   serverState: ServerState,
   { document }: TextDocumentChangeEvent<TextDocument>,
   { error }: BuildInputFailed,
-  projectBasePath: string
+  project: Project
 ) {
   // Clear existing diagnostics
   clearDiagnostics(serverState, document.uri);
@@ -208,7 +215,7 @@ function handleBuildInputError(
     // Send status item error
     sendStatusItemError(
       serverState,
-      projectBasePath,
+      project.basePath,
       fileErrors.map((e) => e.error.message).join(", "),
       sourceUri
     );
@@ -216,7 +223,34 @@ function handleBuildInputError(
 
   // Send status item for project-wide errors
   for (const projectWideError of error.projectWideErrors) {
-    sendStatusItemError(serverState, projectBasePath, projectWideError.message);
+    sendStatusItemError(
+      serverState,
+      project.basePath,
+      projectWideError.message
+    );
+  }
+}
+
+function handleInitializationFailedError(
+  serverState: ServerState,
+  { error }: InitializationFailed,
+  project: Project
+) {
+  // Send status item, project wide
+  sendStatusItemError(serverState, project.basePath, error.error);
+
+  // Show a notification, only once per session, per project
+  if (!serverState.shownInitializationError[project.id()]) {
+    serverState.shownInitializationError[project.id()] = true;
+
+    const message = `${project.frameworkName()} project '${path.basename(
+      project.basePath
+    )}' was not able to initialize correctly:\n ${error.error}`;
+
+    serverState.connection.sendNotification("window/showMessage", {
+      type: MessageType.Error,
+      message,
+    });
   }
 }
 
