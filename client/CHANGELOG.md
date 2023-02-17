@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.6.10 - 2023-02-15
+
+### Changed
+
+- Optimize initial indexing by only analysing local files ([#302](https://github.com/NomicFoundation/hardhat-vscode/issues/302))
+- Reduced deps for coc-solidity ([#373](https://github.com/NomicFoundation/hardhat-vscode/issues/373))
+
+### Fixed
+
+- Mimic foundry solc input mapping ([#377](https://github.com/NomicFoundation/hardhat-vscode/pull/377))
+
 ## 0.6.9 - 2023-01-20
 
 ### Added
