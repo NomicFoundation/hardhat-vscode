@@ -9,7 +9,7 @@ To publish `hardhat-solidity` you need to do next steps:
 5. Branch into a release branch named for the current date: `git checkout -b release/yyyy-mm-dd`
 6. Update the version based on semver, ensure it is updated in:
 
-- the root `./package.json`
+- the client `./client/package.json`
 - the language server package.json `./server/package.json`
 - the coc extension package.json, both its version and its dep on the language server, at `./coc/package.json`
 
