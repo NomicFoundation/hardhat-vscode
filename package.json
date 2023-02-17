@@ -27,7 +27,7 @@
     "test:coverage": "npm -w server run test:coverage",
     "test:codecov": "npm -w server run test:codecov",
     "lint": "npm run prettier -- --check && npm run eslint && npm -w client run lint && npm -w server run lint && npm -w coc run lint && npm -w test/protocol run lint",
-    "lint:fix": "npm run prettier -- --write && npm run eslint -- --fix && npm run -w client lint:fix && npm run -w server lint:fix && npm run -w coc lint:fix && npm -w test/protocol lint:fix",
+    "lint:fix": "npm run prettier -- --write && npm run eslint -- --fix && npm run -w client lint:fix && npm run -w server lint:fix && npm run -w coc lint:fix && npm run -w test/protocol lint:fix",
     "prettier": "prettier *.md *.json \"{docs,syntaxes,.github,.vscode}/**/*.{md,yml,json}\" \"test/**/*.{ts,json}\"",
     "eslint": "eslint ./test/**/*.ts",
     "clean": "rimraf ./dist ./out && npm -w client run clean && npm -w server run clean",
