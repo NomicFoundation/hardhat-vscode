@@ -141,8 +141,8 @@ export class FoundryProject extends Project {
     if (this.initializeError !== undefined) {
       const error: InitializationFailedError = {
         _isInitializationFailedError: true,
-        error: this.initializeError
-      }
+        error: this.initializeError,
+      };
 
       throw error;
     }
