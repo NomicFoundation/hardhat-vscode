@@ -20,7 +20,7 @@
   ],
   "scripts": {
     "bundle": "esbuild src/index.ts --platform=node --bundle --external:coc.nvim --external:@ignored/solidity-language-server --outdir=out",
-    "prepublish": "npm run bundle",
+    "prepack": "npm run bundle",
     "lint": "npm run prettier -- --check && npm run eslint",
     "lint:fix": "npm run prettier --write && npm run eslint --fix",
     "eslint": "eslint --max-warnings 0 \"./src/**/*.ts\"",

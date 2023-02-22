@@ -29,7 +29,7 @@
     "build": "tsc -b tsconfig.build.json",
     "prebundle": "npm run clean",
     "bundle": "node scripts/bundle.js",
-    "prepublish": "npm run bundle",
+    "prepack": "npm run bundle",
     "test": "cross-env TS_NODE_FILES=true mocha",
     "test:coverage": "cross-env TS_NODE_FILES=true nyc mocha",
     "lint": "npm run prettier -- --check && npm run eslint",
