@@ -3,6 +3,8 @@ import * as vscode from "vscode";
 import * as cp from "child_process";
 import { runCmd, runningOnWindows } from "../utils/os";
 
+let resolvedForgeCommand: string;
+
 export async function formatDocument(
   document: vscode.TextDocument
 ): Promise<vscode.TextEdit[]> {
@@ -42,6 +44,10 @@ export async function formatDocument(
 }
 
 async function resolveForgeCommand() {
+  if (resolvedForgeCommand) {
+    return resolvedForgeCommand;
+  }
+
   const potentialForgeCommands = ["forge"];
 
   if (runningOnWindows()) {
@@ -54,11 +60,14 @@ async function resolveForgeCommand() {
 
   for (const potentialForgeCommand of potentialForgeCommands) {
     try {
-      await runCmd(`${potentialForgeCommand} --version`);
+      await runCmd(potentialForgeCommand, [`--version`]);
+      resolvedForgeCommand = potentialForgeCommand;
+
       return potentialForgeCommand;
     } catch (error: any) {
       if (
         error.code === 127 || // unix
+        error.code === "ENOENT" || // unix
         error.toString().includes("is not recognized") || // windows (code: 1)
         error.toString().includes("cannot find the path") // windows (code: 1)
       ) {
