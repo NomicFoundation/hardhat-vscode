@@ -4,7 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## 0.6.10 - 2023-02-15
+## 0.6.11 - 2023-02-23
+
+### Changed
+
+- improve forge fmt speed through caching ([#380](https://github.com/NomicFoundation/hardhat-vscode/issues/380))
+- throttle project initalization to cap max cpu usage ([#389](https://github.com/NomicFoundation/hardhat-vscode/issues/389))
+
+## 0.6.10 - 2023-02-20
 
 ### Changed
 
