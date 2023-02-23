@@ -19,6 +19,7 @@
     "out/index.js"
   ],
   "scripts": {
+    "prebundle": "npm run clean",
     "bundle": "esbuild src/index.ts --platform=node --bundle --external:coc.nvim --external:@ignored/solidity-language-server --outdir=out",
     "prepack": "npm run bundle",
     "lint": "npm run prettier -- --check && npm run eslint",
@@ -28,7 +29,7 @@
     "clean": "rimraf out .nyc_output coverage *.tsbuildinfo *.log"
   },
   "dependencies": {
-    "@ignored/solidity-language-server": "0.6.9"
+    "@ignored/solidity-language-server": "0.6.11"
   },
   "devDependencies": {
     "coc.nvim": "^0.0.80",

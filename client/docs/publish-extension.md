@@ -34,7 +34,7 @@ release.
 12. On a successful check, `rebase merge` the release branch into main
 13. Switch to main branch and pull the latest changes
 14. Git tag the version, `g tag -a v0.x.x -m "v0.x.x"` and push the tag `git push --follow-tags`
-15. Publish the language server npm package, `cd ./server && npm run publish --non-interactive`
+15. Publish the language server npm package, `cd ./server && npm publish`
 16. Publish the coc extension, `cd ./coc && npm run publish --non-interactive`
 17. Upload the vsix file to the microsoft marketplace: `npx vsce publish -p $VSCE_TOKEN --packagePath hardhat-solidity-0.X.X.vsix`
 18. Upload the vsix file to openvsx, `npx ovsx publish hardhat-solidity-0.X.X.vsix -p $OVSX_TOKEN`
