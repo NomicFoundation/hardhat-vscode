@@ -12,7 +12,7 @@ Please refer to one of these packages to find detailed documentation relevant to
 
 - [VSCode extension](./client/README.md)
 - [coc.nvim extension](./coc/README.md)
-- [standalone language server](./server/README.md)
+- [Solidity language server](./server/README.md)
 
 ## Contributing
 
