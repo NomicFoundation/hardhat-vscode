@@ -31,7 +31,8 @@
     "prettier": "prettier *.md *.json \"{docs,syntaxes,.github,.vscode}/**/*.{md,yml,json}\" \"test/**/*.{ts,json}\"",
     "eslint": "eslint ./test/**/*.ts",
     "clean": "rimraf ./dist ./out && npm -w client run clean && npm -w server run clean",
-    "prepackage": "ts-node scripts/interpolateReadmes.ts",
+    "generate-readmes": "ts-node scripts/interpolateReadmes.ts",
+    "prepackage": "npm run generate-readmes",
     "package": "npm -w client run package",
     "prefullcheck": "npm run clean",
     "fullcheck": "npm run lint && npm run build && npm run test && npm run package"

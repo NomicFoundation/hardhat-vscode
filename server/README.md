@@ -53,7 +53,7 @@ lspconfig.solidity.setup {}
 
 ### Code Completions
 
-**Solidity by Nomic Foundation** autocompletes references to existing symbols (e.g. contract instances, globally available variables and built-in types like arrays) and import directives (i.e. it autocompletes the path to the imported file).
+The solidity language server autocompletes references to existing symbols (e.g. contract instances, globally available variables and built-in types like arrays) and import directives (i.e. it autocompletes the path to the imported file).
 
 Direct imports (those not starting with `./` or `../`) are completed based on suggestions from `./node_modules`.
 
