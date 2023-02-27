@@ -266,7 +266,7 @@ To override the settings, add a `prettierrc` configuration file at the root of y
 
 ## Alternative editors
 
-We currently distribute a [vim.coc](https://www.npmjs.com/package/@ignored/coc-solidity) extension and a [standalone language server](https://www.npmjs.com/package/@ignored/solidity-language-server) that you can integrate with your editor of choice to have full solidity language support.
+We also distribute a [vim.coc](https://www.npmjs.com/package/@ignored/coc-solidity) extension and a standalone [Solidity language server](https://www.npmjs.com/package/@ignored/solidity-language-server) that you can integrate with any editor that supports the Language Server protocol.
 
 ## Feedback, help and news
 
