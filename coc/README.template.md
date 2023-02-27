@@ -16,7 +16,7 @@ In your vim/neovim, run this command:
 :CocInstall @ignored/coc-solidity
 ```
 
-[include '../features.md']
+[include '../docs/features.md']
 
 ## Language server logs
 

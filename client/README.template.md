@@ -42,7 +42,7 @@ Some features (e.g. inline validation, quick fixes) are still experimental and a
 
 This extension should work without any configuration. If formatting functionality isn't working, or you have previously configured another **Solidity** formatter, please see the [formatting section](#formatting).
 
-[include '../features.md']
+[include '../docs/features.md']
 
 ### Commands
 
@@ -50,19 +50,19 @@ This extension should work without any configuration. If formatting functionalit
 
 When working on a hardhat project, the command `Hardhat: Compile project` is available on the command palette. This will trigger a `hardhat compile` run.
 
-![Compile command](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/command-compile.gif "Compile command")
+![Compile command](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/command-compile.gif "Compile command")
 
 #### Clean artifacts
 
 When working on a hardhat project, the command `Hardhat: Clear cache and artifacts` is present on the command palette. This will trigger a `hardhat clean` run.
 
-![Clean command](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/command-clean.gif "Clean command")
+![Clean command](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/command-clean.gif "Clean command")
 
 #### Flatten contract
 
 When working on a solidity file inside a hardhat project, the command `Hardhat: Flatten this file and its dependencies` is present on the command palette and the context menu. This will trigger a `hardhat flatten $FILE` run, and will output the result in a new file tab.
 
-![Flatten command](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/command-flatten.gif "Flatten command")
+![Flatten command](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/command-flatten.gif "Flatten command")
 
 ### Task provider
 
@@ -78,15 +78,15 @@ To set **Solidity by Nomic Foundation** as your default formatter for solidity f
 
 1. Within a Solidity file run the _Format Document With_ command, either through the **command palette**, or by right clicking and selecting through the context menu:
 
-![Format Document With](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/images/format_document_with.png "Format Document With")
+![Format Document With](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/images/format_document_with.png "Format Document With")
 
 2. Select `Configure Default Formatter...`
 
-![Format Document With](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/images/configure_default_formatter.png "Configure default formatter")
+![Format Document With](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/images/configure_default_formatter.png "Configure default formatter")
 
 3. Select `Solidity` as the default formatter for solidity files
 
-![Format Document With](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/images/select_solidity_plus_hardhat.png "Confiure default formatter")
+![Format Document With](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/images/select_solidity_plus_hardhat.png "Confiure default formatter")
 
 ### Formatting Configuration
 

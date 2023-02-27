@@ -52,13 +52,13 @@ Direct imports (those not starting with `./` or `../`) are completed based on su
 
 Relative imports pull their suggestions from the file system based on the current solidity file's location.
 
-![Import completions](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/import-completion.gif "Import completions")
+![Import completions](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/import-completion.gif "Import completions")
 
 Natspec documentation completion is also supported
 
-![Natspec contract completions](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/natspec-contract.gif "Natspec contract completion")
+![Natspec contract completions](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/natspec-contract.gif "Natspec contract completion")
 
-![Natspec function completions](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/natspec-function.gif "Natspec function completion")
+![Natspec function completions](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/natspec-function.gif "Natspec function completion")
 
 ---
 
@@ -78,7 +78,7 @@ Navigates to the type of an identifier.
 
 Shows all references of the identifier under the cursor.
 
-![Navigation](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/navigation.gif "Navigation")
+![Navigation](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/navigation.gif "Navigation")
 
 ---
 
@@ -86,7 +86,7 @@ Shows all references of the identifier under the cursor.
 
 Rename the identifier under the cursor and all of its references:
 
-![Rename](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/rename.gif "Rename")
+![Rename](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/rename.gif "Rename")
 
 ---
 
@@ -96,7 +96,7 @@ Apply solidity formatting to the current document.
 
 The formatting configuration can be overriden through a `.prettierrc` file, see [Formatting Configuration](#formatting-configuration).
 
-![Reformat](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/format.gif "Reformat")
+![Reformat](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/format.gif "Reformat")
 
 ---
 
@@ -104,7 +104,7 @@ The formatting configuration can be overriden through a `.prettierrc` file, see 
 
 Hovering the cursor over variables, function calls, errors and events will display a popup showing type and signature information:
 
-![Hover](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/on-hover.gif "Hover")
+![Hover](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/on-hover.gif "Hover")
 
 ---
 
@@ -114,7 +114,7 @@ As code is edited, **Solidity by Nomic Foundation** runs the [solc](https://docs
 
 This feature is only available in solidity files that are part of a **Hardhat** project, as **Hardhat** is used for import resolution, see [Hardhat Projects](#hardhat-projects) for details.
 
-![Diagnostic](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/diagnostic.gif "Diagnostic")
+![Diagnostic](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/diagnostic.gif "Diagnostic")
 
 ---
 
@@ -130,7 +130,7 @@ A contract that implements an interface, but is missing functions specified in t
 
 The matching code action _Add missing functions from interface_ will determine which functions need to be implemented to satisfy the interface and add them as stubs to the body of the contract.
 
-![Implement interface](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/implement-interface.gif "Implement interface")
+![Implement interface](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/implement-interface.gif "Implement interface")
 
 #### Constrain mutability
 
@@ -138,7 +138,7 @@ A function without a mutability keyword but which does not update contract state
 
 The matching code action _Add view/pure modifier to function declaration_ resolves the warning by adding the keyword to the function signature.
 
-![Constrain Mutability](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/constrain-mutability.gif "Constrain Mutability")
+![Constrain Mutability](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/constrain-mutability.gif "Constrain Mutability")
 
 #### Adding `virtual`/`override` on inherited function signature
 
@@ -146,7 +146,7 @@ A function in an inheriting contract, that has the same name and parameters as a
 
 The _Add virtual specifier to function definition_ and _Add override specifier to function definition_ code actions appear against functions with these errors.
 
-![Virtual and Override](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/virtual-override.gif "Virtual and Override")
+![Virtual and Override](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/virtual-override.gif "Virtual and Override")
 
 #### Adding `public`/`private` to function signature
 
@@ -154,27 +154,27 @@ A function without an accessibility keyword will cause the `solidity(4937)` erro
 
 Two code actions will appear against a function with this error: _Add public visibility to declaration_ and _Add private visibility to declaration_.
 
-![Public Private](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/public-private.gif "Public Private")
+![Public Private](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/public-private.gif "Public Private")
 
 #### Adding license identifier and `pragma solidity` version
 
 When no license is specified on a contract, the `solidity(1878)` warning is raised by the compiler. Similarly, when no compiler version is specified with a `pragma solidity` statement, the compiler shows the `solidity(3420)` warning. There are code actions available for quick fixes.
 
-![Add license specifier](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/add-license.gif "Add license specifier")
+![Add license specifier](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/add-license.gif "Add license specifier")
 
-![Add pragma solidity](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/add-pragma.gif "Add pragma solidity")
+![Add pragma solidity](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/add-pragma.gif "Add pragma solidity")
 
 #### Specifying data location for variables
 
 Some types require you to specify a data location (memory, storage, calldata), depending on where they are defined. The available code actions allow the user to add, change or remove data locations depending on the error being raised.
 
-![Data location quickfix](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/data-location.gif "Specify data location")
+![Data location quickfix](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/data-location.gif "Specify data location")
 
 #### Fix addresses checksum
 
-The solidity compiler requires explicit addresses to be in the correct checksummed format. This quickfix transforms any address to the correct checksummed version.
+The solidity compiler requires explicit addresses to be in the correct checksummed format. This quickfix transforms any address to the expected format.
 
-![Address checksum](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/checksum-address.gif "Fix address checksum")
+![Address checksum](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/checksum-address.gif "Fix address checksum")
 
 ---
 
@@ -192,7 +192,7 @@ Inline validation (the display of compiler errors and warnings against the code)
 
 The **Hardhat config file** that is used when validating a Solidity file is shown in the Solidity section on the _Status Bar_:
 
-![Open Config](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/open-config.gif "Open Config")
+![Open Config](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/open-config.gif "Open Config")
 
 
 ### Commands
@@ -201,19 +201,19 @@ The **Hardhat config file** that is used when validating a Solidity file is show
 
 When working on a hardhat project, the command `Hardhat: Compile project` is available on the command palette. This will trigger a `hardhat compile` run.
 
-![Compile command](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/command-compile.gif "Compile command")
+![Compile command](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/command-compile.gif "Compile command")
 
 #### Clean artifacts
 
 When working on a hardhat project, the command `Hardhat: Clear cache and artifacts` is present on the command palette. This will trigger a `hardhat clean` run.
 
-![Clean command](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/command-clean.gif "Clean command")
+![Clean command](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/command-clean.gif "Clean command")
 
 #### Flatten contract
 
 When working on a solidity file inside a hardhat project, the command `Hardhat: Flatten this file and its dependencies` is present on the command palette and the context menu. This will trigger a `hardhat flatten $FILE` run, and will output the result in a new file tab.
 
-![Flatten command](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/gifs/command-flatten.gif "Flatten command")
+![Flatten command](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/command-flatten.gif "Flatten command")
 
 ### Task provider
 
@@ -229,15 +229,15 @@ To set **Solidity by Nomic Foundation** as your default formatter for solidity f
 
 1. Within a Solidity file run the _Format Document With_ command, either through the **command palette**, or by right clicking and selecting through the context menu:
 
-![Format Document With](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/images/format_document_with.png "Format Document With")
+![Format Document With](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/images/format_document_with.png "Format Document With")
 
 2. Select `Configure Default Formatter...`
 
-![Format Document With](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/images/configure_default_formatter.png "Configure default formatter")
+![Format Document With](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/images/configure_default_formatter.png "Configure default formatter")
 
 3. Select `Solidity` as the default formatter for solidity files
 
-![Format Document With](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/client/docs/images/select_solidity_plus_hardhat.png "Confiure default formatter")
+![Format Document With](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/images/select_solidity_plus_hardhat.png "Confiure default formatter")
 
 ### Formatting Configuration
 
@@ -266,7 +266,7 @@ To override the settings, add a `prettierrc` configuration file at the root of y
 
 ## Alternative editors
 
-We also distribute a [vim.coc](https://www.npmjs.com/package/@ignored/coc-solidity) extension and a standalone [Solidity language server](https://www.npmjs.com/package/@ignored/solidity-language-server) that you can integrate with any editor that supports the Language Server protocol.
+We currently distribute a [vim.coc](https://www.npmjs.com/package/@ignored/coc-solidity) extension and a [standalone language server](https://www.npmjs.com/package/@ignored/solidity-language-server) that you can integrate with your editor of choice to have full solidity language support.
 
 ## Feedback, help and news
 

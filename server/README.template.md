@@ -49,7 +49,7 @@ configs.solidity = {
 lspconfig.solidity.setup {}
 ```
 
-[include '../features.md']
+[include '../docs/features.md']
 
 ## Contributing
 
