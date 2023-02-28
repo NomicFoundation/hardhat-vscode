@@ -64,7 +64,7 @@
     "@ignored/solidity-language-server": "0.6.9",
     "@sentry/node": "6.19.1",
     "prettier": "2.5.1",
-    "prettier-plugin-solidity": "1.0.0",
+    "prettier-plugin-solidity": "1.1.2",
     "vscode-languageclient": "^7.0.0"
   },
   "contributes": {
