@@ -41,7 +41,8 @@
     "onLanguage:solidity",
     "workspaceContains:**/hardhat.config.{ts,js}",
     "workspaceContains:**/foundry.toml",
-    "workspaceContains:**/truffle-config.js"
+    "workspaceContains:**/truffle-config.js",
+    "workspaceContains:**/ape-config.yaml"
   ],
   "scripts": {
     "build": "tsc -b",

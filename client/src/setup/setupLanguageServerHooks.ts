@@ -48,6 +48,7 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
         workspace.createFileSystemWatcher("**/hardhat.config.{ts,js}"),
         workspace.createFileSystemWatcher("**/{truffle-config,truffle}.js"),
         workspace.createFileSystemWatcher("**/foundry.toml"),
+        workspace.createFileSystemWatcher("**/ape-config.yaml"),
         workspace.createFileSystemWatcher("**/remappings.txt"),
         workspace.createFileSystemWatcher("**/*.sol"),
       ],

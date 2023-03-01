@@ -14,6 +14,7 @@ import { runCmd, runningOnWindows } from "../../utils/operatingSystem";
 import { CompilationDetails } from "../base/CompilationDetails";
 import { InitializationFailedError } from "../base/Errors";
 import { Project } from "../base/Project";
+import { parseRemappings, Remapping } from "../base/Remapping";
 import { buildBasicCompilation } from "../shared/buildBasicCompilation";
 import { Remapping } from "../base/Remapping";
 import { getImportCompletions } from "./getImportCompletions";
@@ -62,7 +63,7 @@ export class FoundryProject extends Project {
         `${forgeCommand} remappings`,
         this.basePath
       );
-      this.remappings = this._parseRemappings(rawRemappings);
+      this.remappings = parseRemappings(rawRemappings);
     } catch (error: any) {
       this.serverState.logger.error(error.toString());
 
@@ -202,34 +203,6 @@ export class FoundryProject extends Project {
       position,
       currentImport
     );
-  }
-
-  private _parseRemappings(rawRemappings: string) {
-    const lines = rawRemappings.trim().split("\n");
-    const remappings: Remapping[] = [];
-
-    for (const line of lines) {
-      const lineTokens = line.split("=", 2);
-
-      if (
-        lineTokens.length !== 2 ||
-        lineTokens[0].length === 0 ||
-        lineTokens[1].length === 0
-      ) {
-        continue;
-      }
-
-      const [from, to] = lineTokens.map((token) =>
-        token.endsWith("/") ? token : `${token}/`
-      );
-
-      remappings.push({
-        from,
-        to,
-      });
-    }
-
-    return remappings;
   }
 
   // Returns the forge binary path

@@ -27,6 +27,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
           coc.workspace.createFileSystemWatcher(
             "**/{truffle-config,truffle}.js"
           ),
+          coc.workspace.createFileSystemWatcher("**/ape-config.yaml"),
           coc.workspace.createFileSystemWatcher("**/remappings.txt"),
           coc.workspace.createFileSystemWatcher("**/*.sol"),
         ],
