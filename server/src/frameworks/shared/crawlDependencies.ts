@@ -59,6 +59,7 @@ export async function getDependenciesAndPragmas(
       sourcePath,
       importName
     );
+    // console.log(JSON.stringify({ importName, resolvedPath }, null, 2));
 
     if (resolvedPath !== undefined) {
       resolvedImports.push({ importName, resolvedPath });

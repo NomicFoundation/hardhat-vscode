@@ -52,7 +52,8 @@
           "hardhat.config.ts",
           "truffle-config.js",
           "truffle.js",
-          "foundry.toml"
+          "foundry.toml",
+          "ape-config.yaml"
         ]
       }
     ],
