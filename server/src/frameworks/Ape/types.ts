@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 export interface ApeDependency {
   name: string;
-  github: string;
-  version: string;
+  github?: string;
+  version?: string;
+  branch?: string;
+  contracts_folder?: string;
+  local?: string;
 }
 
 export interface ApeSolidityConfig {

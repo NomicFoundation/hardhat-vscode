@@ -221,7 +221,7 @@ async function findProjectForFile(serverState: ServerState, fileUri: string) {
     serverState,
     path.dirname(fileUri)
   );
-  let isLocal = true;
+  let isLocal = false;
 
   for (const indexedProject of Object.values(serverState.projects)) {
     try {

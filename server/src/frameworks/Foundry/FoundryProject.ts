@@ -16,11 +16,10 @@ import { InitializationFailedError } from "../base/Errors";
 import { Project } from "../base/Project";
 import { parseRemappings, Remapping } from "../base/Remapping";
 import { buildBasicCompilation } from "../shared/buildBasicCompilation";
-import { Remapping } from "../base/Remapping";
 import { getImportCompletions } from "./getImportCompletions";
 
 export class FoundryProject extends Project {
-  public priority = 1;
+  public priority = 2;
   public sourcesPath!: string;
   public testsPath!: string;
   public libPath!: string;
@@ -97,7 +96,7 @@ export class FoundryProject extends Project {
       return { belongs, isLocal };
     } else {
       // Project could not be initialized. Claim all files under base path to avoid them being incorrectly assigned to other projects
-      return { belongs: directoryContains(this.basePath, uri), isLocal: true };
+      return { belongs: directoryContains(this.basePath, uri), isLocal: false };
     }
   }
 
