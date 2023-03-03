@@ -92,6 +92,8 @@ export async function validate(
               sourceUri,
               openDocuments
             );
+
+            // console.log(JSON.stringify(compilationDetails, null, 2));
           }
         );
 

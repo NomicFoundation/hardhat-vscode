@@ -14,6 +14,7 @@ import { OpenDocuments, ServerState } from "../../types";
 import { toUnixStyle } from "../../utils";
 import { directoryContains } from "../../utils/directoryContains";
 import { CompilationDetails } from "../base/CompilationDetails";
+import { BuildInputError } from "../base/Errors";
 import { FileBelongsResult, Project } from "../base/Project";
 import { parseRemappingLine, Remapping } from "../base/Remapping";
 import { buildBasicCompilation } from "../shared/buildBasicCompilation";
@@ -165,8 +166,20 @@ export class ApeProject extends Project {
     sourceUri: string,
     openDocuments: OpenDocuments
   ): Promise<CompilationDetails> {
+    // Ensure project is initialized
     if (this.initializeError !== undefined) {
-      throw new Error(this.initializeError);
+      const buildError: BuildInputError = {
+        _isBuildInputError: true,
+        fileSpecificErrors: {},
+        projectWideErrors: [
+          {
+            type: "general",
+            message: `Ape project couldn't initialize correctly: ${this.initializeError}`,
+            source: "ape",
+          },
+        ],
+      };
+      throw buildError;
     }
 
     const basicCompilation = await buildBasicCompilation(
@@ -192,7 +205,7 @@ export class ApeProject extends Project {
 
     // (basicCompilation.input.settings as any).remappings = remappings; // CompilerInput type doesn't have remappings
 
-    console.log(JSON.stringify(basicCompilation, null, 2));
+    // console.log(JSON.stringify(basicCompilation, null, 2));
 
     return basicCompilation;
   }
@@ -200,6 +213,8 @@ export class ApeProject extends Project {
   public async onWatchedFilesChanges({
     changes,
   }: DidChangeWatchedFilesParams): Promise<void> {
+    console.log(JSON.stringify(changes, null, 2));
+
     for (const change of changes) {
       if (change.uri === this.configPath) {
         this.serverState.logger.info(

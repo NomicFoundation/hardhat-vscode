@@ -138,6 +138,7 @@ export class FoundryProject extends Project {
     sourceUri: string,
     openDocuments: OpenDocuments
   ): Promise<CompilationDetails> {
+    // Ensure project is initialized
     if (this.initializeError !== undefined) {
       const error: InitializationFailedError = {
         _isInitializationFailedError: true,
