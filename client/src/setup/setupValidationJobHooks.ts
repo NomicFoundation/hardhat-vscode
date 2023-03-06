@@ -1,4 +1,9 @@
-import { LanguageStatusItem, languages, LanguageStatusSeverity } from "vscode";
+import {
+  LanguageStatusItem,
+  languages,
+  LanguageStatusSeverity,
+  window,
+} from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { ExtensionState } from "../types";
 
@@ -25,6 +30,28 @@ export function setupValidationJobHooks(
   client: LanguageClient
 ) {
   return client.onReady().then(() => {
+    // Trigger validation on newly focused documents
+    window.onDidChangeActiveTextEditor((e) => {
+      const uri = e?.document.uri.toString();
+      const version = e?.document.version;
+
+      if (uri !== undefined && version !== undefined && uri.endsWith(".sol")) {
+        client.sendNotification("textDocument/didChange", {
+          textDocument: { uri, version },
+          contentChanges: [
+            {
+              range: {
+                start: { line: 0, character: 0 },
+                end: { line: 0, character: 0 },
+              },
+              rangeLength: 1,
+              text: "",
+            },
+          ],
+        });
+      }
+    });
+
     return client.onNotification(
       "custom/validation-job-status",
       (notification: ValidationJobStatusNotification) => {
