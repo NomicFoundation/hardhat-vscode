@@ -13,6 +13,7 @@ import { OpenDocuments, ServerState } from "../../types";
 import { directoryContains } from "../../utils/directoryContains";
 import { Logger } from "../../utils/Logger";
 import { CompilationDetails } from "../base/CompilationDetails";
+import { InitializationFailedError } from "../base/Errors";
 import { FileBelongsResult, Project } from "../base/Project";
 import { getImportCompletions } from "./getImportCompletions";
 import { LogLevel } from "./worker/WorkerLogger";
@@ -382,7 +383,12 @@ export class HardhatProject extends Project {
 
   private _checkWorkerNotErrored() {
     if (this.workerStatus === WorkerStatus.ERRORED) {
-      throw new Error(this.workerLoadFailureReason);
+      const error: InitializationFailedError = {
+        _isInitializationFailedError: true,
+        error: this.workerLoadFailureReason,
+      };
+
+      throw error;
     }
   }
 }

@@ -12,6 +12,7 @@ import { toUnixStyle } from "../../utils";
 import { directoryContains } from "../../utils/directoryContains";
 import { runCmd, runningOnWindows } from "../../utils/operatingSystem";
 import { CompilationDetails } from "../base/CompilationDetails";
+import { InitializationFailedError } from "../base/Errors";
 import { Project } from "../base/Project";
 import { buildBasicCompilation } from "../shared/buildBasicCompilation";
 import { getImportCompletions } from "./getImportCompletions";
@@ -138,7 +139,12 @@ export class FoundryProject extends Project {
     openDocuments: OpenDocuments
   ): Promise<CompilationDetails> {
     if (this.initializeError !== undefined) {
-      throw new Error(this.initializeError);
+      const error: InitializationFailedError = {
+        _isInitializationFailedError: true,
+        error: this.initializeError,
+      };
+
+      throw error;
     }
 
     const basicCompilation = await buildBasicCompilation(
