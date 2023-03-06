@@ -1,0 +1,24 @@
+name: ape
+
+contracts_folder: 'src'
+
+dependencies:
+  - name: OpenZeppelin
+    github: OpenZeppelin/openzeppelin-contracts
+    version: 4.4.2
+  - name: DappToolsERC20
+    github: dapphub/erc20
+    branch: dappnix
+    contracts_folder: src
+  - name: LocalOZ
+    local: /home/antico/webapps/solidity_projects/4_openzeppelin
+    contracts_folder: contracts
+
+solidity: 
+  import_remapping:
+    - "@openzeppelin=OpenZeppelin/4.4.2"
+    - "@dapptools=DappToolsERC20/dappnix"
+    - "@localoz=LocalOZ"
+  # version: 0.8.7
+
+  

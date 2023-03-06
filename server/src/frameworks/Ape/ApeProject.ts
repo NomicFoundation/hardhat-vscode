@@ -213,8 +213,6 @@ export class ApeProject extends Project {
   public async onWatchedFilesChanges({
     changes,
   }: DidChangeWatchedFilesParams): Promise<void> {
-    console.log(JSON.stringify(changes, null, 2));
-
     for (const change of changes) {
       if (change.uri === this.configPath) {
         this.serverState.logger.info(
