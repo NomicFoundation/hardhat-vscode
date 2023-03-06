@@ -88,6 +88,6 @@
     "vscode-uri": "^3.0.6"
   },
   "dependencies": {
-    "@nomicfoundation/solidity-analyzer": "0.1.0"
+    "@nomicfoundation/solidity-analyzer": "0.1.1"
   }
 }
