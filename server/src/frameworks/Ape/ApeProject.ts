@@ -14,7 +14,7 @@ import { OpenDocuments, ServerState } from "../../types";
 import { toUnixStyle } from "../../utils";
 import { directoryContains } from "../../utils/directoryContains";
 import { CompilationDetails } from "../base/CompilationDetails";
-import { BuildInputError } from "../base/Errors";
+import { InitializationFailedError } from "../base/Errors";
 import { FileBelongsResult, Project } from "../base/Project";
 import { parseRemappingLine, Remapping } from "../base/Remapping";
 import { buildBasicCompilation } from "../shared/buildBasicCompilation";
@@ -158,18 +158,12 @@ export class ApeProject extends Project {
   ): Promise<CompilationDetails> {
     // Ensure project is initialized
     if (this.initializeError !== undefined) {
-      const buildError: BuildInputError = {
-        _isBuildInputError: true,
-        fileSpecificErrors: {},
-        projectWideErrors: [
-          {
-            type: "general",
-            message: `Ape project couldn't initialize correctly: ${this.initializeError}`,
-            source: "ape",
-          },
-        ],
+      const error: InitializationFailedError = {
+        _isInitializationFailedError: true,
+        error: this.initializeError,
       };
-      throw buildError;
+
+      throw error;
     }
 
     const basicCompilation = await buildBasicCompilation(
