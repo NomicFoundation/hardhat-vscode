@@ -67,6 +67,19 @@ export class ApeProject extends Project {
       this.remappings = _.compact(configRemappings.map(parseRemappingLine));
 
       this.dependencies = config.dependencies ?? [];
+
+      // check that dependencies are installed
+
+      for (const dependency of this.dependencies) {
+        const isInstalled =
+          this._resolveDependencyBasePath(dependency) !== undefined;
+
+        if (!isInstalled) {
+          throw new Error(
+            `Dependency ${dependency.name} is declared on config file but we couldn't find it inside ${this.dependenciesPath}. Try installing your dependencies by running 'ape compile'.`
+          );
+        }
+      }
     } catch (error) {
       this.initializeError = `${error}`;
       this.serverState.logger.error(this.initializeError);
@@ -113,35 +126,12 @@ export class ApeProject extends Project {
       }
 
       // Dependencies' subfolders are different if they are specified by version or branch
-      const possibleSubfolders = [];
+      const dependencyBasePath = this._resolveDependencyBasePath(dependency);
 
-      if (dependency.version !== undefined) {
-        possibleSubfolders.push(dependency.version);
-        possibleSubfolders.push(`v${dependency.version}`);
-      }
-
-      if (dependency.branch !== undefined) {
-        possibleSubfolders.push(dependency.branch);
-      }
-
-      if (dependency.local !== undefined) {
-        possibleSubfolders.push("local");
-      }
-
-      for (const subfolder of possibleSubfolders) {
-        const dependencyBasePath = path.join(
-          this.dependenciesPath,
-          dependencyName,
-          subfolder
-        );
-
-        if (existsSync(dependencyBasePath)) {
-          transformedPath = importPath.replace(
-            from.endsWith("/") ? from : `${from}/`,
-            `${dependencyBasePath}/`
-          );
-        }
-      }
+      transformedPath = importPath.replace(
+        from.endsWith("/") ? from : `${from}/`,
+        `${dependencyBasePath}/`
+      );
     }
 
     // Try to resolve the import recursively, start from source directory up to project root
@@ -229,5 +219,40 @@ export class ApeProject extends Project {
     _currentImport: string
   ): CompletionItem[] {
     return [];
+  }
+
+  /**
+   * Given a dependency specified in ape config file, attempts to find the directory where it's been installed
+   */
+  private _resolveDependencyBasePath(
+    dependency: ApeDependency
+  ): string | undefined {
+    const possibleSubfolders = [];
+
+    if (dependency.version !== undefined) {
+      possibleSubfolders.push(dependency.version);
+      possibleSubfolders.push(`v${dependency.version}`);
+    }
+
+    if (dependency.branch !== undefined) {
+      possibleSubfolders.push(dependency.branch);
+    }
+
+    if (dependency.local !== undefined) {
+      possibleSubfolders.push("local");
+    }
+
+    for (const subfolder of possibleSubfolders) {
+      const dependencyBasePath = path.join(
+        this.dependenciesPath,
+        dependency.name,
+        subfolder
+      );
+
+      if (existsSync(dependencyBasePath)) {
+        return dependencyBasePath;
+      }
+    }
+    // return transformedPath;
   }
 }
