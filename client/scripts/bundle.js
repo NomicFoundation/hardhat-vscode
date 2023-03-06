@@ -73,7 +73,7 @@ async function main() {
   fs.copyFileSync(path.join(".", "LICENSE"), path.join(tmpDir, "LICENSE"));
 
   fs.copyFileSync(
-    path.join(".", "docs", "images", "vscode-logo.png"),
+    path.join("..", "docs", "images", "vscode-logo.png"),
     path.join(imagesDir, "vscode-logo.png")
   );
 
