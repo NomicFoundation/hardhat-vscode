@@ -10,7 +10,14 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["./client", "./server", "./coc", "./test", "./test/**/*.json"],
+  "include": [
+    "./client",
+    "./server",
+    "./coc",
+    "./test",
+    "./test/**/*.json",
+    "./scripts"
+  ],
   "exclude": [
     "node_modules",
     ".vscode-test",

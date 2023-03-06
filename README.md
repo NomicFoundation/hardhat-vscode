@@ -6,27 +6,13 @@ Built by the [Nomic Foundation](https://nomic.foundation/) for the Ethereum comm
 
 Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay up to date on new releases, plugins and tutorials.
 
-## Features
+## Packages
 
-- Code completion
-- Go to definition, type definition and references
-- Symbol renames
-- Solidity code formatting through [prettier-plugin-solidity](https://github.com/prettier-solidity/prettier-plugin-solidity)
-- Inline validation for Hardhat projects
-- Hover help for variables, function calls, errors, events etc.
-- Code actions (quickfixes) suggested from compiler errors/warnings
-  - Implement missing functions on interface with stubs
-  - Constrain mutability by adding `view`/`pure` to function signature
-  - Meet inheritance requirements by adding `virtual`/`override` on function signature
-  - Provide accessibility by adding `public`/`private` to function signature
+Please refer to one of these packages to find detailed documentation relevant to your use case:
 
-## Installation
-
-**Solidity for VS Code by Nomic Foundation** can be installed by [using the Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity).
-
-## Coc.nvim extension
-
-Please refer to the [coc extension readme](./coc/README.md) for additional instructions.
+- [VSCode extension](./client/README.md)
+- [coc.nvim extension](./coc/README.md)
+- [Solidity language server](./server/README.md)
 
 ## Contributing
 
