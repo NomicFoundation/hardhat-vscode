@@ -5,7 +5,10 @@ import type { Logger } from "@utils/Logger";
 import type { WorkspaceFolder } from "vscode-languageserver-protocol";
 import type { SolFileIndexMap, SolProjectMap } from "@common/types";
 import type { Telemetry } from "./telemetry/types";
-import { BuildInputError } from "./frameworks/base/Errors";
+import {
+  BuildInputError,
+  InitializationFailedError,
+} from "./frameworks/base/Errors";
 import { WorkspaceFileRetriever } from "./utils/WorkspaceFileRetriever";
 
 export interface ServerState {
@@ -31,6 +34,7 @@ export interface ServerState {
   cachedCompilerInfo: {
     [solcVersion: string]: { isSolcJs: boolean; compilerPath: string };
   };
+  shownInitializationError: Record<string, boolean>;
 }
 
 export interface SolcError {
@@ -49,6 +53,14 @@ export interface SolcError {
 export interface BuildInputFailed {
   status: "BUILD_INPUT_ERROR";
   error: BuildInputError;
+}
+
+/**
+ * Framework provider wasn't initialized correctly
+ */
+export interface InitializationFailed {
+  status: "INITIALIZATION_FAILED_ERROR";
+  error: InitializationFailedError;
 }
 
 /**
@@ -87,6 +99,7 @@ export type ValidationResult =
   | ValidationPass
   | ValidationFail
   | JobCompletionError
+  | InitializationFailed
   | BuildInputFailed;
 
 export interface ValidationJobSuccessNotification {

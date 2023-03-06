@@ -28,6 +28,6 @@ describe('[hardhat] custom/validation-job-status', () => {
       errorFile: toUri(invalidImportPath),
     }
 
-    await client.getOrWaitCustomNotification('custom/validation-job-status', expectedData)
+    await client.getOrWaitNotification('custom/validation-job-status', expectedData)
   })
 })

@@ -17,3 +17,9 @@ export interface BuildInputError {
     }>;
   };
 }
+
+export interface InitializationFailedError {
+  _isInitializationFailedError: true;
+
+  error: string;
+}
