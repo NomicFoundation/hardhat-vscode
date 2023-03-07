@@ -33,7 +33,7 @@ export const onInitialized = (
     for (const [uri, solFileEntry] of Object.entries(
       serverState.solFileIndex
     )) {
-      serverState.connection.sendNotification("custom/file-indexed", {
+      await serverState.connection.sendNotification("custom/file-indexed", {
         uri,
         project: {
           configPath: solFileEntry.project.configPath,

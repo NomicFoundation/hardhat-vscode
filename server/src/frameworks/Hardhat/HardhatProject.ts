@@ -252,8 +252,7 @@ export class HardhatProject extends Project {
   private async _handleMessage(message: Message) {
     switch (message.type) {
       case MessageType.INITIALIZED:
-        this._handleInitialized();
-        break;
+        return this._handleInitialized();
 
       case MessageType.LOG:
         this._handleLog(message as LogMessage);
@@ -305,12 +304,17 @@ export class HardhatProject extends Project {
     }
   }
 
-  private _handleInitialized() {
+  private async _handleInitialized() {
     this.workerStatus = WorkerStatus.RUNNING;
     this.logger.info("Local HRE loaded");
-    this.serverState.connection.sendNotification("custom/worker-initialized", {
-      projectBasePath: this.basePath,
-    });
+
+    await this.serverState.connection.sendNotification(
+      "custom/worker-initialized",
+      {
+        projectBasePath: this.basePath,
+      }
+    );
+
     this._onInitialized();
   }
 
