@@ -1,4 +1,5 @@
 import { WorkspaceFileRetriever } from "@utils/WorkspaceFileRetriever";
+import { Project } from "../../frameworks/base/Project";
 import { ServerState } from "../../types";
 import { indexWorkspaceFolders } from "./indexWorkspaceFolders";
 import { removeWorkspaceFolders } from "./removeWorkspaceFolders";
@@ -33,13 +34,21 @@ export const onInitialized = (
     for (const [uri, solFileEntry] of Object.entries(
       serverState.solFileIndex
     )) {
-      await serverState.connection.sendNotification("custom/file-indexed", {
-        uri,
-        project: {
-          configPath: solFileEntry.project.configPath,
-          frameworkName: solFileEntry.project.frameworkName(),
-        },
-      });
+      await notifyFileIndexed(serverState, uri, solFileEntry.project);
     }
   };
 };
+
+export async function notifyFileIndexed(
+  serverState: ServerState,
+  uri: string,
+  project: Project
+) {
+  await serverState.connection.sendNotification("custom/file-indexed", {
+    uri,
+    project: {
+      configPath: project.configPath,
+      frameworkName: project.frameworkName(),
+    },
+  });
+}

@@ -154,24 +154,36 @@ export async function indexSolidityFiles(
   fileUris: string[]
 ) {
   for (const fileUri of fileUris) {
-    if (!(await serverState.workspaceFileRetriever.isFile(fileUri))) {
-      continue;
-    }
-
-    const { project, isLocal } = await findProjectForFile(serverState, fileUri);
-
-    serverState.logger.trace(
-      `Associating ${project.id()} to ${fileUri}. Local: ${isLocal}`
-    );
-
-    const docText = await serverState.workspaceFileRetriever.readFile(fileUri);
-    serverState.solFileIndex[fileUri] = SolFileEntry.createLoadedEntry(
-      fileUri,
-      project,
-      docText,
-      isLocal
-    );
+    await indexSolidityFile(serverState, fileUri);
   }
+}
+
+export async function indexSolidityFile(
+  serverState: ServerState,
+  fileUri: string
+) {
+  if (!(await serverState.workspaceFileRetriever.isFile(fileUri))) {
+    return;
+  }
+
+  const { project, isLocal } = await findProjectForFile(serverState, fileUri);
+
+  serverState.logger.trace(
+    `Associating ${project.id()} to ${fileUri}. Local: ${isLocal}`
+  );
+
+  const docText = await serverState.workspaceFileRetriever.readFile(fileUri);
+
+  const solFileEntry = SolFileEntry.createLoadedEntry(
+    fileUri,
+    project,
+    docText,
+    isLocal
+  );
+
+  serverState.solFileIndex[fileUri] = solFileEntry;
+
+  return solFileEntry;
 }
 
 async function analyzeSolFiles(
