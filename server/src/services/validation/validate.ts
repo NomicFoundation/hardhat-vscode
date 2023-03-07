@@ -135,7 +135,7 @@ export async function validate(
 
       // Only show validation result if this is the latest validation request for this file
       if (serverState.lastValidationId[sourceUri] === validationId) {
-        sendResults(
+        await sendResults(
           serverState,
           change,
           validationResult,
@@ -152,7 +152,7 @@ export async function validate(
   );
 }
 
-function sendResults(
+async function sendResults(
   serverState: ServerState,
   change: TextDocumentChangeEvent<TextDocument>,
   validationResult: ValidationResult,
@@ -161,34 +161,43 @@ function sendResults(
 ) {
   switch (validationResult.status) {
     case "JOB_COMPLETION_ERROR":
-      jobCompletionErrorFail(serverState, change, validationResult);
-      break;
+      return jobCompletionErrorFail(serverState, change, validationResult);
     case "VALIDATION_FAIL":
-      validationFail(serverState, change, validationResult);
-      break;
+      return validationFail(serverState, change, validationResult);
     case "VALIDATION_PASS":
-      validationPass(serverState, change, validationResult, openDocuments);
-      break;
+      return validationPass(
+        serverState,
+        change,
+        validationResult,
+        openDocuments
+      );
     case "BUILD_INPUT_ERROR":
-      handleBuildInputError(serverState, change, validationResult, project);
-      break;
+      return handleBuildInputError(
+        serverState,
+        change,
+        validationResult,
+        project
+      );
     case "INITIALIZATION_FAILED_ERROR":
-      handleInitializationFailedError(serverState, validationResult, project);
-      break;
+      return handleInitializationFailedError(
+        serverState,
+        validationResult,
+        project
+      );
     default:
       assertUnknownMessageStatus(validationResult);
       break;
   }
 }
 
-function handleBuildInputError(
+async function handleBuildInputError(
   serverState: ServerState,
   { document }: TextDocumentChangeEvent<TextDocument>,
   { error }: BuildInputFailed,
   project: Project
 ) {
   // Clear existing diagnostics
-  clearDiagnostics(serverState, document.uri);
+  await clearDiagnostics(serverState, document.uri);
 
   // Handle file-specific errors
   for (const [sourcePath, fileErrors] of Object.entries(
@@ -207,13 +216,13 @@ function handleBuildInputError(
         range: offsetsToRange(document, startOffset!, endOffset!),
       }));
 
-    serverState.connection.sendDiagnostics({
+    await serverState.connection.sendDiagnostics({
       uri: sourceUri,
       diagnostics,
     });
 
     // Send status item error
-    sendStatusItemError(
+    await sendStatusItemError(
       serverState,
       project.basePath,
       fileErrors.map((e) => e.error.message).join(", "),
@@ -223,7 +232,7 @@ function handleBuildInputError(
 
   // Send status item for project-wide errors
   for (const projectWideError of error.projectWideErrors) {
-    sendStatusItemError(
+    await sendStatusItemError(
       serverState,
       project.basePath,
       projectWideError.message
@@ -231,13 +240,13 @@ function handleBuildInputError(
   }
 }
 
-function handleInitializationFailedError(
+async function handleInitializationFailedError(
   serverState: ServerState,
   { error }: InitializationFailed,
   project: Project
 ) {
   // Send status item, project wide
-  sendStatusItemError(serverState, project.basePath, error.error);
+  await sendStatusItemError(serverState, project.basePath, error.error);
 
   // Show a notification, only once per session, per project
   if (!serverState.shownInitializationError[project.id()]) {
@@ -247,15 +256,15 @@ function handleInitializationFailedError(
       project.basePath
     )}' was not able to initialize correctly:\n ${error.error}`;
 
-    serverState.connection.sendNotification("window/showMessage", {
+    return serverState.connection.sendNotification("window/showMessage", {
       type: MessageType.Error,
       message,
     });
   }
 }
 
-function clearDiagnostics(serverState: ServerState, uri: string) {
-  serverState.connection.sendDiagnostics({
+async function clearDiagnostics(serverState: ServerState, uri: string) {
+  return serverState.connection.sendDiagnostics({
     uri,
     diagnostics: [],
   });
@@ -275,23 +284,26 @@ function sendStatusItemError(
     errorFile,
   };
 
-  serverState.connection.sendNotification(
+  return serverState.connection.sendNotification(
     "custom/validation-job-status",
     validationJobStatus
   );
 }
 
-function jobCompletionErrorFail(
+async function jobCompletionErrorFail(
   serverState: ServerState,
   { document }: TextDocumentChangeEvent<TextDocument>,
   jobCompletionError: JobCompletionError
 ) {
-  clearDiagnostics(serverState, document.uri);
+  await clearDiagnostics(serverState, document.uri);
 
   const data: ValidationJobStatusNotification =
     jobStatusFrom(jobCompletionError);
 
-  serverState.connection.sendNotification("custom/validation-job-status", data);
+  return serverState.connection.sendNotification(
+    "custom/validation-job-status",
+    data
+  );
 }
 
 function sendValidationProcessSuccess(
@@ -305,7 +317,10 @@ function sendValidationProcessSuccess(
     version,
   };
 
-  serverState.connection.sendNotification("custom/validation-job-status", data);
+  return serverState.connection.sendNotification(
+    "custom/validation-job-status",
+    data
+  );
 }
 
 function jobStatusFrom({
@@ -354,38 +369,39 @@ function jobStatusFrom({
   }
 }
 
-function validationPass(
+async function validationPass(
   serverState: ServerState,
   _change: TextDocumentChangeEvent<TextDocument>,
   message: ValidationPass,
   openDocuments: OpenDocuments
-): void {
+): Promise<void> {
   for (const source of message.sources) {
     // TODO: improve this. Currently necessary because on hardhat source names are not full paths
     const docPath = openDocuments
       .map((doc) => doc.uri)
       .find((u) => toUnixStyle(u).endsWith(toUnixStyle(source)));
+
     if (docPath === undefined) {
       continue;
     }
 
     const uri = URI.file(docPath).toString();
 
-    clearDiagnostics(serverState, uri);
+    await clearDiagnostics(serverState, uri);
   }
 
-  sendValidationProcessSuccess(
+  return sendValidationProcessSuccess(
     serverState,
     message.projectBasePath,
     message.version
   );
 }
 
-function validationFail(
+async function validationFail(
   serverState: ServerState,
   change: TextDocumentChangeEvent<TextDocument>,
   message: ValidationFail
-): void {
+): Promise<void> {
   const document = change.document;
   const diagnosticConverter = new DiagnosticConverter(serverState.logger);
 
@@ -398,12 +414,12 @@ function validationFail(
     )
     .flatMap(([, diagnostic]) => diagnostic);
 
-  serverState.connection.sendDiagnostics({
+  await serverState.connection.sendDiagnostics({
     uri: document.uri,
     diagnostics: diagnosticsInOpenEditor,
   });
 
-  sendValidationProcessSuccess(
+  return sendValidationProcessSuccess(
     serverState,
     message.projectBasePath,
     message.version

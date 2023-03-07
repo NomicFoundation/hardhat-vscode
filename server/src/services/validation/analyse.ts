@@ -24,7 +24,7 @@ export async function analyse(
 
       // Notify that a file was successfully
       if (isTestMode()) {
-        serverState.connection.sendNotification("custom/analyzed", {
+        await serverState.connection.sendNotification("custom/analyzed", {
           uri: changeDoc.uri,
         });
       }
