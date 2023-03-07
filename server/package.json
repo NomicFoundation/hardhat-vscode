@@ -81,11 +81,11 @@
     "semver": "^7.3.7",
     "serialize-error": "8.1.0",
     "uuid": "^8.3.2",
-    "vscode-languageserver": "^7.0.0",
-    "vscode-languageserver-protocol": "3.16.0",
-    "vscode-languageserver-textdocument": "^1.0.1",
-    "vscode-languageserver-types": "^3.16.0",
-    "vscode-uri": "^3.0.6"
+    "vscode-languageserver": "8.1.0",
+    "vscode-languageserver-protocol": "3.17.3",
+    "vscode-languageserver-textdocument": "1.0.8",
+    "vscode-languageserver-types": "3.17.3",
+    "vscode-uri": "3.0.7"
   },
   "dependencies": {
     "@nomicfoundation/solidity-analyzer": "0.1.0"
