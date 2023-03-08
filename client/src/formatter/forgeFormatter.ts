@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as vscode from "vscode";
 import * as cp from "child_process";
+import path from "path";
 import { runCmd, runningOnWindows } from "../utils/os";
 
 let resolvedForgeCommand: string;
@@ -18,10 +20,8 @@ export async function formatDocument(
   const forgeCommand = await resolveForgeCommand();
 
   const formatted = await new Promise<string>((resolve, reject) => {
-    const currentDocument = vscode.window.activeTextEditor?.document.uri;
-    const rootPath = currentDocument
-      ? vscode.workspace.getWorkspaceFolder(currentDocument)?.uri.fsPath
-      : undefined;
+    const documentUri = vscode.window.activeTextEditor?.document.uri.fsPath;
+    const rootPath = documentUri && path.dirname(documentUri);
 
     const forge = cp.execFile(
       forgeCommand,
