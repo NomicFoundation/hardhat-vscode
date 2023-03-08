@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.6.12 - 2023-03-08
+
+### Added
+
+- notifications for project-level errors
+- re-validate documents when changing editor windows
+
+### Changed
+
+- updated prettier-plugin-solidity to support named mapping params
+- updated node-languageserver package to reduce protocol errors on vim.coc
+
 ## 0.6.11 - 2023-02-23
 
 ### Changed
