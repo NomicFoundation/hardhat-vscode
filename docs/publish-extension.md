@@ -24,7 +24,7 @@ release.
 ```
 
 9. Push the release branch and open a pull request using the new changelog entry as the PR description
-10. Generate a release candidate vsix file with `npm run package`, the vsix file should appear in the root of the repo with the new version number
+10. Generate a release candidate vsix file with `npm run package`, the vsix file should appear in the `./client` folder with the new version number
 11. Manually run smoke tests on the new features across:
 
 - mac os x
@@ -35,9 +35,9 @@ release.
 13. Switch to main branch and pull the latest changes
 14. Git tag the version, `g tag -a v0.x.x -m "v0.x.x"` and push the tag `git push --follow-tags`
 15. Publish the language server npm package, `cd ./server && npm publish`
-16. Publish the coc extension, `cd ./coc && npm run publish --non-interactive`
-17. Upload the vsix file to the microsoft marketplace: `npx vsce publish -p $VSCE_TOKEN --packagePath hardhat-solidity-0.X.X.vsix`
-18. Upload the vsix file to openvsx, `npx ovsx publish hardhat-solidity-0.X.X.vsix -p $OVSX_TOKEN`
+16. Publish the coc extension, `cd ./coc && npm publish --non-interactive`
+17. Upload the vsix file to the microsoft marketplace: `npx vsce publish -p $VSCE_TOKEN --packagePath client/hardhat-solidity-0.X.X.vsix`
+18. Upload the vsix file to openvsx, `npx ovsx publish client/hardhat-solidity-0.X.X.vsix -p $OVSX_TOKEN`
 19. Create a release on github off of the pushed tag
 
 - use the added changelog section as the body of the release
