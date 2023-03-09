@@ -1,5 +1,11 @@
 import { DidChangeWatchedFilesParams } from "vscode-languageserver-protocol";
-import { CompletionItem, Position } from "vscode-languageserver-types";
+import { TextDocument } from "vscode-languageserver-textdocument";
+import {
+  CodeAction,
+  CompletionItem,
+  Diagnostic,
+  Position,
+} from "vscode-languageserver-types";
 import { OpenDocuments, ServerState } from "../../types";
 import { CompilationDetails } from "./CompilationDetails";
 
@@ -52,6 +58,14 @@ export abstract class Project {
     _position: Position,
     _currentImport: string
   ): CompletionItem[] {
+    return [];
+  }
+
+  public resolveActionsFor(
+    _diagnostic: Diagnostic,
+    _document: TextDocument,
+    _uri: string
+  ): CodeAction[] {
     return [];
   }
 }

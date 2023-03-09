@@ -2,6 +2,7 @@ import { CodeAction, Diagnostic } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { compilerDiagnostics } from "@compilerDiagnostics/compilerDiagnostics";
 import { ServerState } from "../../types";
+import { decodeUriAndRemoveFilePrefix } from "../../utils";
 
 export function resolveQuickFixes(
   serverState: ServerState,
@@ -32,16 +33,28 @@ function resolveActionsFor(
   diagnostic: Diagnostic,
   { document, uri }: { document: TextDocument; uri: string }
 ): CodeAction[] {
+  const codeActions: CodeAction[] = [];
+
   if (diagnostic.code !== undefined && diagnostic.code in compilerDiagnostics) {
-    return compilerDiagnostics[diagnostic.code].resolveActions(
-      serverState,
-      diagnostic,
-      {
-        document,
-        uri,
-      }
+    codeActions.push(
+      ...compilerDiagnostics[diagnostic.code].resolveActions(
+        serverState,
+        diagnostic,
+        {
+          document,
+          uri,
+        }
+      )
     );
-  } else {
-    return [];
   }
+
+  const path = decodeUriAndRemoveFilePrefix(uri);
+  const solFileEntry = serverState.solFileIndex[path];
+  const project = solFileEntry?.project;
+
+  if (project !== undefined) {
+    codeActions.push(...project.resolveActionsFor(diagnostic, document, uri));
+  }
+
+  return codeActions;
 }

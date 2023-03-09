@@ -1028,4 +1028,46 @@ describe('[hardhat][codeAction]', () => {
 
     expect(codeActions).to.have.deep.members(expected)
   })
+
+  test('auto import console.sol', async () => {
+    const documentPath = getProjectPath('hardhat/contracts/codeAction/ImportConsole.sol')
+    const documentUri = toUri(documentPath)
+
+    await client.openDocument(documentPath)
+
+    const diagnostic = await client.getDiagnostic(documentPath, {
+      range: makeRange(5, 4, 5, 11),
+    })
+
+    const codeActions = await client.getCodeActions(documentUri, diagnostic)
+
+    const expected = [
+      {
+        title: "Add import from 'hardhat'",
+        kind: 'quickfix',
+        isPreferred: true,
+        edit: {
+          changes: {
+            [toUri(documentPath)]: [
+              {
+                range: {
+                  start: {
+                    character: 0,
+                    line: 3,
+                  },
+                  end: {
+                    character: 0,
+                    line: 3,
+                  },
+                },
+                newText: 'import "hardhat/console.sol";\n\n',
+              },
+            ],
+          },
+        },
+      },
+    ]
+
+    expect(codeActions).to.have.deep.members(expected)
+  })
 })
