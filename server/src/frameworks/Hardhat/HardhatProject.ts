@@ -5,10 +5,13 @@ import { ChildProcess, fork } from "child_process";
 import _ from "lodash";
 import path from "path";
 import {
+  CodeAction,
   CompletionItem,
+  Diagnostic,
   DidChangeWatchedFilesParams,
   Position,
 } from "vscode-languageserver-protocol";
+import { TextDocument } from "vscode-languageserver-textdocument";
 import { OpenDocuments, ServerState } from "../../types";
 import { directoryContains } from "../../utils/directoryContains";
 import { Logger } from "../../utils/Logger";
@@ -16,6 +19,7 @@ import { CompilationDetails } from "../base/CompilationDetails";
 import { InitializationFailedError } from "../base/Errors";
 import { FileBelongsResult, Project } from "../base/Project";
 import { getImportCompletions } from "./getImportCompletions";
+import { resolveActionsFor } from "./resolveActionsFor";
 import { LogLevel } from "./worker/WorkerLogger";
 import {
   BuildCompilationRequest,
@@ -239,6 +243,14 @@ export class HardhatProject extends Project {
       position,
       currentImport
     );
+  }
+
+  public resolveActionsFor(
+    diagnostic: Diagnostic,
+    document: TextDocument,
+    uri: string
+  ): CodeAction[] {
+    return resolveActionsFor(this.serverState, diagnostic, document, uri);
   }
 
   private _requestTimeout(label: string) {
