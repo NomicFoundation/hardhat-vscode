@@ -46,10 +46,8 @@ import { LabelDefinitionNode } from "@analyzer/nodes/LabelDefinitionNode";
 import { AssemblySwitchNode } from "@analyzer/nodes/AssemblySwitchNode";
 import { AssemblyCaseNode } from "@analyzer/nodes/AssemblyCaseNode";
 import { AssemblyFunctionDefinitionNode } from "@analyzer/nodes/AssemblyFunctionDefinitionNode";
-import { AssemblyFunctionReturnsNode } from "@analyzer/nodes/AssemblyFunctionReturnsNode";
 import { AssemblyForNode } from "@analyzer/nodes/AssemblyForNode";
 import { AssemblyIfNode } from "@analyzer/nodes/AssemblyIfNode";
-import { SubAssemblyNode } from "@analyzer/nodes/SubAssemblyNode";
 import { NewExpressionNode } from "@analyzer/nodes/NewExpressionNode";
 import { TupleExpressionNode } from "@analyzer/nodes/TupleExpressionNode";
 import { NameValueExpressionNode } from "@analyzer/nodes/NameValueExpressionNode";
@@ -544,18 +542,6 @@ export const find = matcher<Promise<Node>>({
       rootPath,
       documentsAnalyzer
     ),
-  AssemblyFunctionReturns: async (
-    assemblyFunctionReturns: astTypes.AssemblyFunctionReturns,
-    uri: string,
-    rootPath: string,
-    documentsAnalyzer: SolFileIndexMap
-  ) =>
-    new AssemblyFunctionReturnsNode(
-      assemblyFunctionReturns,
-      uri,
-      rootPath,
-      documentsAnalyzer
-    ),
   AssemblyFor: async (
     assemblyFor: astTypes.AssemblyFor,
     uri: string,
@@ -568,12 +554,6 @@ export const find = matcher<Promise<Node>>({
     rootPath: string,
     documentsAnalyzer: SolFileIndexMap
   ) => new AssemblyIfNode(assemblyIf, uri, rootPath, documentsAnalyzer),
-  SubAssembly: async (
-    subAssembly: astTypes.SubAssembly,
-    uri: string,
-    rootPath: string,
-    documentsAnalyzer: SolFileIndexMap
-  ) => new SubAssemblyNode(subAssembly, uri, rootPath, documentsAnalyzer),
   NewExpression: async (
     newExpression: astTypes.NewExpression,
     uri: string,
