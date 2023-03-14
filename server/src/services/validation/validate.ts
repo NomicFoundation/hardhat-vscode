@@ -27,6 +27,7 @@ import { getOpenDocumentsInProject } from "../../queries/getOpenDocumentsInProje
 import { CompilationDetails } from "../../frameworks/base/CompilationDetails";
 import { addFrameworkTag } from "../../telemetry/tags";
 import { Project } from "../../frameworks/base/Project";
+import { indexSolidityFile } from "../initialization/indexWorkspaceFolders";
 import { DiagnosticConverter } from "./DiagnosticConverter";
 import { CompilationService } from "./CompilationService";
 import { OutputConverter } from "./OutputConverter";
@@ -40,7 +41,9 @@ export async function validate(
     async (transaction) => {
       // Ensure file is analyzed
       const sourceUri = decodeUriAndRemoveFilePrefix(change.document.uri);
-      const solFileEntry = serverState.solFileIndex[sourceUri];
+      const solFileEntry =
+        serverState.solFileIndex[sourceUri] ??
+        (await indexSolidityFile(serverState, sourceUri));
 
       if (solFileEntry === undefined) {
         serverState.logger.error(
@@ -263,7 +266,7 @@ async function handleInitializationFailedError(
   }
 }
 
-async function clearDiagnostics(serverState: ServerState, uri: string) {
+export async function clearDiagnostics(serverState: ServerState, uri: string) {
   return serverState.connection.sendDiagnostics({
     uri,
     diagnostics: [],

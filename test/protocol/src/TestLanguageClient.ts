@@ -14,6 +14,7 @@ import {
   DefinitionRequest,
   Diagnostic,
   DidChangeTextDocumentParams,
+  DidChangeWatchedFilesParams,
   DidCloseTextDocumentNotification,
   DidCloseTextDocumentParams,
   DidOpenTextDocumentNotification,
@@ -42,6 +43,7 @@ class Document {
   public waitAnalyzed: Promise<void>
   public onAnalyzed!: (value: void) => void
   public diagnostics: Diagnostic[] = []
+  public version = 1
 
   constructor(public uri: string, public text: string) {
     this.waitAnalyzed = new Promise<void>((resolve) => {
@@ -51,6 +53,10 @@ class Document {
 
   public clearDiagnostics() {
     this.diagnostics = []
+  }
+
+  public increaseVersion() {
+    this.version += 1
   }
 }
 
@@ -94,32 +100,45 @@ export class TestLanguageClient {
     const uri = toUri(documentPath)
     const text = readFileSync(documentPath).toString()
 
+    const document = new Document(uri, text)
+    this.documents[uri] = document
+
     const documentParams: DidOpenTextDocumentParams = {
       textDocument: {
         uri,
         languageId: 'solidity',
-        version: 1,
+        version: document.version,
         text,
       },
     }
     this.connection!.sendNotification(DidOpenTextDocumentNotification.type, documentParams)
 
-    const document = new Document(uri, text)
-    this.documents[uri] = document
-
     await document.waitAnalyzed
   }
 
   public changeDocument(documentPath: string, range: Range, text: string) {
+    const uri = toUri(documentPath)
+    const document = this.documents[uri]
+
+    if (document === undefined) {
+      throw new Error(`Document not indexed: ${uri}`)
+    }
+
+    document.increaseVersion()
+
     const params: DidChangeTextDocumentParams = {
       textDocument: {
-        uri: toUri(documentPath),
-        version: 2,
+        uri,
+        version: document.version,
       },
       contentChanges: [{ range, text }],
     }
 
     this.connection!.sendNotification('textDocument/didChange', params)
+  }
+
+  public changeWatchedFiles(params: DidChangeWatchedFilesParams) {
+    this.connection!.sendNotification('workspace/didChangeWatchedFiles', params)
   }
 
   public closeAllDocuments() {

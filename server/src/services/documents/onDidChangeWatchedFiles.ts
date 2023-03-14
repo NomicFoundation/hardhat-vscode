@@ -4,7 +4,7 @@ import {
 } from "vscode-languageserver";
 import { ServerState } from "../../types";
 import { decodeUriAndRemoveFilePrefix } from "../../utils";
-import { indexSolidityFiles } from "../initialization/indexWorkspaceFolders";
+import { clearDiagnostics } from "../validation/validate";
 
 export function onDidChangeWatchedFiles(serverState: ServerState) {
   return async (params: DidChangeWatchedFilesParams) => {
@@ -20,9 +20,10 @@ export function onDidChangeWatchedFiles(serverState: ServerState) {
     for (const change of normalizedParams.changes) {
       if (
         change.uri.endsWith(".sol") &&
-        change.type === FileChangeType.Created
+        change.type === FileChangeType.Deleted
       ) {
-        await indexSolidityFiles(serverState, [change.uri]);
+        delete serverState.solFileIndex[change.uri];
+        await clearDiagnostics(serverState, change.uri);
       }
     }
 
