@@ -6,6 +6,9 @@
       "include": "#natspec"
     },
     {
+      "include": "#declaration-userType"
+    },
+    {
       "include": "#comment"
     },
     {
@@ -570,6 +573,9 @@
           "include": "#declaration-contract"
         },
         {
+          "include": "#declaration-userType"
+        },
+        {
           "include": "#declaration-interface"
         },
         {
@@ -686,6 +692,20 @@
           ]
         }
       ]
+    },
+    "declaration-userType": {
+      "match": "\\b(type)\\b\\s+(\\w+)\\b\\s+\\b(is)\\b",
+      "captures": {
+        "1": {
+          "name": "storage.type.userType"
+        },
+        "2": {
+          "name": "entity.name.type.userType"
+        },
+        "3": {
+          "name": "storage.modifier.is"
+        }
+      }
     },
     "declaration-interface": {
       "patterns": [
