@@ -11,6 +11,7 @@
       "triggerCharacters": ["(", ","]
     },
     "definitionProvider": true,
+    "documentFormattingProvider": true,
     "typeDefinitionProvider": true,
     "referencesProvider": true,
     "implementationProvider": true,

@@ -136,7 +136,7 @@ function updateServerStateFromParams(
     params.capabilities.workspace.workspaceFolders === true;
 
   serverState.extensionConfig =
-    params.initializationOptions.extensionConfig ?? {};
+    params.initializationOptions?.extensionConfig ?? {};
 }
 
 function logInitializationInfo(

@@ -25,6 +25,7 @@ export function setupMockConnection() {
     onHover: sinon.spy(),
     sendNotification: sinon.spy(),
     onCodeAction: sinon.spy(),
+    onDocumentFormatting: sinon.spy(),
     onNotification: sinon.fake(
       (
         _method: string,
