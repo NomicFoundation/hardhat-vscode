@@ -8,7 +8,7 @@ export function onDocumentFormatting(serverState: ServerState) {
   return async (
     params: DocumentFormattingParams
   ): Promise<TextEdit[] | null> => {
-    const { formatter } = serverState.extensionConfig;
+    const formatter = serverState.extensionConfig.formatter ?? "prettier";
     const uri = params.textDocument.uri;
     const document = serverState.documents.get(uri);
 

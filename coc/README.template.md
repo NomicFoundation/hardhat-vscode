@@ -14,7 +14,18 @@ In your vim/neovim, run this command:
 :CocInstall @nomicfoundation/coc-solidity
 ```
 
+## Configure
+
+In your coc-settings.json, the following settings are supported:
+
+- `"@ignored/coc-solidity.telemetry": true|false`
+- `"@ignored/coc-solidity.formatter": "prettier"|"forge"|"none"`
+
 [include '../docs/features.md']
+
+## Format document
+
+Running `:call CocActionAsync('format')` will trigger document formatting.
 
 ## Language server logs
 
