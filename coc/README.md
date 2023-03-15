@@ -18,8 +18,8 @@ In your vim/neovim, run this command:
 
 In your coc-settings.json, the following settings are supported:
 
-- `"@ignored/coc-solidity.telemetry": true|false`
-- `"@ignored/coc-solidity.formatter": "prettier"|"forge"|"none"`
+- `"@nomicfoundation/coc-solidity.telemetry": true|false`
+- `"@nomicfoundation/coc-solidity.formatter": "prettier"|"forge"|"none"`
 
 ## Features
 

@@ -58,13 +58,12 @@
     "@types/prettier": "2.6.0",
     "@types/vscode": "^1.70",
     "eslint": "^7.23.0",
-    "rimraf": "3.0.2"
+    "rimraf": "3.0.2",
+    "prettier": "2.5.1"
   },
   "dependencies": {
     "@nomicfoundation/solidity-language-server": "0.6.15",
     "@sentry/node": "6.19.1",
-    "prettier": "2.5.1",
-    "prettier-plugin-solidity": "1.1.2",
     "vscode-languageclient": "^7.0.0"
   },
   "contributes": {
