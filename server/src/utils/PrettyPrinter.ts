@@ -1,6 +1,7 @@
 import * as prettier from "prettier";
 import * as prettierPluginSolidity from "prettier-plugin-solidity";
 import { ASTNode, TextDocument } from "@common/types";
+import { URI } from "vscode-uri";
 
 export class PrettyPrinter {
   private options: prettier.Options;
@@ -46,7 +47,7 @@ export class PrettyPrinter {
 
     try {
       const config =
-        prettier.resolveConfig.sync(document.uri, {
+        prettier.resolveConfig.sync(URI.parse(document.uri).fsPath, {
           useCache: false,
           editorconfig: true,
         }) ?? this._defaultConfig();

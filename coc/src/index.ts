@@ -35,6 +35,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
         env: "production",
         telemetryEnabled,
         machineId: await machineId(),
+        extensionConfig: getExtensionConfig(),
       },
     }
   );
