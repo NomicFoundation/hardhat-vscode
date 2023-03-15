@@ -10,14 +10,15 @@ import {
 import { OpenDocuments, ServerState } from "../../types";
 import { toUnixStyle } from "../../utils";
 import { directoryContains } from "../../utils/directoryContains";
-import { runCmd, runningOnWindows } from "../../utils/operatingSystem";
 import { toPath } from "../../utils/paths";
+import { runCmd } from "../../utils/operatingSystem";
 import { CompilationDetails } from "../base/CompilationDetails";
 import { InitializationFailedError } from "../base/Errors";
 import { Project } from "../base/Project";
 import { buildBasicCompilation } from "../shared/buildBasicCompilation";
 import { getImportCompletions } from "./getImportCompletions";
 import { Remapping } from "./Remapping";
+import { resolveForgeCommand } from "./resolveForgeCommand";
 
 export class FoundryProject extends Project {
   public priority = 1;
@@ -49,7 +50,7 @@ export class FoundryProject extends Project {
     this.initializeError = undefined; // clear any potential error on restart
 
     try {
-      const forgeCommand = await this._resolveForgeCommand();
+      const forgeCommand = await resolveForgeCommand();
       const config = JSON.parse(
         await runCmd(`${forgeCommand} config --json`, this.basePath)
       );
@@ -235,41 +236,5 @@ export class FoundryProject extends Project {
     }
 
     return remappings;
-  }
-
-  // Returns the forge binary path
-  private async _resolveForgeCommand() {
-    const potentialForgeCommands = ["forge"];
-
-    if (runningOnWindows()) {
-      potentialForgeCommands.push("%USERPROFILE%\\.cargo\\bin\\forge");
-    } else {
-      potentialForgeCommands.push("~/.foundry/bin/forge");
-    }
-
-    for (const potentialForgeCommand of potentialForgeCommands) {
-      try {
-        await runCmd(`${potentialForgeCommand} --version`);
-        return potentialForgeCommand;
-      } catch (error: any) {
-        if (
-          error.code === 127 || // unix
-          error.toString().includes("is not recognized") || // windows (code: 1)
-          error.toString().includes("cannot find the path") // windows (code: 1)
-        ) {
-          // command not found, then try the next potential command
-          continue;
-        } else {
-          // command found but execution failed
-          throw error;
-        }
-      }
-    }
-
-    throw new Error(
-      `Couldn't find forge binary. Performed lookup: ${JSON.stringify(
-        potentialForgeCommands
-      )}`
-    );
   }
 }

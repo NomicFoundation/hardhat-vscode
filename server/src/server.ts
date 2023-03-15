@@ -18,6 +18,7 @@ import { ServerState } from "./types";
 import { Telemetry } from "./telemetry/types";
 import { attachDocumentHooks } from "./services/documents/attachDocumentHooks";
 import { availableVersions } from "./services/initialization/updateAvailableSolcVersions";
+import { onDocumentFormatting } from "./services/formatting/onDocumentFormatting";
 
 export default function setupServer(
   connection: Connection,
@@ -63,6 +64,7 @@ function setupUninitializedServerState(
     workspaceFileRetriever,
     cachedCompilerInfo: {},
     shownInitializationError: {},
+    extensionConfig: {},
   };
 
   return serverState;
@@ -95,6 +97,7 @@ function attachLanguageServerCommandHooks(serverState: ServerState) {
   connection.onRenameRequest(onRename(serverState));
   connection.onCodeAction(onCodeAction(serverState));
   connection.onHover(onHover(serverState));
+  connection.onDocumentFormatting(onDocumentFormatting(serverState));
 }
 
 function attachCustomHooks(serverState: ServerState) {
@@ -110,6 +113,13 @@ function attachCustomHooks(serverState: ServerState) {
       }
 
       serverState.telemetryEnabled = enabled;
+    }
+  );
+
+  connection.onNotification(
+    "custom/didChangeExtensionConfig",
+    (extensionConfig) => {
+      serverState.extensionConfig = extensionConfig;
     }
   );
 }

@@ -78,6 +78,7 @@ export const onInitialize = (serverState: ServerState) => {
         renameProvider: true,
         codeActionProvider: true,
         hoverProvider: true,
+        documentFormattingProvider: true,
 
         workspace: {
           workspaceFolders: {
@@ -133,6 +134,9 @@ function updateServerStateFromParams(
   serverState.hasWorkspaceFolderCapability =
     params.capabilities.workspace !== undefined &&
     params.capabilities.workspace.workspaceFolders === true;
+
+  serverState.extensionConfig =
+    params.initializationOptions.extensionConfig ?? {};
 }
 
 function logInitializationInfo(

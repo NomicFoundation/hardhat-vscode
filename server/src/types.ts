@@ -35,6 +35,9 @@ export interface ServerState {
     [solcVersion: string]: { isSolcJs: boolean; compilerPath: string };
   };
   shownInitializationError: Record<string, boolean>;
+  extensionConfig: {
+    formatter?: string;
+  };
 }
 
 export interface SolcError {
