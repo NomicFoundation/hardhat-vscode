@@ -19,6 +19,8 @@ import {
   DidCloseTextDocumentParams,
   DidOpenTextDocumentNotification,
   DidOpenTextDocumentParams,
+  DocumentFormattingParams,
+  DocumentFormattingRequest,
   ImplementationParams,
   ImplementationRequest,
   InitializedNotification,
@@ -114,6 +116,8 @@ export class TestLanguageClient {
     this.connection!.sendNotification(DidOpenTextDocumentNotification.type, documentParams)
 
     await document.waitAnalyzed
+
+    return document
   }
 
   public changeDocument(documentPath: string, range: Range, text: string) {
@@ -336,6 +340,21 @@ export class TestLanguageClient {
     }
 
     return this.connection!.sendRequest(RenameRequest.type, params)
+  }
+
+  public async formatDocument(uri: string) {
+    const params: DocumentFormattingParams = {
+      textDocument: {
+        uri,
+      },
+      options: { insertSpaces: true, tabSize: 0 },
+    }
+
+    return this.connection!.sendRequest(DocumentFormattingRequest.type, params)
+  }
+
+  public changeExtensionConfig(config: any) {
+    return this.connection!.sendNotification('custom/didChangeExtensionConfig', config)
   }
 
   public clear() {
