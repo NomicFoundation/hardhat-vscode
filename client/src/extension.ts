@@ -4,7 +4,6 @@ import { warnOnOtherSolidityExtensions } from "./popups/warnOnOtherSolidityExten
 import { indexHardhatProjects } from "./setup/indexHardhatProjects";
 import { setupCommands } from "./setup/setupCommands";
 import { setupExtensionState } from "./setup/setupExtensionState";
-import { setupFormatterHook } from "./setup/setupFormatterHook";
 import { setupLanguageServerHooks } from "./setup/setupLanguageServerHooks";
 import { setupTaskProvider } from "./setup/setupTaskProvider";
 import { setupWorkspaceHooks } from "./setup/setupWorkspaceHooks";
@@ -25,7 +24,6 @@ export async function activate(context: ExtensionContext) {
 
   await indexHardhatProjects(extensionState);
 
-  setupFormatterHook(extensionState);
   setupLanguageServerHooks(extensionState);
   setupTaskProvider(extensionState);
   await setupCommands(extensionState);

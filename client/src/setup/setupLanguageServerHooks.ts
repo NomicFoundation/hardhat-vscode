@@ -59,6 +59,7 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
       env: extensionState.env,
       telemetryEnabled: extensionState.telemetryEnabled,
       machineId: extensionState.machineId,
+      extensionConfig: workspace.getConfiguration("solidity"),
     },
   };
 
@@ -92,12 +93,16 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
     notifyTelemetryChanged
   );
 
-  const hardhatTelemetryChangeDisposable = workspace.onDidChangeConfiguration(
-    notifyTelemetryChanged
-  );
+  const configChangedDisposable = workspace.onDidChangeConfiguration(() => {
+    notifyTelemetryChanged();
+    client.sendNotification(
+      "custom/didChangeExtensionConfig",
+      workspace.getConfiguration("solidity")
+    );
+  });
 
   extensionState.listenerDisposables.push(globalTelemetryChangeDisposable);
-  extensionState.listenerDisposables.push(hardhatTelemetryChangeDisposable);
+  extensionState.listenerDisposables.push(configChangedDisposable);
 
   client.start();
 

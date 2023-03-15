@@ -14,6 +14,13 @@ In your vim/neovim, run this command:
 :CocInstall @nomicfoundation/coc-solidity
 ```
 
+## Configure
+
+In your coc-settings.json, the following settings are supported:
+
+- `"@nomicfoundation/coc-solidity.telemetry": true|false`
+- `"@nomicfoundation/coc-solidity.formatter": "prettier"|"forge"|"none"`
+
 ## Features
 
 ### Code Completions
@@ -172,6 +179,10 @@ The **Hardhat config file** that is used when validating a Solidity file is show
 
 ![Open Config](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/open-config.gif "Open Config")
 
+
+## Format document
+
+Running `:call CocActionAsync('format')` will trigger document formatting.
 
 ## Language server logs
 
