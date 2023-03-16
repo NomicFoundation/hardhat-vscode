@@ -2,7 +2,7 @@
   "name": "@ignored/coc-solidity",
   "description": "Solidity and Hardhat support for coc.nvim",
   "license": "MIT",
-  "version": "0.6.12",
+  "version": "0.6.13",
   "author": "Nomic Foundation",
   "repository": {
     "type": "git",
@@ -29,7 +29,7 @@
     "clean": "rimraf out .nyc_output coverage *.tsbuildinfo *.log"
   },
   "dependencies": {
-    "@ignored/solidity-language-server": "0.6.12"
+    "@ignored/solidity-language-server": "0.6.13"
   },
   "devDependencies": {
     "coc.nvim": "^0.0.80",
