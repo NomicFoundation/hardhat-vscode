@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.6.13 - 2023-03-16
+
+### Added
+
+- auto-import for Hardhat console.log ([#244](https://github.com/NomicFoundation/hardhat-vscode/issues/244))
+
+### Fixed
+
+- Forge fmt use with monorepos ([#410](https://github.com/NomicFoundation/hardhat-vscode/issues/410))
+- Highlight user-defined value types ([#420](https://github.com/NomicFoundation/hardhat-vscode/issues/420))
+- Update project metadata on file renames/deletes ([#387](https://github.com/NomicFoundation/hardhat-vscode/issues/387))
+
 ## 0.6.12 - 2023-03-08
 
 ### Added

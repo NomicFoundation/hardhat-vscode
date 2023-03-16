@@ -4,7 +4,7 @@
   "displayName": "Solidity",
   "description": "Solidity and Hardhat support by the Hardhat team",
   "license": "MIT",
-  "version": "0.6.12",
+  "version": "0.6.13",
   "private": true,
   "main": "./out/extension.js",
   "module": "./out/extension.js",
@@ -61,7 +61,7 @@
     "rimraf": "3.0.2"
   },
   "dependencies": {
-    "@ignored/solidity-language-server": "0.6.9",
+    "@ignored/solidity-language-server": "0.6.13",
     "@sentry/node": "6.19.1",
     "prettier": "2.5.1",
     "prettier-plugin-solidity": "1.1.2",
