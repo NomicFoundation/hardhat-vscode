@@ -11,6 +11,7 @@ import { OpenDocuments, ServerState } from "../../types";
 import { toUnixStyle } from "../../utils";
 import { directoryContains } from "../../utils/directoryContains";
 import { runCmd, runningOnWindows } from "../../utils/operatingSystem";
+import { toPath } from "../../utils/paths";
 import { CompilationDetails } from "../base/CompilationDetails";
 import { InitializationFailedError } from "../base/Errors";
 import { Project } from "../base/Project";
@@ -179,7 +180,11 @@ export class FoundryProject extends Project {
     for (const change of changes) {
       const remappingsPath = path.join(this.basePath, "remappings.txt");
 
-      if ([this.configPath, remappingsPath].some((uri) => change.uri === uri)) {
+      if (
+        [this.configPath, remappingsPath].some(
+          (filePath) => toPath(change.uri) === filePath
+        )
+      ) {
         this.serverState.logger.info(
           `Reinitializing foundry project: ${this.id()}`
         );

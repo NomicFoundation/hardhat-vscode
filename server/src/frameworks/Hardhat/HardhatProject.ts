@@ -15,6 +15,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { OpenDocuments, ServerState } from "../../types";
 import { directoryContains } from "../../utils/directoryContains";
 import { Logger } from "../../utils/Logger";
+import { toPath } from "../../utils/paths";
 import { CompilationDetails } from "../base/CompilationDetails";
 import { InitializationFailedError } from "../base/Errors";
 import { FileBelongsResult, Project } from "../base/Project";
@@ -199,7 +200,7 @@ export class HardhatProject extends Project {
         if (this._isWorkerRunning()) {
           this.workerProcess!.send(new InvalidateBuildCacheMessage());
         }
-      } else if (change.uri === this.configPath) {
+      } else if (toPath(change.uri) === this.configPath) {
         this.logger.info(`Config file changed. Restarting worker process.`);
 
         // Kill existing worker process
