@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.6.14 - 2023-03-20
+
+### Fixed
+
+- `Missing content-length header` error on vim-coc extension.
+
 ## 0.6.13 - 2023-03-16
 
 ### Added
