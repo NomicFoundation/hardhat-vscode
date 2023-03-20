@@ -16,6 +16,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
     "Solidity Language Server",
     {
       module: require.resolve("@ignored/solidity-language-server"),
+      transport: coc.TransportKind.ipc,
     },
     {
       documentSelector: ["solidity"],
