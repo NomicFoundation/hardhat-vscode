@@ -1,7 +1,5 @@
 # coc-solidity
 
-> WARNING: This coc extension is alpha software and as such is highly experimental and under active development. It is being released under Nomic Foundation's `@ignored` namespace on npm but will migrate to the `@nomicfoundation` namespace once it has moved out of alpha.
-
 Solidity language server extension for coc.nvim, leveraging the language server used in the [Solidity by Nomic Foundation](https://marketplace.visualstudio.com/items?itemName=NomicFoundation.hardhat-solidity) VS Code extension.
 
 Built by the [Nomic Foundation](https://nomic.foundation/) for the Ethereum community.
@@ -13,7 +11,7 @@ Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay u
 In your vim/neovim, run this command:
 
 ```sh
-:CocInstall @ignored/coc-solidity
+:CocInstall @nomicfoundation/coc-solidity
 ```
 
 [include '../docs/features.md']

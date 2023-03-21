@@ -8,7 +8,8 @@ const esbuild = require("esbuild");
 
 const ANTLR_MODULE_PATH =
   "../server/node_modules/@solidity-parser/parser/dist/antlr";
-const SERVER_MODULE_PATH = "../node_modules/@ignored/solidity-language-server";
+const SERVER_MODULE_PATH =
+  "../node_modules/@nomicfoundation/solidity-language-server";
 
 const SOLIDITY_TOKENS = "Solidity.tokens";
 const SOLIDITY_LEXER_TOKENS = "SolidityLexer.tokens";
@@ -108,11 +109,11 @@ async function main() {
     entryPoints: {
       "./tmp/out/extension": "./src/extension.ts",
       "./tmp/server/out/index":
-        "../node_modules/@ignored/solidity-language-server/src/index.ts",
+        "../node_modules/@nomicfoundation/solidity-language-server/src/index.ts",
       "./tmp/server/out/hardhat.config":
-        "../node_modules/@ignored/solidity-language-server/src/hardhat.config.ts",
+        "../node_modules/@nomicfoundation/solidity-language-server/src/hardhat.config.ts",
       "./tmp/server/out/worker/WorkerProcess":
-        "../node_modules/@ignored/solidity-language-server/src/frameworks/Hardhat/worker/WorkerProcess.ts",
+        "../node_modules/@nomicfoundation/solidity-language-server/src/frameworks/Hardhat/worker/WorkerProcess.ts",
     },
     bundle: true,
     minifyWhitespace: true,

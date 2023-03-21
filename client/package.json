@@ -61,7 +61,7 @@
     "rimraf": "3.0.2"
   },
   "dependencies": {
-    "@ignored/solidity-language-server": "0.6.14",
+    "@nomicfoundation/solidity-language-server": "0.6.14",
     "@sentry/node": "6.19.1",
     "prettier": "2.5.1",
     "prettier-plugin-solidity": "1.1.2",
