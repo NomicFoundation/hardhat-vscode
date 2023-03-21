@@ -11,7 +11,7 @@ Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay u
 The language server can be installed via npm:
 
 ```sh
-npm install @ignored/solidity-language-server -g
+npm install @nomicfoundation/solidity-language-server -g
 
 ```
 
@@ -23,10 +23,10 @@ nomicfoundation-solidity-language-server --stdio
 
 ### coc.nvim
 
-For coc the extension for this language server (found [here](https://www.npmjs.com/package/@ignored/coc-solidity)) can be installed through the coc vim command:
+For coc the extension for this language server (found [here](https://www.npmjs.com/package/@nomicfoundation/coc-solidity)) can be installed through the coc vim command:
 
 ```vim
-:CocInstall @ignored/coc-solidity
+:CocInstall @nomicfoundation/coc-solidity
 ```
 
 ### neovim lsp
@@ -206,7 +206,6 @@ Inline validation (the display of compiler errors and warnings against the code)
 The **Hardhat config file** that is used when validating a Solidity file is shown in the Solidity section on the _Status Bar_:
 
 ![Open Config](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/open-config.gif "Open Config")
-
 
 ## Contributing
 

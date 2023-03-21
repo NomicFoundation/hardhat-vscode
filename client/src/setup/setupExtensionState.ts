@@ -18,7 +18,7 @@ export function setupExtensionState(
   const serverModulePath = context.asAbsolutePath(
     environment === "development"
       ? path.join(
-          "../node_modules/@ignored/solidity-language-server/out/index.js"
+          "../node_modules/@nomicfoundation/solidity-language-server/out/index.js"
         )
       : path.join("./server/out/index.js")
   );
