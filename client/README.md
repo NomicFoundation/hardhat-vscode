@@ -200,7 +200,6 @@ The **Hardhat config file** that is used when validating a Solidity file is show
 
 ![Open Config](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/open-config.gif "Open Config")
 
-
 ### Commands
 
 #### Compile project
@@ -272,7 +271,7 @@ To override the settings, add a `prettierrc` configuration file at the root of y
 
 ## Alternative editors
 
-We currently distribute a [vim.coc](https://www.npmjs.com/package/@ignored/coc-solidity) extension and a [standalone language server](https://www.npmjs.com/package/@ignored/solidity-language-server) that you can integrate with your editor of choice to have full solidity language support.
+We currently distribute a [vim.coc](https://www.npmjs.com/package/@nomicfoundation/coc-solidity) extension and a [standalone language server](https://www.npmjs.com/package/@nomicfoundation/solidity-language-server) that you can integrate with your editor of choice to have full solidity language support.
 
 ## Feedback, help and news
 
