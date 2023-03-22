@@ -161,6 +161,10 @@ To add a changeset to your PR, run:
 npm run changeset add
 ```
 
+## GIF recording
+
+When adding a new feature or changing an existing one, we encourage the recording of an animated GIF file showing the interaction with said feature. These should be stored in the `docs/gifs` folder and referenced in the corresponding md files (likely `features.md`). We suggest using the tool [peek](https://github.com/phw/peek), with a framerate of 10 fps and no resolution downsampling (value = 1).
+
 ## Packaging
 
 VSCode extensions are distributed through a file format called `vsix` (really a zip file with a defined internal struture and metadata files). To build a `vsix` file for local testing or to upload to the [VSCode Marketplace](https://marketplace.visualstudio.com/vscode), run:
