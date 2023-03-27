@@ -11,8 +11,8 @@ export function setupExtensionState(
   { sentryDsn }: { sentryDsn: string }
 ): ExtensionState {
   const environment =
-    process.env.NODE_ENV === "development"
-      ? process.env.NODE_ENV
+    process.env.VSCODE_NODE_ENV === "development"
+      ? process.env.VSCODE_NODE_ENV
       : "production";
 
   const serverModulePath = context.asAbsolutePath(
