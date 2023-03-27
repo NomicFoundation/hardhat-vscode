@@ -31,7 +31,7 @@ import { runTests } from "@vscode/test-electron";
         "--force-disable-user-env",
       ],
       extensionTestsEnv: {
-        NODE_ENV: "development",
+        VSCODE_NODE_ENV: "development",
       },
     });
   } catch (err) {

@@ -57,5 +57,5 @@ export function normalizeSlashes(p: string) {
 }
 
 export function isTestMode() {
-  return process.env.NODE_ENV === "development";
+  return process.env.VSCODE_NODE_ENV === "development";
 }

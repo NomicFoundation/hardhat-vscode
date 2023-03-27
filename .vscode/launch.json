@@ -9,7 +9,9 @@
       "runtimeExecutable": "${execPath}",
       "args": ["--extensionDevelopmentPath=${workspaceRoot}/client"],
       "outFiles": ["${workspaceRoot}/client/out/**/*.js"],
-      "env": { "NODE_ENV": "development" },
+      "env": {
+        "VSCODE_NODE_ENV": "development"
+      },
       "preLaunchTask": {
         "type": "npm",
         "script": "watch"
