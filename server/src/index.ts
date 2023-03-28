@@ -17,7 +17,7 @@ import setupServer from "./server";
 import { SentryServerTelemetry } from "./telemetry/SentryServerTelemetry";
 import { GoogleAnalytics } from "./analytics/GoogleAnalytics";
 
-const GOOGLE_TRACKING_ID = "UA-117668706-4";
+const GOOGLE_TRACKING_ID = "G-CF95BS32H2";
 
 const SENTRY_DSN =
   "https://9d1e887190db400791c77d9bb5a154fd@o385026.ingest.sentry.io/5469451";
