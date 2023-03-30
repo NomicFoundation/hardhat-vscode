@@ -13,6 +13,7 @@ export class GoogleAnalytics implements Analytics {
   private machineId: string | undefined;
   private extensionVersion: string | undefined;
   private clientName: string | undefined;
+  private sessionId: string;
 
   constructor(measurementID: string) {
     this.measurementID = measurementID;
@@ -20,6 +21,7 @@ export class GoogleAnalytics implements Analytics {
     this.machineId = undefined;
     this.extensionVersion = undefined;
     this.serverState = null;
+    this.sessionId = Math.random().toString();
   }
 
   public init(
@@ -70,7 +72,7 @@ export class GoogleAnalytics implements Analytics {
           name: taskName,
           params: {
             engagement_time_msec: "10000",
-            session_id: machineId,
+            session_id: this.sessionId,
           },
         },
       ],
