@@ -172,6 +172,7 @@ The **Hardhat config file** that is used when validating a Solidity file is show
 
 ![Open Config](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/open-config.gif "Open Config")
 
+
 ## Language server logs
 
 If you encounter an issue with the plugin, you can inspect the server logs by running `:CocCommand workspace.showOutput`. This can help troubleshooting the problem.
