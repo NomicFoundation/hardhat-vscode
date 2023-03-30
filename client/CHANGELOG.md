@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.6.15 - 2023-03-30
+
+### Added
+
+- Type Names and arrays syntax highlighting ([#385](https://github.com/NomicFoundation/hardhat-vscode/issues/385))
+
+### Fixed
+
+- Environment variable clash with `NODE_ENV` ([#439](https://github.com/NomicFoundation/hardhat-vscode/issues/439))
+
 ## 0.6.14 - 2023-03-20
 
 ### Fixed
