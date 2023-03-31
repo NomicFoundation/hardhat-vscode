@@ -32,32 +32,12 @@ describe('[projectless][completion]', () => {
             insertText: './B.sol',
             kind: 17,
             documentation: 'Imports the package',
-            command: {
-              command: 'solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 0,
-                  character: 8,
-                },
-              ],
-              title: '',
-            },
           },
           {
             label: './nested',
             insertText: './nested',
             kind: 19,
             documentation: 'Imports the package',
-            command: {
-              command: 'solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 0,
-                  character: 8,
-                },
-              ],
-              title: '',
-            },
           },
         ],
       })

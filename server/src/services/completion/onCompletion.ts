@@ -110,7 +110,7 @@ export function doComplete(
   position: VSCodePosition,
   context: CompletionContext | undefined,
   projCtx: ProjectContext,
-  { logger }: ServerState,
+  { logger, documents }: ServerState,
   document: TextDocument
 ): CompletionList | null {
   if (isNatspecTrigger(context, document, position)) {
@@ -162,6 +162,7 @@ export function doComplete(
   } else if (definitionNode && isImportDirectiveNode(definitionNode)) {
     result.items = getImportPathCompletion(position, definitionNode, projCtx, {
       logger,
+      documents,
     });
   } else if (
     definitionNode &&
