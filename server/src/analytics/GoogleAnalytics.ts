@@ -1,11 +1,12 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* istanbul ignore file: external system */
 import * as os from "os";
 import got from "got";
 import { ServerState } from "../types";
+import { GA_SECRET } from "../secrets.json";
 import { Analytics, AnalyticsPayload } from "./types";
 
 const GA_URL = "https://www.google-analytics.com/mp/collect";
-const GA_SECRET = "5ddn8Rl5QwKk51Uls_BM6A";
 
 export class GoogleAnalytics implements Analytics {
   private readonly measurementID: string;
@@ -38,11 +39,7 @@ export class GoogleAnalytics implements Analytics {
 
   public async sendPageView(taskName: string): Promise<void> {
     try {
-      if (
-        this.serverState?.env !== "production" ||
-        !this.serverState.telemetryEnabled ||
-        this.machineId === undefined
-      ) {
+      if (!this.serverState?.telemetryEnabled || this.machineId === undefined) {
         return;
       }
 
