@@ -13,6 +13,7 @@ export class WorkspaceFileRetriever {
       cwd: baseUri,
       ignore,
       followSymbolicLinks: false,
+      suppressErrors: true,
     });
 
     return relativePaths.map((rp) =>
