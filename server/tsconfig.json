@@ -20,6 +20,6 @@
       "@utils/*": ["./src/utils/*"]
     }
   },
-  "include": ["src", "src/secrets.json", "test"]
+  "include": ["src", "test"]
   // "exclude": ["node_modules", ".vscode-test", ".eslintrc.js"]
 }
