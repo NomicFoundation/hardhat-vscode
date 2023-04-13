@@ -209,7 +209,29 @@ export class TruffleProject extends Project {
       }
     }
 
+    // Add current file to the sources
     sources[sourceUri] = { content: documentText };
+
+    // Generate DeployedAddresses.sol source
+    const indexedContractNames = Object.keys(this.serverState.solFileIndex).map(
+      (filePath) => path.parse(path.basename(filePath)).name
+    );
+
+    const normalizedContractNames = _.uniq(
+      indexedContractNames.map((name) => name.replace(/\W/g, ""))
+    );
+
+    sources["truffle/DeployedAddresses.sol"] = {
+      content: `library DeployedAddresses {
+        ${normalizedContractNames
+          .map(
+            (contract) => `
+          function ${contract}() public pure returns (address payable) {revert();}
+        `
+          )
+          .join("")}
+      }`,
+    };
 
     return {
       input: {
