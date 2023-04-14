@@ -238,16 +238,15 @@ export class TruffleProject extends Project {
   public async onWatchedFilesChanges({
     changes,
   }: DidChangeWatchedFilesParams): Promise<void> {
-    for (const change of changes) {
-      if (this.configPath === change.uri) {
-        this.serverState.logger.info(
-          `Reinitializing truffle project: ${this.id()}`
-        );
-
-        await this.initialize();
-      }
+    if (!changes.some((change) => change.uri.endsWith(this.configPath))) {
+      return;
     }
-    return;
+
+    this.serverState.logger.info(
+      `Reinitializing truffle project: ${this.id()}`
+    );
+
+    await this.initialize();
   }
 
   private async _resolveDeployedAddresses(): Promise<string> {
