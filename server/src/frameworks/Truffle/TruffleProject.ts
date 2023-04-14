@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { execSync } from "child_process";
 import { existsSync } from "fs";
+import { readdir } from "fs/promises";
 import _ from "lodash";
 import path from "path";
 import semver from "semver";
@@ -27,6 +28,7 @@ enum Status {
 export class TruffleProject extends Project {
   public priority = 3;
   public sourcesPath!: string;
+  public buildPath!: string;
   public testsPath!: string;
   public globalNodeModulesPath!: string;
   public remappings: Remapping[] = [];
@@ -87,6 +89,12 @@ export class TruffleProject extends Project {
         this.basePath,
         config?.contracts_directory ?? "contracts"
       );
+
+      this.buildPath = path.resolve(
+        this.basePath,
+        config?.contracts_build_directory ?? "./build/contracts"
+      );
+
       this.status = Status.INITIALIZED_SUCCESS;
     } catch (error) {
       const errorMessage = `Error loading config file ${this.configPath}: ${error}`;
@@ -212,25 +220,8 @@ export class TruffleProject extends Project {
     // Add current file to the sources
     sources[sourceUri] = { content: documentText };
 
-    // Generate DeployedAddresses.sol source
-    const indexedContractNames = Object.keys(this.serverState.solFileIndex).map(
-      (filePath) => path.parse(path.basename(filePath)).name
-    );
-
-    const normalizedContractNames = _.uniq(
-      indexedContractNames.map((name) => name.replace(/\W/g, ""))
-    );
-
     sources["truffle/DeployedAddresses.sol"] = {
-      content: `library DeployedAddresses {
-        ${normalizedContractNames
-          .map(
-            (contract) => `
-          function ${contract}() public pure returns (address payable) {revert();}
-        `
-          )
-          .join("")}
-      }`,
+      content: await this._resolveDeployedAddresses(),
     };
 
     return {
@@ -247,7 +238,7 @@ export class TruffleProject extends Project {
         },
       },
       solcVersion,
-    } as any;
+    };
   }
 
   public async onWatchedFilesChanges({
@@ -263,5 +254,34 @@ export class TruffleProject extends Project {
       }
     }
     return;
+  }
+
+  private async _resolveDeployedAddresses(): Promise<string> {
+    try {
+      const contractFiles = await readdir(this.buildPath);
+
+      const normalizedContractFiles = _.uniq(
+        contractFiles.map((filePath) =>
+          path.parse(path.basename(filePath)).name.replace(/\W/g, "")
+        )
+      );
+
+      const fns = normalizedContractFiles
+        .map(
+          (contract) =>
+            `  function ${contract}() public pure returns (address payable) {revert();}`
+        )
+        .join("\n");
+
+      return `
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.1.0;
+        
+library DeployedAddresses {
+${fns}
+}`;
+    } catch {
+      return "";
+    }
   }
 }
