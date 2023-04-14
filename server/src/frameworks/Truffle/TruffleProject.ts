@@ -13,7 +13,7 @@ import { OpenDocuments, ServerState } from "../../types";
 import { isRelativeImport } from "../../utils";
 import { directoryContains } from "../../utils/directoryContains";
 import { CompilationDetails } from "../base/CompilationDetails";
-import { BuildInputError } from "../base/Errors";
+import { InitializationFailedError } from "../base/Errors";
 import { FileBelongsResult, Project } from "../base/Project";
 import { Remapping } from "../base/Remapping";
 import { getDependenciesAndPragmas } from "../shared/crawlDependencies";
@@ -160,19 +160,13 @@ export class TruffleProject extends Project {
     openDocuments: OpenDocuments
   ): Promise<CompilationDetails> {
     // Ensure project is initialized
-    if (this.status !== Status.INITIALIZED_SUCCESS) {
-      const buildError: BuildInputError = {
-        _isBuildInputError: true,
-        fileSpecificErrors: {},
-        projectWideErrors: [
-          {
-            type: "general",
-            message: `Truffle project couldn't initialize correctly: ${this.initializeError}`,
-            source: "truffle",
-          },
-        ],
+    if (this.initializeError !== undefined) {
+      const initializationError: InitializationFailedError = {
+        _isInitializationFailedError: true,
+        error: this.initializeError,
       };
-      throw buildError;
+
+      throw initializationError;
     }
 
     // Load contract text from openDocuments
