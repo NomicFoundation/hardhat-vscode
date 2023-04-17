@@ -107,7 +107,8 @@ export class TruffleProject extends Project {
   public async fileBelongs(file: string): Promise<FileBelongsResult> {
     let belongs: boolean;
     if (this.status === Status.INITIALIZED_SUCCESS) {
-      belongs = [this.sourcesPath, this.testsPath].some((dir) =>
+      const modulesPath = path.join(this.basePath, "node_modules");
+      belongs = [this.sourcesPath, this.testsPath, modulesPath].some((dir) =>
         directoryContains(dir, path.dirname(file))
       );
     } else {
