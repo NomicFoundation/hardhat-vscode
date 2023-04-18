@@ -12,6 +12,7 @@
       "env": {
         "VSCODE_NODE_ENV": "development"
       },
+      "envFile": "${workspaceFolder}/.env",
       "preLaunchTask": {
         "type": "npm",
         "script": "watch"
