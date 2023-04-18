@@ -1,9 +1,9 @@
-# Instruction how to publish extension
+# Instructions on how to publish extension
 
 To publish `hardhat-solidity` you need to do next steps:
 
 1. `git fetch`, Checkout out `development`, then ensure your branch is up to date `git pull --ff-only`
-2. Perform a clean install and build (will lose all uncommited changes) `git clean -fdx .`, `npm install`, `npm run build`
+2. Perform a clean install and build (will lose all uncommitted changes) `git clean -fdx .`, `npm install`, `npm run build`
 3. Run a full check, stopping on failure: `npm run fullcheck`, you can check that each commit meets our build requirements with: `git rebase main --exec "npm install && npm run fullcheck"`
 4. Confirm the commits represent the features for the release
 5. Branch into a release branch named for the current date: `git checkout -b release/yyyy-mm-dd`
