@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-var-requires */
+require("dotenv").config({ path: "../.env" });
 const fs = require("fs");
 const path = require("path");
 const { exec } = require("child_process");
@@ -37,6 +38,41 @@ function ensureDirExists(dir) {
 }
 
 async function main() {
+  if (!process.env.SOLIDITY_GA_SECRET) {
+    console.warn(
+      "\n\n  SOLIDITY_GA_SECRET not set, have you added a .env file based on the example?\n\n"
+    );
+  } else {
+    console.log(`Read SOLIDITY_GA_SECRET from .env file`);
+  }
+
+  if (!process.env.SOLIDITY_GOOGLE_TRACKING_ID) {
+    console.warn(
+      "\n\n  SOLIDITY_GOOGLE_TRACKING_ID not set, have you added a .env file based on the example?\n\n"
+    );
+  } else {
+    console.log(`Read SOLIDITY_GOOGLE_TRACKING_ID from .env file`);
+  }
+
+  if (!process.env.SOLIDITY_SENTRY_DSN) {
+    console.warn(
+      "\n\n  SOLIDITY_SENTRY_DSN not set, have you added a .env file based on the example?\n\n"
+    );
+  } else {
+    console.log(`Read SOLIDITY_SENTRY_DSN from .env file`);
+  }
+
+  const definedConstants =
+    !process.env.SOLIDITY_GA_SECRET |
+      !process.env.SOLIDITY_GOOGLE_TRACKING_ID ||
+    !process.env.SOLIDITY_SENTRY_DSN
+      ? {}
+      : {
+          "process.env.SOLIDITY_GA_SECRET": `"${process.env.SOLIDITY_GA_SECRET}"`,
+          "process.env.SOLIDITY_GOOGLE_TRACKING_ID": `"${process.env.SOLIDITY_GOOGLE_TRACKING_ID}"`,
+          "process.env.SOLIDITY_SENTRY_DSN": `"${process.env.SOLIDITY_SENTRY_DSN}"`,
+        };
+
   // Ensure output directories exist
   ensureDirExists(tmpDir);
 
@@ -131,6 +167,7 @@ async function main() {
     loader: {
       ".md": "text",
     },
+    define: definedConstants,
   });
 
   if (warnings.length > 1 || errors.length > 1) {
