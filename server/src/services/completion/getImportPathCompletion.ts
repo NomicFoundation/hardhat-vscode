@@ -8,7 +8,7 @@ import {
   VSCodePosition,
 } from "@common/types";
 import { Logger } from "@utils/Logger";
-import { toUnixStyle } from "../../utils/index";
+import { isRelativeImport, toUnixStyle } from "../../utils/index";
 import { ProjectContext } from "./types";
 
 export function getImportPathCompletion(
@@ -60,10 +60,6 @@ export function getImportPathCompletion(
   }
 
   return items;
-}
-
-function isRelativeImport(currentImport: string) {
-  return currentImport.startsWith(".");
 }
 
 function getRelativeImportPathCompletions(

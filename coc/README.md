@@ -179,7 +179,6 @@ The **Hardhat config file** that is used when validating a Solidity file is show
 
 ![Open Config](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/open-config.gif "Open Config")
 
-
 ## Format document
 
 Running `:call CocActionAsync('format')` will trigger document formatting.
