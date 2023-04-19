@@ -9,6 +9,7 @@ import _ from "lodash";
 import path from "path";
 import semver from "semver";
 import { DidChangeWatchedFilesParams } from "vscode-languageserver-protocol";
+import { URI } from "vscode-uri";
 import { OpenDocuments, ServerState } from "../../types";
 import { isRelativeImport } from "../../utils";
 import { directoryContains } from "../../utils/directoryContains";
@@ -239,7 +240,11 @@ export class TruffleProject extends Project {
   public async onWatchedFilesChanges({
     changes,
   }: DidChangeWatchedFilesParams): Promise<void> {
-    if (!changes.some((change) => change.uri.endsWith(this.configPath))) {
+    if (
+      !changes.some(
+        (change) => URI.parse(change.uri).fsPath === this.configPath
+      )
+    ) {
       return;
     }
 
