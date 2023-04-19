@@ -73,7 +73,7 @@ Rename the identifier under the cursor and all of its references:
 
 Apply solidity formatting to the current document.
 
-The formatting configuration can be overriden through a `.prettierrc` file, see [Formatting Configuration](#formatting-configuration).
+The formatting configuration can be overridden through a `.prettierrc` file, see [Formatting Configuration](#formatting-configuration).
 
 ![Reformat](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/format.gif "Reformat")
 
@@ -157,7 +157,7 @@ The solidity compiler requires explicit addresses to be in the correct checksumm
 
 #### Hardhat console auto-import
 
-Hardhat's `console.sol` can be imported with this quickfix. Please note that this only available on hardhat projects.
+Hardhat's `console.sol` can be imported with this quickfix. Please note that this is only available on hardhat projects.
 
 ![Console import](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/import-console.gif "Import console")
 
