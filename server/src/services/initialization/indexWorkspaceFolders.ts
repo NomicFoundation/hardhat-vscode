@@ -14,6 +14,7 @@ import { analyzeSolFile } from "../../parser/analyzer/analyzeSolFile";
 import { getOrInitialiseSolFileEntry } from "../../utils/getOrInitialiseSolFileEntry";
 import { FoundryIndexer } from "../../frameworks/Foundry/FoundryIndexer";
 import { frameworkTag } from "../../telemetry/tags";
+import { TruffleIndexer } from "../../frameworks/Truffle/TruffleIndexer";
 import { resolveTopLevelWorkspaceFolders } from "./resolveTopLevelWorkspaceFolders";
 
 export async function indexWorkspaceFolders(
@@ -46,6 +47,7 @@ export async function indexWorkspaceFolders(
   const indexers = [
     new HardhatIndexer(serverState, workspaceFileRetriever),
     new FoundryIndexer(serverState, workspaceFileRetriever),
+    new TruffleIndexer(serverState, workspaceFileRetriever),
   ];
   const foundProjects: Project[] = [];
   await logger.trackTime("Indexing projects", async () => {
@@ -76,8 +78,11 @@ export async function indexWorkspaceFolders(
         op: "initializeProject",
         tags: frameworkTag(foundProject),
       });
-
-      await foundProject.initialize();
+      try {
+        await foundProject.initialize();
+      } catch (error) {
+        logger.error(`Error initializing ${foundProject.basePath}: ${error}`);
+      }
 
       span?.finish();
       logger.info(`Done ${foundProject.id()}`);
@@ -226,7 +231,7 @@ async function findProjectForFile(serverState: ServerState, fileUri: string) {
     serverState,
     path.dirname(fileUri)
   );
-  let isLocal = true;
+  let isLocal = false;
 
   for (const indexedProject of Object.values(serverState.projects)) {
     try {
