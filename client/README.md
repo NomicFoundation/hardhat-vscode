@@ -223,7 +223,7 @@ When working on a solidity file inside a hardhat project, the command `Hardhat: 
 
 ### Task provider
 
-The extension is registered as a task provider for hardhat projects, in which the `build` task is provided, running `hardhat compile`, and the `test` task, which runs `hardhat test`.
+The extension is registered as a task provider for hardhat projects, in which the `build` task is provided , running `hardhat compile`, and the `test` task, which runs `hardhat test`.
 
 ## Formatting
 
