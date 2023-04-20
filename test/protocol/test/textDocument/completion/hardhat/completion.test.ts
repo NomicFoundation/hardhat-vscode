@@ -218,6 +218,53 @@ describe('[hardhat][completion]', () => {
         ],
       })
     })
+
+    test('auto appending of semicolon', async () => {
+      const documentPath = getProjectPath('hardhat/contracts/completion/Imports.sol')
+      const documentUri = toUri(documentPath)
+      await client.openDocument(documentPath)
+
+      const completions = await client.getCompletions(documentUri, 8, 42)
+
+      expect(completions).to.deep.equal({
+        isIncomplete: false,
+        items: [
+          {
+            label: '@openzeppelin/contracts/access/Ownable.sol',
+            textEdit: {
+              range: {
+                start: {
+                  line: 8,
+                  character: 8,
+                },
+                end: {
+                  line: 8,
+                  character: 42,
+                },
+              },
+              newText: '@openzeppelin/contracts/access/Ownable.sol',
+            },
+            kind: 9,
+            documentation: 'Imports the package',
+            additionalTextEdits: [
+              {
+                newText: ';',
+                range: {
+                  end: {
+                    character: 999,
+                    line: 8,
+                  },
+                  start: {
+                    character: 999,
+                    line: 8,
+                  },
+                },
+              },
+            ],
+          },
+        ],
+      })
+    })
   })
 
   describe('globals', function () {
