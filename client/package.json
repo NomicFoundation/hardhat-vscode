@@ -146,11 +146,6 @@
     ],
     "commands": [
       {
-        "command": "solidity.insertSemicolon",
-        "title": "Insert semicolon",
-        "enablement": "false"
-      },
-      {
         "command": "solidity.hardhat.compile",
         "title": "Hardhat: Compile project"
       },
