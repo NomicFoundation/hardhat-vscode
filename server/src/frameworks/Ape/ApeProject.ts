@@ -173,24 +173,6 @@ export class ApeProject extends Project {
       this.configSolcVersion
     );
 
-    // const sources = basicCompilation.input.sources;
-
-    // // Modify source keys to be root-relative instead of absolute
-    // // i,e, '/home/user/myProject/src/Contract.sol' => 'src/Contract.sol'
-    // for (const [sourceKey, sourceValue] of Object.entries(sources)) {
-    //   const transformedSourceKey = path.relative(this.basePath, sourceKey);
-    //   sources[transformedSourceKey] = sourceValue;
-    //   delete sources[sourceKey];
-    // }
-
-    // const remappings = this.remappings.map(
-    //   (remapping) => `${remapping.from}=${remapping.to}`
-    // );
-
-    // (basicCompilation.input.settings as any).remappings = remappings; // CompilerInput type doesn't have remappings
-
-    // console.log(JSON.stringify(basicCompilation, null, 2));
-
     return basicCompilation;
   }
 
@@ -247,6 +229,5 @@ export class ApeProject extends Project {
         return dependencyBasePath;
       }
     }
-    // return transformedPath;
   }
 }

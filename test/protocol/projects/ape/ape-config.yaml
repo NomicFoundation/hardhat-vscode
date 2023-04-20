@@ -19,6 +19,5 @@ solidity:
     - "@openzeppelin=OpenZeppelin/4.4.2"
     - "@dapptools=DappToolsERC20/dappnix"
     - "@localoz=LocalOZ"
-  # version: 0.8.7
 
   
