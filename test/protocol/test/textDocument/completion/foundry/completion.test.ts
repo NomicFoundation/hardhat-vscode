@@ -36,48 +36,18 @@ describe('[foundry][completion]', () => {
             insertText: '@lib',
             kind: 9,
             documentation: 'Imports the package',
-            command: {
-              command: 'solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 0,
-                  character: 8,
-                },
-              ],
-              title: '',
-            },
           },
           {
             label: '@myLib',
             insertText: '@myLib',
             kind: 9,
             documentation: 'Imports the package',
-            command: {
-              command: 'solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 0,
-                  character: 8,
-                },
-              ],
-              title: '',
-            },
           },
           {
             label: 'myLib',
             insertText: 'myLib',
             kind: 9,
             documentation: 'Imports the package',
-            command: {
-              command: 'solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 0,
-                  character: 8,
-                },
-              ],
-              title: '',
-            },
           },
         ],
       })
@@ -102,32 +72,12 @@ describe('[foundry][completion]', () => {
             insertText: 'Imported.sol',
             kind: 17,
             documentation: 'Imports the package',
-            command: {
-              command: 'solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 2,
-                  character: 15,
-                },
-              ],
-              title: '',
-            },
           },
           {
             label: 'OtherImported.sol',
             insertText: 'OtherImported.sol',
             kind: 17,
             documentation: 'Imports the package',
-            command: {
-              command: 'solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 2,
-                  character: 15,
-                },
-              ],
-              title: '',
-            },
           },
         ],
       })
