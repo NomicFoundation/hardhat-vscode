@@ -178,7 +178,7 @@ The solidity compiler requires explicit addresses to be in the correct checksumm
 
 #### Hardhat console auto-import
 
-Hardhat's `console.sol` can be imported with this quickfix. Please note that this only available on hardhat projects.
+Hardhat's `console.sol` can be imported with this quickfix. Please note that this is only available on hardhat projects.
 
 ![Console import](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/import-console.gif "Import console")
 
