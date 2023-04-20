@@ -34,48 +34,18 @@ describe('[hardhat][completion]', () => {
             insertText: './Globals.sol',
             kind: 17,
             documentation: 'Imports the package',
-            command: {
-              command: 'solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 0,
-                  character: 8,
-                },
-              ],
-              title: '',
-            },
           },
           {
             label: './Natspec.sol',
             insertText: './Natspec.sol',
             kind: 17,
             documentation: 'Imports the package',
-            command: {
-              command: 'solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 0,
-                  character: 8,
-                },
-              ],
-              title: '',
-            },
           },
           {
             label: './NatspecSingle.sol',
             insertText: './NatspecSingle.sol',
             kind: 17,
             documentation: 'Imports the package',
-            command: {
-              command: 'solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 0,
-                  character: 8,
-                },
-              ],
-              title: '',
-            },
           },
           {
             label: 'hardhat',
@@ -94,16 +64,6 @@ describe('[hardhat][completion]', () => {
             },
             kind: 9,
             documentation: 'Imports the package',
-            command: {
-              command: 'solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 0,
-                  character: 8,
-                },
-              ],
-              title: '',
-            },
           },
           {
             label: '@openzeppelin',
@@ -122,16 +82,6 @@ describe('[hardhat][completion]', () => {
             },
             kind: 9,
             documentation: 'Imports the package',
-            command: {
-              command: 'solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 0,
-                  character: 8,
-                },
-              ],
-              title: '',
-            },
           },
         ],
       })
@@ -164,16 +114,6 @@ describe('[hardhat][completion]', () => {
             },
             kind: 9,
             documentation: 'Imports the package',
-            command: {
-              command: 'solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 2,
-                  character: 16,
-                },
-              ],
-              title: '',
-            },
           },
           {
             label: '@openzeppelin',
@@ -192,16 +132,6 @@ describe('[hardhat][completion]', () => {
             },
             kind: 9,
             documentation: 'Imports the package',
-            command: {
-              command: 'solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 2,
-                  character: 16,
-                },
-              ],
-              title: '',
-            },
           },
         ],
       })
@@ -234,16 +164,6 @@ describe('[hardhat][completion]', () => {
             },
             kind: 9,
             documentation: 'Imports the package',
-            command: {
-              command: 'solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 4,
-                  character: 16,
-                },
-              ],
-              title: '',
-            },
           },
           {
             label: 'hardhat/sample-projects/basic/contracts/Greeter.sol',
@@ -262,16 +182,6 @@ describe('[hardhat][completion]', () => {
             },
             kind: 9,
             documentation: 'Imports the package',
-            command: {
-              command: 'solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 4,
-                  character: 16,
-                },
-              ],
-              title: '',
-            },
           },
         ],
       })
@@ -304,16 +214,53 @@ describe('[hardhat][completion]', () => {
             },
             kind: 9,
             documentation: 'Imports the package',
-            command: {
-              command: 'solidity.insertSemicolon',
-              arguments: [
-                {
-                  line: 6,
+          },
+        ],
+      })
+    })
+
+    test('auto appending of semicolon', async () => {
+      const documentPath = getProjectPath('hardhat/contracts/completion/Imports.sol')
+      const documentUri = toUri(documentPath)
+      await client.openDocument(documentPath)
+
+      const completions = await client.getCompletions(documentUri, 8, 42)
+
+      expect(completions).to.deep.equal({
+        isIncomplete: false,
+        items: [
+          {
+            label: '@openzeppelin/contracts/access/Ownable.sol',
+            textEdit: {
+              range: {
+                start: {
+                  line: 8,
+                  character: 8,
+                },
+                end: {
+                  line: 8,
                   character: 42,
                 },
-              ],
-              title: '',
+              },
+              newText: '@openzeppelin/contracts/access/Ownable.sol',
             },
+            kind: 9,
+            documentation: 'Imports the package',
+            additionalTextEdits: [
+              {
+                newText: ';',
+                range: {
+                  end: {
+                    character: 999,
+                    line: 8,
+                  },
+                  start: {
+                    character: 999,
+                    line: 8,
+                  },
+                },
+              },
+            ],
           },
         ],
       })

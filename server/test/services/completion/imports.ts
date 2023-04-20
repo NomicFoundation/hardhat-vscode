@@ -13,14 +13,6 @@ import {
 import { forceToUnixStyle } from "../../helpers/forceToUnixStyle";
 import { prependWithSlash } from "../../helpers/prependWithSlash";
 
-const semicolonCommand = (position: VSCodePosition) => ({
-  command: {
-    arguments: [position],
-    command: "solidity.insertSemicolon",
-    title: "",
-  },
-});
-
 describe("Parser", () => {
   const workspaceFolder = prependWithSlash(
     forceToUnixStyle(path.join(__dirname, "../../../test"))
@@ -122,16 +114,61 @@ describe("Parser", () => {
                   label: "./Second.sol",
                   insertText: "./Second.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 3,
+                        },
+                        start: {
+                          character: 999,
+                          line: 3,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "./Third.sol",
                   insertText: "./Third.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 3,
+                        },
+                        start: {
+                          character: 999,
+                          line: 3,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "./sub",
                   insertText: "./sub",
                   kind: CompletionItemKind.Folder,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 3,
+                        },
+                        start: {
+                          character: 999,
+                          line: 3,
+                        },
+                      },
+                    },
+                  ],
                 },
               ],
               {
@@ -150,16 +187,61 @@ describe("Parser", () => {
                   label: "./Second.sol",
                   insertText: "/Second.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 4,
+                        },
+                        start: {
+                          character: 999,
+                          line: 4,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "./Third.sol",
                   insertText: "/Third.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 4,
+                        },
+                        start: {
+                          character: 999,
+                          line: 4,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "./sub",
                   insertText: "/sub",
                   kind: CompletionItemKind.Folder,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 4,
+                        },
+                        start: {
+                          character: 999,
+                          line: 4,
+                        },
+                      },
+                    },
+                  ],
                 },
               ],
               {
@@ -178,16 +260,61 @@ describe("Parser", () => {
                   label: "./Second.sol",
                   insertText: "Second.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 5,
+                        },
+                        start: {
+                          character: 999,
+                          line: 5,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "./Third.sol",
                   insertText: "Third.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 5,
+                        },
+                        start: {
+                          character: 999,
+                          line: 5,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "./sub",
                   insertText: "sub",
                   kind: CompletionItemKind.Folder,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 5,
+                        },
+                        start: {
+                          character: 999,
+                          line: 5,
+                        },
+                      },
+                    },
+                  ],
                 },
               ],
               {
@@ -206,21 +333,81 @@ describe("Parser", () => {
                   label: "Fifth.sol",
                   insertText: "Fifth.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 6,
+                        },
+                        start: {
+                          character: 999,
+                          line: 6,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "Fourth.sol",
                   insertText: "Fourth.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 6,
+                        },
+                        start: {
+                          character: 999,
+                          line: 6,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "SubImport.sol",
                   insertText: "SubImport.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 6,
+                        },
+                        start: {
+                          character: 999,
+                          line: 6,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "subsub",
                   insertText: "subsub",
                   kind: CompletionItemKind.Folder,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 6,
+                        },
+                        start: {
+                          character: 999,
+                          line: 6,
+                        },
+                      },
+                    },
+                  ],
                 },
               ],
               {
@@ -239,16 +426,61 @@ describe("Parser", () => {
                   label: "Seventh.sol",
                   insertText: "Seventh.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 7,
+                        },
+                        start: {
+                          character: 999,
+                          line: 7,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "Sixth.sol",
                   insertText: "Sixth.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 7,
+                        },
+                        start: {
+                          character: 999,
+                          line: 7,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "SubSubImport.sol",
                   insertText: "SubSubImport.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 7,
+                        },
+                        start: {
+                          character: 999,
+                          line: 7,
+                        },
+                      },
+                    },
+                  ],
                 },
               ],
               {
@@ -278,6 +510,21 @@ describe("Parser", () => {
                 {
                   label: "Second.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 9,
+                        },
+                        start: {
+                          character: 999,
+                          line: 9,
+                        },
+                      },
+                    },
+                  ],
                   textEdit: {
                     newText: "Second.sol",
                     range: {
@@ -307,6 +554,21 @@ describe("Parser", () => {
                 {
                   label: "Second.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 10,
+                        },
+                        start: {
+                          character: 999,
+                          line: 10,
+                        },
+                      },
+                    },
+                  ],
                   textEdit: {
                     newText: "Second.sol",
                     range: {
@@ -348,6 +610,21 @@ describe("Parser", () => {
                   label: "subsub",
                   kind: CompletionItemKind.Folder,
                   insertText: "subsub",
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 12,
+                        },
+                        start: {
+                          character: 999,
+                          line: 12,
+                        },
+                      },
+                    },
+                  ],
                 },
               ],
               {
@@ -376,16 +653,61 @@ describe("Parser", () => {
                   label: "./Fifth.sol",
                   insertText: "./Fifth.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 3,
+                        },
+                        start: {
+                          character: 999,
+                          line: 3,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "./Fourth.sol",
                   insertText: "./Fourth.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 3,
+                        },
+                        start: {
+                          character: 999,
+                          line: 3,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "./subsub",
                   insertText: "./subsub",
                   kind: CompletionItemKind.Folder,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 3,
+                        },
+                        start: {
+                          character: 999,
+                          line: 3,
+                        },
+                      },
+                    },
+                  ],
                 },
               ],
               {
@@ -404,21 +726,81 @@ describe("Parser", () => {
                   label: "../Imports.sol",
                   insertText: "/Imports.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 4,
+                        },
+                        start: {
+                          character: 999,
+                          line: 4,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "../Second.sol",
                   insertText: "/Second.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 4,
+                        },
+                        start: {
+                          character: 999,
+                          line: 4,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "../Third.sol",
                   insertText: "/Third.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 4,
+                        },
+                        start: {
+                          character: 999,
+                          line: 4,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "../sub",
                   insertText: "/sub",
                   kind: CompletionItemKind.Folder,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 4,
+                        },
+                        start: {
+                          character: 999,
+                          line: 4,
+                        },
+                      },
+                    },
+                  ],
                 },
               ],
               {
@@ -437,21 +819,81 @@ describe("Parser", () => {
                   label: "../Imports.sol",
                   insertText: "/Imports.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 4,
+                        },
+                        start: {
+                          character: 999,
+                          line: 4,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "../Second.sol",
                   insertText: "/Second.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 4,
+                        },
+                        start: {
+                          character: 999,
+                          line: 4,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "../Third.sol",
                   insertText: "/Third.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 4,
+                        },
+                        start: {
+                          character: 999,
+                          line: 4,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "../sub",
                   insertText: "/sub",
                   kind: CompletionItemKind.Folder,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 4,
+                        },
+                        start: {
+                          character: 999,
+                          line: 4,
+                        },
+                      },
+                    },
+                  ],
                 },
               ],
               {
@@ -481,11 +923,41 @@ describe("Parser", () => {
                   label: "./Seventh.sol",
                   insertText: "./Seventh.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 3,
+                        },
+                        start: {
+                          character: 999,
+                          line: 3,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "./Sixth.sol",
                   insertText: "./Sixth.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 3,
+                        },
+                        start: {
+                          character: 999,
+                          line: 3,
+                        },
+                      },
+                    },
+                  ],
                 },
               ],
               {
@@ -504,21 +976,81 @@ describe("Parser", () => {
                   label: "Imports.sol",
                   insertText: "/Imports.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 4,
+                        },
+                        start: {
+                          character: 999,
+                          line: 4,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "Second.sol",
                   insertText: "/Second.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 4,
+                        },
+                        start: {
+                          character: 999,
+                          line: 4,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "Third.sol",
                   insertText: "/Third.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 4,
+                        },
+                        start: {
+                          character: 999,
+                          line: 4,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "sub",
                   insertText: "/sub",
                   kind: CompletionItemKind.Folder,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 4,
+                        },
+                        start: {
+                          character: 999,
+                          line: 4,
+                        },
+                      },
+                    },
+                  ],
                 },
               ],
               {
@@ -537,21 +1069,81 @@ describe("Parser", () => {
                   label: "Imports.sol",
                   insertText: "Imports.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 5,
+                        },
+                        start: {
+                          character: 999,
+                          line: 5,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "Second.sol",
                   insertText: "Second.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 5,
+                        },
+                        start: {
+                          character: 999,
+                          line: 5,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "Third.sol",
                   insertText: "Third.sol",
                   kind: CompletionItemKind.File,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 5,
+                        },
+                        start: {
+                          character: 999,
+                          line: 5,
+                        },
+                      },
+                    },
+                  ],
                 },
                 {
                   label: "sub",
                   insertText: "sub",
                   kind: CompletionItemKind.Folder,
+                  additionalTextEdits: [
+                    {
+                      newText: ";",
+                      range: {
+                        end: {
+                          character: 999,
+                          line: 5,
+                        },
+                        start: {
+                          character: 999,
+                          line: 5,
+                        },
+                      },
+                    },
+                  ],
                 },
               ],
               {
@@ -624,7 +1216,6 @@ const assertImportCompletion = async (
     .map((comp) => ({
       ...comp,
       documentation: "Imports the package",
-      ...semicolonCommand(position),
     }))
     .sort((left, right) => left.label.localeCompare(right.label));
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import * as fs from "fs";
 import * as path from "path";
 import * as lsp from "vscode-languageserver/node";
@@ -5,17 +6,23 @@ import {
   CompletionItem,
   CompletionItemKind,
   ImportDirectiveNode,
+  TextDocument,
   VSCodePosition,
 } from "@common/types";
 import { Logger } from "@utils/Logger";
-import { isRelativeImport, toUnixStyle } from "../../utils/index";
+import { TextDocuments } from "vscode-languageserver/node";
+import { isRelativeImport, toUnixStyle, toUri } from "../../utils/index";
+
 import { ProjectContext } from "./types";
 
 export function getImportPathCompletion(
   position: VSCodePosition,
   node: ImportDirectiveNode,
   projCtx: ProjectContext,
-  { logger }: { logger: Logger }
+  {
+    logger,
+    documents,
+  }: { logger: Logger; documents: TextDocuments<TextDocument> }
 ): CompletionItem[] {
   const currentImport = node.astNode.path.replace("_;", "");
 
@@ -50,13 +57,32 @@ export function getImportPathCompletion(
     items = projCtx.project.getImportCompletions(position, currentImport);
   }
 
-  // Trigger auto-insertion of semicolon after import completion
-  for (const item of items) {
-    item.command = {
-      command: "solidity.insertSemicolon",
-      arguments: [position],
-      title: "",
-    };
+  // Append semicolon at the end if it's not already present
+  const document = documents.get(toUri(node.realUri));
+
+  const line = document?.getText({
+    start: {
+      line: position.line,
+      character: 0,
+    },
+    end: {
+      line: position.line,
+      character: 99999,
+    },
+  });
+
+  if (!/;\r?\n?$/.test(line ?? "")) {
+    for (const item of items) {
+      item.additionalTextEdits = [
+        {
+          range: {
+            start: { line: position.line, character: 999 },
+            end: { line: position.line, character: 999 },
+          },
+          newText: ";",
+        },
+      ];
+    }
   }
 
   return items;
