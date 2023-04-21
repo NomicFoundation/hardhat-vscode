@@ -47,7 +47,7 @@ export enum WorkerStatus {
 const REQUEST_TIMEOUT = 5000;
 
 export class HardhatProject extends Project {
-  public priority = 3;
+  public priority = 4;
 
   public workerProcess?: ChildProcess;
 
