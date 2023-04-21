@@ -51,7 +51,6 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
         workspace.createFileSystemWatcher("**/ape-config.yaml"),
         workspace.createFileSystemWatcher("**/remappings.txt"),
         workspace.createFileSystemWatcher("**/*.sol"),
-        workspace.createFileSystemWatcher("**/.cache/*.sol"),
       ],
     },
     diagnosticCollectionName: "solidity-language-server",
