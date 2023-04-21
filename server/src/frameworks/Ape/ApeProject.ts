@@ -110,7 +110,7 @@ export class ApeProject extends Project {
       }
 
       // Extract dependency name e.g. `@openzeppelin=OpenZeppelin/4.4.2` => `OpenZeppelin`
-      const [dependencyName] = to.split(path.sep);
+      const [dependencyName] = to.split("/");
 
       if (dependencyName === undefined) {
         continue;
