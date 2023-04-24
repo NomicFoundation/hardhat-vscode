@@ -21,8 +21,13 @@ This document provides an overview of the codebase of the Solidity language serv
     - [Quickfixes](#quickfixes)
     - [Framework abstraction](#framework-abstraction)
     - [Indexing](#indexing)
-  - [Hardhat validation](#hardhat-validation)
-  - [Foundry validation](#foundry-validation)
+  - [Hardhat Support](#hardhat-support)
+    - [Validation](#validation-1)
+    - [File claiming](#file-claiming)
+  - [Foundry Support](#foundry-support)
+    - [Validation](#validation-2)
+    - [File claiming](#file-claiming-1)
+  - [Projectless (no framework)](#projectless-no-framework)
 
 # Understanding the different components
 
