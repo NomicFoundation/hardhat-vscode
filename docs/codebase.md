@@ -1,15 +1,14 @@
-# Overview
+# Codebase Overview
 
 This document provides an overview of the codebase of the Solidity language server and its client components. This includes both the overall architecture and the details of each component and some of its processes.
 
-- [Overview](#overview)
-- [Understanding the different components](#understanding-the-different-components)
-- [Language server protocol](#language-server-protocol)
-  - [Brief description](#brief-description)
-  - [How we implement it](#how-we-implement-it)
-  - [Full specification](#full-specification)
-- [Developing the extension](#developing-the-extension)
-- [Logic and responsibilities](#logic-and-responsibilities)
+- [Codebase Overview](#codebase-overview)
+  - [Understanding the different components](#understanding-the-different-components)
+    - [Language server protocol](#language-server-protocol)
+      - [Brief description](#brief-description)
+      - [How we implement it](#how-we-implement-it)
+      - [Full specification](#full-specification)
+  - [Developing the extension](#developing-the-extension)
   - [Client](#client)
     - [Task provider](#task-provider)
     - [Syntax highlighting](#syntax-highlighting)
@@ -19,17 +18,17 @@ This document provides an overview of the codebase of the Solidity language serv
     - [Analysis](#analysis)
     - [Validation](#validation)
     - [Quickfixes](#quickfixes)
-    - [Framework abstraction](#framework-abstraction)
     - [Indexing](#indexing)
-  - [Hardhat Support](#hardhat-support)
-    - [Validation](#validation-1)
-    - [File claiming](#file-claiming)
-  - [Foundry Support](#foundry-support)
-    - [Validation](#validation-2)
-    - [File claiming](#file-claiming-1)
-  - [Projectless (no framework)](#projectless-no-framework)
+    - [Framework abstraction](#framework-abstraction)
+    - [Hardhat Support](#hardhat-support)
+      - [Validation](#validation-1)
+      - [File claiming](#file-claiming)
+    - [Foundry Support](#foundry-support)
+      - [Validation](#validation-2)
+      - [File claiming](#file-claiming-1)
+    - [Projectless (no framework)](#projectless-no-framework)
 
-# Understanding the different components
+## Understanding the different components
 
 The codebase has three main node.js packages that are published and are considered part of this product:
 
@@ -41,9 +40,9 @@ Of these components, the one that involves the most complexity and holds most of
 
 Both the VS Code client and the coc.nvim client spawn the language server as a subprocess. But the Solidity language server can also be used independently, for example when using it directly with Neovim.
 
-# Language server protocol
+### Language server protocol
 
-## Brief description
+#### Brief description
 
 Before reading the complete specification of the protocol, here's a summary of how it works.
 
@@ -63,7 +62,7 @@ It's useful to get familiar with the data structures that the protocol uses. The
 
 It's important to note that on the server side, a list of open documents is updated automatically, based on `textDocument` events, leveraging the `listen` function of `TextDocuments` class.
 
-## How we implement it
+#### How we implement it
 
 We leverage the [vscode-languageserver-node](https://github.com/microsoft/vscode-languageserver-node) package to implement our modules. Specifically we use the client, server, and protocol subpackages.
 
@@ -73,19 +72,17 @@ Our server module uses the `vscode-languageserver`, `vscode-languageserver-proto
 
 The use of these modules allows us to only worry about the specifics of our language provider. They provide a set of helpers, types, events and listeners, and abstract away the lower level communication layers (e.g. serialization).
 
-## Full specification
+#### Full specification
 
 It's a good idea for the developer to get familiar with the LSP, by reading over its [specification](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/), and keeping it for reference while working on a specific feature.
 
-# Developing the extension
+## Developing the extension
 
 This codebase includes some VSCode launch configurations, which allows us to run and debug the extension with our own changes, under a special VSCode environment (Extension Development Host), see the [CONTRIBUTING.md](../CONTRIBUTING.md) guide for more details. To run this environment, run the `Launch Client` task, which should be the default (F5 for shortcut).
 
 Additionally, there's an extra launch configuration named `Attach to Server`, which can be run after the development host is running, that will enable breakpoints for debugging the server on the main editor window.
 
 If the extension host is behaving unexpectedly, it's a good idea to try `npm run clean` and `npm run build`, to recompile the whole project.
-
-# Logic and responsibilities
 
 ## Client
 
@@ -163,6 +160,16 @@ We leverage the same interface as before, `CompilerDiagnostic`, to provide code 
 
 Our model for these handlers is designed in a way that we can associate them to errors based on their code. This code is either the error code returned by solc (e.g. 1878 - license identifier missing), or the framework adapter's specified code on the file-specific error raised while building a compilation (e.g. 411 hardhat's library not installed).
 
+### Indexing
+
+During the initialization phase of the server, we run the indexing process. This involves the following steps:
+
+- Scanning workspace folders for projects: each registered project adapter is called to scan a list of directories and return project instances.
+- Initializing projects: each found project is initialized sequentially. Initialization logic is specific to each project adapter.
+- Scanning for solidity files: `fast-glob` is used to find all `.sol` files.
+- Associating each solidity file to a project: for each found file, each project instance is tested to check wether the file belongs to them or not. Project adapters have priorities to determine which one should be assigned in case multiple of them claim that a file belongs to them. A file will be given the default `projectless` project instance if no othe project claims the file.
+- Analyzing local source files: from the previous step, some source files are marked as local. This concept means that they are the project's main source files, and not libraries or vendored files. Only local sources are initially analyzed for optimization purposes, since analysis takes up significant amount of time. It's important to note that analysis crawls the files, so libraries are also analyzed if they are imported directly or indirectly from a local source. Non-local files will be analysed as soon as a language server action happens against them.
+
 ### Framework abstraction
 
 There are some processes that involve parts of logic that change depending on the framework being used on a project. Examples of this are building a solc input, resolving a given import, giving custom completions, among others.
@@ -182,19 +189,9 @@ As of now, the responsibilities that are put behind the abstraction are the foll
 - Provide custom import completions (optional)
 - Provide custom code actions (optional)
 
-### Indexing
+### Hardhat Support
 
-During the initialization phase of the server, we run the indexing process. This involves the following steps:
-
-- Scanning workspace folders for projects: each registered project adapter is called to scan a list of directories and return project instances.
-- Initializing projects: each found project is initialized sequentially. Initialization logic is specific to each project adapter.
-- Scanning for solidity files: `fast-glob` is used to find all `.sol` files.
-- Associating each solidity file to a project: for each found file, each project instance is tested to check wether the file belongs to them or not. Project adapters have priorities to determine which one should be assigned in case multiple of them claim that a file belongs to them. A file will be given the default `projectless` project instance if no othe project claims the file.
-- Analyzing local source files: from the previous step, some source files are marked as local. This concept means that they are the project's main source files, and not libraries or vendored files. Only local sources are initially analyzed for optimization purposes, since analysis takes up significant amount of time. It's important to note that analysis crawls the files, so libraries are also analyzed if they are imported directly or indirectly from a local source. Non-local files will be analysed as soon as a language server action happens against them.
-
-## Hardhat Support
-
-### Validation
+#### Validation
 
 Hardhat validation is our most sophisticated. We leverage the hardhat library local to a project, to provide the solc input building.
 
@@ -208,13 +205,13 @@ Some of these tasks we override for optimization purposes, for example when repe
 
 If at any point Hardhat rejects one of the tasks, we display that result on the client, indicating the source of the error and in some cases providing quickfixes for it.
 
-### File claiming
+#### File claiming
 
 A given hardhat project that was successfully initialized will claim ownership over solidity files inside the configured contracts folder and the node_modules folder. If the project is unable to initialize (hre can't be loaded), we can't determine which is the contracts folder so we default to claiming all solidity files inside the base folder or any subdirectories.
 
-## Foundry Support
+### Foundry Support
 
-### Validation
+#### Validation
 
 The Foundry projects leverage our implementation for "projectless" solidity files (i.e. files that don't belong to any known framework) with Foundry specific configuration additions.
 
@@ -224,11 +221,11 @@ The compilation details from the projectless strategy has the source file keys i
 
 After this transformation, Foundry's remappings are added to the compilation's `input.settings`. These remappings are obtained during the initialization stage, where we invoke `forge` to obtain different configuration values. It's important to note that forge provides the remappings in a recursive manner, so by invoking it on the root project it also gives us the remappings from the imported libraries and their dependencies.
 
-### File claiming
+#### File claiming
 
 A given foundry project that was successfully initialized will claim ownership over solidity files inside the configured contracts, lib, test and scripts folders. If the project is unable to initialize (e.g. forge command not found), we can't determine the configured folders so we default to claiming all solidity files inside the base folder or any subdirectories.
 
-## Projectless (no framework)
+### Projectless (no framework)
 
 We provide support to editing standalone solidity files or projects with unknown frameworks. We do our best effort to provide validation by building the input and invoking the solidity compiler from the language server.
 
