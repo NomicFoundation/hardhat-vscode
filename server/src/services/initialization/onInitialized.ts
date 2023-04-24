@@ -1,4 +1,5 @@
 import { WorkspaceFileRetriever } from "@utils/WorkspaceFileRetriever";
+import { SemanticTokensRegistrationType } from "vscode-languageserver-protocol/node";
 import { Project } from "../../frameworks/base/Project";
 import { ServerState } from "../../types";
 import { indexWorkspaceFolders } from "./indexWorkspaceFolders";
@@ -12,6 +13,19 @@ export const onInitialized = (
 
   return async () => {
     logger.trace("onInitialized");
+
+    void serverState.connection.client.register(
+      SemanticTokensRegistrationType.type,
+      {
+        documentSelector: ["sol"],
+        legend: {
+          tokenTypes: ["class"],
+          tokenModifiers: ["declaration"],
+        },
+        range: false,
+        full: true,
+      }
+    );
 
     // set up listener for workspace folder changes
     if (serverState.hasWorkspaceFolderCapability) {

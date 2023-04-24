@@ -14,6 +14,7 @@ import { onTypeDefinition } from "@services/typeDefinition/onTypeDefinition";
 import { onReferences } from "@services/references/onReferences";
 import { onImplementation } from "@services/implementation/onImplementation";
 import { onRename } from "@services/rename/onRename";
+import { onSemanticTokensFull } from "@services/semanticTokens/onSemanticTokensFull";
 import { ServerState } from "./types";
 import { Telemetry } from "./telemetry/types";
 import { attachDocumentHooks } from "./services/documents/attachDocumentHooks";
@@ -98,6 +99,8 @@ function attachLanguageServerCommandHooks(serverState: ServerState) {
   connection.onCodeAction(onCodeAction(serverState));
   connection.onHover(onHover(serverState));
   connection.onDocumentFormatting(onDocumentFormatting(serverState));
+
+  connection.languages.semanticTokens.on(onSemanticTokensFull(serverState));
 }
 
 function attachCustomHooks(serverState: ServerState) {
