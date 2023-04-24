@@ -24,7 +24,6 @@ This document provides an overview of the codebase of the Solidity language serv
   - [Hardhat validation](#hardhat-validation)
   - [Foundry validation](#foundry-validation)
 
-
 # Understanding the different components
 
 The codebase has three main node.js packages that are published and are considered part of this product:
@@ -188,7 +187,9 @@ During the initialization phase of the server, we run the indexing process. This
 - Associating each solidity file to a project: for each found file, each project instance is tested to check wether the file belongs to them or not. Project adapters have priorities to determine which one should be assigned in case multiple of them claim that a file belongs to them. A file will be given the default `projectless` project instance if no othe project claims the file.
 - Analyzing local source files: from the previous step, some source files are marked as local. This concept means that they are the project's main source files, and not libraries or vendored files. Only local sources are initially analyzed for optimization purposes, since analysis takes up significant amount of time. It's important to note that analysis crawls the files, so libraries are also analyzed if they are imported directly or indirectly from a local source. Non-local files will be analysed as soon as a language server action happens against them.
 
-## Hardhat validation
+## Hardhat Support
+
+### Validation
 
 Hardhat validation is our most sophisticated. We leverage the hardhat library local to a project, to provide the solc input building.
 
@@ -202,9 +203,15 @@ Some of these tasks we override for optimization purposes, for example when repe
 
 If at any point Hardhat rejects one of the tasks, we display that result on the client, indicating the source of the error and in some cases providing quickfixes for it.
 
-## Foundry validation
+### File claiming
 
-The Foundry projects leverages our implementation for "projectless" solidity files (i.e. files that don't belong to any known framework) with Foundry specific configuration additions.
+A given hardhat project that was successfully initialized will claim ownership over solidity files inside the configured contracts folder and the node_modules folder. If the project is unable to initialize (hre can't be loaded), we can't determine which is the contracts folder so we default to claiming all solidity files inside the base folder or any subdirectories.
+
+## Foundry Support
+
+### Validation
+
+The Foundry projects leverage our implementation for "projectless" solidity files (i.e. files that don't belong to any known framework) with Foundry specific configuration additions.
 
 Building a solc input for validation involves scanning the target file for imports, and then scanning those imported files recursively. When this process finishes, we have a flat list of files to be compiled and a list of pragma statements which we can use to find a suitable version, or verify that the project's specified one matches the criterias. We then read the file contents from memory, using our solidity files index (all files are indexed on server initialization). This makes the compilation building very fast, since we don't read files from disk.
 
@@ -212,4 +219,14 @@ The compilation details from the projectless strategy has the source file keys i
 
 After this transformation, Foundry's remappings are added to the compilation's `input.settings`. These remappings are obtained during the initialization stage, where we invoke `forge` to obtain different configuration values. It's important to note that forge provides the remappings in a recursive manner, so by invoking it on the root project it also gives us the remappings from the imported libraries and their dependencies.
 
+### File claiming
 
+A given foundry project that was successfully initialized will claim ownership over solidity files inside the configured contracts, lib, test and scripts folders. If the project is unable to initialize (e.g. forge command not found), we can't determine the configured folders so we default to claiming all solidity files inside the base folder or any subdirectories.
+
+## Projectless (no framework)
+
+We provide support to editing standalone solidity files or projects with unknown frameworks. We do our best effort to provide validation by building the input and invoking the solidity compiler from the language server.
+
+When a file is requested for validation, the first step is crawling all it dependencies recursively through the import statements. We use `solidity-analyzer` for this, which scraps the imports and the solidity pragma statements from solidity files. The import paths supported for projectless files are relative and absolute path imports (i.e. no remappings, no direct imports).
+
+If all imports were crawled successfully, we process the list of found pragma statements, and match it against a list of available solc versions using the `semver` package. The highest matched version is used for compilation.
