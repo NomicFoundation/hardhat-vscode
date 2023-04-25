@@ -2,14 +2,14 @@ import { test } from 'mocha'
 import { expect } from 'chai'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
-import { getProjectPath, runningOnWindows } from '../../../helpers'
-import { toUri } from '../../../../src/helpers'
+import { getProjectPath } from '../../../helpers'
+import { shouldSkipFoundryTests, toUri } from '../../../../src/helpers'
 
 let client!: TestLanguageClient
 
 describe('[foundry][codeAction]', () => {
-  if (runningOnWindows()) {
-    return // skip foundry on windows
+  if (shouldSkipFoundryTests()) {
+    return
   }
   beforeEach(async () => {
     client = await getInitializedClient()
