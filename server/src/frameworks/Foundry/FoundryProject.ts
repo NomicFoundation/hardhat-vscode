@@ -15,13 +15,13 @@ import { runCmd } from "../../utils/operatingSystem";
 import { CompilationDetails } from "../base/CompilationDetails";
 import { InitializationFailedError } from "../base/Errors";
 import { Project } from "../base/Project";
+import { parseRemappings, Remapping } from "../base/Remapping";
 import { buildBasicCompilation } from "../shared/buildBasicCompilation";
-import { Remapping } from "../base/Remapping";
 import { getImportCompletions } from "./getImportCompletions";
 import { resolveForgeCommand } from "./resolveForgeCommand";
 
 export class FoundryProject extends Project {
-  public priority = 1;
+  public priority = 2;
   public sourcesPath!: string;
   public testsPath!: string;
   public libPath!: string;
@@ -64,7 +64,7 @@ export class FoundryProject extends Project {
         `${forgeCommand} remappings`,
         this.basePath
       );
-      this.remappings = this._parseRemappings(rawRemappings);
+      this.remappings = parseRemappings(rawRemappings);
     } catch (error: any) {
       this.serverState.logger.error(error.toString());
 
@@ -98,7 +98,7 @@ export class FoundryProject extends Project {
       return { belongs, isLocal };
     } else {
       // Project could not be initialized. Claim all files under base path to avoid them being incorrectly assigned to other projects
-      return { belongs: directoryContains(this.basePath, uri), isLocal: true };
+      return { belongs: directoryContains(this.basePath, uri), isLocal: false };
     }
   }
 
@@ -140,6 +140,7 @@ export class FoundryProject extends Project {
     sourceUri: string,
     openDocuments: OpenDocuments
   ): Promise<CompilationDetails> {
+    // Ensure project is initialized
     if (this.initializeError !== undefined) {
       const error: InitializationFailedError = {
         _isInitializationFailedError: true,
@@ -208,33 +209,5 @@ export class FoundryProject extends Project {
       position,
       currentImport
     );
-  }
-
-  private _parseRemappings(rawRemappings: string) {
-    const lines = rawRemappings.trim().split("\n");
-    const remappings: Remapping[] = [];
-
-    for (const line of lines) {
-      const lineTokens = line.split("=", 2);
-
-      if (
-        lineTokens.length !== 2 ||
-        lineTokens[0].length === 0 ||
-        lineTokens[1].length === 0
-      ) {
-        continue;
-      }
-
-      const [from, to] = lineTokens.map((token) =>
-        token.endsWith("/") ? token : `${token}/`
-      );
-
-      remappings.push({
-        from,
-        to,
-      });
-    }
-
-    return remappings;
   }
 }

@@ -15,6 +15,7 @@ import { getOrInitialiseSolFileEntry } from "../../utils/getOrInitialiseSolFileE
 import { FoundryIndexer } from "../../frameworks/Foundry/FoundryIndexer";
 import { frameworkTag } from "../../telemetry/tags";
 import { TruffleIndexer } from "../../frameworks/Truffle/TruffleIndexer";
+import { ApeIndexer } from "../../frameworks/Ape/ApeIndexer";
 import { resolveTopLevelWorkspaceFolders } from "./resolveTopLevelWorkspaceFolders";
 
 export async function indexWorkspaceFolders(
@@ -48,6 +49,7 @@ export async function indexWorkspaceFolders(
     new HardhatIndexer(serverState, workspaceFileRetriever),
     new FoundryIndexer(serverState, workspaceFileRetriever),
     new TruffleIndexer(serverState, workspaceFileRetriever),
+    new ApeIndexer(serverState, workspaceFileRetriever),
   ];
   const foundProjects: Project[] = [];
   await logger.trackTime("Indexing projects", async () => {
