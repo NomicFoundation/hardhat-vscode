@@ -11,7 +11,7 @@ dependencies:
     branch: dappnix
     contracts_folder: src
   - name: LocalOZ
-    local: /home/antico/webapps/solidity_projects/4_openzeppelin
+    local: /home/xxx/solidity_projects/4_openzeppelin
     contracts_folder: contracts
 
 solidity: 
