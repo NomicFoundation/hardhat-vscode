@@ -63,7 +63,7 @@ describe("HardhatProject", function () {
           await project.fileBelongs(
             `/my_hardhat_project/any_folder/contract.sol`
           ),
-          { belongs: true, isLocal: true }
+          { belongs: true, isLocal: false }
         );
 
         assert.include(

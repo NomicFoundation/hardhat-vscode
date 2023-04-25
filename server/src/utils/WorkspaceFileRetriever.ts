@@ -14,6 +14,7 @@ export class WorkspaceFileRetriever {
       ignore,
       followSymbolicLinks: false,
       suppressErrors: true,
+      dot: true,
     });
 
     return relativePaths.map((rp) =>
