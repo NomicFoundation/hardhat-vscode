@@ -194,3 +194,7 @@ To separate out the repo readme from the marketing readme, we have two. The repo
 ## Publishing
 
 The extension is published via the [VSCode Marketplace](https://marketplace.visualstudio.com/vscode), see [publish-extension.md](./docs/publish-extension.md) for detailed instructions in making a release.
+
+## Codebase Overview
+
+You can get a better understanding of the codebase from our [overview](./docs/codebase.md).
