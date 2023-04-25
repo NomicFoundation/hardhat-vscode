@@ -11,7 +11,7 @@ import semver from "semver";
 import { DidChangeWatchedFilesParams } from "vscode-languageserver-protocol";
 import { URI } from "vscode-uri";
 import { OpenDocuments, ServerState } from "../../types";
-import { isRelativeImport } from "../../utils";
+import { isRelativeImport, toUnixStyle } from "../../utils";
 import { directoryContains } from "../../utils/directoryContains";
 import { CompilationDetails } from "../base/CompilationDetails";
 import { InitializationFailedError } from "../base/Errors";
@@ -59,6 +59,18 @@ export class TruffleProject extends Project {
     this.testsPath = path.join(this.basePath, "test");
 
     this.globalNodeModulesPath = execSync("npm root --quiet -g").toString();
+
+    try {
+      // Ensure truffle is installed either globally or locally
+      require.resolve("truffle", {
+        paths: [this.basePath, this.globalNodeModulesPath],
+      });
+    } catch (error) {
+      const errorMessage = `Truffle module not found. Ensure it's installed globally or locally.`;
+      this.status = Status.INITIALIZED_FAILURE;
+      this.initializeError = errorMessage;
+      throw new Error(errorMessage);
+    }
 
     try {
       // Load config file
@@ -205,11 +217,12 @@ export class TruffleProject extends Project {
       }
 
       // Build the sources input
-      sources[absolutePath] = { content: contractText };
+      const normalizedAbsolutePath = toUnixStyle(absolutePath);
+      sources[normalizedAbsolutePath] = { content: contractText };
 
       // Add an entry to remappings
       if (!isRelativeImport(sourceName) && sourceName !== absolutePath) {
-        remappings.push(`${sourceName}=${absolutePath}`);
+        remappings.push(`${sourceName}=${normalizedAbsolutePath}`);
       }
     }
 
