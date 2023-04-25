@@ -47,7 +47,7 @@ export enum WorkerStatus {
 const REQUEST_TIMEOUT = 5000;
 
 export class HardhatProject extends Project {
-  public priority = 2;
+  public priority = 4;
 
   public workerProcess?: ChildProcess;
 
@@ -147,7 +147,7 @@ export class HardhatProject extends Project {
         // This is to avoid potential hardhat-owned contracts being assigned to i.e. projectless
         resolve({
           belongs: directoryContains(this.basePath, sourceURI),
-          isLocal: true,
+          isLocal: false,
         });
       }
     });

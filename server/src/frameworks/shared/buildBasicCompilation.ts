@@ -1,6 +1,7 @@
 import _ from "lodash";
 import semver from "semver";
 import { OpenDocuments } from "../../types";
+import { isRelativeImport } from "../../utils";
 import { CompilationDetails } from "../base/CompilationDetails";
 import { Project } from "../base/Project";
 import { getDependenciesAndPragmas } from "./crawlDependencies";
@@ -26,6 +27,8 @@ export async function buildBasicCompilation(
 
   // Get list of all dependencies (deep) and their pragma statements
   const dependencyDetails = await getDependenciesAndPragmas(project, sourceUri);
+  // console.log(JSON.stringify(dependencyDetails, null, 2));
+
   const pragmas = _.flatten(_.map(dependencyDetails, "pragmas"));
 
   // Use specified solc version or determine it based on available versions and pragma statements
@@ -45,17 +48,22 @@ export async function buildBasicCompilation(
   }
 
   // Build solc input
-  const filePathsToCompile = _.map(dependencyDetails, "absolutePath");
   const sources: { [uri: string]: { content: string } } = {};
-  for (const filePath of filePathsToCompile) {
+  const remappings: string[] = [];
+
+  for (const { sourceName, absolutePath } of dependencyDetails) {
     // Read all sol files via openDocuments or solFileIndex
     const contractText =
-      openDocuments.find((doc) => doc.uri === filePath)?.documentText ??
-      project.serverState.solFileIndex[filePath].text;
+      openDocuments.find((doc) => doc.uri === absolutePath)?.documentText ??
+      project.serverState.solFileIndex[absolutePath].text;
     if (contractText === undefined) {
-      throw new Error(`Contract not indexed: ${filePath}`);
+      throw new Error(`Contract not indexed: ${absolutePath}`);
     }
-    sources[filePath] = { content: contractText };
+    sources[absolutePath] = { content: contractText };
+
+    if (!isRelativeImport(sourceName) && sourceName !== absolutePath) {
+      remappings.push(`${sourceName}=${absolutePath}`);
+    }
   }
 
   sources[sourceUri] = { content: documentText };
@@ -66,6 +74,7 @@ export async function buildBasicCompilation(
       sources,
       settings: {
         outputSelection: {},
+        remappings,
         optimizer: {
           enabled: false,
           runs: 200,
