@@ -1,15 +1,15 @@
 import { expect } from 'chai'
 import { test } from 'mocha'
-import { toUri } from '../../../../src/helpers'
+import { shouldSkipFoundryTests, toUri } from '../../../../src/helpers'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
-import { getProjectPath, runningOnWindows } from '../../../helpers'
+import { getProjectPath } from '../../../helpers'
 
 let client!: TestLanguageClient
 
 describe('[foundry][completion]', () => {
-  if (runningOnWindows()) {
-    return // skip foundry on windows
+  if (shouldSkipFoundryTests()) {
+    return
   }
 
   beforeEach(async () => {
@@ -54,8 +54,8 @@ describe('[foundry][completion]', () => {
     })
 
     test('lib contract import through remappings on partial specification', async () => {
-      if (runningOnWindows()) {
-        return // skip foundry on windows
+      if (shouldSkipFoundryTests()) {
+        return
       }
 
       const documentPath = getProjectPath('foundry/src/completion/Imports.sol')

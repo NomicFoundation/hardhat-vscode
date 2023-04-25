@@ -1,8 +1,8 @@
 import { expect } from 'chai'
-import { toUri } from '../../src/helpers'
+import { shouldSkipFoundryTests, toUri } from '../../src/helpers'
 import { TestLanguageClient } from '../../src/TestLanguageClient'
 import { getInitializedClient } from '../client'
-import { getProjectPath, runningOnWindows } from '../helpers'
+import { getProjectPath } from '../helpers'
 
 let client!: TestLanguageClient
 
@@ -32,7 +32,7 @@ describe('[misc] server document formatting', () => {
   })
 
   it('can use forge as formatter', async () => {
-    if (runningOnWindows()) {
+    if (shouldSkipFoundryTests()) {
       return
     }
 
