@@ -34,7 +34,7 @@ The codebase has three main node.js packages each of which are published separat
 
 - Solidity Language server - a published node package and standalone cli application
 - VS Code extension client - published to the Microsoft and the OpenVSX registries as a vsix file bundled with the Solidity language server
-- coc.nvim extension client - a published node package that can be install by CoC to provide vim support. It depends on the the Solidity Language Server as a dependency
+- coc.nvim extension client - a published node package that can be install by CoC to provide vim support. It depends on the Solidity Language Server as a dependency
   
 Of these components, the one that involves the most complexity and holds most of the data structures and logic, is the Solidity language server. We try to keep the two clients as small wrappers that relay onto the Solidity language server.
 
@@ -217,9 +217,9 @@ Quickfixes are refactors or code changes that the language server can apply on t
 
 The validation process can lead to two cases where we show diagnostics on files: solc errors/warnings, and framework file-specific errors (e.g. Hardhat validation failing on an invalid Solidity import).
 
-Once we have these low level errors, we use `DiagnosticConverter` to generate diagnostics in the format the the LSP specifies. Additionally, we have some specific handlers that may modify those diagnostics. These handlers implement the `CompilerDiagnostic` interface, and may for example, change the range of the diagnostic, underlining a function name instead of the whole function body (which solc does by default).
+Once we have these low level errors, we use `DiagnosticConverter` to generate diagnostics in the format the LSP specifies. Additionally, we have some specific handlers that may modify those diagnostics. These handlers implement the `CompilerDiagnostic` interface, and may for example, change the range of the diagnostic, underlining a function name instead of the whole function body (which solc does by default).
 
-The language client can, when hovering over a diagnostic, send a `codeAction` request. This means it's asking for quickfixes for a specific diagnostic. With the request, the diagnostic itself is sent again to the server, so we can tell what kind of error it was and what quickfixes we can provide.
+The language client can, when hovering over a diagnostic, send a `codeAction` request. This means it is asking for quickfixes for a specific diagnostic. With the request, the diagnostic itself is sent again to the server, so we can tell what kind of error it was and what quickfixes we can provide.
 
 We leverage the same interface as before, `CompilerDiagnostic`, to provide code actions for a specific diagnostic. Some code actions are as simple as inserting some fixed text on a given position, but others may require parsing the file, accessing the document analyzer or invoking other tools like prettier, which we use for code formatting.
 
