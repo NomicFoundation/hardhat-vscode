@@ -3,13 +3,14 @@ import { test } from 'mocha'
 import { MessageType } from 'vscode-languageserver-protocol'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
-import { getProjectPath, runningOnWindows } from '../../../helpers'
+import { getProjectPath } from '../../../helpers'
+import { shouldSkipFoundryTests } from '../../../../src/helpers'
 
 let client!: TestLanguageClient
 
 describe('[foundry] show notification', () => {
-  if (runningOnWindows()) {
-    return // skip foundry on windows
+  if (shouldSkipFoundryTests()) {
+    return
   }
 
   beforeEach(async () => {
