@@ -1,6 +1,5 @@
 import path from 'path'
 import { Position, Range } from 'vscode-languageserver-protocol'
-import os from 'os'
 
 export function getProjectPath(partialPath: string) {
   return path.join(__dirname, '..', 'projects', partialPath)
@@ -28,8 +27,4 @@ export function makeRange(startLine: number, startChar: number, endLine: number,
 
 export async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-export function runningOnWindows() {
-  return os.platform() === 'win32'
 }
