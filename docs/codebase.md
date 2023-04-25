@@ -35,7 +35,7 @@ The codebase has three main node.js packages each of which are published separat
 - Solidity Language server - a published node package and standalone cli application
 - VS Code extension client - published to the Microsoft and the OpenVSX registries as a vsix file bundled with the Solidity language server
 - coc.nvim extension client - a published node package that can be install by CoC to provide vim support. It depends on the Solidity Language Server as a dependency
-  
+
 Of these components, the one that involves the most complexity and holds most of the data structures and logic, is the Solidity language server. We try to keep the two clients as small wrappers that relay onto the Solidity language server.
 
 Both the VS Code client and the coc.nvim client spawn the language server as a subprocess. But the Solidity language server can also be used independently, for example when using it directly with Neovim.
