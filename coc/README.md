@@ -203,6 +203,7 @@ The _project type_ and _project config file_ that are being used when validating
 
 ![Open Config](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/open-config.gif "Open Config")
 
+
 ## Format document
 
 Running `:call CocActionAsync('format')` will trigger document formatting.
