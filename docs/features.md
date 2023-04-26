@@ -48,9 +48,7 @@ Rename the identifier under the cursor and all of its references:
 
 ### Format document
 
-Apply solidity formatting to the current document.
-
-The formatting configuration can be overridden through a `.prettierrc` file, see [Formatting Configuration](#formatting-configuration).
+Apply Solidity formatting to the current document, for all the configuration options see [Formatting Configuration](#formatting-configuration).
 
 ![Reformat](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/format.gif "Reformat")
 
@@ -66,9 +64,7 @@ Hovering the cursor over variables, function calls, errors and events will displ
 
 ### Inline code validation (Diagnostics)
 
-As code is edited, **Solidity by Nomic Foundation** runs the [solc](https://docs.soliditylang.org/en/latest/using-the-compiler.html) compiler over the changes and displays any warnings or errors it finds.
-
-This feature is only available in solidity files that are part of a **Hardhat** project, as **Hardhat** is used for import resolution, see [Hardhat Projects](#hardhat-projects) for details.
+As code is edited, the [solc](https://docs.soliditylang.org/en/latest/using-the-compiler.html) compiler is run over the changes and any warnings or errors are displayed.
 
 ![Diagnostic](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/diagnostic.gif "Diagnostic")
 
@@ -140,18 +136,46 @@ Hardhat's `console.sol` can be imported with this quickfix. Please note that thi
 
 ---
 
-## Hardhat Projects
+## Project support
 
-**Solidity by Nomic Foundation** provides enhanced functionality for Solidity files within a **Hardhat** project, including inline validation and quick fixes.
+Some features are only fully enabled, if the Solidity file being worked on is part of a supported project (e.g. [inline code validation](#inline-code-validation-diagnostics)).
 
-To take advantage of these features, use the `File` menu to `Open Folder`, and select the folder containing the `hardhat.config.{js,ts}` file.
+We provide support for [Hardhat](https://hardhat.org/) projects and experimental support for [Foundry](https://getfoundry.sh/), [Truffle](https://trufflesuite.com/) and [Ape](https://www.apeworx.io/) projects.
+
+Project support is needed as Solidity delegates to the project framework to determine _Solidity import resolution_. The current project and its configuration needs to be understood to replicate this logic and provide language features based upon it.
+
+If the Solidity file is not part of a project or the project cannot be determined, a best effort is made to resolve imports based only on [relative imports](https://docs.soliditylang.org/en/v0.8.19/path-resolution.html#relative-imports).
+
+### Hardhat
+
+Hardhat projects are detected by looking for a `hardhat.config.{js,ts}` file.
 
 Inline validation (the display of compiler errors and warnings against the code) is based on your Hardhat configuration file. The version of the `solc` solidity compiler used for validation is set within this file, see the [Hardhat documentation](https://hardhat.org/config/#solidity-configuration) for more details.
 
-### Monorepo Support
+### Foundry (experimental)
 
-**Solidity by Nomic Foundation** will detect Hardhat projects (folders containing a `hardhat.config.{js,ts}` file) within a monorepo, when the root of the monorepo is opened as a workspace folder.
+[Foundry](https://getfoundry.sh/) projects are detected by looking for a `foundry.toml` file.
 
-The **Hardhat config file** that is used when validating a Solidity file is shown in the Solidity section on the _Status Bar_:
+The version of the `solc` solidity compiler used for validation is set within the `foundry.toml`, see the [Foundry documentation](https://book.getfoundry.sh/reference/config/solidity-compiler) for more details.
+
+Remappings are supported either from a `remappings.txt` file or as part of the `foundry.toml`.
+
+### Truffle (experimental)
+
+[Truffle](https://trufflesuite.com/) projects are detected by the presence of a `truffle.js` or `truffle-config.js` file.
+
+Solidity import resolution for Truffle supports relative paths, direct imports from the `node_modules` folder and Truffle direct imports (e.g. `truffle/Assert.sol`).
+
+### Ape (experimental)
+
+[Ape](https://www.apeworx.io/) projects are detected by the presence of an `ape-config.yaml` file.
+
+Remappings are supported when set within the `ape-config.yaml` file.
+
+## Monorepo Support
+
+Monorepos are supported and can be opened as workspace folders. On opening a monorepo, it will be scanned to find all supported projects (i.e. Hardhat, Foundry, Truffle and Ape).
+
+The _project type_ and _project config file_ that are being used when validating a Solidity file are shown in the Solidity section of the _Status Bar_:
 
 ![Open Config](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/open-config.gif "Open Config")
