@@ -10,9 +10,9 @@ Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay u
 
 Please refer to one of these packages to find detailed documentation relevant to your use case:
 
+- [Solidity language server](./server/README.md)
 - [VSCode extension](./client/README.md)
 - [coc.nvim extension](./coc/README.md)
-- [Solidity language server](./server/README.md)
 
 ## Contributing
 
