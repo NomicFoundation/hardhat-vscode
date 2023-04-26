@@ -2,7 +2,7 @@
   "name": "@nomicfoundation/solidity-language-server",
   "description": "Solidity language server by Nomic Foundation",
   "license": "MIT",
-  "version": "0.6.16",
+  "version": "0.7.0",
   "author": "Nomic Foundation",
   "repository": {
     "type": "git",

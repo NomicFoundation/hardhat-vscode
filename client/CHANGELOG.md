@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.7.0 - 2023-04-26
+
+### Added
+
+- Experimental support for Truffle projects ([#45](https://github.com/NomicFoundation/hardhat-vscode/issues/45))
+- Experimental support for Ape projects ([#391](https://github.com/NomicFoundation/hardhat-vscode/issues/391))
+
 ## 0.6.16 - 2023-04-18
 
 ### Changed
