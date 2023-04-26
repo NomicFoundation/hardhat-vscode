@@ -1,6 +1,6 @@
 # Solidity by Nomic Foundation
 
-This extension adds language support for [Solidity](https://soliditylang.org/) to Visual Studio Code, and provides editor integration for [Hardhat projects](https://hardhat.org/). Integrations for other tools are coming in the near future. It supports:
+This extension adds language support for [Solidity](https://soliditylang.org/) to Visual Studio Code, and provides editor integration for [Hardhat](https://hardhat.org/) projects, and experimental support for [Foundry](https://getfoundry.sh/), [Truffle](https://trufflesuite.com/) and [Ape](https://www.apeworx.io/) projects. It supports:
 
 - [Code completion](#code-completions)
 - [Go to definition, type definition and references](#navigation)
@@ -23,9 +23,12 @@ Built by the [Nomic Foundation](https://nomic.foundation/). [We’re hiring](htt
 
 - [Installation](#installation)
 - [Features](#features)
-- [Setup](#setup)
-- [Hardhat Projects](#hardhat-projects)
-  - [Monorepo Support](#monorepo-support)
+- [Project support](#project-support)
+  - [Hardhat](#hardhat)
+  - [Foundry](#foundry-experimental)
+  - [Truffle](#truffle-experimental)
+  - [Ape](#ape-experimental)
+- [Monorepo Support](#monorepo-support)
 - [Formatting](#formatting)
   - [Formatting Configuration](#formatting-configuration)
 - [Feedback, help and news](#feedback-help-and-news)
@@ -38,17 +41,13 @@ Built by the [Nomic Foundation](https://nomic.foundation/). [We’re hiring](htt
 
 Some features (e.g. inline validation, quick fixes) are still experimental and are only enabled within a [Hardhat](https://hardhat.org/) project, this is a limitation that will be lifted with future releases.
 
-## Setup
-
-This extension should work without any configuration. If formatting functionality isn't working, or you have previously configured another **Solidity** formatter, please see the [formatting section](#formatting).
-
 [include '../docs/features.md']
 
 ### Commands
 
 #### Compile project
 
-When working on a hardhat project, the command `Hardhat: Compile project` is available on the command palette. This will trigger a `hardhat compile` run.
+When working on a Hardhat project, the command `Hardhat: Compile project` is available on the command palette. This will trigger a `hardhat compile` run.
 
 ![Compile command](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/gifs/command-compile.gif "Compile command")
 
@@ -66,7 +65,7 @@ When working on a solidity file inside a hardhat project, the command `Hardhat: 
 
 ### Task provider
 
-The extension is registered as a task provider for hardhat projects, in which the `build` task is provided, running `hardhat compile`, and the `test` task, which runs `hardhat test`.
+The extension is registered as a task provider for Hardhat projects, in which the `build` task is provided, running `hardhat compile`, and the `test` task, which runs `hardhat test`.
 
 ## Formatting
 
@@ -89,6 +88,10 @@ To set **Solidity by Nomic Foundation** as your default formatter for solidity f
 ![Format Document With](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/images/select_solidity_plus_hardhat.png "Confiure default formatter")
 
 ### Formatting Configuration
+
+Formatting can be configured to be provided by either `prettier` (the default) or `forge`.
+
+#### Prettier
 
 The default formatting rules that will be applied are taken from [prettier-plugin-solidity](https://github.com/prettier-solidity/prettier-plugin-solidity#configuration-file), with the exception that `explicitTypes` are preserved (rather than forced).
 
@@ -113,9 +116,15 @@ To override the settings, add a `prettierrc` configuration file at the root of y
 }
 ```
 
+#### Forge
+
+If `forge` is selected as the formatter under the configuration, then the `forge fmt` command is run on the open editor file to provide formatting. The `forge fmt` command determines the configuration based on the project's `foundry.toml` file.
+
+The configuration options for `forge fmt` are [available here](https://book.getfoundry.sh/reference/config/formatter).
+
 ## Alternative editors
 
-We currently distribute a [vim.coc](https://www.npmjs.com/package/@nomicfoundation/coc-solidity) extension and a [standalone language server](https://www.npmjs.com/package/@nomicfoundation/solidity-language-server) that you can integrate with your editor of choice to have full solidity language support.
+We currently distribute a [vim.coc](https://www.npmjs.com/package/@nomicfoundation/coc-solidity) extension and a [standalone language server](https://www.npmjs.com/package/@nomicfoundation/solidity-language-server) that you can integrate with your editor of choice to have full Solidity language support.
 
 ## Feedback, help and news
 
