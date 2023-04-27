@@ -89,6 +89,7 @@ async function main() {
     platform: "node",
     outdir: ".",
     logLevel: "info",
+    target: "node14",
     define: definedConstants,
   });
 
