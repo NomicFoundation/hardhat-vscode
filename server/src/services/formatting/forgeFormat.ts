@@ -30,12 +30,14 @@ export async function forgeFormat(
   child.stdin?.end();
 
   // Set a time limit
-  setTimeout(() => {
+  const timeout = setTimeout(() => {
     child.kill("SIGKILL");
   }, 2000);
 
   // Wait for the formatted output
   const formattedText = (await execPromise).stdout;
+
+  clearTimeout(timeout);
 
   // Build and return a text edit with the entire file content
   const textEdit: TextEdit = {
