@@ -36,7 +36,7 @@ export function onDocumentFormatting(serverState: ServerState) {
           return null;
       }
     } catch (error) {
-      logger.error(`Error formatting document ${uri} with ${formatter}`);
+      logger.info(`Error formatting document ${uri} with ${formatter}`);
       return null;
     }
   };
