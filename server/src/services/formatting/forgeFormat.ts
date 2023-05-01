@@ -4,13 +4,21 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { TextEdit } from "vscode-languageserver-types";
 import { URI } from "vscode-uri";
 import { resolveForgeCommand } from "../../frameworks/Foundry/resolveForgeCommand";
+import { Logger } from "../../utils/Logger";
 
-export async function forgeFormat(text: string, document: TextDocument) {
+export async function forgeFormat(
+  text: string,
+  document: TextDocument,
+  logger: Logger
+) {
   const forgeCommand = await resolveForgeCommand();
 
   const documentPath = URI.parse(document.uri).fsPath;
 
   const cwd = path.dirname(documentPath);
+
+  logger.trace(`Forge command: ${forgeCommand}`);
+  logger.trace(`CWD: ${cwd}`);
 
   const formattedText = cp
     .execSync(`${forgeCommand} fmt --raw -`, {
