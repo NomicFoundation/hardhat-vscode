@@ -108,7 +108,8 @@ export class FoundryProject extends Project {
     // Apply remappings to importPath if it's not a relative import
     if (!importPath.startsWith(".")) {
       for (const { from, to } of this.remappings) {
-        const toAbsolutePath = path.join(this.basePath, to);
+        const toAbsolutePath = path.resolve(this.basePath, to);
+
         if (importPath.startsWith(from)) {
           transformedPath = path.join(
             toAbsolutePath,
@@ -162,6 +163,10 @@ export class FoundryProject extends Project {
     // Modify source keys to be root-relative instead of absolute
     // i,e, '/home/user/myProject/src/Contract.sol' => 'src/Contract.sol'
     for (const [sourceKey, sourceValue] of Object.entries(sources)) {
+      if (!directoryContains(this.basePath, sourceKey)) {
+        continue;
+      }
+
       const transformedSourceKey = path.relative(this.basePath, sourceKey);
       sources[transformedSourceKey] = sourceValue;
       delete sources[sourceKey];
