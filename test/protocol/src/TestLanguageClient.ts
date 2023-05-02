@@ -34,6 +34,8 @@ import {
   ReferencesRequest,
   RenameParams,
   RenameRequest,
+  SemanticTokensParams,
+  SemanticTokensRequest,
   TypeDefinitionParams,
   TypeDefinitionRequest,
 } from 'vscode-languageserver-protocol/node'
@@ -340,6 +342,16 @@ export class TestLanguageClient {
     }
 
     return this.connection!.sendRequest(RenameRequest.type, params)
+  }
+
+  public async getSemanticTokensFull(uri: string) {
+    const params: SemanticTokensParams = {
+      textDocument: {
+        uri,
+      },
+    }
+
+    return this.connection!.sendRequest(SemanticTokensRequest.type, params)
   }
 
   public async formatDocument(uri: string) {

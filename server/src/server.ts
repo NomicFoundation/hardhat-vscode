@@ -19,6 +19,7 @@ import { Telemetry } from "./telemetry/types";
 import { attachDocumentHooks } from "./services/documents/attachDocumentHooks";
 import { availableVersions } from "./services/initialization/updateAvailableSolcVersions";
 import { onDocumentFormatting } from "./services/formatting/onDocumentFormatting";
+import { onSemanticTokensFull } from "./services/semanticHighlight/onSemanticTokensFull";
 
 export default function setupServer(
   connection: Connection,
@@ -98,6 +99,7 @@ function attachLanguageServerCommandHooks(serverState: ServerState) {
   connection.onCodeAction(onCodeAction(serverState));
   connection.onHover(onHover(serverState));
   connection.onDocumentFormatting(onDocumentFormatting(serverState));
+  connection.languages.semanticTokens.on(onSemanticTokensFull(serverState));
 }
 
 function attachCustomHooks(serverState: ServerState) {
