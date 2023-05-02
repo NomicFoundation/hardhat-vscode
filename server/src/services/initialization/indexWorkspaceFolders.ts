@@ -83,7 +83,7 @@ export async function indexWorkspaceFolders(
       try {
         await foundProject.initialize();
       } catch (error) {
-        logger.info(`Error initializing ${foundProject.basePath}: ${error}`);
+        logger.error(error);
       }
 
       span?.finish();

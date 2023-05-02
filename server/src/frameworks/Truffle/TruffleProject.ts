@@ -69,7 +69,6 @@ export class TruffleProject extends Project {
       const errorMessage = `Truffle module not found. Ensure it's installed globally or locally.`;
       this.status = Status.INITIALIZED_FAILURE;
       this.initializeError = errorMessage;
-      throw new Error(errorMessage);
     }
 
     try {
