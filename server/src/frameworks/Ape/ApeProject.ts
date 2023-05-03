@@ -82,7 +82,7 @@ export class ApeProject extends Project {
       }
     } catch (error) {
       this.initializeError = `${error}`;
-      this.serverState.logger.error(this.initializeError);
+      this.serverState.logger.info(this.initializeError);
     }
 
     return;

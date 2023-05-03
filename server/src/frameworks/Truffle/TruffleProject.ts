@@ -69,7 +69,7 @@ export class TruffleProject extends Project {
       const errorMessage = `Truffle module not found. Ensure it's installed globally or locally.`;
       this.status = Status.INITIALIZED_FAILURE;
       this.initializeError = errorMessage;
-      throw new Error(errorMessage);
+      this.serverState.logger.info(this.initializeError);
     }
 
     try {
@@ -90,11 +90,13 @@ export class TruffleProject extends Project {
         this.serverState.solcVersions,
         configSolcVersion
       );
+
       if (resolvedSolcVersion === null) {
         throw new Error(
           `No version satisfies ${configSolcVersion}. Available versions are: ${this.serverState.solcVersions}`
         );
       }
+
       this.resolvedSolcVersion = resolvedSolcVersion;
 
       // Load contracts directory
@@ -113,7 +115,7 @@ export class TruffleProject extends Project {
       const errorMessage = `Error loading config file ${this.configPath}: ${error}`;
       this.status = Status.INITIALIZED_FAILURE;
       this.initializeError = errorMessage;
-      throw new Error(errorMessage);
+      this.serverState.logger.info(this.initializeError);
     }
   }
 
