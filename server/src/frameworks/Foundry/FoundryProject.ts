@@ -66,8 +66,6 @@ export class FoundryProject extends Project {
       );
       this.remappings = parseRemappings(rawRemappings);
     } catch (error: any) {
-      this.serverState.logger.error(error.toString());
-
       switch (error.code) {
         case 134:
           this.initializeError =
@@ -79,6 +77,7 @@ export class FoundryProject extends Project {
         default:
           this.initializeError = `Unexpected error while running \`forge\`: ${error}`;
       }
+      this.serverState.logger.info(this.initializeError);
     }
 
     return;
