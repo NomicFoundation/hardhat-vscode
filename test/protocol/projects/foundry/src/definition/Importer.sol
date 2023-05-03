@@ -4,6 +4,7 @@ pragma solidity ^0.8.7;
 
 import '@lib/myLib/Imported.sol';
 import '@myLib/OtherImported.sol';
+import '@tmp/AbsoluteImported.sol';
 
 contract Importer {
   Imported i1;

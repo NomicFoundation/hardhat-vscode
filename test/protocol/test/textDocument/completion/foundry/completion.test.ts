@@ -44,6 +44,12 @@ describe('[foundry][completion]', () => {
             documentation: 'Imports the package',
           },
           {
+            label: '@tmp',
+            insertText: '@tmp',
+            kind: 9,
+            documentation: 'Imports the package',
+          },
+          {
             label: 'myLib',
             insertText: 'myLib',
             kind: 9,
