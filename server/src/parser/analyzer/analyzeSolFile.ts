@@ -26,7 +26,6 @@ export async function analyzeSolFile(
         range: true,
         tolerant: true,
       });
-      // console.log(JSON.stringify(solFileEntry.ast, null, 2));
     } catch {
       solFileEntry.status = SolFileState.ERRORED;
       return solFileEntry.analyzerTree.tree;
