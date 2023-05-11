@@ -18,6 +18,14 @@
     "renameProvider": true,
     "codeActionProvider": true,
     "hoverProvider": true,
+    "semanticTokensProvider": {
+      "full": true,
+      "legend": {
+        "tokenModifiers": [],
+        "tokenTypes": ["keyword", "number", "type", "string", "function"]
+      },
+      "range": false
+    },
     "workspace": {
       "workspaceFolders": {
         "supported": true,

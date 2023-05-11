@@ -1,10 +1,12 @@
-pragma solidity 0.8.8;
-//
+// SPDX-License-Identifier: GPL-3.0
 
-import "@lib/myLib/Imported.sol";
-// import "@myLib/OtherImported.sol";
+pragma solidity ^0.8.7;
 
 import '@lib/myLib/Imported.sol';
 import '@myLib/OtherImported.sol';
 import '@tmp/AbsoluteImported.sol';
 
+contract Importer {
+  Imported i1;
+  OtherImported i2;
+}
