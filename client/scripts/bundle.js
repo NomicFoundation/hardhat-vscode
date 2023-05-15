@@ -187,7 +187,6 @@ async function main() {
       version: "0.0.1",
       dependencies: {
         "@nomicfoundation/solidity-analyzer": "0.1.1",
-        "@nomicfoundation/slang": "0.2.1",
         "@nomicfoundation/solidity-analyzer-darwin-arm64": "0.1.1",
         "@nomicfoundation/solidity-analyzer-win32-arm64-msvc": "0.1.1",
         "@nomicfoundation/solidity-analyzer-linux-arm64-gnu": "0.1.1",
@@ -197,9 +196,18 @@ async function main() {
         "@nomicfoundation/solidity-analyzer-win32-x64-msvc": "0.1.1",
         "@nomicfoundation/solidity-analyzer-linux-x64-gnu": "0.1.1",
         "@nomicfoundation/solidity-analyzer-linux-x64-musl": "0.1.1",
+        "@nomicfoundation/solidity-analyzer-freebsd-x64": "0.1.1",
+
+        "@nomicfoundation/slang": "0.2.1",
+        "@nomicfoundation/slang-darwin-arm64": "0.2.1",
+        "@nomicfoundation/slang-win32-arm64-msvc": "0.2.1",
+        "@nomicfoundation/slang-linux-arm64-gnu": "0.2.1",
+        "@nomicfoundation/slang-linux-arm64-musl": "0.2.1",
+        "@nomicfoundation/slang-win32-ia32-msvc": "0.2.1",
+        "@nomicfoundation/slang-darwin-x64": "0.2.1",
+        "@nomicfoundation/slang-win32-x64-msvc": "0.2.1",
         "@nomicfoundation/slang-linux-x64-gnu": "0.2.1",
         "@nomicfoundation/slang-linux-x64-musl": "0.2.1",
-        "@nomicfoundation/solidity-analyzer-freebsd-x64": "0.1.1",
       },
     })
   );
