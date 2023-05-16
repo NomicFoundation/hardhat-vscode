@@ -2,7 +2,6 @@
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { getTokenTypeIndex } from "./tokenTypes";
-import { OffsetTranslator } from "./OffsetTranslator";
 import { SlangNode } from "./slangHelpers";
 
 // Helps building a SemanticTokens response by providing slang nodes and supported token types
@@ -11,18 +10,13 @@ export class SemanticTokensBuilder {
   private lastTokenLine = 0;
   private lastTokenChar = 0;
 
-  constructor(
-    private document: TextDocument,
-    private offsetTranslator: OffsetTranslator
-  ) {}
+  constructor(private document: TextDocument) {}
 
   public addToken(node: SlangNode, type: SemanticTokenTypes, modifiers = 0) {
-    // Convert byte offset to character offset
-    const charOffset = this.offsetTranslator.translate(Number(node.range[0]));
-    const charLength =
-      this.offsetTranslator.translate(Number(node.range[1])) - charOffset;
+    const offset = node.charRange[0];
+    const length = node.charRange[1] - node.charRange[0];
 
-    const position = this.document.positionAt(charOffset);
+    const position = this.document.positionAt(offset);
 
     // Calculate character and line difference to last token
     const lineDelta = position.line - this.lastTokenLine;
@@ -37,7 +31,7 @@ export class SemanticTokensBuilder {
     this.tokenData.push(
       lineDelta,
       charDelta,
-      charLength,
+      length,
       getTokenTypeIndex(type),
       modifiers
     );

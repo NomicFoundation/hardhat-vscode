@@ -23,8 +23,7 @@ import { EventDefinitionHighlighter } from "./highlighters/EventDefinitionHighli
 import { ContractDefinitionHighlighter } from "./highlighters/ContractDefinitionHighlighter";
 import { InterfaceDefinitionHighlighter } from "./highlighters/InterfaceDefinitionHighlighter";
 import { StructDefinitionHighlighter } from "./highlighters/StructDefinitionHighlighter";
-import { OffsetTranslator } from "./OffsetTranslator";
-import { visit } from "./slangHelpers";
+import { walk } from "./slangHelpers";
 
 let lastValidResponse: SemanticTokens = { data: [] };
 
@@ -63,27 +62,20 @@ export function onSemanticTokensFull(serverState: ServerState) {
               document.getText()
             );
 
-            const parseTree = parseOutput.parseTree();
+            const parseTree = parseOutput.parseTree;
 
             if (parseTree === null) {
               logger.trace("Slang parsing error");
-              const strings = parseOutput.errorsAsStrings(
-                document.uri,
-                text,
-                false
+              const strings = parseOutput.errors.map((e) =>
+                e.toErrorReport(uri, text, false)
               );
               logger.trace(strings.join(""));
 
               return lastValidResponse;
             }
 
-            const offsetTranslator = new OffsetTranslator(document, parseTree);
-
             // Register visitors
-            const builder = new SemanticTokensBuilder(
-              document,
-              offsetTranslator
-            );
+            const builder = new SemanticTokensBuilder(document);
 
             const visitors = [
               new CustomTypeHighlighter(document, builder),
@@ -101,7 +93,7 @@ export function onSemanticTokensFull(serverState: ServerState) {
             ];
 
             // Visit the CST
-            visit(parseTree, (node, ancestors) => {
+            walk(parseTree, (node, ancestors) => {
               for (const visitor of visitors) {
                 visitor.visit(node, ancestors);
               }

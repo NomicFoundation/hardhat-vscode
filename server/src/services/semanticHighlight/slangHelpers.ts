@@ -4,7 +4,7 @@ import _ from "lodash";
 export type SlangNode = RuleNode | TokenNode;
 export type NodeCallback = (node: SlangNode, ancestors: SlangNode[]) => void;
 
-export function visit(
+export function walk(
   node: SlangNode,
   onNode: NodeCallback,
   ancestors: SlangNode[] = []
@@ -14,10 +14,10 @@ export function visit(
   ancestors.push(node);
 
   const children: SlangNode[] =
-    node.type === NodeType.Rule ? node.children() : node.trivia();
+    node.type === NodeType.Rule ? node.children : [];
 
   for (const child of children) {
-    visit(child, onNode, ancestors);
+    walk(child, onNode, ancestors);
   }
 
   ancestors.pop();

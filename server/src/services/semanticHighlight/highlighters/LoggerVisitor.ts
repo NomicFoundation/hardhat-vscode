@@ -14,7 +14,7 @@ export class Logger extends HighlightVisitor {
       _.truncate(
         this.document
           .getText()
-          .slice(Number(node.range[0]), Number(node.range[1])),
+          .slice(Number(node.charRange[0]), Number(node.charRange[1])),
         {
           length: 20,
         }
