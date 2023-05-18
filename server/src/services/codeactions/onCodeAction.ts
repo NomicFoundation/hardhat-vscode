@@ -12,7 +12,7 @@ export function onCodeAction(serverState: ServerState) {
       serverState.telemetry.trackTimingSync("onCodeAction", () => {
         const document = documents.get(params.textDocument.uri);
 
-        if (!document || params.context.diagnostics.length === 0) {
+        if (!document) {
           return { status: "failed_precondition", result: [] };
         }
 
