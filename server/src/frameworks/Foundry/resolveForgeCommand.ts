@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { runCmd, runningOnWindows } from "../../utils/operatingSystem";
 
@@ -15,7 +16,9 @@ export async function resolveForgeCommand() {
       `${process.env.USERPROFILE}\\.cargo\\bin\\forge`
     );
   } else {
-    potentialForgeCommands.push(`${process.env.HOME}/.foundry/bin/forge`);
+    potentialForgeCommands.push(
+      `${process.env.XDG_CONFIG_HOME || process.env.HOME}/.foundry/bin/forge`
+    );
   }
 
   for (const potentialForgeCommand of potentialForgeCommands) {

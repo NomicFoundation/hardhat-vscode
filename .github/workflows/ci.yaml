@@ -53,10 +53,12 @@ jobs:
         run: npm run lint
 
       - name: Download foundryup
+        if: runner.os != 'Windows'
         run: curl -L https://foundry.paradigm.xyz | bash
 
       - name: Install foundry
-        run: ~/.foundry/bin/foundryup
+        if: runner.os != 'Windows'
+        run: ${XDG_CONFIG_HOME:-$HOME}/.foundry/bin/foundryup
 
       - name: Build project
         run: npm run build
