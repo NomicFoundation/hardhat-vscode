@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-empty */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { execSync } from "child_process";
+import { execSync, fork } from "child_process";
 import { existsSync } from "fs";
 import { readdir } from "fs/promises";
 import _ from "lodash";
@@ -74,8 +74,7 @@ export class TruffleProject extends Project {
 
     try {
       // Load config file
-      delete require.cache[require.resolve(this.configPath)];
-      const config = require(this.configPath);
+      const config: any = await this._loadConfig();
 
       // Find solc version statement
       const configSolcVersion = config?.compilers?.solc?.version;
@@ -117,6 +116,32 @@ export class TruffleProject extends Project {
       this.initializeError = errorMessage;
       this.serverState.logger.info(this.initializeError);
     }
+  }
+
+  private async _loadConfig(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      // Spawn a child process with the only purpose of requiring the truffle config js file
+      const childProcess = fork(path.resolve(__dirname, "ConfigLoader.js"), [
+        this.configPath,
+      ]);
+
+      // Child process will send back the exported config. It's killed afterwards to prevent
+      // any unhandled errors that the config file or its dependencies might have.
+      childProcess.on("message", async (message: any) => {
+        childProcess.kill("SIGKILL");
+        resolve(message);
+      });
+
+      childProcess.on("error", (err) => {
+        reject(err);
+      });
+
+      childProcess.on("exit", async (code) => {
+        if (code === 1) {
+          reject("Error loading config file");
+        }
+      });
+    });
   }
 
   public async fileBelongs(file: string): Promise<FileBelongsResult> {

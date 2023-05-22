@@ -150,6 +150,8 @@ async function main() {
         "../node_modules/@nomicfoundation/solidity-language-server/src/hardhat.config.ts",
       "./tmp/server/out/worker/WorkerProcess":
         "../node_modules/@nomicfoundation/solidity-language-server/src/frameworks/Hardhat/worker/WorkerProcess.ts",
+      "./tmp/server/out/ConfigLoader":
+        "../node_modules/@nomicfoundation/solidity-language-server/src/frameworks/Truffle/ConfigLoader.ts",
     },
     bundle: true,
     minifyWhitespace: true,
