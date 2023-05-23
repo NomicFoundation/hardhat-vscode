@@ -1,7 +1,7 @@
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
 import { NodeType, TokenKind } from "@nomicfoundation/slang";
 import { HighlightVisitor } from "../HighlightVisitor";
-import { SlangNode } from "../slangHelpers";
+import { SlangNode } from "../../../parser/slangHelpers";
 
 const stringKinds = new Set([
   TokenKind.HexStringLiteral,
@@ -15,7 +15,7 @@ const stringKinds = new Set([
 
 // Highlights strings
 export class StringHighlighter extends HighlightVisitor {
-  public visit(node: SlangNode, _ancestors: SlangNode[]): void {
+  public enter(node: SlangNode, _ancestors: SlangNode[]): void {
     if (node.type === NodeType.Token && stringKinds.has(node.kind)) {
       this.tokenBuilder.addToken(node, SemanticTokenTypes.string);
     }

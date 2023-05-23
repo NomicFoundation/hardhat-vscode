@@ -1,11 +1,11 @@
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
 import { NodeType, RuleKind, TokenKind } from "@nomicfoundation/slang";
 import { HighlightVisitor } from "../HighlightVisitor";
-import { SlangNode } from "../slangHelpers";
+import { SlangNode } from "../../../parser/slangHelpers";
 
 // Highlights contract definitions
 export class ContractDefinitionHighlighter extends HighlightVisitor {
-  public visit(node: SlangNode, _ancestors: SlangNode[]): void {
+  public enter(node: SlangNode, _ancestors: SlangNode[]): void {
     if (
       node.type === NodeType.Token &&
       node.kind === TokenKind.Identifier &&

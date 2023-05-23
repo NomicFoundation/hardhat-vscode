@@ -21,6 +21,8 @@ import {
   DidOpenTextDocumentParams,
   DocumentFormattingParams,
   DocumentFormattingRequest,
+  DocumentSymbolParams,
+  DocumentSymbolRequest,
   ImplementationParams,
   ImplementationRequest,
   InitializedNotification,
@@ -352,6 +354,16 @@ export class TestLanguageClient {
     }
 
     return this.connection!.sendRequest(SemanticTokensRequest.type, params)
+  }
+
+  public async getDocumentSymbols(uri: string) {
+    const params: DocumentSymbolParams = {
+      textDocument: {
+        uri,
+      },
+    }
+
+    return this.connection!.sendRequest(DocumentSymbolRequest.type, params)
   }
 
   public async formatDocument(uri: string) {

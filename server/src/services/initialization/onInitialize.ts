@@ -88,6 +88,7 @@ export const onInitialize = (serverState: ServerState) => {
           range: false,
           full: true,
         },
+        documentSymbolProvider: true,
         workspace: {
           workspaceFolders: {
             supported: false,
