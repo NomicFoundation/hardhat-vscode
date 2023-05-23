@@ -104,7 +104,6 @@ export class HardhatProject extends Project {
         try {
           await this._handleMessage(message);
         } catch (error) {
-          this.serverState.telemetry.captureException(error);
           this.logger.error(
             `Error while handling worker message: ${error}. Full Message: ${JSON.stringify(
               message
@@ -114,7 +113,7 @@ export class HardhatProject extends Project {
       });
 
       this.workerProcess.on("error", (err) => {
-        this.logger.error(err);
+        this.logger.info(`Worker exited with error: ${err}`);
       });
 
       this.workerProcess.on("exit", async (code) => {

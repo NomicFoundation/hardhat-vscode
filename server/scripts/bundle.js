@@ -80,6 +80,7 @@ async function main() {
       "./out/hardhat.config": "./src/hardhat.config.ts",
       "./out/worker/WorkerProcess":
         "./src/frameworks/Hardhat/worker/WorkerProcess.ts",
+      "./out/ConfigLoader": "./src/frameworks/Truffle/ConfigLoader.ts",
     },
     bundle: true,
     minifyWhitespace: true,
