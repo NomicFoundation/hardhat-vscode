@@ -26,6 +26,7 @@ export function setupMockConnection() {
     sendNotification: sinon.spy(),
     onCodeAction: sinon.spy(),
     onDocumentFormatting: sinon.spy(),
+    onDocumentSymbol: sinon.spy(),
     languages: {
       semanticTokens: {
         on: sinon.spy(),

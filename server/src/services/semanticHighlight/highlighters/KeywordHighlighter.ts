@@ -1,7 +1,7 @@
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
 import { NodeType, TokenKind } from "@nomicfoundation/slang";
 import { HighlightVisitor } from "../HighlightVisitor";
-import { SlangNode } from "../slangHelpers";
+import { SlangNode } from "../../../parser/slangHelpers";
 
 const keywordKinds = new Set([
   TokenKind.AbicoderKeyword,
@@ -90,7 +90,7 @@ const keywordKinds = new Set([
 
 // Highlights keywords
 export class KeywordHighlighter extends HighlightVisitor {
-  public visit(node: SlangNode, _ancestors: SlangNode[]): void {
+  public enter(node: SlangNode, _ancestors: SlangNode[]): void {
     if (node.type === NodeType.Token && keywordKinds.has(node.kind)) {
       this.tokenBuilder.addToken(node, SemanticTokenTypes.keyword);
     }
