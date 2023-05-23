@@ -73,7 +73,7 @@ export class WorkerProcess {
     try {
       this._loadHRE();
     } catch (err: any) {
-      this.logger.error(`Error loading HRE: ${err}`);
+      this.logger.info(`Error loading HRE: ${err}`);
       let errorMessage;
       if (err.message.includes("Cannot find module 'hardhat'")) {
         errorMessage =
