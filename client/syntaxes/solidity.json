@@ -88,6 +88,9 @@
           "include": "#natspec-tag-dev"
         },
         {
+          "include": "#natspec-tag-inheritdoc"
+        },
+        {
           "include": "#natspec-tag-param"
         },
         {
@@ -112,6 +115,10 @@
     },
     "natspec-tag-dev": {
       "match": "(@dev)\\b",
+      "name": "storage.type.dev.natspec"
+    },
+    "natspec-tag-inheritdoc": {
+      "match": "(@inheritdoc)\\b",
       "name": "storage.type.dev.natspec"
     },
     "natspec-tag-param": {
