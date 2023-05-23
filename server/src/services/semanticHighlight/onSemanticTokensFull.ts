@@ -10,6 +10,7 @@ import { analyze } from "@nomicfoundation/solidity-analyzer";
 import semver from "semver";
 import { ServerState } from "../../types";
 import { onCommand } from "../../utils/onCommand";
+import { walk } from "../../parser/slangHelpers";
 import { CustomTypeHighlighter } from "./highlighters/CustomTypeHighlighter";
 import { SemanticTokensBuilder } from "./SemanticTokensBuilder";
 import { KeywordHighlighter } from "./highlighters/KeywordHighlighter";
@@ -23,7 +24,6 @@ import { EventDefinitionHighlighter } from "./highlighters/EventDefinitionHighli
 import { ContractDefinitionHighlighter } from "./highlighters/ContractDefinitionHighlighter";
 import { InterfaceDefinitionHighlighter } from "./highlighters/InterfaceDefinitionHighlighter";
 import { StructDefinitionHighlighter } from "./highlighters/StructDefinitionHighlighter";
-import { walk } from "./slangHelpers";
 
 let lastValidResponse: SemanticTokens = { data: [] };
 
@@ -93,11 +93,19 @@ export function onSemanticTokensFull(serverState: ServerState) {
             ];
 
             // Visit the CST
-            walk(parseTree, (node, ancestors) => {
-              for (const visitor of visitors) {
-                visitor.visit(node, ancestors);
+            walk(
+              parseTree,
+              (node, ancestors) => {
+                for (const visitor of visitors) {
+                  visitor.enter(node, ancestors);
+                }
+              },
+              (node, ancestors) => {
+                for (const visitor of visitors) {
+                  visitor.exit(node, ancestors);
+                }
               }
-            });
+            );
 
             lastValidResponse = { data: builder.getTokenData() };
           } catch (error) {

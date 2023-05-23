@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { SlangNode } from "../../parser/slangHelpers";
 import { getTokenTypeIndex } from "./tokenTypes";
-import { SlangNode } from "./slangHelpers";
 
 // Helps building a SemanticTokens response by providing slang nodes and supported token types
 export class SemanticTokensBuilder {

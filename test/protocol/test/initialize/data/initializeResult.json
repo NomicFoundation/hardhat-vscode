@@ -18,6 +18,7 @@
     "renameProvider": true,
     "codeActionProvider": true,
     "hoverProvider": true,
+    "documentSymbolProvider": true,
     "semanticTokensProvider": {
       "full": true,
       "legend": {
