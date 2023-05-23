@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-empty */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { execSync, fork } from "child_process";
+import { fork } from "child_process";
 import { existsSync } from "fs";
 import { readdir } from "fs/promises";
 import _ from "lodash";
@@ -18,6 +18,7 @@ import { InitializationFailedError } from "../base/Errors";
 import { FileBelongsResult, Project } from "../base/Project";
 import { Remapping } from "../base/Remapping";
 import { getDependenciesAndPragmas } from "../shared/crawlDependencies";
+import { runCmd } from "../../utils/operatingSystem";
 
 enum Status {
   NOT_INITIALIZED,
@@ -58,9 +59,9 @@ export class TruffleProject extends Project {
     this.initializeError = undefined;
     this.testsPath = path.join(this.basePath, "test");
 
-    this.globalNodeModulesPath = execSync("npm root --quiet -g").toString();
-
     try {
+      this.globalNodeModulesPath = await runCmd("npm root --quiet -g");
+
       // Ensure truffle is installed either globally or locally
       require.resolve("truffle", {
         paths: [this.basePath, this.globalNodeModulesPath],
