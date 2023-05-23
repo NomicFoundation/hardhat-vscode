@@ -16,7 +16,6 @@ export function onDidChangeWatchedFiles(serverState: ServerState) {
       ) {
         const unixStyleUri = toUnixStyle(change.uri);
 
-        delete serverState.solFileIndex[unixStyleUri];
         await clearDiagnostics(serverState, unixStyleUri);
       }
     }
