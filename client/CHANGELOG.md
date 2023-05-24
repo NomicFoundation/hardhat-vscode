@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.7.2 - 2023-05-24
+
+### Fixed
+
+- Load truffle config in child process to avoid unhandled exceptions ([#492](https://github.com/NomicFoundation/hardhat-vscode/issues/492))
+- Catch exceptions during truffle initialization scan for global `node_modules` ([#486](https://github.com/NomicFoundation/hardhat-vscode/issues/486))
+- Highlight `@inheritdoc` within natspec comments ([#489](https://github.com/NomicFoundation/hardhat-vscode/pull/489))
+
 ## 0.7.1 - 2023-05-03
 
 ### Fixed
