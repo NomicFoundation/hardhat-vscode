@@ -25,6 +25,9 @@ release.
 
 9. Push the release branch and open a pull request using the new changelog entry as the PR description
 10. Generate a release candidate vsix file with `npm run package`, the vsix file should appear in the `./client` folder with the new version number
+
+> NOTE: ensure .env file is populated with GA and Sentry secrets before packaging (see `./env.example`)
+
 11. Manually run smoke tests on the new features across:
 
 - mac os x
