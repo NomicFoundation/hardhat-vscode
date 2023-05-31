@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.7.3 - 2023-06-01
+
+### Fixed
+
+- Issue with missing telemetry code ([#501](https://github.com/NomicFoundation/hardhat-vscode/pull/501))
+
 ## 0.7.2 - 2023-05-24
 
 ### Fixed
