@@ -15,6 +15,9 @@ export async function resolveForgeCommand() {
     potentialForgeCommands.push(
       `${process.env.USERPROFILE}\\.cargo\\bin\\forge`
     );
+    potentialForgeCommands.push(
+      `${process.env.USERPROFILE}\\.foundry\\bin\\forge`
+    );
   } else {
     potentialForgeCommands.push(
       `${process.env.XDG_CONFIG_HOME || process.env.HOME}/.foundry/bin/forge`
