@@ -1,23 +1,21 @@
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
-import { NodeType, TokenKind } from "@nomicfoundation/slang";
+import { TokenKind } from "@nomicfoundation/slang/kinds";
+import { NodeType } from "@nomicfoundation/slang/cst";
+import { Cursor } from "@nomicfoundation/slang/cursor";
 import { HighlightVisitor } from "../HighlightVisitor";
-import { SlangNode } from "../../../parser/slangHelpers";
 
 const stringKinds = new Set([
   TokenKind.HexStringLiteral,
   TokenKind.AsciiStringLiteral,
   TokenKind.UnicodeStringLiteral,
-  TokenKind.DoubleQuotedAsciiStringLiteral,
-  TokenKind.SingleQuotedAsciiStringLiteral,
-  TokenKind.DoubleQuotedUnicodeStringLiteral,
-  TokenKind.SingleQuotedUnicodeStringLiteral,
 ]);
 
 // Highlights strings
 export class StringHighlighter extends HighlightVisitor {
-  public enter(node: SlangNode, _ancestors: SlangNode[]): void {
+  public enter(cursor: Cursor): void {
+    const node = cursor.node;
     if (node.type === NodeType.Token && stringKinds.has(node.kind)) {
-      this.tokenBuilder.addToken(node, SemanticTokenTypes.string);
+      this.tokenBuilder.addToken(cursor, SemanticTokenTypes.string);
     }
   }
 }

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { SlangNode } from "../../parser/slangHelpers";
+import { Cursor } from "@nomicfoundation/slang/cursor";
 import { getTokenTypeIndex } from "./tokenTypes";
 
 // Helps building a SemanticTokens response by providing slang nodes and supported token types
@@ -12,9 +12,9 @@ export class SemanticTokensBuilder {
 
   constructor(private document: TextDocument) {}
 
-  public addToken(node: SlangNode, type: SemanticTokenTypes, modifiers = 0) {
-    const offset = node.charRange[0];
-    const length = node.charRange[1] - node.charRange[0];
+  public addToken(cursor: Cursor, type: SemanticTokenTypes, modifiers = 0) {
+    const offset = cursor.textRange.start.utf16;
+    const length = cursor.textRange.end.utf16 - cursor.textRange.start.utf16;
 
     const position = this.document.positionAt(offset);
 

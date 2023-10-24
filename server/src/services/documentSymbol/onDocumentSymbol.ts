@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { DocumentSymbolParams } from "vscode-languageserver/node";
 import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-types";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import semver from "semver";
-import { Language, ProductionKind } from "@nomicfoundation/slang";
 import _ from "lodash";
+import { Language } from "@nomicfoundation/slang/language";
+import { ProductionKind } from "@nomicfoundation/slang/kinds";
 import { ServerState } from "../../types";
 import { walk } from "../../parser/slangHelpers";
 import { onCommand } from "../../utils/onCommand";
@@ -18,7 +20,7 @@ import { FunctionDefinition } from "./visitors/FunctionDefinition";
 import { ContractDefinition } from "./visitors/ContractDefinition";
 import { EventDefinition } from "./visitors/EventDefinition";
 import { StateVariableDeclaration } from "./visitors/StateVariableDeclaration";
-import { VariableDeclarationStatement } from "./visitors/VariableDeclarationStatement";
+import { VariableDeclaration } from "./visitors/VariableDeclaration";
 import { ConstantDefinition } from "./visitors/ConstantDefinition";
 import { ConstructorDefinition } from "./visitors/ConstructorDefinition";
 import { EnumDefinition } from "./visitors/EnumDefinition";
@@ -70,7 +72,7 @@ export function onDocumentSymbol(serverState: ServerState) {
 
           if (parseTree === null) {
             logger.trace("Slang parsing error");
-            const strings = parseOutput.errors.map((e) =>
+            const strings = parseOutput.errors.map((e: any) =>
               e.toErrorReport(uri, text, false)
             );
             logger.trace(strings.join(""));
@@ -88,7 +90,7 @@ export function onDocumentSymbol(serverState: ServerState) {
             new ContractDefinition(document, builder),
             new EventDefinition(document, builder),
             new StateVariableDeclaration(document, builder),
-            new VariableDeclarationStatement(document, builder),
+            new VariableDeclaration(document, builder),
             new ConstantDefinition(document, builder),
             new ConstructorDefinition(document, builder),
             new EnumDefinition(document, builder),
@@ -101,15 +103,15 @@ export function onDocumentSymbol(serverState: ServerState) {
           ];
 
           walk(
-            parseTree,
-            (node, ancestors) => {
+            parseTree.cursor,
+            (cursor) => {
               for (const visitor of visitors) {
-                visitor.enter(node, ancestors);
+                visitor.enter(cursor);
               }
             },
-            (node, ancestors) => {
+            (cursor) => {
               for (const visitor of visitors) {
-                visitor.exit(node, ancestors);
+                visitor.exit(cursor);
               }
             }
           );

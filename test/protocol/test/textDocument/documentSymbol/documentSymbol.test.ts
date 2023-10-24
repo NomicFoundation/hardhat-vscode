@@ -27,7 +27,6 @@ describe('[hardhat] documentSymbol', () => {
 
     expect(symbols).to.deep.equal([
       {
-        kind: 26,
         children: [],
         range: {
           start: {
@@ -49,13 +48,12 @@ describe('[hardhat] documentSymbol', () => {
             character: 15,
           },
         },
+        kind: 26,
         name: 'CustomType',
       },
       {
-        kind: 11,
         children: [
           {
-            kind: 12,
             children: [],
             range: {
               start: {
@@ -77,6 +75,7 @@ describe('[hardhat] documentSymbol', () => {
                 character: 30,
               },
             },
+            kind: 12,
             name: 'interfaceFunction',
           },
         ],
@@ -100,18 +99,17 @@ describe('[hardhat] documentSymbol', () => {
             character: 23,
           },
         },
+        kind: 11,
         name: 'TestInterface',
       },
       {
-        kind: 23,
         children: [
           {
-            kind: 7,
             children: [],
             range: {
               start: {
                 line: 11,
-                character: 4,
+                character: 0,
               },
               end: {
                 line: 12,
@@ -128,15 +126,15 @@ describe('[hardhat] documentSymbol', () => {
                 character: 19,
               },
             },
+            kind: 7,
             name: 'aNumber',
           },
           {
-            kind: 7,
             children: [],
             range: {
               start: {
                 line: 12,
-                character: 4,
+                character: 0,
               },
               end: {
                 line: 13,
@@ -153,10 +151,10 @@ describe('[hardhat] documentSymbol', () => {
                 character: 18,
               },
             },
+            kind: 7,
             name: 'aString',
           },
           {
-            kind: 7,
             children: [],
             range: {
               start: {
@@ -178,6 +176,7 @@ describe('[hardhat] documentSymbol', () => {
                 character: 21,
               },
             },
+            kind: 7,
             name: 'anAddress',
           },
         ],
@@ -201,18 +200,17 @@ describe('[hardhat] documentSymbol', () => {
             character: 17,
           },
         },
+        kind: 23,
         name: 'TestStruct',
       },
       {
-        kind: 23,
         children: [
           {
-            kind: 7,
             children: [],
             range: {
               start: {
                 line: 17,
-                character: 4,
+                character: 0,
               },
               end: {
                 line: 18,
@@ -229,15 +227,15 @@ describe('[hardhat] documentSymbol', () => {
                 character: 19,
               },
             },
+            kind: 7,
             name: 'aNumber',
           },
           {
-            kind: 7,
             children: [],
             range: {
               start: {
                 line: 18,
-                character: 4,
+                character: 0,
               },
               end: {
                 line: 19,
@@ -254,10 +252,10 @@ describe('[hardhat] documentSymbol', () => {
                 character: 18,
               },
             },
+            kind: 7,
             name: 'aString',
           },
           {
-            kind: 7,
             children: [],
             range: {
               start: {
@@ -279,6 +277,7 @@ describe('[hardhat] documentSymbol', () => {
                 character: 21,
               },
             },
+            kind: 7,
             name: 'anAddress',
           },
         ],
@@ -302,14 +301,14 @@ describe('[hardhat] documentSymbol', () => {
             character: 18,
           },
         },
+        kind: 23,
         name: 'TestStruct2',
       },
       {
-        kind: 14,
         children: [],
         range: {
           start: {
-            line: 22,
+            line: 21,
             character: 0,
           },
           end: {
@@ -327,10 +326,10 @@ describe('[hardhat] documentSymbol', () => {
             character: 26,
           },
         },
+        kind: 14,
         name: 'aConstant',
       },
       {
-        kind: 10,
         children: [],
         range: {
           start: {
@@ -352,10 +351,10 @@ describe('[hardhat] documentSymbol', () => {
             character: 9,
           },
         },
+        kind: 10,
         name: 'Name',
       },
       {
-        kind: 24,
         children: [],
         range: {
           start: {
@@ -377,10 +376,10 @@ describe('[hardhat] documentSymbol', () => {
             character: 17,
           },
         },
+        kind: 24,
         name: 'CustomError',
       },
       {
-        kind: 5,
         children: [],
         range: {
           start: {
@@ -402,25 +401,23 @@ describe('[hardhat] documentSymbol', () => {
             character: 19,
           },
         },
+        kind: 5,
         name: 'TestLibrary',
       },
       {
-        kind: 5,
         children: [
           {
-            kind: 9,
             children: [
               {
-                kind: 13,
                 children: [],
                 range: {
                   start: {
                     line: 35,
-                    character: 8,
+                    character: 0,
                   },
                   end: {
-                    line: 36,
-                    character: 0,
+                    line: 35,
+                    character: 21,
                   },
                 },
                 selectionRange: {
@@ -433,6 +430,7 @@ describe('[hardhat] documentSymbol', () => {
                     character: 21,
                   },
                 },
+                kind: 13,
                 name: 'local',
               },
             ],
@@ -457,9 +455,9 @@ describe('[hardhat] documentSymbol', () => {
                 character: 0,
               },
             },
+            kind: 9,
           },
           {
-            kind: 12,
             children: [],
             range: {
               start: {
@@ -481,10 +479,10 @@ describe('[hardhat] documentSymbol', () => {
                 character: 25,
               },
             },
+            kind: 12,
             name: 'testModifier',
           },
           {
-            kind: 24,
             children: [],
             range: {
               start: {
@@ -506,10 +504,10 @@ describe('[hardhat] documentSymbol', () => {
                 character: 19,
               },
             },
+            kind: 24,
             name: 'TestEvent',
           },
           {
-            kind: 7,
             children: [],
             range: {
               start: {
@@ -531,10 +529,10 @@ describe('[hardhat] documentSymbol', () => {
                 character: 33,
               },
             },
+            kind: 7,
             name: 'contractAsMember',
           },
           {
-            kind: 7,
             children: [],
             range: {
               start: {
@@ -556,10 +554,10 @@ describe('[hardhat] documentSymbol', () => {
                 character: 35,
               },
             },
+            kind: 7,
             name: 'interfaceAsMember',
           },
           {
-            kind: 7,
             children: [],
             range: {
               start: {
@@ -581,15 +579,15 @@ describe('[hardhat] documentSymbol', () => {
                 character: 29,
               },
             },
+            kind: 7,
             name: 'structAsMember',
           },
           {
-            kind: 7,
             children: [],
             range: {
               start: {
-                line: 53,
-                character: 4,
+                line: 52,
+                character: 0,
               },
               end: {
                 line: 54,
@@ -606,15 +604,15 @@ describe('[hardhat] documentSymbol', () => {
                 character: 19,
               },
             },
+            kind: 7,
             name: 'aNumber',
           },
           {
-            kind: 7,
             children: [],
             range: {
               start: {
-                line: 55,
-                character: 4,
+                line: 54,
+                character: 0,
               },
               end: {
                 line: 56,
@@ -631,13 +629,12 @@ describe('[hardhat] documentSymbol', () => {
                 character: 18,
               },
             },
+            kind: 7,
             name: 'aString',
           },
           {
-            kind: 12,
             children: [
               {
-                kind: 13,
                 children: [],
                 range: {
                   start: {
@@ -645,8 +642,8 @@ describe('[hardhat] documentSymbol', () => {
                     character: 0,
                   },
                   end: {
-                    line: 63,
-                    character: 0,
+                    line: 62,
+                    character: 39,
                   },
                 },
                 selectionRange: {
@@ -659,10 +656,10 @@ describe('[hardhat] documentSymbol', () => {
                     character: 39,
                   },
                 },
+                kind: 13,
                 name: 'contractAsLocalVar',
               },
               {
-                kind: 13,
                 children: [],
                 range: {
                   start: {
@@ -670,8 +667,8 @@ describe('[hardhat] documentSymbol', () => {
                     character: 0,
                   },
                   end: {
-                    line: 65,
-                    character: 0,
+                    line: 64,
+                    character: 41,
                   },
                 },
                 selectionRange: {
@@ -684,10 +681,10 @@ describe('[hardhat] documentSymbol', () => {
                     character: 41,
                   },
                 },
+                kind: 13,
                 name: 'interfaceAsLocalVar',
               },
               {
-                kind: 13,
                 children: [],
                 range: {
                   start: {
@@ -695,8 +692,8 @@ describe('[hardhat] documentSymbol', () => {
                     character: 0,
                   },
                   end: {
-                    line: 66,
-                    character: 0,
+                    line: 65,
+                    character: 42,
                   },
                 },
                 selectionRange: {
@@ -709,10 +706,10 @@ describe('[hardhat] documentSymbol', () => {
                     character: 42,
                   },
                 },
+                kind: 13,
                 name: 'structAsLocalVar',
               },
               {
-                kind: 13,
                 children: [],
                 range: {
                   start: {
@@ -720,8 +717,8 @@ describe('[hardhat] documentSymbol', () => {
                     character: 0,
                   },
                   end: {
-                    line: 78,
-                    character: 0,
+                    line: 77,
+                    character: 35,
                   },
                 },
                 selectionRange: {
@@ -734,6 +731,7 @@ describe('[hardhat] documentSymbol', () => {
                     character: 35,
                   },
                 },
+                kind: 13,
                 name: 'afterUTF8',
               },
             ],
@@ -757,10 +755,10 @@ describe('[hardhat] documentSymbol', () => {
                 character: 25,
               },
             },
+            kind: 12,
             name: 'testFunction',
           },
           {
-            kind: 12,
             children: [],
             range: {
               start: {
@@ -782,10 +780,10 @@ describe('[hardhat] documentSymbol', () => {
                 character: 28,
               },
             },
+            kind: 12,
             name: 'anotherFunction',
           },
           {
-            kind: 12,
             children: [],
             name: 'fallback',
             range: {
@@ -808,9 +806,9 @@ describe('[hardhat] documentSymbol', () => {
                 character: 0,
               },
             },
+            kind: 12,
           },
           {
-            kind: 12,
             children: [],
             name: 'receive',
             range: {
@@ -833,6 +831,7 @@ describe('[hardhat] documentSymbol', () => {
                 character: 0,
               },
             },
+            kind: 12,
           },
         ],
         range: {
@@ -855,6 +854,7 @@ describe('[hardhat] documentSymbol', () => {
             character: 21,
           },
         },
+        kind: 5,
         name: 'testContract',
       },
     ])

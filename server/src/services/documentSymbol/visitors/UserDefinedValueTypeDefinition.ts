@@ -1,5 +1,5 @@
 import { SymbolKind } from "vscode-languageserver-types";
-import { RuleKind } from "@nomicfoundation/slang";
+import { RuleKind } from "@nomicfoundation/slang/kinds";
 import { DefinitionVisitor } from "./DefinitionVisitor";
 
 export class UserDefinedValueTypeDefinition extends DefinitionVisitor {

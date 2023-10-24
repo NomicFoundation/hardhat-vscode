@@ -1,18 +1,20 @@
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
-import { NodeType, RuleKind, TokenKind } from "@nomicfoundation/slang";
+import { NodeType } from "@nomicfoundation/slang/cst";
+import { RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
+import { Cursor } from "@nomicfoundation/slang/cursor";
 import { HighlightVisitor } from "../HighlightVisitor";
-import { SlangNode } from "../../../parser/slangHelpers";
 
 // Highlights function calls
 export class FunctionCallHighlighter extends HighlightVisitor {
-  public enter(node: SlangNode, _ancestors: SlangNode[]): void {
+  public enter(cursor: Cursor): void {
+    const node = cursor.node;
+    const ancestors = cursor.pathRuleNodes;
     if (
       node.type === NodeType.Token &&
       node.kind === TokenKind.Identifier &&
-      _ancestors[_ancestors.length - 2]?.kind ===
-        RuleKind.FunctionCallExpression
+      ancestors[ancestors.length - 2]?.kind === RuleKind.FunctionCallExpression
     ) {
-      this.tokenBuilder.addToken(node, SemanticTokenTypes.function);
+      this.tokenBuilder.addToken(cursor, SemanticTokenTypes.function);
     }
   }
 }

@@ -1,20 +1,21 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import {
   SemanticTokens,
   SemanticTokensParams,
 } from "vscode-languageserver-protocol";
-import { Language, ProductionKind } from "@nomicfoundation/slang";
 import _ from "lodash";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import semver from "semver";
+import { Language } from "@nomicfoundation/slang/language";
+import { ProductionKind } from "@nomicfoundation/slang/kinds";
 import { ServerState } from "../../types";
 import { onCommand } from "../../utils/onCommand";
 import { walk } from "../../parser/slangHelpers";
 import { CustomTypeHighlighter } from "./highlighters/CustomTypeHighlighter";
 import { SemanticTokensBuilder } from "./SemanticTokensBuilder";
 import { KeywordHighlighter } from "./highlighters/KeywordHighlighter";
-import { ElementaryTypeHighlighter } from "./highlighters/ElementaryTypeHighlighter";
 import { NumberHighlighter } from "./highlighters/NumberHighlighter";
 import { StringHighlighter } from "./highlighters/StringHighlighter";
 import { FunctionDefinitionHighlighter } from "./highlighters/FunctionDefinitionHighlighter";
@@ -66,7 +67,7 @@ export function onSemanticTokensFull(serverState: ServerState) {
 
             if (parseTree === null) {
               logger.trace("Slang parsing error");
-              const strings = parseOutput.errors.map((e) =>
+              const strings = parseOutput.errors.map((e: any) =>
                 e.toErrorReport(uri, text, false)
               );
               logger.trace(strings.join(""));
@@ -80,7 +81,6 @@ export function onSemanticTokensFull(serverState: ServerState) {
             const visitors = [
               new CustomTypeHighlighter(document, builder),
               new KeywordHighlighter(document, builder),
-              new ElementaryTypeHighlighter(document, builder),
               new NumberHighlighter(document, builder),
               new StringHighlighter(document, builder),
               new FunctionDefinitionHighlighter(document, builder),
@@ -94,15 +94,15 @@ export function onSemanticTokensFull(serverState: ServerState) {
 
             // Visit the CST
             walk(
-              parseTree,
-              (node, ancestors) => {
+              parseTree.cursor,
+              (cursor) => {
                 for (const visitor of visitors) {
-                  visitor.enter(node, ancestors);
+                  visitor.enter(cursor);
                 }
               },
-              (node, ancestors) => {
+              (cursor) => {
                 for (const visitor of visitors) {
-                  visitor.exit(node, ancestors);
+                  visitor.exit(cursor);
                 }
               }
             );

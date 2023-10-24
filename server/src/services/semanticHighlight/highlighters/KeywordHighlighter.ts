@@ -1,10 +1,11 @@
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
-import { NodeType, TokenKind } from "@nomicfoundation/slang";
+import { TokenKind } from "@nomicfoundation/slang/kinds";
+import { NodeType } from "@nomicfoundation/slang/cst";
+import { Cursor } from "@nomicfoundation/slang/cursor";
 import { HighlightVisitor } from "../HighlightVisitor";
-import { SlangNode } from "../../../parser/slangHelpers";
 
 const keywordKinds = new Set([
-  TokenKind.AbicoderKeyword,
+  TokenKind.ABICoderKeyword,
   TokenKind.AbstractKeyword,
   TokenKind.AddressKeyword,
   TokenKind.AnonymousKeyword,
@@ -77,6 +78,7 @@ const keywordKinds = new Set([
   TokenKind.TryKeyword,
   TokenKind.TypeKeyword,
   TokenKind.UncheckedKeyword,
+  TokenKind.UnsignedIntegerType,
   TokenKind.UsingKeyword,
   TokenKind.ViewKeyword,
   TokenKind.VirtualKeyword,
@@ -84,15 +86,14 @@ const keywordKinds = new Set([
   TokenKind.WeiKeyword,
   TokenKind.WhileKeyword,
   TokenKind.YearsKeyword,
-  TokenKind.YulKeyword,
-  TokenKind.YulReservedKeyword,
 ]);
 
 // Highlights keywords
 export class KeywordHighlighter extends HighlightVisitor {
-  public enter(node: SlangNode, _ancestors: SlangNode[]): void {
+  public enter(cursor: Cursor): void {
+    const node = cursor.node;
     if (node.type === NodeType.Token && keywordKinds.has(node.kind)) {
-      this.tokenBuilder.addToken(node, SemanticTokenTypes.keyword);
+      this.tokenBuilder.addToken(cursor, SemanticTokenTypes.keyword);
     }
   }
 }
