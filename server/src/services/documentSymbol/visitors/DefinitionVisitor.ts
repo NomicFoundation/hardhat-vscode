@@ -39,7 +39,7 @@ export abstract class DefinitionVisitor extends SymbolVisitor {
         cursor.textRange
       );
 
-      lastSymbol.name = this.document.getText(identifierRange);
+      lastSymbol.name = node.text;
       lastSymbol.selectionRange = identifierRange;
     }
   }

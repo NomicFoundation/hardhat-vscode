@@ -10,7 +10,6 @@ import { Language } from "@nomicfoundation/slang/language";
 import { ProductionKind } from "@nomicfoundation/slang/kinds";
 import { ServerState } from "../../types";
 import { walk } from "../../parser/slangHelpers";
-import { onCommand } from "../../utils/onCommand";
 import { SymbolTreeBuilder } from "./SymbolTreeBuilder";
 import { StructDefinition } from "./visitors/StructDefinition";
 import { SymbolVisitor } from "./SymbolVisitor";
@@ -35,100 +34,127 @@ export function onDocumentSymbol(serverState: ServerState) {
   return async (
     params: DocumentSymbolParams
   ): Promise<DocumentSymbol[] | SymbolInformation[] | null> => {
-    return onCommand(
-      serverState,
-      "onDocumentSymbol",
-      params.textDocument.uri,
-      (_analyzer, _document, transaction) => {
-        const { uri } = params.textDocument;
+    const { telemetry, logger, solcVersions } = serverState;
+    return telemetry.trackTimingSync("onDocumentSymbol", (transaction) => {
+      const { uri } = params.textDocument;
 
-        const { logger, solcVersions } = serverState;
+      // Find the file in the documents collection
+      const document = serverState.documents.get(uri);
 
-        // Find the file in the documents collection
-        const document = serverState.documents.get(uri);
-
-        if (document === undefined) {
-          throw new Error(`Document not found: ${uri}`);
-        }
-
-        const text = document.getText();
-
-        // Get the document's solidity version
-        let span = transaction.startChild({ op: "solidity-analyzer" });
-        const { versionPragmas } = analyze(text);
-        span.finish();
-        const solcVersion =
-          semver.maxSatisfying(solcVersions, versionPragmas.join(" ")) ||
-          _.last(solcVersions);
-
-        try {
-          // Parse using slang
-          span = transaction.startChild({ op: "slang-parsing" });
-          const language = new Language(solcVersion!);
-
-          const parseOutput = language.parse(
-            ProductionKind.SourceUnit,
-            document.getText()
-          );
-
-          const parseTree = parseOutput.parseTree;
-          span.finish();
-
-          if (parseTree === null) {
-            logger.trace("Slang parsing error");
-            const strings = parseOutput.errors.map((e: any) =>
-              e.toErrorReport(uri, text, false)
-            );
-            logger.trace(strings.join(""));
-
-            return null;
-          }
-
-          const builder = new SymbolTreeBuilder();
-
-          const visitors: SymbolVisitor[] = [
-            new StructDefinition(document, builder),
-            new StructMember(document, builder),
-            new InterfaceDefinition(document, builder),
-            new FunctionDefinition(document, builder),
-            new ContractDefinition(document, builder),
-            new EventDefinition(document, builder),
-            new StateVariableDeclaration(document, builder),
-            new VariableDeclaration(document, builder),
-            new ConstantDefinition(document, builder),
-            new ConstructorDefinition(document, builder),
-            new EnumDefinition(document, builder),
-            new ErrorDefinition(document, builder),
-            new FallbackFunctionDefinition(document, builder),
-            new LibraryDefinition(document, builder),
-            new ModifierDefinition(document, builder),
-            new ReceiveFunctionDefinition(document, builder),
-            new UserDefinedValueTypeDefinition(document, builder),
-          ];
-
-          // Walk the tree and generate symbol nodes
-          span = transaction.startChild({ op: "walk-generate-symbols" });
-          walk(
-            parseTree.cursor,
-            (cursor) => {
-              for (const visitor of visitors) {
-                visitor.enter(cursor);
-              }
-            },
-            (cursor) => {
-              for (const visitor of visitors) {
-                visitor.exit(cursor);
-              }
-            }
-          );
-          span.finish();
-
-          return builder.symbols;
-        } catch (error) {
-          logger.error(error);
-          return null;
-        }
+      if (document === undefined) {
+        logger.error("document not found in collection");
+        return {
+          status: "internal_error",
+          result: null,
+        };
       }
-    );
+
+      const text = document.getText();
+
+      // Get the document's solidity version
+      let span = transaction.startChild({ op: "solidity-analyzer" });
+      const { versionPragmas } = analyze(text);
+      span.finish();
+      const solcVersion =
+        semver.maxSatisfying(solcVersions, versionPragmas.join(" ")) ||
+        _.last(solcVersions);
+
+      try {
+        // Parse using slang
+        span = transaction.startChild({ op: "slang-parsing" });
+        const language = new Language(solcVersion!);
+
+        const parseOutput = language.parse(
+          ProductionKind.SourceUnit,
+          document.getText()
+        );
+
+        const parseTree = parseOutput.parseTree;
+        span.finish();
+
+        if (parseTree === null) {
+          logger.error("Slang parsing error");
+          const strings = parseOutput.errors.map((e: any) =>
+            e.toErrorReport(uri, text, false)
+          );
+          logger.error(strings.join(""));
+
+          return {
+            status: "internal_error",
+            result: null,
+          };
+        }
+
+        // let count = 0;
+        // // const start = performance.now();
+        // const kursor: Cursor = parseTree.cursor.clone();
+        // do {
+        //   console.log(
+        //     `${"  ".repeat(kursor.pathRuleNodes.length)}${kursor.node.kind}: ${
+        //       kursor.node?.text
+        //     }`
+        //   );
+        // } while (kursor.goToNext());
+        // const end = performance.now();
+        // const elapsed = end - start;
+        // console.log({ elapsed });
+        // console.log({ count });
+
+        // const myobj = { foo: { bar: 123 } };
+        // const start = performance.now();
+        // for (let index = 0; index < 1_000_000; index++) {
+        //   myobj.foo.bar;
+        // }
+        // const end = performance.now();
+        // const elapsed = end - start;
+        // console.log({ elapsed });
+
+        const builder = new SymbolTreeBuilder();
+
+        const visitors: SymbolVisitor[] = [
+          new StructDefinition(document, builder),
+          new StructMember(document, builder),
+          new InterfaceDefinition(document, builder),
+          new FunctionDefinition(document, builder),
+          new ContractDefinition(document, builder),
+          new EventDefinition(document, builder),
+          new StateVariableDeclaration(document, builder),
+          new VariableDeclaration(document, builder),
+          new ConstantDefinition(document, builder),
+          new ConstructorDefinition(document, builder),
+          new EnumDefinition(document, builder),
+          new ErrorDefinition(document, builder),
+          new FallbackFunctionDefinition(document, builder),
+          new LibraryDefinition(document, builder),
+          new ModifierDefinition(document, builder),
+          new ReceiveFunctionDefinition(document, builder),
+          new UserDefinedValueTypeDefinition(document, builder),
+        ];
+
+        // Walk the tree and generate symbol nodes
+        span = transaction.startChild({ op: "walk-generate-symbols" });
+        walk(
+          parseTree.cursor,
+          (cursor) => {
+            for (const visitor of visitors) {
+              visitor.enter(cursor);
+            }
+          },
+          (cursor) => {
+            for (const visitor of visitors) {
+              visitor.exit(cursor);
+            }
+          }
+        );
+        span.finish();
+        // console.log("ALL GOOD");
+        // console.log(JSON.stringify(builder.symbols, null, 2));
+
+        return { status: "ok", result: builder.symbols };
+      } catch (error) {
+        logger.error(error);
+        return { status: "internal_error", result: null };
+      }
+    });
   };
 }

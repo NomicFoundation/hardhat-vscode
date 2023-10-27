@@ -16,6 +16,11 @@ export class SymbolTreeBuilder {
 
   public closeSymbol() {
     const symbol = this.currentPath.pop() as DocumentSymbol;
+
+    if (symbol.name === undefined) {
+      return;
+    }
+
     if (this.currentPath.length === 0) {
       this.symbols.push(symbol);
     } else {
