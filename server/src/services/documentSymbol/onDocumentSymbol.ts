@@ -39,7 +39,7 @@ export function onDocumentSymbol(serverState: ServerState) {
       serverState,
       "onDocumentSymbol",
       params.textDocument.uri,
-      () => {
+      (_analyzer, _document, transaction) => {
         const { uri } = params.textDocument;
 
         const { logger, solcVersions } = serverState;
@@ -54,13 +54,16 @@ export function onDocumentSymbol(serverState: ServerState) {
         const text = document.getText();
 
         // Get the document's solidity version
+        let span = transaction.startChild({ op: "solidity-analyzer" });
         const { versionPragmas } = analyze(text);
+        span.finish();
         const solcVersion =
           semver.maxSatisfying(solcVersions, versionPragmas.join(" ")) ||
           _.last(solcVersions);
 
         try {
           // Parse using slang
+          span = transaction.startChild({ op: "slang-parsing" });
           const language = new Language(solcVersion!);
 
           const parseOutput = language.parse(
@@ -69,6 +72,7 @@ export function onDocumentSymbol(serverState: ServerState) {
           );
 
           const parseTree = parseOutput.parseTree;
+          span.finish();
 
           if (parseTree === null) {
             logger.trace("Slang parsing error");
@@ -102,6 +106,8 @@ export function onDocumentSymbol(serverState: ServerState) {
             new UserDefinedValueTypeDefinition(document, builder),
           ];
 
+          // Walk the tree and generate symbol nodes
+          span = transaction.startChild({ op: "walk-generate-symbols" });
           walk(
             parseTree.cursor,
             (cursor) => {
@@ -115,6 +121,7 @@ export function onDocumentSymbol(serverState: ServerState) {
               }
             }
           );
+          span.finish();
 
           return builder.symbols;
         } catch (error) {

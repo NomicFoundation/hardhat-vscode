@@ -35,7 +35,7 @@ export function onSemanticTokensFull(serverState: ServerState) {
         serverState,
         "onSemanticTokensFull",
         params.textDocument.uri,
-        () => {
+        (_analyzer, _document, transaction) => {
           const { uri } = params.textDocument;
           const { logger, solcVersions } = serverState;
 
@@ -49,13 +49,16 @@ export function onSemanticTokensFull(serverState: ServerState) {
           const text = document.getText();
 
           // Get the document's solidity version
+          let span = transaction.startChild({ op: "solidity-analyzer" });
           const { versionPragmas } = analyze(text);
+          span.finish();
           const solcVersion =
             semver.maxSatisfying(solcVersions, versionPragmas.join(" ")) ||
             _.last(solcVersions);
 
           try {
             // Parse using slang
+            span = transaction.startChild({ op: "slang-parsing" });
             const language = new Language(solcVersion!);
 
             const parseOutput = language.parse(
@@ -64,6 +67,7 @@ export function onSemanticTokensFull(serverState: ServerState) {
             );
 
             const parseTree = parseOutput.parseTree;
+            span.finish();
 
             if (parseTree === null) {
               logger.trace("Slang parsing error");
@@ -93,6 +97,7 @@ export function onSemanticTokensFull(serverState: ServerState) {
             ];
 
             // Visit the CST
+            span = transaction.startChild({ op: "walk-generate-symbols" });
             walk(
               parseTree.cursor,
               (cursor) => {
@@ -106,6 +111,7 @@ export function onSemanticTokensFull(serverState: ServerState) {
                 }
               }
             );
+            span.finish();
 
             return { data: builder.getTokenData() };
           } catch (error) {
