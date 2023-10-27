@@ -49,6 +49,26 @@ configs.solidity = {
 lspconfig.solidity.setup {}
 ```
 
+### emacs lsp-mode
+
+This snippet uses `use-package` with `solidity-mode`. To use it without them, only copying the `with-eval-after-load` block is required.
+
+```elisp
+(use-package solidity-mode
+  :config
+  (with-eval-after-load 'lsp-mode
+    (add-to-list 'lsp-language-id-configuration
+		 '(solidity-mode . "solidity"))
+    (lsp-register-client
+     (make-lsp-client
+      :new-connection (lsp-stdio-connection '("nomicfoundation-solidity-language-server" "--stdio"))
+      :activation-fn (lsp-activate-on "solidity")
+      :priority -1
+      :server-id 'nomic-solidity-lsp))
+    )
+  )
+```
+
 ## Features
 
 ### Code Completions
