@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { Cursor } from "@nomicfoundation/slang/cursor";
+import { SlangNodeWrapper } from "../../parser/slangHelpers";
 import { SemanticTokensBuilder } from "./SemanticTokensBuilder";
 
 // Abstraction for a visitor that wants to highlight tokens
@@ -11,6 +11,6 @@ export abstract class HighlightVisitor {
     public tokenBuilder: SemanticTokensBuilder
   ) {}
 
-  public enter(cursor: Cursor): void {}
-  public exit(cursor: Cursor): void {}
+  public enter(nodeWrapper: SlangNodeWrapper): void {}
+  public exit(nodeWrapper: SlangNodeWrapper): void {}
 }

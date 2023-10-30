@@ -1,27 +1,47 @@
 import { NodeType, RuleNode, TokenNode } from "@nomicfoundation/slang/cst";
 import { Cursor } from "@nomicfoundation/slang/cursor";
+import { RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
 import { TextRange } from "@nomicfoundation/slang/text_index";
 import _ from "lodash";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Range } from "vscode-languageserver-types";
 
 export type SlangNode = RuleNode | TokenNode;
-export type NodeCallback = (cursor: Cursor) => void;
+export type NodeKind = RuleKind | TokenKind;
+export type NodeCallback = (node: SlangNodeWrapper) => void;
+
+export interface SlangNodeWrapper {
+  textRange: TextRange;
+  type: NodeType;
+  kind: NodeKind;
+  text: string;
+  pathRuleNodes: SlangNode[];
+}
 
 export function walk(
   cursor: Cursor,
   onEnter: NodeCallback,
   onExit: NodeCallback
 ) {
-  onEnter(cursor);
+  const node = cursor.node;
 
-  if (cursor.node.type === NodeType.Rule) {
-    for (let i = 0; i < cursor.node.children.length; i++) {
+  const nodeWrapper: SlangNodeWrapper = {
+    textRange: cursor.textRange,
+    type: node.type,
+    kind: node.kind,
+    text: node.text,
+    pathRuleNodes: cursor.pathRuleNodes,
+  };
+
+  onEnter(nodeWrapper);
+
+  if (nodeWrapper.type === NodeType.Rule) {
+    for (let i = 0; i < node.children.length; i++) {
       cursor.goToNthChild(i);
       walk(cursor, onEnter, onExit);
     }
   }
-  onExit(cursor);
+  onExit(nodeWrapper);
   cursor.goToParent();
 }
 

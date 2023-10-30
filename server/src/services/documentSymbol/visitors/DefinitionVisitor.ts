@@ -3,26 +3,31 @@ import { DocumentSymbol, SymbolKind } from "vscode-languageserver-types";
 import _ from "lodash";
 import { RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
 import { NodeType } from "@nomicfoundation/slang/cst";
-import { Cursor } from "@nomicfoundation/slang/cursor";
-import { slangToVSCodeRange } from "../../../parser/slangHelpers";
+import {
+  SlangNodeWrapper,
+  slangToVSCodeRange,
+} from "../../../parser/slangHelpers";
 import { SymbolVisitor } from "../SymbolVisitor";
 
 export abstract class DefinitionVisitor extends SymbolVisitor {
   public abstract ruleKind: RuleKind;
   public abstract symbolKind: SymbolKind;
 
-  public enter(cursor: Cursor): void {
-    const node = cursor.node;
-    const ancestors = cursor.pathRuleNodes;
-
+  public enter(nodeWrapper: SlangNodeWrapper): void {
     // Open a new symbol node on the DocumentSymbol tree on matching rules
-    if (node.type === NodeType.Rule && node.kind === this.ruleKind) {
-      this.symbolBuilder.openSymbol(this.getSymbolAttributes(cursor));
+    if (
+      nodeWrapper.type === NodeType.Rule &&
+      nodeWrapper.kind === this.ruleKind
+    ) {
+      this.symbolBuilder.openSymbol(this.getSymbolAttributes(nodeWrapper));
     }
 
     // Set the symbol node's range and name when finding the related identifier
-    if (node.type === NodeType.Token && node.kind === TokenKind.Identifier) {
-      const parent = _.last(ancestors)!;
+    if (
+      nodeWrapper.type === NodeType.Token &&
+      nodeWrapper.kind === TokenKind.Identifier
+    ) {
+      const parent = _.last(nodeWrapper.pathRuleNodes)!;
 
       if (parent.type !== NodeType.Rule || parent.kind !== this.ruleKind) {
         return;
@@ -36,25 +41,29 @@ export abstract class DefinitionVisitor extends SymbolVisitor {
 
       const identifierRange = slangToVSCodeRange(
         this.document,
-        cursor.textRange
+        nodeWrapper.textRange
       );
 
-      lastSymbol.name = node.text;
+      lastSymbol.name = nodeWrapper.text;
       lastSymbol.selectionRange = identifierRange;
     }
   }
 
-  protected getSymbolAttributes(cursor: Cursor): Partial<DocumentSymbol> {
+  protected getSymbolAttributes(
+    nodeWrapper: SlangNodeWrapper
+  ): Partial<DocumentSymbol> {
     return {
-      range: slangToVSCodeRange(this.document, cursor.textRange),
-      selectionRange: slangToVSCodeRange(this.document, cursor.textRange),
+      range: slangToVSCodeRange(this.document, nodeWrapper.textRange),
+      selectionRange: slangToVSCodeRange(this.document, nodeWrapper.textRange),
       kind: this.symbolKind,
     };
   }
 
-  public exit(cursor: Cursor): void {
-    const node = cursor.node;
-    if (node.type === NodeType.Rule && node.kind === this.ruleKind) {
+  public exit(nodeWrapper: SlangNodeWrapper): void {
+    if (
+      nodeWrapper.type === NodeType.Rule &&
+      nodeWrapper.kind === this.ruleKind
+    ) {
       this.symbolBuilder.closeSymbol();
     }
   }

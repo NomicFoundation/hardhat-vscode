@@ -103,14 +103,14 @@ export function onSemanticTokensFull(serverState: ServerState) {
           span = transaction.startChild({ op: "walk-highlight-tokens" });
           walk(
             parseTree.cursor,
-            (cursor) => {
+            (nodeWrapper) => {
               for (const visitor of visitors) {
-                visitor.enter(cursor);
+                visitor.enter(nodeWrapper);
               }
             },
-            (cursor) => {
+            (nodeWrapper) => {
               for (const visitor of visitors) {
-                visitor.exit(cursor);
+                visitor.exit(nodeWrapper);
               }
             }
           );

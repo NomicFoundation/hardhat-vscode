@@ -8,6 +8,8 @@ import semver from "semver";
 import _ from "lodash";
 import { Language } from "@nomicfoundation/slang/language";
 import { ProductionKind } from "@nomicfoundation/slang/kinds";
+import { Cursor } from "@nomicfoundation/slang/cursor";
+import { performance } from "perf_hooks";
 import { ServerState } from "../../types";
 import { walk } from "../../parser/slangHelpers";
 import { SymbolTreeBuilder } from "./SymbolTreeBuilder";
@@ -101,9 +103,12 @@ export function onDocumentSymbol(serverState: ServerState) {
         // console.log({ count });
 
         // const myobj = { foo: { bar: 123 } };
+        // const node = kursor.node;
         // const start = performance.now();
         // for (let index = 0; index < 1_000_000; index++) {
+        //   // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         //   myobj.foo.bar;
+        //   // node.type;
         // }
         // const end = performance.now();
         // const elapsed = end - start;
@@ -135,14 +140,14 @@ export function onDocumentSymbol(serverState: ServerState) {
         span = transaction.startChild({ op: "walk-generate-symbols" });
         walk(
           parseTree.cursor,
-          (cursor) => {
+          (nodeWrapper) => {
             for (const visitor of visitors) {
-              visitor.enter(cursor);
+              visitor.enter(nodeWrapper);
             }
           },
-          (cursor) => {
+          (nodeWrapper) => {
             for (const visitor of visitors) {
-              visitor.exit(cursor);
+              visitor.exit(nodeWrapper);
             }
           }
         );

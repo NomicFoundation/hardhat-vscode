@@ -3,6 +3,7 @@ import { TokenKind } from "@nomicfoundation/slang/kinds";
 import { NodeType } from "@nomicfoundation/slang/cst";
 import { Cursor } from "@nomicfoundation/slang/cursor";
 import { HighlightVisitor } from "../HighlightVisitor";
+import { SlangNodeWrapper } from "../../../parser/slangHelpers";
 
 const keywordKinds = new Set([
   TokenKind.ABICoderKeyword,
@@ -90,10 +91,12 @@ const keywordKinds = new Set([
 
 // Highlights keywords
 export class KeywordHighlighter extends HighlightVisitor {
-  public enter(cursor: Cursor): void {
-    const node = cursor.node;
-    if (node.type === NodeType.Token && keywordKinds.has(node.kind)) {
-      this.tokenBuilder.addToken(cursor, SemanticTokenTypes.keyword);
+  public enter(nodeWrapper: SlangNodeWrapper): void {
+    if (
+      nodeWrapper.type === NodeType.Token &&
+      keywordKinds.has(nodeWrapper.kind as TokenKind)
+    ) {
+      this.tokenBuilder.addToken(nodeWrapper, SemanticTokenTypes.keyword);
     }
   }
 }
