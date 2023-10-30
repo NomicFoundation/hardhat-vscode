@@ -6,6 +6,7 @@ import {
 } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
 import { tokensTypes } from "../semanticHighlight/tokenTypes";
+import { isSlangSupported } from "../../parser/slangHelpers";
 import { indexWorkspaceFolders } from "./indexWorkspaceFolders";
 import { updateAvailableSolcVersions } from "./updateAvailableSolcVersions";
 
@@ -58,6 +59,8 @@ export const onInitialize = (serverState: ServerState) => {
       return { status: "ok", result: null };
     });
 
+    const slangSupported = isSlangSupported();
+
     // Build and return InitializeResult
     const result: InitializeResult = {
       serverInfo: {
@@ -86,9 +89,9 @@ export const onInitialize = (serverState: ServerState) => {
             tokenModifiers: [],
           },
           range: false,
-          full: true,
+          full: slangSupported,
         },
-        documentSymbolProvider: true,
+        documentSymbolProvider: slangSupported,
         workspace: {
           workspaceFolders: {
             supported: false,
