@@ -1,22 +1,9 @@
 import { SymbolKind } from "vscode-languageserver-types";
-import { RuleKind } from "@nomicfoundation/slang/kinds";
-import { Cursor } from "@nomicfoundation/slang/cursor";
-import {
-  SlangNodeWrapper,
-  slangToVSCodeRange,
-} from "../../../parser/slangHelpers";
-import { DefinitionVisitor } from "./DefinitionVisitor";
+import { RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
+import { SymbolVisitor } from "../SymbolVisitor";
 
-export class ConstructorDefinition extends DefinitionVisitor {
+export class ConstructorDefinition extends SymbolVisitor {
   public ruleKind = RuleKind.ConstructorDefinition;
   public symbolKind = SymbolKind.Constructor;
-
-  protected getSymbolAttributes(nodeWrapper: SlangNodeWrapper) {
-    return {
-      name: "constructor",
-      range: slangToVSCodeRange(this.document, nodeWrapper.textRange),
-      selectionRange: slangToVSCodeRange(this.document, nodeWrapper.textRange),
-      kind: this.symbolKind,
-    };
-  }
+  public nameTokenKind = TokenKind.ConstructorKeyword;
 }

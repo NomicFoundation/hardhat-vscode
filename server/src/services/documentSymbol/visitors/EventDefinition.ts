@@ -1,8 +1,9 @@
 import { SymbolKind } from "vscode-languageserver-types";
-import { RuleKind } from "@nomicfoundation/slang/kinds";
-import { DefinitionVisitor } from "./DefinitionVisitor";
+import { RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
+import { SymbolVisitor } from "../SymbolVisitor";
 
-export class EventDefinition extends DefinitionVisitor {
+export class EventDefinition extends SymbolVisitor {
   public ruleKind = RuleKind.EventDefinition;
   public symbolKind = SymbolKind.Event;
+  public nameTokenKind = TokenKind.Identifier;
 }

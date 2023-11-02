@@ -2,8 +2,8 @@ import { DocumentSymbol } from "vscode-languageserver-types";
 import _ from "lodash";
 
 export class SymbolTreeBuilder {
-  public symbols: DocumentSymbol[] = [];
-  public currentPath: Array<Partial<DocumentSymbol>> = [];
+  private symbols: DocumentSymbol[] = [];
+  private currentPath: Array<Partial<DocumentSymbol>> = [];
 
   public openSymbol(params: Partial<DocumentSymbol>) {
     const symbol = {
@@ -24,7 +24,7 @@ export class SymbolTreeBuilder {
     if (this.currentPath.length === 0) {
       this.symbols.push(symbol);
     } else {
-      const lastSymbol = _.last(this.currentPath);
+      const lastSymbol = this.lastOpenSymbol();
 
       if (!lastSymbol) {
         throw new Error("Attempting to close a symbol but none is open");
@@ -32,5 +32,18 @@ export class SymbolTreeBuilder {
 
       lastSymbol.children?.push(symbol);
     }
+  }
+
+  public lastOpenSymbol() {
+    return _.last(this.currentPath);
+  }
+
+  public getSymbols() {
+    // Close any left open symbols
+    while (this.lastOpenSymbol()) {
+      this.closeSymbol();
+    }
+
+    return this.symbols;
   }
 }

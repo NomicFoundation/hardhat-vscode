@@ -131,6 +131,8 @@ export class SentryServerTelemetry implements Telemetry {
       return null;
     } finally {
       transaction.finish();
+      // const elapsed = transaction.endTimestamp! - transaction.startTimestamp;
+      // console.log(`${taskName}: ${elapsed * 1000} ms`);
     }
   }
 

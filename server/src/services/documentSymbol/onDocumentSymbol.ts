@@ -8,11 +8,11 @@ import semver from "semver";
 import _ from "lodash";
 import { Language } from "@nomicfoundation/slang/language";
 import { ProductionKind } from "@nomicfoundation/slang/kinds";
+import { Cursor } from "@nomicfoundation/slang/cursor";
+import { RuleNode } from "@nomicfoundation/slang/cst";
 import { ServerState } from "../../types";
-import { walk } from "../../parser/slangHelpers";
 import { SymbolTreeBuilder } from "./SymbolTreeBuilder";
 import { StructDefinition } from "./visitors/StructDefinition";
-import { SymbolVisitor } from "./SymbolVisitor";
 import { StructMember } from "./visitors/StructMember";
 import { InterfaceDefinition } from "./visitors/InterfaceDefinition";
 import { FunctionDefinition } from "./visitors/FunctionDefinition";
@@ -29,6 +29,7 @@ import { LibraryDefinition } from "./visitors/LibraryDefinition";
 import { ModifierDefinition } from "./visitors/ModifierDefinition";
 import { ReceiveFunctionDefinition } from "./visitors/ReceiveFunctionDefinition";
 import { UserDefinedValueTypeDefinition } from "./visitors/UserDefinedValueTypeDefinition";
+import { SymbolVisitor } from "./SymbolVisitor";
 
 export function onDocumentSymbol(serverState: ServerState) {
   return async (
@@ -78,32 +79,14 @@ export function onDocumentSymbol(serverState: ServerState) {
         throw new Error(`Slang parsing error: ${strings.join("")}`);
       }
 
-      // let count = 0;
-      // // const start = performance.now();
       // const kursor: Cursor = parseTree.cursor.clone();
       // do {
       //   console.log(
-      //     `${"  ".repeat(kursor.pathRuleNodes.length)}${kursor.node.kind}: ${
-      //       kursor.node?.text
-      //     }`
+      //     `${"  ".repeat(kursor.pathRuleNodes.length)}${kursor.node.kind}(${
+      //       ["R", "T"][kursor.node.type]
+      //     }): ${kursor.node?.text ?? ""}`
       //   );
       // } while (kursor.goToNext());
-      // const end = performance.now();
-      // const elapsed = end - start;
-      // console.log({ elapsed });
-      // console.log({ count });
-
-      // const myobj = { foo: { bar: 123 } };
-      // const node = kursor.node;
-      // const start = performance.now();
-      // for (let index = 0; index < 1_000_000; index++) {
-      //   // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      //   myobj.foo.bar;
-      //   // node.type;
-      // }
-      // const end = performance.now();
-      // const elapsed = end - start;
-      // console.log({ elapsed });
 
       const builder = new SymbolTreeBuilder();
 
@@ -127,26 +110,22 @@ export function onDocumentSymbol(serverState: ServerState) {
         new UserDefinedValueTypeDefinition(document, builder),
       ];
 
-      // Walk the tree and generate symbol nodes
-      span = transaction.startChild({ op: "walk-generate-symbols" });
-      walk(
-        parseTree.cursor,
-        (nodeWrapper) => {
-          for (const visitor of visitors) {
-            visitor.enter(nodeWrapper);
-          }
-        },
-        (nodeWrapper) => {
-          for (const visitor of visitors) {
-            visitor.exit(nodeWrapper);
-          }
-        }
-      );
-      span.finish();
-      // console.log("ALL GOOD");
-      // console.log(JSON.stringify(builder.symbols, null, 2));
+      const indexedVisitors = _.keyBy(visitors, "ruleKind");
 
-      return { status: "ok", result: builder.symbols };
+      const cursor: Cursor = parseTree.cursor;
+      const ruleKinds = visitors.map((v) => v.ruleKind);
+      let node: RuleNode;
+
+      span = transaction.startChild({ op: "walk-generate-symbols" });
+      while ((node = cursor.findRuleWithKind(ruleKinds)) !== null) {
+        const visitor: SymbolVisitor = indexedVisitors[node.kind];
+        visitor.onRuleNode(node, cursor);
+
+        cursor.goToNext();
+      }
+      span.finish();
+
+      return { status: "ok", result: builder.getSymbols() };
     });
   };
 }
