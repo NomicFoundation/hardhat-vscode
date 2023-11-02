@@ -7,8 +7,10 @@ import {
 import { ServerState } from "../../types";
 import { tokensTypes } from "../semanticHighlight/tokenTypes";
 import { isSlangSupported } from "../../parser/slangHelpers";
+import { getPlatform } from "../../utils/operatingSystem";
 import { indexWorkspaceFolders } from "./indexWorkspaceFolders";
 import { updateAvailableSolcVersions } from "./updateAvailableSolcVersions";
+import { fetchFeatureFlags, isFeatureEnabled } from "./featureFlags";
 
 export const onInitialize = (serverState: ServerState) => {
   const { logger } = serverState;
@@ -42,22 +44,29 @@ export const onInitialize = (serverState: ServerState) => {
       workspaceFolders,
     });
 
-    // fetch available solidity versions
-    await updateAvailableSolcVersions(serverState);
+    // fetch available solidity versions and feature flags
+    const [flags] = await Promise.all([
+      fetchFeatureFlags(serverState),
+      updateAvailableSolcVersions(serverState),
+    ]);
 
     logger.info("Language server ready");
 
     // Index and analysis
-    await serverState.telemetry.trackTiming("indexing", async (transaction) => {
-      await indexWorkspaceFolders(
-        serverState,
-        serverState.workspaceFileRetriever,
-        workspaceFolders,
-        transaction
-      );
+    await serverState.telemetry.trackTiming(
+      "indexing",
+      async (transaction) => {
+        await indexWorkspaceFolders(
+          serverState,
+          serverState.workspaceFileRetriever,
+          workspaceFolders,
+          transaction
+        );
 
-      return { status: "ok", result: null };
-    });
+        return { status: "ok", result: null };
+      },
+      { platform: getPlatform() }
+    );
 
     const slangSupported = isSlangSupported();
 
@@ -89,9 +98,18 @@ export const onInitialize = (serverState: ServerState) => {
             tokenModifiers: [],
           },
           range: false,
-          full: slangSupported,
+          full:
+            slangSupported &&
+            isFeatureEnabled(
+              serverState,
+              flags,
+              "semanticHighlighting",
+              machineId
+            ),
         },
-        documentSymbolProvider: slangSupported,
+        documentSymbolProvider:
+          slangSupported &&
+          isFeatureEnabled(serverState, flags, "documentSymbol", machineId),
         workspace: {
           workspaceFolders: {
             supported: false,

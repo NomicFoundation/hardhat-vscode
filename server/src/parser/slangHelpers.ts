@@ -5,7 +5,7 @@ import { TextRange } from "@nomicfoundation/slang/text_index";
 import _ from "lodash";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Range } from "vscode-languageserver-types";
-import os from "os";
+import { getPlatform } from "../utils/operatingSystem";
 
 export type SlangNode = RuleNode | TokenNode;
 export type NodeKind = RuleKind | TokenKind;
@@ -65,8 +65,9 @@ const SUPPORTED_PLATFORMS = [
   "win32-ia32",
   "win32-x64",
 ];
+
 export function isSlangSupported() {
-  const currentPlatform = `${os.platform()}-${os.arch()}`;
+  const currentPlatform = getPlatform();
 
   return SUPPORTED_PLATFORMS.includes(currentPlatform);
 }

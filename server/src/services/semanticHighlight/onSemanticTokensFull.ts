@@ -52,6 +52,9 @@ export function onSemanticTokensFull(serverState: ServerState) {
         let span = transaction.startChild({ op: "solidity-analyzer" });
         const { versionPragmas } = analyze(text);
         span.finish();
+
+        versionPragmas.push("<= 0.8.19"); // latest supported by slang
+
         const solcVersion =
           semver.maxSatisfying(solcVersions, versionPragmas.join(" ")) ||
           _.last(solcVersions);
