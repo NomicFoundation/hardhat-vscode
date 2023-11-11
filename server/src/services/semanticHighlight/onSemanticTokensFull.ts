@@ -5,13 +5,14 @@ import {
   SemanticTokens,
   SemanticTokensParams,
 } from "vscode-languageserver-protocol";
-import _ from "lodash";
+import _, { Dictionary } from "lodash";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import semver from "semver";
 import { Language } from "@nomicfoundation/slang/language";
-import { ProductionKind } from "@nomicfoundation/slang/kinds";
+import { ProductionKind, TokenKind } from "@nomicfoundation/slang/kinds";
+import { Cursor } from "@nomicfoundation/slang/cursor";
+import { TokenNode } from "@nomicfoundation/slang/cst";
 import { ServerState } from "../../types";
-import { walk } from "../../parser/slangHelpers";
 import { CustomTypeHighlighter } from "./highlighters/CustomTypeHighlighter";
 import { SemanticTokensBuilder } from "./SemanticTokensBuilder";
 import { KeywordHighlighter } from "./highlighters/KeywordHighlighter";
@@ -24,6 +25,7 @@ import { EventDefinitionHighlighter } from "./highlighters/EventDefinitionHighli
 import { ContractDefinitionHighlighter } from "./highlighters/ContractDefinitionHighlighter";
 import { InterfaceDefinitionHighlighter } from "./highlighters/InterfaceDefinitionHighlighter";
 import { StructDefinitionHighlighter } from "./highlighters/StructDefinitionHighlighter";
+import { HighlightVisitor } from "./HighlightVisitor";
 
 const emptyResponse: SemanticTokens = { data: [] };
 
@@ -103,20 +105,42 @@ export function onSemanticTokensFull(serverState: ServerState) {
           ];
 
           // Visit the CST
-          span = transaction.startChild({ op: "walk-highlight-tokens" });
-          walk(
-            parseTree.cursor,
-            (nodeWrapper) => {
-              for (const visitor of visitors) {
-                visitor.enter(nodeWrapper);
-              }
-            },
-            (nodeWrapper) => {
-              for (const visitor of visitors) {
-                visitor.exit(nodeWrapper);
+          const indexedVisitors: Dictionary<HighlightVisitor[]> = {};
+          const registeredTokenKinds: TokenKind[] = [];
+
+          for (const visitor of visitors) {
+            for (const tokenKind of visitor.tokenKinds) {
+              indexedVisitors[tokenKind] ||= [];
+              indexedVisitors[tokenKind].push(visitor);
+
+              if (!registeredTokenKinds.includes(tokenKind)) {
+                registeredTokenKinds.push(tokenKind);
               }
             }
-          );
+          }
+
+          const cursor: Cursor = parseTree.cursor;
+          let node: TokenNode;
+
+          span = transaction.startChild({ op: "walk-highlight-tokens" });
+          while (
+            (node = cursor.findTokenWithKind(registeredTokenKinds)) !== null
+          ) {
+            const nodeWrapper = {
+              kind: node.kind,
+              pathRuleNodes: cursor.pathRuleNodes,
+              text: node.text,
+              textRange: cursor.textRange,
+              type: node.type,
+            };
+
+            const registeredVisitors = indexedVisitors[nodeWrapper.kind];
+            for (const visitor of registeredVisitors) {
+              visitor.enter(nodeWrapper);
+            }
+
+            cursor.goToNext();
+          }
           span.finish();
 
           return { status: "ok", result: { data: builder.getTokenData() } };

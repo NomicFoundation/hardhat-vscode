@@ -1,5 +1,4 @@
 import { NodeType, RuleNode, TokenNode } from "@nomicfoundation/slang/cst";
-import { Cursor } from "@nomicfoundation/slang/cursor";
 import { RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
 import { TextRange } from "@nomicfoundation/slang/text_index";
 import _ from "lodash";
@@ -17,33 +16,6 @@ export interface SlangNodeWrapper {
   kind: NodeKind;
   text: string;
   pathRuleNodes: SlangNode[];
-}
-
-export function walk(
-  cursor: Cursor,
-  onEnter: NodeCallback,
-  onExit: NodeCallback
-) {
-  const node = cursor.node;
-
-  const nodeWrapper: SlangNodeWrapper = {
-    textRange: cursor.textRange,
-    type: node.type,
-    kind: node.kind,
-    text: node.text,
-    pathRuleNodes: cursor.pathRuleNodes,
-  };
-
-  onEnter(nodeWrapper);
-
-  if (nodeWrapper.type === NodeType.Rule) {
-    for (let i = 0; i < node.children.length; i++) {
-      cursor.goToNthChild(i);
-      walk(cursor, onEnter, onExit);
-    }
-  }
-  onExit(nodeWrapper);
-  cursor.goToParent();
 }
 
 export function slangToVSCodeRange(

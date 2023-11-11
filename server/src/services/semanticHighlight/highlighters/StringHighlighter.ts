@@ -1,6 +1,7 @@
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
 import { TokenKind } from "@nomicfoundation/slang/kinds";
-import { NodeType } from "@nomicfoundation/slang/cst";
+import { NodeType, TokenNode } from "@nomicfoundation/slang/cst";
+import { Cursor } from "@nomicfoundation/slang/cursor";
 import { HighlightVisitor } from "../HighlightVisitor";
 import { SlangNodeWrapper } from "../../../parser/slangHelpers";
 
@@ -12,6 +13,8 @@ const stringKinds = new Set([
 
 // Highlights strings
 export class StringHighlighter extends HighlightVisitor {
+  public tokenKinds = stringKinds;
+
   public enter(nodeWrapper: SlangNodeWrapper): void {
     if (
       nodeWrapper.type === NodeType.Token &&
