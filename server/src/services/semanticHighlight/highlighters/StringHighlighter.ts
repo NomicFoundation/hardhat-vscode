@@ -1,7 +1,6 @@
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
 import { TokenKind } from "@nomicfoundation/slang/kinds";
-import { NodeType, TokenNode } from "@nomicfoundation/slang/cst";
-import { Cursor } from "@nomicfoundation/slang/cursor";
+import { NodeType } from "@nomicfoundation/slang/cst";
 import { HighlightVisitor } from "../HighlightVisitor";
 import { SlangNodeWrapper } from "../../../parser/slangHelpers";
 

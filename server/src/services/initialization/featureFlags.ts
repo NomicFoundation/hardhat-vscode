@@ -1,6 +1,7 @@
 import got from "got";
 import crypto from "crypto";
 import { ServerState } from "../../types";
+import { isTestMode } from "../../utils";
 
 export interface FeatureFlag {
   percent: number;
@@ -55,6 +56,10 @@ export function isFeatureEnabled(
 
   if (flag === undefined) {
     throw new Error(`Feature flag not found: ${feature}`);
+  }
+
+  if (isTestMode()) {
+    return true;
   }
 
   // hash the machineId to get an evenly distributed value

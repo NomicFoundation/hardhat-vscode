@@ -52,6 +52,21 @@ export const onInitialize = (serverState: ServerState) => {
 
     logger.info("Language server ready");
 
+    const slangSupported = isSlangSupported();
+
+    const semanticTokensEnabled = isFeatureEnabled(
+      serverState,
+      flags,
+      "semanticHighlighting",
+      machineId
+    );
+
+    const documentSymbolsEnabled = isFeatureEnabled(
+      serverState,
+      flags,
+      "documentSymbol",
+      machineId
+    );
     // Index and analysis
     await serverState.telemetry.trackTiming(
       "indexing",
@@ -65,10 +80,13 @@ export const onInitialize = (serverState: ServerState) => {
 
         return { status: "ok", result: null };
       },
-      { platform: getPlatform() }
+      {
+        platform: getPlatform(),
+        slangSupported,
+        semanticTokensEnabled,
+        documentSymbolsEnabled,
+      }
     );
-
-    const slangSupported = isSlangSupported();
 
     // Build and return InitializeResult
     const result: InitializeResult = {
@@ -98,18 +116,9 @@ export const onInitialize = (serverState: ServerState) => {
             tokenModifiers: [],
           },
           range: false,
-          full:
-            slangSupported &&
-            isFeatureEnabled(
-              serverState,
-              flags,
-              "semanticHighlighting",
-              machineId
-            ),
+          full: slangSupported && semanticTokensEnabled,
         },
-        documentSymbolProvider:
-          slangSupported &&
-          isFeatureEnabled(serverState, flags, "documentSymbol", machineId),
+        documentSymbolProvider: slangSupported && documentSymbolsEnabled,
         workspace: {
           workspaceFolders: {
             supported: false,

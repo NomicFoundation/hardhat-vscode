@@ -12,7 +12,6 @@ export abstract class SymbolVisitor {
   public abstract ruleKind: RuleKind;
   public abstract symbolKind: SymbolKind;
   public abstract nameTokenKind: TokenKind;
-  public nameTokenSkips = 0;
 
   constructor(
     public document: TextDocument,

@@ -79,15 +79,6 @@ export function onDocumentSymbol(serverState: ServerState) {
         throw new Error(`Slang parsing error: ${strings.join("")}`);
       }
 
-      // const kursor: Cursor = parseTree.cursor.clone();
-      // do {
-      //   console.log(
-      //     `${"  ".repeat(kursor.pathRuleNodes.length)}${kursor.node.kind}(${
-      //       ["R", "T"][kursor.node.type]
-      //     }): ${kursor.node?.text ?? ""}`
-      //   );
-      // } while (kursor.goToNext());
-
       const builder = new SymbolTreeBuilder();
 
       const visitors: SymbolVisitor[] = [

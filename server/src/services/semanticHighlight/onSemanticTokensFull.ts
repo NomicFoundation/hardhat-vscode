@@ -145,7 +145,7 @@ export function onSemanticTokensFull(serverState: ServerState) {
 
           return { status: "ok", result: { data: builder.getTokenData() } };
         } catch (error) {
-          logger.error(error);
+          logger.error(`Slang parsing error: ${error}`);
           return { status: "internal_error", result: emptyResponse };
         }
       }) || emptyResponse
