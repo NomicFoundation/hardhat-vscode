@@ -902,7 +902,7 @@ export const expressionNodeTypes = [
 ];
 
 /**
- * Checks if 2 nodes have the same {@link Node.getName name}, {@link Node.nameLoc location name} and {@link Node.uri URI}.
+ * Checks if 2 nodes have the same {@link Node.getName name}, {@link Node.nameLoc location name}, {@link Node.astNode.range range} and {@link Node.uri URI}.
  * @returns true if the Nodes are equal, otherwise false.
  */
 function isNodeEqual(
@@ -917,15 +917,12 @@ function isNodeEqual(
     return true;
   }
 
-  if (
-    node1.getName() === node2.getName() &&
-    JSON.stringify(node1.nameLoc) === JSON.stringify(node2.nameLoc) &&
-    node1.uri === node2.uri
-  ) {
-    return true;
-  }
+  return node1.getName() === node2.getName() &&
+    node1.nameLoc === node2.nameLoc &&
+    node1.uri === node2.uri &&
+    node1.astNode.range === node2.astNode.range;
 
-  return false;
+  
 }
 
 export type AstMutability = "pure" | "constant" | "payable" | "view" | null;
