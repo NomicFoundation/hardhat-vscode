@@ -921,8 +921,6 @@ function isNodeEqual(
     node1.nameLoc === node2.nameLoc &&
     node1.uri === node2.uri &&
     node1.astNode.range === node2.astNode.range;
-
-  
 }
 
 export type AstMutability = "pure" | "constant" | "payable" | "view" | null;

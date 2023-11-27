@@ -1,3 +1,4 @@
+// @ts-ignore
 import { linearize } from "c3-linearization";
 import { ContractDefinitionNode } from "@common/types";
 import {
