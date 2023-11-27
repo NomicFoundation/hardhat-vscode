@@ -99,8 +99,8 @@ import {
   ParameterInformation,
 } from "vscode-languageserver-protocol";
 
-import { TextDocument } from "vscode-languageserver-textdocument";
-import { Project } from "../../../frameworks/base/Project";
+import {TextDocument} from "vscode-languageserver-textdocument";
+import {Project} from "../../../frameworks/base/Project";
 
 export {
   ASTNode,
@@ -409,12 +409,23 @@ export interface Position {
   column: number;
 }
 
+function isPositionEqual(p1: Position, p2: Position) {
+  return p1.line == p2.line && p1.column == p2.column
+}
+
 /**
  *  Location in file has start and end Position.
  */
 export interface Location {
   start: Position;
   end: Position;
+}
+
+function isLocationEqual(l1: Location | undefined, l2: Location | undefined): boolean {
+  if (l1 == undefined || l2 == undefined) {
+    return l1 == l2
+  }
+  return isPositionEqual(l1.start, l2.start) && isPositionEqual(l1.end, l2.end)
 }
 
 /**
@@ -917,10 +928,14 @@ function isNodeEqual(
     return true;
   }
 
-  return node1.getName() === node2.getName() &&
-    node1.nameLoc === node2.nameLoc &&
+  return (node1.getName() === node2.getName() &&
+    isLocationEqual(node1.nameLoc, node2.nameLoc) &&
     node1.uri === node2.uri &&
-    node1.astNode.range === node2.astNode.range;
+    (node1.astNode.range === node2.astNode.range ||
+      (node1.astNode.range != undefined &&
+        node2.astNode.range != undefined &&
+        node1.astNode.range[0] === node2.astNode.range[0] &&
+        node1.astNode.range[1] === node2.astNode.range[1])));
 }
 
 export type AstMutability = "pure" | "constant" | "payable" | "view" | null;
