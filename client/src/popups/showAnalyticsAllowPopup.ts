@@ -3,6 +3,7 @@ import {
   window,
   ExtensionContext,
   ConfigurationTarget,
+  ExtensionMode,
 } from "vscode";
 
 const PREVIOUSLY_SHOWN_TELEMETRY_LABEL = "previouslyShownTelemetryMessage";
@@ -12,6 +13,12 @@ export async function showAnalyticsAllowPopup({
 }: {
   context: ExtensionContext;
 }): Promise<void> {
+  if (context.extensionMode === ExtensionMode.Test) {
+    // Dialog messages are prohibited in tests:
+    // https://github.com/microsoft/vscode/blob/36fefc828e4c496a7bbb64c63f3eb3052a650f8f/src/vs/workbench/services/dialogs/common/dialogService.ts#L56
+    return;
+  }
+
   // TODO: remove this once we are happy we have most people reconfirmed
   await context.globalState.update("shownTelemetryMessage", undefined);
 
