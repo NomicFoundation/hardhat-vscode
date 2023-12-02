@@ -20,7 +20,7 @@ import { runTests } from "@vscode/test-electron";
 
     // Download VS Code, unzip it and run the e2e test
     await runTests({
-      version: "1.83.1",
+      version: "1.70.2",
       extensionDevelopmentPath,
       extensionTestsPath,
 
