@@ -10,7 +10,12 @@ jobs:
   add-to-project:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/add-to-project@v0.4.0
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.x"
+
+      - uses: actions/add-to-project@v0.5.0
         with:
           project-url: https://github.com/orgs/NomicFoundation/projects/5
           github-token: ${{ secrets.ADD_TO_PROJECT_PAT }}
