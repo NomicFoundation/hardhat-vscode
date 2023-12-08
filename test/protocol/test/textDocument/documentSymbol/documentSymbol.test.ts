@@ -885,3 +885,77 @@ describe('[hardhat] documentSymbol', () => {
     ])
   })
 })
+
+describe('[projectless] documentSymbol', () => {
+  let testPath: string
+
+  before(async () => {
+    client = await getInitializedClient()
+
+    testPath = getProjectPath('projectless/src/documentSymbol/UnnamedFunction.sol')
+
+    await client.openDocument(testPath)
+  })
+
+  after(async () => {
+    client.closeAllDocuments()
+  })
+
+  test('supports unnamed function definition', async function () {
+    const symbols = await client.getDocumentSymbols(toUri(testPath))
+
+    expect(symbols).to.deep.equal([
+      {
+        children: [
+          {
+            children: [],
+            kind: 12,
+            name: 'function',
+            range: {
+              start: {
+                line: 5,
+                character: 0,
+              },
+              end: {
+                line: 6,
+                character: 0,
+              },
+            },
+            selectionRange: {
+              start: {
+                line: 5,
+                character: 4,
+              },
+              end: {
+                line: 5,
+                character: 12,
+              },
+            },
+          },
+        ],
+        kind: 5,
+        name: 'UnnamedTest',
+        range: {
+          start: {
+            line: 3,
+            character: 0,
+          },
+          end: {
+            line: 7,
+            character: 0,
+          },
+        },
+        selectionRange: {
+          start: {
+            line: 4,
+            character: 9,
+          },
+          end: {
+            line: 4,
+            character: 20,
+          },
+        },
+      },
+    ])
+  })
+})

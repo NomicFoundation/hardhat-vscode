@@ -13,6 +13,7 @@ import { ProductionKind, TokenKind } from "@nomicfoundation/slang/kinds";
 import { Cursor } from "@nomicfoundation/slang/cursor";
 import { TokenNode } from "@nomicfoundation/slang/cst";
 import { ServerState } from "../../types";
+import { SlangNode } from "../../parser/slangHelpers";
 import { CustomTypeHighlighter } from "./highlighters/CustomTypeHighlighter";
 import { SemanticTokensBuilder } from "./SemanticTokensBuilder";
 import { FunctionDefinitionHighlighter } from "./highlighters/FunctionDefinitionHighlighter";
@@ -87,21 +88,8 @@ export function onSemanticTokensFull(serverState: ServerState) {
             document.getText()
           );
 
-          const parseTree = parseOutput.parseTree;
+          const parseTree: SlangNode = parseOutput.parseTree;
           span.finish();
-
-          if (parseTree === null) {
-            logger.error("Slang parsing error");
-            const strings = parseOutput.errors.map((e: any) =>
-              e.toErrorReport(uri, text, false)
-            );
-            logger.error(`Slang parsing error:\n${strings.join("\n")}`);
-
-            return {
-              status: "internal_error",
-              result: emptyResponse,
-            };
-          }
 
           // Register visitors
           const builder = new SemanticTokensBuilder(document);

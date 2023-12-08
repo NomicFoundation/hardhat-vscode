@@ -11,6 +11,7 @@ import { ProductionKind } from "@nomicfoundation/slang/kinds";
 import { Cursor } from "@nomicfoundation/slang/cursor";
 import { RuleNode } from "@nomicfoundation/slang/cst";
 import { ServerState } from "../../types";
+import { SlangNode } from "../../parser/slangHelpers";
 import { SymbolTreeBuilder } from "./SymbolTreeBuilder";
 import { StructDefinition } from "./visitors/StructDefinition";
 import { StructMember } from "./visitors/StructMember";
@@ -31,6 +32,7 @@ import { ReceiveFunctionDefinition } from "./visitors/ReceiveFunctionDefinition"
 import { UserDefinedValueTypeDefinition } from "./visitors/UserDefinedValueTypeDefinition";
 import { SymbolVisitor } from "./SymbolVisitor";
 import { YulFunctionDefinition } from "./visitors/YulFunctionDefinition";
+import { UnnamedFunctionDefinition } from "./visitors/UnnamedFunctionDefinition";
 
 export function onDocumentSymbol(serverState: ServerState) {
   return async (
@@ -80,16 +82,8 @@ export function onDocumentSymbol(serverState: ServerState) {
         document.getText()
       );
 
-      const parseTree = parseOutput.parseTree;
+      const parseTree: SlangNode = parseOutput.parseTree;
       span.finish();
-
-      if (parseTree === null) {
-        const strings = parseOutput.errors.map((e: any) =>
-          e.toErrorReport(uri, text, false)
-        );
-
-        throw new Error(`Slang parsing error:\n${strings.join("\n")}`);
-      }
 
       const builder = new SymbolTreeBuilder();
 
@@ -112,6 +106,7 @@ export function onDocumentSymbol(serverState: ServerState) {
         new ReceiveFunctionDefinition(document, builder),
         new UserDefinedValueTypeDefinition(document, builder),
         new YulFunctionDefinition(document, builder),
+        new UnnamedFunctionDefinition(document, builder),
       ];
 
       const indexedVisitors = _.keyBy(visitors, "ruleKind");
