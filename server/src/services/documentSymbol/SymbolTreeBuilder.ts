@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { DocumentSymbol } from "vscode-languageserver-types";
 import _ from "lodash";
 
@@ -30,7 +31,7 @@ export class SymbolTreeBuilder {
         throw new Error("Attempting to close a symbol but none is open");
       }
 
-      lastSymbol.children?.push(symbol);
+      lastSymbol.children!.push(symbol);
     }
   }
 

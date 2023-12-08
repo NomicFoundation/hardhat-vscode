@@ -8,7 +8,6 @@ import { getPlatform } from "../utils/operatingSystem";
 
 export type SlangNode = RuleNode | TokenNode;
 export type NodeKind = RuleKind | TokenKind;
-export type NodeCallback = (node: SlangNodeWrapper) => void;
 
 export interface SlangNodeWrapper {
   textRange: TextRange;

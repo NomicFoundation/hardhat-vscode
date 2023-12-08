@@ -15,9 +15,6 @@ import { TokenNode } from "@nomicfoundation/slang/cst";
 import { ServerState } from "../../types";
 import { CustomTypeHighlighter } from "./highlighters/CustomTypeHighlighter";
 import { SemanticTokensBuilder } from "./SemanticTokensBuilder";
-import { KeywordHighlighter } from "./highlighters/KeywordHighlighter";
-import { NumberHighlighter } from "./highlighters/NumberHighlighter";
-import { StringHighlighter } from "./highlighters/StringHighlighter";
 import { FunctionDefinitionHighlighter } from "./highlighters/FunctionDefinitionHighlighter";
 import { FunctionCallHighlighter } from "./highlighters/FunctionCallHighlighter";
 import { EventEmissionHighlighter } from "./highlighters/EventEmissionHighlighter";
@@ -26,12 +23,16 @@ import { ContractDefinitionHighlighter } from "./highlighters/ContractDefinition
 import { InterfaceDefinitionHighlighter } from "./highlighters/InterfaceDefinitionHighlighter";
 import { StructDefinitionHighlighter } from "./highlighters/StructDefinitionHighlighter";
 import { HighlightVisitor } from "./HighlightVisitor";
+import { UserDefinedValueTypeDefinitionHighlighter } from "./highlighters/UserDefinedValueTypeDefinitionHighlighter copy";
+import { EnumDefinitionHighlighter } from "./highlighters/EnumDefinitionHighlighter";
+import { ErrorDefinitionHighlighter } from "./highlighters/ErrorDefinitionHighlighter";
+import { LibraryDefinitionHighlighter } from "./highlighters/LibraryDefinitionHighlighter";
 
 const emptyResponse: SemanticTokens = { data: [] };
 
 export function onSemanticTokensFull(serverState: ServerState) {
   return (params: SemanticTokensParams): SemanticTokens => {
-    const { telemetry, logger, solcVersions } = serverState;
+    const { telemetry, logger } = serverState;
 
     return (
       telemetry.trackTimingSync("onSemanticTokensFull", (transaction) => {
@@ -55,11 +56,26 @@ export function onSemanticTokensFull(serverState: ServerState) {
         const { versionPragmas } = analyze(text);
         span.finish();
 
-        versionPragmas.push("<= 0.8.19"); // latest supported by slang
+        const versions = Language.supportedVersions();
+        versionPragmas.push(
+          `>= ${versions[0]}`,
+          `<= ${versions[versions.length - 1]}`
+        );
 
-        const solcVersion =
-          semver.maxSatisfying(solcVersions, versionPragmas.join(" ")) ||
-          _.last(solcVersions);
+        const solcVersion = semver.maxSatisfying(
+          Language.supportedVersions(),
+          versionPragmas.join(" ")
+        );
+
+        if (solcVersion === null) {
+          logger.error(
+            `No supported solidity version found. Supported versions: ${Language.supportedVersions()}, pragma directives: ${versionPragmas}`
+          );
+          return {
+            status: "internal_error",
+            result: emptyResponse,
+          };
+        }
 
         try {
           // Parse using slang
@@ -79,7 +95,7 @@ export function onSemanticTokensFull(serverState: ServerState) {
             const strings = parseOutput.errors.map((e: any) =>
               e.toErrorReport(uri, text, false)
             );
-            logger.error(strings.join(""));
+            logger.error(`Slang parsing error:\n${strings.join("\n")}`);
 
             return {
               status: "internal_error",
@@ -92,9 +108,6 @@ export function onSemanticTokensFull(serverState: ServerState) {
 
           const visitors = [
             new CustomTypeHighlighter(document, builder),
-            new KeywordHighlighter(document, builder),
-            new NumberHighlighter(document, builder),
-            new StringHighlighter(document, builder),
             new FunctionDefinitionHighlighter(document, builder),
             new FunctionCallHighlighter(document, builder),
             new EventEmissionHighlighter(document, builder),
@@ -102,6 +115,10 @@ export function onSemanticTokensFull(serverState: ServerState) {
             new ContractDefinitionHighlighter(document, builder),
             new InterfaceDefinitionHighlighter(document, builder),
             new StructDefinitionHighlighter(document, builder),
+            new UserDefinedValueTypeDefinitionHighlighter(document, builder),
+            new EnumDefinitionHighlighter(document, builder),
+            new ErrorDefinitionHighlighter(document, builder),
+            new LibraryDefinitionHighlighter(document, builder),
           ];
 
           // Visit the CST

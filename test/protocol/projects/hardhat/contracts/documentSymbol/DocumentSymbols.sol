@@ -78,6 +78,12 @@ contract testContract {
         TestStruct memory afterUTF8;
         afterUTF8;
         anotherFunction();
+
+        assembly {
+            function mult(a, b) -> result {
+                result := mul(a, b)
+            }
+        }
     }
 
     function anotherFunction() public pure {}

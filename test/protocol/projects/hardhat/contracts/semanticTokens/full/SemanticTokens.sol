@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.8;
 
+type CustomType is uint256;
+
 interface TestInterface {}
 
 struct TestStruct {
@@ -9,6 +11,16 @@ struct TestStruct {
     string aString;
     address anAddress;
 }
+
+enum TestEnum {
+    A,
+    B,
+    C
+}
+
+error CustomError();
+
+library MyLibrary {}
 
 contract testContract {
     event TestEvent(

@@ -2,7 +2,7 @@
 import { SymbolKind } from "vscode-languageserver-types";
 import _ from "lodash";
 import { RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
-import { RuleNode, TokenNode } from "@nomicfoundation/slang/cst";
+import { TokenNode } from "@nomicfoundation/slang/cst";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Cursor } from "@nomicfoundation/slang/cursor";
 import { slangToVSCodeRange } from "../../parser/slangHelpers";
@@ -18,7 +18,7 @@ export abstract class SymbolVisitor {
     public symbolBuilder: SymbolTreeBuilder
   ) {}
 
-  public onRuleNode(node: RuleNode, cursor: Cursor): void {
+  public onRuleNode(cursor: Cursor): void {
     const range = slangToVSCodeRange(this.document, cursor.textRange);
 
     let symbolName = "-";
@@ -28,15 +28,12 @@ export abstract class SymbolVisitor {
     const childCursor = cursor.spawn();
 
     do {
-      const identifierNode: TokenNode | null = childCursor.findTokenWithKind([
+      const nameToken: TokenNode | null = childCursor.findTokenWithKind([
         this.nameTokenKind,
       ]);
 
-      if (
-        identifierNode &&
-        _.last(childCursor.pathRuleNodes).kind === this.ruleKind
-      ) {
-        symbolName = identifierNode.text;
+      if (nameToken && childCursor.pathRuleNodes.length === 1) {
+        symbolName = nameToken.text;
         selectionRange = slangToVSCodeRange(
           this.document,
           childCursor.textRange

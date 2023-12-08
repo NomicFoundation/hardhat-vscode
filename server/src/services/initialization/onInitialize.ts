@@ -45,7 +45,7 @@ export const onInitialize = (serverState: ServerState) => {
     });
 
     // fetch available solidity versions and feature flags
-    const [flags] = await Promise.all([
+    const [flags, _] = await Promise.all([
       fetchFeatureFlags(serverState),
       updateAvailableSolcVersions(serverState),
     ]);

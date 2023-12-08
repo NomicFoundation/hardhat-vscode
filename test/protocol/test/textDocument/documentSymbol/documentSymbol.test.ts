@@ -734,6 +734,31 @@ describe('[hardhat] documentSymbol', () => {
                   },
                 },
               },
+              {
+                children: [],
+                kind: 12,
+                name: 'mult',
+                range: {
+                  start: {
+                    line: 82,
+                    character: 0,
+                  },
+                  end: {
+                    line: 85,
+                    character: 0,
+                  },
+                },
+                selectionRange: {
+                  start: {
+                    line: 82,
+                    character: 21,
+                  },
+                  end: {
+                    line: 82,
+                    character: 25,
+                  },
+                },
+              },
             ],
             kind: 12,
             name: 'testFunction',
@@ -743,7 +768,7 @@ describe('[hardhat] documentSymbol', () => {
                 character: 0,
               },
               end: {
-                line: 81,
+                line: 87,
                 character: 0,
               },
             },
@@ -764,21 +789,21 @@ describe('[hardhat] documentSymbol', () => {
             name: 'anotherFunction',
             range: {
               start: {
-                line: 81,
+                line: 87,
                 character: 0,
               },
               end: {
-                line: 83,
+                line: 89,
                 character: 0,
               },
             },
             selectionRange: {
               start: {
-                line: 82,
+                line: 88,
                 character: 13,
               },
               end: {
-                line: 82,
+                line: 88,
                 character: 28,
               },
             },
@@ -789,21 +814,21 @@ describe('[hardhat] documentSymbol', () => {
             name: 'fallback',
             range: {
               start: {
-                line: 83,
+                line: 89,
                 character: 0,
               },
               end: {
-                line: 85,
+                line: 91,
                 character: 0,
               },
             },
             selectionRange: {
               start: {
-                line: 84,
+                line: 90,
                 character: 4,
               },
               end: {
-                line: 84,
+                line: 90,
                 character: 12,
               },
             },
@@ -814,21 +839,21 @@ describe('[hardhat] documentSymbol', () => {
             name: 'receive',
             range: {
               start: {
-                line: 85,
+                line: 91,
                 character: 0,
               },
               end: {
-                line: 87,
+                line: 93,
                 character: 0,
               },
             },
             selectionRange: {
               start: {
-                line: 86,
+                line: 92,
                 character: 4,
               },
               end: {
-                line: 86,
+                line: 92,
                 character: 11,
               },
             },
@@ -842,7 +867,7 @@ describe('[hardhat] documentSymbol', () => {
             character: 0,
           },
           end: {
-            line: 88,
+            line: 94,
             character: 0,
           },
         },

@@ -29,7 +29,7 @@ export async function fetchFeatureFlags(
   try {
     return await got
       .get(
-        "https://raw.githubusercontent.com/antico5/hardhat-vscode/flags/flags.json",
+        "https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/development/flags.json",
         {
           timeout: 2000,
         }

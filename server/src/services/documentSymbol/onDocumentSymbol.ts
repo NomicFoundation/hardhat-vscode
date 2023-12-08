@@ -30,12 +30,13 @@ import { ModifierDefinition } from "./visitors/ModifierDefinition";
 import { ReceiveFunctionDefinition } from "./visitors/ReceiveFunctionDefinition";
 import { UserDefinedValueTypeDefinition } from "./visitors/UserDefinedValueTypeDefinition";
 import { SymbolVisitor } from "./SymbolVisitor";
+import { YulFunctionDefinition } from "./visitors/YulFunctionDefinition";
 
 export function onDocumentSymbol(serverState: ServerState) {
   return async (
     params: DocumentSymbolParams
   ): Promise<DocumentSymbol[] | SymbolInformation[] | null> => {
-    const { telemetry, solcVersions } = serverState;
+    const { telemetry } = serverState;
     return telemetry.trackTimingSync("onDocumentSymbol", (transaction) => {
       const { uri } = params.textDocument;
 
@@ -53,11 +54,22 @@ export function onDocumentSymbol(serverState: ServerState) {
       const { versionPragmas } = analyze(text);
       span.finish();
 
-      versionPragmas.push("<= 0.8.19"); // latest supported by slang
+      const versions = Language.supportedVersions();
+      versionPragmas.push(
+        `>= ${versions[0]}`,
+        `<= ${versions[versions.length - 1]}`
+      );
 
-      const solcVersion =
-        semver.maxSatisfying(solcVersions, versionPragmas.join(" ")) ||
-        _.last(solcVersions);
+      const solcVersion = semver.maxSatisfying(
+        Language.supportedVersions(),
+        versionPragmas.join(" ")
+      );
+
+      if (solcVersion === null) {
+        throw new Error(
+          `No supported solidity version found. Supported versions: ${Language.supportedVersions()}, pragma directives: ${versionPragmas}`
+        );
+      }
 
       // Parse using slang
       span = transaction.startChild({ op: "slang-parsing" });
@@ -76,7 +88,7 @@ export function onDocumentSymbol(serverState: ServerState) {
           e.toErrorReport(uri, text, false)
         );
 
-        throw new Error(`Slang parsing error: ${strings.join("")}`);
+        throw new Error(`Slang parsing error:\n${strings.join("\n")}`);
       }
 
       const builder = new SymbolTreeBuilder();
@@ -99,6 +111,7 @@ export function onDocumentSymbol(serverState: ServerState) {
         new ModifierDefinition(document, builder),
         new ReceiveFunctionDefinition(document, builder),
         new UserDefinedValueTypeDefinition(document, builder),
+        new YulFunctionDefinition(document, builder),
       ];
 
       const indexedVisitors = _.keyBy(visitors, "ruleKind");
@@ -107,10 +120,20 @@ export function onDocumentSymbol(serverState: ServerState) {
       const ruleKinds = visitors.map((v) => v.ruleKind);
       let node: RuleNode;
 
+      // Useful to keep this here for development
+      // const kursor: Cursor = parseTree.cursor.clone();
+      // do {
+      //   console.log(
+      //     `${"  ".repeat(kursor.pathRuleNodes.length)}${kursor.node.kind}(${
+      //       ["R", "T"][kursor.node.type]
+      //     }): ${kursor.node?.text ?? ""}`
+      //   );
+      // } while (kursor.goToNext());
+
       span = transaction.startChild({ op: "walk-generate-symbols" });
       while ((node = cursor.findRuleWithKind(ruleKinds)) !== null) {
         const visitor: SymbolVisitor = indexedVisitors[node.kind];
-        visitor.onRuleNode(node, cursor);
+        visitor.onRuleNode(cursor);
 
         cursor.goToNext();
       }
