@@ -11,7 +11,6 @@ import { ProductionKind } from "@nomicfoundation/slang/kinds";
 import { Cursor } from "@nomicfoundation/slang/cursor";
 import { RuleNode } from "@nomicfoundation/slang/cst";
 import { ServerState } from "../../types";
-import { SlangNode } from "../../parser/slangHelpers";
 import { SymbolTreeBuilder } from "./SymbolTreeBuilder";
 import { StructDefinition } from "./visitors/StructDefinition";
 import { StructMember } from "./visitors/StructMember";
@@ -62,27 +61,27 @@ export function onDocumentSymbol(serverState: ServerState) {
         `<= ${versions[versions.length - 1]}`
       );
 
-      const solcVersion = semver.maxSatisfying(
-        Language.supportedVersions(),
+      const slangVersion = semver.maxSatisfying(
+        versions,
         versionPragmas.join(" ")
       );
 
-      if (solcVersion === null) {
+      if (slangVersion === null) {
         throw new Error(
-          `No supported solidity version found. Supported versions: ${Language.supportedVersions()}, pragma directives: ${versionPragmas}`
+          `No supported solidity version found. Supported versions: ${versions}, pragma directives: ${versionPragmas}`
         );
       }
 
       // Parse using slang
       span = transaction.startChild({ op: "slang-parsing" });
-      const language = new Language(solcVersion!);
+      const language = new Language(slangVersion!);
 
       const parseOutput = language.parse(
         ProductionKind.SourceUnit,
         document.getText()
       );
 
-      const parseTree: SlangNode = parseOutput.parseTree;
+      const parseTree = parseOutput.parseTree;
       span.finish();
 
       const builder = new SymbolTreeBuilder();
