@@ -48,7 +48,7 @@ The Language server protocol describes in a json format all messages sent betwee
 
 This allows multiple text editors to leverage the same language features without having to reimplement the language rules every time. Each editor leverages a different language server for each language, and the language server implementations can be shared across editors.
 
-There are two types of messages that can be exchanged: notifications and requests. A notifiaction doesn't expect a response from the counterpart, and a request does. Some messages are designed to be sent from the client to the server, others are designed to go from server to client.
+There are two types of messages that can be exchanged: notifications and requests. A notification doesn't expect a response from the counterpart, and a request does. Some messages are designed to be sent from the client to the server, others are designed to go from server to client.
 
 The low level connection between the two components can be established through different channels: ipc (which we use in vs code and coc), stdio or socket.
 
@@ -131,7 +131,7 @@ During the initialization phase of the server, we run the indexing process. This
 - Scanning workspace folders for projects: each registered project adapter is called to scan a list of directories and return project instances.
 - Initializing projects: each found project is initialized sequentially. Initialization logic is specific to each project adapter.
 - Scanning for solidity files: `fast-glob` is used to find all `.sol` files.
-- Associating each solidity file to a project: for each found file, each project instance is tested to check wether the file belongs to them or not. Project adapters have priorities to determine which one should be assigned in case multiple of them claim that a file belongs to them. A file will be given the default `projectless` project instance if no othe project claims the file.
+- Associating each solidity file to a project: for each found file, each project instance is tested to check wether the file belongs to them or not. Project adapters have priorities to determine which one should be assigned in case multiple of them claim that a file belongs to them. A file will be given the default `projectless` project instance if no other project claims the file.
 - Analyzing local source files: from the previous step, some source files are marked as local. This concept means that they are the project's main source files, and not libraries or vendored files. Only local sources are initially analyzed for optimization purposes, since analysis takes up significant amount of time. It's important to note that analysis crawls the files, so libraries are also analyzed if they are imported directly or indirectly from a local source. Non-local files will be analysed as soon as a language server action happens against them.
 
 ### Validation
@@ -205,7 +205,7 @@ A given foundry project that was successfully initialized will claim ownership o
 
 We provide support to editing standalone solidity files or projects with unknown frameworks. We attempt validation by building the input and invoking the solidity compiler from the language server.
 
-When a file is requested for validation, the first step is crawling all it dependencies recursively through the import statements. We use `solidity-analyzer` for this, which scraps the imports and the solidity pragma statements from solidity files. The import paths supported for projectless files are relative and absolute path imports (i.e. no remappings, no direct imports).
+When a file is requested for validation, the first step is crawling all its dependencies recursively through the import statements. We use `solidity-analyzer` for this, which scraps the imports and the solidity pragma statements from solidity files. The import paths supported for projectless files are relative and absolute path imports (i.e. no remappings, no direct imports).
 
 If all imports were crawled successfully, we process the list of found pragma statements, and match it against a list of available solc versions using the `semver` package. The highest matched version is used for compilation.
 
