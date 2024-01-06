@@ -4,13 +4,12 @@
 import { DocumentSymbolParams } from "vscode-languageserver/node";
 import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-types";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
-import semver from "semver";
 import _ from "lodash";
-import { Language } from "@nomicfoundation/slang/language";
 import { ProductionKind } from "@nomicfoundation/slang/kinds";
 import { Cursor } from "@nomicfoundation/slang/cursor";
 import { RuleNode } from "@nomicfoundation/slang/cst";
 import { ServerState } from "../../types";
+import { getLanguage } from "../../parser/slangHelpers";
 import { SymbolTreeBuilder } from "./SymbolTreeBuilder";
 import { StructDefinition } from "./visitors/StructDefinition";
 import { StructMember } from "./visitors/StructMember";
@@ -37,7 +36,7 @@ export function onDocumentSymbol(serverState: ServerState) {
   return async (
     params: DocumentSymbolParams
   ): Promise<DocumentSymbol[] | SymbolInformation[] | null> => {
-    const { telemetry } = serverState;
+    const { telemetry, logger } = serverState;
     return telemetry.trackTimingSync("onDocumentSymbol", (transaction) => {
       const { uri } = params.textDocument;
 
@@ -55,85 +54,74 @@ export function onDocumentSymbol(serverState: ServerState) {
       const { versionPragmas } = analyze(text);
       span.finish();
 
-      const versions = Language.supportedVersions();
-      versionPragmas.push(
-        `>= ${versions[0]}`,
-        `<= ${versions[versions.length - 1]}`
-      );
+      try {
+        const language = getLanguage(versionPragmas);
 
-      const slangVersion = semver.maxSatisfying(
-        versions,
-        versionPragmas.join(" ")
-      );
+        // Parse using slang
+        span = transaction.startChild({ op: "slang-parsing" });
 
-      if (slangVersion === null) {
-        throw new Error(
-          `No supported solidity version found. Supported versions: ${versions}, pragma directives: ${versionPragmas}`
+        const parseOutput = language.parse(
+          ProductionKind.SourceUnit,
+          document.getText()
         );
+
+        const parseTree = parseOutput.parseTree;
+        span.finish();
+
+        const builder = new SymbolTreeBuilder();
+
+        const visitors: SymbolVisitor[] = [
+          new StructDefinition(document, builder),
+          new StructMember(document, builder),
+          new InterfaceDefinition(document, builder),
+          new FunctionDefinition(document, builder),
+          new ContractDefinition(document, builder),
+          new EventDefinition(document, builder),
+          new StateVariableDeclaration(document, builder),
+          new VariableDeclaration(document, builder),
+          new ConstantDefinition(document, builder),
+          new ConstructorDefinition(document, builder),
+          new EnumDefinition(document, builder),
+          new ErrorDefinition(document, builder),
+          new FallbackFunctionDefinition(document, builder),
+          new LibraryDefinition(document, builder),
+          new ModifierDefinition(document, builder),
+          new ReceiveFunctionDefinition(document, builder),
+          new UserDefinedValueTypeDefinition(document, builder),
+          new YulFunctionDefinition(document, builder),
+          new UnnamedFunctionDefinition(document, builder),
+        ];
+
+        const indexedVisitors = _.keyBy(visitors, "ruleKind");
+
+        const cursor: Cursor = parseTree.cursor;
+        const ruleKinds = visitors.map((v) => v.ruleKind);
+        let node: RuleNode;
+
+        // Useful to keep this here for development
+        // const kursor: Cursor = parseTree.cursor.clone();
+        // do {
+        //   console.log(
+        //     `${"  ".repeat(kursor.pathRuleNodes.length)}${kursor.node.kind}(${
+        //       ["R", "T"][kursor.node.type]
+        //     }): ${kursor.node?.text ?? ""}`
+        //   );
+        // } while (kursor.goToNext());
+
+        span = transaction.startChild({ op: "walk-generate-symbols" });
+        while ((node = cursor.findRuleWithKind(ruleKinds)) !== null) {
+          const visitor: SymbolVisitor = indexedVisitors[node.kind];
+          visitor.onRuleNode(cursor);
+
+          cursor.goToNext();
+        }
+        span.finish();
+
+        return { status: "ok", result: builder.getSymbols() };
+      } catch (error) {
+        logger.error(`Document Symbol Error: ${error}`);
+        return { status: "internal_error", result: null };
       }
-
-      // Parse using slang
-      span = transaction.startChild({ op: "slang-parsing" });
-      const language = new Language(slangVersion!);
-
-      const parseOutput = language.parse(
-        ProductionKind.SourceUnit,
-        document.getText()
-      );
-
-      const parseTree = parseOutput.parseTree;
-      span.finish();
-
-      const builder = new SymbolTreeBuilder();
-
-      const visitors: SymbolVisitor[] = [
-        new StructDefinition(document, builder),
-        new StructMember(document, builder),
-        new InterfaceDefinition(document, builder),
-        new FunctionDefinition(document, builder),
-        new ContractDefinition(document, builder),
-        new EventDefinition(document, builder),
-        new StateVariableDeclaration(document, builder),
-        new VariableDeclaration(document, builder),
-        new ConstantDefinition(document, builder),
-        new ConstructorDefinition(document, builder),
-        new EnumDefinition(document, builder),
-        new ErrorDefinition(document, builder),
-        new FallbackFunctionDefinition(document, builder),
-        new LibraryDefinition(document, builder),
-        new ModifierDefinition(document, builder),
-        new ReceiveFunctionDefinition(document, builder),
-        new UserDefinedValueTypeDefinition(document, builder),
-        new YulFunctionDefinition(document, builder),
-        new UnnamedFunctionDefinition(document, builder),
-      ];
-
-      const indexedVisitors = _.keyBy(visitors, "ruleKind");
-
-      const cursor: Cursor = parseTree.cursor;
-      const ruleKinds = visitors.map((v) => v.ruleKind);
-      let node: RuleNode;
-
-      // Useful to keep this here for development
-      // const kursor: Cursor = parseTree.cursor.clone();
-      // do {
-      //   console.log(
-      //     `${"  ".repeat(kursor.pathRuleNodes.length)}${kursor.node.kind}(${
-      //       ["R", "T"][kursor.node.type]
-      //     }): ${kursor.node?.text ?? ""}`
-      //   );
-      // } while (kursor.goToNext());
-
-      span = transaction.startChild({ op: "walk-generate-symbols" });
-      while ((node = cursor.findRuleWithKind(ruleKinds)) !== null) {
-        const visitor: SymbolVisitor = indexedVisitors[node.kind];
-        visitor.onRuleNode(cursor);
-
-        cursor.goToNext();
-      }
-      span.finish();
-
-      return { status: "ok", result: builder.getSymbols() };
     });
   };
 }

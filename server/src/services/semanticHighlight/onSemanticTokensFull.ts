@@ -7,12 +7,11 @@ import {
 } from "vscode-languageserver-protocol";
 import _, { Dictionary } from "lodash";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
-import semver from "semver";
-import { Language } from "@nomicfoundation/slang/language";
 import { ProductionKind, TokenKind } from "@nomicfoundation/slang/kinds";
 import { Cursor } from "@nomicfoundation/slang/cursor";
 import { TokenNode } from "@nomicfoundation/slang/cst";
 import { ServerState } from "../../types";
+import { getLanguage } from "../../parser/slangHelpers";
 import { CustomTypeHighlighter } from "./highlighters/CustomTypeHighlighter";
 import { SemanticTokensBuilder } from "./SemanticTokensBuilder";
 import { FunctionDefinitionHighlighter } from "./highlighters/FunctionDefinitionHighlighter";
@@ -56,31 +55,11 @@ export function onSemanticTokensFull(serverState: ServerState) {
         const { versionPragmas } = analyze(text);
         span.finish();
 
-        const versions = Language.supportedVersions();
-        versionPragmas.push(
-          `>= ${versions[0]}`,
-          `<= ${versions[versions.length - 1]}`
-        );
-
-        const slangVersion = semver.maxSatisfying(
-          versions,
-          versionPragmas.join(" ")
-        );
-
-        if (slangVersion === null) {
-          logger.error(
-            `No supported solidity version found. Supported versions: ${versions}, pragma directives: ${versionPragmas}`
-          );
-          return {
-            status: "internal_error",
-            result: emptyResponse,
-          };
-        }
+        const language = getLanguage(versionPragmas);
 
         try {
           // Parse using slang
           span = transaction.startChild({ op: "slang-parsing" });
-          const language = new Language(slangVersion!);
 
           const parseOutput = language.parse(
             ProductionKind.SourceUnit,

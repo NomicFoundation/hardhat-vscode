@@ -4,6 +4,8 @@ import { TextRange } from "@nomicfoundation/slang/text_index";
 import _ from "lodash";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Range } from "vscode-languageserver-types";
+import { Language } from "@nomicfoundation/slang/language";
+import semver from "semver";
 import { getPlatform } from "../utils/operatingSystem";
 
 export type SlangNode = RuleNode | TokenNode;
@@ -41,4 +43,20 @@ export function isSlangSupported() {
   const currentPlatform = getPlatform();
 
   return SUPPORTED_PLATFORMS.includes(currentPlatform);
+}
+
+export function getLanguage(versionPragmas: string[]): Language {
+  const supportedVersions = Language.supportedVersions();
+
+  const slangVersion = semver.maxSatisfying(
+    supportedVersions,
+    versionPragmas.join(" ")
+  );
+
+  if (slangVersion === null) {
+    throw new Error(
+      `No supported solidity version found. Supported versions: ${supportedVersions}, pragma directives: ${versionPragmas}`
+    );
+  }
+  return new Language(slangVersion);
 }
