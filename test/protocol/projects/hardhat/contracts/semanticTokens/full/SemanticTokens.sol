@@ -46,6 +46,8 @@ contract testContract {
 
         TestInterface interfaceAsLocalVar;
         TestStruct memory structAsLocalVar;
+
+        // The following expression statements should not be highlighted
         contractAsLocalVar;
         contractAsFuncParam;
         interfaceAsFuncParam;
