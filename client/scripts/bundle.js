@@ -160,6 +160,7 @@ async function main() {
     external: [
       "vscode",
       "@nomicfoundation/solidity-analyzer",
+      "@nomicfoundation/slang",
       "fsevents",
       "mocha",
     ],
@@ -198,6 +199,17 @@ async function main() {
         "@nomicfoundation/solidity-analyzer-linux-x64-gnu": "0.1.1",
         "@nomicfoundation/solidity-analyzer-linux-x64-musl": "0.1.1",
         "@nomicfoundation/solidity-analyzer-freebsd-x64": "0.1.1",
+
+        "@nomicfoundation/slang": "0.10.1",
+        "@nomicfoundation/slang-darwin-arm64": "0.10.1",
+        "@nomicfoundation/slang-win32-arm64-msvc": "0.10.1",
+        "@nomicfoundation/slang-linux-arm64-gnu": "0.10.1",
+        "@nomicfoundation/slang-linux-arm64-musl": "0.10.1",
+        "@nomicfoundation/slang-win32-ia32-msvc": "0.10.1",
+        "@nomicfoundation/slang-darwin-x64": "0.10.1",
+        "@nomicfoundation/slang-win32-x64-msvc": "0.10.1",
+        "@nomicfoundation/slang-linux-x64-gnu": "0.10.1",
+        "@nomicfoundation/slang-linux-x64-musl": "0.10.1",
       },
     })
   );

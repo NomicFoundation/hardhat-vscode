@@ -56,6 +56,7 @@
     "@types/qs": "^6.9.7",
     "@types/semver": "^7.3.12",
     "@types/sinon": "10.0.6",
+    "@types/yaml": "^1.9.7",
     "c3-linearization": "0.3.0",
     "chai": "4.3.4",
     "codecov": "3.8.3",
@@ -84,10 +85,10 @@
     "vscode-languageserver-textdocument": "1.0.8",
     "vscode-languageserver-types": "3.17.3",
     "vscode-uri": "3.0.7",
-    "@types/yaml": "^1.9.7",
     "yaml": "^2.2.1"
   },
   "dependencies": {
+    "@nomicfoundation/slang": "^0.10.1",
     "@nomicfoundation/solidity-analyzer": "0.1.1"
   }
 }
