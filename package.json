@@ -17,7 +17,6 @@
     "url": "https://github.com/NomicFoundation/hardhat-vscode/issues"
   },
   "scripts": {
-    "postinstall": "npm install --no-save --ignore-scripts --force @nomicfoundation/solidity-analyzer-win32-ia32-msvc@0.1.1",
     "build": "tsc -b ./client/tsconfig.json && tsc -b ./server/tsconfig.build.json && tsc -b ./coc/tsconfig.json && tsc -b",
     "watch": "concurrently -n client,server \"tsc -b -w ./client/tsconfig.json\" \"tsc -b -w ./server/tsconfig.build.json\"",
     "test:unit": "npm -w server run test",
