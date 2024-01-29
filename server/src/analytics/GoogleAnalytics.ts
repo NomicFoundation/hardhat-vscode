@@ -5,6 +5,7 @@ import { ServerState } from "../types";
 import { Analytics, AnalyticsPayload } from "./types";
 
 const GA_URL = "https://www.google-analytics.com/mp/collect";
+const TELEMETRY_USER_ID = "hh_vscode_telemetry_consent";
 
 export class GoogleAnalytics implements Analytics {
   private readonly measurementID: string;
@@ -47,7 +48,7 @@ export class GoogleAnalytics implements Analytics {
         return;
       }
 
-      const payload = this._buildPayloadFrom(taskName, this.machineId);
+      const payload = this._buildTaskPayload(taskName, this.machineId);
 
       await this._sendHit(payload);
     } catch {
@@ -56,7 +57,29 @@ export class GoogleAnalytics implements Analytics {
     }
   }
 
-  private _buildPayloadFrom(
+  // Meant for the initial response to the telemetry consent popup
+  public async sendTelemetryResponse(userConsent: boolean): Promise<void> {
+    try {
+      const payload = this._buildTelemetryResponsePayload(userConsent);
+
+      await this._sendHit(payload);
+    } catch {
+      return;
+    }
+  }
+
+  // Meant for subsequent changes to the telemetry setting
+  public async sendTelemetryChange(userConsent: boolean): Promise<void> {
+    try {
+      const payload = this._buildTelemetryChangePayload(userConsent);
+
+      await this._sendHit(payload);
+    } catch {
+      return;
+    }
+  }
+
+  private _buildTaskPayload(
     taskName: string,
     machineId: string
   ): AnalyticsPayload {
@@ -74,6 +97,38 @@ export class GoogleAnalytics implements Analytics {
           params: {
             engagement_time_msec: "10000",
             session_id: this.sessionId,
+          },
+        },
+      ],
+    };
+  }
+
+  private _buildTelemetryResponsePayload(userConsent: boolean) {
+    return {
+      client_id: TELEMETRY_USER_ID,
+      user_id: TELEMETRY_USER_ID,
+      user_properties: {},
+      events: [
+        {
+          name: "TelemetryConsentResponse",
+          params: {
+            userConsent: userConsent ? "yes" : "no",
+          },
+        },
+      ],
+    };
+  }
+
+  private _buildTelemetryChangePayload(userConsent: boolean) {
+    return {
+      client_id: TELEMETRY_USER_ID,
+      user_id: TELEMETRY_USER_ID,
+      user_properties: {},
+      events: [
+        {
+          name: "TelemetryConsentChange",
+          params: {
+            userConsent: userConsent ? "yes" : "no",
           },
         },
       ],

@@ -5,5 +5,7 @@ export function setupMockAnalytics(): Analytics {
   return {
     init: sinon.spy(),
     sendPageView: sinon.spy(),
+    sendTelemetryResponse: sinon.spy(),
+    sendTelemetryChange: sinon.spy(),
   };
 }

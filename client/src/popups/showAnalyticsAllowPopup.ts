@@ -1,18 +1,12 @@
-import {
-  workspace,
-  window,
-  ExtensionContext,
-  ConfigurationTarget,
-  ExtensionMode,
-} from "vscode";
+import { workspace, window, ConfigurationTarget, ExtensionMode } from "vscode";
+import { ExtensionState } from "../types";
 
 const PREVIOUSLY_SHOWN_TELEMETRY_LABEL = "previouslyShownTelemetryMessage";
 
 export async function showAnalyticsAllowPopup({
   context,
-}: {
-  context: ExtensionContext;
-}): Promise<void> {
+  client,
+}: ExtensionState): Promise<void> {
   if (context.extensionMode === ExtensionMode.Test) {
     // Dialog messages are prohibited in tests:
     // https://github.com/microsoft/vscode/blob/36fefc828e4c496a7bbb64c63f3eb3052a650f8f/src/vs/workbench/services/dialogs/common/dialogService.ts#L56
@@ -44,4 +38,6 @@ export async function showAnalyticsAllowPopup({
   await config.update("telemetry", isAccepted, ConfigurationTarget.Global);
 
   await context.globalState.update(PREVIOUSLY_SHOWN_TELEMETRY_LABEL, true);
+
+  client?.sendNotification("custom/telemetryConsent", isAccepted);
 }

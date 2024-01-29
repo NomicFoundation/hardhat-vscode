@@ -1,11 +1,13 @@
 import { Transaction } from "@sentry/types";
 import * as sinon from "sinon";
 import { Telemetry } from "../../src/telemetry/types";
+import { setupMockAnalytics } from "./setupMockAnalytics";
 
 export function setupMockTelemetry(): Telemetry {
   return {
     init: sinon.spy(),
     captureException: sinon.spy(),
+    analytics: setupMockAnalytics(),
     trackTiming: async (_taskName: string, action) => {
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

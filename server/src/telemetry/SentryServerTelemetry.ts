@@ -13,7 +13,7 @@ const SENTRY_CLOSE_TIMEOUT = 2000;
 export class SentryServerTelemetry implements Telemetry {
   private dsn: string;
   private serverState: ServerState | null;
-  private analytics: Analytics;
+  public analytics: Analytics;
   private actionTaken: boolean;
   private heartbeatInterval: NodeJS.Timeout | null;
   private heartbeatPeriod: number;

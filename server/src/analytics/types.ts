@@ -6,23 +6,26 @@ export interface AnalyticsPayload {
   client_id: string;
   user_id: string;
 
-  user_properties: {
-    extensionVersion: {
-      value?: string;
-    };
-    languageClient: {
-      value?: string;
-    };
-    operatingSystem: {
-      value?: string;
-    };
-  };
+  user_properties:
+    | {
+        extensionVersion: {
+          value?: string;
+        };
+        languageClient: {
+          value?: string;
+        };
+        operatingSystem: {
+          value?: string;
+        };
+      }
+    | {};
 
   events: Array<{
     name: string;
     params: {
-      engagement_time_msec: string;
+      engagement_time_msec?: string;
       session_id?: string;
+      userConsent?: string;
     };
   }>;
 }
@@ -36,4 +39,6 @@ export interface Analytics {
   ): void;
 
   sendPageView(taskName: string): Promise<void>;
+  sendTelemetryResponse(userConsent: boolean): Promise<void>;
+  sendTelemetryChange(userConsent: boolean): Promise<void>;
 }
