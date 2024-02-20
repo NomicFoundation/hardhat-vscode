@@ -8,7 +8,6 @@ import {
 import _, { Dictionary } from "lodash";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import { ProductionKind, TokenKind } from "@nomicfoundation/slang/kinds";
-import { Cursor } from "@nomicfoundation/slang/cursor";
 import { TokenNode } from "@nomicfoundation/slang/cst";
 import { ServerState } from "../../types";
 import { getLanguage } from "../../parser/slangHelpers";
@@ -66,7 +65,6 @@ export function onSemanticTokensFull(serverState: ServerState) {
             document.getText()
           );
 
-          const parseTree = parseOutput.parseTree;
           span.finish();
 
           // Register visitors
@@ -102,8 +100,8 @@ export function onSemanticTokensFull(serverState: ServerState) {
             }
           }
 
-          const cursor: Cursor = parseTree.cursor;
-          let node: TokenNode;
+          const cursor = parseOutput.createTreeCursor();
+          let node: TokenNode | null = null;
 
           span = transaction.startChild({ op: "walk-highlight-tokens" });
           while (
@@ -111,7 +109,7 @@ export function onSemanticTokensFull(serverState: ServerState) {
           ) {
             const nodeWrapper = {
               kind: node.kind,
-              pathRuleNodes: cursor.pathRuleNodes,
+              pathRuleNodes: () => cursor.pathRuleNodes(),
               text: node.text,
               textRange: cursor.textRange,
               type: node.type,
