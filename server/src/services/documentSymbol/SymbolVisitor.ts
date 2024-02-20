@@ -32,7 +32,8 @@ export abstract class SymbolVisitor {
         this.nameTokenKind,
       ]);
 
-      if (nameToken && childCursor.pathRuleNodes.length === 1) {
+      const depth = childCursor.pathRuleNodes().length;
+      if (nameToken && depth === 1) {
         symbolName = nameToken.text;
         selectionRange = slangToVSCodeRange(
           this.document,

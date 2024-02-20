@@ -6,7 +6,6 @@ import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-types";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import _ from "lodash";
 import { ProductionKind } from "@nomicfoundation/slang/kinds";
-import { Cursor } from "@nomicfoundation/slang/cursor";
 import { RuleNode } from "@nomicfoundation/slang/cst";
 import { ServerState } from "../../types";
 import { getLanguage } from "../../parser/slangHelpers";
@@ -65,7 +64,6 @@ export function onDocumentSymbol(serverState: ServerState) {
           document.getText()
         );
 
-        const parseTree = parseOutput.parseTree;
         span.finish();
 
         const builder = new SymbolTreeBuilder();
@@ -94,9 +92,9 @@ export function onDocumentSymbol(serverState: ServerState) {
 
         const indexedVisitors = _.keyBy(visitors, "ruleKind");
 
-        const cursor: Cursor = parseTree.cursor;
+        const cursor = parseOutput.createTreeCursor();
         const ruleKinds = visitors.map((v) => v.ruleKind);
-        let node: RuleNode;
+        let node: RuleNode | null = null;
 
         // Useful to keep this here for development
         // const kursor: Cursor = parseTree.cursor.clone();

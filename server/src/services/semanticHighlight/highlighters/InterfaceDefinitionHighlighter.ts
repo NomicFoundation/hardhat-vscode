@@ -9,7 +9,7 @@ export class InterfaceDefinitionHighlighter extends HighlightVisitor {
   public tokenKinds = new Set([TokenKind.Identifier]);
 
   public enter(nodeWrapper: SlangNodeWrapper): void {
-    const ancestors = nodeWrapper.pathRuleNodes;
+    const ancestors = nodeWrapper.pathRuleNodes();
     if (
       nodeWrapper.type === NodeType.Token &&
       nodeWrapper.kind === TokenKind.Identifier &&
