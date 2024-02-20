@@ -1,7 +1,6 @@
 /* istanbul ignore file: external system */
 import * as Sentry from "@sentry/node";
 import type { Primitive, Transaction } from "@sentry/types";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import * as tracing from "@sentry/tracing";
 import { ServerState } from "../types";
 import { Analytics } from "../analytics/types";
