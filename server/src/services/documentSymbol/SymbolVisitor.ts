@@ -27,7 +27,7 @@ export abstract class SymbolVisitor {
     // Find identifier
     const childCursor = cursor.spawn();
 
-    while (childCursor.goToNextTokenWithKinds([this.nameTokenKind])) {
+    while (childCursor.goToNextTokenWithKind(this.nameTokenKind)) {
       const nameToken = childCursor.node() as TokenNode;
 
       // TODO: Handle FunctionDefinition > FunctionName > Identifier (depth = 2)
