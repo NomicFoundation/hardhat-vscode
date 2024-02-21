@@ -214,6 +214,7 @@ async function main() {
     })
   );
 
+  console.log("> Fetching external server dependencies...")
   await new Promise((resolve) => {
     exec(
       "npm install --force",
