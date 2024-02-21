@@ -9,7 +9,7 @@ export class FunctionCallHighlighter extends HighlightVisitor {
   public tokenKinds = new Set([TokenKind.Identifier]);
 
   public enter(nodeWrapper: SlangNodeWrapper): void {
-    const ancestors = nodeWrapper.pathRuleNodes();
+    const ancestors = nodeWrapper.ancestors();
     if (
       nodeWrapper.type === NodeType.Token &&
       nodeWrapper.kind === TokenKind.Identifier &&

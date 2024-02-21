@@ -9,11 +9,11 @@ export class FunctionDefinitionHighlighter extends HighlightVisitor {
   public tokenKinds = new Set([TokenKind.Identifier]);
 
   public enter(nodeWrapper: SlangNodeWrapper): void {
-    const ancestors = nodeWrapper.pathRuleNodes();
+    const ancestors = nodeWrapper.ancestors();
     if (
       nodeWrapper.type === NodeType.Token &&
       nodeWrapper.kind === TokenKind.Identifier &&
-      ancestors[ancestors.length - 1]?.kind === RuleKind.FunctionDefinition
+      ancestors[ancestors.length - 2]?.kind === RuleKind.FunctionDefinition
     ) {
       this.tokenBuilder.addToken(nodeWrapper, SemanticTokenTypes.function);
     }
