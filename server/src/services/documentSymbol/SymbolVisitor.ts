@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { SymbolKind } from "vscode-languageserver-types";
 import _ from "lodash";
-import { RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
+import { FieldName, RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
 import { TokenNode } from "@nomicfoundation/slang/cst";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Cursor } from "@nomicfoundation/slang/cursor";
@@ -11,7 +11,8 @@ import { SymbolTreeBuilder } from "./SymbolTreeBuilder";
 export abstract class SymbolVisitor {
   public abstract ruleKind: RuleKind;
   public abstract symbolKind: SymbolKind;
-  public abstract nameTokenKind: TokenKind;
+  /** The token that contains the name of the symbol represented by the rule. */
+  public abstract nameToken: readonly [FieldName, TokenKind];
 
   constructor(
     public document: TextDocument,
@@ -27,15 +28,10 @@ export abstract class SymbolVisitor {
     // Find identifier
     const childCursor = cursor.spawn();
 
-    while (childCursor.goToNextTokenWithKind(this.nameTokenKind)) {
-      const nameToken = childCursor.node() as TokenNode;
+    while (childCursor.goToNextTokenWithKind(this.nameToken[1])) {
+      if (childCursor.nodeName === this.nameToken[0]) {
+        const nameToken = childCursor.node() as TokenNode;
 
-      // TODO: Handle FunctionDefinition > FunctionName > Identifier (depth = 2)
-      const isFunctionName =
-        childCursor.depth === 2 &&
-        childCursor.ancestors()[childCursor.ancestors().length - 1]?.kind ===
-          RuleKind.FunctionName;
-      if (childCursor.depth === 1 || isFunctionName) {
         symbolName = nameToken.text;
         selectionRange = slangToVSCodeRange(
           this.document,
