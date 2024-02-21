@@ -1,5 +1,4 @@
 import { expect } from 'chai'
-import _ from 'lodash'
 import { test } from 'mocha'
 import { DiagnosticSeverity } from 'vscode-languageserver-protocol'
 import { toUri } from '../../../../src/helpers'
