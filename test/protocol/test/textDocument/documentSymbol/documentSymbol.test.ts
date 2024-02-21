@@ -418,8 +418,8 @@ describe('[hardhat] documentSymbol', () => {
                     character: 0,
                   },
                   end: {
-                    line: 35,
-                    character: 21,
+                    line: 36,
+                    character: 0,
                   },
                 },
                 selectionRange: {
@@ -644,8 +644,8 @@ describe('[hardhat] documentSymbol', () => {
                     character: 0,
                   },
                   end: {
-                    line: 62,
-                    character: 39,
+                    line: 63,
+                    character: 0,
                   },
                 },
                 selectionRange: {
@@ -669,8 +669,8 @@ describe('[hardhat] documentSymbol', () => {
                     character: 0,
                   },
                   end: {
-                    line: 64,
-                    character: 41,
+                    line: 65,
+                    character: 0,
                   },
                 },
                 selectionRange: {
@@ -694,8 +694,8 @@ describe('[hardhat] documentSymbol', () => {
                     character: 0,
                   },
                   end: {
-                    line: 65,
-                    character: 42,
+                    line: 66,
+                    character: 0,
                   },
                 },
                 selectionRange: {
@@ -719,8 +719,8 @@ describe('[hardhat] documentSymbol', () => {
                     character: 0,
                   },
                   end: {
-                    line: 77,
-                    character: 35,
+                    line: 78,
+                    character: 0,
                   },
                 },
                 selectionRange: {
