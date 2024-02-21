@@ -7,7 +7,7 @@ import {
 } from "vscode-languageserver-protocol";
 import _, { Dictionary } from "lodash";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
-import { ProductionKind, TokenKind } from "@nomicfoundation/slang/kinds";
+import { RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
 import { TokenNode } from "@nomicfoundation/slang/cst";
 import { ServerState } from "../../types";
 import { getLanguage } from "../../parser/slangHelpers";
@@ -61,7 +61,7 @@ export function onSemanticTokensFull(serverState: ServerState) {
           span = transaction.startChild({ op: "slang-parsing" });
 
           const parseOutput = language.parse(
-            ProductionKind.SourceUnit,
+            RuleKind.SourceUnit,
             document.getText()
           );
 
@@ -101,15 +101,14 @@ export function onSemanticTokensFull(serverState: ServerState) {
           }
 
           const cursor = parseOutput.createTreeCursor();
-          let node: TokenNode | null = null;
 
           span = transaction.startChild({ op: "walk-highlight-tokens" });
-          while (
-            (node = cursor.findTokenWithKind(registeredTokenKinds)) !== null
-          ) {
+          while (cursor.goToNextTokenWithKinds(registeredTokenKinds)) {
+            const node = cursor.node() as TokenNode;
+
             const nodeWrapper = {
               kind: node.kind,
-              pathRuleNodes: () => cursor.pathRuleNodes(),
+              ancestors: () => cursor.ancestors(),
               text: node.text,
               textRange: cursor.textRange,
               type: node.type,
@@ -119,8 +118,6 @@ export function onSemanticTokensFull(serverState: ServerState) {
             for (const visitor of registeredVisitors) {
               visitor.enter(nodeWrapper);
             }
-
-            cursor.goToNext();
           }
           span.finish();
 

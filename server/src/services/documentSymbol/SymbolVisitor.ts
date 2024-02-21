@@ -27,13 +27,15 @@ export abstract class SymbolVisitor {
     // Find identifier
     const childCursor = cursor.spawn();
 
-    do {
-      const nameToken: TokenNode | null = childCursor.findTokenWithKind([
-        this.nameTokenKind,
-      ]);
+    while (childCursor.goToNextTokenWithKinds([this.nameTokenKind])) {
+      const nameToken = childCursor.node() as TokenNode;
 
-      const depth = childCursor.pathRuleNodes().length;
-      if (nameToken && depth === 1) {
+      // TODO: Handle FunctionDefinition > FunctionName > Identifier (depth = 2)
+      const isFunctionName =
+        childCursor.depth === 2 &&
+        childCursor.ancestors()[childCursor.ancestors().length - 1]?.kind ===
+          RuleKind.FunctionName;
+      if (childCursor.depth === 1 || isFunctionName) {
         symbolName = nameToken.text;
         selectionRange = slangToVSCodeRange(
           this.document,
@@ -41,7 +43,7 @@ export abstract class SymbolVisitor {
         );
         break;
       }
-    } while (childCursor.goToNext());
+    }
 
     let lastOpenSymbol;
 

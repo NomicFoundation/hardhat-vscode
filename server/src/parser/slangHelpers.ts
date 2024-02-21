@@ -16,7 +16,7 @@ export interface SlangNodeWrapper {
   type: NodeType;
   kind: NodeKind;
   text: string;
-  pathRuleNodes: () => SlangNode[];
+  ancestors: () => SlangNode[];
 }
 
 export function slangToVSCodeRange(
