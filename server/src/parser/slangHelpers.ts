@@ -54,8 +54,9 @@ export function getLanguage(versionPragmas: string[]): Language {
   );
 
   if (slangVersion === null) {
+    const latest = supportedVersions[supportedVersions.length - 1];
     throw new Error(
-      `No Slang-supported version for Solidity found that satisfies the pragma directives: '${versionPragmas.join(
+      `No Slang-supported version (latest: ${latest}) for Solidity found that satisfies the pragma directives: '${versionPragmas.join(
         " "
       )}'.`
     );
