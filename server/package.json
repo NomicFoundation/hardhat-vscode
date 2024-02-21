@@ -56,7 +56,6 @@
     "@types/qs": "^6.9.7",
     "@types/semver": "^7.3.12",
     "@types/sinon": "10.0.6",
-    "@types/yaml": "^1.9.7",
     "c3-linearization": "0.3.0",
     "chai": "4.3.4",
     "codecov": "3.8.3",
