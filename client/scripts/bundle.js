@@ -183,7 +183,7 @@ async function main() {
   }
 
   console.log("> Fetching external server dependencies...")
-  const serverPackageJson = require(path.join("../server", "package.json"));
+  const serverPackageJson = JSON.parse(fs.readFileSync(path.join("..", "server", "package.json"), "utf8"));
   const serverDeps = serverPackageJson?.dependencies;
   if (!serverDeps) {
     console.error("Error: Could not find server dependencies");
