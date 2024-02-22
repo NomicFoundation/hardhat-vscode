@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { SymbolKind } from "vscode-languageserver-types";
 import _ from "lodash";
-import { RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
+import { FieldName, RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
 import { TokenNode } from "@nomicfoundation/slang/cst";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Cursor } from "@nomicfoundation/slang/cursor";
@@ -11,7 +11,8 @@ import { SymbolTreeBuilder } from "./SymbolTreeBuilder";
 export abstract class SymbolVisitor {
   public abstract ruleKind: RuleKind;
   public abstract symbolKind: SymbolKind;
-  public abstract nameTokenKind: TokenKind;
+  /** The token that contains the name of the symbol represented by the rule. */
+  public abstract nameToken: readonly [FieldName, TokenKind];
 
   constructor(
     public document: TextDocument,
@@ -27,20 +28,17 @@ export abstract class SymbolVisitor {
     // Find identifier
     const childCursor = cursor.spawn();
 
-    do {
-      const nameToken: TokenNode | null = childCursor.findTokenWithKind([
-        this.nameTokenKind,
-      ]);
-
-      if (nameToken && childCursor.pathRuleNodes.length === 1) {
-        symbolName = nameToken.text;
-        selectionRange = slangToVSCodeRange(
-          this.document,
-          childCursor.textRange
-        );
-        break;
+    while (childCursor.goToNextTokenWithKind(this.nameToken[1])) {
+      if (childCursor.nodeName !== this.nameToken[0]) {
+        continue;
       }
-    } while (childCursor.goToNext());
+
+      const nameToken = childCursor.node() as TokenNode;
+
+      symbolName = nameToken.text;
+      selectionRange = slangToVSCodeRange(this.document, childCursor.textRange);
+      break;
+    }
 
     let lastOpenSymbol;
 

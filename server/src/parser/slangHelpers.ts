@@ -16,7 +16,8 @@ export interface SlangNodeWrapper {
   type: NodeType;
   kind: NodeKind;
   text: string;
-  pathRuleNodes: SlangNode[];
+  name: string;
+  ancestors: () => SlangNode[];
 }
 
 export function slangToVSCodeRange(
@@ -54,8 +55,11 @@ export function getLanguage(versionPragmas: string[]): Language {
   );
 
   if (slangVersion === null) {
+    const latest = supportedVersions[supportedVersions.length - 1];
     throw new Error(
-      `No supported solidity version found. Supported versions: ${supportedVersions}, pragma directives: ${versionPragmas}`
+      `No Slang-supported version (latest: ${latest}) for Solidity found that satisfies the pragma directives: '${versionPragmas.join(
+        " "
+      )}'.`
     );
   }
   return new Language(slangVersion);

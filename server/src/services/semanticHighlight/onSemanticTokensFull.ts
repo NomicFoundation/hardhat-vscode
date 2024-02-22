@@ -7,8 +7,7 @@ import {
 } from "vscode-languageserver-protocol";
 import _, { Dictionary } from "lodash";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
-import { ProductionKind, TokenKind } from "@nomicfoundation/slang/kinds";
-import { Cursor } from "@nomicfoundation/slang/cursor";
+import { RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
 import { TokenNode } from "@nomicfoundation/slang/cst";
 import { ServerState } from "../../types";
 import { getLanguage } from "../../parser/slangHelpers";
@@ -22,7 +21,7 @@ import { ContractDefinitionHighlighter } from "./highlighters/ContractDefinition
 import { InterfaceDefinitionHighlighter } from "./highlighters/InterfaceDefinitionHighlighter";
 import { StructDefinitionHighlighter } from "./highlighters/StructDefinitionHighlighter";
 import { HighlightVisitor } from "./HighlightVisitor";
-import { UserDefinedValueTypeDefinitionHighlighter } from "./highlighters/UserDefinedValueTypeDefinitionHighlighter copy";
+import { UserDefinedValueTypeDefinitionHighlighter } from "./highlighters/UserDefinedValueTypeDefinitionHighlighter";
 import { EnumDefinitionHighlighter } from "./highlighters/EnumDefinitionHighlighter";
 import { ErrorDefinitionHighlighter } from "./highlighters/ErrorDefinitionHighlighter";
 import { LibraryDefinitionHighlighter } from "./highlighters/LibraryDefinitionHighlighter";
@@ -62,11 +61,10 @@ export function onSemanticTokensFull(serverState: ServerState) {
           span = transaction.startChild({ op: "slang-parsing" });
 
           const parseOutput = language.parse(
-            ProductionKind.SourceUnit,
+            RuleKind.SourceUnit,
             document.getText()
           );
 
-          const parseTree = parseOutput.parseTree;
           span.finish();
 
           // Register visitors
@@ -102,18 +100,18 @@ export function onSemanticTokensFull(serverState: ServerState) {
             }
           }
 
-          const cursor: Cursor = parseTree.cursor;
-          let node: TokenNode;
+          const cursor = parseOutput.createTreeCursor();
 
           span = transaction.startChild({ op: "walk-highlight-tokens" });
-          while (
-            (node = cursor.findTokenWithKind(registeredTokenKinds)) !== null
-          ) {
+          while (cursor.goToNextTokenWithKinds(registeredTokenKinds)) {
+            const node = cursor.node() as TokenNode;
+
             const nodeWrapper = {
               kind: node.kind,
-              pathRuleNodes: cursor.pathRuleNodes,
+              ancestors: () => cursor.ancestors(),
               text: node.text,
               textRange: cursor.textRange,
+              name: cursor.nodeName,
               type: node.type,
             };
 
@@ -121,8 +119,6 @@ export function onSemanticTokensFull(serverState: ServerState) {
             for (const visitor of registeredVisitors) {
               visitor.enter(nodeWrapper);
             }
-
-            cursor.goToNext();
           }
           span.finish();
 

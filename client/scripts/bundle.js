@@ -111,7 +111,7 @@ async function main() {
   fs.copyFileSync(path.join(".", "LICENSE"), path.join(tmpDir, "LICENSE"));
 
   fs.copyFileSync(
-    path.join("..", "docs", "images", "vscode-logo.png"),
+    path.join(__dirname, "..", "..", "docs", "images", "vscode-logo.png"),
     path.join(imagesDir, "vscode-logo.png")
   );
 
@@ -182,39 +182,49 @@ async function main() {
     process.exit(1);
   }
 
+  console.log("> Fetching external server dependencies...")
+  const serverPackageFile = path.join(__dirname, "..", "..", "server", "package.json");
+  const serverPackageJson = JSON.parse(fs.readFileSync(serverPackageFile, "utf8"));
+  const serverDeps = serverPackageJson?.dependencies;
+  if (!serverDeps) {
+    console.error("Error: Could not find server dependencies");
+    process.exit(1);
+  }
+  const solidityAnalyzerVersion = serverDeps["@nomicfoundation/solidity-analyzer"];
+  const slangVersion = serverDeps["@nomicfoundation/slang"];
+
   fs.writeFileSync(
     path.join(serverDir, "package.json"),
     JSON.stringify({
       name: "tmp",
       version: "0.0.1",
       dependencies: {
-        "@nomicfoundation/solidity-analyzer": "0.1.1",
-        "@nomicfoundation/solidity-analyzer-darwin-arm64": "0.1.1",
-        "@nomicfoundation/solidity-analyzer-win32-arm64-msvc": "0.1.1",
-        "@nomicfoundation/solidity-analyzer-linux-arm64-gnu": "0.1.1",
-        "@nomicfoundation/solidity-analyzer-linux-arm64-musl": "0.1.1",
-        "@nomicfoundation/solidity-analyzer-win32-ia32-msvc": "0.1.1",
-        "@nomicfoundation/solidity-analyzer-darwin-x64": "0.1.1",
-        "@nomicfoundation/solidity-analyzer-win32-x64-msvc": "0.1.1",
-        "@nomicfoundation/solidity-analyzer-linux-x64-gnu": "0.1.1",
-        "@nomicfoundation/solidity-analyzer-linux-x64-musl": "0.1.1",
-        "@nomicfoundation/solidity-analyzer-freebsd-x64": "0.1.1",
+        "@nomicfoundation/solidity-analyzer": solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-darwin-arm64": solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-win32-arm64-msvc": solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-linux-arm64-gnu": solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-linux-arm64-musl": solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-win32-ia32-msvc": solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-darwin-x64": solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-win32-x64-msvc": solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-linux-x64-gnu": solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-linux-x64-musl": solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-freebsd-x64": solidityAnalyzerVersion,
 
-        "@nomicfoundation/slang": "0.10.1",
-        "@nomicfoundation/slang-darwin-arm64": "0.10.1",
-        "@nomicfoundation/slang-win32-arm64-msvc": "0.10.1",
-        "@nomicfoundation/slang-linux-arm64-gnu": "0.10.1",
-        "@nomicfoundation/slang-linux-arm64-musl": "0.10.1",
-        "@nomicfoundation/slang-win32-ia32-msvc": "0.10.1",
-        "@nomicfoundation/slang-darwin-x64": "0.10.1",
-        "@nomicfoundation/slang-win32-x64-msvc": "0.10.1",
-        "@nomicfoundation/slang-linux-x64-gnu": "0.10.1",
-        "@nomicfoundation/slang-linux-x64-musl": "0.10.1",
+        "@nomicfoundation/slang": slangVersion,
+        "@nomicfoundation/slang-darwin-arm64": slangVersion,
+        "@nomicfoundation/slang-win32-arm64-msvc": slangVersion,
+        "@nomicfoundation/slang-linux-arm64-gnu": slangVersion,
+        "@nomicfoundation/slang-linux-arm64-musl": slangVersion,
+        "@nomicfoundation/slang-win32-ia32-msvc": slangVersion,
+        "@nomicfoundation/slang-darwin-x64": slangVersion,
+        "@nomicfoundation/slang-win32-x64-msvc": slangVersion,
+        "@nomicfoundation/slang-linux-x64-gnu": slangVersion,
+        "@nomicfoundation/slang-linux-x64-musl": slangVersion,
       },
     })
   );
 
-  console.log("> Fetching external server dependencies...")
   await new Promise((resolve) => {
     exec(
       "npm install --force",

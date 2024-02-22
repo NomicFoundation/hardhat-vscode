@@ -5,8 +5,7 @@ import { DocumentSymbolParams } from "vscode-languageserver/node";
 import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-types";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import _ from "lodash";
-import { ProductionKind } from "@nomicfoundation/slang/kinds";
-import { Cursor } from "@nomicfoundation/slang/cursor";
+import { RuleKind } from "@nomicfoundation/slang/kinds";
 import { RuleNode } from "@nomicfoundation/slang/cst";
 import { ServerState } from "../../types";
 import { getLanguage } from "../../parser/slangHelpers";
@@ -61,11 +60,10 @@ export function onDocumentSymbol(serverState: ServerState) {
         span = transaction.startChild({ op: "slang-parsing" });
 
         const parseOutput = language.parse(
-          ProductionKind.SourceUnit,
+          RuleKind.SourceUnit,
           document.getText()
         );
 
-        const parseTree = parseOutput.parseTree;
         span.finish();
 
         const builder = new SymbolTreeBuilder();
@@ -94,9 +92,8 @@ export function onDocumentSymbol(serverState: ServerState) {
 
         const indexedVisitors = _.keyBy(visitors, "ruleKind");
 
-        const cursor: Cursor = parseTree.cursor;
+        const cursor = parseOutput.createTreeCursor();
         const ruleKinds = visitors.map((v) => v.ruleKind);
-        let node: RuleNode;
 
         // Useful to keep this here for development
         // const kursor: Cursor = parseTree.cursor.clone();
@@ -109,11 +106,11 @@ export function onDocumentSymbol(serverState: ServerState) {
         // } while (kursor.goToNext());
 
         span = transaction.startChild({ op: "walk-generate-symbols" });
-        while ((node = cursor.findRuleWithKind(ruleKinds)) !== null) {
+        while (cursor.goToNextRuleWithKinds(ruleKinds)) {
+          const node = cursor.node() as RuleNode;
+
           const visitor: SymbolVisitor = indexedVisitors[node.kind];
           visitor.onRuleNode(cursor);
-
-          cursor.goToNext();
         }
         span.finish();
 
