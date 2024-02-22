@@ -29,16 +29,15 @@ export abstract class SymbolVisitor {
     const childCursor = cursor.spawn();
 
     while (childCursor.goToNextTokenWithKind(this.nameToken[1])) {
-      if (childCursor.nodeName === this.nameToken[0]) {
-        const nameToken = childCursor.node() as TokenNode;
-
-        symbolName = nameToken.text;
-        selectionRange = slangToVSCodeRange(
-          this.document,
-          childCursor.textRange
-        );
-        break;
+      if (childCursor.nodeName !== this.nameToken[0]) {
+        continue;
       }
+
+      const nameToken = childCursor.node() as TokenNode;
+
+      symbolName = nameToken.text;
+      selectionRange = slangToVSCodeRange(this.document, childCursor.textRange);
+      break;
     }
 
     let lastOpenSymbol;
