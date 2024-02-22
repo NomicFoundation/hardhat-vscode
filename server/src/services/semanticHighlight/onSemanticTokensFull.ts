@@ -21,7 +21,7 @@ import { ContractDefinitionHighlighter } from "./highlighters/ContractDefinition
 import { InterfaceDefinitionHighlighter } from "./highlighters/InterfaceDefinitionHighlighter";
 import { StructDefinitionHighlighter } from "./highlighters/StructDefinitionHighlighter";
 import { HighlightVisitor } from "./HighlightVisitor";
-import { UserDefinedValueTypeDefinitionHighlighter } from "./highlighters/UserDefinedValueTypeDefinitionHighlighter copy";
+import { UserDefinedValueTypeDefinitionHighlighter } from "./highlighters/UserDefinedValueTypeDefinitionHighlighter";
 import { EnumDefinitionHighlighter } from "./highlighters/EnumDefinitionHighlighter";
 import { ErrorDefinitionHighlighter } from "./highlighters/ErrorDefinitionHighlighter";
 import { LibraryDefinitionHighlighter } from "./highlighters/LibraryDefinitionHighlighter";
