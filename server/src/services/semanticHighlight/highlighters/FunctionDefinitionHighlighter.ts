@@ -1,6 +1,6 @@
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
 import { NodeType } from "@nomicfoundation/slang/cst";
-import { RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
+import { FieldName, RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
 import { HighlightVisitor } from "../HighlightVisitor";
 import { SlangNodeWrapper } from "../../../parser/slangHelpers";
 
@@ -13,6 +13,8 @@ export class FunctionDefinitionHighlighter extends HighlightVisitor {
     if (
       nodeWrapper.type === NodeType.Token &&
       nodeWrapper.kind === TokenKind.Identifier &&
+      // TODO: Support also 'receive' and 'fallback' functions post 0.6.0
+      nodeWrapper.name === FieldName.Variant &&
       ancestors[ancestors.length - 2]?.kind === RuleKind.FunctionDefinition
     ) {
       this.tokenBuilder.addToken(nodeWrapper, SemanticTokenTypes.function);

@@ -13,6 +13,7 @@ export class EventEmissionHighlighter extends HighlightVisitor {
     if (
       nodeWrapper.type === NodeType.Token &&
       nodeWrapper.kind === TokenKind.Identifier &&
+      // NOTE: This only highlights the first identifier (in path) in the event emission statement
       ancestors[ancestors.length - 2]?.kind === RuleKind.EmitStatement
     ) {
       this.tokenBuilder.addToken(nodeWrapper, SemanticTokenTypes.type);
