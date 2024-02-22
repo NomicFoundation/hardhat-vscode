@@ -111,7 +111,7 @@ async function main() {
   fs.copyFileSync(path.join(".", "LICENSE"), path.join(tmpDir, "LICENSE"));
 
   fs.copyFileSync(
-    path.join("..", "docs", "images", "vscode-logo.png"),
+    path.join(__dirname, "..", "..", "docs", "images", "vscode-logo.png"),
     path.join(imagesDir, "vscode-logo.png")
   );
 
@@ -183,7 +183,8 @@ async function main() {
   }
 
   console.log("> Fetching external server dependencies...")
-  const serverPackageJson = JSON.parse(fs.readFileSync(path.join("..", "server", "package.json"), "utf8"));
+  const serverPackageFile = path.join(__dirname, "..", "..", "server", "package.json");
+  const serverPackageJson = JSON.parse(fs.readFileSync(serverPackageFile, "utf8"));
   const serverDeps = serverPackageJson?.dependencies;
   if (!serverDeps) {
     console.error("Error: Could not find server dependencies");
