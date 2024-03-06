@@ -24,6 +24,7 @@ export interface ExtensionState {
   outputChannel: OutputChannel;
   commandsOutputChannel: OutputChannel;
   logger: Logger;
+  crashReportFile: string | null;
 
   projectStatusItems: LanguageStatusItem[]; // 1 per indexed contract. shows project info for that contract
   hardhatProjects: string[];

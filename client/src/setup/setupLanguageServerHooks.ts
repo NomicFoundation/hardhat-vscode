@@ -1,5 +1,11 @@
+import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
+
 import { workspace, env } from "vscode";
 import {
+  CloseAction,
+  ErrorAction,
   LanguageClient,
   LanguageClientOptions,
   ServerOptions,
@@ -17,10 +23,32 @@ export function setupLanguageServerHooks(extensionState: ExtensionState) {
 const startLanguageServer = (extensionState: ExtensionState): void => {
   const { logger } = extensionState;
 
+  // Catch our native crashes and report them to Sentry
+  let reportFatalErrorsArgs = [];
+  // eslint-disable-next-line no-constant-condition -- WIP: Change to isTelemetryEnabled()
+  if (true) {
+    const dirPath = fs.mkdtempSync(
+      path.join(os.tmpdir(), "solidity-language-server-reports-")
+    );
+    const filename = "crash-report.txt";
+    extensionState.crashReportFile = path.join(dirPath, filename);
+
+    logger.info(
+      `Fatal Node.js error reports will be written to ${extensionState.crashReportFile}`
+    );
+
+    reportFatalErrorsArgs = [
+      "--report-on-fatalerror",
+      "--report-uncaught-exception",
+      `--report-directory=${dirPath}`,
+      "--report-filename=crash-report.txt",
+    ];
+  }
+
   // The debug options for the server.
   // --inspect=6009: runs the server in Node's Inspector mode so VS Code can attach to the server for debugging.
   const debugOptions = {
-    execArgv: ["--nolazy", `--inspect=${6009}`],
+    execArgv: ["--nolazy", `--inspect=${6009}`, ...reportFatalErrorsArgs],
   };
 
   // If the extension is launched in debug mode then the debug server options are used.
@@ -29,10 +57,14 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
     run: {
       module: extensionState.serverModulePath,
       transport: TransportKind.ipc,
+      options: {
+        execArgv: [...reportFatalErrorsArgs],
+      },
     },
     debug: {
       module: extensionState.serverModulePath,
       transport: TransportKind.ipc,
+
       options: debugOptions,
     },
   };
@@ -52,6 +84,22 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
         workspace.createFileSystemWatcher("**/remappings.txt"),
         workspace.createFileSystemWatcher("**/*.sol"),
       ],
+    },
+    errorHandler: {
+      error: () => ErrorAction.Continue,
+      closed: () => {
+        if (extensionState.crashReportFile !== null) {
+          // TODO: Upgrade to newest vscode-languageserver-node to use the
+          // async version of `ErrorHandler.closed`
+          const dump = fs.readFileSync(extensionState.crashReportFile, "utf8");
+          logger.error(dump);
+          // fs.unlinkSync(extensionState.crashReportFile);
+          // WIP: Use the Sentry API
+          // extensionState.telemetry.captureException
+        }
+
+        return CloseAction.Restart;
+      },
     },
     diagnosticCollectionName: "solidity-language-server",
     outputChannel: extensionState.outputChannel,

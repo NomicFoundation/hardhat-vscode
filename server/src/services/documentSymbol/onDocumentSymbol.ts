@@ -7,6 +7,7 @@ import { analyze } from "@nomicfoundation/solidity-analyzer";
 import _ from "lodash";
 import { RuleKind } from "@nomicfoundation/slang/kinds";
 import { RuleNode } from "@nomicfoundation/slang/cst";
+import { cst } from "@nomicfoundation/slang/generated";
 import { ServerState } from "../../types";
 import { getLanguage } from "../../parser/slangHelpers";
 import { SymbolTreeBuilder } from "./SymbolTreeBuilder";
@@ -54,6 +55,7 @@ export function onDocumentSymbol(serverState: ServerState) {
       span.finish();
 
       try {
+        cst.crashAndBurn();
         const language = getLanguage(versionPragmas);
 
         // Parse using slang

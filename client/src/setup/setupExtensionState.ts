@@ -46,6 +46,7 @@ export function setupExtensionState(
     telemetry,
     outputChannel,
     commandsOutputChannel,
+    crashReportFile: null,
     logger,
     hardhatProjects: [],
   };
