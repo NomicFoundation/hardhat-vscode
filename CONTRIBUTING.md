@@ -23,7 +23,7 @@ This document contains details on how to collaborate and develop on the **Solidi
 
 ## Project structure
 
-The vscode extension and language server are written in typescript. The code is organised into:
+The vscode extension and language server are written in TypeScript. The code is organised into:
 
 - `./client` - the vscode extension, which mainly delegates onto the language server for functionality
 - `./server` - the Hardhat language server, which supports the validation, quickfixes and other solidity language features of the extension
@@ -67,7 +67,7 @@ VSCode will suggest plugins that will help develop against the codebase in compl
 
 ### 3. Run the extension in development
 
-Within VSCode ppen the Run view (`Ctrl+Shift+D`), select `Launch Client`, and click the Play button (`F5`).
+Within VSCode open the Run view (`Ctrl+Shift+D`), select `Launch Client`, and click the Play button (`F5`).
 
 ![image](docs/images/run_launch_client.png?raw=true)
 
@@ -134,7 +134,7 @@ To run the protocol tests from the command line, in the repo root run:
 npm run test:protocol
 ```
 
-### E2E
+### End-to-End (E2E)
 
 End to end tests that run a VSCode instance and exercise its workspace, files, Hardhat Client / Server, and VS Code commands. The integration tests are run using **mocha** and are contained in the [./test/e2e](./test/e2e) folder.
 
@@ -149,17 +149,17 @@ To run the End-to-End tests within VSCode, open the Run view (`Ctrl+Shift+D`), s
 
 ## Code Formatting
 
-We use Prettier to format all the code (and supporting json config files and markdown) without any special configuration. Whatever Prettier does is considered The Right Thing. Prettier is run in the CI, so run `npm run lint:fix` before pushing to auto-magically get into compliance.
+We use Prettier to format all the code (and supporting json config, markdown files) without any special configuration. Whatever Prettier does is considered The Right Thing. Prettier is run in the CI, so run `npm run lint:fix` before pushing to auto-magically get into compliance.
 
 ## Linting
 
-We also have eslint running on `./server`, `./client` and `./test`. It forbids some dangerous patterns.
+We also have ESLint running on `./server`, `./client` and `./test`. It forbids some dangerous patterns.
 
 The linter is always run in the CI, so make sure it passes before pushing code. You can use `npm run lint` and `npm run lint:fix` both at the root of the repository and within `./server` and `./client`.
 
 ## Changeset
 
-We use [changset](https://github.com/changesets/changesets) to include text that explains to users (via the changelog) what features/fixes/changes have occurred.
+We use [changeset](https://github.com/changesets/changesets) to include text that explains to users (via the changelog) what features/fixes/changes have occurred.
 
 Each PR should include a changeset to aid putting together a changelog during release.
 

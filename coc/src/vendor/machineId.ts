@@ -1,7 +1,6 @@
 // This code was adapted from node-machine-id and is distributed under their license: https://github.com/automation-stack/node-machine-id/blob/f580f9f20668582e9087d92cea2511c972f2e6aa/LICENSE
 // For the original context see: https://github.com/automation-stack/node-machine-id/blob/f580f9f20668582e9087d92cea2511c972f2e6aa/index.js
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-useless-escape */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-prototype-builtins */
@@ -82,7 +81,7 @@ export function machineIdSync(original: boolean): string {
 
 export function machineId(original: boolean): Promise<string> {
   return new Promise((resolve, reject) => {
-    return exec(guid[platform], {}, (err: any, stdout: any, stderr: any) => {
+    return exec(guid[platform], {}, (err: any, stdout: any, _stderr: any) => {
       if (err) {
         return reject(
           new Error(`Error while obtaining machine id: ${err.stack}`)

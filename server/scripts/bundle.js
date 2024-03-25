@@ -86,7 +86,12 @@ async function main() {
     minifyWhitespace: true,
     minifyIdentifiers: false,
     minifySyntax: true,
-    external: ["@nomicfoundation/solidity-analyzer", "fsevents", "mocha"],
+    external: [
+      "@nomicfoundation/solidity-analyzer",
+      "@nomicfoundation/slang",
+      "fsevents",
+      "mocha",
+    ],
     platform: "node",
     outdir: ".",
     logLevel: "info",

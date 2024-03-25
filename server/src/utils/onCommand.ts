@@ -1,5 +1,6 @@
 import { ISolFileEntry } from "@common/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import { Transaction } from "@sentry/types";
 import { addFrameworkTag } from "../telemetry/tags";
 import { ServerState } from "../types";
 import { lookupEntryForUri } from "./lookupEntryForUri";
@@ -8,7 +9,11 @@ export function onCommand<T>(
   serverState: ServerState,
   commandName: string,
   uri: string,
-  action: (documentAnalyzer: ISolFileEntry, document: TextDocument) => T
+  action: (
+    documentAnalyzer: ISolFileEntry,
+    document: TextDocument,
+    transaction: Transaction
+  ) => T
 ) {
   const { logger, telemetry } = serverState;
 
@@ -28,6 +33,9 @@ export function onCommand<T>(
 
     addFrameworkTag(transaction, documentAnalyzer.project);
 
-    return { status: "ok", result: action(documentAnalyzer, document) };
+    return {
+      status: "ok",
+      result: action(documentAnalyzer, document, transaction),
+    };
   });
 }

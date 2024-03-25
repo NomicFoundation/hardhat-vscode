@@ -16,3 +16,7 @@ export async function runCmd(cmd: string, cwd?: string): Promise<string> {
     });
   });
 }
+
+export function getPlatform() {
+  return `${os.platform()}-${os.arch()}`;
+}

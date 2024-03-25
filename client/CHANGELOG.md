@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.0 - 2024-03-25
+
+- Enable Semantic Highlighting and document symbols behind feature flag ([#523](https://github.com/NomicFoundation/hardhat-vscode/pull/523))
+
 ## 0.7.3 - 2023-06-01
 
 ### Fixed

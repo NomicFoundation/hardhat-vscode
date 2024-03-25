@@ -5,8 +5,12 @@ import {
   WorkspaceFolder,
 } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
+import { tokensTypes } from "../semanticHighlight/tokenTypes";
+import { isSlangSupported } from "../../parser/slangHelpers";
+import { getPlatform } from "../../utils/operatingSystem";
 import { indexWorkspaceFolders } from "./indexWorkspaceFolders";
 import { updateAvailableSolcVersions } from "./updateAvailableSolcVersions";
+import { fetchFeatureFlags, isFeatureEnabled } from "./featureFlags";
 
 export const onInitialize = (serverState: ServerState) => {
   const { logger } = serverState;
@@ -40,22 +44,49 @@ export const onInitialize = (serverState: ServerState) => {
       workspaceFolders,
     });
 
-    // fetch available solidity versions
-    await updateAvailableSolcVersions(serverState);
+    // fetch available solidity versions and feature flags
+    const [flags, _] = await Promise.all([
+      fetchFeatureFlags(serverState),
+      updateAvailableSolcVersions(serverState),
+    ]);
 
     logger.info("Language server ready");
 
-    // Index and analysis
-    await serverState.telemetry.trackTiming("indexing", async (transaction) => {
-      await indexWorkspaceFolders(
-        serverState,
-        serverState.workspaceFileRetriever,
-        workspaceFolders,
-        transaction
-      );
+    const slangSupported = isSlangSupported();
 
-      return { status: "ok", result: null };
-    });
+    const semanticTokensEnabled = isFeatureEnabled(
+      serverState,
+      flags,
+      "semanticHighlighting",
+      machineId
+    );
+
+    const documentSymbolsEnabled = isFeatureEnabled(
+      serverState,
+      flags,
+      "documentSymbol",
+      machineId
+    );
+    // Index and analysis
+    await serverState.telemetry.trackTiming(
+      "indexing",
+      async (transaction) => {
+        await indexWorkspaceFolders(
+          serverState,
+          serverState.workspaceFileRetriever,
+          workspaceFolders,
+          transaction
+        );
+
+        return { status: "ok", result: null };
+      },
+      {
+        platform: getPlatform(),
+        slangSupported,
+        semanticTokensEnabled,
+        documentSymbolsEnabled,
+      }
+    );
 
     // Build and return InitializeResult
     const result: InitializeResult = {
@@ -79,7 +110,15 @@ export const onInitialize = (serverState: ServerState) => {
         codeActionProvider: true,
         hoverProvider: true,
         documentFormattingProvider: true,
-
+        semanticTokensProvider: {
+          legend: {
+            tokenTypes: tokensTypes,
+            tokenModifiers: [],
+          },
+          range: false,
+          full: slangSupported && semanticTokensEnabled,
+        },
+        documentSymbolProvider: slangSupported && documentSymbolsEnabled,
         workspace: {
           workspaceFolders: {
             supported: false,
