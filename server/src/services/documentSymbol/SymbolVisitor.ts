@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { SymbolKind } from "vscode-languageserver-types";
 import _ from "lodash";
-import { FieldName, RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
+import { NodeLabel, RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
 import { TokenNode } from "@nomicfoundation/slang/cst";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Cursor } from "@nomicfoundation/slang/cursor";
@@ -12,7 +12,7 @@ export abstract class SymbolVisitor {
   public abstract ruleKind: RuleKind;
   public abstract symbolKind: SymbolKind;
   /** The token that contains the name of the symbol represented by the rule. */
-  public abstract nameToken: readonly [FieldName, TokenKind];
+  public abstract nameToken: readonly [NodeLabel, TokenKind];
 
   constructor(
     public document: TextDocument,
@@ -29,7 +29,7 @@ export abstract class SymbolVisitor {
     const childCursor = cursor.spawn();
 
     while (childCursor.goToNextTokenWithKind(this.nameToken[1])) {
-      if (childCursor.nodeName !== this.nameToken[0]) {
+      if (childCursor.label !== this.nameToken[0]) {
         continue;
       }
 
