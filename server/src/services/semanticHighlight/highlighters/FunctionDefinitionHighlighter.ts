@@ -15,7 +15,7 @@ export class FunctionDefinitionHighlighter extends HighlightVisitor {
       nodeWrapper.kind === TokenKind.Identifier &&
       // TODO: Support also 'receive' and 'fallback' functions post 0.6.0
       nodeWrapper.label === NodeLabel.Variant &&
-      ancestors[ancestors.length - 2]?.kind === RuleKind.FunctionDefinition
+      ancestors[1]?.kind === RuleKind.FunctionDefinition
     ) {
       this.tokenBuilder.addToken(nodeWrapper, SemanticTokenTypes.function);
     }

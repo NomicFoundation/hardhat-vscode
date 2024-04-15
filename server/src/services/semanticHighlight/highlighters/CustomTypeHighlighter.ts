@@ -15,7 +15,7 @@ export class CustomTypeHighlighter extends HighlightVisitor {
       nodeWrapper.kind === TokenKind.Identifier &&
       // NOTE: This only supports highlighting the first identifier in the path
       nodeWrapper.label === NodeLabel.Item &&
-      ancestors[ancestors.length - 2]?.kind === RuleKind.TypeName
+      ancestors[1]?.kind === RuleKind.TypeName
     ) {
       this.tokenBuilder.addToken(nodeWrapper, SemanticTokenTypes.type);
     }
