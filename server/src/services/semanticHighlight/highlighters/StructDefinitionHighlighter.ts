@@ -14,7 +14,7 @@ export class StructDefinitionHighlighter extends HighlightVisitor {
       nodeWrapper.type === NodeType.Token &&
       nodeWrapper.kind === TokenKind.Identifier &&
       nodeWrapper.label === NodeLabel.Name &&
-      ancestors[ancestors.length - 1]?.kind === RuleKind.StructDefinition
+      ancestors[0]?.kind === RuleKind.StructDefinition
     ) {
       this.tokenBuilder.addToken(nodeWrapper, SemanticTokenTypes.type);
     }

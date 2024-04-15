@@ -13,7 +13,7 @@ export class EnumDefinitionHighlighter extends HighlightVisitor {
       nodeWrapper.type === NodeType.Token &&
       nodeWrapper.kind === TokenKind.Identifier &&
       nodeWrapper.label === NodeLabel.Name &&
-      ancestors[ancestors.length - 1]?.kind === RuleKind.EnumDefinition
+      ancestors[0]?.kind === RuleKind.EnumDefinition
     ) {
       this.tokenBuilder.addToken(nodeWrapper, SemanticTokenTypes.type);
     }

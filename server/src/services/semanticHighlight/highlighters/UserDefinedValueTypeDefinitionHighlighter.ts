@@ -13,8 +13,7 @@ export class UserDefinedValueTypeDefinitionHighlighter extends HighlightVisitor 
       nodeWrapper.type === NodeType.Token &&
       nodeWrapper.kind === TokenKind.Identifier &&
       nodeWrapper.label === NodeLabel.Name &&
-      ancestors[ancestors.length - 1]?.kind ===
-        RuleKind.UserDefinedValueTypeDefinition
+      ancestors[0]?.kind === RuleKind.UserDefinedValueTypeDefinition
     ) {
       this.tokenBuilder.addToken(nodeWrapper, SemanticTokenTypes.type);
     }

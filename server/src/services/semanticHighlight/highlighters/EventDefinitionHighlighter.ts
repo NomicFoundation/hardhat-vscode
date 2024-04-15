@@ -14,7 +14,7 @@ export class EventDefinitionHighlighter extends HighlightVisitor {
       nodeWrapper.type === NodeType.Token &&
       nodeWrapper.kind === TokenKind.Identifier &&
       nodeWrapper.label === NodeLabel.Name &&
-      ancestors[ancestors.length - 1]?.kind === RuleKind.EventDefinition
+      ancestors[0]?.kind === RuleKind.EventDefinition
     ) {
       this.tokenBuilder.addToken(nodeWrapper, SemanticTokenTypes.type);
     }
