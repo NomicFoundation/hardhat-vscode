@@ -14,7 +14,7 @@ export class FunctionCallHighlighter extends HighlightVisitor {
       nodeWrapper.type === NodeType.Token &&
       nodeWrapper.kind === TokenKind.Identifier &&
       // NOTE: This only supports the basic case of a function call with positional arguments "(a,b,c)"
-      ancestors[ancestors.length - 2]?.kind === RuleKind.FunctionCallExpression
+      ancestors[1]?.kind === RuleKind.FunctionCallExpression
     ) {
       this.tokenBuilder.addToken(nodeWrapper, SemanticTokenTypes.function);
     }

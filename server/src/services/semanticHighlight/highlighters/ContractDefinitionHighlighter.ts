@@ -14,7 +14,7 @@ export class ContractDefinitionHighlighter extends HighlightVisitor {
       nodeWrapper.type === NodeType.Token &&
       nodeWrapper.kind === TokenKind.Identifier &&
       nodeWrapper.label === NodeLabel.Name &&
-      ancestors[ancestors.length - 1]?.kind === RuleKind.ContractDefinition
+      ancestors[0]?.kind === RuleKind.ContractDefinition
     ) {
       this.tokenBuilder.addToken(nodeWrapper, SemanticTokenTypes.type);
     }

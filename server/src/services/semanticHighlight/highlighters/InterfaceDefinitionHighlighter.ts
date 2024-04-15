@@ -14,7 +14,7 @@ export class InterfaceDefinitionHighlighter extends HighlightVisitor {
       nodeWrapper.type === NodeType.Token &&
       nodeWrapper.kind === TokenKind.Identifier &&
       nodeWrapper.label === NodeLabel.Name &&
-      ancestors[ancestors.length - 1]?.kind === RuleKind.InterfaceDefinition
+      ancestors[0]?.kind === RuleKind.InterfaceDefinition
     ) {
       this.tokenBuilder.addToken(nodeWrapper, SemanticTokenTypes.type);
     }
