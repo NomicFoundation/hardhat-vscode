@@ -24,6 +24,7 @@ suite("task - clean", function () {
     });
     await waitForUI();
 
+    // Wait for the task to finish
     await new Promise((resolve) => vscode.tasks.onDidEndTask(resolve));
 
     // Assert the artifacts were removed
