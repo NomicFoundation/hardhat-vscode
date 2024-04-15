@@ -3,7 +3,6 @@ import { existsSync, mkdirSync } from "fs";
 import path from "path";
 import * as vscode from "vscode";
 import { waitForUI } from "../../helpers/editor";
-import { sleep } from "../../helpers/sleep";
 import { getRootPath } from "../../helpers/workspace";
 
 suite("task - clean", function () {
@@ -20,22 +19,11 @@ suite("task - clean", function () {
 
     // Run clean task
     await vscode.commands.executeCommand("workbench.action.tasks.runTask", {
-      task: "hardhat: clean main",
+      type: "hardhat",
+      task: "clean",
     });
     await waitForUI();
 
-    await sleep(1000);
-
-    await vscode.commands.executeCommand(
-      "workbench.action.acceptSelectedQuickOpenItem"
-    );
-    await sleep(1000);
-
-    await vscode.commands.executeCommand(
-      "workbench.action.acceptSelectedQuickOpenItem"
-    );
-
-    // Wait for task to finish
     await new Promise((resolve) => vscode.tasks.onDidEndTask(resolve));
 
     // Assert the artifacts were removed
