@@ -16,7 +16,7 @@ export interface SlangNodeWrapper {
   type: NodeType;
   kind: NodeKind;
   text: string;
-  name: string;
+  label: string;
   ancestors: () => SlangNode[];
 }
 
