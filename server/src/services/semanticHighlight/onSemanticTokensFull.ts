@@ -111,7 +111,7 @@ export function onSemanticTokensFull(serverState: ServerState) {
               ancestors: () => cursor.ancestors(),
               text: node.text,
               textRange: cursor.textRange,
-              name: cursor.nodeName,
+              label: cursor.label,
               type: node.type,
             };
 
