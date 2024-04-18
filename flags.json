@@ -1,9 +1,9 @@
 {
   "documentSymbol": {
-    "percent": 0.01
+    "percent": 0
   },
 
   "semanticHighlighting": {
-    "percent": 0.01
+    "percent": 0
   }
 }
