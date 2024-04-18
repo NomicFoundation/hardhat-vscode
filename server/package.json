@@ -17,7 +17,7 @@
   "main": "./out/index.js",
   "types": "./out/index.d.ts",
   "files": [
-    "out/**/*"
+    "out/"
   ],
   "bin": {
     "nomicfoundation-solidity-language-server": "./out/index.js"
