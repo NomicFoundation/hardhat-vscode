@@ -4,13 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## 0.8.1 - 2024-03-25
+## 0.8.2 - 2024-04-22
+
+### Added
+
+- Run Semantic Highlighting and document symbols on later solc versions not yet support by the Slang parser (behind feature flag) ([562](https://github.com/NomicFoundation/hardhat-vscode/pull/562))
+
+## 0.8.1 - 2024-04-18
 
 ### Fixed
 
 - Fix packaging file inclusions on the language server ([558](https://github.com/NomicFoundation/hardhat-vscode/issues/558))
 
-## 0.8.0 - 2024-03-25
+## 0.8.0 - 2024-04-17
 
 ### Added
 
