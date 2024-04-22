@@ -5,10 +5,11 @@ import { DocumentSymbolParams } from "vscode-languageserver/node";
 import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-types";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import _ from "lodash";
+import { Language } from "@nomicfoundation/slang/language";
 import { RuleKind } from "@nomicfoundation/slang/kinds";
 import { RuleNode } from "@nomicfoundation/slang/cst";
 import { ServerState } from "../../types";
-import { getLanguage } from "../../parser/slangHelpers";
+import { resolveVersion } from "../../parser/slangHelpers";
 import { SymbolTreeBuilder } from "./SymbolTreeBuilder";
 import { StructDefinition } from "./visitors/StructDefinition";
 import { StructMember } from "./visitors/StructMember";
@@ -53,8 +54,10 @@ export function onDocumentSymbol(serverState: ServerState) {
       const { versionPragmas } = analyze(text);
       span.finish();
 
+      const resolvedVersion = resolveVersion(logger, versionPragmas);
+
       try {
-        const language = getLanguage(versionPragmas);
+        const language = new Language(resolvedVersion);
 
         // Parse using slang
         span = transaction.startChild({ op: "slang-parsing" });

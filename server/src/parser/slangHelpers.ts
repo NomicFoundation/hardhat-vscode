@@ -6,6 +6,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { Range } from "vscode-languageserver-types";
 import { Language } from "@nomicfoundation/slang/language";
 import semver from "semver";
+import { Logger } from "../utils/Logger";
 import { getPlatform } from "../utils/operatingSystem";
 
 export type SlangNode = RuleNode | TokenNode;
@@ -46,21 +47,27 @@ export function isSlangSupported() {
   return SUPPORTED_PLATFORMS.includes(currentPlatform);
 }
 
-export function getLanguage(versionPragmas: string[]): Language {
-  const supportedVersions = Language.supportedVersions();
+export function resolveVersion(
+  logger: Logger,
+  versionPragmas: string[]
+): string {
+  const versions = Language.supportedVersions();
 
-  const slangVersion = semver.maxSatisfying(
-    supportedVersions,
-    versionPragmas.join(" ")
-  );
+  const slangVersion = semver.maxSatisfying(versions, versionPragmas.join(" "));
 
-  if (slangVersion === null) {
-    const latest = supportedVersions[supportedVersions.length - 1];
-    throw new Error(
-      `No Slang-supported version (latest: ${latest}) for Solidity found that satisfies the pragma directives: '${versionPragmas.join(
-        " "
-      )}'.`
+  if (slangVersion !== null) {
+    return slangVersion;
+  } else {
+    const latest = versions[versions.length - 1];
+
+    logger.error(
+      new Error(
+        `No Slang-supported version (latest: ${latest}) for Solidity found that satisfies the pragma directives: '${versionPragmas.join(
+          " "
+        )}'.`
+      )
     );
+
+    return latest;
   }
-  return new Language(slangVersion);
 }
