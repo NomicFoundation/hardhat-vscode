@@ -7,10 +7,11 @@ import {
 } from "vscode-languageserver-protocol";
 import _, { Dictionary } from "lodash";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
+import { Language } from "@nomicfoundation/slang/language";
 import { RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
 import { TokenNode } from "@nomicfoundation/slang/cst";
 import { ServerState } from "../../types";
-import { getLanguage } from "../../parser/slangHelpers";
+import { resolveVersion } from "../../parser/slangHelpers";
 import { CustomTypeHighlighter } from "./highlighters/CustomTypeHighlighter";
 import { SemanticTokensBuilder } from "./SemanticTokensBuilder";
 import { FunctionDefinitionHighlighter } from "./highlighters/FunctionDefinitionHighlighter";
@@ -54,9 +55,10 @@ export function onSemanticTokensFull(serverState: ServerState) {
         const { versionPragmas } = analyze(text);
         span.finish();
 
-        const language = getLanguage(versionPragmas);
+        const resolvedVersion = resolveVersion(logger, versionPragmas);
 
         try {
+          const language = new Language(resolvedVersion);
           // Parse using slang
           span = transaction.startChild({ op: "slang-parsing" });
 
