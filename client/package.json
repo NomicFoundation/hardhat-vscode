@@ -4,7 +4,7 @@
   "displayName": "Solidity",
   "description": "Solidity and Hardhat support by the Hardhat team",
   "license": "MIT",
-  "version": "0.7.2",
+  "version": "0.8.2",
   "private": true,
   "main": "./out/extension.js",
   "module": "./out/extension.js",
@@ -35,7 +35,7 @@
     "url": "https://github.com/NomicFoundation/hardhat-vscode/issues"
   },
   "engines": {
-    "vscode": "^1.70.2"
+    "vscode": "^1.86.0"
   },
   "activationEvents": [
     "onLanguage:solidity",
@@ -58,7 +58,7 @@
   "devDependencies": {
     "@sentry/types": "6.19.1",
     "@types/prettier": "2.6.0",
-    "@types/vscode": "^1.70",
+    "@types/vscode": "^1.86",
     "eslint": "^7.23.0",
     "rimraf": "3.0.2",
     "prettier": "2.5.1"

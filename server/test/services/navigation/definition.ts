@@ -260,7 +260,7 @@ describe("Parser", () => {
             }
           ));
 
-        it("should navigate from import statment to linked file (source unit)", () =>
+        it("should navigate from import statement to linked file (source unit)", () =>
           assertDefinitionNavigation(
             definition,
             childUri,

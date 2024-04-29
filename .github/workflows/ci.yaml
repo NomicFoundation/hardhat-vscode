@@ -19,12 +19,12 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: "14.x"
+          node-version: "18.x"
 
       - name: npm latest
         run: npm i -g npm@8 && npm i -g npm@latest
@@ -76,15 +76,12 @@ jobs:
           cache-name: cache-vscode
         with:
           path: .vscode-test
-          key: ${{ runner.os }}-vscode-1.70.2
+          key: ${{ runner.os }}-vscode-1.86.0
 
       - name: Run E2E tests
-        uses: GabrielBB/xvfb-action@v1.0
+        uses: coactions/setup-xvfb@v1.0.1
         with:
           run: npm run test:e2e
-        env:
-          CODE_VERSION: ${{ matrix.version }}
-          VSCODEGO_BEFORE_RELEASE_TESTS: true
 
       - name: Package the extension
         run: npm run package
