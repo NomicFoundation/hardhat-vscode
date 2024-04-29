@@ -87,7 +87,7 @@
     "yaml": "^2.2.1"
   },
   "dependencies": {
-    "@nomicfoundation/slang": "0.14.0",
+    "@nomicfoundation/slang": "0.14.2",
     "@nomicfoundation/solidity-analyzer": "0.1.1"
   }
 }
