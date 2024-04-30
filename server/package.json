@@ -44,7 +44,7 @@
     "@sentry/node": "7.32.1",
     "@sentry/tracing": "7.32.1",
     "@sentry/types": "7.32.1",
-    "@solidity-parser/parser": "^0.16.0",
+    "@solidity-parser/parser": "^0.18.0",
     "@types/chai": "4.3.0",
     "@types/fs-extra": "^9.0.13",
     "@types/js-yaml": "^4.0.5",
