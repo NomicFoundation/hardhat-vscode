@@ -3,8 +3,15 @@
 To publish `hardhat-solidity` you need to do next steps:
 
 1. `git fetch`, Checkout out `development`, then ensure your branch is up to date `git pull --ff-only`
-2. Perform a clean install and build (will lose all uncommitted changes) `git clean -fdx .`, `npm install`, `npm run build`
-3. Run a full check, stopping on failure: `npm run fullcheck`, you can check that each commit meets our build requirements with: `git rebase main --exec "npm install && npm run fullcheck"`
+2. Perform a clean install and build (will lose all uncommitted changes):
+
+```
+git clean -fdx .
+npm install
+npm run build
+```
+
+3. Run a full check, stopping on failure: `npm run fullcheck`, optionally you can check that each commit meets our build requirements with: `git rebase main --exec "npm install && npm run fullcheck"`
 4. Confirm the commits represent the features for the release
 5. Branch into a release branch named for the current date: `git checkout -b release/yyyy-mm-dd`
 6. Update the version based on semver, ensure it is updated in:
@@ -13,7 +20,7 @@ To publish `hardhat-solidity` you need to do next steps:
 - the language server package.json `./server/package.json`
 - the coc extension package.json, both its version and its dep on the language server, at `./coc/package.json`
 
-7. Update the changelog by adding a new entry for the new version based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+7. Update the changelog in `./client/CHANGELOG.md` by adding a new entry for the new version based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 8. Commit the package version and changelog change as a version bump commit:
 
 ```
@@ -26,7 +33,7 @@ release.
 9. Push the release branch and open a pull request using the new changelog entry as the PR description
 10. Generate a release candidate vsix file with `npm run package`, the vsix file should appear in the `./client` folder with the new version number
 
-> NOTE: ensure .env file is populated with GA and Sentry secrets before packaging (see `./env.example`)
+> WARNING: ensure .env file is populated with GA and Sentry secrets before packaging (see `./env.example`)
 
 11. Manually run smoke tests on the new features across:
 
@@ -44,6 +51,14 @@ release.
 19. Create a release on github off of the pushed tag
 
 - use the added changelog section as the body of the release
+- append the Nomic is Hiring section to the end of the release not:
+
+```markdown
+---
+> 💡 **The Nomic Foundation is hiring! Check [our open positions](https://www.nomic.foundation/jobs).**
+---
+```
+
 - upload the vsix file as an asset
 
 18. Rebase `development` onto `main`, and force push back to github
