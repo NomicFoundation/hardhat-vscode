@@ -47,9 +47,17 @@ export class SentryServerTelemetry implements Telemetry {
       throw new Error("Tracing not loaded");
     }
 
+    const traceSampleRate = this.serverState.env === "development" ? 1 : 0.001;
+
     Sentry.init({
       dsn: this.dsn,
-      tracesSampleRate: serverState.env === "development" ? 1 : 0.001,
+      tracesSampler: ({ transactionContext: { name } }) => {
+        if (name === "indexing") {
+          return 1;
+        }
+
+        return traceSampleRate;
+      },
       release:
         extensionName !== undefined && extensionVersion !== undefined
           ? `${extensionName}@${extensionVersion}`
