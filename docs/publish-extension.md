@@ -31,24 +31,26 @@ release.
 ```
 
 9. Push the release branch and open a pull request using the new changelog entry as the PR description
-10. Generate a release candidate vsix file with `npm run package`, the vsix file should appear in the `./client` folder with the new version number
 
-> WARNING: ensure .env file is populated with GA and Sentry secrets before packaging (see `./env.example`)
+10. Ensure .env file is populated with GA and Sentry secrets before packaging (see `./env.example`)
 
-11. Manually run smoke tests on the new features across:
+11. Generate a release candidate vsix file with `npm run package`, the vsix file should appear in the `./client` folder with the new version number
+
+12. Manually run smoke tests on the new features across:
 
 - mac os x
 - windows
 - vscode running against docker
 
-12. On a successful check, `rebase merge` the release branch into main
-13. Switch to main branch and pull the latest changes
-14. Git tag the version, `g tag -a v0.x.x -m "v0.x.x"` and push the tag `git push --follow-tags`
-15. Publish the language server npm package, `cd ./server && npm publish`
-16. Publish the coc extension, `cd ./coc && npm publish --non-interactive`
-17. Upload the vsix file to the microsoft marketplace: `npx vsce publish -p $VSCE_TOKEN --packagePath client/hardhat-solidity-0.X.X.vsix`
-18. Upload the vsix file to openvsx, `npx ovsx publish client/hardhat-solidity-0.X.X.vsix -p $OVSX_TOKEN`
-19. Create a release on github off of the pushed tag
+13. Ensure that metrics are reported correctly in both Google Analytics and Sentry for the new version.
+14. On a successful check, `rebase merge` the release branch into main
+15. Switch to main branch and pull the latest changes
+16. Git tag the version, `git tag -a v0.x.x -m "v0.x.x"` and push the tag `git push --follow-tags`
+17. Publish the language server npm package, `cd ./server && npm publish`
+18. Publish the coc extension, `cd ./coc && npm publish --non-interactive`
+19. Upload the vsix file to the microsoft marketplace: `npx vsce publish -p $VSCE_TOKEN --packagePath client/hardhat-solidity-0.X.X.vsix`
+20. Upload the vsix file to openvsx, `npx ovsx publish client/hardhat-solidity-0.X.X.vsix -p $OVSX_TOKEN`
+21. Create a release on github off of the pushed tag
 
 - use the added changelog section as the body of the release
 - append the Nomic is Hiring section to the end of the release not:
@@ -61,8 +63,8 @@ release.
 
 - upload the vsix file as an asset
 
-18. Rebase `development` onto `main`, and force push back to github
-19. Update the discord announcements channel
+22. Rebase `development` onto `main`, and force push back to github
+23. Update the discord announcements channel
 
 - link to the release entry on github (i.e. `https://github.com/NomicFoundation/hardhat-vscode/releases/tag/v0.x.x`)
 - give a few sentences of description of why users should be excited about this release
