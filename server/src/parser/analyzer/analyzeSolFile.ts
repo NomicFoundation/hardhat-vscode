@@ -35,7 +35,7 @@ export async function analyzeSolFile(
       const oldDocumentsAnalyzerTree = solFileEntry.analyzerTree
         .tree as SourceUnitNode;
 
-      for (const importNode of oldDocumentsAnalyzerTree.getImportNodes()) {
+      for (const importNode of oldDocumentsAnalyzerTree.children) {
         importNode.getParent()?.removeChild(importNode);
         importNode.setParent(undefined);
       }
