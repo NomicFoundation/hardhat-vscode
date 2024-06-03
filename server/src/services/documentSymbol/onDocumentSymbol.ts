@@ -7,30 +7,30 @@ import { analyze } from "@nomicfoundation/solidity-analyzer";
 import _ from "lodash";
 import { Language } from "@nomicfoundation/slang/language";
 import { RuleKind } from "@nomicfoundation/slang/kinds";
-import { RuleNode } from "@nomicfoundation/slang/cst";
+import { Query } from "@nomicfoundation/slang/query";
 import { ServerState } from "../../types";
-import { resolveVersion } from "../../parser/slangHelpers";
+import { resolveVersion, slangToVSCodeRange } from "../../parser/slangHelpers";
 import { SymbolTreeBuilder } from "./SymbolTreeBuilder";
-import { StructDefinition } from "./visitors/StructDefinition";
-import { StructMember } from "./visitors/StructMember";
-import { InterfaceDefinition } from "./visitors/InterfaceDefinition";
-import { FunctionDefinition } from "./visitors/FunctionDefinition";
-import { ContractDefinition } from "./visitors/ContractDefinition";
-import { EventDefinition } from "./visitors/EventDefinition";
-import { StateVariableDeclaration } from "./visitors/StateVariableDeclaration";
-import { VariableDeclaration } from "./visitors/VariableDeclaration";
-import { ConstantDefinition } from "./visitors/ConstantDefinition";
-import { ConstructorDefinition } from "./visitors/ConstructorDefinition";
-import { EnumDefinition } from "./visitors/EnumDefinition";
-import { ErrorDefinition } from "./visitors/ErrorDefinition";
-import { FallbackFunctionDefinition } from "./visitors/FallbackFunctionDefinition";
-import { LibraryDefinition } from "./visitors/LibraryDefinition";
-import { ModifierDefinition } from "./visitors/ModifierDefinition";
-import { ReceiveFunctionDefinition } from "./visitors/ReceiveFunctionDefinition";
-import { UserDefinedValueTypeDefinition } from "./visitors/UserDefinedValueTypeDefinition";
-import { SymbolVisitor } from "./SymbolVisitor";
-import { YulFunctionDefinition } from "./visitors/YulFunctionDefinition";
-import { UnnamedFunctionDefinition } from "./visitors/UnnamedFunctionDefinition";
+import { StructDefinition } from "./finders/StructDefinition";
+import { StructMember } from "./finders/StructMember";
+import { InterfaceDefinition } from "./finders/InterfaceDefinition";
+import { FunctionDefinition } from "./finders/FunctionDefinition";
+import { ContractDefinition } from "./finders/ContractDefinition";
+import { EventDefinition } from "./finders/EventDefinition";
+import { StateVariableDefinition } from "./finders/StateVariableDefinition";
+import { ConstantDefinition } from "./finders/ConstantDefinition";
+import { ConstructorDefinition } from "./finders/ConstructorDefinition";
+import { EnumDefinition } from "./finders/EnumDefinition";
+import { ErrorDefinition } from "./finders/ErrorDefinition";
+import { FallbackFunctionDefinition } from "./finders/FallbackFunctionDefinition";
+import { LibraryDefinition } from "./finders/LibraryDefinition";
+import { ModifierDefinition } from "./finders/ModifierDefinition";
+import { ReceiveFunctionDefinition } from "./finders/ReceiveFunctionDefinition";
+import { UserDefinedValueTypeDefinition } from "./finders/UserDefinedValueTypeDefinition";
+import { SymbolFinder } from "./SymbolFinder";
+import { YulFunctionDefinition } from "./finders/YulFunctionDefinition";
+import { UnnamedFunctionDefinition } from "./finders/UnnamedFunctionDefinition";
+import { VariableDeclarationStatement } from "./finders/VariableDeclarationStatement";
 
 export function onDocumentSymbol(serverState: ServerState) {
   return async (
@@ -71,50 +71,91 @@ export function onDocumentSymbol(serverState: ServerState) {
 
         const builder = new SymbolTreeBuilder();
 
-        const visitors: SymbolVisitor[] = [
-          new StructDefinition(document, builder),
-          new StructMember(document, builder),
-          new InterfaceDefinition(document, builder),
-          new FunctionDefinition(document, builder),
-          new ContractDefinition(document, builder),
-          new EventDefinition(document, builder),
-          new StateVariableDeclaration(document, builder),
-          new VariableDeclaration(document, builder),
-          new ConstantDefinition(document, builder),
-          new ConstructorDefinition(document, builder),
-          new EnumDefinition(document, builder),
-          new ErrorDefinition(document, builder),
-          new FallbackFunctionDefinition(document, builder),
-          new LibraryDefinition(document, builder),
-          new ModifierDefinition(document, builder),
-          new ReceiveFunctionDefinition(document, builder),
-          new UserDefinedValueTypeDefinition(document, builder),
-          new YulFunctionDefinition(document, builder),
-          new UnnamedFunctionDefinition(document, builder),
+        const finders: SymbolFinder[] = [
+          new StructDefinition(),
+          new StructMember(),
+          new InterfaceDefinition(),
+          new FunctionDefinition(),
+          new ContractDefinition(),
+          new EventDefinition(),
+          new StateVariableDefinition(),
+          new VariableDeclarationStatement(),
+          new ConstantDefinition(),
+          new ConstructorDefinition(),
+          new EnumDefinition(),
+          new ErrorDefinition(),
+          new FallbackFunctionDefinition(),
+          new LibraryDefinition(),
+          new ModifierDefinition(),
+          new ReceiveFunctionDefinition(),
+          new UserDefinedValueTypeDefinition(),
+          new YulFunctionDefinition(),
+          new UnnamedFunctionDefinition(),
         ];
 
-        const indexedVisitors = _.keyBy(visitors, "ruleKind");
-
         const cursor = parseOutput.createTreeCursor();
-        const ruleKinds = visitors.map((v) => v.ruleKind);
 
         // Useful to keep this here for development
-        // const kursor: Cursor = parseTree.cursor.clone();
+        // const kursor = cursor.clone();
         // do {
         //   console.log(
-        //     `${"  ".repeat(kursor.pathRuleNodes.length)}${kursor.node.kind}(${
-        //       ["R", "T"][kursor.node.type]
-        //     }): ${kursor.node?.text ?? ""}`
+        //     `${"  ".repeat(kursor.ancestors().length)}${kursor.node().kind}(${
+        //       // ["R", "T"][kursor.node().type]
+        //       kursor.node().type
+        //     })(${kursor.label}): ${(kursor.node() as TokenNode)?.text || ""}`
         //   );
         // } while (kursor.goToNext());
 
-        span = transaction.startChild({ op: "walk-generate-symbols" });
-        while (cursor.goToNextRuleWithKinds(ruleKinds)) {
-          const node = cursor.node() as RuleNode;
+        span = transaction.startChild({ op: "run-query" });
 
-          const visitor: SymbolVisitor = indexedVisitors[node.kind];
-          visitor.onRuleNode(cursor);
+        // Execute a single call with all the queries
+        const queries = finders.map((v) => Query.parse(v.query));
+        const results = cursor.query(queries);
+
+        span.finish();
+
+        span = transaction.startChild({ op: "build-symbols" });
+
+        // Transform the query results into symbols
+        let result;
+        const symbols = [];
+
+        while ((result = results.next())) {
+          for (const finder of finders) {
+            const symbol = finder.onResult(result);
+
+            if (symbol) {
+              symbols.push(symbol);
+            }
+          }
         }
+
+        // Build the symbol tree
+        for (const symbol of symbols) {
+          const symbolRange = slangToVSCodeRange(document, symbol.range);
+
+          let lastOpenSymbol;
+
+          // Insert the symbol in the tree with the correct hierarchy
+          while ((lastOpenSymbol = builder.lastOpenSymbol())) {
+            const lastEndOffset = document.offsetAt(lastOpenSymbol.range!.end);
+            const currentEndOffset = document.offsetAt(symbolRange.end);
+
+            if (lastEndOffset < currentEndOffset) {
+              builder.closeSymbol();
+            } else {
+              break;
+            }
+          }
+
+          builder.openSymbol({
+            kind: symbol.symbolKind,
+            name: symbol.name,
+            range: symbolRange,
+            selectionRange: symbolRange,
+          });
+        }
+
         span.finish();
 
         return { status: "ok", result: builder.getSymbols() };

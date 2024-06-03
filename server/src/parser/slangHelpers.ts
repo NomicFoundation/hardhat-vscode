@@ -1,4 +1,4 @@
-import { NodeType, RuleNode, TokenNode } from "@nomicfoundation/slang/cst";
+import { RuleNode, TokenNode } from "@nomicfoundation/slang/cst";
 import { RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
 import { TextRange } from "@nomicfoundation/slang/text_index";
 import _ from "lodash";
@@ -11,15 +11,6 @@ import { getPlatform } from "../utils/operatingSystem";
 
 export type SlangNode = RuleNode | TokenNode;
 export type NodeKind = RuleKind | TokenKind;
-
-export interface SlangNodeWrapper {
-  textRange: TextRange;
-  type: NodeType;
-  kind: NodeKind;
-  text: string;
-  label: string;
-  ancestors: () => SlangNode[];
-}
 
 export function slangToVSCodeRange(
   doc: TextDocument,
