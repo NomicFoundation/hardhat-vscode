@@ -95,9 +95,8 @@ export function onSemanticTokensFull(serverState: ServerState) {
           // Iterate over query results
           let result;
           while ((result = results.next())) {
-            for (const visitor of highlighters) {
-              visitor.onResult(result);
-            }
+            const highlighter = highlighters[result.queryNumber];
+            highlighter.onResult(result);
           }
 
           return { status: "ok", result: { data: builder.getTokenData() } };

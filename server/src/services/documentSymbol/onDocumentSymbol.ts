@@ -98,11 +98,15 @@ export function onDocumentSymbol(serverState: ServerState) {
         // Useful to keep this here for development
         // const kursor = cursor.clone();
         // do {
+        //   const range = slangToVSCodeRange(document, kursor.textRange);
+        //   const start = document.offsetAt(range.start);
+        //   const end = document.offsetAt(range.end);
         //   console.log(
         //     `${"  ".repeat(kursor.ancestors().length)}${kursor.node().kind}(${
-        //       // ["R", "T"][kursor.node().type]
         //       kursor.node().type
-        //     })(${kursor.label}): ${(kursor.node() as TokenNode)?.text || ""}`
+        //     })(${kursor.label})[${start}:${end}]: ${
+        //       (kursor.node() as any)?.text || ""
+        //     }`
         //   );
         // } while (kursor.goToNext());
 
@@ -121,12 +125,17 @@ export function onDocumentSymbol(serverState: ServerState) {
         const symbols = [];
 
         while ((result = results.next())) {
-          for (const finder of finders) {
-            const symbol = finder.onResult(result);
+          const finder = finders[result.queryNumber];
 
-            if (symbol) {
-              symbols.push(symbol);
-            }
+          if (finder === undefined) {
+            throw new Error(
+              `Result query number ${result.queryNumber} doesn't match any finder. Total finders: ${finders.length}`
+            );
+          }
+          const symbol = finder.onResult(result);
+
+          if (symbol) {
+            symbols.push(symbol);
           }
         }
 

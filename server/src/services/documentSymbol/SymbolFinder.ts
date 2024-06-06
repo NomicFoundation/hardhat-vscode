@@ -22,16 +22,15 @@ export abstract class SymbolFinder {
       result.bindings.definition === undefined ||
       result.bindings.identifier === undefined
     ) {
-      return undefined;
+      throw new Error(
+        `Bindings @definition or @identifier not present in query result. Query: ${
+          this.query
+        }, Bindings: ${JSON.stringify(result.bindings)}`
+      );
     }
 
     // Check that the rule kind matches
     const definition = result.bindings.definition[0];
-    const definitionNode = definition.node();
-
-    if (definitionNode.kind !== this.ruleKind) {
-      return undefined;
-    }
 
     const identifierNode = result.bindings.identifier[0].node() as TokenNode;
 
