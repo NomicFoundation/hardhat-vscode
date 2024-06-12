@@ -131,10 +131,10 @@
         "scopeName": "markdown.solidity.codeblock",
         "path": "./syntaxes/solidity-markdown-injection.json",
         "injectTo": [
-            "text.html.markdown"
+          "text.html.markdown"
         ],
         "embeddedLanguages": {
-            "meta.embedded.block.solidity": "solidity"
+          "meta.embedded.block.solidity": "solidity"
         }
       }
     ],
