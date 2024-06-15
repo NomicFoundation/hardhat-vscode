@@ -1,12 +1,11 @@
 on:
   push:
     branches:
-      - main
+      - "*"
   pull_request:
     branches:
       - "*"
   workflow_dispatch:
-    
 
 jobs:
   build:
@@ -24,10 +23,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "18.x"
-
-      - name: npm latest
-        run: npm i -g npm@8 && npm i -g npm@latest
+          node-version: "latest"
 
       - name: Cache Node Modules
         id: cache-node-modules
@@ -35,19 +31,12 @@ jobs:
         env:
           cache-name: cache-node-modules
         with:
-          path: |
-            node_modules
-            client/node_modules
-            server/node_modules
-            coc/node_modules
-            test/e2e/node_modules
-            test/protocol/node_modules
-            test/protocol/projects/hardhat/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          path: "**/node_modules"
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package.json', '**/package-lock.json') }}
 
       - name: Install dependencies
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: npm install
+        run: npm ci
 
       - name: Lint
         run: npm run lint
