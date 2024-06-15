@@ -1,16 +1,15 @@
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
-import { RuleKind } from "@nomicfoundation/slang/kinds";
+import { Query } from "@nomicfoundation/slang/query";
 import { Highlighter } from "../Highlighter";
 
 export class UserDefinedValueTypeDefinitionHighlighter extends Highlighter {
-  public ruleKind = RuleKind.UserDefinedValueTypeDefinition;
-  public semanticTokenType = SemanticTokenTypes.type;
+  public override readonly semanticTokenType = SemanticTokenTypes.type;
 
-  public query = `
-    @definition [${this.ruleKind}
+  public override readonly query = Query.parse(`
+    [UserDefinedValueTypeDefinition
       ...
-      @identifier [name:_]
+      @identifier name: [_]
       ...
     ]
-  `;
+  `);
 }

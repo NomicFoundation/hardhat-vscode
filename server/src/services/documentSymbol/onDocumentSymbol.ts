@@ -6,11 +6,10 @@ import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-types";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import _ from "lodash";
 import { Language } from "@nomicfoundation/slang/language";
-import { RuleKind } from "@nomicfoundation/slang/kinds";
-import { Query } from "@nomicfoundation/slang/query";
 import { ServerState } from "../../types";
 import { resolveVersion, slangToVSCodeRange } from "../../parser/slangHelpers";
 import { SymbolTreeBuilder } from "./SymbolTreeBuilder";
+import { SymbolFinder } from "./SymbolFinder";
 import { StructDefinition } from "./finders/StructDefinition";
 import { StructMember } from "./finders/StructMember";
 import { InterfaceDefinition } from "./finders/InterfaceDefinition";
@@ -27,12 +26,38 @@ import { LibraryDefinition } from "./finders/LibraryDefinition";
 import { ModifierDefinition } from "./finders/ModifierDefinition";
 import { ReceiveFunctionDefinition } from "./finders/ReceiveFunctionDefinition";
 import { UserDefinedValueTypeDefinition } from "./finders/UserDefinedValueTypeDefinition";
-import { SymbolFinder } from "./SymbolFinder";
 import { YulFunctionDefinition } from "./finders/YulFunctionDefinition";
 import { UnnamedFunctionDefinition } from "./finders/UnnamedFunctionDefinition";
 import { VariableDeclarationStatement } from "./finders/VariableDeclarationStatement";
 
+export function createFinders(): SymbolFinder[] {
+  return [
+    new StructDefinition(),
+    new StructMember(),
+    new InterfaceDefinition(),
+    new FunctionDefinition(),
+    new ContractDefinition(),
+    new EventDefinition(),
+    new StateVariableDefinition(),
+    new VariableDeclarationStatement(),
+    new ConstantDefinition(),
+    new ConstructorDefinition(),
+    new EnumDefinition(),
+    new ErrorDefinition(),
+    new FallbackFunctionDefinition(),
+    new LibraryDefinition(),
+    new ModifierDefinition(),
+    new ReceiveFunctionDefinition(),
+    new UserDefinedValueTypeDefinition(),
+    new YulFunctionDefinition(),
+    new UnnamedFunctionDefinition(),
+  ];
+}
+
 export function onDocumentSymbol(serverState: ServerState) {
+  // Create all finders (and parse their queries) only once for all upcoming requests:
+  const finders = createFinders();
+
   return async (
     params: DocumentSymbolParams
   ): Promise<DocumentSymbol[] | SymbolInformation[] | null> => {
@@ -63,35 +88,13 @@ export function onDocumentSymbol(serverState: ServerState) {
         span = transaction.startChild({ op: "slang-parsing" });
 
         const parseOutput = language.parse(
-          RuleKind.SourceUnit,
+          Language.rootKind(),
           document.getText()
         );
 
         span.finish();
 
         const builder = new SymbolTreeBuilder();
-
-        const finders: SymbolFinder[] = [
-          new StructDefinition(),
-          new StructMember(),
-          new InterfaceDefinition(),
-          new FunctionDefinition(),
-          new ContractDefinition(),
-          new EventDefinition(),
-          new StateVariableDefinition(),
-          new VariableDeclarationStatement(),
-          new ConstantDefinition(),
-          new ConstructorDefinition(),
-          new EnumDefinition(),
-          new ErrorDefinition(),
-          new FallbackFunctionDefinition(),
-          new LibraryDefinition(),
-          new ModifierDefinition(),
-          new ReceiveFunctionDefinition(),
-          new UserDefinedValueTypeDefinition(),
-          new YulFunctionDefinition(),
-          new UnnamedFunctionDefinition(),
-        ];
 
         const cursor = parseOutput.createTreeCursor();
 
@@ -113,35 +116,26 @@ export function onDocumentSymbol(serverState: ServerState) {
         span = transaction.startChild({ op: "run-query" });
 
         // Execute a single call with all the queries
-        const queries = finders.map((v) => Query.parse(v.query));
-        const results = cursor.query(queries);
+        const matches = cursor.query(finders.map((f) => f.query));
 
         span.finish();
 
         span = transaction.startChild({ op: "build-symbols" });
 
         // Transform the query results into symbols
-        let result;
+        let match;
         const symbols = [];
 
-        while ((result = results.next())) {
-          const finder = finders[result.queryNumber];
+        while ((match = matches.next())) {
+          const finder = finders[match.queryNumber];
+          const symbol = finder.findSymbol(match);
 
-          if (finder === undefined) {
-            throw new Error(
-              `Result query number ${result.queryNumber} doesn't match any finder. Total finders: ${finders.length}`
-            );
-          }
-          const symbol = finder.onResult(result);
-
-          if (symbol) {
-            symbols.push(symbol);
-          }
+          symbols.push(symbol);
         }
 
         // Build the symbol tree
         for (const symbol of symbols) {
-          const symbolRange = slangToVSCodeRange(document, symbol.range);
+          const symbolRange = slangToVSCodeRange(symbol.range);
 
           let lastOpenSymbol;
 
