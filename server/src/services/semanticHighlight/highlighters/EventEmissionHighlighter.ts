@@ -1,15 +1,14 @@
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
-import { RuleKind } from "@nomicfoundation/slang/kinds";
+import { Query } from "@nomicfoundation/slang/query";
 import { Highlighter } from "../Highlighter";
 import {} from "../../../parser/slangHelpers";
 
 // Highlights event emissions
 export class EventEmissionHighlighter extends Highlighter {
-  public ruleKind = RuleKind.EmitStatement;
-  public semanticTokenType = SemanticTokenTypes.type;
+  public override readonly semanticTokenType = SemanticTokenTypes.type;
 
-  public query = `
-    @definition [${this.ruleKind}
+  public override readonly query = Query.parse(`
+    [EmitStatement
       ...
       [IdentifierPath
         ...
@@ -18,5 +17,5 @@ export class EventEmissionHighlighter extends Highlighter {
       ]
       ...
     ]
-  `;
+  `);
 }

@@ -1,33 +1,27 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { RuleKind } from "@nomicfoundation/slang/kinds";
-import { query } from "@nomicfoundation/slang/generated";
 import { SemanticTokenTypes } from "vscode-languageserver-types";
+import { Query, QueryMatch } from "@nomicfoundation/slang/query";
 import { SemanticTokensBuilder } from "./SemanticTokensBuilder";
 
 // Abstraction for a visitor that wants to highlight tokens
 export abstract class Highlighter {
-  public abstract query: string;
-  public abstract ruleKind: RuleKind;
-  public abstract semanticTokenType: SemanticTokenTypes;
+  public abstract readonly semanticTokenType: SemanticTokenTypes;
+  public abstract readonly query: Query;
 
-  constructor(public tokenBuilder: SemanticTokensBuilder) {}
-
-  public onResult(result: query.QueryResult) {
+  public onResult(tokenBuilder: SemanticTokensBuilder, match: QueryMatch) {
     // Ensure definition rule and name identifier are present
-    if (
-      result.bindings.definition === undefined ||
-      result.bindings.identifier === undefined
-    ) {
+    const { identifier } = match.captures;
+
+    if (identifier === undefined) {
       throw new Error(
-        `Bindings @definition or @identifier not present in query result. Query: ${
-          this.query
-        }, Bindings: ${JSON.stringify(result.bindings)}`
+        `Capture @identifier not present in query match.
+         Query: '${this.query}'
+         Captures: ${JSON.stringify(match, undefined, 2)}`
       );
     }
 
     // Add the semantic token
-    const identifier = result.bindings.identifier[0];
-    this.tokenBuilder.addToken(identifier.textRange, this.semanticTokenType);
+    const identifierCursor = identifier[0];
+
+    tokenBuilder.addToken(identifierCursor.textRange, this.semanticTokenType);
   }
 }

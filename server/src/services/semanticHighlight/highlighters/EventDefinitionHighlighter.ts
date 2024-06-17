@@ -1,17 +1,16 @@
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
-import { RuleKind } from "@nomicfoundation/slang/kinds";
+import { Query } from "@nomicfoundation/slang/query";
 import { Highlighter } from "../Highlighter";
 
 // Highlights event definitions
 export class EventDefinitionHighlighter extends Highlighter {
-  public ruleKind = RuleKind.EventDefinition;
-  public semanticTokenType = SemanticTokenTypes.type;
+  public override readonly semanticTokenType = SemanticTokenTypes.type;
 
-  public query = `
-    @definition [${this.ruleKind}
+  public override readonly query = Query.parse(`
+    [EventDefinition
       ...
-      @identifier [name:_]
+      @identifier name: [_]
       ...
     ]
-  `;
+  `);
 }

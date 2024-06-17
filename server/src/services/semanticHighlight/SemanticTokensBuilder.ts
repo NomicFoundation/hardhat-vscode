@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { text_index } from "@nomicfoundation/slang/generated";
+import { TextRange } from "@nomicfoundation/slang/text_index";
 import { getTokenTypeIndex } from "./tokenTypes";
 
 // Helps building a SemanticTokens response by providing slang nodes and supported token types
@@ -13,7 +13,7 @@ export class SemanticTokensBuilder {
   constructor(private document: TextDocument) {}
 
   public addToken(
-    textRange: text_index.TextRange,
+    textRange: TextRange,
     type: SemanticTokenTypes,
     modifiers = 0
   ) {
