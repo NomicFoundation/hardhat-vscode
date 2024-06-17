@@ -1,14 +1,13 @@
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
-import { RuleKind } from "@nomicfoundation/slang/kinds";
+import { Query } from "@nomicfoundation/slang/query";
 import { Highlighter } from "../Highlighter";
 
 // Highlights function calls
 export class FunctionCallHighlighter extends Highlighter {
-  public ruleKind = RuleKind.FunctionCallExpression;
-  public semanticTokenType = SemanticTokenTypes.function;
+  public override readonly semanticTokenType = SemanticTokenTypes.function;
 
-  public query = `
-    @definition [${this.ruleKind}
+  public override readonly query = Query.parse(`
+    [FunctionCallExpression
       ...
       [Expression
         ...
@@ -17,5 +16,5 @@ export class FunctionCallHighlighter extends Highlighter {
       ]
       ...
     ]
-  `;
+  `);
 }

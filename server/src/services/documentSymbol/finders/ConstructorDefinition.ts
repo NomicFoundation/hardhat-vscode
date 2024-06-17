@@ -1,16 +1,15 @@
 import { SymbolKind } from "vscode-languageserver-types";
-import { RuleKind } from "@nomicfoundation/slang/kinds";
+import { Query } from "@nomicfoundation/slang/query";
 import { SymbolFinder } from "../SymbolFinder";
 
 export class ConstructorDefinition extends SymbolFinder {
-  public ruleKind = RuleKind.ConstructorDefinition;
-  public symbolKind = SymbolKind.Constructor;
+  public override readonly symbolKind = SymbolKind.Constructor;
 
-  public query = `
-    @definition [${this.ruleKind}
+  public override readonly query = Query.parse(`
+    @definition [ConstructorDefinition
       ...
       @identifier [ConstructorKeyword]
       ...
     ]
-  `;
+  `);
 }

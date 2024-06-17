@@ -8,8 +8,6 @@ import {
 import _ from "lodash";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import { Language } from "@nomicfoundation/slang/language";
-import { RuleKind } from "@nomicfoundation/slang/kinds";
-import { Query } from "@nomicfoundation/slang/query";
 import { ServerState } from "../../types";
 import { resolveVersion } from "../../parser/slangHelpers";
 import { SemanticTokensBuilder } from "./SemanticTokensBuilder";
@@ -25,10 +23,31 @@ import { UserDefinedValueTypeDefinitionHighlighter } from "./highlighters/UserDe
 import { EnumDefinitionHighlighter } from "./highlighters/EnumDefinitionHighlighter";
 import { ErrorDefinitionHighlighter } from "./highlighters/ErrorDefinitionHighlighter";
 import { LibraryDefinitionHighlighter } from "./highlighters/LibraryDefinitionHighlighter";
+import { Highlighter } from "./Highlighter";
 
 const emptyResponse: SemanticTokens = { data: [] };
 
+export function createHighlighters(): Highlighter[] {
+  return [
+    new CustomTypeHighlighter(),
+    new FunctionDefinitionHighlighter(),
+    new FunctionCallHighlighter(),
+    new EventEmissionHighlighter(),
+    new EventDefinitionHighlighter(),
+    new ContractDefinitionHighlighter(),
+    new InterfaceDefinitionHighlighter(),
+    new StructDefinitionHighlighter(),
+    new UserDefinedValueTypeDefinitionHighlighter(),
+    new EnumDefinitionHighlighter(),
+    new ErrorDefinitionHighlighter(),
+    new LibraryDefinitionHighlighter(),
+  ];
+}
+
 export function onSemanticTokensFull(serverState: ServerState) {
+  // Create all highlighters (and parse their queries) only once for all upcoming requests:
+  const highlighters = createHighlighters();
+
   return (params: SemanticTokensParams): SemanticTokens => {
     const { telemetry, logger } = serverState;
 
@@ -62,7 +81,7 @@ export function onSemanticTokensFull(serverState: ServerState) {
           span = transaction.startChild({ op: "slang-parsing" });
 
           const parseOutput = language.parse(
-            RuleKind.SourceUnit,
+            Language.rootKind(),
             document.getText()
           );
 
@@ -71,32 +90,17 @@ export function onSemanticTokensFull(serverState: ServerState) {
           // Register highlighters
           const builder = new SemanticTokensBuilder(document);
 
-          const highlighters = [
-            new CustomTypeHighlighter(builder),
-            new FunctionDefinitionHighlighter(builder),
-            new FunctionCallHighlighter(builder),
-            new EventEmissionHighlighter(builder),
-            new EventDefinitionHighlighter(builder),
-            new ContractDefinitionHighlighter(builder),
-            new InterfaceDefinitionHighlighter(builder),
-            new StructDefinitionHighlighter(builder),
-            new UserDefinedValueTypeDefinitionHighlighter(builder),
-            new EnumDefinitionHighlighter(builder),
-            new ErrorDefinitionHighlighter(builder),
-            new LibraryDefinitionHighlighter(builder),
-          ];
-
           const cursor = parseOutput.createTreeCursor();
 
           // Execute queries
-          const queries = highlighters.map((v) => Query.parse(v.query));
-          const results = cursor.query(queries);
+          const matches = cursor.query(highlighters.map((h) => h.query));
 
           // Iterate over query results
-          let result;
-          while ((result = results.next())) {
-            const highlighter = highlighters[result.queryNumber];
-            highlighter.onResult(result);
+          let match;
+
+          while ((match = matches.next())) {
+            const highlighter = highlighters[match.queryNumber];
+            highlighter.onResult(builder, match);
           }
 
           return { status: "ok", result: { data: builder.getTokenData() } };

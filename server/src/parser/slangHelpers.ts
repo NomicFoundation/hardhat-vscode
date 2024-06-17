@@ -1,24 +1,22 @@
-import { RuleNode, TokenNode } from "@nomicfoundation/slang/cst";
-import { RuleKind, TokenKind } from "@nomicfoundation/slang/kinds";
-import { TextRange } from "@nomicfoundation/slang/text_index";
+import { TextIndex, TextRange } from "@nomicfoundation/slang/text_index";
 import _ from "lodash";
-import { TextDocument } from "vscode-languageserver-textdocument";
-import { Range } from "vscode-languageserver-types";
+import { Range, Position } from "vscode-languageserver-types";
 import { Language } from "@nomicfoundation/slang/language";
 import semver from "semver";
 import { Logger } from "../utils/Logger";
 import { getPlatform } from "../utils/operatingSystem";
 
-export type SlangNode = RuleNode | TokenNode;
-export type NodeKind = RuleKind | TokenKind;
-
-export function slangToVSCodeRange(
-  doc: TextDocument,
-  slangRange: TextRange
-): Range {
+export function slangToVSCodeRange(range: TextRange): Range {
   return {
-    start: doc.positionAt(slangRange.start.utf16),
-    end: doc.positionAt(slangRange.end.utf16),
+    start: slangToVSCodePosition(range.start),
+    end: slangToVSCodePosition(range.end),
+  };
+}
+
+export function slangToVSCodePosition(position: TextIndex): Position {
+  return {
+    line: position.line,
+    character: position.column,
   };
 }
 
