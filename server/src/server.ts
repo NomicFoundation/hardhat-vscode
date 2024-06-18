@@ -109,7 +109,7 @@ function attachCustomHooks(serverState: ServerState) {
 
   connection.onNotification(
     "custom/didChangeTelemetryEnabled",
-    ({ enabled }: { enabled: boolean }) => {
+    async ({ enabled }: { enabled: boolean }) => {
       if (enabled) {
         logger.info(`Telemetry enabled`);
       } else {
@@ -117,6 +117,7 @@ function attachCustomHooks(serverState: ServerState) {
       }
 
       serverState.telemetryEnabled = enabled;
+      await serverState.telemetry.analytics.sendTelemetryChange(enabled);
     }
   );
 
@@ -126,4 +127,8 @@ function attachCustomHooks(serverState: ServerState) {
       serverState.extensionConfig = extensionConfig;
     }
   );
+
+  connection.onNotification("custom/telemetryConsent", async (payload) => {
+    await serverState.telemetry.analytics.sendTelemetryResponse(payload);
+  });
 }
