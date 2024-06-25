@@ -7,7 +7,6 @@ import {
 import { ServerState } from "../../types";
 import { tokensTypes } from "../semanticHighlight/tokenTypes";
 import { isSlangSupported } from "../../parser/slangHelpers";
-import { getPlatform } from "../../utils/operatingSystem";
 import { indexWorkspaceFolders } from "./indexWorkspaceFolders";
 import { updateAvailableSolcVersions } from "./updateAvailableSolcVersions";
 import { fetchFeatureFlags, isFeatureEnabled } from "./featureFlags";
@@ -68,25 +67,16 @@ export const onInitialize = (serverState: ServerState) => {
       machineId
     );
     // Index and analysis
-    await serverState.telemetry.trackTiming(
-      "indexing",
-      async (transaction) => {
-        await indexWorkspaceFolders(
-          serverState,
-          serverState.workspaceFileRetriever,
-          workspaceFolders,
-          transaction
-        );
+    await serverState.telemetry.trackTiming("indexing", async (transaction) => {
+      await indexWorkspaceFolders(
+        serverState,
+        serverState.workspaceFileRetriever,
+        workspaceFolders,
+        transaction
+      );
 
-        return { status: "ok", result: null };
-      },
-      {
-        platform: getPlatform(),
-        slangSupported,
-        semanticTokensEnabled,
-        documentSymbolsEnabled,
-      }
-    );
+      return { status: "ok", result: null };
+    });
 
     // Build and return InitializeResult
     const result: InitializeResult = {
