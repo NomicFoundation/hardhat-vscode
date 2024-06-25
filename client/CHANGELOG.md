@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.4 - 2024-06-24
+
+### Added
+
+- add markdown syntax support ([575](https://github.com/NomicFoundation/hardhat-vscode/pull/575))
+- Bump Slang to 0.15.1 ([578](https://github.com/NomicFoundation/hardhat-vscode/pull/578))
+
 ## 0.8.3 - 2024-05-08
 
 ### Added
