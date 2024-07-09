@@ -231,6 +231,11 @@ function convertFileToCompletion(
     const insertText = `${prefix}${file}`;
 
     if (fileStat.isFile() && file.slice(-4) === ".sol") {
+      // Don't suggest the current import
+      if (partial === insertText) {
+        return null;
+      }
+
       if (partial === "") {
         return {
           label,
