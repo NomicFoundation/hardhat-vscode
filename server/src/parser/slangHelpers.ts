@@ -49,12 +49,10 @@ export function resolveVersion(
   } else {
     const latest = versions[versions.length - 1];
 
-    logger.error(
-      new Error(
-        `No Slang-supported version (latest: ${latest}) for Solidity found that satisfies the pragma directives: '${versionPragmas.join(
-          " "
-        )}'.`
-      )
+    logger.info(
+      `No Slang-supported version (latest: ${latest}) for Solidity found that satisfies the pragma directives: '${versionPragmas.join(
+        " "
+      )}'.`
     );
 
     return latest;
