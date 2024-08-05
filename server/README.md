@@ -34,11 +34,16 @@ For coc the extension for this language server (found [here](https://www.npmjs.c
 To run the language server directly through the neovim lsp (assuming [neovim/nvim-lspconfig](https://github.com/neovim/nvim-lspconfig))
 
 ```sh
-local lspconfig = require 'lspconfig'
+local on_attach = require("plugins.configs.lspconfig").on_attach
+local capabilities = require("plugins.configs.lspconfig").capabilities
+
+local lspconfig = require "lspconfig"
 local configs = require 'lspconfig.configs'
 
 configs.solidity = {
   default_config = {
+    on_attach = on_attach,
+    capabilities = capabilities,
     cmd = {'nomicfoundation-solidity-language-server', '--stdio'},
     filetypes = { 'solidity' },
     root_dir = lspconfig.util.find_git_ancestor,
