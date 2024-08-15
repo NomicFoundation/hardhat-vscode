@@ -7,9 +7,7 @@ export class UnnamedFunctionDefinition extends SymbolFinder {
 
   public override readonly query = Query.parse(`
     @definition [UnnamedFunctionDefinition
-      ...
       @identifier [FunctionKeyword]
-      ...
     ]
   `);
 }

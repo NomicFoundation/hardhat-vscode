@@ -7,9 +7,7 @@ export class ModifierDefinition extends SymbolFinder {
 
   public override readonly query = Query.parse(`
     @definition [ModifierDefinition
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }

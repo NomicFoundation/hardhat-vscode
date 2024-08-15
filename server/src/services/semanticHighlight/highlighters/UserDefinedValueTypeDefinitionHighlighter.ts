@@ -7,9 +7,7 @@ export class UserDefinedValueTypeDefinitionHighlighter extends Highlighter {
 
   public override readonly query = Query.parse(`
     [UserDefinedValueTypeDefinition
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }

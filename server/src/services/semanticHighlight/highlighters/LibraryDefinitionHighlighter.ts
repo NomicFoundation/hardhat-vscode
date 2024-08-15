@@ -7,9 +7,7 @@ export class LibraryDefinitionHighlighter extends Highlighter {
 
   public override readonly query = Query.parse(`
     [LibraryDefinition
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }

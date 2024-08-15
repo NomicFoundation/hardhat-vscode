@@ -9,13 +9,9 @@ export class EventEmissionHighlighter extends Highlighter {
 
   public override readonly query = Query.parse(`
     [EmitStatement
-      ...
       [IdentifierPath
-        ...
         @identifier [Identifier]
-        ...
       ]
-      ...
     ]
   `);
 }

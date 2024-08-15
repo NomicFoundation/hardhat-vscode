@@ -7,9 +7,7 @@ export class VariableDeclarationStatement extends SymbolFinder {
 
   public override readonly query = Query.parse(`
     @definition [VariableDeclarationStatement
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }

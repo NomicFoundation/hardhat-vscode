@@ -7,9 +7,7 @@ export class ContractDefinition extends SymbolFinder {
 
   public override readonly query = Query.parse(`
     @definition [ContractDefinition
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }

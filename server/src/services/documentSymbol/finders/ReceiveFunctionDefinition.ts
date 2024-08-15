@@ -7,9 +7,7 @@ export class ReceiveFunctionDefinition extends SymbolFinder {
 
   public override readonly query = Query.parse(`
     @definition [ReceiveFunctionDefinition
-      ...
       @identifier [ReceiveKeyword]
-      ...
     ]
   `);
 }

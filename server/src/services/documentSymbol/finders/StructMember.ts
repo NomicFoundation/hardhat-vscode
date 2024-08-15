@@ -7,9 +7,7 @@ export class StructMember extends SymbolFinder {
 
   public override readonly query = Query.parse(`
     @definition [StructMember
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }

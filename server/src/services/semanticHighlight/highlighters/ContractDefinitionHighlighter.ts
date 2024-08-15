@@ -8,9 +8,7 @@ export class ContractDefinitionHighlighter extends Highlighter {
 
   public override readonly query = Query.parse(`
     [ContractDefinition
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }

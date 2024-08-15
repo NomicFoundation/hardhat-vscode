@@ -8,13 +8,9 @@ export class CustomTypeHighlighter extends Highlighter {
 
   public override readonly query = Query.parse(`
     [TypeName
-      ...
       [IdentifierPath
-        ...
         @identifier [Identifier]
-        ...
       ]
-      ...
     ]
   `);
 }
