@@ -7,9 +7,7 @@ export class YulFunctionDefinition extends SymbolFinder {
 
   public override readonly query = Query.parse(`
     @definition [YulFunctionDefinition
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }

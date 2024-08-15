@@ -7,9 +7,7 @@ export class StateVariableDefinition extends SymbolFinder {
 
   public override readonly query = Query.parse(`
     @definition [StateVariableDefinition
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }

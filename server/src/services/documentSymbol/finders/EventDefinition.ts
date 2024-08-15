@@ -7,9 +7,7 @@ export class EventDefinition extends SymbolFinder {
 
   public override readonly query = Query.parse(`
     @definition [EventDefinition
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }

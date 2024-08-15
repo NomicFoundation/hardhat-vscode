@@ -7,9 +7,7 @@ export class FallbackFunctionDefinition extends SymbolFinder {
 
   public override readonly query = Query.parse(`
     @definition [FallbackFunctionDefinition
-      ...
       @identifier [FallbackKeyword]
-      ...
     ]
   `);
 }

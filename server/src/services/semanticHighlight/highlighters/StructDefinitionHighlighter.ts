@@ -8,9 +8,7 @@ export class StructDefinitionHighlighter extends Highlighter {
 
   public override readonly query = Query.parse(`
     [StructDefinition
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }

@@ -8,13 +8,9 @@ export class FunctionCallHighlighter extends Highlighter {
 
   public override readonly query = Query.parse(`
     [FunctionCallExpression
-      ...
       [Expression
-        ...
         @identifier [Identifier]
-        ...
       ]
-      ...
     ]
   `);
 }

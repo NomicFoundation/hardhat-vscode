@@ -8,9 +8,7 @@ export class InterfaceDefinitionHighlighter extends Highlighter {
 
   public override readonly query = Query.parse(`
     [InterfaceDefinition
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }

@@ -7,9 +7,7 @@ export class UserDefinedValueTypeDefinition extends SymbolFinder {
 
   public override readonly query = Query.parse(`
     @definition [UserDefinedValueTypeDefinition
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }

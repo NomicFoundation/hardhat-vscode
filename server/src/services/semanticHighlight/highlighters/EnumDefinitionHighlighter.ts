@@ -7,9 +7,7 @@ export class EnumDefinitionHighlighter extends Highlighter {
 
   public override readonly query = Query.parse(`
     [EnumDefinition
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }

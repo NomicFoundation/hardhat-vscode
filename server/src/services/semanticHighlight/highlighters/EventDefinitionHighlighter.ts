@@ -8,9 +8,7 @@ export class EventDefinitionHighlighter extends Highlighter {
 
   public override readonly query = Query.parse(`
     [EventDefinition
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }
