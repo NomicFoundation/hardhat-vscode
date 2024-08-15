@@ -7,13 +7,9 @@ export class FunctionDefinition extends SymbolFinder {
 
   public override readonly query = Query.parse(`
     @definition [FunctionDefinition
-      ...
       [FunctionName
-        ...
         @identifier variant: [_]
-        ...
       ]
-      ...
     ]
   `);
 }

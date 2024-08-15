@@ -7,9 +7,7 @@ export class ConstantDefinition extends SymbolFinder {
 
   public override readonly query = Query.parse(`
     @definition [ConstantDefinition
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }

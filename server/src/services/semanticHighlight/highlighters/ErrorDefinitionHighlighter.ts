@@ -7,9 +7,7 @@ export class ErrorDefinitionHighlighter extends Highlighter {
 
   public override readonly query = Query.parse(`
     [ErrorDefinition
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }

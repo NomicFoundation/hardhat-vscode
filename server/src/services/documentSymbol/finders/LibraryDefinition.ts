@@ -7,9 +7,7 @@ export class LibraryDefinition extends SymbolFinder {
 
   public override readonly query = Query.parse(`
     @definition [LibraryDefinition
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }

@@ -7,9 +7,7 @@ export class EnumDefinition extends SymbolFinder {
 
   public override readonly query = Query.parse(`
     @definition [EnumDefinition
-      ...
       @identifier name: [_]
-      ...
     ]
   `);
 }
