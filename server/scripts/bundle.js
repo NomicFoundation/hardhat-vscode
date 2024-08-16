@@ -22,40 +22,23 @@ function ensureDirExists(dir) {
 }
 
 async function main() {
-  if (!process.env.SOLIDITY_GA_SECRET) {
-    console.warn(
-      "\n\n  SOLIDITY_GA_SECRET not set, have you added a .env file based on the example?\n\n"
-    );
-  } else {
-    console.log(`Read SOLIDITY_GA_SECRET from .env file`);
-  }
+  const definedConstants = {};
 
-  if (!process.env.SOLIDITY_GOOGLE_TRACKING_ID) {
-    console.warn(
-      "\n\n  SOLIDITY_GOOGLE_TRACKING_ID not set, have you added a .env file based on the example?\n\n"
-    );
-  } else {
-    console.log(`Read SOLIDITY_GOOGLE_TRACKING_ID from .env file`);
-  }
+  for (const key of [
+    "SOLIDITY_GA_SECRET",
+    "SOLIDITY_GOOGLE_TRACKING_ID",
+    "SOLIDITY_SENTRY_DSN",
+  ]) {
+    const value = process.env[key];
+    if (!value || value === "") {
+      throw new Error(
+        `\n\n'${key}' not set, have you added an '.env' file based on 'env.example'?\n\n`
+      );
+    }
 
-  if (!process.env.SOLIDITY_SENTRY_DSN) {
-    console.warn(
-      "\n\n  SOLIDITY_SENTRY_DSN not set, have you added a .env file based on the example?\n\n"
-    );
-  } else {
-    console.log(`Read SOLIDITY_SENTRY_DSN from .env file`);
+    definedConstants[`process.env.${key}`] = `"${value}"`;
+    console.log(`Read 'process.env.${key}' from '.env' file.`);
   }
-
-  const definedConstants =
-    !process.env.SOLIDITY_GA_SECRET |
-      !process.env.SOLIDITY_GOOGLE_TRACKING_ID ||
-    !process.env.SOLIDITY_SENTRY_DSN
-      ? {}
-      : {
-          "process.env.SOLIDITY_GA_SECRET": `"${process.env.SOLIDITY_GA_SECRET}"`,
-          "process.env.SOLIDITY_GOOGLE_TRACKING_ID": `"${process.env.SOLIDITY_GOOGLE_TRACKING_ID}"`,
-          "process.env.SOLIDITY_SENTRY_DSN": `"${process.env.SOLIDITY_SENTRY_DSN}"`,
-        };
 
   // Ensure output directories exist
   ensureDirExists(serverOutDir);
