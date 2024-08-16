@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.5 - 2024-08-15
+
+### Added
+
+- Bump Slang to 0.16.0 ([588](https://github.com/NomicFoundation/hardhat-vscode/pull/588))
+
 ## 0.8.4 - 2024-06-24
 
 ### Added
