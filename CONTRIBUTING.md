@@ -181,7 +181,7 @@ VSCode extensions are distributed through a file format called `vsix` (really a 
 npm run package
 ```
 
-This will clean the `/out` directories, then create bundled, minified versions of the client, and server files (index.js and helper.js) using [esbuild](https://esbuild.github.io/), and pull them together in the vsix file using `vsce`. The output vsix file will be in the project root.
+This will clean the `/out` directories, then create bundled, minified versions of the client, and server files (index.js and helper.js) using [esbuild](https://esbuild.github.io/), and pull them together in the vsix file using `vsce`. The output vsix file will be in the `client` directory.
 
 The `vsix` will contain all files in the repo at the time of packaging, but this is reduced down to only the key files via our [.vscodeignore](./.vscodeignore) file.
 
