@@ -9,7 +9,6 @@ import { tokensTypes } from "../semanticHighlight/tokenTypes";
 import { isSlangSupported } from "../../parser/slangHelpers";
 import { indexWorkspaceFolders } from "./indexWorkspaceFolders";
 import { updateAvailableSolcVersions } from "./updateAvailableSolcVersions";
-import { fetchFeatureFlags, isFeatureEnabled } from "./featureFlags";
 
 export const onInitialize = (serverState: ServerState) => {
   const { logger } = serverState;
@@ -43,29 +42,12 @@ export const onInitialize = (serverState: ServerState) => {
       workspaceFolders,
     });
 
-    // fetch available solidity versions and feature flags
-    const [flags, _] = await Promise.all([
-      fetchFeatureFlags(serverState),
-      updateAvailableSolcVersions(serverState),
-    ]);
+    await updateAvailableSolcVersions(serverState);
 
     logger.info("Language server ready");
 
     const slangSupported = isSlangSupported();
 
-    const semanticTokensEnabled = isFeatureEnabled(
-      serverState,
-      flags,
-      "semanticHighlighting",
-      machineId
-    );
-
-    const documentSymbolsEnabled = isFeatureEnabled(
-      serverState,
-      flags,
-      "documentSymbol",
-      machineId
-    );
     // Index and analysis
     await serverState.telemetry.trackTiming("indexing", async (transaction) => {
       await indexWorkspaceFolders(
@@ -106,9 +88,9 @@ export const onInitialize = (serverState: ServerState) => {
             tokenModifiers: [],
           },
           range: false,
-          full: slangSupported && semanticTokensEnabled,
+          full: slangSupported,
         },
-        documentSymbolProvider: slangSupported && documentSymbolsEnabled,
+        documentSymbolProvider: slangSupported,
         workspace: {
           workspaceFolders: {
             supported: false,
