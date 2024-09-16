@@ -2,36 +2,35 @@
 
 To publish `hardhat-solidity` you need to do next steps:
 
-1.  `git fetch`, Checkout out `development`, then ensure your branch is up to date `git pull --ff-only`
-2.  Perform a clean install and build (will lose all uncommitted changes):
+1. `git fetch`, Checkout out `development`, then ensure your branch is up to date `git pull --ff-only`
+2. Perform a clean install and build (will lose all uncommitted changes):
 
-    ```sh
-    git clean -fdx .
-    npm install
-    npm run build
-    ```
+   ```sh
+   git clean -fdx .
+   npm install
+   npm run build
+   ```
 
-3.  Run a full check, stopping on failure: `npm run fullcheck`, optionally you can check that each commit meets our build requirements with: `git rebase main --exec "npm install && npm run fullcheck"`
-4.  Confirm the commits represent the features for the release
-5.  Branch into a release branch named for the current date: `git checkout -b release/yyyy-mm-dd`
-6.  Update the version based on semver, ensure it is updated in:
+3. Run a full check, stopping on failure: `npm run fullcheck`, optionally you can check that each commit meets our build requirements with: `git rebase main --exec "npm install && npm run fullcheck"`
+4. Confirm the commits represent the features for the release
+5. Branch into a release branch named for the current date: `git checkout -b release/yyyy-mm-dd`
+6. Update the version based on semver, ensure it is updated in:
 
-    - The client package version in `./client/package.json`
-    - The language server package version in `./server/package.json`
-    - The coc extension package version in `./coc/package.json`
-      - Its `@nomicfoundation/solidity-language-server` dependency version.
+   - The client package version in `./client/package.json`
+   - The language server package version in `./server/package.json`
+   - The coc extension package version in `./coc/package.json`
+     - Its `@nomicfoundation/solidity-language-server` dependency version.
 
-7.  Update the changelog in `./client/CHANGELOG.md` by adding a new entry for the new version based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
-8.  Commit the package version and changelog change as a version bump commit:
+7. Update the changelog in `./client/CHANGELOG.md` by adding a new entry for the new version based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+8. Commit the package version and changelog change as a version bump commit:
 
-    ```git
-    chore: bump version to v0.x.x
+   ```git
+   chore: bump version to v0.x.x
 
-    Update the package version and changelog for the `0.x.x - yyyy-mm-dd`
-    release.
-    ```
+   Update the package version and changelog for the `0.x.x - yyyy-mm-dd` release.
+   ```
 
-9.  Push the release branch and open a pull request against `main` using the new changelog entry as the PR description
+9. Push the release branch and open a pull request against `main` using the new changelog entry as the PR description
 
 10. Ensure .env file is populated with GA and Sentry secrets before packaging (see `./env.example`)
 

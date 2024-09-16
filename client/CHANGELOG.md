@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.6 - 2024-09-16
+
+### Added
+
+- Turn on Slang features unconditionally ([598](https://github.com/NomicFoundation/hardhat-vscode/pull/598))
+
 ## 0.8.5 - 2024-08-15
 
 ### Added
