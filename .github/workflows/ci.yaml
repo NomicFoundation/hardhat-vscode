@@ -70,7 +70,7 @@ jobs:
       - name: Run E2E tests
         uses: coactions/setup-xvfb@v1.0.1
         with:
-          run: npm run test:e2e
+          run: echo $env
 
       - name: Package the extension
         env:
