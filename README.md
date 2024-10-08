@@ -24,4 +24,4 @@ Go to [CONTRIBUTING.md](./CONTRIBUTING.md) to learn about how to set up the exte
 
 [Hardhat Support Discord server](https://hardhat.org/discord): for questions and feedback.
 
-[Follow Hardhat on Twitter.](https://twitter.com/HardhatHQ)
+[Follow Hardhat on X (formerly Twitter)](https://x.com/HardhatHQ)
