@@ -37,7 +37,7 @@
     "eslint": "eslint --max-warnings 0 \"./src/**/*.ts\" \"./test/**/*.ts\"",
     "prettier": "prettier \"*.json\" \"src/**/*.{ts,js,md,json,yml}\" \"test/**/*.{ts,js,md,json,yml}\"",
     "clean": "rimraf out .nyc_output coverage *.tsbuildinfo",
-    "test:codecov": "cross-env TS_NODE_FILES=true nyc --reporter=lcov mocha && codecov"
+    "test:codecov": "cross-env TS_NODE_FILES=true nyc --reporter=lcov mocha"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "1.0.2",
@@ -58,7 +58,6 @@
     "@types/sinon": "10.0.6",
     "c3-linearization": "0.3.0",
     "chai": "4.3.4",
-    "codecov": "3.8.3",
     "cross-env": "7.0.3",
     "eslint": "^7.23.0",
     "fast-glob": "3.2.11",
