@@ -52,7 +52,7 @@
     "prettier": "prettier *.json \"src/**/*.{ts,js,md,json,yml}\"",
     "clean": "rimraf out tmp tsconfig.tsbuildinfo",
     "prepackage": "npm run clean && node scripts/bundle.js",
-    "package": "cd ./tmp && vsce package --no-dependencies --no-yarn -o ..",
+    "package": "cross-env-shell \"cd ./tmp && vsce package --no-dependencies --no-yarn --target $TARGET -o ..\"",
     "postpackage": "rimraf ./tmp"
   },
   "devDependencies": {
