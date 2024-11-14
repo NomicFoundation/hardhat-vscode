@@ -9,16 +9,49 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
-
+        include:
+          - os: windows-latest
+            platform: win32
+            arch: x64
+            npm_config_arch: x64
+          - os: windows-latest
+            platform: win32
+            arch: arm64
+            npm_config_arch: arm
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
+            npm_config_arch: x64
+          - os: ubuntu-latest
+            platform: linux
+            arch: arm64
+            npm_config_arch: arm64
+          - os: ubuntu-latest
+            platform: linux
+            arch: armhf
+            npm_config_arch: arm
+          - os: ubuntu-latest
+            platform: alpine
+            arch: x64
+            npm_config_arch: x64
+          - os: macos-latest
+            platform: darwin
+            arch: x64
+            npm_config_arch: x64
+          - os: macos-latest
+            platform: darwin
+            arch: arm64
+            npm_config_arch: arm64
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Clone repository
         uses: actions/checkout@v4
+      
+      - shell: pwsh
+        run: echo "TARGET=${{ matrix.platform }}-${{ matrix.arch }}" >> $env:GITHUB_ENV
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -27,16 +60,18 @@ jobs:
 
       - name: Cache Node Modules
         id: cache-node-modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         env:
           cache-name: cache-node-modules
         with:
           path: "**/node_modules"
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package.json', '**/package-lock.json') }}
+          key: ${{ runner.os }}-${{ matrix.npm_config_arch }}-node-modules-${{ hashFiles('**/package.json', '**/package-lock.json') }}
 
       - name: Install dependencies
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci
+        env:
+          npm_config_arch: ${{ matrix.npm_config_arch }}
 
       - name: Lint
         run: npm run lint
@@ -52,8 +87,24 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Setup X11
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt-get install -y \
+            libglx-mesa0 \
+            libgl1 \
+            xvfb \
+            x11-xserver-utils \
+            mesa-utils \
+            x11-utils
+          echo "DISPLAY=:99.0" >> $GITHUB_ENV
+          Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+          sleep 3
+
       - name: Run server tests
-        run: npm run test:codecov
+        run: npm run test # TODO: fix codecov issue
 
       - name: Run protocol tests
         run: npm run test:protocol
@@ -65,7 +116,7 @@ jobs:
           cache-name: cache-vscode
         with:
           path: .vscode-test
-          key: ${{ runner.os }}-vscode-1.86.0
+          key: ${{ matrix.platform }}-${{ matrix.arch }}-vscode-1.86.0
 
       - name: Run E2E tests
         uses: coactions/setup-xvfb@v1.0.1
@@ -78,3 +129,8 @@ jobs:
           SOLIDITY_GOOGLE_TRACKING_ID: "dummy-value"
           SOLIDITY_SENTRY_DSN: "dummy-value"
         run: npm run package
+      - name: upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.platform }}-${{ matrix.arch }}
+          path: "client/*.vsix"
