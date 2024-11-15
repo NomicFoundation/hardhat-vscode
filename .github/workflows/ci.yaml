@@ -78,3 +78,11 @@ jobs:
           SOLIDITY_GOOGLE_TRACKING_ID: "dummy-value"
           SOLIDITY_SENTRY_DSN: "dummy-value"
         run: npm run package
+
+      - name: Publish code coverage
+        uses: codecov/codecov-action@v4.2.0
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          files: ./server/coverage/lcov.info     # __LCOV_RESULTS_INFO_FILE__ (keep in sync)
+          disable_search: true
