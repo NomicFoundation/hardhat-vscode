@@ -189,7 +189,7 @@ The `vsix` will contain all files in the repo at the time of packaging, but this
 
 The [VSCode Marketplace](https://marketplace.visualstudio.com/vscode) displays the `README.md` file as the landing page for the extension, the same readme is used in the extensions tab.
 
-To separate out the repo readme from the marketing readme, we have two. The repo readme is our actual [README.md](./README.md), while the extension readme is contained in [EXTENSION.md](./EXTENSION.md). During packaging [EXTENSION.md](./EXTENSION.md) is swapped in for [README.md](./README.md). Changes to test displayed on the extensions landing page/extension tab should be made to [EXTENSION.md](./EXTENSION.md).
+To separate out the repo readme from the extension readme, we have two of them: the repo readme is our actual [README.md](./README.md), while the extension readme is contained in [client/README.md](./client/README.md). Changes to the extension's landing page/extension tab should be made in [client/README.md](./client/README.md).
 
 ## Publishing
 
