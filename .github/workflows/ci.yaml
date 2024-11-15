@@ -84,5 +84,5 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
-          files: ./server/coverage/lcov.info
+          files: ./server/coverage/lcov.info     # __LCOV_RESULTS_INFO_FILE__ (keep in sync)
           disable_search: true
