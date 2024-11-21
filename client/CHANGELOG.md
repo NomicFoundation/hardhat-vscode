@@ -68,7 +68,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Support absolute path remappings on foundry projects ([#476](https://github.com/NomicFoundation/hardhat-vscode/issues/476))
 - Stop Truffle initialization errors escaping adapter context ([#473](https://github.com/NomicFoundation/hardhat-vscode/issues/473))
-- Fix sync `forge fmt` calls that block the langauge server ([#462](https://github.com/NomicFoundation/hardhat-vscode/issues/462))
+- Fix sync `forge fmt` calls that block the language server ([#462](https://github.com/NomicFoundation/hardhat-vscode/issues/462))
 - Fix node 14 support for the language server ([#461](https://github.com/NomicFoundation/hardhat-vscode/issues/461))
 
 ## 0.7.0 - 2023-04-26
