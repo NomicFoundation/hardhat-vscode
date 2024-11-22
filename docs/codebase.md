@@ -54,7 +54,7 @@ The low level connection between the two components can be established through d
 
 The lifecycle begins by the client establishing a connection to the server, and sending an `initialize` request. This specifies what capabilities the client has, and in the response the server specifies what capabilities it supports as well. This serves as a handshake.
 
-After intialization, messages start being exchanged between the components. Some messages are sent implicitly by the editor, for instance file change events (`textDocument/didOpen`, `textDocument/didChange`), and others are originated by explicit action by the user. An example would be requesting the location of the typedefinition for the code under the cursor with a `textDocument/typeDefinition`.
+After initialization, messages start being exchanged between the components. Some messages are sent implicitly by the editor, for instance file change events (`textDocument/didOpen`, `textDocument/didChange`), and others are originated by explicit action by the user. An example would be requesting the location of the typedefinition for the code under the cursor with a `textDocument/typeDefinition`.
 
 It's useful to get familiar with the data structures that the protocol uses. These involve text document identifiers, positions, ranges, text edits, and many more. A full list can be found [here](https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#basicJsonStructures).
 
@@ -131,7 +131,7 @@ During the initialization phase of the server, we run the indexing process. This
 - Scanning workspace folders for projects: each registered project adapter is called to scan a list of directories and return project instances.
 - Initializing projects: each found project is initialized sequentially. Initialization logic is specific to each project adapter.
 - Scanning for solidity files: `fast-glob` is used to find all `.sol` files.
-- Associating each solidity file to a project: for each found file, each project instance is tested to check wether the file belongs to them or not. Project adapters have priorities to determine which one should be assigned in case multiple of them claim that a file belongs to them. A file will be given the default `projectless` project instance if no other project claims the file.
+- Associating each solidity file to a project: for each found file, each project instance is tested to check whether the file belongs to them or not. Project adapters have priorities to determine which one should be assigned in case multiple of them claim that a file belongs to them. A file will be given the default `projectless` project instance if no other project claims the file.
 - Analyzing local source files: from the previous step, some source files are marked as local. This concept means that they are the project's main source files, and not libraries or vendored files. Only local sources are initially analyzed for optimization purposes, since analysis takes up significant amount of time. It's important to note that analysis crawls the files, so libraries are also analyzed if they are imported directly or indirectly from a local source. Non-local files will be analysed as soon as a language server action happens against them.
 
 ### Validation
