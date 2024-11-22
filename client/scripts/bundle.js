@@ -123,6 +123,10 @@ async function main() {
     path.join(".", "syntaxes", "solidity.json"),
     path.join(syntaxes, "solidity.json")
   );
+  fs.copyFileSync(
+    path.join(".", "syntaxes", "solidity-markdown-injection.json"),
+    path.join(syntaxes, "solidity-markdown-injection.json")
+  );
 
   const { warnings, errors } = await esbuild.build({
     entryPoints: {
@@ -165,15 +169,24 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("> Fetching external server dependencies...")
-  const serverPackageFile = path.join(__dirname, "..", "..", "server", "package.json");
-  const serverPackageJson = JSON.parse(fs.readFileSync(serverPackageFile, "utf8"));
+  console.log("> Fetching external server dependencies...");
+  const serverPackageFile = path.join(
+    __dirname,
+    "..",
+    "..",
+    "server",
+    "package.json"
+  );
+  const serverPackageJson = JSON.parse(
+    fs.readFileSync(serverPackageFile, "utf8")
+  );
   const serverDeps = serverPackageJson?.dependencies;
   if (!serverDeps) {
     console.error("Error: Could not find server dependencies");
     process.exit(1);
   }
-  const solidityAnalyzerVersion = serverDeps["@nomicfoundation/solidity-analyzer"];
+  const solidityAnalyzerVersion =
+    serverDeps["@nomicfoundation/solidity-analyzer"];
   const slangVersion = serverDeps["@nomicfoundation/slang"];
 
   fs.writeFileSync(
@@ -183,16 +196,26 @@ async function main() {
       version: "0.0.1",
       dependencies: {
         "@nomicfoundation/solidity-analyzer": solidityAnalyzerVersion,
-        "@nomicfoundation/solidity-analyzer-darwin-arm64": solidityAnalyzerVersion,
-        "@nomicfoundation/solidity-analyzer-win32-arm64-msvc": solidityAnalyzerVersion,
-        "@nomicfoundation/solidity-analyzer-linux-arm64-gnu": solidityAnalyzerVersion,
-        "@nomicfoundation/solidity-analyzer-linux-arm64-musl": solidityAnalyzerVersion,
-        "@nomicfoundation/solidity-analyzer-win32-ia32-msvc": solidityAnalyzerVersion,
-        "@nomicfoundation/solidity-analyzer-darwin-x64": solidityAnalyzerVersion,
-        "@nomicfoundation/solidity-analyzer-win32-x64-msvc": solidityAnalyzerVersion,
-        "@nomicfoundation/solidity-analyzer-linux-x64-gnu": solidityAnalyzerVersion,
-        "@nomicfoundation/solidity-analyzer-linux-x64-musl": solidityAnalyzerVersion,
-        "@nomicfoundation/solidity-analyzer-freebsd-x64": solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-darwin-arm64":
+          solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-win32-arm64-msvc":
+          solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-linux-arm64-gnu":
+          solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-linux-arm64-musl":
+          solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-win32-ia32-msvc":
+          solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-darwin-x64":
+          solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-win32-x64-msvc":
+          solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-linux-x64-gnu":
+          solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-linux-x64-musl":
+          solidityAnalyzerVersion,
+        "@nomicfoundation/solidity-analyzer-freebsd-x64":
+          solidityAnalyzerVersion,
 
         "@nomicfoundation/slang": slangVersion,
         "@nomicfoundation/slang-darwin-arm64": slangVersion,
