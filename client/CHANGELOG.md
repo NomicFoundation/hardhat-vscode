@@ -4,31 +4,35 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.7 - 2024-10-25
+
+- Fix for Solidity highlighting in Markdown files ([#616](https://github.com/NomicFoundation/hardhat-vscode/pull/616))
+
 ## 0.8.6 - 2024-09-16
 
 ### Added
 
-- Turn on Slang features unconditionally ([598](https://github.com/NomicFoundation/hardhat-vscode/pull/598))
+- Turn on Slang features unconditionally ([#598](https://github.com/NomicFoundation/hardhat-vscode/pull/598))
 
 ## 0.8.5 - 2024-08-15
 
 ### Added
 
-- Bump Slang to 0.16.0 ([588](https://github.com/NomicFoundation/hardhat-vscode/pull/588))
+- Bump Slang to 0.16.0 ([#588](https://github.com/NomicFoundation/hardhat-vscode/pull/588))
 
 ## 0.8.4 - 2024-06-24
 
 ### Added
 
-- add markdown syntax support ([575](https://github.com/NomicFoundation/hardhat-vscode/pull/575))
-- Bump Slang to 0.15.1 ([578](https://github.com/NomicFoundation/hardhat-vscode/pull/578))
+- add markdown syntax support ([#575](https://github.com/NomicFoundation/hardhat-vscode/pull/575))
+- Bump Slang to 0.15.1 ([#578](https://github.com/NomicFoundation/hardhat-vscode/pull/578))
 
 ## 0.8.3 - 2024-05-08
 
 ### Added
 
-- add support for region comments ([526](https://github.com/NomicFoundation/hardhat-vscode/pull/526))
-- Bump Slang to 0.14.2 ([565](https://github.com/NomicFoundation/hardhat-vscode/pull/565))
+- add support for region comments ([#526](https://github.com/NomicFoundation/hardhat-vscode/pull/526))
+- Bump Slang to 0.14.2 ([#565](https://github.com/NomicFoundation/hardhat-vscode/pull/565))
 
 ## 0.8.2 - 2024-04-22
 
@@ -40,7 +44,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
-- Fix packaging file inclusions on the language server ([558](https://github.com/NomicFoundation/hardhat-vscode/issues/558))
+- Fix packaging file inclusions on the language server ([#558](https://github.com/NomicFoundation/hardhat-vscode/issues/558))
 
 ## 0.8.0 - 2024-04-17
 
