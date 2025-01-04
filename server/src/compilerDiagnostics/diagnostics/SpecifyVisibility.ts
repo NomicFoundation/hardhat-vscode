@@ -92,7 +92,7 @@ export class SpecifyVisibility {
         : ` ${visibility} `;
 
     return {
-      title: `Add ${visibility} visibilty to function declaration`,
+      title: `Add ${visibility} visibility to function declaration`,
       kind: CodeActionKind.QuickFix,
       isPreferred: false,
       edit: {
