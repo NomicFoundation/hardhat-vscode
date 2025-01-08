@@ -23,7 +23,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "latest"
+          node-version: "20"
 
       - name: Cache Node Modules
         id: cache-node-modules
@@ -84,5 +84,5 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
-          files: ./server/coverage/lcov.info     # __LCOV_RESULTS_INFO_FILE__ (keep in sync)
+          files: ./server/coverage/lcov.info # __LCOV_RESULTS_INFO_FILE__ (keep in sync)
           disable_search: true
