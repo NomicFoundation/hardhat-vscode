@@ -1,0 +1,12 @@
+coverage:
+  status:
+    project:
+      default:
+        threshold: 50%
+        base: development
+    patch:
+      default:
+        threshold: 50%
+    changes:
+      default:
+        threshold: 10%
