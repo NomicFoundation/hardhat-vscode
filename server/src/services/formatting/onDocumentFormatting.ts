@@ -1,46 +1,89 @@
 import { DocumentFormattingParams } from "vscode-languageserver/node";
 import { TextEdit } from "vscode-languageserver-types";
+import { TextDocument } from "vscode-languageserver-textdocument";
+import { Logger } from "@utils/Logger";
+import { Transaction } from "@sentry/types";
 import { ServerState } from "../../types";
+import { TrackingResult } from "../../telemetry/types";
 import { prettierFormat } from "./prettierFormat";
 import { forgeFormat } from "./forgeFormat";
+
+type OnDocumentFormattingResult = TextEdit[] | null;
 
 export function onDocumentFormatting(serverState: ServerState) {
   return async (
     params: DocumentFormattingParams
-  ): Promise<TextEdit[] | null> => {
-    const { logger } = serverState;
+  ): Promise<OnDocumentFormattingResult> => {
+    const { telemetry, logger } = serverState;
+    return telemetry.trackTiming(
+      "onDocumentFormatting",
+      async (
+        transaction
+      ): Promise<TrackingResult<OnDocumentFormattingResult>> => {
+        const formatter = serverState.extensionConfig.formatter ?? "prettier";
+        const uri = params.textDocument.uri;
+        const document = serverState.documents.get(uri);
 
-    const formatter = serverState.extensionConfig.formatter ?? "prettier";
-    const uri = params.textDocument.uri;
-    const document = serverState.documents.get(uri);
+        if (document === undefined) {
+          logger.error(`Failed to format, uri ${uri} not indexed`);
 
-    if (document === undefined) {
-      logger.error(`Failed to format, uri ${uri} not indexed`);
+          return { status: "internal_error", result: null };
+        }
 
-      return null;
-    }
+        logger.trace(`Formatter: ${formatter}`);
 
-    logger.trace(`Formatter: ${formatter}`);
+        const text = document.getText();
 
-    const text = document.getText();
+        try {
+          switch (formatter) {
+            case "forge":
+              return await runForgeFormat(text, document, logger, transaction);
 
-    try {
-      switch (formatter) {
-        case "forge":
-          return await forgeFormat(text, document, logger);
+            case "prettier":
+              return runPrettierFormat(text, document, transaction);
 
-        case "prettier":
-          return prettierFormat(text, document);
+            default:
+              return { status: "invalid_argument", result: null };
+          }
+        } catch (error) {
+          serverState.logger.trace(
+            `Error formatting document ${uri} with ${formatter}: ${error}`
+          );
 
-        default:
-          return null;
+          return { status: "internal_error", result: null };
+        }
       }
-    } catch (error) {
-      serverState.logger.info(
-        `Error formatting document ${uri} with ${formatter}: ${error}`
-      );
-
-      return null;
-    }
+    );
   };
+}
+
+async function runForgeFormat(
+  text: string,
+  document: TextDocument,
+  logger: Logger,
+  transaction: Transaction
+): Promise<TrackingResult<OnDocumentFormattingResult>> {
+  transaction.setTag("formatter", "forge");
+  const span = transaction.startChild({ op: "forge-format" });
+
+  const result = await forgeFormat(text, document, logger);
+
+  span.finish();
+
+  return { status: "ok", result };
+}
+
+function runPrettierFormat(
+  text: string,
+  document: TextDocument,
+  transaction: Transaction
+): TrackingResult<OnDocumentFormattingResult> {
+  transaction.setTag("formatter", "prettier");
+  const span = transaction.startChild({ op: "prettier-format" });
+
+  const result = prettierFormat(text, document);
+
+  span.finish();
+
+  return { status: "ok", result };
 }
