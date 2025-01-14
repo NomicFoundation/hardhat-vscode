@@ -935,7 +935,7 @@ describe('[hardhat][codeAction]', () => {
 
     const expected = [
       {
-        title: 'Add public visibilty to function declaration',
+        title: 'Add public visibility to function declaration',
         kind: 'quickfix',
         isPreferred: false,
         edit: {
