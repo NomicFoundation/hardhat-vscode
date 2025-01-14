@@ -959,7 +959,7 @@ describe('[hardhat][codeAction]', () => {
         },
       },
       {
-        title: 'Add private visibilty to function declaration',
+        title: 'Add private visibility to function declaration',
         kind: 'quickfix',
         isPreferred: false,
         edit: {

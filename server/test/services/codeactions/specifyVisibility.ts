@@ -49,7 +49,7 @@ describe("Code Actions", () => {
           ],
         },
         {
-          title: "Add private visibilty to function declaration",
+          title: "Add private visibility to function declaration",
           kind: "quickfix",
           isPreferred: false,
           edits: [
@@ -111,7 +111,7 @@ describe("Code Actions", () => {
           ],
         },
         {
-          title: "Add private visibilty to function declaration",
+          title: "Add private visibility to function declaration",
           kind: "quickfix",
           isPreferred: false,
           edits: [
