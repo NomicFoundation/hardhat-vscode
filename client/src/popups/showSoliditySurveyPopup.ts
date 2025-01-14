@@ -29,7 +29,7 @@ export async function showSoliditySurveyPopup({
 
   const lastSeen = context.globalState.get<number>(SURVEY_LAST_SEEN_KEY);
 
-  if (lastSeen !== undefined && now > lastSeen + SURVEY_COOLDOWN_PERIOD) {
+  if (lastSeen !== undefined && now < lastSeen + SURVEY_COOLDOWN_PERIOD) {
     return;
   }
 
