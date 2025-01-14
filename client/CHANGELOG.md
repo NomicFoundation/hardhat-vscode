@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.8 - 2025-01-14
+
+### Added
+
+- Add Solidity Survey 2024 popup ([#625](https://github.com/NomicFoundation/hardhat-vscode/pull/625))
+
+### Fixed
+
+- Scan additional `forge` path on Windows for formatting commands, thanks @akshatmittal ([#515](https://github.com/NomicFoundation/hardhat-vscode/pull/515))
+
+### Changed
+
+- Add telemetry diagnostics around formatting ([#622](https://github.com/NomicFoundation/hardhat-vscode/issues/622))
+
 ## 0.8.7 - 2024-10-25
 
 - Fix for Solidity highlighting in Markdown files ([#616](https://github.com/NomicFoundation/hardhat-vscode/pull/616))
