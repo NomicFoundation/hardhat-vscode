@@ -59,7 +59,6 @@
     "c3-linearization": "0.3.0",
     "chai": "4.3.4",
     "cross-env": "7.0.3",
-    "eslint": "^7.23.0",
     "fast-glob": "3.2.11",
     "fs-extra": "^10.0.0",
     "got": "^11.8.2",
