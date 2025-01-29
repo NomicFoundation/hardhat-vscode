@@ -1,6 +1,7 @@
 import vscode from "vscode";
 import { getCurrentOpenFile } from "../utils/workspace";
 import { openNewDocument } from "../utils/window";
+// eslint-disable-next-line @typescript-eslint/naming-convention
 import HardhatTaskCommand from "./HardhatTaskCommand";
 
 export default class FlattenCurrentFileCommand extends HardhatTaskCommand {
