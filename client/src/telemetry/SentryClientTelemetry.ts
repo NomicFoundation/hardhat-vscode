@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/naming-convention
 import * as Sentry from "@sentry/node";
 import { ExtensionState } from "../types";
 import { isTelemetryEnabled } from "../utils/telemetry";

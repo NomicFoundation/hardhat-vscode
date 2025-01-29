@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import * as moduleAlias from "module-alias";
 
 const aliases = {
