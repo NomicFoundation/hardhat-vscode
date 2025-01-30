@@ -85,7 +85,7 @@ To set **Solidity by Nomic Foundation** as your default formatter for solidity f
 
 3. Select `Solidity` as the default formatter for solidity files
 
-![Format Document With](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/images/select_solidity_plus_hardhat.png "Confiure default formatter")
+![Format Document With](https://raw.githubusercontent.com/NomicFoundation/hardhat-vscode/main/docs/images/select_solidity_plus_hardhat.png "Configure default formatter")
 
 ### Formatting Configuration
 
