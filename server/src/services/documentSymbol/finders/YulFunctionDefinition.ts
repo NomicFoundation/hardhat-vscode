@@ -1,13 +1,16 @@
 import { SymbolKind } from "vscode-languageserver-types";
-import { Query } from "@nomicfoundation/slang/query";
+import type { Query } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
 import { SymbolFinder } from "../SymbolFinder";
 
 export class YulFunctionDefinition extends SymbolFinder {
   public override readonly symbolKind = SymbolKind.Function;
 
-  public override readonly query = Query.parse(`
-    @definition [YulFunctionDefinition
-      @identifier name: [_]
-    ]
-  `);
+  public override async getQuery(): Promise<Query> {
+    const { Query } = await import("@nomicfoundation/slang/cst");
+    return Query.create(`
+      @definition [YulFunctionDefinition
+        @identifier name: [_]
+      ]
+    `);
+  }
 }
