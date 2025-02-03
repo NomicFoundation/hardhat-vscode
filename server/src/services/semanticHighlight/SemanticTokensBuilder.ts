@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { TextRange } from "@nomicfoundation/slang/text_index";
+import type { TextRange } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
 import { getTokenTypeIndex } from "./tokenTypes";
 
 // Helps building a SemanticTokens response by providing slang nodes and supported token types
