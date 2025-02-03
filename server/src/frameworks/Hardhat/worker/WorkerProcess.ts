@@ -102,7 +102,9 @@ export class WorkerProcess {
     this.hre = require(`${hardhatBase}/internal/lib/hardhat-lib.js`);
 
     // Load local cache through require
-    const cacheModule = require(`${hardhatBase}/builtin-tasks/utils/solidity-files-cache`);
+    const cacheModule = require(
+      `${hardhatBase}/builtin-tasks/utils/solidity-files-cache`
+    );
 
     this.solidityFilesCachePath = cacheModule.getSolidityFilesCachePath(
       this.hre.config.paths
