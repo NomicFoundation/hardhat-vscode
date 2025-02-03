@@ -15,7 +15,10 @@ export interface FileBelongsResult {
 }
 
 export abstract class Project {
-  constructor(public serverState: ServerState, public basePath: string) {}
+  constructor(
+    public serverState: ServerState,
+    public basePath: string
+  ) {}
 
   public abstract configPath?: string;
 
