@@ -1,16 +1,18 @@
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
-import { Query } from "@nomicfoundation/slang/query";
+import type { Query } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
 import { Highlighter } from "../Highlighter";
 
-// Highlights function definitions
 export class FunctionDefinitionHighlighter extends Highlighter {
   public override readonly semanticTokenType = SemanticTokenTypes.function;
 
-  public override readonly query = Query.parse(`
+  public override async getQuery(): Promise<Query> {
+    const { Query } = await import("@nomicfoundation/slang/cst");
+    return Query.create(`
     [FunctionDefinition
       [FunctionName
         @identifier [Identifier]
       ]
     ]
   `);
+  }
 }

@@ -7,7 +7,6 @@ import {
 } from "vscode-languageserver-protocol";
 import _ from "lodash";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
-import { Language } from "@nomicfoundation/slang/language";
 import { ServerState } from "../../types";
 import { resolveVersion } from "../../parser/slangHelpers";
 import { SemanticTokensBuilder } from "./SemanticTokensBuilder";
@@ -48,11 +47,12 @@ export function onSemanticTokensFull(serverState: ServerState) {
   // Create all highlighters (and parse their queries) only once for all upcoming requests:
   const highlighters = createHighlighters();
 
-  return (params: SemanticTokensParams): SemanticTokens => {
+  return async (params: SemanticTokensParams): Promise<SemanticTokens> => {
     const { telemetry, logger } = serverState;
 
-    return (
-      telemetry.trackTimingSync("onSemanticTokensFull", (transaction) => {
+    const result = await telemetry.trackTiming(
+      "onSemanticTokensFull",
+      async (transaction) => {
         const { uri } = params.textDocument;
 
         // Find the file in the documents collection
@@ -73,17 +73,15 @@ export function onSemanticTokensFull(serverState: ServerState) {
         const { versionPragmas } = analyze(text);
         span.finish();
 
-        const resolvedVersion = resolveVersion(logger, versionPragmas);
+        const resolvedVersion = await resolveVersion(logger, versionPragmas);
 
         try {
-          const language = new Language(resolvedVersion);
+          const { Parser } = await import("@nomicfoundation/slang/parser");
+          const parser = Parser.create(resolvedVersion);
           // Parse using slang
           span = transaction.startChild({ op: "slang-parsing" });
 
-          const parseOutput = language.parse(
-            Language.rootKind(),
-            document.getText()
-          );
+          const parseOutput = parser.parseFileContents(document.getText());
 
           span.finish();
 
@@ -93,14 +91,17 @@ export function onSemanticTokensFull(serverState: ServerState) {
           const cursor = parseOutput.createTreeCursor();
 
           // Execute queries
-          const matches = cursor.query(highlighters.map((h) => h.query));
+          const queries = await Promise.all(
+            highlighters.map((h) => h.getQuery())
+          );
+          const matches = cursor.query(queries);
 
           // Iterate over query results
           let match;
 
           while ((match = matches.next())) {
-            const highlighter = highlighters[match.queryNumber];
-            highlighter.onResult(builder, match);
+            const highlighter = highlighters[match.queryIndex];
+            await highlighter.onResult(builder, match);
           }
 
           return { status: "ok", result: { data: builder.getTokenData() } };
@@ -108,7 +109,9 @@ export function onSemanticTokensFull(serverState: ServerState) {
           logger.error(`Semantic Highlighting Error: ${error}`);
           return { status: "internal_error", result: emptyResponse };
         }
-      }) || emptyResponse
+      }
     );
+
+    return result || emptyResponse;
   };
 }
