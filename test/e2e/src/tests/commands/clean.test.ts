@@ -12,9 +12,11 @@ suite("task - clean", function () {
 
     // Create an artifacts folder to be cleaned up
     const artifactsPath = path.join(getRootPath(), "projects/main/artifacts");
+
     if (!existsSync(artifactsPath)) {
       mkdirSync(artifactsPath);
     }
+
     assert.ok(existsSync(artifactsPath));
 
     // Run clean task
@@ -22,12 +24,16 @@ suite("task - clean", function () {
       type: "hardhat",
       task: "clean",
     });
+
     await waitForUI();
 
     // Wait for the task to finish
     await new Promise((resolve) => vscode.tasks.onDidEndTask(resolve));
 
     // Assert the artifacts were removed
-    assert.ok(!existsSync(artifactsPath));
+    assert.ok(
+      !existsSync(artifactsPath),
+      `Artifacts folder was not removed: ${artifactsPath}`
+    );
   });
 });
