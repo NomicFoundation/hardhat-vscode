@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import sinon from "sinon";
 import { ServerState } from "../../../src/types";
 import { setupMockLogger } from "../../helpers/setupMockLogger";
