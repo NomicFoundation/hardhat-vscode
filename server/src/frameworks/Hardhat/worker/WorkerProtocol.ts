@@ -37,7 +37,10 @@ export abstract class ResponseMessage extends Message {
 export class ErrorResponseMessage extends ResponseMessage {
   public type = MessageType.ERROR_RESPONSE;
 
-  constructor(requestId: number, public error: any) {
+  constructor(
+    requestId: number,
+    public error: any
+  ) {
     super(requestId);
   }
 }
@@ -49,7 +52,10 @@ export class InitializedMessage extends Message {
 export class LogMessage extends Message {
   public type = MessageType.LOG;
 
-  constructor(public logMessage: string, public level: LogLevel) {
+  constructor(
+    public logMessage: string,
+    public level: LogLevel
+  ) {
     super();
   }
 }
@@ -57,14 +63,20 @@ export class LogMessage extends Message {
 export class FileBelongsRequest extends RequestMessage {
   public type = MessageType.FILE_BELONGS_REQUEST;
 
-  constructor(requestId: number, public uri: string) {
+  constructor(
+    requestId: number,
+    public uri: string
+  ) {
     super(requestId);
   }
 }
 
 export class FileBelongsResponse extends ResponseMessage {
   public type = MessageType.FILE_BELONGS_RESPONSE;
-  constructor(requestId: number, public result: FileBelongsResult) {
+  constructor(
+    requestId: number,
+    public result: FileBelongsResult
+  ) {
     super(requestId);
   }
 }
@@ -84,7 +96,10 @@ export class ResolveImportRequest extends RequestMessage {
 
 export class ResolveImportResponse extends ResponseMessage {
   public type = MessageType.RESOLVE_IMPORT_RESPONSE;
-  constructor(requestId: number, public path: string | undefined) {
+  constructor(
+    requestId: number,
+    public path: string | undefined
+  ) {
     super(requestId);
   }
 }
