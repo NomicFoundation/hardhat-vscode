@@ -32,9 +32,7 @@
     "@nomicfoundation/solidity-language-server": "0.8.12"
   },
   "devDependencies": {
-    "coc.nvim": "^0.0.80",
-    "esbuild": "^0.16.0",
-    "eslint": "^7.23.0"
+    "coc.nvim": "^0.0.80"
   },
   "engines": {
     "coc": "^0.0.80"

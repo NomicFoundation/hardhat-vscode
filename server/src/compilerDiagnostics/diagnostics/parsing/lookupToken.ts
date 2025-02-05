@@ -93,7 +93,11 @@ function determineIsFunctionHeaderOnSameLine(
 }
 
 function isHeaderKeyword(t: Token) {
-  return t.type === "Keyword" && t.value && HEADER_KEYWORDS.includes(t.value);
+  return (
+    t.type === "Keyword" &&
+    t.value !== undefined &&
+    HEADER_KEYWORDS.includes(t.value)
+  );
 }
 
 function findLineGivenRange(
