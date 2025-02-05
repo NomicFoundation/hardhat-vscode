@@ -17,11 +17,11 @@
     "url": "https://github.com/NomicFoundation/hardhat-vscode/issues"
   },
   "scripts": {
-    "build": "tsc -b ./client/tsconfig.json && tsc -b ./server/tsconfig.build.json && tsc -b ./coc/tsconfig.json && tsc -b",
+    "build": "tsc -b ./client/tsconfig.json && tsc -b ./server/tsconfig.build.json && tsc -b ./coc/tsconfig.json",
     "watch": "concurrently -n client,server \"tsc -b -w ./client/tsconfig.json\" \"tsc -b -w ./server/tsconfig.build.json\"",
     "test:unit": "npm -w server run test",
     "test:protocol": "npm -w test/protocol run test",
-    "test:e2e": "npm run build && node ./out/test/runTests.js",
+    "test:e2e": "npm -w test/e2e run test",
     "test": "npm run test:unit && npm run test:protocol && npm run test:e2e",
     "test:coverage": "npm -w server run test:coverage",
     "test:codecov": "npm -w server run test:codecov",

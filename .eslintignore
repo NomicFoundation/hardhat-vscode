@@ -5,4 +5,5 @@ server/node_modules/**
 server/out/**
 client/.eslintrc.js
 server/.eslintrc.js
+test/e2e/projects/**
 .eslintrc.js
