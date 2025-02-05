@@ -3,11 +3,11 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { ContractDefinitionNode, FunctionDefinition } from "@common/types";
 import { PrettyPrinter } from "../../../../utils/PrettyPrinter";
 
-export function createAppendFunctionsToContractChange(
+export async function createAppendFunctionsToContractChange(
   contractNode: ContractDefinitionNode,
   functions: FunctionDefinition[],
   { document }: { document: TextDocument }
-): TextEdit {
+): Promise<TextEdit> {
   const prettyPrinter = new PrettyPrinter();
 
   const range = Range.create(
@@ -17,13 +17,17 @@ export function createAppendFunctionsToContractChange(
 
   const originalText = document.getText(range);
 
-  const functionsAppendText = functions
-    .map((fun) => prettyPrinter.formatAst(fun, "-", { document }))
-    .join("\n\n");
+  const functionsText = await Promise.all(
+    functions.map((fun) => prettyPrinter.formatAst(fun, "-", { document }))
+  );
 
-  const newText = prettyPrinter
-    .format(`${originalText.slice(0, -1) + functionsAppendText}}`, { document })
-    .slice(0, -1);
+  const functionsAppendText = functionsText.join("\n\n");
+
+  const textToFormat = `${originalText.slice(0, -1) + functionsAppendText}}`;
+
+  const newText = (
+    await prettyPrinter.format(textToFormat, { document })
+  ).slice(0, -1);
 
   return {
     range,

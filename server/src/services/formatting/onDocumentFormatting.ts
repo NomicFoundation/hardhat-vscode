@@ -40,7 +40,7 @@ export function onDocumentFormatting(serverState: ServerState) {
               return await runForgeFormat(text, document, logger, transaction);
 
             case "prettier":
-              return runPrettierFormat(text, document, transaction);
+              return await runPrettierFormat(text, document, transaction);
 
             default:
               return { status: "invalid_argument", result: null };
@@ -73,15 +73,15 @@ async function runForgeFormat(
   return { status: "ok", result };
 }
 
-function runPrettierFormat(
+async function runPrettierFormat(
   text: string,
   document: TextDocument,
   transaction: Transaction
-): TrackingResult<OnDocumentFormattingResult> {
+): Promise<TrackingResult<OnDocumentFormattingResult>> {
   transaction.setTag("formatter", "prettier");
   const span = transaction.startChild({ op: "prettier-format" });
 
-  const result = prettierFormat(text, document);
+  const result = await prettierFormat(text, document);
 
   span.finish();
 

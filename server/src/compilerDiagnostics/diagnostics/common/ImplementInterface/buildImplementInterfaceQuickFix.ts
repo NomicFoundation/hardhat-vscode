@@ -6,11 +6,11 @@ import { createAppendFunctionsToContractChange } from "./createAppendFunctionsTo
 import { resolveFunctionsToImplement } from "./resolveFunctionsToImplement";
 import { findAnalyzedContract } from "./findAnalyzedContract";
 
-export function buildImplementInterfaceQuickFix(
+export async function buildImplementInterfaceQuickFix(
   serverState: ServerState,
   parseResult: ParseContractDefinitionResult,
   resolveCtx: ResolveActionsContext
-): CodeAction | null {
+): Promise<CodeAction | null> {
   const contract = findAnalyzedContract(serverState, parseResult, resolveCtx);
 
   if (contract === null || contract.inheritanceNodes.length === 0) {
@@ -25,7 +25,7 @@ export function buildImplementInterfaceQuickFix(
 
   const { document, uri } = resolveCtx;
 
-  const change = createAppendFunctionsToContractChange(
+  const change = await createAppendFunctionsToContractChange(
     contract,
     missingFunctions,
     { document }

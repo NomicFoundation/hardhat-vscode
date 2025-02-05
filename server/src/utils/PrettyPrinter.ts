@@ -1,29 +1,20 @@
 import * as prettier from "prettier";
-import * as prettierPluginSolidity from "prettier-plugin-solidity";
+// import * as prettierPluginSolidity from "prettier-plugin-solidity";
 import { ASTNode, TextDocument } from "@common/types";
 import { URI } from "vscode-uri";
 
 export class PrettyPrinter {
-  private options: prettier.Options;
-
-  constructor() {
-    this.options = {
-      parser: "solidity-parse",
-      plugins: [prettierPluginSolidity],
-    };
-  }
-
-  public format(text: string, { document }: { document: TextDocument }) {
-    const options = this._mergeOptions(document);
+  public async format(text: string, { document }: { document: TextDocument }) {
+    const options = await this._mergeOptions(document);
 
     return prettier.format(text, options);
   }
 
-  public formatAst(
+  public async formatAst(
     ast: ASTNode,
     originalText: string,
     { document }: { document: TextDocument }
-  ): string {
+  ): Promise<string> {
     const options = this._mergeOptions(document);
 
     // @ts-expect-error you bet __debug isn't on the type
@@ -39,7 +30,9 @@ export class PrettyPrinter {
     return formatted;
   }
 
-  private _mergeOptions(document: TextDocument) {
+  private async _mergeOptions(document: TextDocument) {
+    const prettierPluginSolidity = (await import("prettier-plugin-solidity"))
+      .default;
     const options = {
       parser: "solidity-parse",
       plugins: [prettierPluginSolidity],
@@ -47,10 +40,10 @@ export class PrettyPrinter {
 
     try {
       const config =
-        prettier.resolveConfig.sync(URI.parse(document.uri).fsPath, {
+        (await prettier.resolveConfig(URI.parse(document.uri).fsPath, {
           useCache: false,
           editorconfig: true,
-        }) ?? this._defaultConfig();
+        })) ?? this._defaultConfig();
 
       return {
         ...config,

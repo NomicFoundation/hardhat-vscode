@@ -3,20 +3,20 @@ import { ServerState } from "../../types";
 import { resolveQuickFixes } from "./QuickFixResolver";
 
 export function onCodeAction(serverState: ServerState) {
-  return (params: CodeActionParams): CodeAction[] => {
+  return async (params: CodeActionParams): Promise<CodeAction[]> => {
     const { documents, logger } = serverState;
 
     logger.trace("onCodeAction");
 
     return (
-      serverState.telemetry.trackTimingSync("onCodeAction", () => {
+      (await serverState.telemetry.trackTiming("onCodeAction", async () => {
         const document = documents.get(params.textDocument.uri);
 
         if (!document) {
           return { status: "failed_precondition", result: [] };
         }
 
-        const quickfixes = resolveQuickFixes(
+        const quickfixes = await resolveQuickFixes(
           serverState,
           params.textDocument.uri,
           document,
@@ -24,7 +24,7 @@ export function onCodeAction(serverState: ServerState) {
         );
 
         return { status: "ok", result: quickfixes };
-      }) ?? []
+      })) ?? []
     );
   };
 }
