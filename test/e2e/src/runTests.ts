@@ -1,7 +1,7 @@
 import * as path from "path";
 import { runTests } from "@vscode/test-electron";
 
-(async () => {
+const main = async () => {
   try {
     // The folder containing the Extension Manifest package.json
     // Passed to `--extensionDevelopmentPath`
@@ -9,14 +9,15 @@ import { runTests } from "@vscode/test-electron";
       __dirname,
       "..",
       "..",
+      "..",
       "client"
     );
 
     // The path to test runner
     // Passed to --extensionTestsPath
-    const extensionTestsPath = path.resolve(__dirname, "e2e", "index");
+    const extensionTestsPath = path.resolve(__dirname, "index");
 
-    const folder = path.resolve(__dirname, "..", "..", "test", "e2e");
+    const folder = path.resolve(__dirname, "..", "..", "e2e");
 
     // Download VS Code, unzip it and run the e2e test
     await runTests({
@@ -39,4 +40,10 @@ import { runTests } from "@vscode/test-electron";
     console.error("Failed to run tests, err:", err);
     process.exitCode = 1;
   }
-})();
+};
+
+main().catch((err) => {
+  // eslint-disable-next-line no-console
+  console.error("Failed to run tests, err:", err);
+  process.exitCode = 1;
+});
