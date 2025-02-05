@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/naming-convention */
 /* istanbul ignore file: setup file */
 
 import { addAliases } from "module-alias";

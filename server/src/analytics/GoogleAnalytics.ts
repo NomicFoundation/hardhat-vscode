@@ -84,6 +84,7 @@ export class GoogleAnalytics implements Analytics {
     return got.post(GA_URL, {
       headers: {
         Accept: "*/*",
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
