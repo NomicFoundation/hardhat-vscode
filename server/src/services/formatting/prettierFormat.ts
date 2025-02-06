@@ -1,9 +1,9 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { TextEdit } from "vscode-languageserver-types";
-import { PrettyPrinter } from "../../utils/prettier2/PrettyPrinter";
+import { PrettyPrinter2 } from "../../utils/prettier2/PrettyPrinter2";
 
 export function prettierFormat(text: string, document: TextDocument) {
-  const formattedText = new PrettyPrinter().format(text, { document });
+  const formattedText = new PrettyPrinter2().format(text, { document });
 
   const textEdit: TextEdit = {
     range: {

@@ -3,7 +3,7 @@ import * as prettierPluginSolidity from "prettier-plugin-solidity";
 import { ASTNode, TextDocument } from "@common/types";
 import { URI } from "vscode-uri";
 
-export class PrettyPrinter {
+export class PrettyPrinter2 {
   private options: prettier.Options;
 
   constructor() {

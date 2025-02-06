@@ -1,14 +1,14 @@
 import { Range, TextEdit } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { ContractDefinitionNode, FunctionDefinition } from "@common/types";
-import { PrettyPrinter } from "../../../../utils/prettier2/PrettyPrinter";
+import { PrettyPrinter2 } from "../../../../utils/prettier2/PrettyPrinter2";
 
 export function createAppendFunctionsToContractChange(
   contractNode: ContractDefinitionNode,
   functions: FunctionDefinition[],
   { document }: { document: TextDocument }
 ): TextEdit {
-  const prettyPrinter = new PrettyPrinter();
+  const prettyPrinter = new PrettyPrinter2();
 
   const range = Range.create(
     document.positionAt(contractNode.astNode.range?.[0] ?? 0),
