@@ -1,7 +1,7 @@
 import { Range, TextEdit } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { ContractDefinitionNode, FunctionDefinition } from "@common/types";
-import { PrettyPrinter } from "../../../../utils/PrettyPrinter";
+import { PrettyPrinter } from "../../../../utils/prettier2/PrettyPrinter";
 
 export function createAppendFunctionsToContractChange(
   contractNode: ContractDefinitionNode,
