@@ -15,7 +15,7 @@ export interface CompilerDiagnostic {
     serverState: ServerState,
     diagnostic: Diagnostic,
     { document, uri }: ResolveActionsContext
-  ) => CodeAction[];
+  ) => CodeAction[] | Promise<CodeAction[]>;
 
   fromHardhatCompilerError: (
     document: TextDocument,

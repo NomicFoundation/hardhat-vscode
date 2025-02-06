@@ -3,27 +3,21 @@ import * as prettierPluginSolidity from "prettier-plugin-solidity";
 import { ASTNode, TextDocument } from "@common/types";
 import { URI } from "vscode-uri";
 
-export class PrettyPrinter {
-  private options: prettier.Options;
-
-  constructor() {
-    this.options = {
-      parser: "solidity-parse",
-      plugins: [prettierPluginSolidity],
-    };
-  }
-
-  public format(text: string, { document }: { document: TextDocument }) {
+export class PrettyPrinter2 {
+  public async format(
+    text: string,
+    { document }: { document: TextDocument }
+  ): Promise<string> {
     const options = this._mergeOptions(document);
 
     return prettier.format(text, options);
   }
 
-  public formatAst(
+  public async formatAst(
     ast: ASTNode,
     originalText: string,
     { document }: { document: TextDocument }
-  ): string {
+  ): Promise<string> {
     const options = this._mergeOptions(document);
 
     // @ts-expect-error you bet __debug isn't on the type
