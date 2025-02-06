@@ -25,11 +25,11 @@ export class MarkContractAbstract {
     return attemptConstrainToContractName(document, error);
   }
 
-  public resolveActions(
+  public async resolveActions(
     serverState: ServerState,
     diagnostic: Diagnostic,
     context: ResolveActionsContext
-  ): CodeAction[] {
+  ): Promise<CodeAction[]> {
     const parseResult = parseContractDefinition(
       diagnostic,
       context,
@@ -40,7 +40,7 @@ export class MarkContractAbstract {
       return [];
     }
 
-    const implementInterfaceQuickFix = buildImplementInterfaceQuickFix(
+    const implementInterfaceQuickFix = await buildImplementInterfaceQuickFix(
       serverState,
       parseResult,
       context

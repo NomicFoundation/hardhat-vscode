@@ -4,20 +4,24 @@ import { compilerDiagnostics } from "@compilerDiagnostics/compilerDiagnostics";
 import { ServerState } from "../../types";
 import { decodeUriAndRemoveFilePrefix } from "../../utils";
 
-export function resolveQuickFixes(
+export async function resolveQuickFixes(
   serverState: ServerState,
   uri: string,
   document: TextDocument,
   diagnostics: Diagnostic[]
-): CodeAction[] {
+): Promise<CodeAction[]> {
   let actions: CodeAction[] = [];
 
   for (const diagnostic of diagnostics) {
     try {
-      const diagnosticActions = resolveActionsFor(serverState, diagnostic, {
-        document,
-        uri,
-      });
+      const diagnosticActions = await resolveActionsFor(
+        serverState,
+        diagnostic,
+        {
+          document,
+          uri,
+        }
+      );
 
       actions = [...actions, ...diagnosticActions];
     } catch (err) {
@@ -28,23 +32,23 @@ export function resolveQuickFixes(
   return actions;
 }
 
-function resolveActionsFor(
+async function resolveActionsFor(
   serverState: ServerState,
   diagnostic: Diagnostic,
   { document, uri }: { document: TextDocument; uri: string }
-): CodeAction[] {
+): Promise<CodeAction[]> {
   const codeActions: CodeAction[] = [];
 
   if (diagnostic.code !== undefined && diagnostic.code in compilerDiagnostics) {
     codeActions.push(
-      ...compilerDiagnostics[diagnostic.code].resolveActions(
+      ...(await compilerDiagnostics[diagnostic.code].resolveActions(
         serverState,
         diagnostic,
         {
           document,
           uri,
         }
-      )
+      ))
     );
   }
 
