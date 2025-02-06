@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.9 - 2025-02-06
+
+### Added
+
+- Eslint for coc extension ([#624](https://github.com/NomicFoundation/hardhat-vscode/pull/624))
+
+### Changed
+
+- Update versions of typescript, node server, eslint, lodash types and esbuild ([#624](https://github.com/NomicFoundation/hardhat-vscode/pull/624))
+- Change typescript module resolution to node16 ([#624](https://github.com/NomicFoundation/hardhat-vscode/pull/624))
+
 ## 0.8.8 - 2025-01-14
 
 ### Added
