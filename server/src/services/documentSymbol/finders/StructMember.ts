@@ -1,13 +1,16 @@
 import { SymbolKind } from "vscode-languageserver-types";
-import { Query } from "@nomicfoundation/slang/query";
+import type { Query } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
 import { SymbolFinder } from "../SymbolFinder";
 
 export class StructMember extends SymbolFinder {
   public override readonly symbolKind = SymbolKind.Property;
 
-  public override readonly query = Query.parse(`
-    @definition [StructMember
-      @identifier name: [_]
-    ]
-  `);
+  public override async getQuery(): Promise<Query> {
+    const { Query } = await import("@nomicfoundation/slang/cst");
+    return Query.create(`
+      @definition [StructMember
+        @identifier name: [_]
+      ]
+    `);
+  }
 }

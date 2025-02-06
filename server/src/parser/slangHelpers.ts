@@ -1,10 +1,11 @@
-import { TextIndex, TextRange } from "@nomicfoundation/slang/text_index";
 import _ from "lodash";
 import { Range, Position } from "vscode-languageserver-types";
-import { Language } from "@nomicfoundation/slang/language";
 import semver from "semver";
+import type {
+  TextIndex,
+  TextRange,
+} from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
 import { Logger } from "../utils/Logger";
-import { getPlatform } from "../utils/operatingSystem";
 
 export function slangToVSCodeRange(range: TextRange): Range {
   return {
@@ -20,27 +21,12 @@ export function slangToVSCodePosition(position: TextIndex): Position {
   };
 }
 
-const SUPPORTED_PLATFORMS = [
-  "darwin-arm64",
-  "darwin-x64",
-  "linux-arm64",
-  "linux-x64",
-  "win32-arm64",
-  "win32-ia32",
-  "win32-x64",
-];
-
-export function isSlangSupported() {
-  const currentPlatform = getPlatform();
-
-  return SUPPORTED_PLATFORMS.includes(currentPlatform);
-}
-
-export function resolveVersion(
+export async function resolveVersion(
   logger: Logger,
   versionPragmas: string[]
-): string {
-  const versions = Language.supportedVersions();
+): Promise<string> {
+  const { LanguageFacts } = await import("@nomicfoundation/slang/utils");
+  const versions = LanguageFacts.allVersions();
 
   const slangVersion = semver.maxSatisfying(versions, versionPragmas.join(" "));
 

@@ -5,7 +5,6 @@ import { DocumentSymbolParams } from "vscode-languageserver/node";
 import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-types";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import _ from "lodash";
-import { Language } from "@nomicfoundation/slang/language";
 import { ServerState } from "../../types";
 import { resolveVersion, slangToVSCodeRange } from "../../parser/slangHelpers";
 import { SymbolTreeBuilder } from "./SymbolTreeBuilder";
@@ -61,8 +60,11 @@ export function onDocumentSymbol(serverState: ServerState) {
   return async (
     params: DocumentSymbolParams
   ): Promise<DocumentSymbol[] | SymbolInformation[] | null> => {
+    const { Parser } = await import("@nomicfoundation/slang/parser");
+    const { NonterminalKind } = await import("@nomicfoundation/slang/cst");
+
     const { telemetry, logger } = serverState;
-    return telemetry.trackTimingSync("onDocumentSymbol", (transaction) => {
+    return telemetry.trackTiming("onDocumentSymbol", async (transaction) => {
       const { uri } = params.textDocument;
 
       // Find the file in the documents collection
@@ -79,16 +81,16 @@ export function onDocumentSymbol(serverState: ServerState) {
       const { versionPragmas } = analyze(text);
       span.finish();
 
-      const resolvedVersion = resolveVersion(logger, versionPragmas);
+      const resolvedVersion = await resolveVersion(logger, versionPragmas);
 
       try {
-        const language = new Language(resolvedVersion);
+        const language = Parser.create(resolvedVersion);
 
         // Parse using slang
         span = transaction.startChild({ op: "slang-parsing" });
 
-        const parseOutput = language.parse(
-          Language.rootKind(),
+        const parseOutput = language.parseNonterminal(
+          NonterminalKind.SourceUnit,
           document.getText()
         );
 
@@ -116,7 +118,8 @@ export function onDocumentSymbol(serverState: ServerState) {
         span = transaction.startChild({ op: "run-query" });
 
         // Execute a single call with all the queries
-        const matches = cursor.query(finders.map((f) => f.query));
+        const queries = await Promise.all(finders.map((f) => f.getQuery()));
+        const matches = cursor.query(queries);
 
         span.finish();
 
@@ -127,7 +130,7 @@ export function onDocumentSymbol(serverState: ServerState) {
         const symbols = [];
 
         while ((match = matches.next())) {
-          const finder = finders[match.queryNumber];
+          const finder = finders[match.queryIndex];
           const symbol = finder.findSymbol(match);
 
           symbols.push(symbol);

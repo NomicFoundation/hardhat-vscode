@@ -215,15 +215,6 @@ async function main() {
           solidityAnalyzerVersion,
 
         "@nomicfoundation/slang": slangVersion,
-        "@nomicfoundation/slang-darwin-arm64": slangVersion,
-        "@nomicfoundation/slang-win32-arm64-msvc": slangVersion,
-        "@nomicfoundation/slang-linux-arm64-gnu": slangVersion,
-        "@nomicfoundation/slang-linux-arm64-musl": slangVersion,
-        "@nomicfoundation/slang-win32-ia32-msvc": slangVersion,
-        "@nomicfoundation/slang-darwin-x64": slangVersion,
-        "@nomicfoundation/slang-win32-x64-msvc": slangVersion,
-        "@nomicfoundation/slang-linux-x64-gnu": slangVersion,
-        "@nomicfoundation/slang-linux-x64-musl": slangVersion,
       },
     })
   );
