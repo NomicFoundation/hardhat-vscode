@@ -4,11 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.10 - 2025-02-07
+
+### Fixed
+
+- Revert the typescript, module resolution and Node language server updates from 0.8.9
+
 ## 0.8.9 - 2025-02-06
-
-### Added
-
-- Eslint for coc extension ([#624](https://github.com/NomicFoundation/hardhat-vscode/pull/624))
 
 ### Changed
 
