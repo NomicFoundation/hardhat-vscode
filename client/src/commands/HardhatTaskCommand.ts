@@ -7,7 +7,6 @@ import {
   withProgressNotification,
 } from "../utils/window";
 import { ensureCurrentHardhatDir } from "../utils/workspace";
-// eslint-disable-next-line @typescript-eslint/naming-convention
 import Command from "./Command";
 
 export default abstract class HardhatTaskCommand extends Command {

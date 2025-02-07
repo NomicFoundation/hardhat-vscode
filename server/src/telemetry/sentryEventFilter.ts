@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/naming-convention
 import * as Sentry from "@sentry/node";
 
 const EXCLUDE_PATTERNS = [/error loading hre/gi];

@@ -196,7 +196,6 @@ export const globalVariables: GlobalVariablesType = {
     "number",
     "timestamp",
   ],
-  // eslint-disable-next-line @typescript-eslint/naming-convention
   "msg.sender": [
     "balance",
     "code",

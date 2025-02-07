@@ -1,5 +1,5 @@
 import path from "path";
-// eslint-disable-next-line @typescript-eslint/naming-convention
+// eslint-disable-next-line import/no-extraneous-dependencies
 import Mocha from "mocha";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import glob from "glob";

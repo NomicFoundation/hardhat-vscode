@@ -4,7 +4,7 @@
   "displayName": "Solidity",
   "description": "Solidity and Hardhat support by the Hardhat team",
   "license": "MIT",
-  "version": "0.8.9",
+  "version": "0.8.8",
   "private": true,
   "main": "./out/extension.js",
   "module": "./out/extension.js",
@@ -59,6 +59,7 @@
     "@sentry/types": "6.19.1",
     "@types/prettier": "2.6.0",
     "@types/vscode": "^1.86",
+    "eslint": "^7.23.0",
     "rimraf": "3.0.2",
     "prettier": "2.5.1"
   },

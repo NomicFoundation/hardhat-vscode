@@ -9,7 +9,6 @@ import {
   DidChangeWatchedFilesParams,
   Position,
 } from "vscode-languageserver-protocol";
-// eslint-disable-next-line @typescript-eslint/naming-convention
 import YAML from "yaml";
 import { OpenDocuments, ServerState } from "../../types";
 import { toUnixStyle } from "../../utils";

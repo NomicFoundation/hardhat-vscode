@@ -1,9 +1,8 @@
 {
   "compilerOptions": {
-    "module": "node16",
-    "moduleResolution": "node16",
-    "target": "es2022",
-    "lib": ["es2023"],
+    "module": "commonjs",
+    "target": "es2020",
+    "lib": ["es2020"],
     "outDir": "out",
     "sourceMap": true,
     "resolveJsonModule": true,
