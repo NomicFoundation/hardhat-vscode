@@ -4,7 +4,6 @@
     "rootDir": "src",
     "baseUrl": "./src",
     "esModuleInterop": true,
-    "skipLibCheck": true,
     "paths": {
       "@compilerDiagnostics/*": ["./compilerDiagnostics/*"],
       "@analyzer/*": ["./parser/analyzer/*"],

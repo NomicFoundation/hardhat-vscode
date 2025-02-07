@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import * as vscode from "vscode";
 import { ExtensionState } from "../types";
 

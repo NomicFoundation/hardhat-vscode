@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "postinstall": "cd ./projects/main && npm install",
-    "pretest": "tsc -b ./tsconfig.json",
-    "test": "node ./out/runTests.js",
-    "clean": "rimraf out .nyc_output coverage *.tsbuildinfo"
+    "postinstall": "cd ./projects/main && npm install"
   }
 }

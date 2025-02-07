@@ -1,5 +1,4 @@
 /* istanbul ignore file: external system */
-// eslint-disable-next-line @typescript-eslint/naming-convention
 import * as Sentry from "@sentry/node";
 import type { Primitive, Transaction } from "@sentry/types";
 import * as tracing from "@sentry/tracing";
