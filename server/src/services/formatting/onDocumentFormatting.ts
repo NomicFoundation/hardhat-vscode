@@ -78,10 +78,13 @@ async function runPrettierFormat(
   document: TextDocument,
   transaction: Transaction
 ): Promise<TrackingResult<OnDocumentFormattingResult>> {
-  transaction.setTag("formatter", "prettier");
+  const prettierVersion = Math.random() < 0.5 ? "prettier3" : "prettier2";
+
+  transaction.setTag("formatter", prettierVersion);
+
   const span = transaction.startChild({ op: "prettier-format" });
 
-  const result = await prettierFormat(text, document);
+  const result = await prettierFormat(text, document, prettierVersion);
 
   span.finish();
 
