@@ -51,7 +51,7 @@ export abstract class Project {
   public abstract frameworkName(): string;
 
   public invalidateBuildCache() {
-    // to be overriden if necessary
+    // to be overridden if necessary
   }
 
   public getImportCompletions(

@@ -224,7 +224,7 @@ export class WorkerProcess {
       // Analyze imports
       const analysis = analyze(documentText);
 
-      // Avoid rebuilding dependency graph. If imports didnt change, just update open documents' contents
+      // Avoid rebuilding dependency graph. If imports didn't change, just update open documents' contents
       if (
         sourceUri === this.lastAnalyzedDocUri &&
         isDeepStrictEqual(analysis, this.lastAnalysis) &&

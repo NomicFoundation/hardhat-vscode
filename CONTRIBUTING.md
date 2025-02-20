@@ -57,7 +57,7 @@ The analytics secrets will need then to be populated.
 
 ### 2. Open the repo in **vscode**
 
-VSCode is assumed as the development environment as it has inbuilt support for developing VSCode extesions. To open the repository in VSCode from the command line run:
+VSCode is assumed as the development environment as it has inbuilt support for developing VSCode extensions. To open the repository in VSCode from the command line run:
 
 ```shell
 code .
@@ -175,7 +175,7 @@ When adding a new feature or changing an existing one, we encourage the recordin
 
 ## Packaging
 
-VSCode extensions are distributed through a file format called `vsix` (really a zip file with a defined internal struture and metadata files). To build a `vsix` file for local testing or to upload to the [VSCode Marketplace](https://marketplace.visualstudio.com/vscode), run:
+VSCode extensions are distributed through a file format called `vsix` (really a zip file with a defined internal structure and metadata files). To build a `vsix` file for local testing or to upload to the [VSCode Marketplace](https://marketplace.visualstudio.com/vscode), run:
 
 ```shell
 npm run package
