@@ -23,7 +23,7 @@
     "bundle": "esbuild src/index.ts --platform=node --bundle --external:coc.nvim --external:@nomicfoundation/solidity-language-server --outdir=out",
     "prepack": "npm run bundle",
     "lint": "npm run prettier -- --check && npm run eslint",
-    "lint:fix": "npm run prettier --write && npm run eslint --fix",
+    "lint:fix": "npm run prettier -- --write && npm run eslint --fix",
     "eslint": "eslint --max-warnings 0 \"./src/**/*.ts\"",
     "prettier": "prettier \"*.json\" \"src/**/*.{ts,js,md,json,yml}\"",
     "clean": "rimraf out .nyc_output coverage *.tsbuildinfo *.log"
