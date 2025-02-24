@@ -1,0 +1,8 @@
+{
+  "name": "prettier3",
+  "version": "1.0.0",
+  "dependencies": {
+    "prettier": "3.4.2",
+    "prettier-plugin-solidity": "2.0.0-beta.7"
+  }
+}

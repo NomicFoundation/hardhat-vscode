@@ -4,6 +4,8 @@
   "workspaces": [
     "client",
     "server",
+    "server/src/utils/prettier2",
+    "server/src/utils/prettier3",
     "coc",
     "test/e2e",
     "test/protocol"

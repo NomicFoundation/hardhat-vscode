@@ -44,7 +44,7 @@ export async function assertCodeAction(
 
   await analyzeSolFile(serverState, solFileEntry, docText);
 
-  const actions = compilerDiagnostic.resolveActions(
+  const actions = await compilerDiagnostic.resolveActions(
     serverState as ServerState,
     diagnostic,
     {

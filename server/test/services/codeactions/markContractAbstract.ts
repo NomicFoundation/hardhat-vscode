@@ -157,7 +157,7 @@ describe("Code Actions", () => {
             serverState.indexedWorkspaceFolders
           );
 
-          const actions = markContractAbstract.resolveActions(
+          const actions = await markContractAbstract.resolveActions(
             serverState as ServerState,
             diagnostic,
             {
