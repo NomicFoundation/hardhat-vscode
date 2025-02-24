@@ -7,8 +7,7 @@ const path = require("path");
 const { exec } = require("child_process");
 const esbuild = require("esbuild");
 
-const ANTLR_MODULE_PATH =
-  "../server/node_modules/@solidity-parser/parser/dist/antlr";
+const ANTLR_MODULE_PATH = "../node_modules/@solidity-parser/parser/dist/antlr";
 const SERVER_MODULE_PATH =
   "../node_modules/@nomicfoundation/solidity-language-server";
 
