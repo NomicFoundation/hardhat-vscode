@@ -1,3 +1,5 @@
+[![License](https://img.shields.io/github/license/NomicFoundation/hardhat-vscode)](https://github.com/NomicFoundation/hardhat-vscode/blob/development/LICENSE)
+
 # Solidity for Visual Studio Code by Nomic Foundation
 
 **Solidity for VS Code by Nomic Foundation** is a [Visual Studio Code](https://code.visualstudio.com/) extension that provides enhanced [Solidity language](https://soliditylang.org/) features.
