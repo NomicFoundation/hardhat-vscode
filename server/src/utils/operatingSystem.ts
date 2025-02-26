@@ -1,5 +1,6 @@
 import { exec, ExecOptions } from "child_process";
 import os from "os";
+import { TimeoutError } from "./errors";
 
 export function runningOnWindows() {
   return os.platform() === "win32";
@@ -10,6 +11,7 @@ export async function runCmd(cmd: string, cwd?: string): Promise<string> {
     exec(cmd, { cwd }, function (error, stdout) {
       if (error !== null) {
         reject(error);
+        return;
       }
 
       resolve(stdout);
@@ -35,9 +37,10 @@ export async function execWithInput(
 ): Promise<{ stdout: string; stderr: string }> {
   return new Promise((resolve, reject) => {
     // Set a timeout if provided
+    let timer: NodeJS.Timeout | undefined;
     if (timeout !== undefined) {
-      setTimeout(() => {
-        reject("Timed out");
+      timer = setTimeout(() => {
+        reject(new TimeoutError(timeout));
       }, timeout);
     }
 
@@ -49,17 +52,24 @@ export async function execWithInput(
       resolve({ stdout, stderr });
     });
 
+    // Clear timeout on process exit
+    child.on("exit", () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    });
+
     // Check that we have a writable stdin stream
     if (child.stdin && child.stdin.writable && child.killed === false) {
       // Handle errors on the stdin stream
       child.stdin.on("error", (err) => {
-        reject(`Error on child.stdin: ${err}`);
+        reject(new Error(`Error on child.stdin: ${err}`));
       });
 
       // Write the input, then close the stream.
       child.stdin.write(input, (writeErr) => {
         if (writeErr) {
-          reject(`Error writing to stdin: ${writeErr}}`);
+          reject(new Error(`Error writing to stdin: ${writeErr}}`));
           // Even on error, end the stream to avoid hanging.
           child.stdin?.end();
         } else {
@@ -67,7 +77,7 @@ export async function execWithInput(
         }
       });
     } else {
-      reject("Child process has no writable stdin stream");
+      reject(new Error("Child process has no writable stdin stream"));
     }
   });
 }
