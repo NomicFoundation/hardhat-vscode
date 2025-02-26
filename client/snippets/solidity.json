@@ -26,7 +26,7 @@
 			"description": "Import statement with symbolName."
 		},
         "import external module": {
-			"prefix": "import statment",
+			"prefix": "import statement",
 			"body": "import {${1:symbol}} from \"${2:filename}\";",
 			"description": "Import external module."
 		},
