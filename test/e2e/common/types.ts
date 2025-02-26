@@ -39,7 +39,7 @@ export interface Action {
   uri: string;
 
   /**
-   * Optonal action params
+   * Optional action params
    */
   params?: ActionParams | undefined;
 
