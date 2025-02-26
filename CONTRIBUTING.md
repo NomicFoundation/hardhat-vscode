@@ -57,7 +57,7 @@ The analytics secrets will need then to be populated.
 
 ### 2. Open the repo in **vscode**
 
-VSCode is assumed as the development environment as it has inbuilt support for developing VSCode extesions. To open the repository in VSCode from the command line run:
+VSCode is assumed as the development environment as it has inbuilt support for developing VSCode extensions. To open the repository in VSCode from the command line run:
 
 ```shell
 code .
