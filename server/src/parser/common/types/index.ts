@@ -853,7 +853,7 @@ export abstract class IdentifierNode extends Node {
   }
 
   /**
-   * This is the place for all nonhandled identifier fileds like FunctionCallNode identifiers,
+   * This is the place for all nonhandled identifier fields like FunctionCallNode identifiers,
    * that we want to handle after when this node gets a parent.
    */
   public addIdentifierField(identifierField: Node): void {
