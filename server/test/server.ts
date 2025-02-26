@@ -4,6 +4,7 @@ import { setupMockConnection } from "./helpers/setupMockConnection";
 import { setupMockLogger } from "./helpers/setupMockLogger";
 import { setupMockTelemetry } from "./helpers/setupMockTelemetry";
 import { setupMockWorkspaceFileRetriever } from "./helpers/setupMockWorkspaceFileRetriever";
+import { setupMockAnalytics } from "./helpers/setupMockAnalytics";
 
 describe("Solidity Language Server", () => {
   describe("initialization", () => {
@@ -17,12 +18,14 @@ describe("Solidity Language Server", () => {
         const mockLogger = setupMockLogger();
         const mockWorkspaceFileRetriever = setupMockWorkspaceFileRetriever();
         const mockTelemetry = setupMockTelemetry();
+        const mockAnalytics = setupMockAnalytics();
 
         await setupServer(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           mockConnection as any,
           mockWorkspaceFileRetriever,
           mockTelemetry,
+          mockAnalytics,
           mockLogger
         );
 

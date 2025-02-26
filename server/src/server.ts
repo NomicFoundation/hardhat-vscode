@@ -21,16 +21,19 @@ import { availableVersions } from "./services/initialization/updateAvailableSolc
 import { onDocumentFormatting } from "./services/formatting/onDocumentFormatting";
 import { onSemanticTokensFull } from "./services/semanticHighlight/onSemanticTokensFull";
 import { onDocumentSymbol } from "./services/documentSymbol/onDocumentSymbol";
+import { Analytics } from "./analytics/types";
 
 export default function setupServer(
   connection: Connection,
   workspaceFileRetriever: WorkspaceFileRetriever,
   telemetry: Telemetry,
+  analytics: Analytics,
   logger: Logger
 ): ServerState {
   const serverState = setupUninitializedServerState(
     connection,
     telemetry,
+    analytics,
     logger,
     workspaceFileRetriever
   );
@@ -46,6 +49,7 @@ export default function setupServer(
 function setupUninitializedServerState(
   connection: Connection,
   telemetry: Telemetry,
+  analytics: Analytics,
   logger: Logger,
   workspaceFileRetriever: WorkspaceFileRetriever
 ) {
@@ -59,6 +63,7 @@ function setupUninitializedServerState(
     documents: new TextDocuments(TextDocument),
     solFileIndex: {},
     telemetry,
+    analytics,
     logger,
     solcVersions: availableVersions,
     validationCount: 0,
@@ -117,7 +122,7 @@ function attachCustomHooks(serverState: ServerState) {
       }
 
       serverState.telemetryEnabled = enabled;
-      await serverState.telemetry.analytics.sendTelemetryChange(enabled);
+      await serverState.analytics.sendTelemetryChange(enabled);
     }
   );
 
@@ -129,6 +134,6 @@ function attachCustomHooks(serverState: ServerState) {
   );
 
   connection.onNotification("custom/telemetryConsent", async (payload) => {
-    await serverState.telemetry.analytics.sendTelemetryResponse(payload);
+    await serverState.analytics.sendTelemetryResponse(payload);
   });
 }

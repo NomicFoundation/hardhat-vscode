@@ -1,7 +1,6 @@
 import { SpanStatusType } from "@sentry/tracing";
 import type { Primitive, Transaction } from "@sentry/types";
 import { ServerState } from "../types";
-import { Analytics } from "../analytics/types";
 
 export interface TrackingResult<T> {
   status: SpanStatusType;
@@ -9,8 +8,6 @@ export interface TrackingResult<T> {
 }
 
 export interface Telemetry {
-  analytics: Analytics;
-
   init(
     machineId: string | undefined,
     extensionName: string | undefined,

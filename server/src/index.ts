@@ -39,7 +39,7 @@ const telemetry = new SentryServerTelemetry(
 );
 const logger = new ConnectionLogger(connection, telemetry);
 
-setupServer(connection, workspaceFileRetriever, telemetry, logger);
+setupServer(connection, workspaceFileRetriever, telemetry, analytics, logger);
 
 // Listen on the connection
 connection.listen();
