@@ -3,6 +3,7 @@ import path from "path";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { TextEdit } from "vscode-languageserver-types";
 import { URI } from "vscode-uri";
+import type { ExecException } from "node:child_process";
 import { resolveForgeCommand } from "../../frameworks/Foundry/resolveForgeCommand";
 import { Logger } from "../../utils/Logger";
 import { execWithInput } from "../../utils/operatingSystem";
@@ -44,10 +45,14 @@ export async function forgeFormat(
 
     return [textEdit];
   } catch (error: unknown) {
-    if (error instanceof Error && "killed" in error && error.killed) {
+    if (isKilledDefinedExecException(error) && error.killed === true) {
       throw new TimeoutError(FORMAT_TIMEOUT);
     } else {
       throw error;
     }
   }
+}
+
+function isKilledDefinedExecException(error: unknown): error is ExecException {
+  return error instanceof Error && "killed" in error;
 }
