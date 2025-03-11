@@ -61,4 +61,4 @@ Go to [CONTRIBUTING.md](https://github.com/nomicfoundation/hardhat-vscode/blob/m
 
 [Hardhat Support Discord server](https://hardhat.org/discord): for questions and feedback.
 
-[Follow Hardhat on Twitter.](https://twitter.com/HardhatHQ)
+[Follow Hardhat on Twitter.](https://x.com/HardhatHQ)
