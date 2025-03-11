@@ -57,6 +57,10 @@ export async function execWithInput(
       });
 
       child.once("spawn", () => {
+        if (!stdin.writable || child.killed) {
+          return reject(new Error("Failed to write to unwritable stdin"));
+        }
+
         stdin.write(input, (error) => {
           if (error) {
             reject(error);
