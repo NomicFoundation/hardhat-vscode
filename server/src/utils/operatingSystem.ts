@@ -1,6 +1,5 @@
 import { exec, ExecOptions } from "child_process";
 import os from "os";
-import { TimeoutError } from "./errors";
 
 export function runningOnWindows() {
   return os.platform() === "win32";
@@ -32,52 +31,41 @@ export async function runCmd(cmd: string, cwd?: string): Promise<string> {
 export async function execWithInput(
   command: string,
   input: string,
-  options: ExecOptions,
-  timeout?: number
+  options: ExecOptions = {}
 ): Promise<{ stdout: string; stderr: string }> {
   return new Promise((resolve, reject) => {
-    // Set a timeout if provided
-    let timer: NodeJS.Timeout | undefined;
-    if (timeout !== undefined) {
-      timer = setTimeout(() => {
-        reject(new TimeoutError(timeout));
-      }, timeout);
-    }
-
-    // Start the child process
     const child = exec(command, options, (error, stdout, stderr) => {
+      // `error` is any execution error. e.g. command not found, non-zero exit code, etc.
       if (error) {
         reject(error);
-      }
-      resolve({ stdout, stderr });
-    });
-
-    // Clear timeout on process exit
-    child.on("exit", () => {
-      if (timer) {
-        clearTimeout(timer);
+      } else {
+        resolve({ stdout, stderr });
       }
     });
 
-    // Check that we have a writable stdin stream
-    if (child.stdin && child.stdin.writable && child.killed === false) {
-      // Handle errors on the stdin stream
-      child.stdin.on("error", (err) => {
-        reject(new Error(`Error on child.stdin: ${err}`));
+    // This could be triggered if node fails to spawn the child process
+    child.on("error", (err) => {
+      reject(err);
+    });
+
+    const stdin = child.stdin;
+
+    if (stdin) {
+      stdin.on("error", (err) => {
+        // This captures EPIPE error
+        reject(err);
       });
 
-      // Write the input, then close the stream.
-      child.stdin.write(input, (writeErr) => {
-        if (writeErr) {
-          reject(new Error(`Error writing to stdin: ${writeErr}}`));
-          // Even on error, end the stream to avoid hanging.
-          child.stdin?.end();
-        } else {
-          child.stdin?.end();
-        }
+      child.once("spawn", () => {
+        stdin.write(input, (error) => {
+          if (error) {
+            reject(error);
+          }
+          stdin.end();
+        });
       });
     } else {
-      reject(new Error("Child process has no writable stdin stream"));
+      reject(new Error("No stdin on child process"));
     }
   });
 }

@@ -4,3 +4,6 @@ export class TimeoutError extends Error {
     this.name = "TimeoutError";
   }
 }
+
+// When we can't find the forge binary
+export class ForgeResolveError extends Error {}
