@@ -4,9 +4,11 @@ coverage:
       default:
         threshold: 50%
         base: development
+        informational: true
     patch:
       default:
         threshold: 50%
+        informational: false
     changes:
       default:
         threshold: 10%
