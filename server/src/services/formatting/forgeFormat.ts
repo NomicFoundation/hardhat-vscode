@@ -43,8 +43,8 @@ export async function forgeFormat(
     };
 
     return [textEdit];
-  } catch (error: any) {
-    if (error.killed) {
+  } catch (error: unknown) {
+    if (error instanceof Error && "killed" in error && error.killed) {
       throw new TimeoutError(FORMAT_TIMEOUT);
     } else {
       throw error;
