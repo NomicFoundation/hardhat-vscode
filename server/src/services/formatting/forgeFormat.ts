@@ -1,11 +1,15 @@
-import * as cp from "child_process";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import path from "path";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { TextEdit } from "vscode-languageserver-types";
 import { URI } from "vscode-uri";
-import { promisify } from "util";
+import type { ExecException } from "node:child_process";
 import { resolveForgeCommand } from "../../frameworks/Foundry/resolveForgeCommand";
 import { Logger } from "../../utils/Logger";
+import { execWithInput } from "../../utils/operatingSystem";
+import { TimeoutError } from "../../utils/errors";
+
+const FORMAT_TIMEOUT = 2000;
 
 export async function forgeFormat(
   text: string,
@@ -19,34 +23,36 @@ export async function forgeFormat(
   logger.trace(`Forge command: ${forgeCommand}`);
   logger.trace(`CWD: ${cwd}`);
 
-  // Spawn and promisify the forge fmt process
-  const execPromise = promisify(cp.exec)(`${forgeCommand} fmt --raw -`, {
-    cwd,
-  });
-
-  // Write the file contents to the process
-  const { child } = execPromise;
-  child.stdin?.write(text);
-  child.stdin?.end();
-
-  // Set a time limit
-  const timeout = setTimeout(() => {
-    child.kill("SIGKILL");
-  }, 2000);
-
   // Wait for the formatted output
-  const formattedText = (await execPromise).stdout;
+  try {
+    const { stdout: formattedText } = await execWithInput(
+      `${forgeCommand} fmt --raw -`,
+      text,
+      {
+        cwd,
+        timeout: FORMAT_TIMEOUT,
+      }
+    );
 
-  clearTimeout(timeout);
+    // Build and return a text edit with the entire file content
+    const textEdit: TextEdit = {
+      range: {
+        start: { line: 0, character: 0 },
+        end: document.positionAt(text.length),
+      },
+      newText: formattedText,
+    };
 
-  // Build and return a text edit with the entire file content
-  const textEdit: TextEdit = {
-    range: {
-      start: { line: 0, character: 0 },
-      end: document.positionAt(text.length),
-    },
-    newText: formattedText,
-  };
+    return [textEdit];
+  } catch (error: unknown) {
+    if (isKilledDefinedExecException(error) && error.killed === true) {
+      throw new TimeoutError(FORMAT_TIMEOUT);
+    } else {
+      throw error;
+    }
+  }
+}
 
-  return [textEdit];
+function isKilledDefinedExecException(error: unknown): error is ExecException {
+  return error instanceof Error && "killed" in error;
 }

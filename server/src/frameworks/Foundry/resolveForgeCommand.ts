@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { ForgeResolveError } from "../../utils/errors";
 import { runCmd, runningOnWindows } from "../../utils/operatingSystem";
 
 let resolvedForgeCommand: string;
@@ -41,12 +42,12 @@ export async function resolveForgeCommand() {
         continue;
       } else {
         // command found but execution failed
-        throw error;
+        throw new ForgeResolveError(error.message);
       }
     }
   }
 
-  throw new Error(
+  throw new ForgeResolveError(
     `Couldn't find forge binary. Performed lookup: ${JSON.stringify(
       potentialForgeCommands
     )}`
