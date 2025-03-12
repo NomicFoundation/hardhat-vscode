@@ -5,6 +5,7 @@ import { Logger } from "@utils/Logger";
 import { Transaction } from "@sentry/types";
 import { ServerState } from "../../types";
 import { TrackingResult } from "../../telemetry/types";
+import { ForgeResolveError, TimeoutError } from "../../utils/errors";
 import { prettierFormat } from "./prettierFormat";
 import { forgeFormat } from "./forgeFormat";
 
@@ -46,11 +47,17 @@ export function onDocumentFormatting(serverState: ServerState) {
               return { status: "invalid_argument", result: null };
           }
         } catch (error) {
-          serverState.logger.trace(
+          serverState.logger.info(
             `Error formatting document ${uri} with ${formatter}: ${error}`
           );
 
-          return { status: "internal_error", result: null };
+          if (error instanceof TimeoutError) {
+            return { status: "deadline_exceeded", result: null };
+          } else if (error instanceof ForgeResolveError) {
+            return { status: "failed_precondition", result: null };
+          } else {
+            return { status: "internal_error", result: null };
+          }
         }
       }
     );
