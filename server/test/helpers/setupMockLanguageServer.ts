@@ -30,6 +30,7 @@ import { setupMockLogger } from "./setupMockLogger";
 import { setupMockWorkspaceFileRetriever } from "./setupMockWorkspaceFileRetriever";
 import { setupMockTelemetry } from "./setupMockTelemetry";
 import { forceToUnixStyle } from "./forceToUnixStyle";
+import { setupMockAnalytics } from "./setupMockAnalytics";
 
 export type OnSignatureHelp = (
   params: SignatureHelpParams
@@ -70,6 +71,7 @@ export async function setupMockLanguageServer({
     projects ?? {}
   );
   const mockTelemetry = setupMockTelemetry();
+  const mockAnalytics = setupMockAnalytics();
   const mockLogger = setupMockLogger();
 
   const serverState = await setupServer(
@@ -77,6 +79,7 @@ export async function setupMockLanguageServer({
     mockConnection as any,
     mockWorkspaceFileRetriever,
     mockTelemetry,
+    mockAnalytics,
     mockLogger
   );
 
