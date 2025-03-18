@@ -28,6 +28,7 @@ export class FunctionCallNode extends Node {
     this.setExpressionNode(expression);
 
     if (expression?.type !== "EmitStatement") {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       expression = this;
     }
 
