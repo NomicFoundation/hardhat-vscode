@@ -7,10 +7,7 @@ const path = require("path");
 const { exec } = require("child_process");
 const esbuild = require("esbuild");
 
-const ANTLR_MODULE_PATH =
-  "../server/node_modules/@solidity-parser/parser/dist/antlr";
-const SERVER_MODULE_PATH =
-  "../node_modules/@nomicfoundation/solidity-language-server";
+const ANTLR_MODULE_PATH = "../node_modules/@solidity-parser/parser/src/antlr";
 
 const SOLIDITY_TOKENS = "Solidity.tokens";
 const SOLIDITY_LEXER_TOKENS = "SolidityLexer.tokens";
@@ -23,7 +20,6 @@ const serverWorkerDir = path.join(serverOutDir, "worker");
 
 const clientDir = path.join(tmpDir);
 const clientOutDir = path.join(clientDir, "./out");
-const clientAntlrDir = path.join(clientOutDir, "antlr");
 
 const docsDir = path.join(tmpDir, "./docs");
 const imagesDir = path.join(docsDir, "./images");
@@ -67,7 +63,6 @@ async function main() {
   // Client
   ensureDirExists(clientDir);
   ensureDirExists(clientOutDir);
-  ensureDirExists(clientAntlrDir);
   // Docs
   ensureDirExists(docsDir);
   ensureDirExists(imagesDir);
@@ -105,14 +100,6 @@ async function main() {
   fs.copyFileSync(
     path.join(ANTLR_MODULE_PATH, SOLIDITY_LEXER_TOKENS),
     path.join(serverAntlrDir, SOLIDITY_LEXER_TOKENS)
-  );
-  fs.copyFileSync(
-    path.join(ANTLR_MODULE_PATH, SOLIDITY_TOKENS),
-    path.join(clientAntlrDir, SOLIDITY_TOKENS)
-  );
-  fs.copyFileSync(
-    path.join(ANTLR_MODULE_PATH, SOLIDITY_LEXER_TOKENS),
-    path.join(clientAntlrDir, SOLIDITY_LEXER_TOKENS)
   );
 
   fs.copyFileSync(
