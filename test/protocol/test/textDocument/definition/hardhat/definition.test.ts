@@ -81,7 +81,7 @@ describe('[hardhat] definition', () => {
 
     expect(location).to.deep.equal({
       uri: toUri(getProjectPath('hardhat/contracts/definition/Foo.sol')),
-      range: makeRange(1, 0, 6, 0),
+      range: makeRange(1, 0, 5, 0),
     })
   })
 
@@ -90,7 +90,7 @@ describe('[hardhat] definition', () => {
 
     expect(location).to.deep.equal({
       uri: toUri(getProjectPath('hardhat/node_modules/@openzeppelin/contracts/access/Ownable.sol')),
-      range: makeRange(3, 0, 76, 0),
+      range: makeRange(3, 0, 75, 0),
     })
   })
 
