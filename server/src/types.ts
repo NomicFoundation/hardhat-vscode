@@ -10,6 +10,7 @@ import {
   InitializationFailedError,
 } from "./frameworks/base/Errors";
 import { WorkspaceFileRetriever } from "./utils/WorkspaceFileRetriever";
+import { Analytics } from "./analytics/types";
 
 export interface ServerState {
   env: "production" | "development";
@@ -24,6 +25,7 @@ export interface ServerState {
   solFileIndex: SolFileIndexMap;
 
   telemetry: Telemetry;
+  analytics: Analytics;
   logger: Logger;
   solcVersions: string[];
 
