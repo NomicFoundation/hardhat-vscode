@@ -6,6 +6,11 @@ import { ServerState } from "../../types";
 import { addFrameworkTag } from "../../telemetry/tags";
 import { indexSolidityFile } from "../initialization/indexWorkspaceFolders";
 import { toPath } from "../../utils/paths";
+import {
+  FAILED_PRECONDITION,
+  INTERNAL_ERROR,
+  OK,
+} from "../../telemetry/TelemetryStatus";
 
 export async function analyse(
   serverState: ServerState,
@@ -13,7 +18,7 @@ export async function analyse(
 ) {
   serverState.logger.trace("analyse");
 
-  return serverState.telemetry.trackTiming("analysis", async (transaction) => {
+  return serverState.telemetry.trackTiming("analysis", async () => {
     try {
       const internalUri = decodeUriAndRemoveFilePrefix(document.uri);
 
@@ -28,7 +33,7 @@ export async function analyse(
           new Error(`Could not analyze, uri is not indexed: ${internalUri}`)
         );
 
-        return { status: "failed_precondition", result: false };
+        return { status: FAILED_PRECONDITION, result: false };
       }
       await solFileEntry.project.preAnalyze(absolutePath, document.getText());
 
@@ -41,11 +46,11 @@ export async function analyse(
         });
       }
 
-      addFrameworkTag(transaction, solFileEntry.project);
-      return { status: "ok", result: true };
+      addFrameworkTag(solFileEntry.project);
+      return { status: OK, result: true };
     } catch (err) {
       serverState.logger.error(err);
-      return { status: "internal_error", result: false };
+      return { status: INTERNAL_ERROR, result: false };
     }
   });
 }

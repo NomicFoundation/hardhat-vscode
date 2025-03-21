@@ -57,7 +57,6 @@
     "postpackage": "rimraf ./tmp"
   },
   "devDependencies": {
-    "@sentry/types": "6.19.1",
     "@types/prettier": "2.6.0",
     "@types/vscode": "^1.90",
     "rimraf": "3.0.2",
@@ -65,7 +64,7 @@
   },
   "dependencies": {
     "@nomicfoundation/solidity-language-server": "0.8.20",
-    "@sentry/node": "6.19.1",
+    "@sentry/node": "9.6.1",
     "vscode-languageclient": "9.0.1"
   },
   "contributes": {

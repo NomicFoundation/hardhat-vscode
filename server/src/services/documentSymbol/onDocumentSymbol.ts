@@ -5,8 +5,10 @@ import { DocumentSymbolParams } from "vscode-languageserver/node";
 import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-types";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import _ from "lodash";
+import * as Sentry from "@sentry/node";
 import { ServerState } from "../../types";
 import { resolveVersion, slangToVSCodeRange } from "../../parser/slangHelpers";
+import { INTERNAL_ERROR, OK } from "../../telemetry/TelemetryStatus";
 import { SymbolTreeBuilder } from "./SymbolTreeBuilder";
 import { SymbolFinder } from "./SymbolFinder";
 import { StructDefinition } from "./finders/StructDefinition";
@@ -64,7 +66,7 @@ export function onDocumentSymbol(serverState: ServerState) {
     const { NonterminalKind } = await import("@nomicfoundation/slang/cst");
 
     const { telemetry, logger } = serverState;
-    return telemetry.trackTiming("onDocumentSymbol", async (transaction) => {
+    return telemetry.trackTiming("onDocumentSymbol", async () => {
       const { uri } = params.textDocument;
 
       // Find the file in the documents collection
@@ -77,9 +79,10 @@ export function onDocumentSymbol(serverState: ServerState) {
       const text = document.getText();
 
       // Get the document's solidity version
-      let span = transaction.startChild({ op: "solidity-analyzer" });
-      const { versionPragmas } = analyze(text);
-      span.finish();
+      const { versionPragmas } = Sentry.startSpan(
+        { name: "solidity-analyzer" },
+        () => analyze(text)
+      );
 
       const resolvedVersion = await resolveVersion(logger, versionPragmas);
 
@@ -87,14 +90,13 @@ export function onDocumentSymbol(serverState: ServerState) {
         const language = Parser.create(resolvedVersion);
 
         // Parse using slang
-        span = transaction.startChild({ op: "slang-parsing" });
 
-        const parseOutput = language.parseNonterminal(
-          NonterminalKind.SourceUnit,
-          document.getText()
+        const parseOutput = Sentry.startSpan({ name: "slang-parsing" }, () =>
+          language.parseNonterminal(
+            NonterminalKind.SourceUnit,
+            document.getText()
+          )
         );
-
-        span.finish();
 
         const builder = new SymbolTreeBuilder();
 
@@ -115,59 +117,56 @@ export function onDocumentSymbol(serverState: ServerState) {
         //   );
         // } while (kursor.goToNext());
 
-        span = transaction.startChild({ op: "run-query" });
-
         // Execute a single call with all the queries
-        const queries = await Promise.all(finders.map((f) => f.getQuery()));
-        const matches = cursor.query(queries);
-
-        span.finish();
-
-        span = transaction.startChild({ op: "build-symbols" });
+        const matches = Sentry.startSpan({ name: "run-query" }, () =>
+          cursor.query(finders.map((f) => f.getQuery()))
+        );
 
         // Transform the query results into symbols
-        let match;
-        const symbols = [];
+        Sentry.startSpan({ name: "build-symbols" }, () => {
+          let match;
+          const symbols = [];
 
-        while ((match = matches.next())) {
-          const finder = finders[match.queryIndex];
-          const symbol = finder.findSymbol(match);
+          while ((match = matches.next())) {
+            const finder = finders[match.queryIndex];
+            const symbol = finder.findSymbol(match);
 
-          symbols.push(symbol);
-        }
-
-        // Build the symbol tree
-        for (const symbol of symbols) {
-          const symbolRange = slangToVSCodeRange(symbol.range);
-
-          let lastOpenSymbol;
-
-          // Insert the symbol in the tree with the correct hierarchy
-          while ((lastOpenSymbol = builder.lastOpenSymbol())) {
-            const lastEndOffset = document.offsetAt(lastOpenSymbol.range!.end);
-            const currentEndOffset = document.offsetAt(symbolRange.end);
-
-            if (lastEndOffset < currentEndOffset) {
-              builder.closeSymbol();
-            } else {
-              break;
-            }
+            symbols.push(symbol);
           }
 
-          builder.openSymbol({
-            kind: symbol.symbolKind,
-            name: symbol.name,
-            range: symbolRange,
-            selectionRange: symbolRange,
-          });
-        }
+          // Build the symbol tree
+          for (const symbol of symbols) {
+            const symbolRange = slangToVSCodeRange(symbol.range);
 
-        span.finish();
+            let lastOpenSymbol;
 
-        return { status: "ok", result: builder.getSymbols() };
+            // Insert the symbol in the tree with the correct hierarchy
+            while ((lastOpenSymbol = builder.lastOpenSymbol())) {
+              const lastEndOffset = document.offsetAt(
+                lastOpenSymbol.range!.end
+              );
+              const currentEndOffset = document.offsetAt(symbolRange.end);
+
+              if (lastEndOffset < currentEndOffset) {
+                builder.closeSymbol();
+              } else {
+                break;
+              }
+            }
+
+            builder.openSymbol({
+              kind: symbol.symbolKind,
+              name: symbol.name,
+              range: symbolRange,
+              selectionRange: symbolRange,
+            });
+          }
+        });
+
+        return { status: OK, result: builder.getSymbols() };
       } catch (error) {
         logger.error(`Document Symbol Error: ${error}`);
-        return { status: "internal_error", result: null };
+        return { status: INTERNAL_ERROR, result: null };
       }
     });
   };

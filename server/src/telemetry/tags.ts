@@ -1,11 +1,14 @@
-import { Transaction } from "@sentry/types";
+import { setTag, Span } from "@sentry/core";
 import { Project } from "../frameworks/base/Project";
 
-export function addFrameworkTag(transaction: Transaction, project: Project) {
-  transaction.tags = {
-    ...(transaction.tags ?? {}),
-    ...frameworkTag(project),
-  };
+export function addFrameworkTag(project: Project, span?: Span) {
+  if (span !== undefined) {
+    span.setAttributes({
+      ...frameworkTag(project),
+    });
+  } else {
+    setTag("framework", project.frameworkName());
+  }
 }
 
 export function frameworkTag(project: Project) {
