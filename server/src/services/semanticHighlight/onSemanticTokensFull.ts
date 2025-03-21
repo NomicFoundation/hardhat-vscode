@@ -8,8 +8,10 @@ import {
 import _ from "lodash";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import { Language } from "@nomicfoundation/slang/language";
+import { startSpan } from "@sentry/core";
 import { ServerState } from "../../types";
 import { resolveVersion } from "../../parser/slangHelpers";
+import { INTERNAL_ERROR, OK } from "../../telemetry/TelemetryStatus";
 import { SemanticTokensBuilder } from "./SemanticTokensBuilder";
 import { ContractDefinitionHighlighter } from "./highlighters/ContractDefinitionHighlighter";
 import { CustomTypeHighlighter } from "./highlighters/CustomTypeHighlighter";
@@ -52,7 +54,7 @@ export function onSemanticTokensFull(serverState: ServerState) {
     const { telemetry, logger } = serverState;
 
     return (
-      telemetry.trackTimingSync("onSemanticTokensFull", (transaction) => {
+      telemetry.trackTimingSync("onSemanticTokensFull", () => {
         const { uri } = params.textDocument;
 
         // Find the file in the documents collection
@@ -61,7 +63,7 @@ export function onSemanticTokensFull(serverState: ServerState) {
         if (document === undefined) {
           logger.error("document not found in collection");
           return {
-            status: "internal_error",
+            status: INTERNAL_ERROR,
             result: emptyResponse,
           };
         }
@@ -69,23 +71,19 @@ export function onSemanticTokensFull(serverState: ServerState) {
         const text = document.getText();
 
         // Get the document's solidity version
-        let span = transaction.startChild({ op: "solidity-analyzer" });
-        const { versionPragmas } = analyze(text);
-        span.finish();
+        const { versionPragmas } = startSpan(
+          { name: "solidity-analyzer" },
+          () => analyze(text)
+        );
 
         const resolvedVersion = resolveVersion(logger, versionPragmas);
 
         try {
           const language = new Language(resolvedVersion);
           // Parse using slang
-          span = transaction.startChild({ op: "slang-parsing" });
-
-          const parseOutput = language.parse(
-            Language.rootKind(),
-            document.getText()
+          const parseOutput = startSpan({ name: "slang-parsing" }, () =>
+            language.parse(Language.rootKind(), document.getText())
           );
-
-          span.finish();
 
           // Register highlighters
           const builder = new SemanticTokensBuilder(document);
@@ -103,10 +101,10 @@ export function onSemanticTokensFull(serverState: ServerState) {
             highlighter.onResult(builder, match);
           }
 
-          return { status: "ok", result: { data: builder.getTokenData() } };
+          return { status: OK, result: { data: builder.getTokenData() } };
         } catch (error) {
           logger.error(`Semantic Highlighting Error: ${error}`);
-          return { status: "internal_error", result: emptyResponse };
+          return { status: INTERNAL_ERROR, result: emptyResponse };
         }
       }) || emptyResponse
     );
