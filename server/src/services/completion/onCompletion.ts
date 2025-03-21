@@ -26,6 +26,7 @@ import {
 import { applyEditToDocumentAnalyzer } from "@utils/applyEditToDocumentAnalyzer";
 import { ServerState } from "../../types";
 import { addFrameworkTag } from "../../telemetry/tags";
+import { INTERNAL_ERROR, OK } from "../../telemetry/TelemetryStatus";
 import { ProjectContext } from "./types";
 import { getImportPathCompletion } from "./getImportPathCompletion";
 import { globalVariables, defaultCompletion } from "./defaultCompletion";
@@ -38,44 +39,41 @@ export const onCompletion = (serverState: ServerState) => {
 
     logger.trace("onCompletion");
 
-    return serverState.telemetry.trackTiming(
-      "onCompletion",
-      async (transaction) => {
-        const { found, errorMessage, documentAnalyzer, document } =
-          await applyEditToDocumentAnalyzer(
-            serverState,
-            params.textDocument.uri,
-            (doc) => resolveChangedDocText(params, doc)
-          );
-
-        if (!found || !documentAnalyzer || !document) {
-          logger.trace(
-            `Error editing and analyzing doc within onCompletion: ${errorMessage}`
-          );
-
-          return { status: "failed_precondition", result: null };
-        }
-
-        const project = documentAnalyzer.project;
-
-        const projCtx: ProjectContext = {
-          project,
-          solFileIndex: serverState.solFileIndex,
-        };
-
-        addFrameworkTag(transaction, project);
-        const completions = doComplete(
-          documentAnalyzer,
-          params.position,
-          params.context,
-          projCtx,
+    return serverState.telemetry.trackTiming("onCompletion", async () => {
+      const { found, errorMessage, documentAnalyzer, document } =
+        await applyEditToDocumentAnalyzer(
           serverState,
-          document
+          params.textDocument.uri,
+          (doc) => resolveChangedDocText(params, doc)
         );
 
-        return { status: "ok", result: completions };
+      if (!found || !documentAnalyzer || !document) {
+        logger.trace(
+          `Error editing and analyzing doc within onCompletion: ${errorMessage}`
+        );
+
+        return { status: INTERNAL_ERROR, result: null };
       }
-    );
+
+      const project = documentAnalyzer.project;
+
+      const projCtx: ProjectContext = {
+        project,
+        solFileIndex: serverState.solFileIndex,
+      };
+
+      addFrameworkTag(project);
+      const completions = doComplete(
+        documentAnalyzer,
+        params.position,
+        params.context,
+        projCtx,
+        serverState,
+        document
+      );
+
+      return { status: OK, result: completions };
+    });
   };
 };
 

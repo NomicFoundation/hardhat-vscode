@@ -7,6 +7,7 @@ import {
 import { ServerState } from "../../types";
 import { tokensTypes } from "../semanticHighlight/tokenTypes";
 import { isSlangSupported } from "../../parser/slangHelpers";
+import { OK } from "../../telemetry/TelemetryStatus";
 import { indexWorkspaceFolders } from "./indexWorkspaceFolders";
 import { updateAvailableSolcVersions } from "./updateAvailableSolcVersions";
 
@@ -49,15 +50,14 @@ export const onInitialize = (serverState: ServerState) => {
     const slangSupported = isSlangSupported();
 
     // Index and analysis
-    await serverState.telemetry.trackTiming("indexing", async (transaction) => {
+    await serverState.telemetry.trackTiming("indexing", async () => {
       await indexWorkspaceFolders(
         serverState,
         serverState.workspaceFileRetriever,
-        workspaceFolders,
-        transaction
+        workspaceFolders
       );
 
-      return { status: "ok", result: null };
+      return { status: OK, result: null };
     });
 
     // Build and return InitializeResult
