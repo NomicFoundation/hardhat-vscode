@@ -114,6 +114,8 @@ export class HardhatProject extends Project {
 
       this.workerProcess.on("error", (err) => {
         this.logger.info(`Worker exited with error: ${err}`);
+        this.workerLoadFailureReason = `Child process couldnt be spawned for ${this.id()}`;
+        this.workerStatus = WorkerStatus.ERRORED;
       });
 
       this.workerProcess.on("exit", async (code) => {
@@ -140,7 +142,7 @@ export class HardhatProject extends Project {
         // HRE was loaded successfully. Delegate to the worker that will use the configured sources path
         const requestId = this._prepareRequest(resolve, reject);
 
-        this.workerProcess!.send(new FileBelongsRequest(requestId, sourceURI));
+        this._sendToChild(new FileBelongsRequest(requestId, sourceURI));
       } else {
         // HRE could not be loaded. Claim ownership of all solidity files under root folder
         // This is to avoid potential hardhat-owned contracts being assigned to i.e. projectless
@@ -163,12 +165,12 @@ export class HardhatProject extends Project {
   ): Promise<CompilationDetails> {
     const workerPromise = new Promise((resolve, reject) => {
       this._assertWorkerExists();
-      this._assertWorkerNotInitializing();
       this._checkWorkerNotErrored();
+      this._assertWorkerIsRunning();
 
       const requestId = this._prepareRequest(resolve, reject);
 
-      this.workerProcess!.send(
+      this._sendToChild(
         new BuildCompilationRequest(requestId, sourceUri, openDocuments)
       );
     });
@@ -197,7 +199,7 @@ export class HardhatProject extends Project {
     for (const change of changes) {
       if (change.uri.endsWith(".sol")) {
         if (this._isWorkerRunning()) {
-          this.workerProcess!.send(new InvalidateBuildCacheMessage());
+          this._sendToChild(new InvalidateBuildCacheMessage());
         }
       } else if (toPath(change.uri) === this.configPath) {
         this.logger.info(`Config file changed. Restarting worker process.`);
@@ -219,7 +221,7 @@ export class HardhatProject extends Project {
       // HRE was loaded successfully. Delegate to the worker that will use the configured sources path
       const requestId = this._prepareRequest(resolve, reject);
 
-      this.workerProcess!.send(
+      this._sendToChild(
         new ResolveImportRequest(requestId, from, importPath, this.basePath)
       );
     });
@@ -231,7 +233,7 @@ export class HardhatProject extends Project {
   }
 
   public invalidateBuildCache() {
-    this.workerProcess?.send(new InvalidateBuildCacheMessage());
+    this._sendToChild(new InvalidateBuildCacheMessage());
   }
 
   public getImportCompletions(
@@ -251,6 +253,17 @@ export class HardhatProject extends Project {
     uri: string
   ): CodeAction[] {
     return resolveActionsFor(this.serverState, diagnostic, document, uri);
+  }
+
+  private _sendToChild(message: Message) {
+    this._assertWorkerExists();
+    this.workerProcess!.send(message, (error) => {
+      if (error) {
+        this.workerStatus = WorkerStatus.ERRORED;
+        this.logger.error(`Error sending message to hardhat worker: ${error}`);
+        throw error;
+      }
+    });
   }
 
   private _requestTimeout(label: string) {
