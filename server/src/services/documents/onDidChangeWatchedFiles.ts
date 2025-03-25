@@ -22,7 +22,13 @@ export function onDidChangeWatchedFiles(serverState: ServerState) {
 
     // Notify all registered projects of the file changes
     for (const project of Object.values(serverState.projects)) {
-      await project.onWatchedFilesChanges(params);
+      try {
+        await project.onWatchedFilesChanges(params);
+      } catch (error) {
+        serverState.logger.error(
+          `onWatchedFilesChanges error on ${project.id()}: ${error}`
+        );
+      }
     }
   };
 }
