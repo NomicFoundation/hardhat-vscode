@@ -70,6 +70,10 @@ export class WorkerProcess {
       }
     });
 
+    process.on("disconnect", () => {
+      process.exit(0);
+    });
+
     try {
       this._loadHRE();
     } catch (err: any) {
@@ -429,8 +433,8 @@ export class WorkerProcess {
 
   public async send(msg: Message) {
     return new Promise<void>((resolve, reject) => {
-      if (!process.send) {
-        return;
+      if (!process.send || !process.connected) {
+        process.exit(1);
       }
 
       process.send(msg, (err: unknown) => {
