@@ -862,7 +862,7 @@
               "include": "#type-user"
             },
             {
-              "match": "\\b(?:(indexed)\\s)?(\\w+)(?:,\\s*|)",
+              "match": "\\b(?:(indexed)\\s)?(\\w+)",
               "captures": {
                 "1": {
                   "name": "storage.type.modifier.indexed"
