@@ -921,7 +921,8 @@
                   "include": "#function-call"
                 }
               ]
-            }
+            },
+            { "include": "#punctuation" }
           ]
         },
         {
@@ -931,6 +932,9 @@
               "name": "storage.type.constructor"
             }
           }
+        },
+        {
+          "include": "#punctuation"
         }
       ]
     },
