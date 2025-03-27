@@ -1055,6 +1055,9 @@
             },
             {
               "include": "#comment"
+            },
+            {
+              "include": "#punctuation"
             }
           ]
         },
