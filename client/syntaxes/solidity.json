@@ -919,6 +919,9 @@
                 },
                 {
                   "include": "#function-call"
+                },
+                {
+                  "include": "$self"
                 }
               ]
             },
