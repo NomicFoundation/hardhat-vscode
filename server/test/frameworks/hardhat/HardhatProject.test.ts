@@ -10,7 +10,7 @@ import { ServerState } from "../../../src/types";
 
 describe("HardhatProject", function () {
   let project: HardhatProject;
-  const workerProcessMock = {} as ChildProcess;
+  const workerProcessMock = { connected: true } as ChildProcess;
   const serverStateMock = {
     logger: {},
   } as ServerState;
