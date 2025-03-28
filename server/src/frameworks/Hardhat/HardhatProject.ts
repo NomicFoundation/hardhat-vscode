@@ -181,18 +181,6 @@ export class HardhatProject extends Project {
     ]) as Promise<CompilationDetails>;
   }
 
-  private _prepareRequest(
-    resolve: (value: unknown) => void,
-    reject: (reason?: any) => void
-  ): number {
-    this.requestId++;
-
-    this._onResponse[this.requestId] = resolve;
-    this._onError[this.requestId] = reject;
-
-    return this.requestId;
-  }
-
   public async onWatchedFilesChanges({
     changes,
   }: DidChangeWatchedFilesParams): Promise<void> {
@@ -257,6 +245,8 @@ export class HardhatProject extends Project {
 
   private _sendToChild(message: Message) {
     this._assertWorkerExists();
+    this._assertWorkerIsRunning();
+    this._assertWorkerConnected();
 
     this.workerProcess.send(message, (error) => {
       if (error) {
@@ -265,6 +255,18 @@ export class HardhatProject extends Project {
         throw error;
       }
     });
+  }
+
+  private _prepareRequest(
+    resolve: (value: unknown) => void,
+    reject: (reason?: any) => void
+  ): number {
+    this.requestId++;
+
+    this._onResponse[this.requestId] = resolve;
+    this._onError[this.requestId] = reject;
+
+    return this.requestId;
   }
 
   private _requestTimeout(label: string) {
@@ -405,6 +407,15 @@ export class HardhatProject extends Project {
     if (!this._isWorkerRunning()) {
       throw new Error(
         `Worker is not running. Status: ${this.workerStatus}, error: ${this.workerLoadFailureReason}`
+      );
+    }
+  }
+
+  private _assertWorkerConnected() {
+    if (!this.workerProcess || !this.workerProcess.connected) {
+      this.workerStatus = WorkerStatus.ERRORED;
+      throw new Error(
+        `Hardhat Worker process is not connected - cannot send message. Worker Status: ${this.workerStatus}`
       );
     }
   }
