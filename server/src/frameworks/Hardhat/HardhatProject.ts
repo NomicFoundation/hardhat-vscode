@@ -257,7 +257,8 @@ export class HardhatProject extends Project {
 
   private _sendToChild(message: Message) {
     this._assertWorkerExists();
-    this.workerProcess!.send(message, (error) => {
+
+    this.workerProcess.send(message, (error) => {
       if (error) {
         this.workerStatus = WorkerStatus.ERRORED;
         this.logger.error(`Error sending message to hardhat worker: ${error}`);
@@ -386,7 +387,9 @@ export class HardhatProject extends Project {
     }
   }
 
-  private _assertWorkerExists() {
+  private _assertWorkerExists(): asserts this is {
+    workerProcess: ChildProcess;
+  } {
     if (this.workerProcess === undefined) {
       throw new Error("Worker process not spawned");
     }
