@@ -33,7 +33,7 @@ describe("HardhatProject", function () {
     project.workerStatus = WorkerStatus.RUNNING;
   });
 
-  describe.only("buildCompilation", function () {
+  describe("buildCompilation", function () {
     let sendRequest: BuildCompilationRequest | null = null;
     const fakedCompilationResponse: CompilationDetails = {
       solcVersion: "0.8.20",
@@ -47,6 +47,9 @@ describe("HardhatProject", function () {
     beforeEach(async () => {
       sendRequest = null;
 
+      // Set the process as connected
+      (project as any).workerProcess.connected = true;
+
       workerProcessMock.send = function (request: RequestMessage) {
         sendRequest = request as BuildCompilationRequest;
 
@@ -56,6 +59,12 @@ describe("HardhatProject", function () {
         );
 
         return true;
+      };
+
+      (project as any).logger = {
+        error: () => {
+          // ignore error logging
+        },
       };
     });
 
@@ -73,6 +82,8 @@ describe("HardhatProject", function () {
           buildCompilationRequest.sourceUri,
           "./contracts/examples.sol"
         );
+
+        assertResponseAndErrorHandlersHaveBeenCleanedUp(project);
       });
     });
 
@@ -104,6 +115,8 @@ describe("HardhatProject", function () {
         }
 
         assert.ok(caughtException);
+
+        assertResponseAndErrorHandlersHaveBeenCleanedUp(project);
       });
     });
 
@@ -129,6 +142,8 @@ describe("HardhatProject", function () {
         }
 
         assert.ok(caughtException);
+
+        assertResponseAndErrorHandlersHaveBeenCleanedUp(project);
       });
     });
 
@@ -136,15 +151,7 @@ describe("HardhatProject", function () {
       it("throws an error indicating the worker is not connected", async () => {
         project.workerStatus = WorkerStatus.RUNNING;
 
-        if (project.workerProcess === undefined) {
-          return assert.fail("Worker process should be defined");
-        }
-
-        // Set `project.workerProcess.connected = false`
-        Object.defineProperty(project.workerProcess, "connected", {
-          value: false,
-          writable: true,
-        });
+        (project as any).workerProcess.connected = false;
 
         let caughtException = false;
         try {
@@ -170,6 +177,50 @@ describe("HardhatProject", function () {
         }
 
         assert.ok(caughtException);
+      });
+    });
+
+    describe("when initialization was correct but the sending from the process fails (even though it appeared connected)", function () {
+      it("throws an error indicating the worker could not be communicated with", async () => {
+        project.workerStatus = WorkerStatus.RUNNING;
+
+        if (project.workerProcess === undefined) {
+          return assert.fail("Worker process should be defined");
+        }
+
+        workerProcessMock.send = function (
+          request: RequestMessage,
+          onFailFn: any
+        ) {
+          sendRequest = request as BuildCompilationRequest;
+
+          onFailFn(new Error("Fake failed to send message"));
+
+          return false;
+        };
+
+        let caughtException = false;
+        try {
+          await project.buildCompilation("./contracts/examples.sol", []);
+
+          assert.fail(
+            "The build compilation should be blocked because the underlying worker could not be sent to"
+          );
+        } catch (error) {
+          caughtException = true;
+
+          if (!(error instanceof Error)) {
+            assert.fail(
+              "Expected an Error to be thrown on a stopped Worker that can't be reached"
+            );
+          }
+
+          assert.equal(error.message, "Fake failed to send message");
+        }
+
+        assert.ok(caughtException);
+
+        assertResponseAndErrorHandlersHaveBeenCleanedUp(project);
       });
     });
   });
@@ -224,3 +275,25 @@ describe("HardhatProject", function () {
     });
   });
 });
+
+function assertResponseAndErrorHandlersHaveBeenCleanedUp(
+  hardhatProject: HardhatProject
+) {
+  const errorHandlers: { [requestId: number]: (result: any) => void } = (
+    hardhatProject as any
+  )._onError;
+  const responseHandlers: { [requestId: number]: (result: any) => void } = (
+    hardhatProject as any
+  )._onResponse;
+
+  assert.equal(
+    Object.keys(errorHandlers).length,
+    0,
+    "The error handlers have not been cleaned up"
+  );
+  assert.equal(
+    Object.keys(responseHandlers).length,
+    0,
+    "The response handlers have not been cleaned up"
+  );
+}
