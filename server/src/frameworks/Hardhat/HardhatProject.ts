@@ -216,7 +216,7 @@ export class HardhatProject extends Project {
 
     return Promise.race([
       workerPromise,
-      this._requestTimeout("fileBelongs"),
+      this._requestTimeout("resolveImportPath"),
     ]) as Promise<string>;
   }
 
@@ -252,7 +252,13 @@ export class HardhatProject extends Project {
       if (error) {
         this.workerStatus = WorkerStatus.ERRORED;
         this.logger.error(`Error sending message to hardhat worker: ${error}`);
-        throw error;
+
+        if ("requestId" in message) {
+          const messageWithId: { requestId: number } = message as any;
+          this._callErrorForRequest(messageWithId.requestId, error);
+        } else {
+          throw error;
+        }
       }
     });
   }
@@ -351,17 +357,7 @@ export class HardhatProject extends Project {
   }
 
   private _handleErrorResponse(msg: ErrorResponseMessage) {
-    const errorFunction = this._onError[msg.requestId];
-
-    if (errorFunction === undefined) {
-      this.logger.error(
-        `Error function not found for request id ${msg.requestId}`
-      );
-    } else {
-      delete this._onError[msg.requestId];
-      delete this._onResponse[msg.requestId];
-      errorFunction(msg.error);
-    }
+    this._callErrorForRequest(msg.requestId, msg.error);
   }
 
   private _handleFileBelongsResponse(msg: FileBelongsResponse) {
@@ -432,6 +428,18 @@ export class HardhatProject extends Project {
       };
 
       throw error;
+    }
+  }
+
+  private _callErrorForRequest(requestId: number, error: any) {
+    const errorFunction = this._onError[requestId];
+
+    if (errorFunction === undefined) {
+      this.logger.error(`Error function not found for request id ${requestId}`);
+    } else {
+      delete this._onError[requestId];
+      delete this._onResponse[requestId];
+      errorFunction(error);
     }
   }
 }
