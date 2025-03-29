@@ -139,6 +139,8 @@ export class HardhatProject extends Project {
       this._assertWorkerNotInitializing();
 
       if (this.workerStatus === WorkerStatus.RUNNING) {
+        this._assertWorkerConnected();
+
         // HRE was loaded successfully. Delegate to the worker that will use the configured sources path
         const requestId = this._prepareRequest(resolve, reject);
 
@@ -167,6 +169,7 @@ export class HardhatProject extends Project {
       this._assertWorkerExists();
       this._checkWorkerNotErrored();
       this._assertWorkerIsRunning();
+      this._assertWorkerConnected();
 
       const requestId = this._prepareRequest(resolve, reject);
 
@@ -205,6 +208,7 @@ export class HardhatProject extends Project {
     const workerPromise = new Promise((resolve, reject) => {
       this._assertWorkerExists();
       this._assertWorkerIsRunning();
+      this._assertWorkerConnected();
 
       // HRE was loaded successfully. Delegate to the worker that will use the configured sources path
       const requestId = this._prepareRequest(resolve, reject);
@@ -245,7 +249,6 @@ export class HardhatProject extends Project {
 
   private _sendToChild(message: Message) {
     this._assertWorkerExists();
-    this._assertWorkerIsRunning();
     this._assertWorkerConnected();
 
     this.workerProcess.send(message, (error) => {
