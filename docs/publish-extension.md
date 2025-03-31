@@ -20,6 +20,7 @@ To publish `hardhat-solidity` you need to do next steps:
    - The language server package version in `./server/package.json`
    - The coc extension package version in `./coc/package.json`
      - Its `@nomicfoundation/solidity-language-server` dependency version.
+   - Run `npm install` so the lockfile is updated
 
 7. Update the changelog in `./client/CHANGELOG.md` by adding a new entry for the new version based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 8. Commit the package version and changelog change as a version bump commit:

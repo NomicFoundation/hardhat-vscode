@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.12 - 2025-03-31
+
+### Changed
+
+- Moved e2e tests to a separate package with its own typescript config.
+- Improved robustness on child process handling on hardhat project workers.
+
 ## 0.8.11 - 2025-03-12
 
 ### Fixed
