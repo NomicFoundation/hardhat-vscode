@@ -36,13 +36,7 @@ function rename(
   position: VSCodePosition,
   newName: string
 ): WorkspaceEdit {
-  try {
-    solFileEntry.project.invalidateBuildCache();
-  } catch (error) {
-    solFileEntry.project.serverState.logger.error(
-      `Error while invalidating build cache on ${solFileEntry.project.id()}: ${error}`
-    );
-  }
+  solFileEntry.project.invalidateBuildCache();
 
   const originRenameNode = solFileEntry.searcher.findRenameNodeByPosition(
     solFileEntry.uri,
