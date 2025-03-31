@@ -412,7 +412,6 @@ export class HardhatProject extends Project {
 
   private _assertWorkerConnected() {
     if (!this.workerProcess || !this.workerProcess.connected) {
-      this.workerStatus = WorkerStatus.ERRORED;
       throw new Error(
         `Hardhat Worker process is not connected - cannot send message. Worker Status: ${this.workerStatus}`
       );
