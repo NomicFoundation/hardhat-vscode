@@ -55,19 +55,13 @@ export async function getDependenciesAndPragmas(
     resolvedPath: string;
   }> = [];
   for (const importName of imports) {
-    try {
-      const resolvedPath = await project.resolveImportPath(
-        sourcePath,
-        importName
-      );
+    const resolvedPath = await project.resolveImportPath(
+      sourcePath,
+      importName
+    );
 
-      if (resolvedPath !== undefined) {
-        resolvedImports.push({ importName, resolvedPath });
-      }
-    } catch (error) {
-      project.serverState.logger.error(
-        `resolveImportPath error on ${project.id()}: ${error}`
-      );
+    if (resolvedPath !== undefined) {
+      resolvedImports.push({ importName, resolvedPath });
     }
   }
 
