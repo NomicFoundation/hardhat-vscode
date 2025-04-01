@@ -14,6 +14,7 @@
     "ethereum",
     "hardhat"
   ],
+  "type": "commonjs",
   "main": "out/index.js",
   "files": [
     "out/index.js"

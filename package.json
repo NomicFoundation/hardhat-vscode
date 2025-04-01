@@ -16,6 +16,7 @@
   "bugs": {
     "url": "https://github.com/NomicFoundation/hardhat-vscode/issues"
   },
+  "type": "commonjs",
   "scripts": {
     "build": "tsc -b ./client/tsconfig.json && tsc -b ./server/tsconfig.build.json && tsc -b ./coc/tsconfig.json",
     "watch": "concurrently -n client,server \"tsc -b -w ./client/tsconfig.json\" \"tsc -b -w ./server/tsconfig.build.json\"",

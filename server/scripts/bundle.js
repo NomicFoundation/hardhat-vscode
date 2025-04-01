@@ -77,7 +77,8 @@ async function main() {
     platform: "node",
     outdir: ".",
     logLevel: "info",
-    target: "node14",
+    target: "node20",
+    format: "cjs",
     define: definedConstants,
   });
 

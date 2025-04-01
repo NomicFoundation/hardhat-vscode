@@ -6,6 +6,7 @@
   "license": "MIT",
   "version": "0.8.12",
   "private": true,
+  "type": "commonjs",
   "main": "./out/extension.js",
   "module": "./out/extension.js",
   "icon": "docs/images/vscode-logo.png",

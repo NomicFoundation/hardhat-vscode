@@ -154,6 +154,8 @@ async function main() {
     loader: {
       ".md": "text",
     },
+    target: "node20",
+    format: "cjs",
     define: definedConstants,
   });
 
