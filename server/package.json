@@ -24,7 +24,7 @@
     "nomicfoundation-solidity-language-server": "./out/index.js"
   },
   "engines": {
-    "node": "*"
+    "node": ">=20.9.0"
   },
   "scripts": {
     "build": "tsc -b tsconfig.build.json",

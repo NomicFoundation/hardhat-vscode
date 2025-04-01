@@ -36,7 +36,8 @@
     "coc.nvim": "^0.0.80"
   },
   "engines": {
-    "coc": "^0.0.80"
+    "coc": "^0.0.80",
+    "node": ">=20.9.0"
   },
   "activationEvents": [
     "onLanguage:solidity"
