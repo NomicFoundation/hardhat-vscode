@@ -65,7 +65,7 @@ jobs:
           cache-name: cache-vscode
         with:
           path: .vscode-test
-          key: ${{ runner.os }}-vscode-1.86.0
+          key: ${{ runner.os }}-vscode-1.90.0
 
       - name: Run E2E tests
         uses: coactions/setup-xvfb@v1.0.1

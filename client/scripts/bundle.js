@@ -7,10 +7,7 @@ const path = require("path");
 const { exec } = require("child_process");
 const esbuild = require("esbuild");
 
-const ANTLR_MODULE_PATH =
-  "../server/node_modules/@solidity-parser/parser/dist/antlr";
-const SERVER_MODULE_PATH =
-  "../node_modules/@nomicfoundation/solidity-language-server";
+const ANTLR_MODULE_PATH = "../node_modules/@solidity-parser/parser/dist/antlr";
 
 const SOLIDITY_TOKENS = "Solidity.tokens";
 const SOLIDITY_LEXER_TOKENS = "SolidityLexer.tokens";
@@ -157,6 +154,8 @@ async function main() {
     loader: {
       ".md": "text",
     },
+    target: "node20",
+    format: "cjs",
     define: definedConstants,
   });
 

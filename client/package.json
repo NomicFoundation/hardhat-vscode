@@ -6,6 +6,7 @@
   "license": "MIT",
   "version": "0.8.12",
   "private": true,
+  "type": "commonjs",
   "main": "./out/extension.js",
   "module": "./out/extension.js",
   "icon": "docs/images/vscode-logo.png",
@@ -35,7 +36,7 @@
     "url": "https://github.com/NomicFoundation/hardhat-vscode/issues"
   },
   "engines": {
-    "vscode": "^1.86.0"
+    "vscode": "^1.90.0"
   },
   "activationEvents": [
     "onLanguage:solidity",
@@ -58,8 +59,7 @@
   "devDependencies": {
     "@sentry/types": "6.19.1",
     "@types/prettier": "2.6.0",
-    "@types/vscode": "^1.86",
-    "eslint": "^7.23.0",
+    "@types/vscode": "^1.90",
     "rimraf": "3.0.2",
     "prettier": "2.5.1"
   },

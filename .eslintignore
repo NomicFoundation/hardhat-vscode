@@ -3,6 +3,8 @@ client/node_modules/**
 client/out/**
 server/node_modules/**
 server/out/**
+coc/node_modules/**
+coc/out/**
 client/.eslintrc.js
 server/.eslintrc.js
 test/e2e/projects/**
