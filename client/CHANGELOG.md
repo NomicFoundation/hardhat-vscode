@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.13 - 2025-04-01
+
+### Changed
+
+- Updated dependencies to latest versions, most importantly typescript
+- Changed typescript modules and target, in preparation for slang upgrade
+- Updated minimum node version to 20 and vscode engine to 1.90
+
 ## 0.8.12 - 2025-03-31
 
 ### Changed
