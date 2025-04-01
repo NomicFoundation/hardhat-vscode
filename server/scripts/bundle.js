@@ -6,8 +6,7 @@ const fs = require("fs");
 const path = require("path");
 const esbuild = require("esbuild");
 
-const ANTLR_MODULE_PATH =
-  "../server/node_modules/@solidity-parser/parser/dist/antlr";
+const ANTLR_MODULE_PATH = "../node_modules/@solidity-parser/parser/dist/antlr";
 
 const SOLIDITY_TOKENS = "Solidity.tokens";
 const SOLIDITY_LEXER_TOKENS = "SolidityLexer.tokens";
@@ -78,7 +77,8 @@ async function main() {
     platform: "node",
     outdir: ".",
     logLevel: "info",
-    target: "node14",
+    target: "node20",
+    format: "cjs",
     define: definedConstants,
   });
 

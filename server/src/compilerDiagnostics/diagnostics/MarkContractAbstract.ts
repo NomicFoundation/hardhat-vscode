@@ -61,7 +61,7 @@ export class MarkContractAbstract {
     { document, uri }: ResolveActionsContext
   ): CodeAction | null {
     const contractToken = tokens.find(
-      (t) => "Keyword" && t.value === "contract"
+      (t) => t.type === "Keyword" && t.value === "contract"
     );
 
     if (contractToken === undefined || contractToken.range === undefined) {
