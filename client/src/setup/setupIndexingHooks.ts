@@ -17,7 +17,7 @@ export function setupIndexingHooks(
   const indexingStatusItem = setupIndexingLanguageStatusItem();
 
   client
-    .onReady()
+    .start()
     .then(() => {
       // Hide spinner when initialization ends
       indexingStatusItem.dispose();

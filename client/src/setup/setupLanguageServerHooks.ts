@@ -10,11 +10,13 @@ import { isTelemetryEnabled } from "../utils/telemetry";
 import { setupIndexingHooks } from "./setupIndexingHooks";
 import { setupValidationJobHooks } from "./setupValidationJobHooks";
 
-export function setupLanguageServerHooks(extensionState: ExtensionState) {
-  startLanguageServer(extensionState);
+export async function setupLanguageServerHooks(extensionState: ExtensionState) {
+  return startLanguageServer(extensionState);
 }
 
-const startLanguageServer = (extensionState: ExtensionState): void => {
+const startLanguageServer = async (
+  extensionState: ExtensionState
+): Promise<void> => {
   const { logger } = extensionState;
 
   // The debug options for the server.
@@ -78,7 +80,7 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
 
   setupIndexingHooks(extensionState, client);
 
-  setupValidationJobHooks(extensionState, client)
+  await setupValidationJobHooks(extensionState, client)
     .then((disposable) => extensionState.listenerDisposables.push(disposable))
     .catch((err) => extensionState.logger.error(err));
 
@@ -86,7 +88,8 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
     const telemetryEnabled = isTelemetryEnabled();
 
     extensionState.telemetryEnabled = telemetryEnabled;
-    client.sendNotification("custom/didChangeTelemetryEnabled", {
+
+    void client.sendNotification("custom/didChangeTelemetryEnabled", {
       enabled: telemetryEnabled,
     });
   };
@@ -97,7 +100,8 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
 
   const configChangedDisposable = workspace.onDidChangeConfiguration(() => {
     notifyTelemetryChanged();
-    client.sendNotification(
+
+    void client.sendNotification(
       "custom/didChangeExtensionConfig",
       workspace.getConfiguration("solidity")
     );
@@ -106,7 +110,7 @@ const startLanguageServer = (extensionState: ExtensionState): void => {
   extensionState.listenerDisposables.push(globalTelemetryChangeDisposable);
   extensionState.listenerDisposables.push(configChangedDisposable);
 
-  client.start();
+  await client.start();
 
   extensionState.client = client;
 };
