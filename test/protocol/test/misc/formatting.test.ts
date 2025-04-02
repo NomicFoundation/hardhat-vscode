@@ -15,7 +15,7 @@ describe('[misc] server document formatting', () => {
   })
 
   afterEach(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   it('can use prettier as formatter', async () => {
@@ -23,7 +23,7 @@ describe('[misc] server document formatting', () => {
     expect(doc.text).to.eq('contract Formatting {\nuint256 counter;\n}\n')
 
     // Set prettier as the formatter
-    client.changeExtensionConfig({ formatter: 'prettier' })
+    await client.changeExtensionConfig({ formatter: 'prettier' })
 
     // Trigger formatting. Prettier is set to use 4 tabs on prettierrc.json
     const edits = await client.formatDocument(fileUri)
@@ -40,7 +40,7 @@ describe('[misc] server document formatting', () => {
     expect(doc.text).to.eq('contract Formatting {\nuint256 counter;\n}\n')
 
     // Set forge as the formatter
-    client.changeExtensionConfig({ formatter: 'forge' })
+    await client.changeExtensionConfig({ formatter: 'forge' })
 
     // Trigger formatting. Forge is set to use 2 tabs in foundry.toml
     const edits = await client.formatDocument(fileUri)
@@ -53,7 +53,7 @@ describe('[misc] server document formatting', () => {
     expect(doc.text).to.eq('contract Formatting {\nuint256 counter;\n}\n')
 
     // Set formatter to none
-    client.changeExtensionConfig({ formatter: 'none' })
+    await client.changeExtensionConfig({ formatter: 'none' })
 
     // Trigger formatting
     const edits = await client.formatDocument(fileUri)
@@ -66,7 +66,7 @@ describe('[misc] server document formatting', () => {
     expect(doc.text).to.eq('contract Formatting {\nuint256 counter;\n}\n')
 
     // Set empty extension config
-    client.changeExtensionConfig({})
+    await client.changeExtensionConfig({})
 
     // Trigger formatting. Prettier should be used (4 tabs)
     const edits = await client.formatDocument(fileUri)

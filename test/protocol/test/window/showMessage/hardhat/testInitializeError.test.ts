@@ -14,7 +14,7 @@ describe('[hardhat] show notification', () => {
 
   afterEach(async () => {
     client.clear()
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   test('on failed initialization', async () => {

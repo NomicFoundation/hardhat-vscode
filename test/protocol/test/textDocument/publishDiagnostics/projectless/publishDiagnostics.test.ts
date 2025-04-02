@@ -13,7 +13,7 @@ describe('[projectless] publishDiagnostics', () => {
   })
 
   afterEach(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   test('missing semicolon', async function () {

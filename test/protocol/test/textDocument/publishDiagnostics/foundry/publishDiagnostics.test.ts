@@ -17,7 +17,7 @@ describe('[foundry] publishDiagnostics', () => {
   })
 
   afterEach(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   describe('missing semicolon', function () {

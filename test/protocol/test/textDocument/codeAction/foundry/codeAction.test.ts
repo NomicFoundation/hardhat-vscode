@@ -16,7 +16,7 @@ describe('[foundry][codeAction]', () => {
   })
 
   afterEach(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   test('add license identifier', async () => {

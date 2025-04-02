@@ -12,7 +12,7 @@ describe('[ape] definition', () => {
   })
 
   afterEach(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   describe('[versioned dependency] - go to definition', function () {

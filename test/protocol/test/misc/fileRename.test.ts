@@ -17,7 +17,7 @@ describe('[misc] file rename', () => {
   })
 
   afterEach(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
     try {
       renameSync(renamedPath, originalPath)
     } catch (error) {
@@ -36,7 +36,7 @@ describe('[misc] file rename', () => {
     renameSync(originalPath, renamedPath)
     await client.openDocument(renamedPath)
 
-    client.changeWatchedFiles({
+    await client.changeWatchedFiles({
       changes: [
         { type: FileChangeType.Deleted, uri: originalUri },
         { type: FileChangeType.Created, uri: renamedUri },

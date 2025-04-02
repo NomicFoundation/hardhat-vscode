@@ -19,7 +19,7 @@ describe('[hardhat] semanticTokens/full', () => {
   })
 
   after(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   test('provides highlighting for types, keywords, functions, numbers and strings', async function () {

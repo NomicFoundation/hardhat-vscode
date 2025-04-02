@@ -12,7 +12,7 @@ describe('[hardhat] custom/validation-job-status', () => {
   })
 
   after(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   test('invalid import on hardhat dependency chain sends a custom notification with link to error file', async () => {
