@@ -22,7 +22,7 @@ describe('[hardhat] type definition', () => {
   })
 
   after(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   test('[single-file] - go to type definition', async function () {

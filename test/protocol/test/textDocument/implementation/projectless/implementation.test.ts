@@ -12,7 +12,7 @@ describe('[projectless] implementation', () => {
   })
 
   afterEach(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   describe('[single-file] - find all implementations', function () {

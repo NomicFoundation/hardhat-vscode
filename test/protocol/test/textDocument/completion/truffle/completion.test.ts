@@ -13,7 +13,7 @@ describe('[truffle][completion]', () => {
   })
 
   afterEach(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   describe('imports', function () {

@@ -29,14 +29,14 @@ export function setupValidationJobHooks(
   extensionState: ExtensionState,
   client: LanguageClient
 ) {
-  return client.onReady().then(() => {
+  return client.start().then(() => {
     // Trigger validation on newly focused documents
     window.onDidChangeActiveTextEditor((e) => {
       const uri = e?.document.uri.toString();
       const version = e?.document.version;
 
       if (uri !== undefined && version !== undefined && uri.endsWith(".sol")) {
-        client.sendNotification("textDocument/didChange", {
+        void client.sendNotification("textDocument/didChange", {
           textDocument: { uri, version },
           contentChanges: [
             {

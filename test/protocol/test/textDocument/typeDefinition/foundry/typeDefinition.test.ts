@@ -16,7 +16,7 @@ describe('[foundry] type definition', () => {
   })
 
   afterEach(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   describe('[single-file] - go to type definition', function () {

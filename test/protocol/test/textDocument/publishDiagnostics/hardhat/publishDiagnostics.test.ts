@@ -15,7 +15,7 @@ describe('[hardhat] publishDiagnostics', () => {
 
   afterEach(async () => {
     client.clear()
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   test('missing semicolon', async function () {
@@ -154,7 +154,7 @@ describe('[hardhat] publishDiagnostics', () => {
     expect(client.documents[toUri(documentPath)].diagnostics.length).to.eq(1)
 
     // Edit the file to make it correct
-    client.changeDocument(documentPath, makeRange(0, 0, 0, 0), '// SPDX-License-Identifier: MIT\n')
+    await client.changeDocument(documentPath, makeRange(0, 0, 0, 0), '// SPDX-License-Identifier: MIT\n')
 
     // Assert diagnostics are gone
     await sleep(300) // TODO: change this to proper event listening for diagnostics

@@ -12,7 +12,7 @@ describe('[projectless] definition', () => {
   })
 
   afterEach(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   describe('[single-file] - go to definition', function () {

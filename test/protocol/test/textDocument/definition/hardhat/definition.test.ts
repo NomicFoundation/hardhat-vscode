@@ -28,7 +28,7 @@ describe('[hardhat] definition', () => {
   })
 
   after(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   test('[single-file] - go to definition', async () => {
