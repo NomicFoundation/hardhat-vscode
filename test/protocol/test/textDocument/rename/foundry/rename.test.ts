@@ -16,7 +16,7 @@ describe('[foundry] rename', () => {
   })
 
   afterEach(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   describe('[single-file][identifier] - rename', function () {

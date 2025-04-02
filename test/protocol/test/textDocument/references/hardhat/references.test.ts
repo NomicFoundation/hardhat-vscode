@@ -18,7 +18,7 @@ describe('[hardhat] references', () => {
   })
 
   after(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   before(async () => {

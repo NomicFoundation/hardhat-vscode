@@ -25,7 +25,7 @@ export async function activate(context: ExtensionContext) {
 
   await indexHardhatProjects(extensionState);
 
-  setupLanguageServerHooks(extensionState);
+  await setupLanguageServerHooks(extensionState);
   setupTaskProvider(extensionState);
   await setupCommands(extensionState);
   setupWorkspaceHooks(extensionState);

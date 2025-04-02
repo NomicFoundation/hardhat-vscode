@@ -16,7 +16,7 @@ describe('[foundry] references', () => {
   })
 
   afterEach(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   describe('[single-file] - find all references', function () {

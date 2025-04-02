@@ -22,7 +22,7 @@ describe('[hardhat] rename', () => {
   })
 
   after(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   test('[single-file][identifier] - rename', async function () {

@@ -96,7 +96,7 @@ export class TestLanguageClient {
     }
 
     const result = await this._initialize()
-    this._initialized()
+    await this._initialized()
     return result
   }
 
@@ -117,14 +117,15 @@ export class TestLanguageClient {
         text,
       },
     }
-    this.connection!.sendNotification(DidOpenTextDocumentNotification.type, documentParams)
+
+    await this.connection!.sendNotification(DidOpenTextDocumentNotification.type, documentParams)
 
     await document.waitAnalyzed
 
     return document
   }
 
-  public changeDocument(documentPath: string, range: Range, text: string) {
+  public async changeDocument(documentPath: string, range: Range, text: string) {
     const uri = toUri(documentPath)
     const document = this.documents[uri]
 
@@ -142,20 +143,20 @@ export class TestLanguageClient {
       contentChanges: [{ range, text }],
     }
 
-    this.connection!.sendNotification('textDocument/didChange', params)
+    await this.connection!.sendNotification('textDocument/didChange', params)
   }
 
-  public changeWatchedFiles(params: DidChangeWatchedFilesParams) {
-    this.connection!.sendNotification('workspace/didChangeWatchedFiles', params)
+  public async changeWatchedFiles(params: DidChangeWatchedFilesParams) {
+    await this.connection!.sendNotification('workspace/didChangeWatchedFiles', params)
   }
 
-  public closeAllDocuments() {
+  public async closeAllDocuments() {
     for (const [uri] of Object.entries(this.documents)) {
-      this.closeDocument(uri)
+      await this.closeDocument(uri)
     }
   }
 
-  public closeDocument(uri: string) {
+  public async closeDocument(uri: string) {
     this._checkConnection()
 
     const params: DidCloseTextDocumentParams = {
@@ -164,7 +165,7 @@ export class TestLanguageClient {
       },
     }
 
-    this.connection!.sendNotification(DidCloseTextDocumentNotification.type, params)
+    await this.connection!.sendNotification(DidCloseTextDocumentNotification.type, params)
 
     delete this.documents[uri]
   }
@@ -459,8 +460,8 @@ export class TestLanguageClient {
     return result
   }
 
-  private _initialized() {
-    this.connection!.sendNotification(InitializedNotification.type, {})
+  private async _initialized() {
+    await this.connection!.sendNotification(InitializedNotification.type, {})
     this.logger.trace('Sent Initialized')
   }
 

@@ -19,7 +19,7 @@ describe('[hardhat] documentSymbol', () => {
   })
 
   after(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   test('provides all the document symbols', async function () {
@@ -898,7 +898,7 @@ describe('[projectless] documentSymbol', () => {
   })
 
   after(async () => {
-    client.closeAllDocuments()
+    await client.closeAllDocuments()
   })
 
   test('supports unnamed function definition', async function () {

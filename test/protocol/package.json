@@ -16,8 +16,8 @@
   "license": "ISC",
   "dependencies": {
     "lodash": "^4.17.21",
-    "vscode-languageserver-protocol": "~3.16.0",
-    "vscode-uri": "3.0.7"
+    "vscode-languageserver-protocol": "3.17.5",
+    "vscode-uri": "3.1.0"
   },
   "devDependencies": {
     "@types/chai": "^4.3.4",
