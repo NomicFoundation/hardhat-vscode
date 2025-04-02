@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.14 - 2025-04-02
+
+### Changed
+
+- Revert vscode-languageserver to 8.1.0
+
 ## 0.8.13 - 2025-04-01
 
 ### Changed
