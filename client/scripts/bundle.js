@@ -138,9 +138,9 @@ async function main() {
         "../node_modules/@nomicfoundation/solidity-language-server/src/frameworks/Truffle/ConfigLoader.ts",
     },
     bundle: true,
-    minifyWhitespace: true,
+    minifyWhitespace: false,
     minifyIdentifiers: false,
-    minifySyntax: true,
+    minifySyntax: false,
     external: [
       "vscode",
       "@nomicfoundation/solidity-analyzer",
