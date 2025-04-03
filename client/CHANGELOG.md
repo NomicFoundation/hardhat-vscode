@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.16 - 2025-04-03
+
+### Changed
+
+- Add breadcrumbs to unhandled exceptions for debugging purposes
+- Stop suppressing uncaught exceptions on the client
+
 ## 0.8.15 - 2025-04-02
 
 ### Changed
