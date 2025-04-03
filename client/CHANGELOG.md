@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.17 - 2025-04-03
+
+### Changed
+
+- Set hardhat version to 2.22.3 in an attempt to prevent epipe errors
+
 ## 0.8.16 - 2025-04-03
 
 ### Changed
