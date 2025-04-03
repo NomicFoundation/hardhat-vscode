@@ -65,9 +65,9 @@ async function main() {
       "./out/ConfigLoader": "./src/frameworks/Truffle/ConfigLoader.ts",
     },
     bundle: true,
-    minifyWhitespace: true,
+    minifyWhitespace: false,
     minifyIdentifiers: false,
-    minifySyntax: true,
+    minifySyntax: false,
     external: [
       "@nomicfoundation/solidity-analyzer",
       "@nomicfoundation/slang",
