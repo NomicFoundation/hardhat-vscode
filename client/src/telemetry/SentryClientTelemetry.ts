@@ -29,13 +29,6 @@ export class SentryClientTelemetry implements Telemetry {
           component: "ext",
         },
       },
-      integrations: (defaults) =>
-        defaults.filter((integration) => {
-          return (
-            integration.name !== "OnUncaughtException" &&
-            integration.name !== "OnUnhandledRejection"
-          );
-        }),
       beforeSend: (event) => (isTelemetryEnabled() ? event : null),
     });
   }
