@@ -24,9 +24,6 @@ import setupServer from "./server";
 import { SentryServerTelemetry } from "./telemetry/SentryServerTelemetry";
 import { GoogleAnalytics } from "./analytics/GoogleAnalytics";
 
-// TODO: Remove this once we finished debugging event emitters
-import "./eventEmitterPatch";
-
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 const connection = createConnection(ProposedFeatures.all);
