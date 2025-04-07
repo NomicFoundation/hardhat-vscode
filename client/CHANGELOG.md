@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.18 - 2025-04-07
+
+### Changed
+
+- Remove event emitter patching
+- Resume suppressing uncaught exceptions on the client
+
 ## 0.8.17 - 2025-04-03
 
 ### Changed
