@@ -39,7 +39,6 @@
     "vscode": "^1.90.0"
   },
   "activationEvents": [
-    "onLanguage:solidity",
     "workspaceContains:**/hardhat.config.{ts,js}",
     "workspaceContains:**/foundry.toml",
     "workspaceContains:**/truffle-config.js",
