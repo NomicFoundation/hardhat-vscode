@@ -18,33 +18,38 @@ const SENTRY_DSN =
 export async function activate(context: ExtensionContext) {
   extensionState = setupExtensionState(context, { sentryDsn: SENTRY_DSN });
 
-  const { logger } = extensionState;
+  try {
+    const { logger } = extensionState;
 
-  logger.info("Solidity by Nomic Foundation Starting ...");
-  logger.info(`env: ${extensionState.env}`);
+    logger.info("Solidity by Nomic Foundation Starting ...");
+    logger.info(`env: ${extensionState.env}`);
 
-  await indexHardhatProjects(extensionState);
+    await indexHardhatProjects(extensionState);
 
-  await setupLanguageServerHooks(extensionState);
-  setupTaskProvider(extensionState);
-  await setupCommands(extensionState);
-  setupWorkspaceHooks(extensionState);
+    await setupLanguageServerHooks(extensionState);
+    setupTaskProvider(extensionState);
+    await setupCommands(extensionState);
+    setupWorkspaceHooks(extensionState);
 
-  // We don't want to block for user input, analytics will be turned
-  // off from users until they agree.
-  //
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  showAnalyticsAllowPopup(extensionState);
+    // We don't want to block for user input, analytics will be turned
+    // off from users until they agree.
+    //
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    showAnalyticsAllowPopup(extensionState);
 
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  showSoliditySurveyPopup(extensionState);
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    showSoliditySurveyPopup(extensionState);
 
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  warnOnOtherSolidityExtensions(extensionState);
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    warnOnOtherSolidityExtensions(extensionState);
 
-  return {
-    isReady: () => !!extensionState?.client?.initializeResult,
-  };
+    return {
+      isReady: () => !!extensionState?.client?.initializeResult,
+    };
+  } catch (error) {
+    extensionState.logger.error(error);
+    throw error;
+  }
 }
 
 export function deactivate() {

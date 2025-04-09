@@ -42,9 +42,8 @@
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "1.0.2",
-    "@sentry/node": "7.32.1",
-    "@sentry/tracing": "7.32.1",
-    "@sentry/types": "7.32.1",
+    "@sentry/node": "9.6.1",
+    "@sentry/core": "9.6.1",
     "@solidity-parser/parser": "^0.16.0",
     "@types/chai": "4.3.0",
     "@types/fs-extra": "^9.0.13",

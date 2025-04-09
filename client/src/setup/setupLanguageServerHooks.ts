@@ -7,6 +7,7 @@ import {
 } from "vscode-languageclient/node";
 import { ExtensionState } from "../types";
 import { isTelemetryEnabled } from "../utils/telemetry";
+import { errorWrapSync } from "../utils/errors";
 import { setupIndexingHooks } from "./setupIndexingHooks";
 import { setupValidationJobHooks } from "./setupValidationJobHooks";
 
@@ -95,17 +96,19 @@ const startLanguageServer = async (
   };
 
   const globalTelemetryChangeDisposable = env.onDidChangeTelemetryEnabled(
-    notifyTelemetryChanged
+    errorWrapSync(extensionState.logger, notifyTelemetryChanged)
   );
 
-  const configChangedDisposable = workspace.onDidChangeConfiguration(() => {
-    notifyTelemetryChanged();
+  const configChangedDisposable = workspace.onDidChangeConfiguration(
+    errorWrapSync(extensionState.logger, () => {
+      notifyTelemetryChanged();
 
-    void client.sendNotification(
-      "custom/didChangeExtensionConfig",
-      workspace.getConfiguration("solidity")
-    );
-  });
+      void client.sendNotification(
+        "custom/didChangeExtensionConfig",
+        workspace.getConfiguration("solidity")
+      );
+    })
+  );
 
   extensionState.listenerDisposables.push(globalTelemetryChangeDisposable);
   extensionState.listenerDisposables.push(configChangedDisposable);
