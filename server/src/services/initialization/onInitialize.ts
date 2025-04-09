@@ -6,7 +6,6 @@ import {
 } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
 import { tokensTypes } from "../semanticHighlight/tokenTypes";
-import { isSlangSupported } from "../../parser/slangHelpers";
 import { indexWorkspaceFolders } from "./indexWorkspaceFolders";
 import { updateAvailableSolcVersions } from "./updateAvailableSolcVersions";
 
@@ -45,8 +44,6 @@ export const onInitialize = (serverState: ServerState) => {
     await updateAvailableSolcVersions(serverState);
 
     logger.info("Language server ready");
-
-    const slangSupported = isSlangSupported();
 
     // Index and analysis
     await serverState.telemetry.trackTiming("indexing", async (transaction) => {
@@ -88,9 +85,9 @@ export const onInitialize = (serverState: ServerState) => {
             tokenModifiers: [],
           },
           range: false,
-          full: slangSupported,
+          full: true,
         },
-        documentSymbolProvider: slangSupported,
+        documentSymbolProvider: true,
         workspace: {
           workspaceFolders: {
             supported: false,
