@@ -12,13 +12,13 @@ import {
   Position,
 } from "vscode-languageserver-protocol";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { OpenDocuments, ServerState } from "../../types";
-import { directoryContains } from "../../utils/directoryContains";
-import { Logger } from "../../utils/Logger";
-import { toPath } from "../../utils/paths";
-import { CompilationDetails } from "../base/CompilationDetails";
-import { InitializationFailedError } from "../base/Errors";
-import { FileBelongsResult, Project } from "../base/Project";
+import { OpenDocuments, ServerState } from "../../../types";
+import { directoryContains } from "../../../utils/directoryContains";
+import { Logger } from "../../../utils/Logger";
+import { toPath } from "../../../utils/paths";
+import { CompilationDetails } from "../../base/CompilationDetails";
+import { InitializationFailedError } from "../../base/Errors";
+import { FileBelongsResult, Project } from "../../base/Project";
 import { getImportCompletions } from "./getImportCompletions";
 import { resolveActionsFor } from "./resolveActionsFor";
 import { LogLevel } from "./worker/WorkerLogger";
@@ -46,7 +46,7 @@ export enum WorkerStatus {
 
 const REQUEST_TIMEOUT = 5000;
 
-export class HardhatProject extends Project {
+export class Hardhat2Project extends Project {
   public priority = 4;
 
   public workerProcess?: ChildProcess;

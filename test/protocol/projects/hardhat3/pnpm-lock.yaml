@@ -1,0 +1,97 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+overrides:
+  hardhat: link:../../../../../../libs/hardhat/v-next/hardhat
+
+importers:
+
+  .:
+    devDependencies:
+      '@openzeppelin/contracts':
+        specifier: 4.5.0
+        version: 4.5.0
+      '@types/node':
+        specifier: ^22.14.0
+        version: 22.15.3
+      forge-std:
+        specifier: github:foundry-rs/forge-std#v1.9.4
+        version: https://codeload.github.com/foundry-rs/forge-std/tar.gz/1eea5bae12ae557d589f9f0f0edae2faa47cb262
+      hardhat:
+        specifier: link:../../../../../../libs/hardhat/v-next/hardhat
+        version: link:../../../../../../libs/hardhat/v-next/hardhat
+      pkg_with_exports_1:
+        specifier: file:../test_packages/pkg_with_exports_1
+        version: file:../test_packages/pkg_with_exports_1
+      pkg_with_exports_2:
+        specifier: file:../test_packages/pkg_with_exports_2
+        version: file:../test_packages/pkg_with_exports_2
+      pkg_without_exports_1:
+        specifier: file:../test_packages/pkg_without_exports_1
+        version: file:../test_packages/pkg_without_exports_1
+      pkg_without_exports_2:
+        specifier: file:../test_packages/pkg_without_exports_2
+        version: file:../test_packages/pkg_without_exports_2
+      typescript:
+        specifier: ~5.5.4
+        version: 5.5.4
+
+packages:
+
+  '@openzeppelin/contracts@4.5.0':
+    resolution: {integrity: sha512-fdkzKPYMjrRiPK6K4y64e6GzULR7R7RwxSigHS8DDp7aWDeoReqsQI+cxHV1UuhAqX69L1lAaWDxenfP+xiqzA==}
+
+  '@types/node@22.15.3':
+    resolution: {integrity: sha512-lX7HFZeHf4QG/J7tBZqrCAXwz9J5RD56Y6MpP0eJkka8p+K0RY/yBTW7CYFJ4VGCclxqOLKmiGP5juQc6MKgcw==}
+
+  forge-std@https://codeload.github.com/foundry-rs/forge-std/tar.gz/1eea5bae12ae557d589f9f0f0edae2faa47cb262:
+    resolution: {tarball: https://codeload.github.com/foundry-rs/forge-std/tar.gz/1eea5bae12ae557d589f9f0f0edae2faa47cb262}
+    version: 1.9.4
+
+  pkg_with_exports_1@file:../test_packages/pkg_with_exports_1:
+    resolution: {directory: ../test_packages/pkg_with_exports_1, type: directory}
+
+  pkg_with_exports_2@file:../test_packages/pkg_with_exports_2:
+    resolution: {directory: ../test_packages/pkg_with_exports_2, type: directory}
+
+  pkg_without_exports_1@file:../test_packages/pkg_without_exports_1:
+    resolution: {directory: ../test_packages/pkg_without_exports_1, type: directory}
+
+  pkg_without_exports_2@file:../test_packages/pkg_without_exports_2:
+    resolution: {directory: ../test_packages/pkg_without_exports_2, type: directory}
+
+  typescript@5.5.4:
+    resolution: {integrity: sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
+  undici-types@6.21.0:
+    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
+
+snapshots:
+
+  '@openzeppelin/contracts@4.5.0': {}
+
+  '@types/node@22.15.3':
+    dependencies:
+      undici-types: 6.21.0
+
+  forge-std@https://codeload.github.com/foundry-rs/forge-std/tar.gz/1eea5bae12ae557d589f9f0f0edae2faa47cb262: {}
+
+  pkg_with_exports_1@file:../test_packages/pkg_with_exports_1:
+    dependencies:
+      pkg_with_exports_2: file:../test_packages/pkg_with_exports_2
+      pkg_without_exports_1: file:../test_packages/pkg_without_exports_1
+
+  pkg_with_exports_2@file:../test_packages/pkg_with_exports_2: {}
+
+  pkg_without_exports_1@file:../test_packages/pkg_without_exports_1: {}
+
+  pkg_without_exports_2@file:../test_packages/pkg_without_exports_2: {}
+
+  typescript@5.5.4: {}
+
+  undici-types@6.21.0: {}
