@@ -119,6 +119,7 @@ export async function indexWorkspaceFolders(
     );
     logger.info(`Analyzing ${localSolFileUris.length} solidity files`);
     await analyzeSolFiles(serverState, logger, localSolFileUris);
+    logger.info(`Finished analyzing`);
     span?.finish();
   });
 }
@@ -216,6 +217,10 @@ async function analyzeSolFiles(
         );
 
         if (!solFileEntry.isAnalyzed()) {
+          await solFileEntry.project.preAnalyze(
+            documentUri,
+            solFileEntry.text!
+          );
           await analyzeSolFile({ solFileIndex }, solFileEntry);
         }
       } catch (err) {

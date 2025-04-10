@@ -123,7 +123,7 @@ async function main() {
       "./tmp/server/out/hardhat.config":
         "../node_modules/@nomicfoundation/solidity-language-server/src/hardhat.config.ts",
       "./tmp/server/out/worker/WorkerProcess":
-        "../node_modules/@nomicfoundation/solidity-language-server/src/frameworks/Hardhat/worker/WorkerProcess.ts",
+        "../node_modules/@nomicfoundation/solidity-language-server/src/frameworks/Hardhat/Hardhat2/worker/WorkerProcess.ts",
       "./tmp/server/out/ConfigLoader":
         "../node_modules/@nomicfoundation/solidity-language-server/src/frameworks/Truffle/ConfigLoader.ts",
     },

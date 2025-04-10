@@ -27,6 +27,10 @@ export async function analyse(
 
         return { status: "failed_precondition", result: false };
       }
+      await solFileEntry.project.preAnalyze(
+        internalUri,
+        solFileEntry.text ?? ""
+      );
 
       await analyzeSolFile(serverState, solFileEntry, changeDoc.getText());
 

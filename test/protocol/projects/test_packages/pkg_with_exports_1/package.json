@@ -1,0 +1,11 @@
+{
+  "name": "pkg_with_exports_1",
+  "exports": {
+    "./*.sol": "./src/*.sol"
+  },
+  "dependencies": {
+    "pkg_without_exports_1": "file:../pkg_without_exports_1",
+    "pkg_with_exports_2": "file:../pkg_with_exports_2"
+  },
+  "version": "1.0.0"
+}

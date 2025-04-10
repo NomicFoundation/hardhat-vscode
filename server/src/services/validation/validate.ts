@@ -112,8 +112,6 @@ export async function validate(
           project.basePath
         );
       } catch (error: any) {
-        logger.trace(error);
-
         if (error._isBuildInputError) {
           // Framework provider detailed error on why buildInput failed
           validationResult = {

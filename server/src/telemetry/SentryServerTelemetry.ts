@@ -93,7 +93,10 @@ export class SentryServerTelemetry implements Telemetry {
     this.actionTaken = true;
 
     try {
+      // const checkpoint = performance.now();
+
       const trackingResult = await action(transaction);
+      // console.log(taskName, Math.round(performance.now() - checkpoint), "ms");
 
       transaction.setStatus(trackingResult.status);
 
@@ -120,7 +123,10 @@ export class SentryServerTelemetry implements Telemetry {
     this.actionTaken = true;
 
     try {
+      // const now = new Date().getTime();
       const trackingResult = action(transaction);
+
+      // console.log(taskName, new Date().getTime() - now);
 
       transaction.setStatus(trackingResult.status);
 

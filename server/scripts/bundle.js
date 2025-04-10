@@ -61,7 +61,7 @@ async function main() {
       "./out/index": "./src/index.ts",
       "./out/hardhat.config": "./src/hardhat.config.ts",
       "./out/worker/WorkerProcess":
-        "./src/frameworks/Hardhat/worker/WorkerProcess.ts",
+        "./src/frameworks/Hardhat/Hardhat2/worker/WorkerProcess.ts",
       "./out/ConfigLoader": "./src/frameworks/Truffle/ConfigLoader.ts",
     },
     bundle: true,

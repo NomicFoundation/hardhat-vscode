@@ -9,10 +9,7 @@ export interface Logger {
   info(arg: string): void;
   error(err: unknown): void;
   trace(message: string, verbose?: {} | undefined): void;
-  trackTime(
-    description: string,
-    callback: () => Promise<unknown>
-  ): Promise<void>;
+  trackTime<T>(description: string, callback: () => Promise<T>): Promise<T>;
   tag?: string;
 }
 
@@ -89,17 +86,17 @@ export class ConnectionLogger implements Logger {
     return "errorDescriptor" in err;
   }
 
-  public async trackTime(
+  public async trackTime<T>(
     description: string,
-    callback: () => Promise<unknown>
-  ) {
+    callback: () => Promise<T>
+  ): Promise<T> {
     this.trace(`${description}: Start`);
-    const startTime = new Date().getTime();
-    try {
-      await callback();
-    } finally {
-      this.trace(`${description}: End (${new Date().getTime() - startTime}ms)`);
-    }
+    const now = process.hrtime.bigint();
+    const ret = await callback();
+    this.trace(
+      `${description}: End (${Number(process.hrtime.bigint() - now) / 1e6} ms)`
+    );
+    return ret;
   }
 
   private _printTag() {
