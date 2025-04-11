@@ -87,6 +87,8 @@
   },
   "dependencies": {
     "@nomicfoundation/slang": "0.16.0",
-    "@nomicfoundation/solidity-analyzer": "0.1.1"
+    "@nomicfoundation/solidity-analyzer": "0.1.1",
+    "@types/read-pkg": "^4.0.0",
+    "read-pkg": "^9.0.1"
   }
 }
