@@ -267,7 +267,7 @@ describe("Parser", () => {
             { line: 3, character: 10 },
             {
               start: { line: 1, character: 0 },
-              end: { line: 6, character: 0 },
+              end: { line: 5, character: 0 },
             }
           ));
       });

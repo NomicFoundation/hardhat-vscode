@@ -47,7 +47,7 @@ describe('[foundry] definition', () => {
 
     expect(location).to.deep.equal({
       uri: toUri(importedPath),
-      range: makeRange(2, 0, 9, 0),
+      range: makeRange(2, 0, 8, 0),
     })
   })
 
@@ -56,7 +56,7 @@ describe('[foundry] definition', () => {
 
     expect(location).to.deep.equal({
       uri: toUri(otherImportedPath),
-      range: makeRange(2, 0, 9, 0),
+      range: makeRange(2, 0, 8, 0),
     })
   })
 
