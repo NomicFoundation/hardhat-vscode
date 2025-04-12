@@ -17,6 +17,7 @@ To publish `hardhat-solidity` you need to do next steps:
 6. Update the version based on semver, ensure it is updated in:
 
    - The client package version in `./client/package.json`
+     - Its `@nomicfoundation/solidity-language-server` dependency version.
    - The language server package version in `./server/package.json`
    - The coc extension package version in `./coc/package.json`
      - Its `@nomicfoundation/solidity-language-server` dependency version.
