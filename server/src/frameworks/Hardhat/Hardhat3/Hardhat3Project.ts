@@ -14,7 +14,8 @@ import type { HardhatRuntimeEnvironment } from "hardhat3/types/hre" with { "reso
 import type { HardhatUserConfig } from "hardhat3/types/config" with { "resolution-mode": "import" };
 import type { HardhatPlugin } from "hardhat3/types/plugins" with { "resolution-mode": "import" };
 import type { HookContext } from "hardhat3/types/hooks" with { "resolution-mode": "import" };
-import { pathToFileURL } from "url";
+import { analyze } from "@nomicfoundation/solidity-analyzer";
+import promises from "node:fs/promises";
 import {
   BuildInputError,
   FileSpecificError,
@@ -25,23 +26,21 @@ import { CompilationDetails } from "../../base/CompilationDetails";
 import { FileBelongsResult, Project } from "../../base/Project";
 import { Logger } from "../../../utils/Logger";
 import { OpenDocuments, ServerState } from "../../../types";
-import { LSPDependencyGraph } from "./LSPDependencyGraph";
 import { toPath } from "../../../utils/paths";
-import { analyze } from "@nomicfoundation/solidity-analyzer";
 import { resolveActionsFor } from "../Hardhat2/resolveActionsFor";
 import { isModuleNotFoundError } from "../../../utils/errors";
 import { findUpSync } from "../../../parser/common/utils";
-import promises from "node:fs/promises";
+import { LSPDependencyGraph } from "./LSPDependencyGraph";
 
 export class Hardhat3Project extends Project {
   public priority = 5;
 
   protected logger: Logger;
-  protected initializeError?: string;
-  protected hre?: HardhatRuntimeEnvironment;
-  protected dependencyGraph?: LSPDependencyGraph;
-  protected openDocuments: OpenDocuments = [];
-  protected importsCache: Map<string, string> = new Map<string, string>();
+  protected initializeError?: string; // Any error message that happened during initialization
+  protected hre?: HardhatRuntimeEnvironment; // HRE instance of this project
+  protected dependencyGraph?: LSPDependencyGraph; // Dependency graph built/maintained for import resolution on analysis
+  protected openDocuments: OpenDocuments = []; // Stored on buildCompilation calls, needed for the readSourceFile hook override
+  protected importsCache: Map<string, string> = new Map<string, string>(); // Absolute path => imports digest map. To optimize dependency graph building
 
   constructor(
     serverState: ServerState,
@@ -76,6 +75,7 @@ export class Hardhat3Project extends Project {
 
       // hack fs promises
       const realReadFile = promises.readFile;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       promises.readFile = (async (absPath: string, options: any) => {
         for (const openDocument of this.openDocuments) {
           if (openDocument.uri === absPath) {
@@ -83,7 +83,7 @@ export class Hardhat3Project extends Project {
           }
         }
         return realReadFile(absPath, options);
-      }) as any;
+      }) as typeof promises.readFile;
 
       // Load the hardhat config file
       let config: HardhatUserConfig;
@@ -101,21 +101,20 @@ export class Hardhat3Project extends Project {
         await this.#importLocalNpmModule("dist/src/hre.js");
 
       // Add ad-hoc plugin to override file reading
-      const _this = this;
       config.plugins ||= [];
       config.plugins.push({
         id: "hardhatVscode",
         hookHandlers: {
           solidity: async () => ({
-            async readSourceFile(
+            readSourceFile: (
               context: HookContext,
               absolutePath: string,
               next: (
                 nextContext: HookContext,
                 absolutePath: string
               ) => Promise<string>
-            ) {
-              for (const openDocument of _this.openDocuments) {
+            ) => {
+              for (const openDocument of this.openDocuments) {
                 if (openDocument.uri === absolutePath) {
                   return openDocument.documentText;
                 }
@@ -128,22 +127,16 @@ export class Hardhat3Project extends Project {
       } as HardhatPlugin);
 
       // Create the Hardhat Runtime Environment
-      try {
-        this.hre = (await createHardhatRuntimeEnvironment(
-          config,
-          { config: this.configPath },
-          this.basePath
-        )) as HardhatRuntimeEnvironment;
-      } catch (error) {
-        this.logger.error(error);
-        this.initializeError = `Couldn't create the Hardhat Runtime Environment. See the logs for more details.`;
-        return;
-      }
+      this.hre = (await createHardhatRuntimeEnvironment(
+        config,
+        { config: this.configPath },
+        this.basePath
+      )) as HardhatRuntimeEnvironment;
 
       // Create the dependency graph
       // const readSourceFile = readSourceFileFactory(this.hre!.hooks);
-
       const resolverFactory = async () =>
+        // This is so the dependency graph can get a new resolver instance whenever it needs to
         ResolverImplementation.create(
           this.basePath,
           this.hre!.config.solidity.remappings
@@ -165,6 +158,7 @@ export class Hardhat3Project extends Project {
   }
 
   public async fileBelongs(sourceURI: string): Promise<FileBelongsResult> {
+    // Any solidity file under this project's root path is considered to belong to this project
     const belongs = directoryContains(this.basePath, sourceURI);
     let isLocal = false;
 
@@ -185,9 +179,10 @@ export class Hardhat3Project extends Project {
     sourceUri: string,
     openDocuments: OpenDocuments
   ): Promise<CompilationDetails> {
+    // This is stored so the readSourceFile hook can access it through the project instance
     this.openDocuments = openDocuments;
 
-    // Ensure project is initialized
+    // Ensure project is initialized correctly
     if (this.initializeError !== undefined) {
       const error: InitializationFailedError = {
         _isInitializationFailedError: true,
@@ -198,7 +193,7 @@ export class Hardhat3Project extends Project {
     }
 
     if (this.hre === undefined) {
-      throw new Error("hre not initialized");
+      throw new Error("HRE not initialized");
     }
 
     const relativePath = path.relative(this.basePath, sourceUri);
@@ -213,7 +208,9 @@ export class Hardhat3Project extends Project {
       ]);
 
       if ("reason" in compilationJobs) {
-        throw new Error(`Error getting compilation job: ${JSON.stringify(compilationJobs, null, 2) }`);
+        throw new Error(
+          `Error getting compilation job: ${JSON.stringify(compilationJobs, null, 2)}`
+        );
       }
 
       const compilationJob = compilationJobs.values().next().value!;
@@ -224,8 +221,8 @@ export class Hardhat3Project extends Project {
         input: compilerInput,
       };
     } catch (error) {
-      this.logger.error(error)
-      const { HardhatError } = await import("@nomicfoundation/hardhat-errors");
+      this.logger.error(error);
+      const { HardhatError } = await import("@nomicfoundation/hardhat3-errors");
 
       if (!HardhatError.isHardhatError(error)) {
         throw error;
@@ -260,7 +257,10 @@ export class Hardhat3Project extends Project {
           };
 
           // invariant check
-          if (!messageArguments.from || !messageArguments.importPath) {
+          if (
+            messageArguments.from === undefined ||
+            messageArguments.importPath === undefined
+          ) {
             this.logger.error(
               `Expected hardhart import error to have 'from' and 'importPath': ${JSON.stringify(error, null, 2)}`
             );
@@ -323,16 +323,16 @@ export class Hardhat3Project extends Project {
       try {
         switch (change.type) {
           case FileChangeType.Created:
-            console.log(`Created ${change.uri}`);
+            this.logger.trace(`Created ${change.uri}`);
             await this.dependencyGraph.walkFile(toPath(change.uri));
             await this.dependencyGraph.addNewFile(toPath(change.uri));
             break;
           case FileChangeType.Changed: // When changed by external program
-            console.log(`Changed ${change.uri}`);
+            this.logger.trace(`Changed ${change.uri}`);
             await this.dependencyGraph.walkFile(toPath(change.uri));
             break;
           case FileChangeType.Deleted:
-            console.log(`Deleted ${change.uri}`);
+            this.logger.trace(`Deleted ${change.uri}`);
             await this.dependencyGraph.deleteFile(toPath(change.uri));
             break;
         }
@@ -344,7 +344,9 @@ export class Hardhat3Project extends Project {
 
   public async resolveImportPath(from: string, importPath: string) {
     if (this.dependencyGraph === undefined) {
-      console.error("dependency graph not initialized");
+      this.logger.info(
+        "Can't resolve import path because the dependency graph is not initialized"
+      );
       return undefined;
     }
 
@@ -374,11 +376,13 @@ export class Hardhat3Project extends Project {
     this.importsCache.set(absPath, importsDigest);
   }
 
-  public invalidateBuildCache() {}
+  public invalidateBuildCache() {
+    return;
+  }
 
   public getImportCompletions(
-    position: Position,
-    currentImport: string
+    _position: Position,
+    _currentImport: string
   ): CompletionItem[] {
     return [];
   }
@@ -412,14 +416,12 @@ export class Hardhat3Project extends Project {
       paths: [this.basePath],
     });
 
-
     const hardhatPackageJsonPath = findUpSync("package.json", {
       cwd: path.dirname(rootHardhatPath),
       fullPath: true,
     });
 
-
-    if (!hardhatPackageJsonPath) {
+    if (hardhatPackageJsonPath === undefined) {
       throw new Error(
         `Couldn't find package.json for hardhat starting from ${rootHardhatPath}`
       );
@@ -427,11 +429,9 @@ export class Hardhat3Project extends Project {
 
     const hardhatRootPath = path.dirname(hardhatPackageJsonPath);
 
-
     const modulePath = path.join(hardhatRootPath, hardhatSubpath);
 
-
-    return await import(modulePath);
+    return import(modulePath);
   }
 
   #assertHreInitialized(): asserts this is { hre: HardhatRuntimeEnvironment } {

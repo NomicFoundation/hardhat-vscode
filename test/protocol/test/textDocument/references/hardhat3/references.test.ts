@@ -176,19 +176,19 @@ describe('[hardhat3] references', () => {
   })
 
   test('finding references work even if project is not initialized correctly', async () => {
-    const testPath = getProjectPath('hardhat3_no_packages/contracts/Test.sol')
+    const path = getProjectPath('hardhat3_no_packages/contracts/Test.sol')
 
-    await client.openDocument(testPath)
+    await client.openDocument(path)
 
-    const locations = await client.findReferences(toUri(testPath), makePosition(8, 4))
+    const locations = await client.findReferences(toUri(path), makePosition(8, 4))
 
     expect(locations).to.deep.equal([
       {
-        uri: toUri(testPath),
+        uri: toUri(path),
         range: makeRange(5, 17, 5, 22),
       },
       {
-        uri: toUri(testPath),
+        uri: toUri(path),
         range: makeRange(8, 4, 8, 9),
       },
     ])

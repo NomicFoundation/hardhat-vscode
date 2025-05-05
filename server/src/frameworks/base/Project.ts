@@ -53,7 +53,9 @@ export abstract class Project {
 
   public abstract frameworkName(): string;
 
-  public async preAnalyze(_absPath: string, _text: string) {}
+  public async preAnalyze(_absPath: string, _text: string) {
+    return;
+  }
 
   public invalidateBuildCache() {
     // to be overriden if necessary
