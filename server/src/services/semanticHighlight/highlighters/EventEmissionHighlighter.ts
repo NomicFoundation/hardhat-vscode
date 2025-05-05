@@ -1,17 +1,18 @@
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
-import { Query } from "@nomicfoundation/slang/query";
+import type { Query } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
 import { Highlighter } from "../Highlighter";
-import {} from "../../../parser/slangHelpers";
 
-// Highlights event emissions
 export class EventEmissionHighlighter extends Highlighter {
   public override readonly semanticTokenType = SemanticTokenTypes.type;
 
-  public override readonly query = Query.parse(`
+  public override async getQuery(): Promise<Query> {
+    const { Query } = await import("@nomicfoundation/slang/cst");
+    return Query.create(`
     [EmitStatement
       [IdentifierPath
         @identifier [Identifier]
       ]
     ]
   `);
+  }
 }
