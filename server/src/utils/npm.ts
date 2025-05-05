@@ -1,3 +1,4 @@
+/* eslint-disable no-constant-condition */
 import * as path from "path";
 import { WorkspaceFileRetriever } from "./WorkspaceFileRetriever";
 

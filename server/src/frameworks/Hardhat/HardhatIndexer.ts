@@ -27,7 +27,7 @@ export class HardhatIndexer extends ProjectIndexer {
         path.dirname(configFile)
       );
 
-      if (!packageJsonPath) {
+      if (packageJsonPath === undefined) {
         // No package.json -> default to hardhat 2 (keep existing behavior)
         hardhatProjects.push(this._buildHardhat2Project(configFile));
         continue;
@@ -42,7 +42,7 @@ export class HardhatIndexer extends ProjectIndexer {
       ].filter(Boolean)[0];
 
       if (
-        hardhatVersionRange &&
+        hardhatVersionRange !== undefined &&
         semver.subset(hardhatVersionRange, ">=3.0.0-next.0 || >= 3.0.0", {
           includePrerelease: true,
         })

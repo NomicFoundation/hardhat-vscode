@@ -16,7 +16,7 @@ export interface BuildInputError {
 
   projectWideErrors: ErrorDetail[];
   fileSpecificErrors: {
-    [uri: string]: Array<FileSpecificError>;
+    [uri: string]: FileSpecificError[];
   };
 }
 

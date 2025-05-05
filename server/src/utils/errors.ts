@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export class TimeoutError extends Error {
   constructor(ms: number) {
     super(`Timed out: ${ms}ms`);
