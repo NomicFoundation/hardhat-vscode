@@ -314,6 +314,11 @@ export class Hardhat3Project extends Project {
   }: DidChangeWatchedFilesParams): Promise<void> {
     this.#assertDependencyGraphInitialized();
     for (const change of changes) {
+      // Only care about solidity files
+      if (!change.uri.endsWith(".sol")) {
+        continue
+      }
+
       const relativePath = path.relative(this.basePath, toPath(change.uri));
 
       if (relativePath.includes("node_modules")) {
