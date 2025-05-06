@@ -13,6 +13,8 @@ export class HardhatIndexer extends ProjectIndexer {
     const { readPackage } = await import("read-pkg");
 
     const uri = decodeUriAndRemoveFilePrefix(folder.uri);
+
+    // Find all hardhat.config files in the workspace folder
     const configFiles = await this.fileRetriever.findFiles(
       uri,
       "**/hardhat.config.{ts,js}",
@@ -21,36 +23,48 @@ export class HardhatIndexer extends ProjectIndexer {
 
     const hardhatProjects: Project[] = [];
 
+    // Create instances of either hardhat 2 or hardhat 3 projects
     for (const configFile of configFiles) {
-      const packageJsonPath = await findClosestPackageJson(
-        this.fileRetriever,
-        path.dirname(configFile)
-      );
-
-      if (packageJsonPath === undefined) {
-        // No package.json -> default to hardhat 2 (keep existing behavior)
-        hardhatProjects.push(this._buildHardhat2Project(configFile));
-        continue;
-      }
-
-      const pkg = await readPackage({ cwd: path.dirname(packageJsonPath) });
-
-      const hardhatVersionRange = [
-        (pkg.dependencies || {}).hardhat,
-        (pkg.devDependencies || {}).hardhat,
-        (pkg.peerDependencies || {}).hardhat,
-      ].filter(Boolean)[0];
-
-      if (
-        hardhatVersionRange !== undefined &&
-        semver.subset(hardhatVersionRange, ">=3.0.0-next.0 || >= 3.0.0", {
-          includePrerelease: true,
-        })
-      ) {
-        hardhatProjects.push(
-          this._buildHardhat3Project(configFile, packageJsonPath)
+      try {
+        // Find the project's package.json
+        const packageJsonPath = await findClosestPackageJson(
+          this.fileRetriever,
+          path.dirname(configFile)
         );
-      } else {
+
+        // No package.json found -> error fallback
+        if (packageJsonPath === undefined) {
+          throw new Error();
+        }
+
+        // Read the project's package.json
+        const projectPackage = await readPackage({
+          cwd: path.dirname(packageJsonPath),
+        });
+
+        // Get the hardhat's version range
+        const hardhatVersionRange = [
+          (projectPackage.dependencies || {}).hardhat,
+          (projectPackage.devDependencies || {}).hardhat,
+          (projectPackage.peerDependencies || {}).hardhat,
+        ].filter(Boolean)[0];
+
+        if (
+          hardhatVersionRange !== undefined &&
+          semver.subset(hardhatVersionRange, ">=3.0.0-next.0 || >= 3.0.0", {
+            includePrerelease: true,
+          })
+        ) {
+          // Hardhat 3 version detected
+          hardhatProjects.push(
+            this._buildHardhat3Project(configFile, packageJsonPath)
+          );
+        } else {
+          // Hardhat 2 version detected
+          hardhatProjects.push(this._buildHardhat2Project(configFile));
+        }
+      } catch (error) {
+        // Fallback on error -> default to hardhat 2
         hardhatProjects.push(this._buildHardhat2Project(configFile));
       }
     }

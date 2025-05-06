@@ -8,13 +8,13 @@ import { indexSolidityFile } from "../initialization/indexWorkspaceFolders";
 
 export async function analyse(
   serverState: ServerState,
-  { document: changeDoc }: TextDocumentChangeEvent<TextDocument>
+  { document }: TextDocumentChangeEvent<TextDocument>
 ) {
   serverState.logger.trace("analyse");
 
   return serverState.telemetry.trackTiming("analysis", async (transaction) => {
     try {
-      const internalUri = decodeUriAndRemoveFilePrefix(changeDoc.uri);
+      const internalUri = decodeUriAndRemoveFilePrefix(document.uri);
 
       const solFileEntry =
         serverState.solFileIndex[internalUri] ??
@@ -27,17 +27,14 @@ export async function analyse(
 
         return { status: "failed_precondition", result: false };
       }
-      await solFileEntry.project.preAnalyze(
-        internalUri,
-        solFileEntry.text ?? ""
-      );
+      await solFileEntry.project.preAnalyze(internalUri, document.getText());
 
-      await analyzeSolFile(serverState, solFileEntry, changeDoc.getText());
+      await analyzeSolFile(serverState, solFileEntry, document.getText());
 
       // Notify that a file was successfully
       if (isTestMode()) {
         await serverState.connection.sendNotification("custom/analyzed", {
-          uri: changeDoc.uri,
+          uri: document.uri,
         });
       }
 

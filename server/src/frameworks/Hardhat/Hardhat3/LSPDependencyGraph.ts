@@ -34,7 +34,6 @@ export class LSPDependencyGraph {
       const filesToProcess: ResolvedFile[] = [];
 
       const resolvedFile = await resolver.resolveProjectFile(absPath);
-      // console.log(resolvedFile.content.text);
 
       this.#addFile(resolvedFile);
       filesToProcess.push(resolvedFile);
@@ -195,8 +194,6 @@ export class LSPDependencyGraph {
   // }
 
   #addFile(file: ResolvedFile): void {
-    // console.log(`Adding ${path.basename(file.fsPath)}`);
-
     this.#files.set(file.fsPath, file);
     this.#dependencies.set(file.fsPath, new Set());
     this.#dependants.set(file.fsPath, new Set());
@@ -207,8 +204,6 @@ export class LSPDependencyGraph {
     to: ResolvedFile,
     importPath: string
   ): void {
-    // console.log(`Adding dependency ${path.basename(from.fsPath)} -> ${path.basename(to.fsPath)} (${importPath})`);
-
     const dependencies = this.#dependencies.get(from.fsPath);
 
     if (dependencies === undefined) {
