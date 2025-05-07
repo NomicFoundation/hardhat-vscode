@@ -1,5 +1,7 @@
 import { expect } from 'chai'
 import { test } from 'mocha'
+import fs from 'fs'
+import path from 'path'
 import { toUri } from '../../../../src/helpers'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
@@ -7,15 +9,31 @@ import { getProjectPath, makePosition, makeRange } from '../../../helpers'
 
 let client!: TestLanguageClient
 
+let npmSolFiles: Set<string> | undefined
+
 function getTestPackagePath(packageName: string, subpath: string) {
-  return getProjectPath(
-    `hardhat3/node_modules/.pnpm/${packageName}@file+..+test_packages+${packageName}/node_modules/${packageName}/${subpath}`
-  )
+  if (npmSolFiles === undefined) {
+    throw new Error('npmSolFiles is not initialized')
+  }
+
+  for (const npmSolFile of npmSolFiles) {
+    if (npmSolFile.endsWith(path.join(packageName, subpath))) {
+      return npmSolFile
+    }
+  }
+
+  throw new Error(`Cannot find ${packageName}/${subpath} in test npm modules`)
 }
 
 describe('[hardhat3] definition - all import cases', () => {
   before(async () => {
     client = await getInitializedClient()
+    const files = fs
+      .readdirSync(getProjectPath('hardhat3/node_modules/.pnpm/'), { withFileTypes: true, recursive: true })
+      .filter((entry) => entry.name.endsWith('.sol'))
+      .map((entry) => path.join(entry.parentPath, entry.name))
+
+    npmSolFiles = new Set(files)
   })
 
   after(async () => {
