@@ -1,7 +1,7 @@
 import { test } from 'mocha'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
-import { getProjectPath } from '../../../helpers'
+import { getProjectPath, toUnixStyle } from '../../../helpers'
 
 let client!: TestLanguageClient
 
@@ -11,7 +11,7 @@ describe('[hardhat3] custom/file-indexed', () => {
   })
 
   test('after initialization, a notification is received with the indexed file uri and project', async () => {
-    const contractPath = getProjectPath('hardhat3/contracts/codeAction/NoPragma.sol')
+    const contractPath = toUnixStyle(getProjectPath('hardhat3/contracts/codeAction/NoPragma.sol'))
 
     const expectedData = {
       uri: contractPath,
