@@ -28,6 +28,7 @@ import { CompilationDetails } from "../../frameworks/base/CompilationDetails";
 import { addFrameworkTag } from "../../telemetry/tags";
 import { Project } from "../../frameworks/base/Project";
 import { indexSolidityFile } from "../initialization/indexWorkspaceFolders";
+import { wildcardDriveLetter } from "../../utils/paths";
 import { DiagnosticConverter } from "./DiagnosticConverter";
 import { CompilationService } from "./CompilationService";
 import { OutputConverter } from "./OutputConverter";
@@ -112,7 +113,8 @@ export async function validate(
           project.basePath
         );
       } catch (error: any) {
-        logger.trace(error);
+        logger.trace(error?.message);
+        logger.trace(error?.stack);
 
         if (error._isBuildInputError) {
           // Framework provider detailed error on why buildInput failed
@@ -227,7 +229,7 @@ async function handleBuildInputError(
     // Send status item error
     await sendStatusItemError(
       serverState,
-      project.basePath,
+      wildcardDriveLetter(project.basePath),
       fileErrors.map((e) => e.error.message).join(", "),
       sourceUri
     );

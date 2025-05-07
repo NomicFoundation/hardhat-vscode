@@ -26,10 +26,16 @@ import { CompilationDetails } from "../../base/CompilationDetails";
 import { FileBelongsResult, Project } from "../../base/Project";
 import { Logger } from "../../../utils/Logger";
 import { OpenDocuments, ServerState } from "../../../types";
-import { toPath } from "../../../utils/paths";
+import {
+  normalizeAbsolutePath,
+  pathsEqual,
+  toPath,
+} from "../../../utils/paths";
 import { resolveActionsFor } from "../Hardhat2/resolveActionsFor";
 import { isModuleNotFoundError } from "../../../utils/errors";
 import { findUpSync } from "../../../parser/common/utils";
+import { lowercaseDriveLetter, toUnixStyle, toUri } from "../../../utils";
+import { normalizedCwd } from "../../../utils/operatingSystem";
 import { LSPDependencyGraph } from "./LSPDependencyGraph";
 
 export class Hardhat3Project extends Project {
@@ -41,15 +47,16 @@ export class Hardhat3Project extends Project {
   protected dependencyGraph?: LSPDependencyGraph; // Dependency graph built/maintained for import resolution on analysis
   protected openDocuments: OpenDocuments = []; // Stored on buildCompilation calls, needed for the readSourceFile hook override
   protected importsCache: Map<string, string> = new Map<string, string>(); // Absolute path => imports digest map. To optimize dependency graph building
+  public configPath;
 
-  constructor(
-    serverState: ServerState,
-    basePath: string,
-    public configPath: string
-  ) {
-    super(serverState, basePath);
+  constructor(serverState: ServerState, basePath: string, configPath: string) {
+    const normalizedBasePath = normalizeAbsolutePath(basePath);
+    const normalizedConfigPath = normalizeAbsolutePath(configPath);
+
+    super(serverState, normalizedBasePath);
     this.logger = _.clone(serverState.logger);
-    this.logger.tag = path.basename(basePath);
+    this.logger.tag = path.basename(normalizedBasePath);
+    this.configPath = normalizedConfigPath;
   }
 
   public id(): string {
@@ -78,7 +85,10 @@ export class Hardhat3Project extends Project {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       promises.readFile = (async (absPath: string, options: any) => {
         for (const openDocument of this.openDocuments) {
-          if (openDocument.uri === absPath) {
+          if (
+            normalizeAbsolutePath(openDocument.uri) ===
+            normalizeAbsolutePath(absPath)
+          ) {
             return openDocument.documentText;
           }
         }
@@ -144,6 +154,9 @@ export class Hardhat3Project extends Project {
         );
 
       this.dependencyGraph = new LSPDependencyGraph(resolverFactory);
+
+      // Download all required compilers
+      await this.hre.solidity.getCompilationJobs([]);
     } catch (error) {
       this.logger.error(error);
 
@@ -179,6 +192,8 @@ export class Hardhat3Project extends Project {
     sourceUri: string,
     openDocuments: OpenDocuments
   ): Promise<CompilationDetails> {
+    const absolutePath = normalizeAbsolutePath(sourceUri);
+
     // This is stored so the readSourceFile hook can access it through the project instance
     this.openDocuments = openDocuments;
 
@@ -196,7 +211,7 @@ export class Hardhat3Project extends Project {
       throw new Error("HRE not initialized");
     }
 
-    const relativePath = path.relative(this.basePath, sourceUri);
+    const relativePath = path.relative(this.basePath, absolutePath);
 
     if (relativePath.includes("node_modules")) {
       throw new Error("Validation on dependencies is not supported yet");
@@ -204,7 +219,7 @@ export class Hardhat3Project extends Project {
 
     try {
       const compilationJobs = await this.hre.solidity.getCompilationJobs([
-        sourceUri,
+        absolutePath,
       ]);
 
       if ("reason" in compilationJobs) {
@@ -214,14 +229,14 @@ export class Hardhat3Project extends Project {
       }
 
       const compilationJob = compilationJobs.values().next().value!;
-      const compilerInput = compilationJob.getSolcInput();
+      // eslint-disable-next-line @typescript-eslint/await-thenable
+      const compilerInput = await compilationJob.getSolcInput();
 
       return {
         solcVersion: compilationJob.solcConfig.version,
         input: compilerInput,
       };
     } catch (error) {
-      this.logger.error(error);
       const { HardhatError } = await import("@nomicfoundation/hardhat3-errors");
 
       if (!HardhatError.isHardhatError(error)) {
@@ -277,9 +292,11 @@ export class Hardhat3Project extends Project {
           };
 
           // The 'from' path included in the error is relative to cwd instead of project root
-          const fromAbsPath = path.join(process.cwd(), messageArguments.from);
+          const fromAbsPath = path.join(normalizedCwd(), messageArguments.from);
 
-          const openDocument = openDocuments.find((d) => d.uri === fromAbsPath);
+          const openDocument = openDocuments.find((d) =>
+            pathsEqual(d.uri, fromAbsPath)
+          );
 
           if (openDocument) {
             fileSpecificError.startOffset = openDocument.documentText.indexOf(
@@ -298,6 +315,8 @@ export class Hardhat3Project extends Project {
       }
 
       // Handle non-import related error
+      this.logger.error(error);
+
       buildError.projectWideErrors.push({
         type: "general",
         message: error.message,
@@ -316,7 +335,7 @@ export class Hardhat3Project extends Project {
     for (const change of changes) {
       // Only care about solidity files
       if (!change.uri.endsWith(".sol")) {
-        continue
+        continue;
       }
 
       const relativePath = path.relative(this.basePath, toPath(change.uri));
@@ -355,7 +374,16 @@ export class Hardhat3Project extends Project {
       return undefined;
     }
 
-    return this.dependencyGraph.resolveImport(from, importPath);
+    const normalizedFrom = normalizeAbsolutePath(from);
+
+    const resolvedAbsolutePath = this.dependencyGraph.resolveImport(
+      normalizedFrom,
+      importPath
+    );
+
+    if (resolvedAbsolutePath !== undefined) {
+      return lowercaseDriveLetter(toUnixStyle(resolvedAbsolutePath));
+    }
   }
 
   public async preAnalyze(absPath: string, text: string) {
@@ -363,7 +391,9 @@ export class Hardhat3Project extends Project {
       return;
     }
 
-    const relativePath = path.relative(this.basePath, absPath);
+    const normalizedAbsPath = normalizeAbsolutePath(absPath);
+
+    const relativePath = path.relative(this.basePath, normalizedAbsPath);
     if (relativePath.includes("node_modules")) {
       return; // dont walk dependencies as roots
     }
@@ -372,13 +402,13 @@ export class Hardhat3Project extends Project {
     const importsDigest = imports.join();
 
     // If imports didn't change, don't modify the dependency graph
-    if (this.importsCache.get(absPath) === importsDigest) {
+    if (this.importsCache.get(normalizedAbsPath) === importsDigest) {
       return;
     }
 
-    await this.dependencyGraph.walkFile(absPath);
+    await this.dependencyGraph.walkFile(normalizedAbsPath);
 
-    this.importsCache.set(absPath, importsDigest);
+    this.importsCache.set(normalizedAbsPath, importsDigest);
   }
 
   public invalidateBuildCache() {
@@ -436,7 +466,9 @@ export class Hardhat3Project extends Project {
 
     const modulePath = path.join(hardhatRootPath, hardhatSubpath);
 
-    return import(modulePath);
+    const uri = toUri(modulePath);
+
+    return import(uri);
   }
 
   #assertHreInitialized(): asserts this is { hre: HardhatRuntimeEnvironment } {

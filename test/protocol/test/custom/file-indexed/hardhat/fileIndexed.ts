@@ -1,7 +1,7 @@
 import { test } from 'mocha'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
-import { getProjectPath } from '../../../helpers'
+import { getProjectPath, toUnixStyle } from '../../../helpers'
 
 let client!: TestLanguageClient
 
@@ -14,8 +14,8 @@ describe('[hardhat] custom/file-indexed', () => {
     const contractPath = getProjectPath('hardhat/contracts/codeAction/NoPragma.sol')
 
     const expectedData = {
-      uri: contractPath,
-      project: { frameworkName: 'Hardhat', configPath: getProjectPath('hardhat/hardhat.config.ts') },
+      uri: toUnixStyle(contractPath),
+      project: { frameworkName: 'Hardhat', configPath: toUnixStyle(getProjectPath('hardhat/hardhat.config.ts')) },
     }
 
     await client.getOrWaitNotification('custom/file-indexed', expectedData)

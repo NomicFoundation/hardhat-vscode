@@ -4,6 +4,7 @@
 //   Resolver,
 // } from "hardhat3/types/solidity" with { "resolution-mode": "import" };
 import type { ResolvedFile } from "hardhat3/types/solidity" with { "resolution-mode": "import" };
+// import path from "node:path";
 import { AsyncMutex } from "./AsyncMutex";
 
 interface Dependency {
@@ -167,31 +168,31 @@ export class LSPDependencyGraph {
   }
 
   // public debug() {
-  //   console.log();
+  //     console.log();
 
-  //   for (const file of this.#files.values()) {
-  //     console.log(`File ${path.basename(file.fsPath)}`);
+  //     for (const file of this.#files.values()) {
+  //       console.log(`File ${path.basename(file.fsPath)} (${file.fsPath})`);
 
-  //     for (const dependency of this.#dependencies.get(file.fsPath) ?? []) {
-  //       console.log(
-  //         `  Dependency ${path.basename(dependency.fileAbsPath)} (${dependency.importPath})`
-  //       );
+  //       for (const dependency of this.#dependencies.get(file.fsPath) ?? []) {
+  //         console.log(
+  //           `  Dependency ${path.basename(dependency.fileAbsPath)} (${dependency.importPath})`
+  //         );
+  //       }
+
+  //       for (const dependant of this.#dependants.get(file.fsPath) ?? []) {
+  //         console.log(
+  //           `  Dependant ${path.basename(dependant.fileAbsPath)} (${dependant.importPath})`
+  //         );
+  //       }
   //     }
-
-  //     for (const dependant of this.#dependants.get(file.fsPath) ?? []) {
-  //       console.log(
-  //         `  Dependant ${path.basename(dependant.fileAbsPath)} (${dependant.importPath})`
-  //       );
+  //     for (const [absPath, importPaths] of this.#unresolvedImports) {
+  //       for (const importPath of importPaths) {
+  //         console.log(
+  //           `Unresolved import ${path.basename(absPath)} (${importPath})`
+  //         );
+  //       }
   //     }
   //   }
-  //   for (const [absPath, importPaths] of this.#unresolvedImports) {
-  //     for (const importPath of importPaths) {
-  //       console.log(
-  //         `Unresolved import ${path.basename(absPath)} (${importPath})`
-  //       );
-  //     }
-  //   }
-  // }
 
   #addFile(file: ResolvedFile): void {
     this.#files.set(file.fsPath, file);

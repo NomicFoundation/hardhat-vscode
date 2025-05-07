@@ -1,4 +1,5 @@
 import { test } from 'mocha'
+import path from 'path'
 import { toUri } from '../../../../src/helpers'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
@@ -21,12 +22,18 @@ describe('[hardhat3] custom/validation-job-status', () => {
 
     await client.openDocument(importerPath)
 
+    const importerSubpath = path.join(
+      'projects',
+      'hardhat3',
+      'contracts',
+      'custom',
+      'validation-job-status',
+      'InvalidImport.sol'
+    )
     const expectedData = {
       validationRun: false,
-      reason:
-        'HHE902: The import "./nonexistent.sol from "projects/hardhat3/contracts/custom/validation-job-status/InvalidImport.sol" doesn\'t exist.',
-      displayText:
-        'HHE902: The import "./nonexistent.sol from "projects/hardhat3/contracts/custom/validation-job-status/InvalidImport.sol" doesn\'t exist.',
+      reason: `HHE902: The import "./nonexistent.sol from "${importerSubpath}" doesn't exist.`,
+      displayText: `HHE902: The import "./nonexistent.sol from "${importerSubpath}" doesn't exist.`,
       errorFile: toUri(invalidImportPath),
     }
 

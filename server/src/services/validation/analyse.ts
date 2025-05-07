@@ -5,6 +5,7 @@ import { decodeUriAndRemoveFilePrefix, isTestMode } from "../../utils/index";
 import { ServerState } from "../../types";
 import { addFrameworkTag } from "../../telemetry/tags";
 import { indexSolidityFile } from "../initialization/indexWorkspaceFolders";
+import { toPath } from "../../utils/paths";
 
 export async function analyse(
   serverState: ServerState,
@@ -20,6 +21,8 @@ export async function analyse(
         serverState.solFileIndex[internalUri] ??
         (await indexSolidityFile(serverState, internalUri));
 
+      const absolutePath = toPath(document.uri);
+
       if (solFileEntry === undefined) {
         serverState.logger.error(
           new Error(`Could not analyze, uri is not indexed: ${internalUri}`)
@@ -27,7 +30,7 @@ export async function analyse(
 
         return { status: "failed_precondition", result: false };
       }
-      await solFileEntry.project.preAnalyze(internalUri, document.getText());
+      await solFileEntry.project.preAnalyze(absolutePath, document.getText());
 
       await analyzeSolFile(serverState, solFileEntry, document.getText());
 

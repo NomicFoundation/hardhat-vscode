@@ -44,6 +44,7 @@ export class ConnectionLogger implements Logger {
 
     if (err instanceof Error) {
       this.connection.console.error(this._tryPrepend(err.message));
+      this.connection.console.error(this._tryPrepend(err.stack ?? ""));
     } else if (this._hasErrorDescriptor(err)) {
       this.connection.console.error(
         this._tryPrepend(
