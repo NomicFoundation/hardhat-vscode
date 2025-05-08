@@ -1,0 +1,7 @@
+{
+  "name": "pkg_with_exports_2",
+  "exports": {
+    "./*.sol": "./src/*.sol"
+  },
+  "version": "1.0.0"
+}

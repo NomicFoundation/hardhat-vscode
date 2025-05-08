@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "postinstall": "cd ./projects/hardhat && npm install",
+    "postinstall": "cd ./projects/hardhat && npm i && cd ../hardhat3 && pnpm i",
     "start": "tsc && node out/index.js",
     "test": "cross-env VSCODE_NODE_ENV=development mocha",
     "lint": "npm run prettier -- --check && npm run eslint",
