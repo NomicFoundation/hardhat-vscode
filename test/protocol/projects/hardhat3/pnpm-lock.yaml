@@ -18,8 +18,8 @@ importers:
         specifier: github:foundry-rs/forge-std#v1.9.4
         version: https://codeload.github.com/foundry-rs/forge-std/tar.gz/1eea5bae12ae557d589f9f0f0edae2faa47cb262
       hardhat:
-        specifier: 3.0.0-next.6
-        version: 3.0.0-next.6
+        specifier: 3.0.0-next.7
+        version: 3.0.0-next.7
       pkg_with_exports_1:
         specifier: file:../test_packages/pkg_with_exports_1
         version: file:../test_packages/pkg_with_exports_1
@@ -267,14 +267,14 @@ packages:
     resolution: {integrity: sha512-biZ0NUSxyjLLqo6KxEJ1b+C2NAx0wtDoFvCaXHGgUkeHzf3Xc1xKumFKREuT7f7DARNZ/slvYUwFG6B0f2b6hQ==}
     engines: {node: ^14.21.3 || >=16}
 
-  '@nomicfoundation/hardhat-errors@3.0.0-next.6':
-    resolution: {integrity: sha512-DUjRjXXdmUjxp2ikfNYf56QA81wvGzMracWt9pT+fxDsoqr2HH9mtUxsBxASg8Am+lMnYhJtVHk7hBdNW6LvUw==}
+  '@nomicfoundation/hardhat-errors@3.0.0-next.7':
+    resolution: {integrity: sha512-22dluCUGMMK1hQn/YxVZN5G4orW+sC7I2kJir1YmJfs6BrTTi3qpiR5HxjZKb72EmIY0brCEquMlK4l+8uWRMQ==}
 
-  '@nomicfoundation/hardhat-utils@3.0.0-next.6':
-    resolution: {integrity: sha512-MDySKx1a6LjI6doxSYorG8HHUV9/ABrVa9iXOKsEIxkYRm3VQItIQNBfP9nPPGcr18xipxOtpHELGLfkHCymJQ==}
+  '@nomicfoundation/hardhat-utils@3.0.0-next.7':
+    resolution: {integrity: sha512-6+gS0ym3UowwblE6Y5HJvuK7YDK5yzIdJRR03TflzGFCpMUZLX2Gouti6kOTBV81XSYaCEmehbSgi0xlDaGoJg==}
 
-  '@nomicfoundation/hardhat-zod-utils@3.0.0-next.6':
-    resolution: {integrity: sha512-aU2Er3SXrrt3iNOiLBO2TmHgHmOF8qT4xHMtb3d5K1oAMkSEIz9DGsBuVcmHs7nnOSITHJeEZ057beb5sDoh1A==}
+  '@nomicfoundation/hardhat-zod-utils@3.0.0-next.7':
+    resolution: {integrity: sha512-PUUDG8JRd5/PzAjR1jZsmoVP+idsgZzSW1yjo/1hrc1ObVUDyxOz+UeYsDRECrvGMhBPZjtyaXc5Vpgxf4tzog==}
     peerDependencies:
       zod: ^3.23.8
 
@@ -646,8 +646,8 @@ packages:
   get-tsconfig@4.10.0:
     resolution: {integrity: sha512-kGzZ3LWWQcGIAmg6iWvXn0ei6WDtV26wzHRMwDSzmAbcXrTEXxHy6IehI6/4eT6VRKyMP1eF1VqwrVUmE/LR7A==}
 
-  hardhat@3.0.0-next.6:
-    resolution: {integrity: sha512-GmeJRBZbrulvWi+MDrw0X5mK9WAxLZ1gd3BGf9XgnjjlTFyRnMRX/FVRI6Qcw8PtsILgvAsz9vQeWptO20syMg==}
+  hardhat@3.0.0-next.7:
+    resolution: {integrity: sha512-lrHTqAxTcJ4CmILvtV5ECnHxg/dU24v/T1dp96UUyRs1vFDymaCe+qdeJNn+hHMsyQ5fuReFyAZdaw4xXnlE8A==}
     hasBin: true
 
   hasown@2.0.2:
@@ -938,13 +938,13 @@ snapshots:
 
   '@noble/hashes@1.7.2': {}
 
-  '@nomicfoundation/hardhat-errors@3.0.0-next.6':
+  '@nomicfoundation/hardhat-errors@3.0.0-next.7':
     dependencies:
-      '@nomicfoundation/hardhat-utils': 3.0.0-next.6
+      '@nomicfoundation/hardhat-utils': 3.0.0-next.7
     transitivePeerDependencies:
       - supports-color
 
-  '@nomicfoundation/hardhat-utils@3.0.0-next.6':
+  '@nomicfoundation/hardhat-utils@3.0.0-next.7':
     dependencies:
       '@streamparser/json-node': 0.0.22
       debug: 4.4.0
@@ -957,9 +957,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@nomicfoundation/hardhat-zod-utils@3.0.0-next.6(zod@3.24.4)':
+  '@nomicfoundation/hardhat-zod-utils@3.0.0-next.7(zod@3.24.4)':
     dependencies:
-      '@nomicfoundation/hardhat-utils': 3.0.0-next.6
+      '@nomicfoundation/hardhat-utils': 3.0.0-next.7
       zod: 3.24.4
     transitivePeerDependencies:
       - supports-color
@@ -1432,13 +1432,13 @@ snapshots:
     dependencies:
       resolve-pkg-maps: 1.0.0
 
-  hardhat@3.0.0-next.6:
+  hardhat@3.0.0-next.7:
     dependencies:
       '@ignored/edr': 0.10.0-alpha.3
       '@ignored/edr-optimism': 0.13.0-alpha.0
-      '@nomicfoundation/hardhat-errors': 3.0.0-next.6
-      '@nomicfoundation/hardhat-utils': 3.0.0-next.6
-      '@nomicfoundation/hardhat-zod-utils': 3.0.0-next.6(zod@3.24.4)
+      '@nomicfoundation/hardhat-errors': 3.0.0-next.7
+      '@nomicfoundation/hardhat-utils': 3.0.0-next.7
+      '@nomicfoundation/hardhat-zod-utils': 3.0.0-next.7(zod@3.24.4)
       '@nomicfoundation/solidity-analyzer': 0.1.2
       '@sentry/core': 9.15.0
       '@sentry/node': 9.15.0
