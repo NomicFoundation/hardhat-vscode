@@ -323,7 +323,6 @@ export class Hardhat3Project extends Project {
         switch (change.type) {
           case FileChangeType.Created:
             this.logger.trace(`Created ${change.uri}`);
-            await this.dependencyGraph.walkFile(toPath(change.uri));
             await this.dependencyGraph.addNewFile(toPath(change.uri));
             break;
           case FileChangeType.Changed: // When changed by external program
