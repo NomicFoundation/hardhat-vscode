@@ -15,7 +15,6 @@ import type { HardhatUserConfig } from "hardhat3/types/config" with { "resolutio
 import type { HardhatPlugin } from "hardhat3/types/plugins" with { "resolution-mode": "import" };
 import type { HookContext } from "hardhat3/types/hooks" with { "resolution-mode": "import" };
 import { analyze } from "@nomicfoundation/solidity-analyzer";
-import promises from "node:fs/promises";
 import {
   BuildInputError,
   FileSpecificError,
@@ -33,8 +32,7 @@ import {
 } from "../../../utils/paths";
 import { resolveActionsFor } from "../Hardhat2/resolveActionsFor";
 import { isModuleNotFoundError } from "../../../utils/errors";
-import { findUpSync } from "../../../parser/common/utils";
-import { lowercaseDriveLetter, toUnixStyle, toUri } from "../../../utils";
+import { lowercaseDriveLetter, toUnixStyle } from "../../../utils";
 import { normalizedCwd } from "../../../utils/operatingSystem";
 import { LSPDependencyGraph } from "./LSPDependencyGraph";
 
@@ -71,29 +69,11 @@ export class Hardhat3Project extends Project {
     this.initializeError = undefined; // clear any potential error on restart
 
     try {
-      // Load the importUserConfig function from the local installation
-      // const { importUserConfig,ResolverImplementation, readSourceFileFactory } = await this.#importLocalNpmModule("hardhat/lsp-helpers");
-      const { importUserConfig } = await this.#importLocalNpmModule(
-        "dist/src/internal/config-loading.js"
-      );
-      const { ResolverImplementation } = await this.#importLocalNpmModule(
-        "dist/src/internal/builtin-plugins/solidity/build-system/resolver/dependency-resolver.js"
-      );
-
-      // hack fs promises
-      const realReadFile = promises.readFile;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      promises.readFile = (async (absPath: string, options: any) => {
-        for (const openDocument of this.openDocuments) {
-          if (
-            normalizeAbsolutePath(openDocument.uri) ===
-            normalizeAbsolutePath(absPath)
-          ) {
-            return openDocument.documentText;
-          }
-        }
-        return realReadFile(absPath, options);
-      }) as typeof promises.readFile;
+      // Import necessary functions and classes from project's local hardhat3 installation
+      const { ResolverImplementation, readSourceFileFactory } =
+        await this.#importLocalNpmModule("hardhat/internal/lsp-helpers");
+      const { importUserConfig, createHardhatRuntimeEnvironment } =
+        await this.#importLocalNpmModule("hardhat/hre");
 
       // Load the hardhat config file
       let config: HardhatUserConfig;
@@ -104,11 +84,6 @@ export class Hardhat3Project extends Project {
         this.initializeError = `Couldn't load the project config file. Please make sure the config file is valid.`;
         return;
       }
-
-      // Load the createHardhatRuntimeEnvironment function from the local installation
-      // const { createHardhatRuntimeEnvironment } = await this.#importLocalNpmModule("hardhat/hre");
-      const { createHardhatRuntimeEnvironment } =
-        await this.#importLocalNpmModule("dist/src/hre.js");
 
       // Add ad-hoc plugin to override file reading
       config.plugins ||= [];
@@ -144,13 +119,13 @@ export class Hardhat3Project extends Project {
       )) as HardhatRuntimeEnvironment;
 
       // Create the dependency graph
-      // const readSourceFile = readSourceFileFactory(this.hre!.hooks);
+      const readSourceFile = readSourceFileFactory(this.hre!.hooks);
       const resolverFactory = async () =>
         // This is so the dependency graph can get a new resolver instance whenever it needs to
         ResolverImplementation.create(
           this.basePath,
-          this.hre!.config.solidity.remappings
-          // readSourceFile
+          this.hre!.config.solidity.remappings,
+          readSourceFile
         );
 
       this.dependencyGraph = new LSPDependencyGraph(resolverFactory);
@@ -431,44 +406,14 @@ export class Hardhat3Project extends Project {
   }
 
   // Import a project's local package dynamically
-  // async #importLocalNpmModule(npmModule: string) {
-  //   const require = createRequire(this.configPath);
-
-  //   const modulePath = require.resolve(npmModule, {
-  //     paths: [this.basePath],
-  //   });
-
-  //   return await import(modulePath);
-  // }
-  async #importLocalNpmModule(hardhatSubpath: string) {
+  async #importLocalNpmModule(npmModule: string) {
     const require = createRequire(this.configPath);
 
-    // const modulePath = require.resolve(hardhatSubpath, {
-    //   paths: [this.basePath],
-    // });
-
-    const rootHardhatPath = require.resolve("hardhat", {
+    const modulePath = require.resolve(npmModule, {
       paths: [this.basePath],
     });
 
-    const hardhatPackageJsonPath = findUpSync("package.json", {
-      cwd: path.dirname(rootHardhatPath),
-      fullPath: true,
-    });
-
-    if (hardhatPackageJsonPath === undefined) {
-      throw new Error(
-        `Couldn't find package.json for hardhat starting from ${rootHardhatPath}`
-      );
-    }
-
-    const hardhatRootPath = path.dirname(hardhatPackageJsonPath);
-
-    const modulePath = path.join(hardhatRootPath, hardhatSubpath);
-
-    const uri = toUri(modulePath);
-
-    return import(uri);
+    return import(modulePath);
   }
 
   #assertHreInitialized(): asserts this is { hre: HardhatRuntimeEnvironment } {
