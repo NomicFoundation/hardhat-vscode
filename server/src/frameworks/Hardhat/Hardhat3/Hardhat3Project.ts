@@ -32,7 +32,7 @@ import {
 } from "../../../utils/paths";
 import { resolveActionsFor } from "../Hardhat2/resolveActionsFor";
 import { isModuleNotFoundError } from "../../../utils/errors";
-import { lowercaseDriveLetter, toUnixStyle } from "../../../utils";
+import { lowercaseDriveLetter, toUnixStyle, toUri } from "../../../utils";
 import { normalizedCwd } from "../../../utils/operatingSystem";
 import { LSPDependencyGraph } from "./LSPDependencyGraph";
 
@@ -43,7 +43,6 @@ export class Hardhat3Project extends Project {
   protected initializeError?: string; // Any error message that happened during initialization
   protected hre?: HardhatRuntimeEnvironment; // HRE instance of this project
   protected dependencyGraph?: LSPDependencyGraph; // Dependency graph built/maintained for import resolution on analysis
-  protected openDocuments: OpenDocuments = []; // Stored on buildCompilation calls, needed for the readSourceFile hook override
   protected importsCache: Map<string, string> = new Map<string, string>(); // Absolute path => imports digest map. To optimize dependency graph building
   public configPath;
 
@@ -99,10 +98,10 @@ export class Hardhat3Project extends Project {
                 absolutePath: string
               ) => Promise<string>
             ) => {
-              for (const openDocument of this.openDocuments) {
-                if (openDocument.uri === absolutePath) {
-                  return openDocument.documentText;
-                }
+              const doc = this.serverState.documents.get(toUri(absolutePath));
+
+              if (doc !== undefined) {
+                return doc.getText();
               }
 
               return next(context, absolutePath);
@@ -168,9 +167,6 @@ export class Hardhat3Project extends Project {
     openDocuments: OpenDocuments
   ): Promise<CompilationDetails> {
     const absolutePath = normalizeAbsolutePath(sourceUri);
-
-    // This is stored so the readSourceFile hook can access it through the project instance
-    this.openDocuments = openDocuments;
 
     // Ensure project is initialized correctly
     if (this.initializeError !== undefined) {
