@@ -1,6 +1,7 @@
 import path from "path";
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
 import semver from "semver";
+import { readFileSync } from "fs";
 import { decodeUriAndRemoveFilePrefix } from "../../utils";
 import { ProjectIndexer } from "../base/ProjectIndexer";
 import { findClosestPackageJson } from "../../utils/npm";
@@ -10,8 +11,6 @@ import { Hardhat2Project } from "./Hardhat2/Hardhat2Project";
 
 export class HardhatIndexer extends ProjectIndexer {
   public async index(folder: WorkspaceFolder) {
-    const { readPackage } = await import("read-pkg");
-
     const uri = decodeUriAndRemoveFilePrefix(folder.uri);
 
     // Find all hardhat.config files in the workspace folder
@@ -34,13 +33,14 @@ export class HardhatIndexer extends ProjectIndexer {
 
         // No package.json found -> error fallback
         if (packageJsonPath === undefined) {
-          throw new Error();
+          throw new Error(`No package.json found`);
         }
 
         // Read the project's package.json
-        const projectPackage = await readPackage({
-          cwd: path.dirname(packageJsonPath),
-        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const projectPackage = JSON.parse(
+          readFileSync(packageJsonPath, "utf8")
+        );
 
         // Get the hardhat's version range
         const hardhatVersionRange = [
@@ -65,6 +65,9 @@ export class HardhatIndexer extends ProjectIndexer {
         }
       } catch (error) {
         // Fallback on error -> default to hardhat 2
+        this.serverState.logger.info(
+          `Error indexing hardhat 3 project (${configFile}): ${error}`
+        );
         hardhatProjects.push(this._buildHardhat2Project(configFile));
       }
     }
