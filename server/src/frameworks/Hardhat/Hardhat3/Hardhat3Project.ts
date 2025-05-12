@@ -408,7 +408,7 @@ export class Hardhat3Project extends Project {
       paths: [this.basePath],
     });
 
-    return import(modulePath);
+    return import(toUri(modulePath));
   }
 
   #assertHreInitialized(): asserts this is { hre: HardhatRuntimeEnvironment } {
