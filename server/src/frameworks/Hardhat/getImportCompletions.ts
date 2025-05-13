@@ -23,19 +23,20 @@ export function getImportCompletions(
       ? _findNodeModulesContractFilesInIndex(ctx, currentImport)
       : _findNodeModulePackagesInIndex(ctx);
 
-  return contractFilePaths.map((pathFromNodeModules): CompletionItem => {
-    const normalizedPath = normalizeSlashes(pathFromNodeModules);
+  return contractFilePaths
+    .map((pathFromNodeModules) => normalizeSlashes(pathFromNodeModules))
+    .filter((p) => p !== currentImport) // Don't suggest the current import
+    .map((normalizedPath): CompletionItem => {
+      const completionItem: CompletionItem = {
+        label: normalizedPath,
+        textEdit: replaceFor(normalizedPath, position, currentImport),
 
-    const completionItem: CompletionItem = {
-      label: normalizedPath,
-      textEdit: replaceFor(normalizedPath, position, currentImport),
+        kind: CompletionItemKind.Module,
+        documentation: "Imports the package",
+      };
 
-      kind: CompletionItemKind.Module,
-      documentation: "Imports the package",
-    };
-
-    return completionItem;
-  });
+      return completionItem;
+    });
 }
 
 function _findNodeModulesContractFilesInIndex(
