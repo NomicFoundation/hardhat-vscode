@@ -6,7 +6,7 @@ const fs = require("fs");
 const path = require("path");
 const esbuild = require("esbuild");
 
-const ANTLR_MODULE_PATH = "../node_modules/@solidity-parser/parser/dist/antlr";
+const ANTLR_MODULE_PATH = "../node_modules/@solidity-parser/parser/src/antlr";
 
 const SOLIDITY_TOKENS = "Solidity.tokens";
 const SOLIDITY_LEXER_TOKENS = "SolidityLexer.tokens";
