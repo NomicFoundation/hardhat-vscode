@@ -10,9 +10,9 @@ import {
   Position,
   TextEdit,
 } from "vscode-languageserver-types";
-import { normalizeParserPosition } from "../../parser/utils";
-import { ServerState } from "../../types";
-import { decodeUriAndRemoveFilePrefix } from "../../utils";
+import { normalizeParserPosition } from "../../../parser/utils";
+import { ServerState } from "../../../types";
+import { decodeUriAndRemoveFilePrefix } from "../../../utils";
 
 export function resolveActionsFor(
   serverState: ServerState,

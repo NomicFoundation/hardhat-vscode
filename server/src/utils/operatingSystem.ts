@@ -1,5 +1,6 @@
 import { exec, ExecOptions } from "child_process";
 import os from "os";
+import { uppercaseDriveLetter } from "./paths";
 
 export function runningOnWindows() {
   return os.platform() === "win32";
@@ -76,4 +77,9 @@ export async function execWithInput(
 
 export function getPlatform() {
   return `${os.platform()}-${os.arch()}`;
+}
+
+// Returns a normalized version of cwd. Useful on windows
+export function normalizedCwd() {
+  return uppercaseDriveLetter(process.cwd());
 }

@@ -33,7 +33,7 @@ export function findUpSync(
   options.stopAt =
     options.stopAt !== undefined
       ? path.resolve(options.stopAt)
-      : path.parse(process.cwd()).root;
+      : path.parse(options.cwd).root;
 
   if (!options.cwd.includes(options.stopAt)) {
     return undefined;
