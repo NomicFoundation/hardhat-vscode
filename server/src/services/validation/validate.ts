@@ -10,7 +10,11 @@ import { TextDocument, Range } from "vscode-languageserver-textdocument";
 import _ from "lodash";
 import path from "path";
 import { URI } from "vscode-uri";
-import { decodeUriAndRemoveFilePrefix, toUnixStyle } from "../../utils/index";
+import {
+  decodeUriAndRemoveFilePrefix,
+  isTestMode,
+  toUnixStyle,
+} from "../../utils/index";
 import {
   JobCompletionError,
   ServerState,
@@ -147,6 +151,13 @@ export async function validate(
           openDocuments,
           project
         );
+      }
+
+      // Notify that a file was successfully validated
+      if (isTestMode()) {
+        await serverState.connection.sendNotification("custom/validated", {
+          uri: change.document.uri,
+        });
       }
 
       return {
