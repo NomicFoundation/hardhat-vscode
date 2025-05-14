@@ -6,6 +6,7 @@ import {
   Diagnostic,
   DidChangeWatchedFilesParams,
   FileChangeType,
+  FileEvent,
   Position,
 } from "vscode-languageserver-protocol";
 import { TextDocument } from "vscode-languageserver-textdocument";
@@ -14,6 +15,8 @@ import type { HardhatRuntimeEnvironment } from "hardhat3/types/hre" with { "reso
 import type { HardhatUserConfig } from "hardhat3/types/config" with { "resolution-mode": "import" };
 import type { HookContext } from "hardhat3/types/hooks" with { "resolution-mode": "import" };
 import { analyze } from "@nomicfoundation/solidity-analyzer";
+import { cpSync } from "fs";
+import { removeSync } from "fs-extra";
 import {
   BuildInputError,
   FileSpecificError,
@@ -31,7 +34,12 @@ import {
 } from "../../../utils/paths";
 import { resolveActionsFor } from "../Hardhat2/resolveActionsFor";
 import { isModuleNotFoundError } from "../../../utils/errors";
-import { lowercaseDriveLetter, toUnixStyle, toUri } from "../../../utils";
+import {
+  isTestMode,
+  lowercaseDriveLetter,
+  toUnixStyle,
+  toUri,
+} from "../../../utils";
 import { normalizedCwd } from "../../../utils/operatingSystem";
 import { LSPDependencyGraph } from "./LSPDependencyGraph";
 
@@ -65,6 +73,7 @@ export class Hardhat3Project extends Project {
 
   public async initialize(): Promise<void> {
     this.initializeError = undefined; // clear any potential error on restart
+    this.importsCache.clear(); // clear the import cache
 
     try {
       // Import necessary functions and classes from project's local hardhat3 installation
@@ -73,14 +82,21 @@ export class Hardhat3Project extends Project {
       const { importUserConfig, createHardhatRuntimeEnvironment } =
         await this.#importLocalNpmModule("hardhat/hre");
 
-      // Load the hardhat config file
+      // Load the hardhat config file. Make an ephemeral copy to avoid caching that would prevent reloading
       let config: HardhatUserConfig;
+      const tmpConfigPath = path.join(
+        path.dirname(this.configPath),
+        `.vscode_hardhat_config_${new Date().getTime()}.ts`
+      );
       try {
-        config = await importUserConfig(this.configPath);
+        cpSync(this.configPath, tmpConfigPath);
+        config = await importUserConfig(tmpConfigPath);
       } catch (error) {
         this.logger.error(error);
         this.initializeError = `Couldn't load the project config file. Please make sure the config file is valid.`;
         return;
+      } finally {
+        removeSync(tmpConfigPath);
       }
 
       // Add ad-hoc plugin to override file reading
@@ -139,6 +155,14 @@ export class Hardhat3Project extends Project {
         this.initializeError = error.message;
       } else {
         this.initializeError = JSON.stringify(error);
+      }
+    } finally {
+      // Notify that the project was initialized
+      if (isTestMode()) {
+        await this.serverState.connection.sendNotification(
+          "custom/projectInitialized",
+          { configPath: this.configPath }
+        );
       }
     }
   }
@@ -301,37 +325,45 @@ export class Hardhat3Project extends Project {
   public async onWatchedFilesChanges({
     changes,
   }: DidChangeWatchedFilesParams): Promise<void> {
-    this.#assertDependencyGraphInitialized();
     for (const change of changes) {
-      // Only care about solidity files
-      if (!change.uri.endsWith(".sol")) {
-        continue;
+      if (pathsEqual(toPath(change.uri), this.configPath)) {
+        await this.#handleConfigChange();
+      } else if (change.uri.endsWith(".sol")) {
+        await this.#handleSourceFileChange(change);
       }
+    }
+  }
 
-      const relativePath = path.relative(this.basePath, toPath(change.uri));
+  async #handleConfigChange() {
+    await this.initialize();
+  }
 
-      if (relativePath.includes("node_modules")) {
-        continue; // dont walk dependencies as roots
+  async #handleSourceFileChange(change: FileEvent) {
+    const relativePath = path.relative(this.basePath, toPath(change.uri));
+
+    if (relativePath.includes("node_modules")) {
+      return; // dont walk dependencies as roots
+    }
+
+    try {
+      this.#assertDependencyGraphInitialized();
+
+      switch (change.type) {
+        case FileChangeType.Created:
+          this.logger.trace(`Created ${change.uri}`);
+          await this.dependencyGraph.addNewFile(toPath(change.uri));
+          break;
+        case FileChangeType.Changed: // When changed by external program
+          this.logger.trace(`Changed ${change.uri}`);
+          await this.dependencyGraph.walkFile(toPath(change.uri));
+          break;
+        case FileChangeType.Deleted:
+          this.logger.trace(`Deleted ${change.uri}`);
+          await this.dependencyGraph.deleteFile(toPath(change.uri));
+          break;
       }
-
-      try {
-        switch (change.type) {
-          case FileChangeType.Created:
-            this.logger.trace(`Created ${change.uri}`);
-            await this.dependencyGraph.addNewFile(toPath(change.uri));
-            break;
-          case FileChangeType.Changed: // When changed by external program
-            this.logger.trace(`Changed ${change.uri}`);
-            await this.dependencyGraph.walkFile(toPath(change.uri));
-            break;
-          case FileChangeType.Deleted:
-            this.logger.trace(`Deleted ${change.uri}`);
-            await this.dependencyGraph.deleteFile(toPath(change.uri));
-            break;
-        }
-      } catch (error) {
-        this.logger.error(error);
-      }
+    } catch (error) {
+      this.logger.error(error);
     }
   }
 
