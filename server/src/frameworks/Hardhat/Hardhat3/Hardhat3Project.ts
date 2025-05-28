@@ -12,7 +12,6 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { createRequire } from "module";
 import type { HardhatRuntimeEnvironment } from "hardhat3/types/hre" with { "resolution-mode": "import" };
 import type { HardhatUserConfig } from "hardhat3/types/config" with { "resolution-mode": "import" };
-import type { HardhatPlugin } from "hardhat3/types/plugins" with { "resolution-mode": "import" };
 import type { HookContext } from "hardhat3/types/hooks" with { "resolution-mode": "import" };
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import {
@@ -90,7 +89,7 @@ export class Hardhat3Project extends Project {
         id: "hardhatVscode",
         hookHandlers: {
           solidity: async () => ({
-            readSourceFile: (
+            readSourceFile: async (
               context: HookContext,
               absolutePath: string,
               next: (
@@ -108,7 +107,7 @@ export class Hardhat3Project extends Project {
             },
           }),
         },
-      } as HardhatPlugin);
+      });
 
       // Create the Hardhat Runtime Environment
       this.hre = (await createHardhatRuntimeEnvironment(
