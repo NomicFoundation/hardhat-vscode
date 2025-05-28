@@ -199,7 +199,7 @@ export class Hardhat3Project extends Project {
       }
 
       const compilationJob = compilationJobs.values().next().value!;
-      
+
       const compilerInput = await compilationJob.getSolcInput();
 
       return {
