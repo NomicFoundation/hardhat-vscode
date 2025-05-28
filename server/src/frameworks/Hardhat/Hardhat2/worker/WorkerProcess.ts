@@ -19,10 +19,10 @@ import {
 import { SolidityFilesCache } from "hardhat/builtin-tasks/utils/solidity-files-cache";
 import { HardhatError } from "hardhat/internal/core/errors";
 import { realpathSync } from "fs";
-import { CompilationDetails } from "../../base/CompilationDetails";
-import { toUnixStyle, uriEquals } from "../../../utils";
-import { directoryContains } from "../../../utils/directoryContains";
-import { BuildInputError } from "../../base/Errors";
+import { CompilationDetails } from "../../../base/CompilationDetails";
+import { toUnixStyle, uriEquals } from "../../../../utils";
+import { directoryContains } from "../../../../utils/directoryContains";
+import { BuildInputError } from "../../../base/Errors";
 import { WorkerLogger } from "./WorkerLogger";
 import {
   BuildCompilationRequest,

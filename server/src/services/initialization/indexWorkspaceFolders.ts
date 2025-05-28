@@ -16,6 +16,7 @@ import { FoundryIndexer } from "../../frameworks/Foundry/FoundryIndexer";
 import { frameworkTag } from "../../telemetry/tags";
 import { TruffleIndexer } from "../../frameworks/Truffle/TruffleIndexer";
 import { ApeIndexer } from "../../frameworks/Ape/ApeIndexer";
+import { normalizeAbsolutePath } from "../../utils/paths";
 import { resolveTopLevelWorkspaceFolders } from "./resolveTopLevelWorkspaceFolders";
 
 export async function indexWorkspaceFolders(
@@ -119,6 +120,7 @@ export async function indexWorkspaceFolders(
     );
     logger.info(`Analyzing ${localSolFileUris.length} solidity files`);
     await analyzeSolFiles(serverState, logger, localSolFileUris);
+    logger.info(`Finished analyzing`);
     span?.finish();
   });
 }
@@ -206,6 +208,7 @@ async function analyzeSolFiles(
     // therefore we initiate everything first. The isAnalyzed serves to check if the document was analyzed so we don't analyze the document twice.
     for (let i = 0; i < solFileUris.length; i++) {
       const documentUri = solFileUris[i];
+      const absolutePath = normalizeAbsolutePath(documentUri);
 
       try {
         logger.trace(`Analyzing file ${i}/${solFileUris.length}`);
@@ -216,6 +219,10 @@ async function analyzeSolFiles(
         );
 
         if (!solFileEntry.isAnalyzed()) {
+          await solFileEntry.project.preAnalyze(
+            absolutePath,
+            solFileEntry.text!
+          );
           await analyzeSolFile({ solFileIndex }, solFileEntry);
         }
       } catch (err) {

@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "1.0.2",
+    "@nomicfoundation/hardhat3-errors": "npm:@nomicfoundation/hardhat-errors@3.0.0-next.6",
     "@sentry/node": "7.32.1",
     "@sentry/tracing": "7.32.1",
     "@sentry/types": "7.32.1",
@@ -64,6 +65,7 @@
     "fs-extra": "^10.0.0",
     "got": "^11.8.2",
     "hardhat": "2.22.3",
+    "hardhat3": "npm:hardhat@3.0.0-next.7",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "mocha": "9.1.3",

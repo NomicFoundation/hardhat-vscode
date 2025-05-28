@@ -2,28 +2,28 @@
 import { assert } from "chai";
 import { ChildProcess } from "child_process";
 import {
-  HardhatProject,
+  Hardhat2Project,
   WorkerStatus,
-} from "../../../src/frameworks/Hardhat/HardhatProject";
+} from "../../../src/frameworks/Hardhat/Hardhat2/Hardhat2Project";
 import {
   BuildCompilationRequest,
   FileBelongsRequest,
   RequestMessage,
-} from "../../../src/frameworks/Hardhat/worker/WorkerProtocol";
+} from "../../../src/frameworks/Hardhat/Hardhat2/worker/WorkerProtocol";
 import { ServerState } from "../../../src/types";
 import { CompilationDetails } from "../../../src/frameworks/base/CompilationDetails";
 
 import { InitializationFailedError } from "../../../src/frameworks/base/Errors";
 
 describe("HardhatProject", function () {
-  let project: HardhatProject;
+  let project: Hardhat2Project;
   const workerProcessMock = { connected: true } as ChildProcess;
   const serverStateMock = {
     logger: {},
   } as ServerState;
 
   beforeEach(async () => {
-    project = new HardhatProject(
+    project = new Hardhat2Project(
       serverStateMock,
       "/my_hardhat_project",
       "/my_hardhat_project/hardhat.config.ts"
@@ -277,7 +277,7 @@ describe("HardhatProject", function () {
 });
 
 function assertResponseAndErrorHandlersHaveBeenCleanedUp(
-  hardhatProject: HardhatProject
+  hardhatProject: Hardhat2Project
 ) {
   const errorHandlers: { [requestId: number]: (result: any) => void } = (
     hardhatProject as any

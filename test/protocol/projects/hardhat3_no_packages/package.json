@@ -1,0 +1,9 @@
+{
+  "name": "hardhat3-project",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "hardhat": "3.0.0-next.7",
+    "typescript": "~5.5.4"
+  }
+}

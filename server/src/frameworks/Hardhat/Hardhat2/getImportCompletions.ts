@@ -4,9 +4,9 @@ import {
   CompletionItemKind,
   Position,
 } from "vscode-languageserver-types";
-import { SolFileIndexMap } from "../../parser/common/types";
-import { replaceFor } from "../../services/completion/getImportPathCompletion";
-import { normalizeSlashes, toUnixStyle } from "../../utils";
+import { SolFileIndexMap } from "../../../parser/common/types";
+import { replaceFor } from "../../../services/completion/getImportPathCompletion";
+import { normalizeSlashes, toUnixStyle } from "../../../utils";
 
 interface ImportCompletionContext {
   basePath: string;
