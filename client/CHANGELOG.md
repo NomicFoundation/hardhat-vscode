@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.20 - 2025-05-28
+
+### Added
+
+- Support for hardhat 3 projects
+
 ## 0.8.19 - 2025-05-13
 
 ### Changed
