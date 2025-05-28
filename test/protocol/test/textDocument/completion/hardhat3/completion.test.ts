@@ -17,7 +17,8 @@ describe('[hardhat3][completion]', () => {
   afterEach(async () => {
     await client.closeAllDocuments()
   })
-
+  // TODO: Re-enable import tests once the Hardhat 3 Project type supports import completions.
+  // This will require HH3's import resolution rules to be firmed up first.
   describe('imports', function () {
     test.skip('hardhat3 import completion on empty', async () => {
       const documentPath = getProjectPath('hardhat3/contracts/completion/Imports.sol')
