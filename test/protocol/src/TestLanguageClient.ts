@@ -422,11 +422,6 @@ export class TestLanguageClient {
       this.logger.trace(`server > ${params.message}`)
     )
 
-    // custom/file-indexed
-    this.connection!.onNotification('custom/file-indexed', () => {
-      /* */
-    })
-
     // custom/analyzed
     this.connection!.onNotification('custom/analyzed', ({ uri }: { uri: string }) => {
       this.documents[uri].onAnalyzed()

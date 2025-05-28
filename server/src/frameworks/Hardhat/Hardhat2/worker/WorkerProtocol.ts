@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { OpenDocuments } from "../../../types";
-import { CompilationDetails } from "../../base/CompilationDetails";
-import { FileBelongsResult } from "../../base/Project";
+import { OpenDocuments } from "../../../../types";
+import { CompilationDetails } from "../../../base/CompilationDetails";
+import { FileBelongsResult } from "../../../base/Project";
 import { LogLevel } from "./WorkerLogger";
 
 export enum MessageType {

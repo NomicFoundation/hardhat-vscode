@@ -5,16 +5,18 @@ export interface ErrorDetail {
   message: string;
 }
 
+export interface FileSpecificError {
+  startOffset?: number;
+  endOffset?: number;
+  error: ErrorDetail;
+}
+
 export interface BuildInputError {
   _isBuildInputError: true;
 
   projectWideErrors: ErrorDetail[];
   fileSpecificErrors: {
-    [uri: string]: Array<{
-      startOffset?: number;
-      endOffset?: number;
-      error: ErrorDetail;
-    }>;
+    [uri: string]: FileSpecificError[];
   };
 }
 
