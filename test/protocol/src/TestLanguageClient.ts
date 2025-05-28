@@ -46,15 +46,16 @@ import baseInitializeParams from './initializeParams.json'
 import { Logger } from './utils/Logger'
 
 class Document {
-  public waitAnalyzed: Promise<void>
+  public waitAnalyzed!: Promise<void>
+  public waitValidated!: Promise<void>
   public onAnalyzed!: (value: void) => void
+  public onValidated!: (value: void) => void
   public diagnostics: Diagnostic[] = []
   public version = 1
 
   constructor(public uri: string, public text: string) {
-    this.waitAnalyzed = new Promise<void>((resolve) => {
-      this.onAnalyzed = resolve
-    })
+    this.resetAnalysisStatus()
+    this.resetValidationStatus()
   }
 
   public clearDiagnostics() {
@@ -63,6 +64,18 @@ class Document {
 
   public increaseVersion() {
     this.version += 1
+  }
+
+  public resetAnalysisStatus() {
+    this.waitAnalyzed = new Promise<void>((resolve) => {
+      this.onAnalyzed = resolve
+    })
+  }
+
+  public resetValidationStatus() {
+    this.waitValidated = new Promise<void>((resolve) => {
+      this.onValidated = resolve
+    })
   }
 }
 
@@ -121,6 +134,7 @@ export class TestLanguageClient {
     await this.connection!.sendNotification(DidOpenTextDocumentNotification.type, documentParams)
 
     await document.waitAnalyzed
+    await document.waitValidated
 
     return document
   }
@@ -134,6 +148,8 @@ export class TestLanguageClient {
     }
 
     document.increaseVersion()
+    document.resetAnalysisStatus()
+    document.resetValidationStatus()
 
     const params: DidChangeTextDocumentParams = {
       textDocument: {
@@ -425,6 +441,11 @@ export class TestLanguageClient {
     // custom/analyzed
     this.connection!.onNotification('custom/analyzed', ({ uri }: { uri: string }) => {
       this.documents[uri].onAnalyzed()
+    })
+
+    // custom/validated
+    this.connection!.onNotification('custom/validated', ({ uri }: { uri: string }) => {
+      this.documents[uri].onValidated()
     })
 
     // textDocument/publishDiagnostics
