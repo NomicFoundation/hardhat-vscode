@@ -52,30 +52,32 @@ export function onSemanticTokensFull(serverState: ServerState) {
   return async (params: SemanticTokensParams): Promise<SemanticTokens> => {
     const { telemetry, logger } = serverState;
 
-    return telemetry.trackTiming("onSemanticTokensFull", async () => {
-      const { uri } = params.textDocument;
+    const result = await telemetry.trackTiming(
+      "onSemanticTokensFull",
+      async () => {
+        const { uri } = params.textDocument;
 
-      // Find the file in the documents collection
-      const document = serverState.documents.get(uri);
+        // Find the file in the documents collection
+        const document = serverState.documents.get(uri);
 
-      if (document === undefined) {
-        logger.error("document not found in collection");
-        return {
-          status: INTERNAL_ERROR,
-          result: emptyResponse,
-        };
-      }
+        if (document === undefined) {
+          logger.error("document not found in collection");
+          return {
+            status: INTERNAL_ERROR,
+            result: emptyResponse,
+          };
+        }
 
-      const text = document.getText();
+        const text = document.getText();
 
-      // Get the document's solidity version
-      const { versionPragmas } = startSpan({ name: "solidity-analyzer" }, () =>
-        analyze(text)
-      );
+        // Get the document's solidity version
+        const { versionPragmas } = startSpan(
+          { name: "solidity-analyzer" },
+          () => analyze(text)
+        );
 
-      const resolvedVersion = await resolveVersion(logger, versionPragmas);
+        const resolvedVersion = await resolveVersion(logger, versionPragmas);
 
-      try {
         const { Parser } = await import("@nomicfoundation/slang/parser");
         const parser = Parser.create(resolvedVersion);
         // Parse using slang
@@ -103,10 +105,9 @@ export function onSemanticTokensFull(serverState: ServerState) {
         }
 
         return { status: OK, result: { data: builder.getTokenData() } };
-      } catch (error) {
-        logger.error(`Semantic Highlighting Error: ${error}`);
-        return { status: INTERNAL_ERROR, result: emptyResponse };
       }
-    });
+    );
+
+    return result || emptyResponse;
   };
 }

@@ -71,7 +71,7 @@ export async function validate(
 
     // Ensure sourceUri is included in open documents
     if (!openDocuments.some((doc) => doc.uri === sourceUri)) {
-      return { status: "failed_precondition", result: false };
+      return { status: FAILED_PRECONDITION, result: false };
     }
 
     // Associate validation request id to this file
@@ -159,7 +159,7 @@ export async function validate(
     }
 
     return {
-      status: "ok",
+      status: OK,
       result: validationResult.status === "VALIDATION_PASS",
     };
   });

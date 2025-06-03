@@ -119,8 +119,10 @@ export function onDocumentSymbol(serverState: ServerState) {
         // } while (kursor.goToNext());
 
         // Execute a single call with all the queries
-        const matches = Sentry.startSpan({ name: "run-query" }, () =>
-          cursor.query(finders.map((f) => f.getQuery()))
+        const matches = await Sentry.startSpan(
+          { name: "run-query" },
+          async () =>
+            cursor.query(await Promise.all(finders.map((f) => f.getQuery())))
         );
 
         // Transform the query results into symbols
