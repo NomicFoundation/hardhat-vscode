@@ -71,8 +71,6 @@ export class SentryServerTelemetry implements Telemetry {
         serverState.telemetryEnabled ? transactionEvent : null,
     });
 
-    this.analytics.init(machineId, extensionVersion, serverState, clientName);
-
     this.enableHeartbeat();
   }
 
