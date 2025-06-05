@@ -1,12 +1,14 @@
 /* istanbul ignore file: external system */
 // eslint-disable-next-line @typescript-eslint/naming-convention
 import * as Sentry from "@sentry/node";
+import { ErrorEvent, TransactionEvent } from "@sentry/core";
 import { ServerState } from "../types";
 import { Analytics } from "../analytics/types";
 import { Telemetry, TrackingResult } from "./types";
 
 import { sentryEventFilter } from "./sentryEventFilter";
 import { INTERNAL_ERROR } from "./TelemetryStatus";
+import { anonymizeEvent } from "./anonymization";
 
 const SENTRY_CLOSE_TIMEOUT = 2000;
 
@@ -59,10 +61,14 @@ export class SentryServerTelemetry implements Telemetry {
       },
 
       beforeSend: (event) =>
-        serverState.telemetryEnabled && this.eventFilter(event) ? event : null,
+        serverState.telemetryEnabled && this.eventFilter(event)
+          ? (anonymizeEvent(event) as ErrorEvent)
+          : null,
 
       beforeSendTransaction: (transactionEvent) =>
-        serverState.telemetryEnabled ? transactionEvent : null,
+        serverState.telemetryEnabled
+          ? (anonymizeEvent(transactionEvent) as TransactionEvent)
+          : null,
     });
 
     this.analytics.init(machineId, extensionVersion, serverState, clientName);
