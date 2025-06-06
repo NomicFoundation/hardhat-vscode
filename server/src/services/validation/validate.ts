@@ -33,6 +33,7 @@ import { addFrameworkTag } from "../../telemetry/tags";
 import { Project } from "../../frameworks/base/Project";
 import { indexSolidityFile } from "../initialization/indexWorkspaceFolders";
 import { wildcardDriveLetter } from "../../utils/paths";
+import { FAILED_PRECONDITION, OK } from "../../telemetry/TelemetryStatus";
 import { DiagnosticConverter } from "./DiagnosticConverter";
 import { CompilationService } from "./CompilationService";
 import { OutputConverter } from "./OutputConverter";
@@ -41,131 +42,127 @@ export async function validate(
   serverState: ServerState,
   change: TextDocumentChangeEvent<TextDocument>
 ): Promise<boolean | null> {
-  return serverState.telemetry.trackTiming(
-    "validation",
-    async (transaction) => {
-      // Ensure file is analyzed
-      const sourceUri = decodeUriAndRemoveFilePrefix(change.document.uri);
-      const solFileEntry =
-        serverState.solFileIndex[sourceUri] ??
-        (await indexSolidityFile(serverState, sourceUri));
+  return serverState.telemetry.trackTiming("validation", async () => {
+    // Ensure file is analyzed
+    const sourceUri = decodeUriAndRemoveFilePrefix(change.document.uri);
+    const solFileEntry =
+      serverState.solFileIndex[sourceUri] ??
+      (await indexSolidityFile(serverState, sourceUri));
 
-      if (solFileEntry === undefined) {
-        serverState.logger.error(
-          new Error(
-            `Could not send to validation process, uri is not indexed: ${sourceUri}`
-          )
-        );
-
-        return { status: "failed_precondition", result: false };
-      }
-
-      addFrameworkTag(transaction, solFileEntry.project);
-
-      // Get the file project's open documents
-      const openDocuments = getOpenDocumentsInProject(
-        serverState,
-        solFileEntry.project
-      ).map((openDoc) => ({
-        uri: decodeUriAndRemoveFilePrefix(openDoc.uri),
-        documentText: openDoc.getText(),
-      }));
-
-      // Ensure sourceUri is included in open documents
-      if (!openDocuments.some((doc) => doc.uri === sourceUri)) {
-        return { status: "failed_precondition", result: false };
-      }
-
-      // Associate validation request id to this file
-      const validationId = ++serverState.validationCount;
-      serverState.lastValidationId[sourceUri] = validationId;
-
-      const { project } = solFileEntry;
-      let validationResult: ValidationResult;
-
-      const logger = _.clone(serverState.logger);
-      logger.tag = `${path.basename(project.basePath)}:${validationId}`;
-
-      try {
-        let compilationDetails: CompilationDetails;
-        let compilerOutput: any;
-
-        // Get solc input from framework provider
-        await logger.trackTime(
-          `Building compilation (${project.frameworkName()} - ${path.basename(
-            sourceUri
-          )})`,
-          async () => {
-            compilationDetails = await project.buildCompilation(
-              sourceUri,
-              openDocuments
-            );
-          }
-        );
-
-        // Use bundled hardhat to compile
-        await logger.trackTime("Compiling", async () => {
-          compilerOutput = await CompilationService.compile(
-            serverState,
-            compilationDetails!
-          );
-        });
-
-        validationResult = OutputConverter.getValidationResults(
-          compilationDetails!,
-          compilerOutput,
-          project.basePath
-        );
-      } catch (error: any) {
-        logger.trace(error?.message);
-        logger.trace(error?.stack);
-
-        if (error._isBuildInputError) {
-          // Framework provider detailed error on why buildInput failed
-          validationResult = {
-            status: "BUILD_INPUT_ERROR",
-            error,
-          };
-        } else if (error._isInitializationFailedError) {
-          // Project could not be initialized correctly
-          validationResult = {
-            status: "INITIALIZATION_FAILED_ERROR",
-            error,
-          };
-        } else {
-          // Generic catch-all error
-          validationResult = {
-            status: "JOB_COMPLETION_ERROR",
-            projectBasePath: project.basePath,
-            reason: error?.message ?? error,
-          };
-        }
-      }
-
-      // Only show validation result if this is the latest validation request for this file
-      if (serverState.lastValidationId[sourceUri] === validationId) {
-        await sendResults(
-          serverState,
-          change,
-          validationResult,
-          openDocuments,
-          project
-        );
-      }
-
-      // Notify that a file was successfully validated
-      if (isTestMode()) {
-        await serverState.connection.sendNotification("custom/validated", {
-          uri: change.document.uri,
-        });
-      }
-
-      return {
-        status: "ok",
-        result: validationResult.status === "VALIDATION_PASS",
-      };
+    if (solFileEntry === undefined) {
+      serverState.logger.error(
+        new Error(
+          `Could not send to validation process, uri is not indexed: ${sourceUri}`
+        )
+      );
+      return { status: FAILED_PRECONDITION, result: false };
     }
-  );
+
+    addFrameworkTag(solFileEntry.project);
+
+    // Get the file project's open documents
+    const openDocuments = getOpenDocumentsInProject(
+      serverState,
+      solFileEntry.project
+    ).map((openDoc) => ({
+      uri: decodeUriAndRemoveFilePrefix(openDoc.uri),
+      documentText: openDoc.getText(),
+    }));
+
+    // Ensure sourceUri is included in open documents
+    if (!openDocuments.some((doc) => doc.uri === sourceUri)) {
+      return { status: FAILED_PRECONDITION, result: false };
+    }
+
+    // Associate validation request id to this file
+    const validationId = ++serverState.validationCount;
+    serverState.lastValidationId[sourceUri] = validationId;
+
+    const { project } = solFileEntry;
+    let validationResult: ValidationResult;
+
+    const logger = _.clone(serverState.logger);
+    logger.tag = `${path.basename(project.basePath)}:${validationId}`;
+
+    try {
+      let compilationDetails: CompilationDetails;
+      let compilerOutput: any;
+
+      // Get solc input from framework provider
+      await logger.trackTime(
+        `Building compilation (${project.frameworkName()} - ${path.basename(
+          sourceUri
+        )})`,
+        async () => {
+          compilationDetails = await project.buildCompilation(
+            sourceUri,
+            openDocuments
+          );
+        }
+      );
+
+      // Use bundled hardhat to compile
+      await logger.trackTime("Compiling", async () => {
+        compilerOutput = await CompilationService.compile(
+          serverState,
+          compilationDetails!
+        );
+      });
+
+      validationResult = OutputConverter.getValidationResults(
+        compilationDetails!,
+        compilerOutput,
+        project.basePath
+      );
+    } catch (error: any) {
+      logger.trace(error?.message);
+      logger.trace(error?.stack);
+
+      if (error._isBuildInputError) {
+        // Framework provider detailed error on why buildInput failed
+        validationResult = {
+          status: "BUILD_INPUT_ERROR",
+          error,
+        };
+      } else if (error._isInitializationFailedError) {
+        // Project could not be initialized correctly
+        validationResult = {
+          status: "INITIALIZATION_FAILED_ERROR",
+          error,
+        };
+      } else {
+        // Generic catch-all error
+        validationResult = {
+          status: "JOB_COMPLETION_ERROR",
+          projectBasePath: project.basePath,
+          reason: error?.message ?? error,
+        };
+      }
+    }
+
+    // Only show validation result if this is the latest validation request for this file
+    if (serverState.lastValidationId[sourceUri] === validationId) {
+      await sendResults(
+        serverState,
+        change,
+        validationResult,
+        openDocuments,
+        project
+      );
+    }
+
+    // Notify that a file was successfully validated
+    if (isTestMode()) {
+      await serverState.connection.sendNotification("custom/validated", {
+        uri: change.document.uri,
+      });
+    }
+
+    return {
+      status: OK,
+      result: validationResult.status === "VALIDATION_PASS",
+    };
+  });
 }
 
 async function sendResults(

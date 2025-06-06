@@ -6,6 +6,7 @@ import {
 } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { ExtensionState } from "../types";
+import { errorWrapSync } from "../utils/errors";
 
 export interface ValidationJobSuccessNotification {
   validationRun: true;
@@ -31,32 +32,41 @@ export function setupValidationJobHooks(
 ) {
   return client.start().then(() => {
     // Trigger validation on newly focused documents
-    window.onDidChangeActiveTextEditor((e) => {
-      const uri = e?.document.uri.toString();
-      const version = e?.document.version;
+    window.onDidChangeActiveTextEditor(
+      errorWrapSync(extensionState.logger, (e) => {
+        const uri = e?.document.uri.toString();
+        const version = e?.document.version;
 
-      if (uri !== undefined && version !== undefined && uri.endsWith(".sol")) {
-        void client.sendNotification("textDocument/didChange", {
-          textDocument: { uri, version },
-          contentChanges: [
-            {
-              range: {
-                start: { line: 0, character: 0 },
-                end: { line: 0, character: 0 },
+        if (
+          uri !== undefined &&
+          version !== undefined &&
+          uri.endsWith(".sol")
+        ) {
+          void client.sendNotification("textDocument/didChange", {
+            textDocument: { uri, version },
+            contentChanges: [
+              {
+                range: {
+                  start: { line: 0, character: 0 },
+                  end: { line: 0, character: 0 },
+                },
+                rangeLength: 1,
+                text: "",
               },
-              rangeLength: 1,
-              text: "",
-            },
-          ],
-        });
-      }
-    });
+            ],
+          });
+        }
+      })
+    );
 
     return client.onNotification(
       "custom/validation-job-status",
-      (notification: ValidationJobStatusNotification) => {
-        updateValidationStatusItem(extensionState, notification);
-      }
+      errorWrapSync(
+        extensionState.logger,
+        (notification: ValidationJobStatusNotification) => {
+          updateValidationStatusItem(extensionState, notification);
+        }
+      )
     );
   });
 }
