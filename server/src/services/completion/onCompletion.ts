@@ -26,7 +26,7 @@ import {
 import { applyEditToDocumentAnalyzer } from "@utils/applyEditToDocumentAnalyzer";
 import { ServerState } from "../../types";
 import { addFrameworkTag } from "../../telemetry/tags";
-import { INTERNAL_ERROR, OK } from "../../telemetry/TelemetryStatus";
+import { FAILED_PRECONDITION, OK } from "../../telemetry/TelemetryStatus";
 import { ProjectContext } from "./types";
 import { getImportPathCompletion } from "./getImportPathCompletion";
 import { globalVariables, defaultCompletion } from "./defaultCompletion";
@@ -52,7 +52,7 @@ export const onCompletion = (serverState: ServerState) => {
           `Error editing and analyzing doc within onCompletion: ${errorMessage}`
         );
 
-        return { status: INTERNAL_ERROR, result: null };
+        return { status: FAILED_PRECONDITION, result: null };
       }
 
       const project = documentAnalyzer.project;
