@@ -1,7 +1,6 @@
 /* istanbul ignore file: external system */
 // eslint-disable-next-line @typescript-eslint/naming-convention
 import * as Sentry from "@sentry/node";
-import { ErrorEvent, TransactionEvent } from "@sentry/core";
 import { ServerState } from "../types";
 import { Analytics } from "../analytics/types";
 import { Telemetry, TrackingResult } from "./types";
