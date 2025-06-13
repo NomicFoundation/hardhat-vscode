@@ -1,25 +1,21 @@
 import { ISolFileEntry } from "@common/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { Transaction } from "@sentry/types";
 import { addFrameworkTag } from "../telemetry/tags";
 import { ServerState } from "../types";
+import { FAILED_PRECONDITION, OK } from "../telemetry/TelemetryStatus";
 import { lookupEntryForUri } from "./lookupEntryForUri";
 
 export function onCommand<T>(
   serverState: ServerState,
   commandName: string,
   uri: string,
-  action: (
-    documentAnalyzer: ISolFileEntry,
-    document: TextDocument,
-    transaction: Transaction
-  ) => T
+  action: (documentAnalyzer: ISolFileEntry, document: TextDocument) => T
 ) {
   const { logger, telemetry } = serverState;
 
   logger.trace(commandName);
 
-  return telemetry.trackTimingSync(commandName, (transaction) => {
+  return telemetry.trackTimingSync(commandName, () => {
     const { found, errorMessage, documentAnalyzer, document } =
       lookupEntryForUri(serverState, uri);
 
@@ -28,14 +24,14 @@ export function onCommand<T>(
         logger.trace(errorMessage);
       }
 
-      return { status: "failed_precondition", result: null };
+      return { status: FAILED_PRECONDITION, result: null };
     }
 
-    addFrameworkTag(transaction, documentAnalyzer.project);
+    addFrameworkTag(documentAnalyzer.project);
 
     return {
-      status: "ok",
-      result: action(documentAnalyzer, document, transaction),
+      status: OK,
+      result: action(documentAnalyzer, document),
     };
   });
 }

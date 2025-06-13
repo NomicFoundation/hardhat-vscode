@@ -38,7 +38,16 @@ export class HardhatTaskProvider implements vscode.TaskProvider {
     return undefined;
   }
 
-  public async provideTasks(): Promise<Task[]> {
+  public async provideTasks() {
+    try {
+      return await this._provideTasks();
+    } catch (error) {
+      this.state.logger.error(error);
+      throw error;
+    }
+  }
+
+  private async _provideTasks(): Promise<Task[]> {
     const tasks: Task[] = [];
 
     // Used for matching projects to workspace folders

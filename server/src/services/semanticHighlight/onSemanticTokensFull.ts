@@ -7,8 +7,10 @@ import {
 } from "vscode-languageserver-protocol";
 import _ from "lodash";
 import { analyze } from "@nomicfoundation/solidity-analyzer";
+import { startSpan } from "@sentry/core";
 import { ServerState } from "../../types";
 import { resolveVersion } from "../../parser/slangHelpers";
+import { INTERNAL_ERROR, OK } from "../../telemetry/TelemetryStatus";
 import { SemanticTokensBuilder } from "./SemanticTokensBuilder";
 import { ContractDefinitionHighlighter } from "./highlighters/ContractDefinitionHighlighter";
 import { CustomTypeHighlighter } from "./highlighters/CustomTypeHighlighter";
@@ -52,7 +54,7 @@ export function onSemanticTokensFull(serverState: ServerState) {
 
     const result = await telemetry.trackTiming(
       "onSemanticTokensFull",
-      async (transaction) => {
+      async () => {
         const { uri } = params.textDocument;
 
         // Find the file in the documents collection
@@ -61,7 +63,7 @@ export function onSemanticTokensFull(serverState: ServerState) {
         if (document === undefined) {
           logger.error("document not found in collection");
           return {
-            status: "internal_error",
+            status: INTERNAL_ERROR,
             result: emptyResponse,
           };
         }
@@ -69,46 +71,40 @@ export function onSemanticTokensFull(serverState: ServerState) {
         const text = document.getText();
 
         // Get the document's solidity version
-        let span = transaction.startChild({ op: "solidity-analyzer" });
-        const { versionPragmas } = analyze(text);
-        span.finish();
+        const { versionPragmas } = startSpan(
+          { name: "solidity-analyzer" },
+          () => analyze(text)
+        );
 
         const resolvedVersion = await resolveVersion(logger, versionPragmas);
 
-        try {
-          const { Parser } = await import("@nomicfoundation/slang/parser");
-          const parser = Parser.create(resolvedVersion);
-          // Parse using slang
-          span = transaction.startChild({ op: "slang-parsing" });
+        const { Parser } = await import("@nomicfoundation/slang/parser");
+        const parser = Parser.create(resolvedVersion);
+        // Parse using slang
+        const parseOutput = startSpan({ name: "slang-parsing" }, () =>
+          parser.parseFileContents(document.getText())
+        );
 
-          const parseOutput = parser.parseFileContents(document.getText());
+        // Register highlighters
+        const builder = new SemanticTokensBuilder(document);
 
-          span.finish();
+        const cursor = parseOutput.createTreeCursor();
 
-          // Register highlighters
-          const builder = new SemanticTokensBuilder(document);
+        // Execute queries
+        const queries = await Promise.all(
+          highlighters.map((h) => h.getQuery())
+        );
+        const matches = cursor.query(queries);
 
-          const cursor = parseOutput.createTreeCursor();
+        // Iterate over query results
+        let match;
 
-          // Execute queries
-          const queries = await Promise.all(
-            highlighters.map((h) => h.getQuery())
-          );
-          const matches = cursor.query(queries);
-
-          // Iterate over query results
-          let match;
-
-          while ((match = matches.next())) {
-            const highlighter = highlighters[match.queryIndex];
-            await highlighter.onResult(builder, match);
-          }
-
-          return { status: "ok", result: { data: builder.getTokenData() } };
-        } catch (error) {
-          logger.error(`Semantic Highlighting Error: ${error}`);
-          return { status: "internal_error", result: emptyResponse };
+        while ((match = matches.next())) {
+          const highlighter = highlighters[match.queryIndex];
+          await highlighter.onResult(builder, match);
         }
+
+        return { status: OK, result: { data: builder.getTokenData() } };
       }
     );
 

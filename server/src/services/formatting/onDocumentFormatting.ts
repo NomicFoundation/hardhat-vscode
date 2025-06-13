@@ -2,10 +2,17 @@ import { DocumentFormattingParams } from "vscode-languageserver/node";
 import { TextEdit } from "vscode-languageserver-types";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { Logger } from "@utils/Logger";
-import { Transaction } from "@sentry/types";
+import { setTag, startSpan } from "@sentry/core";
 import { ServerState } from "../../types";
 import { TrackingResult } from "../../telemetry/types";
 import { ForgeResolveError, TimeoutError } from "../../utils/errors";
+import {
+  DEADLINE_EXCEEDED,
+  FAILED_PRECONDITION,
+  INTERNAL_ERROR,
+  INVALID_ARGUMENT,
+  OK,
+} from "../../telemetry/TelemetryStatus";
 import { prettierFormat } from "./prettierFormat";
 import { forgeFormat } from "./forgeFormat";
 
@@ -18,9 +25,7 @@ export function onDocumentFormatting(serverState: ServerState) {
     const { telemetry, logger } = serverState;
     return telemetry.trackTiming(
       "onDocumentFormatting",
-      async (
-        transaction
-      ): Promise<TrackingResult<OnDocumentFormattingResult>> => {
+      async (): Promise<TrackingResult<OnDocumentFormattingResult>> => {
         const formatter = serverState.extensionConfig.formatter ?? "prettier";
         const uri = params.textDocument.uri;
         const document = serverState.documents.get(uri);
@@ -28,7 +33,7 @@ export function onDocumentFormatting(serverState: ServerState) {
         if (document === undefined) {
           logger.error(`Failed to format, uri ${uri} not indexed`);
 
-          return { status: "internal_error", result: null };
+          return { status: INTERNAL_ERROR, result: null };
         }
 
         logger.trace(`Formatter: ${formatter}`);
@@ -38,13 +43,13 @@ export function onDocumentFormatting(serverState: ServerState) {
         try {
           switch (formatter) {
             case "forge":
-              return await runForgeFormat(text, document, logger, transaction);
+              return await runForgeFormat(text, document, logger);
 
             case "prettier":
-              return runPrettierFormat(text, document, transaction);
+              return runPrettierFormat(text, document);
 
             default:
-              return { status: "invalid_argument", result: null };
+              return { status: INVALID_ARGUMENT, result: null };
           }
         } catch (error) {
           serverState.logger.info(
@@ -52,11 +57,11 @@ export function onDocumentFormatting(serverState: ServerState) {
           );
 
           if (error instanceof TimeoutError) {
-            return { status: "deadline_exceeded", result: null };
+            return { status: DEADLINE_EXCEEDED, result: null };
           } else if (error instanceof ForgeResolveError) {
-            return { status: "failed_precondition", result: null };
+            return { status: FAILED_PRECONDITION, result: null };
           } else {
-            return { status: "internal_error", result: null };
+            return { status: INTERNAL_ERROR, result: null };
           }
         }
       }
@@ -67,30 +72,25 @@ export function onDocumentFormatting(serverState: ServerState) {
 async function runForgeFormat(
   text: string,
   document: TextDocument,
-  logger: Logger,
-  transaction: Transaction
+  logger: Logger
 ): Promise<TrackingResult<OnDocumentFormattingResult>> {
-  transaction.setTag("formatter", "forge");
-  const span = transaction.startChild({ op: "forge-format" });
+  setTag("formatter", "forge");
+  const result = await startSpan({ name: "forge-format" }, () =>
+    forgeFormat(text, document, logger)
+  );
 
-  const result = await forgeFormat(text, document, logger);
-
-  span.finish();
-
-  return { status: "ok", result };
+  return { status: OK, result };
 }
 
 function runPrettierFormat(
   text: string,
-  document: TextDocument,
-  transaction: Transaction
+  document: TextDocument
 ): TrackingResult<OnDocumentFormattingResult> {
-  transaction.setTag("formatter", "prettier");
-  const span = transaction.startChild({ op: "prettier-format" });
+  setTag("formatter", "prettier");
 
-  const result = prettierFormat(text, document);
+  const result = startSpan({ name: "prettier-format" }, () =>
+    prettierFormat(text, document)
+  );
 
-  span.finish();
-
-  return { status: "ok", result };
+  return { status: OK, result };
 }

@@ -1,13 +1,12 @@
 /* istanbul ignore file: external system */
 // eslint-disable-next-line @typescript-eslint/naming-convention
 import * as Sentry from "@sentry/node";
-import type { Primitive, Transaction } from "@sentry/types";
-import * as tracing from "@sentry/tracing";
 import { ServerState } from "../types";
 import { Analytics } from "../analytics/types";
 import { Telemetry, TrackingResult } from "./types";
 
 import { sentryEventFilter } from "./sentryEventFilter";
+import { INTERNAL_ERROR } from "./TelemetryStatus";
 
 const SENTRY_CLOSE_TIMEOUT = 2000;
 
@@ -43,11 +42,6 @@ export class SentryServerTelemetry implements Telemetry {
   ) {
     this.serverState = serverState;
 
-    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-    if (!tracing) {
-      throw new Error("Tracing not loaded");
-    }
-
     Sentry.init({
       dsn: this.dsn,
       tracesSampleRate: serverState.env === "development" ? 1 : 0.001,
@@ -82,78 +76,56 @@ export class SentryServerTelemetry implements Telemetry {
 
   public async trackTiming<T>(
     taskName: string,
-    action: (transaction: Transaction) => Promise<TrackingResult<T>>,
-    tags?: Record<string, Primitive>
+    action: () => Promise<TrackingResult<T>>
   ): Promise<T | null> {
-    const transaction = this.startTransaction({
-      op: "task",
-      name: taskName,
-      tags,
-    });
+    let returnValue: T | null = null;
     this.actionTaken = true;
 
-    try {
-      const trackingResult = await action(transaction);
+    await Sentry.startSpan(
+      {
+        op: taskName,
+        name: taskName,
+      },
+      async (span) => {
+        try {
+          const trackingResult = await action();
+          span.setStatus(trackingResult.status);
+          returnValue = trackingResult.result;
+        } catch (err) {
+          this.serverState?.logger.error(err);
+          span.setStatus(INTERNAL_ERROR);
+        }
+      }
+    );
 
-      transaction.setStatus(trackingResult.status);
-
-      return trackingResult.result;
-    } catch (err) {
-      this.serverState?.logger.error(err);
-      transaction.setStatus("internal_error");
-      return null;
-    } finally {
-      transaction.finish();
-    }
+    return returnValue;
   }
 
   public trackTimingSync<T>(
     taskName: string,
-    action: (transaction: Transaction) => TrackingResult<T>,
-    tags?: Record<string, Primitive>
+    action: () => TrackingResult<T>
   ): T | null {
-    const transaction = this.startTransaction({
-      op: "task",
-      name: taskName,
-      tags,
-    });
+    let returnValue: T | null = null;
     this.actionTaken = true;
 
-    try {
-      const trackingResult = action(transaction);
-
-      transaction.setStatus(trackingResult.status);
-
-      return trackingResult.result;
-    } catch (err) {
-      this.serverState?.logger.error(err);
-      transaction.setStatus("internal_error");
-      return null;
-    } finally {
-      transaction.finish();
-    }
-  }
-
-  public startTransaction({
-    op,
-    name,
-    tags,
-  }: {
-    op: string;
-    name: string;
-    tags?: Record<string, Primitive>;
-  }): Transaction {
-    const transaction = Sentry.startTransaction({
-      op,
-      name,
-      tags,
-    });
-
-    Sentry.getCurrentHub().configureScope((scope) =>
-      scope.setSpan(transaction)
+    Sentry.startSpan(
+      {
+        op: taskName,
+        name: taskName,
+      },
+      (span) => {
+        try {
+          const trackingResult = action();
+          span.setStatus(trackingResult.status);
+          returnValue = trackingResult.result;
+        } catch (err) {
+          this.serverState?.logger.error(err);
+          span.setStatus(INTERNAL_ERROR);
+        }
+      }
     );
 
-    return transaction;
+    return returnValue;
   }
 
   public enableHeartbeat(): void {
