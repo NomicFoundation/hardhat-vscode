@@ -8,7 +8,7 @@ export function setupMockTelemetry(): Telemetry {
     trackTiming: async (_taskName: string, action) => {
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return (await action(sinon.spy() as any)).result;
+        return (await action()).result;
       } catch {
         return null;
       }
@@ -16,7 +16,7 @@ export function setupMockTelemetry(): Telemetry {
     trackTimingSync: (_taskName, action) => {
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const actionResponse = action(sinon.spy() as any);
+        const actionResponse = action();
 
         return actionResponse.result;
       } catch {
