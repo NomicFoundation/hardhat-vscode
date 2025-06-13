@@ -3,8 +3,8 @@ import { Event, Exception } from "@sentry/core";
 
 const ANONYMIZED_FILE = "<user-file>";
 
-export function anonymizeEvent<T extends Event>(event: T): T {
-  const scrubbedEvent: T = {
+export function anonymizeEvent<TEvent extends Event>(event: TEvent): TEvent {
+  const scrubbedEvent: TEvent = {
     ...event,
     message: anonymizeString(event.message), // Scrub message
     server_name: undefined, // Remove server_name
