@@ -7,6 +7,7 @@ import { Telemetry, TrackingResult } from "./types";
 
 import { sentryEventFilter } from "./sentryEventFilter";
 import { INTERNAL_ERROR } from "./TelemetryStatus";
+import { anonymizeEvent } from "./anonymization";
 
 const SENTRY_CLOSE_TIMEOUT = 2000;
 
@@ -59,10 +60,12 @@ export class SentryServerTelemetry implements Telemetry {
       },
 
       beforeSend: (event) =>
-        serverState.telemetryEnabled && this.eventFilter(event) ? event : null,
+        serverState.telemetryEnabled && this.eventFilter(event)
+          ? anonymizeEvent(event)
+          : null,
 
       beforeSendTransaction: (transactionEvent) =>
-        serverState.telemetryEnabled ? transactionEvent : null,
+        serverState.telemetryEnabled ? anonymizeEvent(transactionEvent) : null,
     });
 
     this.analytics.init(machineId, extensionVersion, serverState, clientName);
