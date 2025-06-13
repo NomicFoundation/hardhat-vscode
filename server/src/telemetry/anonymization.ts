@@ -3,6 +3,36 @@ import { Event, Exception } from "@sentry/core";
 
 const ANONYMIZED_FILE = "<user-file>";
 
+export function anonymizeEvent<T extends Event>(event: T): T {
+  const scrubbedEvent: T = {
+    ...event,
+    message: anonymizeString(event.message), // Scrub message
+    server_name: undefined, // Remove server_name
+    breadcrumbs: anonymizeBreadcrumbs(event.breadcrumbs), // Anonimized breadcrumbs
+    exception: anonymizeExceptions(event.exception), // Anonimized exception
+    user: anonymizeUser(event.user), // Anonimized user
+  };
+
+  return scrubbedEvent;
+}
+
+function anonymizeString(str?: string) {
+  if (str === undefined) {
+    return undefined;
+  }
+
+  const pathRegex = /\S+[/\\]\S+/g;
+  const internalRegex = /.*nomicfoundation\.hardhat-solidity[^(\\|/)]*/;
+
+  return str.replace(pathRegex, (match) => {
+    if (internalRegex.test(match) && match.endsWith(".js")) {
+      return `<extension-root>${match.replace(internalRegex, "")}`;
+    } else {
+      return ANONYMIZED_FILE;
+    }
+  });
+}
+
 function anonymizeBreadcrumbs(
   breadcrumbs?: Event["breadcrumbs"]
 ): Event["breadcrumbs"] {
@@ -16,25 +46,6 @@ function anonymizeBreadcrumbs(
       message: anonymizeString(breadcrumb.message),
     };
   });
-}
-
-function anonymizeStackTrace(
-  stacktrace?: Exception["stacktrace"]
-): Exception["stacktrace"] {
-  if (stacktrace?.frames === undefined) {
-    return stacktrace;
-  }
-
-  return {
-    frames: stacktrace.frames.map((frame) => {
-      return {
-        ...frame,
-        filename: anonymizeString(frame.filename),
-        abs_path: anonymizeString(frame.abs_path),
-        module: anonymizeString(frame.module),
-      };
-    }),
-  };
 }
 
 function anonymizeExceptions(
@@ -68,36 +79,21 @@ function anonymizeUser(user?: Event["user"]): Event["user"] {
   };
 }
 
-export function anonymizeEvent<T extends Event>(event: T): T {
-  const breadcrumbs = anonymizeBreadcrumbs(event.breadcrumbs);
-  const exception = anonymizeExceptions(event.exception);
-  const user = anonymizeUser(event.user);
-
-  const scrubbedEvent: T = {
-    ...event,
-    message: anonymizeString(event.message), // Scrub message
-    server_name: undefined, // Remove server_name
-    breadcrumbs, // Anonimized breadcrumbs
-    exception, // Anonimized exception
-    user, // Anonimized user
-  };
-
-  return scrubbedEvent;
-}
-
-function anonymizeString(str?: string) {
-  if (str === undefined) {
-    return undefined;
+function anonymizeStackTrace(
+  stacktrace?: Exception["stacktrace"]
+): Exception["stacktrace"] {
+  if (stacktrace?.frames === undefined) {
+    return stacktrace;
   }
 
-  const pathRegex = /\S+[/\\]\S+/g;
-  const internalRegex = /.*nomicfoundation\.hardhat-solidity[^(\\|/)]*/;
-
-  return str.replace(pathRegex, (match) => {
-    if (internalRegex.test(match) && match.endsWith(".js")) {
-      return `<extension-root>${match.replace(internalRegex, "")}`;
-    } else {
-      return ANONYMIZED_FILE;
-    }
-  });
+  return {
+    frames: stacktrace.frames.map((frame) => {
+      return {
+        ...frame,
+        filename: anonymizeString(frame.filename),
+        abs_path: anonymizeString(frame.abs_path),
+        module: anonymizeString(frame.module),
+      };
+    }),
+  };
 }
