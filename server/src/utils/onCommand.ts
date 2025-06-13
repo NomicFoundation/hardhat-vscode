@@ -1,6 +1,5 @@
 import { ISolFileEntry } from "@common/types";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { Span } from "@sentry/core";
 import { addFrameworkTag } from "../telemetry/tags";
 import { ServerState } from "../types";
 import { FAILED_PRECONDITION, OK } from "../telemetry/TelemetryStatus";
@@ -10,17 +9,13 @@ export function onCommand<T>(
   serverState: ServerState,
   commandName: string,
   uri: string,
-  action: (
-    documentAnalyzer: ISolFileEntry,
-    document: TextDocument,
-    span: Span
-  ) => T
+  action: (documentAnalyzer: ISolFileEntry, document: TextDocument) => T
 ) {
   const { logger, telemetry } = serverState;
 
   logger.trace(commandName);
 
-  return telemetry.trackTimingSync(commandName, (span) => {
+  return telemetry.trackTimingSync(commandName, () => {
     const { found, errorMessage, documentAnalyzer, document } =
       lookupEntryForUri(serverState, uri);
 
@@ -36,7 +31,7 @@ export function onCommand<T>(
 
     return {
       status: OK,
-      result: action(documentAnalyzer, document, span),
+      result: action(documentAnalyzer, document),
     };
   });
 }

@@ -76,7 +76,7 @@ export class SentryServerTelemetry implements Telemetry {
 
   public async trackTiming<T>(
     taskName: string,
-    action: (span: Sentry.Span) => Promise<TrackingResult<T>>
+    action: () => Promise<TrackingResult<T>>
   ): Promise<T | null> {
     let returnValue: T | null = null;
     this.actionTaken = true;
@@ -88,7 +88,7 @@ export class SentryServerTelemetry implements Telemetry {
       },
       async (span) => {
         try {
-          const trackingResult = await action(span);
+          const trackingResult = await action();
           span.setStatus(trackingResult.status);
           returnValue = trackingResult.result;
         } catch (err) {
@@ -103,7 +103,7 @@ export class SentryServerTelemetry implements Telemetry {
 
   public trackTimingSync<T>(
     taskName: string,
-    action: (span: Sentry.Span) => TrackingResult<T>
+    action: () => TrackingResult<T>
   ): T | null {
     let returnValue: T | null = null;
     this.actionTaken = true;
@@ -115,7 +115,7 @@ export class SentryServerTelemetry implements Telemetry {
       },
       (span) => {
         try {
-          const trackingResult = action(span);
+          const trackingResult = action();
           span.setStatus(trackingResult.status);
           returnValue = trackingResult.result;
         } catch (err) {
