@@ -68,12 +68,12 @@ function anonymizeUser(user?: Event["user"]): Event["user"] {
   };
 }
 
-export function anonymizeEvent(event: Event): Event {
+export function anonymizeEvent<T extends Event>(event: T): T {
   const breadcrumbs = anonymizeBreadcrumbs(event.breadcrumbs);
   const exception = anonymizeExceptions(event.exception);
   const user = anonymizeUser(event.user);
 
-  const scrubbedEvent: Event = {
+  const scrubbedEvent: T = {
     ...event,
     message: anonymizeString(event.message), // Scrub message
     server_name: undefined, // Remove server_name
