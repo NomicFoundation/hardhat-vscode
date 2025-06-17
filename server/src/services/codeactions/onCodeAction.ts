@@ -1,5 +1,6 @@
 import { CodeActionParams, CodeAction } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
+import { FAILED_PRECONDITION, OK } from "../../telemetry/TelemetryStatus";
 import { resolveQuickFixes } from "./QuickFixResolver";
 
 export function onCodeAction(serverState: ServerState) {
@@ -13,7 +14,7 @@ export function onCodeAction(serverState: ServerState) {
         const document = documents.get(params.textDocument.uri);
 
         if (!document) {
-          return { status: "failed_precondition", result: [] };
+          return { status: FAILED_PRECONDITION, result: [] };
         }
 
         const quickfixes = resolveQuickFixes(
@@ -23,7 +24,7 @@ export function onCodeAction(serverState: ServerState) {
           params.context.diagnostics
         );
 
-        return { status: "ok", result: quickfixes };
+        return { status: OK, result: quickfixes };
       }) ?? []
     );
   };

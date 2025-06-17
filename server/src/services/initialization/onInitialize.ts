@@ -6,6 +6,7 @@ import {
 } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
 import { tokensTypes } from "../semanticHighlight/tokenTypes";
+import { OK } from "../../telemetry/TelemetryStatus";
 import { indexWorkspaceFolders } from "./indexWorkspaceFolders";
 import { updateAvailableSolcVersions } from "./updateAvailableSolcVersions";
 
@@ -46,15 +47,14 @@ export const onInitialize = (serverState: ServerState) => {
     logger.info("Language server ready");
 
     // Index and analysis
-    await serverState.telemetry.trackTiming("indexing", async (transaction) => {
+    await serverState.telemetry.trackTiming("indexing", async () => {
       await indexWorkspaceFolders(
         serverState,
         serverState.workspaceFileRetriever,
-        workspaceFolders,
-        transaction
+        workspaceFolders
       );
 
-      return { status: "ok", result: null };
+      return { status: OK, result: null };
     });
 
     // Build and return InitializeResult
