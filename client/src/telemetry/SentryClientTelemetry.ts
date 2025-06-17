@@ -4,6 +4,7 @@ import { getDefaultIntegrations, defaultStackParser } from "@sentry/node";
 import { ExtensionState } from "../types";
 import { isTelemetryEnabled } from "../utils/telemetry";
 import { Telemetry } from "./types";
+import { anonymizeEvent } from "./anonymization";
 
 const SENTRY_CLOSE_TIMEOUT = 2000;
 
@@ -35,7 +36,8 @@ export class SentryClientTelemetry implements Telemetry {
       integrations,
       environment: this.extensionState.env,
       release: `${this.extensionState.name}@${this.extensionState.version}`,
-      beforeSend: (event) => (isTelemetryEnabled() ? event : null),
+      beforeSend: (event) =>
+        isTelemetryEnabled() ? anonymizeEvent(event) : null,
     });
     Sentry.getGlobalScope().setUser({ id: this.extensionState.machineId });
     Sentry.getGlobalScope().setTag("component", "ext");
