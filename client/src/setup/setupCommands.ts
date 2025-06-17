@@ -6,6 +6,7 @@ import CompileCommand from "../commands/CompileCommand";
 import FlattenCurrentFileCommand from "../commands/FlattenCurrentFileCommand";
 import CleanCommand from "../commands/CleanCommand";
 import Command from "../commands/Command";
+import { errorWrap } from "../utils/errors";
 
 type ICommandClass = new (state: ExtensionState) => Command;
 
@@ -21,7 +22,7 @@ export async function setupCommands(state: ExtensionState) {
 
     const disposable = vscode.commands.registerCommand(
       command.name(),
-      (...args) => command.execute(...args)
+      errorWrap(state.logger, (...args) => command.execute(...args))
     );
 
     state.context.subscriptions.push(disposable);

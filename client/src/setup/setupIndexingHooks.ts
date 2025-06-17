@@ -6,6 +6,7 @@ import {
 } from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 import { ExtensionState, Project } from "../types";
+import { errorWrapSync } from "../utils/errors";
 
 const INDEXING_JOB_ID = "indexing";
 
@@ -24,20 +25,26 @@ export function setupIndexingHooks(
 
       const fileIndexedDisposable = client.onNotification(
         "custom/file-indexed",
-        ({ uri, project }: { uri: string; project: Project }) => {
-          // Show the project associated to a given contract file as a status item
-          const statusItem = findOrCreateProjectStatusItem(extensionState, uri);
+        errorWrapSync(
+          extensionState.logger,
+          ({ uri, project }: { uri: string; project: Project }) => {
+            // Show the project associated to a given contract file as a status item
+            const statusItem = findOrCreateProjectStatusItem(
+              extensionState,
+              uri
+            );
 
-          statusItem.severity = LanguageStatusSeverity.Information;
-          statusItem.text = `Project: ${project.frameworkName}`;
-          if (project.configPath !== undefined) {
-            statusItem.command = {
-              title: "Open config file",
-              command: "vscode.open",
-              arguments: [Uri.file(project.configPath)],
-            };
+            statusItem.severity = LanguageStatusSeverity.Information;
+            statusItem.text = `Project: ${project.frameworkName}`;
+            if (project.configPath !== undefined) {
+              statusItem.command = {
+                title: "Open config file",
+                command: "vscode.open",
+                arguments: [Uri.file(project.configPath)],
+              };
+            }
           }
-        }
+        )
       );
 
       extensionState.listenerDisposables.push(fileIndexedDisposable);
