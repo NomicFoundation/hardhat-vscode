@@ -1,4 +1,4 @@
-// This file and client/src/telemetry/anonymization.ts are identical, at some point we may consider merging them
+// This file and server/src/telemetry/anonymization.ts are identical, at some point we may consider merging them
 
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { Event, Exception } from "@sentry/core";
