@@ -35,6 +35,13 @@ export const onInitialize = (serverState: ServerState) => {
       clientName
     );
 
+    serverState.analytics.init(
+      machineId,
+      extensionVersion,
+      serverState,
+      clientName
+    );
+
     logInitializationInfo(serverState, {
       machineId,
       extensionName,
