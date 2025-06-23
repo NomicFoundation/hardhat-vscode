@@ -6,7 +6,8 @@ import {
   ExtensionMode,
 } from "vscode";
 
-const PREVIOUSLY_SHOWN_TELEMETRY_LABEL = "previouslyShownTelemetryMessage";
+const PREVIOUSLY_SHOWN_TELEMETRY_LABEL =
+  "previouslyShownTelemetryMessage-2025-06-23";
 
 export async function showAnalyticsAllowPopup({
   context,
@@ -18,9 +19,6 @@ export async function showAnalyticsAllowPopup({
     // https://github.com/microsoft/vscode/blob/36fefc828e4c496a7bbb64c63f3eb3052a650f8f/src/vs/workbench/services/dialogs/common/dialogService.ts#L56
     return;
   }
-
-  // TODO: remove this once we are happy we have most people reconfirmed
-  await context.globalState.update("shownTelemetryMessage", undefined);
 
   const shownTelemetryMessage = context.globalState.get<boolean>(
     PREVIOUSLY_SHOWN_TELEMETRY_LABEL
@@ -36,6 +34,11 @@ export async function showAnalyticsAllowPopup({
     "Accept",
     "Decline"
   );
+
+  // User cancelled, don't change config
+  if (item === undefined) {
+    return;
+  }
 
   const isAccepted = item === "Accept" ? true : false;
 
