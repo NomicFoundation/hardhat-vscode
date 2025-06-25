@@ -1,7 +1,7 @@
 import path from "path";
 import { expect } from "chai";
 import { removeSync } from "fs-extra";
-import { writeFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import { LSPDependencyGraph } from "../../../src/frameworks/Hardhat/Hardhat3/LSPDependencyGraph";
 
 // See image.png inside lsp_dg_project for the graph
@@ -13,7 +13,10 @@ describe("LSPDependencyGraph", () => {
       "hardhat3/internal/lsp-helpers"
     );
     const resolverFactory = () => {
-      return ResolverImplementation.create(projectPath, []);
+      return ResolverImplementation.create(
+        projectPath,
+        async (filePath: string) => readFileSync(filePath).toString()
+      );
     };
     dg = new LSPDependencyGraph(resolverFactory);
   });

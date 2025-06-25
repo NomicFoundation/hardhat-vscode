@@ -5,11 +5,13 @@
     "@openzeppelin/contracts": "4.5.0",
     "@types/node": "^22.14.0",
     "forge-std": "github:foundry-rs/forge-std#v1.9.4",
-    "hardhat": "3.0.0-next.7",
-    "typescript": "~5.5.4",
+    "pkg_with_exports_1": "file:../test_packages/pkg_with_exports_1",
+    "pkg_with_exports_2": "file:../test_packages/pkg_with_exports_2",
     "pkg_without_exports_1": "file:../test_packages/pkg_without_exports_1",
     "pkg_without_exports_2": "file:../test_packages/pkg_without_exports_2",
-    "pkg_with_exports_1": "file:../test_packages/pkg_with_exports_1",
-    "pkg_with_exports_2": "file:../test_packages/pkg_with_exports_2"
+    "typescript": "~5.5.4"
+  },
+  "dependencies": {
+    "hardhat": "3.0.0-next.19"
   }
 }

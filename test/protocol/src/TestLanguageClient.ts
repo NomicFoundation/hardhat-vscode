@@ -259,6 +259,10 @@ export class TestLanguageClient {
     })
   }
 
+  public getNotifications(notificationType: string) {
+    return this.receivedNotifications[notificationType] ?? []
+  }
+
   public async getCodeActions(uri: string, diagnostic: Diagnostic) {
     const params: CodeActionParams = {
       textDocument: {
