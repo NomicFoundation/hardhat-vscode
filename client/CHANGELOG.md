@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.22 - 2025-06-26
+
+### Changed
+
+- Added support for new Hardhat 3 dependency resolution system
+
 ## 0.8.21 - 2025-06-17
 
 ### Added
