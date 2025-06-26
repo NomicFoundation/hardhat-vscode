@@ -13,7 +13,13 @@ export class OutputConverter {
         status: "VALIDATION_FAIL",
         projectBasePath,
         version: compilationDetails.solcVersion,
-        errors: solcOutput.errors,
+        errors: solcOutput.errors.map((solcError: any) => ({
+          ...solcError,
+          sourceLocation: {
+            ...solcError.sourceLocation,
+            file: normalizeSourceName(solcError.sourceLocation.file),
+          },
+        })),
       };
 
       return validationFailMessage;
@@ -22,10 +28,16 @@ export class OutputConverter {
         status: "VALIDATION_PASS",
         projectBasePath,
         version: compilationDetails.solcVersion,
-        sources: Object.keys(compilationDetails.input.sources),
+        sources: Object.keys(compilationDetails.input.sources).map(
+          normalizeSourceName
+        ),
       };
 
       return validationPassMessage;
     }
   }
+}
+
+export function normalizeSourceName(internalSourceName: string) {
+  return internalSourceName.replace("project/", "");
 }

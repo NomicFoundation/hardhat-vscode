@@ -22,21 +22,23 @@ describe('[hardhat3] custom/validation-job-status', () => {
 
     await client.openDocument(importerPath)
 
-    const importerSubpath = path.join(
+    const importerSubpath = [
+      '.',
       'projects',
       'hardhat3',
       'contracts',
       'custom',
       'validation-job-status',
-      'InvalidImport.sol'
-    )
+      'InvalidImport.sol',
+    ].join(path.sep)
+
     const expectedData = {
       validationRun: false,
-      reason: `HHE902: The import "./nonexistent.sol from "${importerSubpath}" doesn't exist.`,
-      displayText: `HHE902: The import "./nonexistent.sol from "${importerSubpath}" doesn't exist.`,
+      reason: `HHE902: There was an error while resolving the import "./nonexistent.sol" from "${importerSubpath}":\n\nThe file contracts/custom/validation-job-status/nonexistent.sol doesn't exist within the project.`,
+      displayText: `HHE902: There was an error while resolving the import "./nonexistent.sol" from "${importerSubpath}":\n\nThe file contracts/custom/validation-job-status/nonexistent.sol doesn't exist within the project.`,
       errorFile: toUri(invalidImportPath),
     }
 
-    await client.getOrWaitNotification('custom/validation-job-status', expectedData, 10000)
+    await client.getOrWaitNotification('custom/validation-job-status', expectedData, 5000)
   })
 })

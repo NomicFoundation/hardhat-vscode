@@ -29,7 +29,13 @@ export class LSPDependencyGraph {
 
       const filesToProcess: ResolvedFile[] = [];
 
-      const resolvedFile = await resolver.resolveProjectFile(absPath);
+      const resolveResult = await resolver.resolveProjectFile(absPath);
+
+      if (resolveResult.success !== true) {
+        throw resolveResult.error;
+      }
+
+      const resolvedFile = resolveResult.value;
 
       this.#addFile(resolvedFile);
       filesToProcess.push(resolvedFile);
@@ -38,19 +44,20 @@ export class LSPDependencyGraph {
 
       while ((fileToProcess = filesToProcess.pop()) !== undefined) {
         for (const importPath of fileToProcess.content.importPaths) {
-          let importedFile: ResolvedFile;
-          try {
-            importedFile = await resolver.resolveImport(
-              fileToProcess,
-              importPath
-            );
-          } catch (error) {
+          const resolveImportResult = await resolver.resolveImport(
+            fileToProcess,
+            importPath
+          );
+
+          if (resolveImportResult.success !== true) {
             if (!this.unresolvedImports.has(fileToProcess.fsPath)) {
               this.unresolvedImports.set(fileToProcess.fsPath, new Set());
             }
             this.unresolvedImports.get(fileToProcess.fsPath)?.add(importPath);
             continue;
           }
+
+          const importedFile = resolveImportResult.value.file;
 
           if (!this.#hasFile(importedFile)) {
             filesToProcess.push(importedFile);
@@ -135,20 +142,22 @@ export class LSPDependencyGraph {
         }
 
         for (const importPath of unresolvedImportPaths) {
-          try {
-            const importedFile = await resolver.resolveImport(
-              potentialDependant,
-              importPath
-            );
+          const resolveImportResult = await resolver.resolveImport(
+            potentialDependant,
+            importPath
+          );
 
-            if (importedFile.fsPath === newFileAbsPath) {
-              this.unresolvedImports.get(unresolvedAbsPath)?.delete(importPath);
-
-              this.#addDependency(potentialDependant, importedFile, importPath);
-              this.#addDependant(potentialDependant, importedFile, importPath);
-            }
-          } catch (error) {
+          if (resolveImportResult.success !== true) {
             continue;
+          }
+
+          const importedFile = resolveImportResult.value.file;
+
+          if (importedFile.fsPath === newFileAbsPath) {
+            this.unresolvedImports.get(unresolvedAbsPath)?.delete(importPath);
+
+            this.#addDependency(potentialDependant, importedFile, importPath);
+            this.#addDependant(potentialDependant, importedFile, importPath);
           }
         }
       }

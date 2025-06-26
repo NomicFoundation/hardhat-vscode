@@ -24,6 +24,8 @@ import setupServer from "./server";
 import { SentryServerTelemetry } from "./telemetry/SentryServerTelemetry";
 import { GoogleAnalytics } from "./analytics/GoogleAnalytics";
 
+import "es-iterator-helpers/auto"; // polyfill for Iterator for Node < 22
+
 // Create a connection for the server, using Node's IPC as a transport.
 // Also include all preview / proposed LSP features.
 const connection = createConnection(ProposedFeatures.all);
