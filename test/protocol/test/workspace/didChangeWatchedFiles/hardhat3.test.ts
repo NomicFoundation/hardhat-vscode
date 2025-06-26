@@ -54,7 +54,6 @@ describe('[hardhat3] onDidChangeWatchedFiles', () => {
         {
           projectBasePath: getProjectPath('hardhat3'),
           validationRun: false,
-          reason: `Error getting compilation job: {\n  "reason": "NO_COMPATIBLE_SOLC_VERSION_WITH_ROOT",\n  "rootFilePath": "${contractPath}",\n  "buildProfile": "default",\n  "formattedReason": "No solc version enabled in this profile is compatible with this file."\n}`,
         },
         2000
       )
