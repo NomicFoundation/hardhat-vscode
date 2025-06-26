@@ -1,0 +1,3 @@
+local/=contracts/definition/imports/
+pkg_without_exports_2_through_remapping/=node_modules/pkg_without_exports_2/src/
+pkg_with_exports_2_through_remapping/=node_modules/pkg_with_exports_2/src/

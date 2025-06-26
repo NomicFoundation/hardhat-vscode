@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0
-pragma solidity ^0.8.4;
+pragma solidity ^0.7.0;
 
 // This contract is used to test that the extension correctly reloads the
 // project when the hardhat.config.ts file changes.
 
-// It has an import to be resolved through remappings, so depending on the config
-// it would show a diagnostic or not
+// It uses a valid solidity version, so after the config changes targeting a different one, we should get an error notification
 
-import 'pkg_without_exports_2_through_remapping/B.sol';
+contract ConfigReloadTest {
 
-contract ConfigReloadTest {}
+}

@@ -1,0 +1,2 @@
+foo1/=node_modules/pkg_without_exports_2/src/
+this_src/=src/

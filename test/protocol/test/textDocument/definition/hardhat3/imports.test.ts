@@ -53,18 +53,6 @@ describe('[hardhat3] definition - all import cases', () => {
       })
     })
 
-    test('to local file through direct import', async () => {
-      const localFilePath = getProjectPath('hardhat3/contracts/definition/imports/Local1.sol')
-      await client.openDocument(localFilePath)
-
-      const location = await client.findDefinition(toUri(localFilePath), makePosition(8, 5))
-
-      expect(location).to.deep.equal({
-        uri: toUri(getProjectPath('hardhat3/contracts/definition/imports/Local3.sol')),
-        range: makeRange(6, 9, 6, 15),
-      })
-    })
-
     test('to local file through remapping', async () => {
       const localFilePath = getProjectPath('hardhat3/contracts/definition/imports/Local1.sol')
       await client.openDocument(localFilePath)
@@ -85,7 +73,7 @@ describe('[hardhat3] definition - all import cases', () => {
 
       expect(location).to.deep.equal({
         uri: toUri(getTestPackagePath('pkg_without_exports_1', 'src/A.sol')),
-        range: makeRange(6, 9, 6, 10),
+        range: makeRange(7, 9, 7, 10),
       })
     })
 
@@ -131,7 +119,7 @@ describe('[hardhat3] definition - all import cases', () => {
       const npmFilePath = getTestPackagePath('pkg_without_exports_1', 'src/A.sol')
       await client.openDocument(npmFilePath)
 
-      const location = await client.findDefinition(toUri(npmFilePath), makePosition(7, 2))
+      const location = await client.findDefinition(toUri(npmFilePath), makePosition(8, 2))
 
       expect(location).to.deep.equal({
         uri: toUri(getTestPackagePath('pkg_without_exports_1', 'src/A2.sol')),
@@ -139,11 +127,11 @@ describe('[hardhat3] definition - all import cases', () => {
       })
     })
 
-    test('to same package through relative import', async () => {
+    test('to same package using remappings', async () => {
       const npmFilePath = getTestPackagePath('pkg_without_exports_1', 'src/A.sol')
       await client.openDocument(npmFilePath)
 
-      const location = await client.findDefinition(toUri(npmFilePath), makePosition(8, 2))
+      const location = await client.findDefinition(toUri(npmFilePath), makePosition(9, 2))
 
       expect(location).to.deep.equal({
         uri: toUri(getTestPackagePath('pkg_without_exports_1', 'src/A3.sol')),
@@ -159,7 +147,7 @@ describe('[hardhat3] definition - all import cases', () => {
 
       expect(location).to.deep.equal({
         uri: toUri(getTestPackagePath('pkg_without_exports_1', 'src/A.sol')),
-        range: makeRange(6, 9, 6, 10),
+        range: makeRange(7, 9, 7, 10),
       })
     })
 
@@ -171,6 +159,18 @@ describe('[hardhat3] definition - all import cases', () => {
 
       expect(location).to.deep.equal({
         uri: toUri(getTestPackagePath('pkg_with_exports_2', 'src/D.sol')),
+        range: makeRange(3, 9, 3, 10),
+      })
+    })
+
+    test('to other npm package (without exports) using remappings', async () => {
+      const npmFilePath = getTestPackagePath('pkg_without_exports_1', 'src/A.sol')
+      await client.openDocument(npmFilePath)
+
+      const location = await client.findDefinition(toUri(npmFilePath), makePosition(10, 2))
+
+      expect(location).to.deep.equal({
+        uri: toUri(getTestPackagePath('pkg_without_exports_2', 'src/B.sol')),
         range: makeRange(3, 9, 3, 10),
       })
     })

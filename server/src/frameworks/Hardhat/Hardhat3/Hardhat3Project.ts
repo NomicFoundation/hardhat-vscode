@@ -136,11 +136,7 @@ export class Hardhat3Project extends Project {
       const readSourceFile = readSourceFileFactory(this.hre!.hooks);
       const resolverFactory = async () =>
         // This is so the dependency graph can get a new resolver instance whenever it needs to
-        ResolverImplementation.create(
-          this.basePath,
-          this.hre!.config.solidity.remappings,
-          readSourceFile
-        );
+        ResolverImplementation.create(this.basePath, readSourceFile);
 
       this.dependencyGraph = new LSPDependencyGraph(resolverFactory);
 
@@ -245,29 +241,19 @@ export class Hardhat3Project extends Project {
 
       // Handle import-related error
       const importErrorTypes = [
-        HardhatError.ERRORS.CORE.SOLIDITY.IMPORTED_FILE_DOESNT_EXIST,
-        HardhatError.ERRORS.CORE.SOLIDITY.IMPORTED_FILE_WITH_INCORRECT_CASING,
-        HardhatError.ERRORS.CORE.SOLIDITY
-          .IMPORTED_PACKAGE_EXPORTS_FILE_WITH_INCORRECT_CASING,
-        HardhatError.ERRORS.CORE.SOLIDITY.IMPORTED_NPM_DEPENDENCY_NOT_INSTALLED,
-        HardhatError.ERRORS.CORE.SOLIDITY.INVALID_NPM_IMPORT,
-        HardhatError.ERRORS.CORE.SOLIDITY.ILLEGAL_PACKAGE_IMPORT,
-        HardhatError.ERRORS.CORE.SOLIDITY.ILEGALL_PROJECT_IMPORT,
-        HardhatError.ERRORS.CORE.SOLIDITY
-          .ILLEGAL_PROJECT_IMPORT_AFTER_REMAPPING,
-        HardhatError.ERRORS.CORE.SOLIDITY.IMPORT_PATH_WITH_WINDOWS_SEPARATOR,
+        HardhatError.ERRORS.CORE.SOLIDITY.IMPORT_RESOLUTION_ERROR,
       ];
 
       for (const importErrorType of importErrorTypes) {
         if (HardhatError.isHardhatError(error, importErrorType)) {
           const messageArguments = error.messageArguments as {
-            from?: string;
+            filePath?: string;
             importPath?: string;
           };
 
           // invariant check
           if (
-            messageArguments.from === undefined ||
+            messageArguments.filePath === undefined ||
             messageArguments.importPath === undefined
           ) {
             this.logger.error(
@@ -286,7 +272,10 @@ export class Hardhat3Project extends Project {
           };
 
           // The 'from' path included in the error is relative to cwd instead of project root
-          const fromAbsPath = path.join(normalizedCwd(), messageArguments.from);
+          const fromAbsPath = path.join(
+            normalizedCwd(),
+            messageArguments.filePath
+          );
 
           const openDocument = openDocuments.find((d) =>
             pathsEqual(d.uri, fromAbsPath)
