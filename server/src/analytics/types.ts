@@ -16,6 +16,9 @@ export interface AnalyticsPayload {
     operatingSystem: {
       value?: string;
     };
+    vscodeVersion: {
+      value?: string;
+    };
   };
 
   events: Array<{
@@ -32,7 +35,8 @@ export interface Analytics {
     trackingId: string | undefined,
     extensionVersion: string | undefined,
     serverState: ServerState,
-    clientName: string | undefined
+    clientName: string | undefined,
+    vscodeVersion?: string
   ): void;
 
   sendPageView(taskName: string): Promise<void>;

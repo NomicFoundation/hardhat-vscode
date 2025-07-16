@@ -23,6 +23,7 @@ export const onInitialize = (serverState: ServerState) => {
       extensionVersion,
       workspaceFolders,
       clientName,
+      vscodeVersion,
     } = getSessionInfo(params);
 
     updateServerStateFromParams(serverState, params);
@@ -32,7 +33,8 @@ export const onInitialize = (serverState: ServerState) => {
       extensionName,
       extensionVersion,
       serverState,
-      clientName
+      clientName,
+      vscodeVersion
     );
 
     logInitializationInfo(serverState, {
@@ -120,6 +122,8 @@ function getSessionInfo(params: InitializeParams) {
   const workspaceFolders = params.workspaceFolders || [];
 
   const clientName = params.clientInfo?.name;
+  const vscodeVersion: string | undefined =
+    params.initializationOptions?.vscodeVersion;
 
   return {
     machineId,
@@ -127,6 +131,7 @@ function getSessionInfo(params: InitializeParams) {
     extensionVersion,
     workspaceFolders,
     clientName,
+    vscodeVersion,
   };
 }
 
