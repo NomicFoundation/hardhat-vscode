@@ -1,4 +1,4 @@
-import { workspace, env, version } from "vscode";
+import { workspace, env } from "vscode";
 import {
   LanguageClient,
   LanguageClientOptions,
@@ -65,7 +65,6 @@ const startLanguageServer = async (
       telemetryEnabled: extensionState.telemetryEnabled,
       machineId: extensionState.machineId,
       extensionConfig: workspace.getConfiguration("solidity"),
-      vscodeVersion: version,
     },
   };
 

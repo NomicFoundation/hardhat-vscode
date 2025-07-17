@@ -13,7 +13,7 @@ export interface Telemetry {
     extensionVersion: string | undefined,
     serverState: ServerState,
     clientName: string | undefined,
-    vscodeVersion?: string
+    clientVersion: string | undefined
   ): void;
   captureException(err: unknown): void;
   trackTiming<T>(

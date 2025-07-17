@@ -40,7 +40,7 @@ export class SentryServerTelemetry implements Telemetry {
     extensionVersion: string | undefined,
     serverState: ServerState,
     clientName: string | undefined,
-    vscodeVersion?: string
+    clientVersion: string | undefined
   ) {
     this.serverState = serverState;
 
@@ -74,7 +74,7 @@ export class SentryServerTelemetry implements Telemetry {
       extensionVersion,
       serverState,
       clientName,
-      vscodeVersion
+      clientVersion
     );
 
     this.enableHeartbeat();

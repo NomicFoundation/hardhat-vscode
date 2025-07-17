@@ -16,7 +16,7 @@ export interface AnalyticsPayload {
     operatingSystem: {
       value?: string;
     };
-    vscodeVersion: {
+    clientVersion: {
       value?: string;
     };
   };
@@ -36,7 +36,7 @@ export interface Analytics {
     extensionVersion: string | undefined,
     serverState: ServerState,
     clientName: string | undefined,
-    vscodeVersion?: string
+    clientVersion: string | undefined
   ): void;
 
   sendPageView(taskName: string): Promise<void>;
