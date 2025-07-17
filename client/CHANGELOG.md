@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.23 - 2025-07-17
+
+### Changed
+
+- Updated the telemetry consent flow
+
 ## 0.8.22 - 2025-06-26
 
 ### Changed
