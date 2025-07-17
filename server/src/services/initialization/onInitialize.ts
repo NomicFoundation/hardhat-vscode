@@ -23,6 +23,7 @@ export const onInitialize = (serverState: ServerState) => {
       extensionVersion,
       workspaceFolders,
       clientName,
+      clientVersion,
     } = getSessionInfo(params);
 
     updateServerStateFromParams(serverState, params);
@@ -32,13 +33,16 @@ export const onInitialize = (serverState: ServerState) => {
       extensionName,
       extensionVersion,
       serverState,
-      clientName
+      clientName,
+      clientVersion
     );
 
     logInitializationInfo(serverState, {
       machineId,
       extensionName,
       extensionVersion,
+      clientName,
+      clientVersion,
       workspaceFolders,
     });
 
@@ -119,7 +123,8 @@ function getSessionInfo(params: InitializeParams) {
 
   const workspaceFolders = params.workspaceFolders || [];
 
-  const clientName = params.clientInfo?.name;
+  const clientName: string | undefined = params.clientInfo?.name;
+  const clientVersion: string | undefined = params.clientInfo?.version;
 
   return {
     machineId,
@@ -127,6 +132,7 @@ function getSessionInfo(params: InitializeParams) {
     extensionVersion,
     workspaceFolders,
     clientName,
+    clientVersion,
   };
 }
 
@@ -153,11 +159,15 @@ function logInitializationInfo(
     machineId,
     extensionName,
     extensionVersion,
+    clientName,
+    clientVersion,
     workspaceFolders,
   }: {
     machineId: string | undefined;
     extensionName: string | undefined;
     extensionVersion: string | undefined;
+    clientName: string | undefined;
+    clientVersion: string | undefined;
     workspaceFolders: WorkspaceFolder[];
   }
 ) {
@@ -165,6 +175,15 @@ function logInitializationInfo(
 
   logger.info(`  Release: ${extensionName}@${extensionVersion}`);
   logger.info(`  Environment: ${serverState.env}`);
+
+  if (clientName !== undefined) {
+    logger.info(`  Client: ${clientName}`);
+  }
+
+  if (clientVersion !== undefined) {
+    logger.info(`  Client Version: ${clientVersion}`);
+  }
+
   logger.info(`  Telemetry Enabled: ${serverState.telemetryEnabled}`);
 
   if (machineId !== undefined) {
