@@ -12,7 +12,8 @@ export interface Telemetry {
     extensionName: string | undefined,
     extensionVersion: string | undefined,
     serverState: ServerState,
-    clientName: string | undefined
+    clientName: string | undefined,
+    clientVersion: string | undefined
   ): void;
   captureException(err: unknown): void;
   trackTiming<T>(

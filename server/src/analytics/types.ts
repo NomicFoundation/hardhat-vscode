@@ -16,6 +16,9 @@ export interface AnalyticsPayload {
     operatingSystem: {
       value?: string;
     };
+    clientVersion: {
+      value?: string;
+    };
   };
 
   events: Array<{
@@ -32,7 +35,8 @@ export interface Analytics {
     trackingId: string | undefined,
     extensionVersion: string | undefined,
     serverState: ServerState,
-    clientName: string | undefined
+    clientName: string | undefined,
+    clientVersion: string | undefined
   ): void;
 
   sendPageView(taskName: string): Promise<void>;

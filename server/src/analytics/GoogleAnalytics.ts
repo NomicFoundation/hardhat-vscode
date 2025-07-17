@@ -13,6 +13,7 @@ export class GoogleAnalytics implements Analytics {
   private machineId: string | undefined;
   private extensionVersion: string | undefined;
   private clientName: string | undefined;
+  private clientVersion: string | undefined;
   private sessionId: string;
 
   constructor(measurementID: string, apiSecret: string) {
@@ -29,12 +30,14 @@ export class GoogleAnalytics implements Analytics {
     machineId: string | undefined,
     extensionVersion: string | undefined,
     serverState: ServerState,
-    clientName: string | undefined
+    clientName: string | undefined,
+    clientVersion: string | undefined
   ): void {
     this.machineId = machineId;
     this.extensionVersion = extensionVersion;
     this.serverState = serverState;
     this.clientName = clientName;
+    this.clientVersion = clientVersion;
   }
 
   public async sendPageView(taskName: string): Promise<void> {
@@ -67,6 +70,7 @@ export class GoogleAnalytics implements Analytics {
         extensionVersion: { value: this.extensionVersion },
         languageClient: { value: this.clientName },
         operatingSystem: { value: os.type() },
+        clientVersion: { value: this.clientVersion },
       },
       events: [
         {
