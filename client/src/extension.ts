@@ -1,5 +1,4 @@
 import { ExtensionContext } from "vscode";
-import { showAnalyticsAllowPopup } from "./popups/showAnalyticsAllowPopup";
 import { showSoliditySurveyPopup } from "./popups/showSoliditySurveyPopup";
 import { warnOnOtherSolidityExtensions } from "./popups/warnOnOtherSolidityExtensions";
 import { indexHardhatProjects } from "./setup/indexHardhatProjects";
@@ -30,12 +29,6 @@ export async function activate(context: ExtensionContext) {
     setupTaskProvider(extensionState);
     await setupCommands(extensionState);
     setupWorkspaceHooks(extensionState);
-
-    // We don't want to block for user input, analytics will be turned
-    // off from users until they agree.
-    //
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    showAnalyticsAllowPopup(extensionState);
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     showSoliditySurveyPopup(extensionState);
