@@ -32,11 +32,13 @@ const startLanguageServer = async (
     run: {
       module: extensionState.serverModulePath,
       transport: TransportKind.ipc,
+      runtime: process.execPath,
     },
     debug: {
       module: extensionState.serverModulePath,
       transport: TransportKind.ipc,
       options: debugOptions,
+      runtime: process.execPath,
     },
   };
 
