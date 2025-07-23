@@ -4,7 +4,7 @@
   "displayName": "Solidity",
   "description": "Solidity and Hardhat support by the Hardhat team",
   "license": "MIT",
-  "version": "0.8.23",
+  "version": "0.8.24",
   "private": true,
   "type": "commonjs",
   "main": "./out/extension.js",
@@ -62,7 +62,7 @@
     "prettier": "2.5.1"
   },
   "dependencies": {
-    "@nomicfoundation/solidity-language-server": "0.8.23",
+    "@nomicfoundation/solidity-language-server": "0.8.24",
     "@sentry/node": "9.6.1",
     "vscode-languageclient": "9.0.1"
   },
