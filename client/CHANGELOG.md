@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.24 - 2025-07-23
+
+### Changed
+
+- Use client's node version for running the language server
+- Update hardhat 3 support to 3.0.0-next.24 onwards
+
 ## 0.8.23 - 2025-07-17
 
 ### Changed
