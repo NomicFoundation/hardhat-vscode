@@ -12,6 +12,6 @@
     "typescript": "~5.5.4"
   },
   "dependencies": {
-    "hardhat": "3.0.0-next.19"
+    "hardhat": "3.0.0-next.24"
   }
 }
