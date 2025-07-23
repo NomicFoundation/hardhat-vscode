@@ -208,17 +208,19 @@ export class Hardhat3Project extends Project {
     }
 
     try {
-      const compilationJobs = await this.hre.solidity.getCompilationJobs([
+      const compilationJobsResult = await this.hre.solidity.getCompilationJobs([
         absolutePath,
       ]);
 
-      if ("reason" in compilationJobs) {
+
+      if ("reason" in compilationJobsResult) {
         throw new Error(
-          `Error getting compilation job: ${JSON.stringify(compilationJobs, null, 2)}`
+          `Error getting compilation job: ${JSON.stringify(compilationJobsResult, null, 2)}`
         );
       }
 
-      const compilationJob = compilationJobs.values().next().value!;
+      const {compilationJobsPerFile} = compilationJobsResult;
+      const compilationJob = compilationJobsPerFile.values().next().value!;
 
       const compilerInput = await compilationJob.getSolcInput();
 
