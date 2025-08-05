@@ -89,11 +89,7 @@ describe('[hardhat3] definition', () => {
     const location = await client.findDefinition(toUri(importDocPath), makePosition(4, 73))
 
     expect(location).to.deep.equal({
-      uri: toUri(
-        getProjectPath(
-          'hardhat3/node_modules/.pnpm/@openzeppelin+contracts@4.5.0/node_modules/@openzeppelin/contracts/access/Ownable.sol'
-        )
-      ),
+      uri: toUri(getProjectPath('hardhat3/node_modules/@openzeppelin/contracts/access/Ownable.sol')),
       range: makeRange(3, 0, 75, 0),
     })
   })
