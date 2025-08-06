@@ -36,7 +36,7 @@
     "url": "https://github.com/NomicFoundation/hardhat-vscode/issues"
   },
   "engines": {
-    "vscode": "^1.90.0"
+    "vscode": "^1.99.0"
   },
   "activationEvents": [
     "workspaceContains:**/hardhat.config.{ts,js}",
