@@ -105,22 +105,24 @@ export class Hardhat3Project extends Project {
         id: "hardhatVscode",
         hookHandlers: {
           solidity: async () => ({
-            readSourceFile: async (
-              context: HookContext,
-              absolutePath: string,
-              next: (
-                nextContext: HookContext,
-                absolutePath: string
-              ) => Promise<string>
-            ) => {
-              const doc = this.serverState.documents.get(toUri(absolutePath));
+            default: async () => ({
+              readSourceFile: async (
+                context: HookContext,
+                absolutePath: string,
+                next: (
+                  nextContext: HookContext,
+                  absolutePath: string
+                ) => Promise<string>
+              ) => {
+                const doc = this.serverState.documents.get(toUri(absolutePath));
 
-              if (doc !== undefined) {
-                return doc.getText();
-              }
+                if (doc !== undefined) {
+                  return doc.getText();
+                }
 
-              return next(context, absolutePath);
-            },
+                return next(context, absolutePath);
+              },
+            }),
           }),
         },
       });
@@ -212,14 +214,13 @@ export class Hardhat3Project extends Project {
         absolutePath,
       ]);
 
-
       if ("reason" in compilationJobsResult) {
         throw new Error(
           `Error getting compilation job: ${JSON.stringify(compilationJobsResult, null, 2)}`
         );
       }
 
-      const {compilationJobsPerFile} = compilationJobsResult;
+      const { compilationJobsPerFile } = compilationJobsResult;
       const compilationJob = compilationJobsPerFile.values().next().value!;
 
       const compilerInput = await compilationJob.getSolcInput();
