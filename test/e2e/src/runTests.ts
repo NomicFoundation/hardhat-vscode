@@ -21,7 +21,7 @@ const main = async () => {
 
     // Download VS Code, unzip it and run the e2e test
     await runTests({
-      version: "1.90.0",
+      version: "1.99.0",
       extensionDevelopmentPath,
       extensionTestsPath,
 
