@@ -175,7 +175,12 @@ export class FoundryProject extends Project {
       (remapping) => `${remapping.from}=${remapping.to}`
     );
 
-    (basicCompilation.input.settings as any).remappings = remappings; // CompilerInput type doesn't have remappings
+    const inputRemappings = basicCompilation.input.settings.remappings ?? [];
+
+    (basicCompilation.input.settings as any).remappings = [
+      ...remappings,
+      ...inputRemappings,
+    ]; // CompilerInput type doesn't have remappings
 
     return basicCompilation;
   }
