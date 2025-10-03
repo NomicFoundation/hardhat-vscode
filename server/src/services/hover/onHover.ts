@@ -1,10 +1,11 @@
 import {
   isIdentifierNode,
   isMemberAccessNode,
+  isUserDefinedTypeNameNode,
 } from "@analyzer/utils/typeGuards";
 import { getParserPositionFromVSCodePosition } from "@common/utils";
 import { HoverParams, Hover } from "vscode-languageserver/node";
-import { ISolFileEntry, IdentifierNode, MemberAccessNode } from "@common/types";
+import { ISolFileEntry, IdentifierNode, MemberAccessNode, Node } from "@common/types";
 import { onCommand } from "@utils/onCommand";
 import { ServerState } from "../../types";
 import { astToText } from "./utils/astToText";
@@ -42,7 +43,7 @@ function findHoverForNodeAtPosition(
     return null;
   }
 
-  if (!isIdentifierNode(node) && !isMemberAccessNode(node)) {
+  if (!isIdentifierNode(node) && !isMemberAccessNode(node) && !isUserDefinedTypeNameNode(node)) {
     return null;
   }
 
@@ -50,8 +51,22 @@ function findHoverForNodeAtPosition(
 }
 
 export function convertNodeToHover(
-  node: IdentifierNode | MemberAccessNode
+  node: IdentifierNode | MemberAccessNode | Node
 ): Hover | null {
+  // For UserDefinedTypeName nodes, show the definition of the type itself
+  if (isUserDefinedTypeNameNode(node)) {
+    const typeNode = node.typeNodes[0];
+
+    if (typeNode === undefined) {
+      return null;
+    }
+
+    const hoverText = astToText(typeNode.astNode);
+
+    return textToHover(hoverText);
+  }
+
+  // For Identifier and MemberAccess nodes, show the type of the variable
   const typeNode = node.typeNodes[0];
 
   if (typeNode === undefined) {
