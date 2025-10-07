@@ -74,7 +74,7 @@
             "prettier",
             "forge"
           ],
-          "description": "Enables / disables the solidity formatter (prettier solidity default)"
+          "description": "Choose the formatter to use for Solidity files. 'none' disables formatting, 'prettier' uses Prettier, and 'forge' uses Forge's built-in formatter."
         }
       }
     }
