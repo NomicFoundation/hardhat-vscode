@@ -65,6 +65,16 @@
           "type": "boolean",
           "default": false,
           "description": "Allow this extension to send telemetry. This helps us understand how it is used and how it is performing. Read more in our [privacy policy](https://hardhat.org/privacy-policy.html)."
+        },
+        "@nomicfoundation/coc-solidity.formatter": {
+          "type": "string",
+          "default": "prettier",
+          "enum": [
+            "none",
+            "prettier",
+            "forge"
+          ],
+          "description": "Choose the formatter to use for Solidity files. 'none' disables formatting, 'prettier' uses Prettier, and 'forge' uses Forge's built-in formatter."
         }
       }
     }
