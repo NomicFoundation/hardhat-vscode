@@ -53,20 +53,6 @@ function findHoverForNodeAtPosition(
 export function convertNodeToHover(
   node: IdentifierNode | MemberAccessNode | Node
 ): Hover | null {
-  // For UserDefinedTypeName nodes, show the definition of the type itself
-  if (isUserDefinedTypeNameNode(node)) {
-    const typeNode = node.typeNodes[0];
-
-    if (typeNode === undefined) {
-      return null;
-    }
-
-    const hoverText = astToText(typeNode.astNode);
-
-    return textToHover(hoverText);
-  }
-
-  // For Identifier and MemberAccess nodes, show the type of the variable
   const typeNode = node.typeNodes[0];
 
   if (typeNode === undefined) {
