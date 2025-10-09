@@ -18,15 +18,18 @@ import {
   EventDefinition,
   UserDefinedTypeName,
   VariableDeclaration,
+  StructDefinition,
+  EnumDefinition,
 } from "@solidity-parser/parser/dist/src/ast-types";
 import { ElementaryTypeNameNode } from "@analyzer/nodes/ElementaryTypeNameNode";
 import { ContractDefinitionNode } from "../nodes/ContractDefinitionNode";
 import { FunctionDefinitionNode } from "../nodes/FunctionDefinitionNode";
 import { MemberAccessNode } from "../nodes/MemberAccessNode";
 import { FunctionCallNode } from "../nodes/FunctionCallNode";
+import { UserDefinedTypeNameNode } from "../nodes/UserDefinedTypeNameNode";
 
 export function isContractDefinition(
-  node: ASTNode
+  node: ASTNode | BaseASTNode | EmptyNodeType
 ): node is ContractDefinition {
   return node.type === "ContractDefinition";
 }
@@ -121,4 +124,22 @@ export function isArrayTypeName(
   node: BaseASTNode | EmptyNodeType
 ): node is ArrayTypeName {
   return node.type === "ArrayTypeName";
+}
+
+export function isUserDefinedTypeNameNode(
+  node: Node
+): node is UserDefinedTypeNameNode {
+  return node.type === "UserDefinedTypeName";
+}
+
+export function isStructDefinition(
+  node: BaseASTNode | EmptyNodeType
+): node is StructDefinition {
+  return node.type === "StructDefinition";
+}
+
+export function isEnumDefinition(
+  node: BaseASTNode | EmptyNodeType
+): node is EnumDefinition {
+  return node.type === "EnumDefinition";
 }
