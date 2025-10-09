@@ -7,8 +7,11 @@ import {
   isMapping,
   isUserDefinedTypeName,
   isVariableDeclaration,
+  isContractDefinition,
+  isStructDefinition,
+  isEnumDefinition,
 } from "@analyzer/utils/typeGuards";
-import { EmptyNodeType } from "@common/types";
+import { EmptyNodeType, StructDefinition, EnumDefinition, ContractDefinition } from "@common/types";
 import {
   BaseASTNode,
   CustomErrorDefinition,
@@ -34,6 +37,18 @@ export function astToText(astNode: BaseASTNode | EmptyNodeType): string | null {
 
   if (isEventDefinition(astNode)) {
     return eventDefinitionToText(astNode);
+  }
+
+  if (isStructDefinition(astNode)) {
+    return structDefinitionToText(astNode);
+  }
+
+  if (isEnumDefinition(astNode)) {
+    return enumDefinitionToText(astNode);
+  }
+
+  if (isContractDefinition(astNode)) {
+    return contractDefinitionToText(astNode);
   }
 
   return null;
@@ -169,6 +184,42 @@ function parameterListToText(parameterList: VariableDeclaration[] | null) {
   const params = parameterList.map((p) => variableDeclarationToText(p));
 
   return `(${params.join(", ")})`;
+}
+
+export function structDefinitionToText(
+  structDefinition: StructDefinition
+): string | null {
+  const members = structDefinition.members
+    .map((m) => variableDeclarationToText(m))
+    .filter((text): text is string => text !== null);
+
+  if (members.length === 0) {
+    return `struct ${structDefinition.name} {}`;
+  }
+
+  return `struct ${structDefinition.name} {\n    ${members.join(";\n    ")};\n}`;
+}
+
+export function enumDefinitionToText(
+  enumDefinition: EnumDefinition
+): string | null {
+  const values = enumDefinition.members.map((m) => m.name).join(", ");
+
+  return `enum ${enumDefinition.name} { ${values} }`;
+}
+
+export function contractDefinitionToText(
+  contractDefinition: ContractDefinition
+): string | null {
+  const kind = contractDefinition.kind;
+  const name = contractDefinition.name;
+
+  const baseContracts =
+    contractDefinition.baseContracts.length > 0
+      ? ` is ${contractDefinition.baseContracts.map((b) => b.baseName.namePath).join(", ")}`
+      : "";
+
+  return `${kind} ${name}${baseContracts}`;
 }
 
 export function resolveTypeTextFromAst(
