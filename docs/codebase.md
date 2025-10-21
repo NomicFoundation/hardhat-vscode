@@ -156,7 +156,7 @@ Source files are associated to projects during the initial indexing phase, and t
 
 As of now, the responsibilities that are put behind the abstraction are the following:
 
-- Scan directories to find projects (look for `hardhat.config.{js,ts}` for instance)
+- Scan directories to find projects (look for `hardhat.config.{ts,cts,js,cjs}` for instance)
 - Initialize, and perform any setup tasks for the project
 - Determine whether a Solidity file belongs to the project
 - Resolve the path of a Solidity import statement
@@ -171,7 +171,7 @@ As of now, the responsibilities that are put behind the abstraction are the foll
 
 Hardhat validation is our most sophisticated framework adapter. It leverages the hardhat library local to a project.
 
-The Hardhat adapter identifies Hardhat project by the presence of `hardhat.config.{ts,js}` files. Each found Hardhat project is then initialized by forking into its own child process. This is necessary because we need to load multiple Hardhat libraries (because we support multiple open projects) as node.js modules. If we were to attempt to load them in the same process, they would be cached and we wouldn't be able to reference the per project HRE object.
+The Hardhat adapter identifies Hardhat project by the presence of `hardhat.config.{ts,cts,js,cjs}` files. Each found Hardhat project is then initialized by forking into its own child process. This is necessary because we need to load multiple Hardhat libraries (because we support multiple open projects) as node.js modules. If we were to attempt to load them in the same process, they would be cached and we wouldn't be able to reference the per project HRE object.
 
 This model of forking into child processes adds overhead to communication, since we can't just call javascript functions from the parent process to the child process. We need to leverage a protocol using the IPC transport. Each time we need a service that involves using the HRE, we send a message to the child process and wait for a response.
 

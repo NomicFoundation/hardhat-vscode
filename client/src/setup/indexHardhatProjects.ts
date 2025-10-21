@@ -4,7 +4,7 @@ import { ExtensionState } from "../types";
 
 export async function indexHardhatProjects(state: ExtensionState) {
   const hardhatConfigs = await vscode.workspace.findFiles(
-    "**/hardhat.config.{ts,js}",
+    "**/hardhat.config.{ts,cts,js,cjs}",
     "**/node_modules/**"
   );
 

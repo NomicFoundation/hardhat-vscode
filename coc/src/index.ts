@@ -23,7 +23,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
       synchronize: {
         configurationSection: "solidity",
         fileEvents: [
-          coc.workspace.createFileSystemWatcher("**/hardhat.config.{ts,js}"),
+          coc.workspace.createFileSystemWatcher("**/hardhat.config.{ts,cts,js,cjs}"),
           coc.workspace.createFileSystemWatcher("**/foundry.toml"),
           coc.workspace.createFileSystemWatcher(
             "**/{truffle-config,truffle}.js"

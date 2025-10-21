@@ -16,7 +16,7 @@ export class HardhatIndexer extends ProjectIndexer {
     // Find all hardhat.config files in the workspace folder
     const configFiles = await this.fileRetriever.findFiles(
       uri,
-      "**/hardhat.config.{ts,js}",
+      "**/hardhat.config.{ts,cts,js,cjs}",
       ["**/node_modules/**"]
     );
 

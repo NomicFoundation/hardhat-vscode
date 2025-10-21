@@ -16,7 +16,7 @@ export function setupMockWorkspaceFileRetriever(
       simplifiedUri = `/${simplifiedUri}`;
     }
 
-    if (globPattern === "**/hardhat.config.{ts,js}") {
+    if (globPattern === "**/hardhat.config.{ts,cts,js,cjs}") {
       if (simplifiedUri in projects) {
         return projects[simplifiedUri];
       } else {
