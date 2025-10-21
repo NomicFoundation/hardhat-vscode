@@ -39,7 +39,7 @@
     "vscode": "^1.99.0"
   },
   "activationEvents": [
-    "workspaceContains:**/hardhat.config.{ts,js}",
+    "workspaceContains:**/hardhat.config.{ts,cts,js,cjs}",
     "workspaceContains:**/foundry.toml",
     "workspaceContains:**/truffle-config.js",
     "workspaceContains:**/ape-config.yaml"

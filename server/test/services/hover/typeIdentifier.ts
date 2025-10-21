@@ -58,10 +58,7 @@ describe("Parser", () => {
 
       describe("Contract Type", () => {
         it("should display contract definition when hovering over contract type name", () =>
-          assertHover(
-            { line: 32, character: 4 },
-            "contract BaseContract"
-          ));
+          assertHover({ line: 32, character: 4 }, "contract BaseContract"));
       });
 
       describe("Nested Struct Type", () => {

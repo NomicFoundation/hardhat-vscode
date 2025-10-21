@@ -11,7 +11,12 @@ import {
   isStructDefinition,
   isEnumDefinition,
 } from "@analyzer/utils/typeGuards";
-import { EmptyNodeType, StructDefinition, EnumDefinition, ContractDefinition } from "@common/types";
+import {
+  EmptyNodeType,
+  StructDefinition,
+  EnumDefinition,
+  ContractDefinition,
+} from "@common/types";
 import {
   BaseASTNode,
   CustomErrorDefinition,

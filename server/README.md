@@ -199,7 +199,7 @@ If the Solidity file is not part of a project or the project cannot be determine
 
 ### Hardhat
 
-Hardhat projects are detected by looking for a `hardhat.config.{js,ts}` file.
+Hardhat projects are detected by looking for a `hardhat.config.{ts,cts,js,cjs}` file.
 
 Inline validation (the display of compiler errors and warnings against the code) is based on your Hardhat configuration file. The version of the `solc` solidity compiler used for validation is set within this file, see the [Hardhat documentation](https://hardhat.org/config/#solidity-configuration) for more details.
 
