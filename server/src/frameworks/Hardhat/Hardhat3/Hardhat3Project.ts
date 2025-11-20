@@ -17,6 +17,7 @@ import type { HookContext } from "hardhat3/types/hooks" with { "resolution-mode"
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import { cpSync } from "fs";
 import { removeSync } from "fs-extra";
+import { lstat } from "fs/promises";
 import {
   BuildInputError,
   FileSpecificError,
@@ -318,9 +319,11 @@ export class Hardhat3Project extends Project {
     changes,
   }: DidChangeWatchedFilesParams): Promise<void> {
     for (const change of changes) {
-      if (pathsEqual(toPath(change.uri), this.configPath)) {
+      const filePath = toPath(change.uri);
+      const fileStat = await lstat(filePath);
+      if (pathsEqual(filePath, this.configPath)) {
         await this.#handleConfigChange();
-      } else if (change.uri.endsWith(".sol")) {
+      } else if (change.uri.endsWith(".sol") && fileStat.isFile()) {
         await this.#handleSourceFileChange(change);
       }
     }
