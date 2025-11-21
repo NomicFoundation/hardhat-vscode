@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.26 - 2025-11-21
+
+### Changed
+
+- Fix validation failing when there's a hh3 cache hit
+- Fix the dependency graph attempting to load .sol directories
+
 ## 0.8.25 - 2025-08-12
 
 ### Changed
