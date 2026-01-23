@@ -10,7 +10,7 @@ export class FoundryIndexer extends ProjectIndexer {
     const configFiles = await this.fileRetriever.findFiles(
       uri,
       "**/foundry.toml",
-      ["**/lib/**"]
+      ["**/lib/**", "**/node_modules/**"]
     );
 
     return configFiles.map((configFile) => {
