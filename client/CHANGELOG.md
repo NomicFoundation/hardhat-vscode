@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 0.8.28 - 2026-02-03
+
+### Changed
+
+- Show Solidity Developer Survey on extension activation.
+
 ## 0.8.27 - 2026-01-26
 
 ### Fixed
