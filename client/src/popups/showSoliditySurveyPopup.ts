@@ -1,13 +1,13 @@
 import { window, ExtensionContext, commands, Uri } from "vscode";
 
-const SURVEY_URL = "https://hardhat.org/solidity-survey-2024";
-const SURVEY_COMPLETED_KEY = "soliditySurvey2024Completed";
-const SURVEY_LAST_SEEN_KEY = "soliditySurvey2024LastSeen";
+const SURVEY_URL = "https://solidity.survey-research.net/solidity-survey";
+const SURVEY_COMPLETED_KEY = "soliditySurvey2026Completed";
+const SURVEY_LAST_SEEN_KEY = "soliditySurvey2026LastSeen";
+
 // Show the survey popup if the user hasn't seen it in the last 7 days
 const SURVEY_COOLDOWN_PERIOD = 7 * 24 * 60 * 60 * 1000;
-const SURVEY_END_DATE = Date.parse("2025-01-31 23:59:00 +0000");
-const SURVEY_TEXT =
-  "Please take a few minutes to complete the 2024 Solidity Survey";
+const SURVEY_END_DATE = Date.parse("2026-03-31 23:59:00 +0000");
+const SURVEY_TEXT = "Please take a few minutes to complete the Solidity Survey";
 const SURVEY_CTA = "Complete";
 
 export async function showSoliditySurveyPopup({
