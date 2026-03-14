@@ -8,12 +8,16 @@ export class OutputConverter {
     solcOutput: any,
     projectBasePath: string
   ): ValidationResult {
-    if (solcOutput.errors?.length > 0) {
+
+    // pre release solc emits a warning without a sourceLocation
+    const errors = (solcOutput.errors || []).filter((e: any) => String(e.errorCode) != '3805')
+
+    if (errors.length > 0) {
       const validationFailMessage: ValidationFail = {
         status: "VALIDATION_FAIL",
         projectBasePath,
         version: compilationDetails.solcVersion,
-        errors: solcOutput.errors.map((solcError: any) => ({
+        errors: errors.map((solcError: any) => ({
           ...solcError,
           sourceLocation: {
             ...solcError.sourceLocation,
