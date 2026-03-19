@@ -6,7 +6,7 @@ const SURVEY_LAST_SEEN_KEY = "soliditySurvey2026LastSeen";
 
 // Show the survey popup if the user hasn't seen it in the last 7 days
 const SURVEY_COOLDOWN_PERIOD = 7 * 24 * 60 * 60 * 1000;
-const SURVEY_END_DATE = Date.parse("2026-03-31 23:59:00 +0000");
+const SURVEY_END_DATE = Date.parse("2026-03-18 23:59:00 +0000");
 const SURVEY_TEXT = "Please take a few minutes to complete the Solidity Survey";
 const SURVEY_CTA = "Complete";
 
