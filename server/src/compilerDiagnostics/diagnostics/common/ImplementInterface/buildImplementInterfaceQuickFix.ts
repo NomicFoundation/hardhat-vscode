@@ -4,16 +4,20 @@ import { ParseContractDefinitionResult } from "../../parsing/parseContractDefini
 import { ServerState } from "../../../../types";
 import { createAppendFunctionsToContractChange } from "./createAppendFunctionsToContractChange";
 import { resolveFunctionsToImplement } from "./resolveFunctionsToImplement";
-import { findAnalyzedContract } from "./findAnalyzedContract";
+import { resolveContractInfo } from "./resolveContractInfo";
 
-export function buildImplementInterfaceQuickFix(
+export async function buildImplementInterfaceQuickFix(
   serverState: ServerState,
   parseResult: ParseContractDefinitionResult,
   resolveCtx: ResolveActionsContext
-): CodeAction | null {
-  const contract = findAnalyzedContract(serverState, parseResult, resolveCtx);
+): Promise<CodeAction | null> {
+  const contract = await resolveContractInfo(
+    serverState,
+    parseResult,
+    resolveCtx
+  );
 
-  if (contract === null || contract.inheritanceNodes.length === 0) {
+  if (contract === null || contract.parents.length === 0) {
     return null;
   }
 

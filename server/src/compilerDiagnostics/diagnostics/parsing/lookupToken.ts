@@ -1,5 +1,5 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { Token } from "@solidity-parser/parser/dist/src/types";
+import { Token } from "./types";
 
 export interface LookupResult {
   token: Token;

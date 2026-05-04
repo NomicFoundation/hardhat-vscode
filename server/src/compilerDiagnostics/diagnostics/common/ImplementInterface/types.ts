@@ -1,18 +1,57 @@
-import { ContractDefinitionNode, FunctionDefinition } from "@common/types";
+/**
+ * Types for ImplementInterface code action.
+ */
+
+/** Contract info extracted from CST + BindingGraph */
+export interface ContractInfo {
+  /** Unique identifier: "uri::name" */
+  id: string;
+  /** Contract/interface name */
+  name: string;
+  /** File URI */
+  uri: string;
+  /** Recursively resolved parent contracts/interfaces */
+  parents: ContractInfo[];
+  /** Functions extracted from CST */
+  functions: FunctionInfo[];
+  /** Character offsets in file [start, end) */
+  charRange: [number, number];
+}
+
+/** Function info extracted from CST */
+export interface FunctionInfo {
+  /** Function name (null for receive/fallback) */
+  name: string | null;
+  /** Normalized type text per param (for matching) */
+  paramTypeTexts: string[];
+  /** "public" | "external" | "internal" | "private" | null */
+  visibility: string | null;
+  /** "pure" | "view" | "payable" | null */
+  mutability: string | null;
+  /** false = abstract (semicolon body) */
+  hasBody: boolean;
+  /** Full signature text from CST for code generation */
+  signatureText: string;
+  /** Return type text (for code generation) */
+  returnsText: string | null;
+  /** Whether function is marked virtual */
+  isVirtual: boolean;
+}
+
+export interface ContractIdToInfoMapping {
+  [key: string]: ContractInfo;
+}
 
 export interface InheritanceLookupTable {
   [key: string]: string[];
 }
-export interface ContractIdToNodeMapping {
-  [key: string]: ContractDefinitionNode;
-}
 
 export interface LinearizationContext {
   linearizations: { [key: string]: string[] };
-  contracts: ContractIdToNodeMapping;
+  contracts: ContractIdToInfoMapping;
 }
 
 export interface FunctionRecord {
-  definition: FunctionDefinition;
+  definition: FunctionInfo;
   implementedIn: string[];
 }

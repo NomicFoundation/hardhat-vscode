@@ -1,63 +1,55 @@
-import { ContractDefinitionNode, FunctionDefinition } from "@common/types";
-import { FunctionRecord, LinearizationContext } from "../types";
-import { resolveImplementationOverrides } from "./resolveImplementationOverrides";
+import { ContractInfo, FunctionInfo, FunctionRecord, LinearizationContext } from "../types";
+import {
+  resolveImplementationOverrides,
+  OverrideEntry,
+} from "./resolveImplementationOverrides";
+
+export interface ResolvedFunction {
+  info: FunctionInfo;
+  overrides: OverrideEntry[];
+}
 
 export function convertFunctionRecordsToMissingImplementations(
-  contractNode: ContractDefinitionNode,
+  contractNode: ContractInfo,
   functions: FunctionRecord[],
   linearizationCtx: LinearizationContext
-) {
+): ResolvedFunction[] {
   return functions
     .map((fr) =>
       convertFunctionRecordToImplementation(fr, contractNode, linearizationCtx)
     )
-    .filter(isAbstractOrHasMultipleOverrides)
-    .map(({ definition }) => definition);
+    .filter(isAbstractOrHasMultipleOverrides);
 }
 
 function convertFunctionRecordToImplementation(
   fun: FunctionRecord,
-  contractNode: ContractDefinitionNode,
+  contractNode: ContractInfo,
   linearizationCtx: LinearizationContext
-): { isAbstract: boolean; definition: FunctionDefinition } {
-  const definition: FunctionDefinition = fun.definition;
+): { isAbstract: boolean; info: FunctionInfo; overrides: OverrideEntry[] } {
+  const info = fun.definition;
+  const isAbstract = !info.hasBody;
 
-  const isAbstract = !definition.body;
-
-  definition.override = resolveImplementationOverrides(
+  const overrides = resolveImplementationOverrides(
     fun,
     isAbstract,
     contractNode,
     linearizationCtx
   );
 
-  definition.body = {
-    type: "Block",
-    statements: [],
-  };
-
-  return { isAbstract, definition };
+  return { isAbstract, info, overrides };
 }
 
 /**
- * Our test for whether we substitute in a dummy function
- * implementation is: is function abstract or has there been
- * an implementation but there is more than one required override
- * so a warning will show if it is left out.
- *
- * @param isImplementation - is the function being considered not abstract
- * @param overrides - the number of overrides the function has to show
- * @returns whether the function should be inserted as a dummy implementation in the contract
+ * Test for whether we substitute in a dummy function implementation:
+ * is function abstract or has there been an implementation but there is
+ * more than one required override so a warning will show if left out.
  */
 function isAbstractOrHasMultipleOverrides({
   isAbstract,
-  definition,
+  overrides,
 }: {
   isAbstract: boolean;
-  definition: FunctionDefinition;
-}) {
-  return (
-    isAbstract ||
-    (definition.override !== null && definition.override.length > 1)
-  );
+  overrides: OverrideEntry[];
+}): boolean {
+  return isAbstract || overrides.length > 1;
 }
