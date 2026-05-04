@@ -79,18 +79,20 @@ describe('[hardhat3] definition', () => {
   test('[Multi-file] Jump to import file', async () => {
     const location = await client.findDefinition(toUri(importDocPath), makePosition(3, 25))
 
+    // Slang returns the full file CST range
     expect(location).to.deep.equal({
       uri: toUri(getProjectPath('hardhat3/contracts/definition/Foo.sol')),
-      range: makeRange(1, 0, 5, 0),
+      range: makeRange(0, 0, 6, 0),
     })
   })
 
   test('[Multi-file] Jump to library file', async () => {
     const location = await client.findDefinition(toUri(importDocPath), makePosition(4, 73))
 
+    // Slang returns the full file CST range
     expect(location).to.deep.equal({
       uri: toUri(getProjectPath('hardhat3/node_modules/@openzeppelin/contracts/access/Ownable.sol')),
-      range: makeRange(3, 0, 75, 0),
+      range: makeRange(0, 0, 76, 0),
     })
   })
 

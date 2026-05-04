@@ -58,7 +58,7 @@ describe("Parser", () => {
       it("should display details for a function pulled from a parent contract", () =>
         assertHover(
           { line: 133, character: 13 },
-          "function fromBase() public view virtual override onlyExample validAddress returns (uint112 first, uint112 second)"
+          "function fromBase() public view virtual override onlyExample validAddress(msg.sender, 34) returns (uint112 first, uint112 second)"
         ));
     });
   });
