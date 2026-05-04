@@ -102,7 +102,11 @@ describe('[hardhat3] references', () => {
     expect(locations).to.deep.equal([
       {
         uri: toUri(modifierInvocationPath),
-        range: makeRange(5, 4, 5, 15),
+        range: makeRange(3, 18, 3, 31),
+      },
+      {
+        uri: toUri(modifierInvocationPath),
+        range: makeRange(14, 18, 14, 31),
       },
       {
         uri: toUri(modifierInvocationPath),
@@ -157,7 +161,7 @@ describe('[hardhat3] references', () => {
   })
 
   test('[Multi-file] - Find All References', async function () {
-    const locations = await client.findReferences(toUri(fooPath), makePosition(6, 20))
+    const locations = await client.findReferences(toUri(fooPath), makePosition(6, 18))
 
     expect(locations).to.deep.equal([
       {

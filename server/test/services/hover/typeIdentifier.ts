@@ -38,13 +38,13 @@ describe("Parser", () => {
         it("should display struct definition when hovering over struct type name in variable declaration", () =>
           assertHover(
             { line: 19, character: 4 },
-            "struct ComplexData {\n    UserInfo info;\n    mapping(uint256 => bool) flags;\n    uint256[] scores;\n}"
+            "struct ComplexData {\n    UserInfo info;\n    mapping(uint256 => bool) flags;\n    uint256[] scores;\n  }"
           ));
 
         it("should display struct definition when hovering over struct type name in parameter", () =>
           assertHover(
             { line: 21, character: 27 },
-            "struct ComplexData {\n    UserInfo info;\n    mapping(uint256 => bool) flags;\n    uint256[] scores;\n}"
+            "struct ComplexData {\n    UserInfo info;\n    mapping(uint256 => bool) flags;\n    uint256[] scores;\n  }"
           ));
       });
 
@@ -52,23 +52,20 @@ describe("Parser", () => {
         it("should display enum definition when hovering over enum type name", () =>
           assertHover(
             { line: 30, character: 4 },
-            "enum Status { Pending, Active, Completed }"
+            "enum Status {\n    Pending,\n    Active,\n    Completed\n  }"
           ));
       });
 
       describe("Contract Type", () => {
         it("should display contract definition when hovering over contract type name", () =>
-          assertHover(
-            { line: 32, character: 4 },
-            "contract BaseContract"
-          ));
+          assertHover({ line: 32, character: 4 }, "contract BaseContract"));
       });
 
       describe("Nested Struct Type", () => {
         it("should display nested struct definition when hovering over nested struct type name", () =>
           assertHover(
             { line: 14, character: 8 },
-            "struct UserInfo {\n    address addr;\n    string name;\n}"
+            "struct UserInfo {\n    address addr;\n    string name;\n  }"
           ));
       });
     });

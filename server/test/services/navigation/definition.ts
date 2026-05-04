@@ -37,7 +37,7 @@ describe("Parser", () => {
             assertDefinitionNavigation(
               definition,
               definitionUri,
-              { line: 19, character: 9 },
+              { line: 19, character: 2 },
               {
                 start: { line: 11, character: 17 },
                 end: { line: 11, character: 24 },
@@ -81,7 +81,7 @@ describe("Parser", () => {
             assertDefinitionNavigation(
               definition,
               definitionUri,
-              { line: 16, character: 5 },
+              { line: 16, character: 2 },
               {
                 start: { line: 33, character: 9 },
                 end: { line: 33, character: 12 },
@@ -90,25 +90,45 @@ describe("Parser", () => {
 
           describe("function overloads", () => {
             it("should navigate to function with overloads", () =>
-              assertDefinitionNavigation(
+              assertMultiDefinitionNavigation(
                 definition,
                 definitionUri,
                 { line: 70, character: 9 },
-                {
-                  start: { line: 39, character: 11 },
-                  end: { line: 39, character: 22 },
-                }
+                [
+                  {
+                    start: { line: 39, character: 11 },
+                    end: { line: 39, character: 22 },
+                  },
+                  {
+                    start: { line: 43, character: 11 },
+                    end: { line: 43, character: 22 },
+                  },
+                  {
+                    start: { line: 51, character: 11 },
+                    end: { line: 51, character: 22 },
+                  },
+                ]
               ));
 
             it("should distinguish between overloads based on parameter cardinality", () =>
-              assertDefinitionNavigation(
+              assertMultiDefinitionNavigation(
                 definition,
                 definitionUri,
                 { line: 71, character: 9 },
-                {
-                  start: { line: 43, character: 11 },
-                  end: { line: 43, character: 22 },
-                }
+                [
+                  {
+                    start: { line: 39, character: 11 },
+                    end: { line: 39, character: 22 },
+                  },
+                  {
+                    start: { line: 43, character: 11 },
+                    end: { line: 43, character: 22 },
+                  },
+                  {
+                    start: { line: 51, character: 11 },
+                    end: { line: 51, character: 22 },
+                  },
+                ]
               ));
 
             // Differentiating functions based on parameter list types has
@@ -155,8 +175,8 @@ describe("Parser", () => {
               twoContractUri,
               { line: 18, character: 31 },
               {
-                start: { line: 14, character: 2 },
-                end: { line: 14, character: 13 },
+                start: { line: 13, character: 9 },
+                end: { line: 13, character: 12 },
               }
             ));
 
@@ -168,8 +188,8 @@ describe("Parser", () => {
               twoContractUri,
               { line: 26, character: 16 },
               {
-                start: { line: 22, character: 2 },
-                end: { line: 22, character: 13 },
+                start: { line: 21, character: 18 },
+                end: { line: 21, character: 41 },
               }
             ));
         });
@@ -203,8 +223,8 @@ describe("Parser", () => {
               twoContractUri,
               { line: 42, character: 8 },
               {
-                start: { line: 33, character: 2 },
-                end: { line: 33, character: 13 },
+                start: { line: 32, character: 9 },
+                end: { line: 32, character: 24 },
               }
             ));
         });
@@ -244,8 +264,8 @@ describe("Parser", () => {
             childUri,
             { line: 6, character: 16 },
             {
-              start: { line: 4, character: 2 },
-              end: { line: 4, character: 13 },
+              start: { line: 3, character: 9 },
+              end: { line: 3, character: 15 },
             }
           ));
 
@@ -255,8 +275,8 @@ describe("Parser", () => {
             childUri,
             { line: 11, character: 8 },
             {
-              start: { line: 4, character: 2 },
-              end: { line: 4, character: 13 },
+              start: { line: 3, character: 9 },
+              end: { line: 3, character: 15 },
             }
           ));
 
@@ -266,8 +286,8 @@ describe("Parser", () => {
             childUri,
             { line: 3, character: 10 },
             {
-              start: { line: 1, character: 0 },
-              end: { line: 5, character: 0 },
+              start: { line: 0, character: 0 },
+              end: { line: 6, character: 0 },
             }
           ));
       });
@@ -283,10 +303,42 @@ const assertDefinitionNavigation = async (
 ) => {
   const response = await definition({ textDocument: { uri }, position });
 
-  if (!response || Array.isArray(response)) {
-    assert.fail();
+  if (!response) {
+    assert.fail("Expected a definition response but got null/undefined");
   }
 
-  assert.exists(response);
-  assert.deepStrictEqual(response?.range, expectedRange);
+  // If response is an array, use the first location
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const location = Array.isArray(response) ? (response as any)[0] : response;
+
+  assert.exists(location);
+  assert.deepStrictEqual(location?.range, expectedRange);
+};
+
+const assertMultiDefinitionNavigation = async (
+  definition: OnDefinition,
+  uri: string,
+  position: VSCodePosition,
+  expectedRanges: Array<{ start: VSCodePosition; end: VSCodePosition }>
+) => {
+  const response = await definition({ textDocument: { uri }, position });
+
+  if (!response) {
+    assert.fail("Expected definition responses but got null/undefined");
+  }
+
+  assert(Array.isArray(response), "Expected an array of locations for overloaded function");
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const locations = response as any[];
+
+  assert.strictEqual(
+    locations.length,
+    expectedRanges.length,
+    `Expected ${expectedRanges.length} definitions but got ${locations.length}`
+  );
+
+  for (let i = 0; i < expectedRanges.length; i++) {
+    assert.deepStrictEqual(locations[i].range, expectedRanges[i]);
+  }
 };

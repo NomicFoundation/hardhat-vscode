@@ -23,6 +23,8 @@ import {
   DocumentFormattingRequest,
   DocumentSymbolParams,
   DocumentSymbolRequest,
+  HoverParams,
+  HoverRequest,
   ImplementationParams,
   ImplementationRequest,
   InitializedNotification,
@@ -38,6 +40,9 @@ import {
   RenameRequest,
   SemanticTokensParams,
   SemanticTokensRequest,
+  SignatureHelpParams,
+  SignatureHelpRequest,
+  SignatureHelpTriggerKind,
   TypeDefinitionParams,
   TypeDefinitionRequest,
 } from 'vscode-languageserver-protocol/node'
@@ -353,6 +358,38 @@ export class TestLanguageClient {
     }
 
     return this.connection!.sendRequest(TypeDefinitionRequest.type, params)
+  }
+
+  public async hover(uri: string, position: Position) {
+    const params: HoverParams = {
+      textDocument: {
+        uri,
+      },
+      position,
+    }
+
+    return this.connection!.sendRequest(HoverRequest.type, params)
+  }
+
+  public async signatureHelp(
+    uri: string,
+    position: Position,
+    triggerCharacter?: string,
+    triggerKind: SignatureHelpTriggerKind = SignatureHelpTriggerKind.Invoked
+  ) {
+    const params: SignatureHelpParams = {
+      textDocument: {
+        uri,
+      },
+      position,
+      context: {
+        triggerKind,
+        isRetrigger: false,
+        triggerCharacter,
+      },
+    }
+
+    return this.connection!.sendRequest(SignatureHelpRequest.type, params)
   }
 
   public async rename(uri: string, position: Position, newName: string) {

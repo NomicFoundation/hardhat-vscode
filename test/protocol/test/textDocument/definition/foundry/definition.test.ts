@@ -45,18 +45,20 @@ describe('[foundry] definition', () => {
   test('[multi-file][remappings] - go to Imported.sol via import line', async function () {
     const location = await client.findDefinition(toUri(importerPath), makePosition(4, 22))
 
+    // Slang returns the full file CST range
     expect(location).to.deep.equal({
       uri: toUri(importedPath),
-      range: makeRange(2, 0, 8, 0),
+      range: makeRange(0, 0, 9, 0),
     })
   })
 
   test('[multi-file][remappings] - go to OtherImported.sol via import line', async function () {
     const location = await client.findDefinition(toUri(importerPath), makePosition(5, 22))
 
+    // Slang returns the full file CST range
     expect(location).to.deep.equal({
       uri: toUri(otherImportedPath),
-      range: makeRange(2, 0, 8, 0),
+      range: makeRange(0, 0, 9, 0),
     })
   })
 

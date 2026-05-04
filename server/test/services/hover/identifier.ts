@@ -186,7 +186,7 @@ describe("Parser", () => {
         it("should display details for an address", () =>
           assertHover(
             { line: 132, character: 20 },
-            "address public stateAddr"
+            "address payable public stateAddr"
           ));
 
         it("should display details for a user defined type", () =>
