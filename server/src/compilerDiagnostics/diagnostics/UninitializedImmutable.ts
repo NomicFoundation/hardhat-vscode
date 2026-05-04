@@ -2,15 +2,28 @@ import * as parser from "@solidity-parser/parser";
 import type * as ast from "@solidity-parser/parser/dist/src/ast-types";
 import { CodeAction, Diagnostic, Range } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import {
-  isFunctionDefinition,
-  isStateVariableDeclaration,
-} from "@analyzer/utils/typeGuards";
 import { ResolveActionsContext } from "../types";
 import { SolcError, ServerState } from "../../types";
 import { toUnixStyle } from "../../utils";
 import { passThroughConversion } from "../conversions/passThroughConversion";
 import { byteOffsetToStringIndex } from "../conversions/byteOffsetToStringIndex";
+
+/**
+ * The last two of the jsparser type guards. The Slang migration removed the
+ * analyzer they lived in, and this diagnostic is the only thing left that
+ * walks a `@solidity-parser` AST.
+ */
+function isFunctionDefinition(
+  node: ast.BaseASTNode
+): node is ast.FunctionDefinition {
+  return node.type === "FunctionDefinition";
+}
+
+function isStateVariableDeclaration(
+  node: ast.BaseASTNode
+): node is ast.StateVariableDeclaration {
+  return node.type === "StateVariableDeclaration";
+}
 
 /**
  * solc reports 2658 ("Construction control flow ends without initializing all

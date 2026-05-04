@@ -1,6 +1,6 @@
 import * as prettier from "prettier";
 import * as prettierPluginSolidity from "prettier-plugin-solidity";
-import { ASTNode, TextDocument } from "@common/types";
+import { TextDocument } from "@common/types";
 import { URI } from "vscode-uri";
 
 export class PrettyPrinter {
@@ -17,26 +17,6 @@ export class PrettyPrinter {
     const options = this._mergeOptions(document);
 
     return prettier.format(text, options);
-  }
-
-  public formatAst(
-    ast: ASTNode,
-    originalText: string,
-    { document }: { document: TextDocument }
-  ): string {
-    const options = this._mergeOptions(document);
-
-    // @ts-expect-error you bet __debug isn't on the type
-    const { formatted } = prettier.__debug.formatAST(
-      ast,
-      {
-        ...options,
-        originalText,
-      },
-      2
-    );
-
-    return formatted;
   }
 
   private _mergeOptions(document: TextDocument) {
