@@ -9,7 +9,7 @@ import { attemptConstrainToContractName } from "@compilerDiagnostics/conversions
 import { ResolveActionsContext } from "../types";
 import { SolcError, ServerState } from "../../types";
 import {
-  parseContractDefinition,
+  parseContractDefinitionAuto,
   ParseContractDefinitionResult,
 } from "./parsing/parseContractDefinition";
 import { buildImplementInterfaceQuickFix } from "./common/ImplementInterface/buildImplementInterfaceQuickFix";
@@ -25,22 +25,22 @@ export class MarkContractAbstract {
     return attemptConstrainToContractName(document, error);
   }
 
-  public resolveActions(
+  public async resolveActions(
     serverState: ServerState,
     diagnostic: Diagnostic,
     context: ResolveActionsContext
-  ): CodeAction[] {
-    const parseResult = parseContractDefinition(
+  ): Promise<CodeAction[]> {
+    const parseResult = await parseContractDefinitionAuto(
+      serverState,
       diagnostic,
-      context,
-      serverState.logger
+      context
     );
 
     if (parseResult === null) {
       return [];
     }
 
-    const implementInterfaceQuickFix = buildImplementInterfaceQuickFix(
+    const implementInterfaceQuickFix = await buildImplementInterfaceQuickFix(
       serverState,
       parseResult,
       context

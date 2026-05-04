@@ -5,14 +5,14 @@ import {
   Range,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { Token } from "@solidity-parser/parser/dist/src/types";
 import { ResolveActionsContext } from "@compilerDiagnostics/types";
-import { Logger } from "@utils/Logger";
+import { Token } from "../parsing/types";
 import { LookupResult, lookupToken } from "../parsing/lookupToken";
 import {
-  parseFunctionDefinition,
+  parseFunctionDefinitionAuto,
   ParseFunctionDefinitionResult,
 } from "../parsing/parseFunctionDefinition";
+import type { ServerState } from "../../../types";
 
 export class Multioverride {
   public contractIdentifiers: string[];
@@ -32,17 +32,21 @@ export class Multioverride {
 
 type Specifier = "virtual" | "override" | Multioverride;
 
-export function resolveInsertSpecifierQuickFix(
+export async function resolveInsertSpecifierQuickFix(
   specifier: Specifier,
   diagnostic: Diagnostic,
   { document, uri }: ResolveActionsContext,
-  logger: Logger
+  serverState: ServerState
 ) {
   if (!diagnostic.data) {
     return [];
   }
 
-  const parseResult = parseFunctionDefinition(diagnostic, document, logger);
+  const parseResult = await parseFunctionDefinitionAuto(
+    serverState,
+    diagnostic,
+    document
+  );
 
   if (parseResult === null) {
     return [];

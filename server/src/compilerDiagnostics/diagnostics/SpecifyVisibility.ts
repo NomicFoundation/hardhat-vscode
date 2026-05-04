@@ -8,7 +8,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { ResolveActionsContext } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
 import { SolcError, ServerState } from "../../types";
-import { parseFunctionDefinition } from "./parsing/parseFunctionDefinition";
+import { parseFunctionDefinitionAuto } from "./parsing/parseFunctionDefinition";
 import { lookupToken } from "./parsing/lookupToken";
 
 type Visibility = "public" | "private" | "external" | "internal";
@@ -26,17 +26,17 @@ export class SpecifyVisibility {
     return attemptConstrainToFunctionName(document, error);
   }
 
-  public resolveActions(
+  public async resolveActions(
     serverState: ServerState,
     diagnostic: Diagnostic,
     context: ResolveActionsContext
-  ): CodeAction[] {
+  ): Promise<CodeAction[]> {
     const { document, uri } = context;
 
-    const parseResult = parseFunctionDefinition(
+    const parseResult = await parseFunctionDefinitionAuto(
+      serverState,
       diagnostic,
-      document,
-      serverState.logger
+      document
     );
 
     if (parseResult === null) {
