@@ -245,7 +245,7 @@ describe("Code Actions", () => {
         );
       });
 
-      it("should provide no action if it cannot parse the function", () => {
+      it("should provide no action if it cannot parse the function", async () => {
         const fileText = `  
         function weird() {}`;
 
@@ -276,7 +276,7 @@ describe("Code Actions", () => {
           logger: mockLogger,
         } as ServerState;
 
-        const actions = constrainMutability.resolveActions(
+        const actions = await constrainMutability.resolveActions(
           serverState,
           diagnostic,
           {

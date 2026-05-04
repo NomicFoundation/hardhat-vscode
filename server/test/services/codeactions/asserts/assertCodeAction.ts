@@ -7,7 +7,7 @@ import {
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { CompilerDiagnostic } from "@compilerDiagnostics/types";
 import { getOrInitialiseSolFileEntry } from "@utils/getOrInitialiseSolFileEntry";
-import { analyzeSolFile } from "@analyzer/analyzeSolFile";
+import { clearCompilationCache } from "../../../../src/parser/compilation";
 import { setupMockLogger } from "../../../helpers/setupMockLogger";
 import { setupMockConnection } from "../../../helpers/setupMockConnection";
 import { ServerState } from "../../../../src/types";
@@ -31,6 +31,17 @@ export async function assertCodeAction(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mockConnection = setupMockConnection() as any;
 
+  // Mock documents manager for compilation
+  const mockDocuments = {
+    get: (uri: string) => {
+      if (uri === "file:///example") {
+        return document;
+      }
+
+      return undefined;
+    },
+  };
+
   const serverState = {
     indexJobCount: 0,
     indexedWorkspaceFolders: [] as WorkspaceFolder[],
@@ -38,13 +49,15 @@ export async function assertCodeAction(
     connection: mockConnection,
     solFileIndex: {},
     logger: mockLogger,
+    documents: mockDocuments,
   } as unknown as ServerState;
 
-  const solFileEntry = getOrInitialiseSolFileEntry(serverState, exampleUri);
+  getOrInitialiseSolFileEntry(serverState, exampleUri);
 
-  await analyzeSolFile(serverState, solFileEntry, docText);
+  // Clear compilation cache to avoid stale data between tests
+  clearCompilationCache();
 
-  const actions = compilerDiagnostic.resolveActions(
+  const actions = await compilerDiagnostic.resolveActions(
     serverState as ServerState,
     diagnostic,
     {
