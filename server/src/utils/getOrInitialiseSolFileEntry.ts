@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import { ISolFileEntry } from "@common/types";
 import path from "path";
-import { SolFileEntry } from "../parser/analyzer/SolFileEntry";
+import { SolFileEntry } from "../parser/SolFileEntry";
 import { ServerState } from "../types";
 import { ProjectlessProject } from "../frameworks/Projectless/ProjectlessProject";
 

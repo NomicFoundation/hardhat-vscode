@@ -1,8 +1,3 @@
-import { visit } from "@solidity-parser/parser";
-import {
-  ASTNode,
-  ContractDefinition,
-} from "@solidity-parser/parser/dist/src/ast-types";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import {
   CodeAction,
@@ -10,7 +5,6 @@ import {
   Position,
   TextEdit,
 } from "vscode-languageserver-types";
-import { normalizeParserPosition } from "../../../parser/utils";
 import { ServerState } from "../../../types";
 import { decodeUriAndRemoveFilePrefix } from "../../../utils";
 
@@ -26,10 +20,9 @@ export function resolveActionsFor(
   if (diagnostic.code === "7576" && errorText === "console") {
     const filePath = decodeUriAndRemoveFilePrefix(uri);
     const solFileEntry = serverState.solFileIndex[filePath];
-    const ast = solFileEntry?.ast;
 
-    if (ast !== undefined) {
-      const insertPosition = getImportInsertPosition(ast);
+    if (solFileEntry !== undefined) {
+      const insertPosition = getImportInsertPosition(solFileEntry.text);
       codeActions.push({
         title: "Add import from 'hardhat'",
         kind: "quickfix",
@@ -51,20 +44,23 @@ export function resolveActionsFor(
   return codeActions;
 }
 
-function getImportInsertPosition(ast: ASTNode): Position {
-  let firstContractDefinition!: ContractDefinition;
-
-  visit(ast, {
-    ContractDefinition: (node) => {
-      firstContractDefinition = firstContractDefinition ?? node;
-    },
-  });
-
-  const loc = firstContractDefinition?.loc;
-
-  if (loc !== undefined) {
-    return normalizeParserPosition(loc.start);
-  } else {
+function getImportInsertPosition(text: string | undefined): Position {
+  if (text === undefined) {
     return { character: 0, line: 0 };
   }
+
+  // Find the first contract/library/interface definition via regex
+  const match = /^(?:abstract\s+)?(?:contract|library|interface)\s+/m.exec(
+    text
+  );
+
+  if (match === null || match.index === undefined) {
+    return { character: 0, line: 0 };
+  }
+
+  // Count lines up to the match to get the line number
+  const prefix = text.slice(0, match.index);
+  const line = prefix.split("\n").length - 1;
+
+  return { character: 0, line };
 }

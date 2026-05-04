@@ -14,7 +14,6 @@
     "resolveJsonModule": true,
     "paths": {
       "@compilerDiagnostics/*": ["./src/compilerDiagnostics/*"],
-      "@analyzer/*": ["./src/parser/analyzer/*"],
       "@common/*": ["./src/parser/common/*"],
       "@services/*": ["./src/services/*"],
       "@utils/*": ["./src/utils/*"]
