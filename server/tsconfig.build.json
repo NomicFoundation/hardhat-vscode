@@ -7,7 +7,6 @@
     "skipLibCheck": true,
     "paths": {
       "@compilerDiagnostics/*": ["./compilerDiagnostics/*"],
-      "@analyzer/*": ["./parser/analyzer/*"],
       "@common/*": ["./parser/common/*"],
       "@services/*": ["./services/*"],
       "@utils/*": ["./utils/*"]
