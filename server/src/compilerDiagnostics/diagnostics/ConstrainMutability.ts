@@ -10,7 +10,7 @@ import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainT
 import { SolcError, ServerState } from "../../types";
 import { readMessageFromDiagnostic } from "../../utils/readMessageFromDiagnostic";
 import {
-  parseFunctionDefinition,
+  parseFunctionDefinitionAuto,
   ParseFunctionDefinitionResult,
 } from "./parsing/parseFunctionDefinition";
 import { lookupToken } from "./parsing/lookupToken";
@@ -26,19 +26,19 @@ export class ConstrainMutability implements CompilerDiagnostic {
     return attemptConstrainToFunctionName(document, error);
   }
 
-  public resolveActions(
+  public async resolveActions(
     serverState: ServerState,
     diagnostic: Diagnostic,
     { document, uri }: ResolveActionsContext
-  ): CodeAction[] {
+  ): Promise<CodeAction[]> {
     if (!diagnostic.data) {
       return [];
     }
 
-    const parseResult = parseFunctionDefinition(
+    const parseResult = await parseFunctionDefinitionAuto(
+      serverState,
       diagnostic,
-      document,
-      serverState.logger
+      document
     );
 
     if (parseResult === null) {

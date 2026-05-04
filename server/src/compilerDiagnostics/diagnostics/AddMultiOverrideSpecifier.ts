@@ -26,11 +26,11 @@ export class AddMultiOverrideSpecifier implements CompilerDiagnostic {
     return attemptConstrainToFunctionName(document, error);
   }
 
-  public resolveActions(
+  public async resolveActions(
     serverState: ServerState,
     diagnostic: Diagnostic,
     context: ResolveActionsContext
-  ): CodeAction[] {
+  ): Promise<CodeAction[]> {
     const missingContractIdentifiers = this.parseContractIdentifiersFromMessage(
       readMessageFromDiagnostic(diagnostic)
     );
@@ -39,11 +39,11 @@ export class AddMultiOverrideSpecifier implements CompilerDiagnostic {
 
     // When no specifier is present, solc sourceLocation covers the whole function body
     // so we can apply the general quickfix for specifiers
-    const insertSpecifierQuickfix = resolveInsertSpecifierQuickFix(
+    const insertSpecifierQuickfix = await resolveInsertSpecifierQuickFix(
       multiOverride,
       diagnostic,
       context,
-      serverState.logger
+      serverState
     );
 
     if (insertSpecifierQuickfix.length > 0) {

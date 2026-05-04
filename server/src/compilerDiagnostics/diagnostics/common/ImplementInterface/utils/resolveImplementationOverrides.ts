@@ -1,13 +1,17 @@
-import { ContractDefinitionNode, UserDefinedTypeName } from "@common/types";
-import { FunctionRecord, LinearizationContext } from "../types";
+import { ContractInfo, FunctionRecord, LinearizationContext } from "../types";
 import { toContractId } from "./toContractId";
+
+export interface OverrideEntry {
+  type: "UserDefinedTypeName";
+  namePath: string;
+}
 
 export function resolveImplementationOverrides(
   functionRecord: FunctionRecord,
   isAbstract: boolean,
-  contractNode: ContractDefinitionNode,
+  contractNode: ContractInfo,
   linearizationCtx: LinearizationContext
-): UserDefinedTypeName[] {
+): OverrideEntry[] {
   const overridingContractIds = findOverridingContractIds(
     functionRecord,
     contractNode,
@@ -29,27 +33,26 @@ export function resolveImplementationOverrides(
 
 function findOverridingContractIds(
   functionRecord: FunctionRecord,
-  contractNode: ContractDefinitionNode,
+  contractNode: ContractInfo,
   linearizationCtx: LinearizationContext
 ) {
-  const overridingContractIds = contractNode.inheritanceNodes.map(
-    (inheritanceNode) =>
-      findMostDerivedContractImplementedIn(
-        inheritanceNode,
-        functionRecord,
-        linearizationCtx
-      )
+  const overridingContractIds = contractNode.parents.map((parent) =>
+    findMostDerivedContractImplementedIn(
+      parent,
+      functionRecord,
+      linearizationCtx
+    )
   );
 
   return new Set<string>(
     overridingContractIds.filter(
-      (contractId): contractId is string => contractNode !== undefined
+      (contractId): contractId is string => contractId !== undefined
     )
   );
 }
 
 function findMostDerivedContractImplementedIn(
-  contractNode: ContractDefinitionNode,
+  contractNode: ContractInfo,
   { implementedIn }: FunctionRecord,
   { linearizations }: LinearizationContext
 ): string | undefined {
@@ -63,17 +66,11 @@ function findMostDerivedContractImplementedIn(
  * it may still need overriden if there are multiple clashing
  * overrides for the function, however ancestor contract/interfaces
  * that are already satisfied by the implementation don't count
- * to the override total. So we filter them out here by
- * checking if more derived classes already implement the less
- * derived classes and removing them from the override list.
- * @param overridingContractIds the contracts this function exists in
- * @param contractNode the base contract we are filling in functions for
- * @param linearizationCtx the linearization info for all contracts in the inheritance hierarchy
- * @returns the overrides as contract ids with already satisfied contracts removed.
+ * to the override total. So we filter them out here.
  */
 function filterAlreadySatisfiedAncestors(
   overridingContractIds: Set<string>,
-  contractNode: ContractDefinitionNode,
+  contractNode: ContractInfo,
   { linearizations }: LinearizationContext
 ) {
   const linearizedImplementingContracts = (
@@ -82,6 +79,7 @@ function filterAlreadySatisfiedAncestors(
 
   const seen = new Set<string>();
   const filteredContractIds = [];
+
   for (const implementingContract of linearizedImplementingContracts) {
     if (!seen.has(implementingContract)) {
       filteredContractIds.push(implementingContract);
@@ -97,18 +95,16 @@ function filterAlreadySatisfiedAncestors(
 function contractIdsToTypeNames(
   contractIds: string[],
   { contracts }: LinearizationContext
-): UserDefinedTypeName[] {
+): OverrideEntry[] {
   const contractNames = contractIds
     .map((contractId) => contracts[contractId])
-    .filter(
-      (contract): contract is ContractDefinitionNode => contract !== undefined
-    )
-    .map((contract) => contract.astNode.name);
+    .filter((contract): contract is ContractInfo => contract !== undefined)
+    .map((contract) => contract.name);
 
   return contractNames
     .sort((left, right) => left.localeCompare(right))
     .map((contractName) => ({
-      type: "UserDefinedTypeName",
+      type: "UserDefinedTypeName" as const,
       namePath: contractName,
     }));
 }

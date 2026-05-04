@@ -1,5 +1,5 @@
-import { ContractDefinitionNode } from "@common/types";
+import { ContractInfo } from "../types";
 
-export function toContractId(node: ContractDefinitionNode): string {
-  return `${node.uri}::${node.name}`;
+export function toContractId(node: ContractInfo): string {
+  return node.id;
 }

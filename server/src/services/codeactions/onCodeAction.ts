@@ -4,20 +4,20 @@ import { FAILED_PRECONDITION, OK } from "../../telemetry/TelemetryStatus";
 import { resolveQuickFixes } from "./QuickFixResolver";
 
 export function onCodeAction(serverState: ServerState) {
-  return (params: CodeActionParams): CodeAction[] => {
+  return async (params: CodeActionParams): Promise<CodeAction[]> => {
     const { documents, logger } = serverState;
 
     logger.trace("onCodeAction");
 
     return (
-      serverState.telemetry.trackTimingSync("onCodeAction", () => {
+      (await serverState.telemetry.trackTiming("onCodeAction", async () => {
         const document = documents.get(params.textDocument.uri);
 
         if (!document) {
-          return { status: FAILED_PRECONDITION, result: [] };
+          return { status: FAILED_PRECONDITION, result: [] as CodeAction[] };
         }
 
-        const quickfixes = resolveQuickFixes(
+        const quickfixes = await resolveQuickFixes(
           serverState,
           params.textDocument.uri,
           document,
@@ -25,7 +25,7 @@ export function onCodeAction(serverState: ServerState) {
         );
 
         return { status: OK, result: quickfixes };
-      }) ?? []
+      })) ?? []
     );
   };
 }

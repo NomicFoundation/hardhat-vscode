@@ -16,16 +16,16 @@ export class AddVirtualSpecifier implements CompilerDiagnostic {
     return attemptConstrainToFunctionName(document, error);
   }
 
-  public resolveActions(
+  public async resolveActions(
     serverState: ServerState,
     diagnostic: Diagnostic,
     context: ResolveActionsContext
-  ): CodeAction[] {
+  ): Promise<CodeAction[]> {
     return resolveInsertSpecifierQuickFix(
       "virtual",
       diagnostic,
       context,
-      serverState.logger
+      serverState
     );
   }
 }
