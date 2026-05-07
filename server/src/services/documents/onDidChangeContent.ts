@@ -5,6 +5,7 @@ import { ServerState } from "../../types";
 import { analyse } from "../validation/analyse";
 import { validate } from "../validation/validate";
 import { isTestMode } from "../../utils";
+import { invalidateCompilation } from "../../parser/compilation";
 
 type ChangeAction = (
   serverState: ServerState,
@@ -48,6 +49,8 @@ export function onDidChangeContent(serverState: ServerState) {
       }
 
       logger.trace("onDidChangeContent");
+
+      invalidateCompilation(serverState, change.document.uri);
 
       debouncePerDocument(debounceState.analyse, serverState, change);
       debouncePerDocument(debounceState.validate, serverState, change);
