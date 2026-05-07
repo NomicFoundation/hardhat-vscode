@@ -9,6 +9,6 @@ export function setupMockLogger(): Logger {
     error: sinon.spy(),
     errorMessage: sinon.spy(),
     trace: sinon.spy(),
-    trackTime: sinon.spy(),
+    trackTime: sinon.spy(async (_description, callback) => callback()),
   };
 }
