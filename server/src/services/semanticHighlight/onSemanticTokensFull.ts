@@ -6,10 +6,9 @@ import {
   SemanticTokensParams,
 } from "vscode-languageserver-protocol";
 import _ from "lodash";
-import { analyze } from "@nomicfoundation/solidity-analyzer";
 import { startSpan } from "@sentry/core";
 import { ServerState } from "../../types";
-import { resolveVersion } from "../../parser/slangHelpers";
+import { getOrParseFileCursor } from "../../parser/slangHelpers";
 import { INTERNAL_ERROR, OK } from "../../telemetry/TelemetryStatus";
 import { SemanticTokensBuilder } from "./SemanticTokensBuilder";
 import { ContractDefinitionHighlighter } from "./highlighters/ContractDefinitionHighlighter";
@@ -70,25 +69,16 @@ export function onSemanticTokensFull(serverState: ServerState) {
 
         const text = document.getText();
 
-        // Get the document's solidity version
-        const { versionPragmas } = startSpan(
-          { name: "solidity-analyzer" },
-          () => analyze(text)
+        const cursor = await startSpan({ name: "parsing" }, () =>
+          getOrParseFileCursor(serverState, uri, text)
         );
 
-        const resolvedVersion = await resolveVersion(logger, versionPragmas);
-
-        const { Parser } = await import("@nomicfoundation/slang/parser");
-        const parser = Parser.create(resolvedVersion);
-        // Parse using slang
-        const parseOutput = startSpan({ name: "slang-parsing" }, () =>
-          parser.parseFileContents(document.getText())
-        );
+        if (cursor === undefined) {
+          return { status: INTERNAL_ERROR, result: emptyResponse };
+        }
 
         // Register highlighters
         const builder = new SemanticTokensBuilder(document);
-
-        const cursor = parseOutput.createTreeCursor();
 
         // Execute queries
         const queries = await Promise.all(

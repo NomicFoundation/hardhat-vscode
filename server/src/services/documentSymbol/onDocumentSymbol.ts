@@ -4,11 +4,13 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { DocumentSymbolParams } from "vscode-languageserver/node";
 import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-types";
-import { analyze } from "@nomicfoundation/solidity-analyzer";
 import _ from "lodash";
 import * as Sentry from "@sentry/node";
 import { ServerState } from "../../types";
-import { resolveVersion, slangToVSCodeRange } from "../../parser/slangHelpers";
+import {
+  getOrParseFileCursor,
+  toVSCodeRange,
+} from "../../parser/slangHelpers";
 import { INTERNAL_ERROR, OK } from "../../telemetry/TelemetryStatus";
 import { SymbolTreeBuilder } from "./SymbolTreeBuilder";
 import { SymbolFinder } from "./SymbolFinder";
@@ -63,9 +65,6 @@ export function onDocumentSymbol(serverState: ServerState) {
   return async (
     params: DocumentSymbolParams
   ): Promise<DocumentSymbol[] | SymbolInformation[] | null> => {
-    const { Parser } = await import("@nomicfoundation/slang/parser");
-    const { NonterminalKind } = await import("@nomicfoundation/slang/cst");
-
     const { telemetry, logger } = serverState;
     return telemetry.trackTiming("onDocumentSymbol", async () => {
       const { uri } = params.textDocument;
@@ -79,34 +78,21 @@ export function onDocumentSymbol(serverState: ServerState) {
 
       const text = document.getText();
 
-      // Get the document's solidity version
-      const { versionPragmas } = Sentry.startSpan(
-        { name: "solidity-analyzer" },
-        () => analyze(text)
-      );
-
-      const resolvedVersion = await resolveVersion(logger, versionPragmas);
-
       try {
-        const language = Parser.create(resolvedVersion);
-
-        // Parse using slang
-
-        const parseOutput = Sentry.startSpan({ name: "slang-parsing" }, () =>
-          language.parseNonterminal(
-            NonterminalKind.SourceUnit,
-            document.getText()
-          )
+        const cursor = await Sentry.startSpan({ name: "parsing" }, () =>
+          getOrParseFileCursor(serverState, uri, text)
         );
 
-        const builder = new SymbolTreeBuilder();
+        if (cursor === undefined) {
+          return { status: INTERNAL_ERROR, result: null };
+        }
 
-        const cursor = parseOutput.createTreeCursor();
+        const builder = new SymbolTreeBuilder();
 
         // Useful to keep this here for development
         // const kursor = cursor.clone();
         // do {
-        //   const range = slangToVSCodeRange(document, kursor.textRange);
+        //   const range = toVSCodeRange(document, kursor.textRange);
         //   const start = document.offsetAt(range.start);
         //   const end = document.offsetAt(range.end);
         //   console.log(
@@ -139,7 +125,7 @@ export function onDocumentSymbol(serverState: ServerState) {
 
           // Build the symbol tree
           for (const symbol of symbols) {
-            const symbolRange = slangToVSCodeRange(symbol.range);
+            const symbolRange = toVSCodeRange(symbol.range);
 
             let lastOpenSymbol;
 
