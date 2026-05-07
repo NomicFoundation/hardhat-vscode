@@ -211,9 +211,10 @@ export class Hardhat3Project extends Project {
     }
 
     try {
-      const compilationJobsResult = await this.hre.solidity.getCompilationJobs([
-        absolutePath,
-      ], {force: true});
+      const compilationJobsResult = await this.hre.solidity.getCompilationJobs(
+        [absolutePath],
+        { force: true }
+      );
 
       if ("reason" in compilationJobsResult) {
         throw new Error(

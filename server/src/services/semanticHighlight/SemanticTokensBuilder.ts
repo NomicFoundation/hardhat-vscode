@@ -4,7 +4,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import type { TextRange } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
 import { getTokenTypeIndex } from "./tokenTypes";
 
-// Helps building a SemanticTokens response by providing slang nodes and supported token types
+// Helps building a SemanticTokens response by providing CST nodes and supported token types
 export class SemanticTokensBuilder {
   private tokenData: number[] = [];
   private lastTokenLine = 0;
