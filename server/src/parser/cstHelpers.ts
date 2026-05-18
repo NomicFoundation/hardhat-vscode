@@ -7,9 +7,11 @@
 import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with { "resolution-mode": "import" };
 import type {
   Cursor,
+  Node,
   NonterminalNode,
   Query,
 } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import type { Definition } from "@nomicfoundation/slang/bindings" with { "resolution-mode": "import" };
 
 // ---------------------------------------------------------------------------
 // Cached queries (created lazily on first use)
@@ -244,8 +246,7 @@ export async function findContractAtByteOffset(
  * A function is abstract if its FunctionBody contains no Block child
  * (just a semicolon terminal), or if it has no FunctionBody at all.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isAbstractFunction(definiensNode: any): boolean {
+export function isAbstractFunction(definiensNode: Node): boolean {
   if (!definiensNode.isNonterminalNode()) {
     return false;
   }
@@ -341,6 +342,33 @@ export function findContractNameIdentifier(
 /**
  * Walk up from a cursor to find the enclosing ContractDefinition,
  * InterfaceDefinition, or LibraryDefinition, then return the cursor
+ * positioned at that node (not at its name).
+ */
+export function findEnclosingContractCursor(
+  cursor: Cursor
+): Cursor | undefined {
+  const c = cursor.clone();
+
+  while (c.goToParent()) {
+    if (c.node.isNonterminalNode()) {
+      const kind = c.node.kind;
+
+      if (
+        kind === "ContractDefinition" ||
+        kind === "InterfaceDefinition" ||
+        kind === "LibraryDefinition"
+      ) {
+        return c.clone();
+      }
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * Walk up from a cursor to find the enclosing ContractDefinition,
+ * InterfaceDefinition, or LibraryDefinition, then return the cursor
  * at its name Identifier.
  */
 export function findEnclosingContractNameIdentifier(
@@ -373,8 +401,7 @@ export function findEnclosingContractNameIdentifier(
 export function findEnclosingContractDefinition(
   cursor: Cursor,
   unit: CompilationUnit
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): any {
+): Definition | undefined {
   const nameCursor = findEnclosingContractNameIdentifier(cursor);
 
   if (nameCursor === undefined) {
@@ -382,4 +409,53 @@ export function findEnclosingContractDefinition(
   }
 
   return unit.bindingGraph.definitionAt(nameCursor);
+}
+
+/**
+ * Check whether a contract (identified by `contractCursor` pointing to its
+ * ContractDefinition/InterfaceDefinition/LibraryDefinition node) inherits,
+ * directly or transitively, from a contract whose BindingGraph definition
+ * has the given `ancestorDefId`.
+ *
+ * Walks the inheritance chain via `getInheritedContracts`. Does NOT count
+ * type-use, `using X for Y`, instantiation, or other non-inheritance
+ * references — only true inheritance specifiers.
+ */
+export function isContractInheritingFrom(
+  unit: CompilationUnit,
+  contractCursor: Cursor,
+  ancestorDefId: number
+): boolean {
+  const visited = new Set<number>();
+  const queue: Cursor[] = [contractCursor];
+
+  while (queue.length > 0) {
+    const current = queue.shift() as Cursor;
+    const parents = getInheritedContracts(unit, current);
+
+    for (const parent of parents) {
+      const parentNameCursor = findContractNameIdentifier(parent.cursor);
+
+      if (parentNameCursor === undefined) {
+        continue;
+      }
+
+      const parentDef = unit.bindingGraph.definitionAt(parentNameCursor);
+
+      if (parentDef === undefined) {
+        continue;
+      }
+
+      if (parentDef.id === ancestorDefId) {
+        return true;
+      }
+
+      if (!visited.has(parentDef.id)) {
+        visited.add(parentDef.id);
+        queue.push(parent.cursor);
+      }
+    }
+  }
+
+  return false;
 }

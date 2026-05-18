@@ -12,7 +12,7 @@ import {
   parseFunctionDefinitionAuto,
   ParseFunctionDefinitionResult,
 } from "./parsing/parseFunctionDefinition";
-import { lookupToken } from "./parsing/lookupToken";
+import { lookupCursor } from "./parsing/lookupToken";
 
 export class ConstrainMutability implements CompilerDiagnostic {
   public code = "2018";
@@ -54,13 +54,13 @@ export class ConstrainMutability implements CompilerDiagnostic {
   private _modifyViewToPureAction(
     document: TextDocument,
     uri: string,
-    { functionSourceLocation, tokens }: ParseFunctionDefinitionResult
+    { functionSourceLocation, cursors }: ParseFunctionDefinitionResult
   ): CodeAction[] {
-    const viewKeyword = tokens.find(
-      (t) => t.type === "Keyword" && t.value === "view"
+    const viewKeyword = cursors.find(
+      (c) => c.node.isTerminalNode() && c.node.kind === "ViewKeyword"
     );
 
-    if (!viewKeyword || !viewKeyword.range) {
+    if (viewKeyword === undefined) {
       return [];
     }
 
@@ -74,10 +74,10 @@ export class ConstrainMutability implements CompilerDiagnostic {
             {
               range: Range.create(
                 document.positionAt(
-                  functionSourceLocation.start + viewKeyword.range[0]
+                  functionSourceLocation.start + viewKeyword.textRange.start.utf8
                 ),
                 document.positionAt(
-                  functionSourceLocation.start + viewKeyword.range[1]
+                  functionSourceLocation.start + viewKeyword.textRange.end.utf8
                 )
               ),
               newText: "pure",
@@ -96,32 +96,28 @@ export class ConstrainMutability implements CompilerDiagnostic {
     uri: string,
     {
       functionSourceLocation,
-      tokens,
+      cursors,
       functionDefinition,
     }: ParseFunctionDefinitionResult
   ): CodeAction[] {
     const modifier = diagnostic.message.includes("pure") ? "pure" : "view";
-    const visibility = functionDefinition.visibility;
+    const visibilityKind = visibilityToKeywordKind(functionDefinition.visibility);
 
-    const lookupResult = lookupToken(
-      tokens,
+    const lookupResult = lookupCursor(
+      cursors,
       document,
       functionSourceLocation,
-      (t) => t.type === "Keyword" && t.value === visibility
+      (c) => c.node.isTerminalNode() && c.node.kind === visibilityKind
     );
 
     if (lookupResult === null) {
       return [];
     }
 
-    const { token: visibilityKeyword, isSameLine } = lookupResult;
-
-    if (visibilityKeyword.range === undefined) {
-      return [];
-    }
+    const { cursor: visibilityKeyword, isSameLine } = lookupResult;
 
     const visibilityKeywordPosition = document.positionAt(
-      functionSourceLocation.start + visibilityKeyword.range[0] + 1
+      functionSourceLocation.start + visibilityKeyword.textRange.start.utf8 + 1
     );
 
     const newText = isSameLine
@@ -129,7 +125,7 @@ export class ConstrainMutability implements CompilerDiagnostic {
       : `${"".padStart(visibilityKeywordPosition.character - 1)}${modifier}\n`;
 
     const endOfVisibilityChar =
-      functionSourceLocation.start + visibilityKeyword.range[1] + 1;
+      functionSourceLocation.start + visibilityKeyword.textRange.end.utf8 + 1;
 
     const addMutabilityAction: CodeAction = {
       title: `Add ${modifier} modifier to function declaration`,
@@ -151,5 +147,20 @@ export class ConstrainMutability implements CompilerDiagnostic {
     };
 
     return [addMutabilityAction];
+  }
+}
+
+function visibilityToKeywordKind(visibility: string): string {
+  switch (visibility) {
+    case "public":
+      return "PublicKeyword";
+    case "private":
+      return "PrivateKeyword";
+    case "internal":
+      return "InternalKeyword";
+    case "external":
+      return "ExternalKeyword";
+    default:
+      return "";
   }
 }
