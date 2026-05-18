@@ -9,7 +9,7 @@ import { ResolveActionsContext } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
 import { SolcError, ServerState } from "../../types";
 import { parseFunctionDefinitionAuto } from "./parsing/parseFunctionDefinition";
-import { lookupToken } from "./parsing/lookupToken";
+import { lookupCursor } from "./parsing/lookupToken";
 
 type Visibility = "public" | "private" | "external" | "internal";
 
@@ -43,27 +43,21 @@ export class SpecifyVisibility {
       return [];
     }
 
-    const { tokens, functionSourceLocation } = parseResult;
+    const { cursors, functionSourceLocation } = parseResult;
 
-    const lookupResult = lookupToken(
-      tokens,
+    const lookupResult = lookupCursor(
+      cursors,
       document,
       functionSourceLocation,
-      (t) => t.type === "Punctuator" && t.value === ")"
+      (c) => c.node.isTerminalNode() && c.node.kind === "CloseParen"
     );
 
     if (lookupResult === null) {
       return [];
     }
 
-    const { token: closingParamListToken } = lookupResult;
-
-    if (closingParamListToken.range === undefined) {
-      return [];
-    }
-
     const startChar =
-      functionSourceLocation.start + closingParamListToken.range[0] + 1;
+      functionSourceLocation.start + lookupResult.cursor.textRange.start.utf8 + 1;
 
     return QUICK_FIX_VISIBILITIES.map((visibility) =>
       this._constructVisibilityCodeActionFor(

@@ -6,167 +6,104 @@
  * The output types are compatible with the existing diagnostic handlers
  * (same Token format, same FunctionDefinition/ContractDefinition shape).
  */
-import type { Cursor } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import type {
+  Cursor,
+  NonterminalKind as NonterminalKindType,
+  TerminalKind as TerminalKindType,
+} from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import type { FunctionDefinition as FunctionDefinitionAst } from "@nomicfoundation/slang/ast" with { "resolution-mode": "import" };
 import { Diagnostic, Range } from "vscode-languageserver/node";
 import { TextDocument } from "@common/types";
 import { ResolveActionsContext } from "@compilerDiagnostics/types";
 import { Logger } from "@utils/Logger";
-import { Token } from "./types";
 import { ParseFunctionDefinitionResult } from "./parseFunctionDefinition";
 import { ParseContractDefinitionResult } from "./parseContractDefinition";
 
-/**
- * Map TerminalKind to Token type.
- */
-function terminalKindToTokenType(kind: string): string {
-  // Keywords
-  if (kind.endsWith("Keyword")) {
-    return "Keyword";
-  }
+// Cached kind enums (loaded once via dynamic import; reused per call).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _kinds: { TerminalKind: any; NonterminalKind: any } | undefined;
 
-  // Punctuators
-  if (
-    [
-      "OpenParen",
-      "CloseParen",
-      "OpenBrace",
-      "CloseBrace",
-      "OpenBracket",
-      "CloseBracket",
-      "Semicolon",
-      "Comma",
-      "Period",
-      "Equal",
-      "Plus",
-      "Minus",
-      "Asterisk",
-      "Slash",
-      "Percent",
-      "Ampersand",
-      "Bar",
-      "Caret",
-      "Tilde",
-      "ExclamationMark",
-      "QuestionMark",
-      "Colon",
-      "LessThan",
-      "GreaterThan",
-    ].includes(kind)
-  ) {
-    return "Punctuator";
+async function getKinds(): Promise<{
+  TerminalKind: typeof TerminalKindType;
+  NonterminalKind: typeof NonterminalKindType;
+}> {
+  if (_kinds !== undefined) {
+    return _kinds;
   }
-
-  if (kind === "Identifier") {
-    return "Identifier";
-  }
-
-  // Everything else
-  return kind;
+  const m = await import("@nomicfoundation/slang/cst");
+  _kinds = { TerminalKind: m.TerminalKind, NonterminalKind: m.NonterminalKind };
+  return _kinds;
 }
 
 /**
- * Collect all terminal nodes from a CST cursor as Token-compatible objects.
- * Character offsets are relative to the snippet start (0-based).
+ * Collect every terminal-node cursor under `cursor` in pre-order traversal.
+ * Each returned cursor is a clone — callers can iterate freely without
+ * mutating the source cursor.
  */
-function collectTokens(cursor: Cursor): Token[] {
-  const tokens: Token[] = [];
+function collectTerminalCursors(cursor: Cursor): Cursor[] {
+  const cursors: Cursor[] = [];
+  const c = cursor.spawn();
 
-  const walk = (c: Cursor): void => {
+  while (c.goToNext()) {
     if (c.node.isTerminalNode()) {
-      const kind = c.node.kind;
-      const text = c.node.unparse();
-      const range = c.textRange;
-
-      // Convert line/column to character offset within the snippet
-      // Since we're parsing a snippet, use textOffset if available
-      tokens.push({
-        type: terminalKindToTokenType(kind),
-        value: text,
-        range: [range.start.utf8, range.end.utf8],
-      } as Token);
+      cursors.push(c.clone());
     }
+  }
 
-    if (c.goToFirstChild()) {
-      walk(c);
-      c.goToParent();
-    }
-
-    while (c.goToNextSibling()) {
-      if (c.node.isTerminalNode()) {
-        const kind = c.node.kind;
-        const text = c.node.unparse();
-        const range = c.textRange;
-
-        tokens.push({
-          type: terminalKindToTokenType(kind),
-          value: text,
-          range: [range.start.utf8, range.end.utf8],
-        } as Token);
-      }
-
-      if (c.goToFirstChild()) {
-        walk(c);
-        c.goToParent();
-      }
-    }
-  };
-
-  walk(cursor);
-  return tokens;
+  return cursors;
 }
 
 /**
- * Extract a FunctionDefinition-compatible object from a CST.
+ * Extract function attributes (visibility, mutability, virtual) using the
+ * AST API rather than scanning the CST for keyword terminals. The AST
+ * exposes a typed `attributes.items` list whose variants are exactly the
+ * tokens we care about.
  */
-function extractFunctionDefinitionProps(cursor: Cursor) {
+function extractFunctionDefinitionProps(
+  funcDef: FunctionDefinitionAst,
+  TerminalKind: typeof TerminalKindType
+) {
   let isVirtual = false;
   let visibility: "private" | "public" | "external" | "internal" | "default" =
     "default";
   let stateMutability: string | null = null;
 
-  const walk = (c: Cursor): void => {
-    const node = c.node;
+  for (const attr of funcDef.attributes.items) {
+    const v = attr.variant;
 
-    if (node.isTerminalNode()) {
-      switch (node.kind) {
-        case "VirtualKeyword":
-          isVirtual = true;
-          break;
-        case "PublicKeyword":
-          visibility = "public";
-          break;
-        case "PrivateKeyword":
-          visibility = "private";
-          break;
-        case "InternalKeyword":
-          visibility = "internal";
-          break;
-        case "ExternalKeyword":
-          visibility = "external";
-          break;
-        case "ViewKeyword":
-          stateMutability = "view";
-          break;
-        case "PureKeyword":
-          stateMutability = "pure";
-          break;
-        case "PayableKeyword":
-          stateMutability = "payable";
-          break;
-      }
+    // Only keyword variants matter here (ModifierInvocation / OverrideSpecifier
+    // are valid attributes too, but irrelevant to visibility/mutability/virtual).
+    if (!("isTerminalNode" in v) || !v.isTerminalNode()) {
+      continue;
     }
 
-    if (c.goToFirstChild()) {
-      walk(c);
-      c.goToParent();
+    switch (v.kind) {
+      case TerminalKind.VirtualKeyword:
+        isVirtual = true;
+        break;
+      case TerminalKind.PublicKeyword:
+        visibility = "public";
+        break;
+      case TerminalKind.PrivateKeyword:
+        visibility = "private";
+        break;
+      case TerminalKind.InternalKeyword:
+        visibility = "internal";
+        break;
+      case TerminalKind.ExternalKeyword:
+        visibility = "external";
+        break;
+      case TerminalKind.ViewKeyword:
+        stateMutability = "view";
+        break;
+      case TerminalKind.PureKeyword:
+        stateMutability = "pure";
+        break;
+      case TerminalKind.PayableKeyword:
+        stateMutability = "payable";
+        break;
     }
-
-    while (c.goToNextSibling()) {
-      walk(c);
-    }
-  };
-
-  walk(cursor);
+  }
 
   return { isVirtual, visibility, stateMutability };
 }
@@ -213,29 +150,29 @@ export async function parseFunctionDefinition(
     const tree = output.tree;
     const cursor = tree.createCursor({ utf8: 0, utf16: 0, line: 0, column: 0 });
 
-    // Collect tokens
-    const tokens = collectTokens(cursor.clone());
+    const cursors = collectTerminalCursors(cursor.clone());
 
-    if (tokens.length === 0) {
+    if (cursors.length === 0) {
       return null;
     }
 
     // Check that the root is a FunctionDefinition
     const rootNode = tree.asNonterminalNode();
 
-    if (rootNode === undefined || rootNode.kind !== "FunctionDefinition") {
+    if (rootNode === undefined || rootNode.kind !== NonterminalKind.FunctionDefinition) {
       return null;
     }
 
-    // Extract function properties
-    const props = extractFunctionDefinitionProps(cursor.clone());
+    const { TerminalKind } = await getKinds();
+    const { FunctionDefinition } = await import("@nomicfoundation/slang/ast");
+    const funcDef = new FunctionDefinition(rootNode);
+
+    const props = extractFunctionDefinitionProps(funcDef, TerminalKind);
 
     if (props === undefined) {
       return null;
     }
 
-    // Build a FunctionDefinition-compatible object with the properties
-    // that resolveInsertSpecifierQuickFix actually uses
     const functionDefinition = {
       type: "FunctionDefinition",
       isVirtual: props.isVirtual ?? false,
@@ -243,7 +180,7 @@ export async function parseFunctionDefinition(
       stateMutability: props.stateMutability ?? null,
     };
 
-    return { functionDefinition, tokens, functionSourceLocation };
+    return { functionDefinition, cursors, functionSourceLocation };
   } catch (err) {
     logger.error(err);
     return null;
@@ -290,20 +227,18 @@ export async function parseContractDefinition(
     const tree = output.tree;
     const cursor = tree.createCursor({ utf8: 0, utf16: 0, line: 0, column: 0 });
 
-    const tokens = collectTokens(cursor.clone());
+    const cursors = collectTerminalCursors(cursor.clone());
 
-    if (tokens.length === 0) {
+    if (cursors.length === 0) {
       return null;
     }
 
     const rootNode = tree.asNonterminalNode();
 
-    if (rootNode === undefined || rootNode.kind !== "ContractDefinition") {
+    if (rootNode === undefined || rootNode.kind !== NonterminalKind.ContractDefinition) {
       return null;
     }
 
-    // jsparser range[1] points to the last character (not past it),
-    // so subtract 1 from the text length to match that convention.
     const contractDefinition = {
       type: "ContractDefinition",
       range: [0, contractText.length - 1],
@@ -311,7 +246,7 @@ export async function parseContractDefinition(
 
     return {
       contractDefinition,
-      tokens,
+      cursors,
       functionSourceLocation,
       contractText,
     };
