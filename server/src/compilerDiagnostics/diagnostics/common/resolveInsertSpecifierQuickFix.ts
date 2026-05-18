@@ -17,6 +17,7 @@ import {
   ParseFunctionDefinitionResult,
 } from "../parsing/parseFunctionDefinition";
 import type { ServerState } from "../../../types";
+import { getSlangCst } from "../../../parser/slangHelpers";
 
 export class Multioverride {
   public contractIdentifiers: string[];
@@ -84,7 +85,7 @@ export async function resolveInsertSpecifierQuickFix(
   }
 
   // No virtual/visibility/mutability — insert after the parameters' `)`.
-  const { TerminalKind } = await import("@nomicfoundation/slang/cst");
+  const { TerminalKind } = await getSlangCst();
   const lookupResult = lookupCursor(
     cursors,
     document,

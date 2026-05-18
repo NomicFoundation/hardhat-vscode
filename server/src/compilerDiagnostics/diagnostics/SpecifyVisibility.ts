@@ -8,6 +8,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { ResolveActionsContext } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
 import { SolcError, ServerState } from "../../types";
+import { getSlangCst } from "../../parser/slangHelpers";
 import { parseFunctionDefinitionAuto } from "./parsing/parseFunctionDefinition";
 import { lookupCursor } from "./parsing/lookupToken";
 
@@ -44,7 +45,7 @@ export class SpecifyVisibility {
     }
 
     const { cursors, functionSourceLocation } = parseResult;
-    const { TerminalKind } = await import("@nomicfoundation/slang/cst");
+    const { TerminalKind } = await getSlangCst();
 
     const lookupResult = lookupCursor(
       cursors,

@@ -19,22 +19,19 @@ import { ServerState } from "../../types";
 import { toUnixStyle } from "../../utils";
 import { onCommand } from "../../utils/onCommand";
 import {
-  getInheritedContracts,
   findEnclosingContractAtPosition,
-} from "../../parser/cstHelpers";
-import { getCursorAtPosition } from "../../parser/slangHelpers";
+  getCursorAtPosition,
+  getInheritedContracts,
+  getSlangAst,
+  getSlangCst,
+} from "../../parser/slangHelpers";
 import { globalVariables, defaultCompletion } from "./defaultCompletion";
 import { arrayCompletions } from "./arrayCompletions";
 
-// Cached dynamic import of the Slang AST module (ESM, cannot use require())
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let slangAst: any;
-async function getSlangAst() {
-  if (slangAst === undefined) {
-    slangAst = await import("@nomicfoundation/slang/ast");
-  }
-  return slangAst;
-}
+// Module-level cache populated by `await getSlangAst()` at the entry of
+// completion so the recursive helpers below can read it synchronously.
+type SlangAstModule = Awaited<ReturnType<typeof getSlangAst>>;
+let slangAst: SlangAstModule | undefined;
 
 export const onCompletion = (serverState: ServerState) => {
   return onCommand<CompletionParams, CompletionList | null>(
@@ -143,8 +140,8 @@ async function doComplete(
     return null;
   }
 
-  // Ensure AST module is loaded (cached after first call)
-  await getSlangAst();
+  // Ensure AST module is loaded once for the sync helpers below.
+  slangAst = await getSlangAst();
 
   const line = params.position.line;
   const character = params.position.character;
@@ -576,7 +573,7 @@ async function getMemberAccessCompletion(
   textBeforeCursor: string,
   _params: CompletionParams
 ): Promise<CompletionList | null> {
-  const { TerminalKindExtensions } = await import("@nomicfoundation/slang/cst");
+  const { TerminalKindExtensions } = await getSlangCst();
 
   // Extract the full expression chain, e.g. "stats.hero." → ["stats", "hero"]
   const match = textBeforeCursor.match(/(\w[\w.]*)\.\s*$/);
@@ -986,7 +983,7 @@ function resolveVariableTypeCompletion(
 function collectStructMemberCompletions(
   structNode: NonterminalNode
 ): CompletionList | null {
-  const { StructDefinition } = slangAst;
+  const { StructDefinition } = slangAst!;
   const struct = new StructDefinition(structNode);
   const items = struct.members.items.map(
     (m: { name: { unparse: () => string } }) => ({
@@ -1010,19 +1007,23 @@ function collectContractMemberCompletions(
     ContractDefinition,
     InterfaceDefinition,
     LibraryDefinition,
-  } = slangAst;
+  } = slangAst!;
 
-  // member items come from the AST classes (slangAst is dynamic-imported)
-  // and are typed there as readonly XMember[]. We narrow at use sites.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let memberItems: any[];
+  // Members are typed as readonly arrays of distinct member-variant unions
+  // per container kind (Contract / Interface / Library); we only need each
+  // member's `.variant` and `.cst`, so the readonly union is enough.
+  interface MemberLike {
+    variant: { cst: NonterminalNode; unparse?: () => string };
+    cst: NonterminalNode;
+  }
+  let memberItems: readonly MemberLike[];
 
   if (contractNode.kind === "ContractDefinition") {
-    memberItems = new ContractDefinition(contractNode).members.items;
+    memberItems = new ContractDefinition(contractNode).members.items as readonly MemberLike[];
   } else if (contractNode.kind === "InterfaceDefinition") {
-    memberItems = new InterfaceDefinition(contractNode).members.items;
+    memberItems = new InterfaceDefinition(contractNode).members.items as readonly MemberLike[];
   } else if (contractNode.kind === "LibraryDefinition") {
-    memberItems = new LibraryDefinition(contractNode).members.items;
+    memberItems = new LibraryDefinition(contractNode).members.items as readonly MemberLike[];
   } else {
     return;
   }
@@ -1075,7 +1076,7 @@ function getDefinitionName(node: { cst: NonterminalNode }): string | undefined {
     ErrorDefinition,
     StateVariableDefinition,
     UserDefinedValueTypeDefinition,
-  } = slangAst;
+  } = slangAst!;
 
   const kind = node.cst.kind;
 
@@ -1244,7 +1245,7 @@ function collectDefinitionsFromScope(
 
     // Variable declaration statements — use AST wrapper
     if (node.kind === "VariableDeclarationStatement") {
-      const { VariableDeclarationStatement } = slangAst;
+      const { VariableDeclarationStatement } = slangAst!;
       const varDecl = new VariableDeclarationStatement(node);
       const varName = varDecl.name.unparse();
       if (varName !== undefined && !seenNames.has(varName)) {
@@ -1258,7 +1259,7 @@ function collectDefinitionsFromScope(
 
     // Function parameters — use AST wrapper
     if (node.kind === "ParametersDeclaration") {
-      const { ParametersDeclaration } = slangAst;
+      const { ParametersDeclaration } = slangAst!;
       const paramsDecl = new ParametersDeclaration(node);
       for (const param of paramsDecl.parameters.items) {
         const paramName = param.name?.unparse();
@@ -1273,7 +1274,7 @@ function collectDefinitionsFromScope(
     }
 
     if (node.kind === "Parameters") {
-      const { Parameters } = slangAst;
+      const { Parameters } = slangAst!;
       const params = new Parameters(node);
       for (const param of params.items) {
         const paramName = param.name?.unparse();
@@ -1303,7 +1304,7 @@ function getDefinitionNameFromCst(node: NonterminalNode): string | undefined {
     StateVariableDefinition,
     UserDefinedValueTypeDefinition,
     ConstantDefinition,
-  } = slangAst;
+  } = slangAst!;
 
   switch (node.kind) {
     case "FunctionDefinition":
@@ -1333,15 +1334,15 @@ function getDefinitionNameFromCst(node: NonterminalNode): string | undefined {
     case "UnnamedFunctionDefinition":
       return "function";
     case "ContractDefinition": {
-      const { ContractDefinition } = slangAst;
+      const { ContractDefinition } = slangAst!;
       return new ContractDefinition(node).name.unparse();
     }
     case "InterfaceDefinition": {
-      const { InterfaceDefinition } = slangAst;
+      const { InterfaceDefinition } = slangAst!;
       return new InterfaceDefinition(node).name.unparse();
     }
     case "LibraryDefinition": {
-      const { LibraryDefinition } = slangAst;
+      const { LibraryDefinition } = slangAst!;
       return new LibraryDefinition(node).name.unparse();
     }
     default:
@@ -1667,7 +1668,9 @@ function findFirstKeywordLine(cursor: Cursor): number | undefined {
 
 // Common shape of the Parameter/EventParameter/etc. AST items we read here:
 // they all expose an optional `name` terminal with an `unparse()` method.
-type NamedParamItem = { name?: { unparse: () => string } };
+interface NamedParamItem {
+  name?: { unparse: () => string };
+}
 
 const unparseOptionalName = (
   p: NamedParamItem
@@ -1676,6 +1679,13 @@ const isString = (n: string | undefined): n is string => n !== undefined;
 
 /**
  * Extract parameter names from a definition node using AST wrappers.
+ *
+ * Unnamed parameters (positional-only) are filtered out — callers use this
+ * to populate natspec `@param` lines, and `@param ` with no identifier is
+ * invalid. Compare with `extractReturnParameterNamesFromDef` which keeps
+ * empty strings: a function's `returns` clause may legitimately list types
+ * without names (`returns (uint, uint)`), and natspec `@return` lines still
+ * need one entry per return value, name or no name.
  */
 function extractParameterNamesFromDef(defNode: NonterminalNode): string[] {
   const {
@@ -1683,7 +1693,7 @@ function extractParameterNamesFromDef(defNode: NonterminalNode): string[] {
     ConstructorDefinition,
     ModifierDefinition,
     EventDefinition,
-  } = slangAst;
+  } = slangAst!;
 
   switch (defNode.kind) {
     case "FunctionDefinition": {
@@ -1715,7 +1725,7 @@ function extractParameterNamesFromDef(defNode: NonterminalNode): string[] {
  * Extract return parameter names from a function definition using AST wrappers.
  */
 function extractReturnParameterNamesFromDef(defNode: NonterminalNode): string[] {
-  const { FunctionDefinition } = slangAst;
+  const { FunctionDefinition } = slangAst!;
 
   if (defNode.kind !== "FunctionDefinition") {
     return [];

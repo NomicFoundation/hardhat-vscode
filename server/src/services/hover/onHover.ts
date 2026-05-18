@@ -1,6 +1,7 @@
 import { HoverParams, Hover, MarkupKind } from "vscode-languageserver/node";
 import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with { "resolution-mode": "import" };
 import type {
+  BaseRewriter,
   Node,
   NonterminalKind as NonterminalKindType,
   NonterminalNode,
@@ -8,81 +9,29 @@ import type {
 import { ServerState } from "../../types";
 import { onCommand } from "../../utils/onCommand";
 import {
+  getSlangAst,
+  getSlangCst,
   resolveIdentifierAtPosition,
   resolveToDefinition,
 } from "../../parser/slangHelpers";
 
-// Cached singleton; constructed once the first time we need it because
-// BaseRewriter lives in the ESM-only Slang package and must be loaded
-// via dynamic import.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let signatureRewriter: any | undefined;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let bodyKeepRewriter: any | undefined;
+import { createSignatureRewriter } from "./rewriters/SignatureRewriter";
+import { createBodyKeepRewriter } from "./rewriters/BodyKeepRewriter";
+
+// Cached singletons; constructed on first use.
+let signatureRewriter: BaseRewriter | undefined;
+let bodyKeepRewriter: BaseRewriter | undefined;
 
 async function getRewriters(): Promise<{
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  signature: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  bodyKeep: any;
+  signature: BaseRewriter;
+  bodyKeep: BaseRewriter;
 }> {
-  if (signatureRewriter !== undefined && bodyKeepRewriter !== undefined) {
-    return { signature: signatureRewriter, bodyKeep: bodyKeepRewriter };
+  if (signatureRewriter === undefined) {
+    signatureRewriter = await createSignatureRewriter();
   }
-
-  const { BaseRewriter } = await import("@nomicfoundation/slang/cst");
-
-  // Strips function/modifier/constructor bodies, variable initializers, and
-  // all comments. Used for definitions where we want only the signature.
-  // Contract/interface/library hovers don't go through this rewriter —
-  // they're handled by reading header children via the AST instead.
-  class SignatureRewriter extends BaseRewriter {
-    rewriteFunctionBody() {
-      return undefined;
-    }
-    rewriteBlock() {
-      return undefined;
-    }
-    rewriteStateVariableDefinitionValue() {
-      return undefined;
-    }
-    rewriteVariableDeclarationValue() {
-      return undefined;
-    }
-    rewriteSingleLineComment() {
-      return undefined;
-    }
-    rewriteMultiLineComment() {
-      return undefined;
-    }
-    rewriteSingleLineNatSpecComment() {
-      return undefined;
-    }
-    rewriteMultiLineNatSpecComment() {
-      return undefined;
-    }
+  if (bodyKeepRewriter === undefined) {
+    bodyKeepRewriter = await createBodyKeepRewriter();
   }
-
-  // Strips only comments. Used for type definitions (struct/enum) where we
-  // want to keep the body but not show leading natspec.
-  class BodyKeepRewriter extends BaseRewriter {
-    rewriteSingleLineComment() {
-      return undefined;
-    }
-    rewriteMultiLineComment() {
-      return undefined;
-    }
-    rewriteSingleLineNatSpecComment() {
-      return undefined;
-    }
-    rewriteMultiLineNatSpecComment() {
-      return undefined;
-    }
-  }
-
-  signatureRewriter = new SignatureRewriter();
-  bodyKeepRewriter = new BodyKeepRewriter();
-
   return { signature: signatureRewriter, bodyKeep: bodyKeepRewriter };
 }
 
@@ -99,7 +48,7 @@ async function findHover(
   internalUri: string,
   params: HoverParams
 ): Promise<Hover | null> {
-  const { NonterminalKind } = await import("@nomicfoundation/slang/cst");
+  const { NonterminalKind } = await getSlangCst();
 
   const resolution = await resolveIdentifierAtPosition(
     unit,
@@ -151,6 +100,10 @@ async function findHover(
     if (isTypeDefinition) {
       hoverText = hoverText.replace(/;+\s*$/, "").trim();
     } else {
+      // These regexes operate on text that the rewriter has already stripped
+      // of comments and bodies/initializers — so any whitespace and
+      // parentheses we see here are structural (signature shape), never
+      // inside user-controlled strings or comments.
       hoverText = hoverText.replace(/;+\s*$/, "");
       // Collapse residual multi-line whitespace from where bodies/initializers used to be
       hoverText = hoverText.replace(/\s+/g, " ").trim();
@@ -196,7 +149,7 @@ async function tryBuildContractLikeHeader(
     return undefined;
   }
 
-  const ast = await import("@nomicfoundation/slang/ast");
+  const ast = await getSlangAst();
 
   if (kind === NonterminalKind.ContractDefinition) {
     const c = new ast.ContractDefinition(node);

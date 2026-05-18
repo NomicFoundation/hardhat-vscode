@@ -4,9 +4,20 @@ import type { Cursor } from "@nomicfoundation/slang/cst" with { "resolution-mode
 import type { ServerState } from "../../../types";
 import { parseFunctionDefinition } from "./snippetParsing";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+/**
+ * Structured view of a function definition snippet extracted by Slang.
+ * Cursors point at the relevant attribute keywords in the snippet's CST;
+ * any may be `undefined` if the corresponding modifier isn't present.
+ */
+export interface FunctionDefinitionShape {
+  type: "FunctionDefinition";
+  virtualKeyword: Cursor | undefined;
+  visibilityKeyword: Cursor | undefined;
+  mutabilityKeyword: Cursor | undefined;
+}
+
 export interface ParseFunctionDefinitionResult {
-  functionDefinition: any;
+  functionDefinition: FunctionDefinitionShape;
   cursors: Cursor[];
   functionSourceLocation: { start: number; end: number };
 }
