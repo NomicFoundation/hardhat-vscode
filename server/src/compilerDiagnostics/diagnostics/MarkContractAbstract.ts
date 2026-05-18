@@ -57,19 +57,19 @@ export class MarkContractAbstract {
   }
 
   private _buildAddAbstractQuickFix(
-    { tokens, functionSourceLocation }: ParseContractDefinitionResult,
+    { cursors, functionSourceLocation }: ParseContractDefinitionResult,
     { document, uri }: ResolveActionsContext
   ): CodeAction | null {
-    const contractToken = tokens.find(
-      (t) => t.type === "Keyword" && t.value === "contract"
+    const contractKeyword = cursors.find(
+      (c) => c.node.isTerminalNode() && c.node.kind === "ContractKeyword"
     );
 
-    if (contractToken === undefined || contractToken.range === undefined) {
+    if (contractKeyword === undefined) {
       return null;
     }
 
     const startChar =
-      functionSourceLocation.start + (contractToken.range?.[0] ?? 0);
+      functionSourceLocation.start + contractKeyword.textRange.start.utf8;
 
     const quickfix = {
       title: `Add abstract to contract declaration`,

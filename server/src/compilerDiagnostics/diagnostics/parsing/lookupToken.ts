@@ -1,109 +1,91 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { Token } from "./types";
+import type { Cursor } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
 
 export interface LookupResult {
-  token: Token;
+  cursor: Cursor;
   isSameLine: boolean;
   offset: number;
 }
 
-const HEADER_KEYWORDS = [
-  "public",
-  "private",
-  "internal",
-  "external",
-  "view",
-  "pure",
-  "payable",
-  "returns",
-];
+const HEADER_KEYWORDS = new Set([
+  "PublicKeyword",
+  "PrivateKeyword",
+  "InternalKeyword",
+  "ExternalKeyword",
+  "ViewKeyword",
+  "PureKeyword",
+  "PayableKeyword",
+  "ReturnsKeyword",
+]);
 
-export function lookupToken(
-  tokens: Token[],
+/**
+ * Find a terminal cursor in a snippet that satisfies `match`, plus contextual
+ * information about whether the function header sits on a single line and at
+ * what column the header started.
+ */
+export function lookupCursor(
+  cursors: Cursor[],
   document: TextDocument,
   functionSourceLocation: { start: number; end: number },
-  find: (token: Token) => boolean
+  match: (cursor: Cursor) => boolean
 ): LookupResult | null {
-  const fn = tokens.find((t) => t.value === "function");
-  const lookupTokenIndex = tokens.findIndex(find);
+  const fn = cursors.find(
+    (c) => c.node.isTerminalNode() && c.node.kind === "FunctionKeyword"
+  );
+  const cursor = cursors.find(match);
 
-  const token = tokens[lookupTokenIndex];
-  const nextToken = tokens[lookupTokenIndex + 1];
-
-  if (!fn?.range || !token?.range || !nextToken?.range) {
+  if (fn === undefined || cursor === undefined) {
     return null;
   }
 
   const isSameLine = determineIsFunctionHeaderOnSameLine(
     fn,
-    tokens,
+    cursors,
     document,
     functionSourceLocation
   );
 
   const functionStartPos = document.positionAt(
-    functionSourceLocation.start + fn.range[0] + 1
+    functionSourceLocation.start + fn.textRange.start.utf8 + 1
   );
   const offset = functionStartPos.character + 1;
 
-  return {
-    token,
-    isSameLine,
-    offset,
-  };
+  return { cursor, isSameLine, offset };
 }
 
 function determineIsFunctionHeaderOnSameLine(
-  functionToken: Token,
-  tokens: Token[],
+  fnCursor: Cursor,
+  cursors: Cursor[],
   document: TextDocument,
   functionSourceLocation: { start: number; end: number }
-) {
-  const openBodyParen = tokens.find(
-    (t) => t.type === "Punctuator" && t.value === "{"
+): boolean {
+  const openBodyBrace = cursors.find(
+    (c) => c.node.isTerminalNode() && c.node.kind === "OpenBrace"
   );
 
-  if (!functionToken?.range || !openBodyParen?.range) {
+  if (openBodyBrace === undefined) {
     return true;
   }
 
   const fnLine = document.positionAt(
-    functionSourceLocation.start + functionToken.range[0] + 1
+    functionSourceLocation.start + fnCursor.textRange.start.utf8 + 1
   ).line;
 
-  const openBodyParenLine = document.positionAt(
-    functionSourceLocation.start + openBodyParen.range[0] + 1
+  const openBraceLine = document.positionAt(
+    functionSourceLocation.start + openBodyBrace.textRange.start.utf8 + 1
   ).line;
 
-  if (fnLine === openBodyParenLine) {
+  if (fnLine === openBraceLine) {
     return true;
   }
 
-  const keywordLines = tokens
-    .filter(isHeaderKeyword)
-    .map((t) => t.range)
-    .filter((r): r is [number, number] => r !== undefined)
-    .map((r) => findLineGivenRange(document, functionSourceLocation, r));
+  const keywordLines = cursors
+    .filter((c) => c.node.isTerminalNode() && HEADER_KEYWORDS.has(c.node.kind))
+    .map((c) =>
+      document.positionAt(
+        functionSourceLocation.start + c.textRange.start.utf8 + 1
+      ).line
+    );
 
-  const allKeywordsOnSameLineAsFn = keywordLines
-    .map((l) => l === fnLine)
-    .reduce((acc, l) => acc && l, true);
-
-  return allKeywordsOnSameLineAsFn;
-}
-
-function isHeaderKeyword(t: Token) {
-  return (
-    t.type === "Keyword" &&
-    t.value !== undefined &&
-    HEADER_KEYWORDS.includes(t.value)
-  );
-}
-
-function findLineGivenRange(
-  document: TextDocument,
-  functionSourceLocation: { start: number; end: number },
-  range: [number, number]
-) {
-  return document.positionAt(functionSourceLocation.start + range[0] + 1).line;
+  return keywordLines.every((l) => l === fnLine);
 }

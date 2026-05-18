@@ -1,13 +1,13 @@
 import { Diagnostic } from "vscode-languageserver/node";
 import { ResolveActionsContext } from "@compilerDiagnostics/types";
+import type { Cursor } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
 import type { ServerState } from "../../../types";
-import { Token } from "./types";
 import { parseContractDefinition } from "./snippetParsing";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ParseContractDefinitionResult {
   contractDefinition: any;
-  tokens: Token[];
+  cursors: Cursor[];
   functionSourceLocation: { start: number; end: number };
   contractText: string;
 }

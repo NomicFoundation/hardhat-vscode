@@ -5,6 +5,7 @@ import {
   ParameterInformation,
 } from "@common/types";
 import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with { "resolution-mode": "import" };
+import type { Node } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
 import {
   isCharacterALetter,
   isCharacterANumber,
@@ -17,6 +18,40 @@ import {
   resolveToDefinition,
 } from "../../parser/slangHelpers";
 import { findConstructorInContract } from "../../parser/cstHelpers";
+
+// Cached singleton; constructed once because BaseRewriter lives in the
+// ESM-only Slang package and must be loaded via dynamic import.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let commentStripRewriter: any | undefined;
+
+async function getCommentStripRewriter(): Promise<{
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  rewriteNode: (node: Node) => Node | undefined;
+}> {
+  if (commentStripRewriter !== undefined) {
+    return commentStripRewriter;
+  }
+
+  const { BaseRewriter } = await import("@nomicfoundation/slang/cst");
+
+  class CommentStripRewriter extends BaseRewriter {
+    rewriteSingleLineComment() {
+      return undefined;
+    }
+    rewriteMultiLineComment() {
+      return undefined;
+    }
+    rewriteSingleLineNatSpecComment() {
+      return undefined;
+    }
+    rewriteMultiLineNatSpecComment() {
+      return undefined;
+    }
+  }
+
+  commentStripRewriter = new CommentStripRewriter();
+  return commentStripRewriter;
+}
 
 interface DeclarationSignature {
   declarationNodePosition: Position;
@@ -89,7 +124,7 @@ async function signatureHelp(
         parentCursor.node.kind === "ContractDefinition") {
       const ctorCursor = await findConstructorInContract(parentCursor);
       if (ctorCursor !== undefined) {
-        return parseSignatureFromText(ctorCursor.node.unparse(), declarationSignature.activeParameter);
+        return await parseSignatureFromNode(ctorCursor.node, declarationSignature.activeParameter);
       }
     }
   }
@@ -100,26 +135,25 @@ async function signatureHelp(
     return null;
   }
 
-  const rawDefiniensText = definiensLocation.cursor.node.unparse();
-  return parseSignatureFromText(rawDefiniensText, declarationSignature.activeParameter);
+  return await parseSignatureFromNode(definiensLocation.cursor.node, declarationSignature.activeParameter);
 }
 
 /**
- * Parse a raw CST text into a SignatureHelp object.
- * Extracts natspec, strips comments, normalizes whitespace, and parses parameters.
+ * Parse a CST node (function/constructor/modifier) into a SignatureHelp object.
+ * Extracts natspec from the raw unparse, then uses a CST rewriter to drop all
+ * comments before parsing the signature — this avoids matching `{` / `(` / `)`
+ * inside comment text, which the previous regex-based approach could not.
  */
-function parseSignatureFromText(
-  rawText: string,
+async function parseSignatureFromNode(
+  node: Node,
   activeParameter: number
-): SignatureHelp | null {
+): Promise<SignatureHelp | null> {
+  const rawText = node.unparse();
   const documentation = extractNatspecFromText(rawText);
 
-  const text = rawText
-    .replace(/\/\*\*[\s\S]*?\*\//g, "")
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\/\/\/[^\n]*/g, "")
-    .replace(/\/\/[^\n]*/g, "")
-    .trim();
+  const stripper = await getCommentStripRewriter();
+  const stripped = stripper.rewriteNode(node);
+  const text = (stripped ?? node).unparse().trim();
 
   const braceIndex = text.indexOf("{");
   let signatureText =

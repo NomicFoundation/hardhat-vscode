@@ -5,9 +5,9 @@ import {
   Range,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
+import type { Cursor } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
 import { ResolveActionsContext } from "@compilerDiagnostics/types";
-import { Token } from "../parsing/types";
-import { LookupResult, lookupToken } from "../parsing/lookupToken";
+import { LookupResult, lookupCursor } from "../parsing/lookupToken";
 import {
   parseFunctionDefinitionAuto,
   ParseFunctionDefinitionResult,
@@ -55,12 +55,8 @@ export async function resolveInsertSpecifierQuickFix(
   const { functionDefinition } = parseResult;
 
   if (functionDefinition.isVirtual) {
-    return buildActionFrom(
-      specifier,
-      document,
-      uri,
-      parseResult,
-      (t) => t.type === "Keyword" && t.value === "virtual"
+    return buildActionFrom(specifier, document, uri, parseResult, (c) =>
+      isTerminalKind(c, "VirtualKeyword")
     );
   }
 
@@ -68,12 +64,8 @@ export async function resolveInsertSpecifierQuickFix(
     functionDefinition.visibility === "default" &&
     functionDefinition.stateMutability === null
   ) {
-    return buildActionFrom(
-      specifier,
-      document,
-      uri,
-      parseResult,
-      (t) => t.type === "Punctuator" && t.value === ")"
+    return buildActionFrom(specifier, document, uri, parseResult, (c) =>
+      isTerminalKind(c, "CloseParen")
     );
   }
 
@@ -81,12 +73,8 @@ export async function resolveInsertSpecifierQuickFix(
     functionDefinition.visibility !== "default" &&
     functionDefinition.stateMutability === null
   ) {
-    return buildActionFrom(
-      specifier,
-      document,
-      uri,
-      parseResult,
-      (t) => t.type === "Keyword" && t.value === functionDefinition.visibility
+    return buildActionFrom(specifier, document, uri, parseResult, (c) =>
+      isTerminalKind(c, visibilityToKeywordKind(functionDefinition.visibility))
     );
   }
 
@@ -94,17 +82,47 @@ export async function resolveInsertSpecifierQuickFix(
     functionDefinition.visibility !== "default" &&
     functionDefinition.stateMutability !== null
   ) {
-    return buildActionFrom(
-      specifier,
-      document,
-      uri,
-      parseResult,
-      (t) =>
-        t.type === "Keyword" && t.value === functionDefinition.stateMutability
+    return buildActionFrom(specifier, document, uri, parseResult, (c) =>
+      isTerminalKind(
+        c,
+        mutabilityToKeywordKind(functionDefinition.stateMutability)
+      )
     );
   }
 
   return [];
+}
+
+function isTerminalKind(cursor: Cursor, kind: string): boolean {
+  return cursor.node.isTerminalNode() && cursor.node.kind === kind;
+}
+
+function visibilityToKeywordKind(visibility: string): string {
+  switch (visibility) {
+    case "public":
+      return "PublicKeyword";
+    case "private":
+      return "PrivateKeyword";
+    case "internal":
+      return "InternalKeyword";
+    case "external":
+      return "ExternalKeyword";
+    default:
+      return "";
+  }
+}
+
+function mutabilityToKeywordKind(mutability: string): string {
+  switch (mutability) {
+    case "view":
+      return "ViewKeyword";
+    case "pure":
+      return "PureKeyword";
+    case "payable":
+      return "PayableKeyword";
+    default:
+      return "";
+  }
 }
 
 function buildActionFrom(
@@ -112,31 +130,25 @@ function buildActionFrom(
   document: TextDocument,
   uri: string,
   parseFnDef: ParseFunctionDefinitionResult,
-  tokenSelector: (token: Token) => boolean
+  cursorMatcher: (cursor: Cursor) => boolean
 ) {
-  const { tokens, functionSourceLocation } = parseFnDef;
+  const { cursors, functionSourceLocation } = parseFnDef;
 
-  const lookupResult = lookupToken(
-    tokens,
+  const lookupResult = lookupCursor(
+    cursors,
     document,
     functionSourceLocation,
-    tokenSelector
+    cursorMatcher
   );
 
   if (lookupResult === null) {
     return [];
   }
 
-  const { token } = lookupResult;
-
-  if (token.range === undefined) {
-    return [];
-  }
-
   const change = buildChangeFrom(
     specifier,
     document,
-    token,
+    lookupResult.cursor,
     parseFnDef,
     lookupResult
   );
@@ -158,11 +170,11 @@ function buildActionFrom(
 function buildChangeFrom(
   specifier: Specifier,
   document: TextDocument,
-  token: Token,
+  cursor: Cursor,
   { functionSourceLocation }: ParseFunctionDefinitionResult,
   { isSameLine, offset }: LookupResult
 ) {
-  const end = token?.range ? token.range[1] : 0;
+  const end = cursor.textRange.end.utf8;
 
   const position = document.positionAt(
     functionSourceLocation.start + end + (isSameLine ? 0 : 1)
