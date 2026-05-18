@@ -12,7 +12,7 @@ import {
   parseFunctionDefinitionAuto,
   ParseFunctionDefinitionResult,
 } from "./parsing/parseFunctionDefinition";
-import { lookupCursor } from "./parsing/lookupToken";
+import { getFunctionHeaderShape } from "./parsing/lookupToken";
 
 export class ConstrainMutability implements CompilerDiagnostic {
   public code = "2018";
@@ -44,21 +44,26 @@ export class ConstrainMutability implements CompilerDiagnostic {
       return [];
     }
 
-    if (parseResult.functionDefinition.stateMutability === "view") {
+    const { TerminalKind } = await import("@nomicfoundation/slang/cst");
+    const { mutabilityKeyword } = parseResult.functionDefinition;
+
+    if (
+      mutabilityKeyword !== undefined &&
+      mutabilityKeyword.node.isTerminalNode() &&
+      mutabilityKeyword.node.kind === TerminalKind.ViewKeyword
+    ) {
       return this._modifyViewToPureAction(document, uri, parseResult);
-    } else {
-      return this._addMutabilityAction(diagnostic, document, uri, parseResult);
     }
+
+    return this._addMutabilityAction(diagnostic, document, uri, parseResult);
   }
 
   private _modifyViewToPureAction(
     document: TextDocument,
     uri: string,
-    { functionSourceLocation, cursors }: ParseFunctionDefinitionResult
+    { functionSourceLocation, functionDefinition }: ParseFunctionDefinitionResult
   ): CodeAction[] {
-    const viewKeyword = cursors.find(
-      (c) => c.node.isTerminalNode() && c.node.kind === "ViewKeyword"
-    );
+    const viewKeyword = functionDefinition.mutabilityKeyword;
 
     if (viewKeyword === undefined) {
       return [];
@@ -101,26 +106,23 @@ export class ConstrainMutability implements CompilerDiagnostic {
     }: ParseFunctionDefinitionResult
   ): CodeAction[] {
     const modifier = diagnostic.message.includes("pure") ? "pure" : "view";
-    const visibilityKind = visibilityToKeywordKind(functionDefinition.visibility);
+    const visibilityKeyword = functionDefinition.visibilityKeyword;
 
-    const lookupResult = lookupCursor(
-      cursors,
-      document,
-      functionSourceLocation,
-      (c) => c.node.isTerminalNode() && c.node.kind === visibilityKind
-    );
-
-    if (lookupResult === null) {
+    if (visibilityKeyword === undefined) {
       return [];
     }
 
-    const { cursor: visibilityKeyword, isSameLine } = lookupResult;
+    const shape = getFunctionHeaderShape(cursors, document, functionSourceLocation);
+
+    if (shape === null) {
+      return [];
+    }
 
     const visibilityKeywordPosition = document.positionAt(
       functionSourceLocation.start + visibilityKeyword.textRange.start.utf8 + 1
     );
 
-    const newText = isSameLine
+    const newText = shape.isSameLine
       ? `${modifier} `
       : `${"".padStart(visibilityKeywordPosition.character - 1)}${modifier}\n`;
 
@@ -147,20 +149,5 @@ export class ConstrainMutability implements CompilerDiagnostic {
     };
 
     return [addMutabilityAction];
-  }
-}
-
-function visibilityToKeywordKind(visibility: string): string {
-  switch (visibility) {
-    case "public":
-      return "PublicKeyword";
-    case "private":
-      return "PrivateKeyword";
-    case "internal":
-      return "InternalKeyword";
-    case "external":
-      return "ExternalKeyword";
-    default:
-      return "";
   }
 }

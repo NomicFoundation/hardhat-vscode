@@ -1,5 +1,6 @@
 import { Location, TypeDefinitionParams } from "vscode-languageserver/node";
 import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with { "resolution-mode": "import" };
+import type { Cursor } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
 import { ServerState } from "../../types";
 import { onCommand } from "../../utils/onCommand";
 import {
@@ -21,7 +22,7 @@ async function findTypeDefinition(
   internalUri: string,
   params: TypeDefinitionParams
 ): Promise<Location[] | null> {
-  const { TerminalKindExtensions, NonterminalKind } = await import(
+  const { NonterminalKind, TerminalKindExtensions } = await import(
     "@nomicfoundation/slang/cst"
   );
 
@@ -48,20 +49,20 @@ async function findTypeDefinition(
     return null;
   }
 
-  // Check the kind of the definiens node to determine if the definition IS a type
   const definiensNode = definiensLocation.cursor.node;
 
+  // If the definition IS itself a user-defined type, that's the type definition.
   if (definiensNode.isNonterminalNode()) {
-    const typeDefinitionKinds = new Set([
+    const typeKinds = new Set([
       NonterminalKind.StructDefinition,
       NonterminalKind.ContractDefinition,
       NonterminalKind.InterfaceDefinition,
       NonterminalKind.LibraryDefinition,
       NonterminalKind.EnumDefinition,
+      NonterminalKind.UserDefinedValueTypeDefinition,
     ]);
 
-    if (typeDefinitionKinds.has(definiensNode.kind)) {
-      // The definition IS a type — return its own name location
+    if (typeKinds.has(definiensNode.kind)) {
       const nameLocation = definition.nameLocation;
 
       if (nameLocation.isUserFileLocation()) {
@@ -72,26 +73,60 @@ async function findTypeDefinition(
     }
   }
 
-  // For variable/function definitions, walk the definiens CST to find type references
-  const walker = definiensLocation.cursor.spawn();
+  // Otherwise the definition is something with a declared type (variable,
+  // parameter, struct member, state variable, function). Walk only the
+  // *type-positioned* children of the definiens — never the body or
+  // attributes — and resolve identifier paths inside them.
+  const typePositionKinds = new Set([
+    NonterminalKind.TypeName,
+    NonterminalKind.ReturnsDeclaration,
+  ]);
+
   const results: Location[] = [];
   const seenDefIds = new Set<number>();
 
-  // Walk all descendants in pre-order
-  while (walker.goToNext()) {
-    const node = walker.node;
+  const cursor = definiensLocation.cursor.spawn();
 
-    // Skip function/block bodies to only capture signature types
-    if (
-      node.isNonterminalNode() &&
-      (node.kind === NonterminalKind.FunctionBody ||
-        node.kind === NonterminalKind.Block)
-    ) {
-      walker.goToNextNonDescendant();
+  while (cursor.goToNext()) {
+    if (!cursor.node.isNonterminalNode()) {
       continue;
     }
 
-    // Only interested in identifier terminals
+    if (!typePositionKinds.has(cursor.node.kind)) {
+      continue;
+    }
+
+    collectIdentifierTargets(
+      cursor.spawn(),
+      unit,
+      TerminalKindExtensions,
+      seenDefIds,
+      results
+    );
+
+    // Don't descend into nested TypeName children twice — outer walk continues
+    // past this subtree.
+    cursor.goToNextNonDescendant();
+  }
+
+  return results.length > 0 ? results : null;
+}
+
+/**
+ * Walk a typeName-or-returns subtree and resolve each identifier terminal
+ * via the BindingGraph, accumulating their definition name locations.
+ */
+function collectIdentifierTargets(
+  cursor: Cursor,
+  unit: CompilationUnit,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TerminalKindExtensions: any,
+  seenDefIds: Set<number>,
+  results: Location[]
+): void {
+  while (cursor.goToNext()) {
+    const node = cursor.node;
+
     if (
       !node.isTerminalNode() ||
       !TerminalKindExtensions.isIdentifier(node.kind)
@@ -99,29 +134,22 @@ async function findTypeDefinition(
       continue;
     }
 
-    // Try to resolve as a reference
-    const ref = unit.bindingGraph.referenceAt(walker);
+    const ref = unit.bindingGraph.referenceAt(cursor);
 
     if (ref === undefined) {
       continue;
     }
 
-    const defs = ref.definitions();
-
-    for (const def of defs) {
+    for (const def of ref.definitions()) {
       if (seenDefIds.has(def.id)) {
         continue;
       }
-
       seenDefIds.add(def.id);
 
       const nameLocation = def.nameLocation;
-
       if (nameLocation.isUserFileLocation()) {
         results.push(userFileLocationToLSPLocation(nameLocation));
       }
     }
   }
-
-  return results.length > 0 ? results : null;
 }
