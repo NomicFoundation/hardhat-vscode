@@ -1,6 +1,11 @@
 /* eslint-disable no-template-curly-in-string */
 import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with { "resolution-mode": "import" };
-import type { Cursor } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import type {
+  Cursor,
+  NonterminalNode,
+  TerminalKindExtensions as TerminalKindExtensionsType,
+} from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import type { Definition } from "@nomicfoundation/slang/bindings" with { "resolution-mode": "import" };
 import {
   CompletionItem,
   CompletionItemKind,
@@ -612,8 +617,7 @@ async function getMemberAccessCompletion(
   }
 
   // Resolve root identifier via BindingGraph
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let definition: any = resolveIdentifierDefinition(unit, identCursor);
+  let definition: Definition | undefined = resolveIdentifierDefinition(unit, identCursor);
 
   // Fallback: scan file for a definition with the same name
   if (definition === undefined) {
@@ -648,8 +652,10 @@ async function getMemberAccessCompletion(
 /**
  * Resolve an identifier cursor to its BindingGraph definition.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function resolveIdentifierDefinition(unit: CompilationUnit, cursor: any): any {
+function resolveIdentifierDefinition(
+  unit: CompilationUnit,
+  cursor: Cursor
+): Definition | undefined {
   const reference = unit.bindingGraph.referenceAt(cursor);
   const directDef = unit.bindingGraph.definitionAt(cursor);
 
@@ -676,10 +682,8 @@ function scanForDefinition(
   unit: CompilationUnit,
   fileId: string,
   identName: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TerminalKindExtensions: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): any {
+  TerminalKindExtensions: typeof TerminalKindExtensionsType
+): Definition | undefined {
   const file = unit.file(fileId);
 
   if (file === undefined) {
@@ -710,10 +714,8 @@ function scanForDefinition(
  */
 function resolveDefinitionToType(
   unit: CompilationUnit,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  definition: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): any {
+  definition: Definition
+): Cursor | undefined {
   const definiensLocation = definition.definiensLocation;
 
   if (!definiensLocation.isUserFileLocation()) {
@@ -755,10 +757,8 @@ function resolveDefinitionToType(
  */
 function resolveTypeFromCursor(
   unit: CompilationUnit,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  defCursor: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): any {
+  defCursor: Cursor
+): Cursor | undefined {
   const cursor = defCursor.clone();
 
   if (!cursor.goToFirstChild()) {
@@ -784,10 +784,8 @@ function resolveTypeFromCursor(
  */
 function resolveTypeIdentifier(
   unit: CompilationUnit,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  typeCursor: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): any {
+  typeCursor: Cursor
+): Cursor | undefined {
   const c = typeCursor.clone();
 
   if (!c.goToFirstChild()) {
@@ -826,21 +824,51 @@ function resolveTypeIdentifier(
   return undefined;
 }
 
+// Subtrees that contain identifiers which are NOT member names — parameter
+// types, return types, function bodies, modifier invocations, override
+// specifiers, and inheritance specifiers. Member lookup must NOT descend
+// into these or a local variable can shadow a real state variable.
+const MEMBER_LOOKUP_SKIP_KINDS = new Set([
+  "FunctionBody",
+  "Block",
+  "ParametersDeclaration",
+  "ReturnsDeclaration",
+  "TypeName",
+  "ModifierInvocation",
+  "OverrideSpecifier",
+  "InheritanceSpecifier",
+  "ConstructorAttributes",
+  "FunctionAttributes",
+  "ModifierAttributes",
+]);
+
 /**
- * Find a named member definition within a type (struct, contract, etc.)
- * by scanning terminals in the type definition.
+ * Find a named member definition within a type by walking the type's direct
+ * members and resolving each member's name identifier through the binding
+ * graph.
+ *
+ * The previous implementation walked every Identifier under the type, which
+ * meant a local variable inside one of the type's methods could shadow a
+ * state variable of the same name. Limiting to declaration-position
+ * identifiers (skipping bodies, parameters, return types, and other
+ * containers that hold non-member identifiers) prevents that.
  */
 function findMemberDefinition(
   unit: CompilationUnit,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  typeCursor: any,
+  typeCursor: Cursor,
   memberName: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): any {
-  const cursor = typeCursor.clone();
+): Definition | undefined {
+  const cursor = typeCursor.spawn();
 
-  // Walk all terminals via goToNext() to find a definition with the member name
   while (cursor.goToNext()) {
+    if (
+      cursor.node.isNonterminalNode() &&
+      MEMBER_LOOKUP_SKIP_KINDS.has(cursor.node.kind)
+    ) {
+      cursor.goToNextNonDescendant();
+      continue;
+    }
+
     if (
       cursor.node.isTerminalNode() &&
       cursor.node.kind === "Identifier" &&
@@ -862,8 +890,7 @@ function findMemberDefinition(
  */
 function completionsForDefinition(
   unit: CompilationUnit,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  definition: any
+  definition: Definition
 ): CompletionList | null {
   const definiensLocation = definition.definiensLocation;
 
@@ -910,8 +937,7 @@ function completionsForDefinition(
  */
 function resolveVariableTypeCompletion(
   unit: CompilationUnit,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  defCursor: any
+  defCursor: Cursor
 ): CompletionList | null {
   const defText = defCursor.node.unparse() as string;
 
@@ -958,14 +984,12 @@ function resolveVariableTypeCompletion(
  * Collect struct member names as completion items using AST wrapper.
  */
 function collectStructMemberCompletions(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  structNode: any
+  structNode: NonterminalNode
 ): CompletionList | null {
   const { StructDefinition } = slangAst;
   const struct = new StructDefinition(structNode);
   const items = struct.members.items.map(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (m: any) => ({
+    (m: { name: { unparse: () => string } }) => ({
       label: m.name.unparse(),
       kind: CompletionItemKind.Field,
     })
@@ -977,8 +1001,7 @@ function collectStructMemberCompletions(
  * Collect member definitions from a contract/interface/library using AST wrappers.
  */
 function collectContractMemberCompletions(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  contractNode: any,
+  contractNode: NonterminalNode,
   seenNames: Set<string>,
   items: CompletionItem[],
   skipPrivate: boolean
@@ -989,6 +1012,8 @@ function collectContractMemberCompletions(
     LibraryDefinition,
   } = slangAst;
 
+  // member items come from the AST classes (slangAst is dynamic-imported)
+  // and are typed there as readonly XMember[]. We narrow at use sites.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let memberItems: any[];
 
@@ -1036,10 +1061,11 @@ function collectContractMemberCompletions(
 }
 
 /**
- * Get the name of a definition node using AST wrappers.
+ * Get the name of a definition node using AST wrappers. `node` is one of
+ * the member-variant AST objects (FunctionDefinition, EventDefinition, …);
+ * its `cst` field is the corresponding NonterminalNode.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getDefinitionName(node: any): string | undefined {
+function getDefinitionName(node: { cst: NonterminalNode }): string | undefined {
   const {
     FunctionDefinition,
     ModifierDefinition,
@@ -1266,8 +1292,7 @@ function collectDefinitionsFromScope(
 /**
  * Get the name of a definition from a CST NonterminalNode.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function getDefinitionNameFromCst(node: any): string | undefined {
+function getDefinitionNameFromCst(node: NonterminalNode): string | undefined {
   const {
     FunctionDefinition,
     ModifierDefinition,
@@ -1640,11 +1665,19 @@ function findFirstKeywordLine(cursor: Cursor): number | undefined {
   return undefined;
 }
 
+// Common shape of the Parameter/EventParameter/etc. AST items we read here:
+// they all expose an optional `name` terminal with an `unparse()` method.
+type NamedParamItem = { name?: { unparse: () => string } };
+
+const unparseOptionalName = (
+  p: NamedParamItem
+): string | undefined => p.name?.unparse();
+const isString = (n: string | undefined): n is string => n !== undefined;
+
 /**
  * Extract parameter names from a definition node using AST wrappers.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function extractParameterNamesFromDef(defNode: any): string[] {
+function extractParameterNamesFromDef(defNode: NonterminalNode): string[] {
   const {
     FunctionDefinition,
     ConstructorDefinition,
@@ -1655,17 +1688,11 @@ function extractParameterNamesFromDef(defNode: any): string[] {
   switch (defNode.kind) {
     case "FunctionDefinition": {
       const func = new FunctionDefinition(defNode);
-      return func.parameters.parameters.items
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((p: any) => p.name?.unparse())
-        .filter((n: string | undefined): n is string => n !== undefined);
+      return func.parameters.parameters.items.map(unparseOptionalName).filter(isString);
     }
     case "ConstructorDefinition": {
       const ctor = new ConstructorDefinition(defNode);
-      return ctor.parameters.parameters.items
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((p: any) => p.name?.unparse())
-        .filter((n: string | undefined): n is string => n !== undefined);
+      return ctor.parameters.parameters.items.map(unparseOptionalName).filter(isString);
     }
     case "ModifierDefinition": {
       const mod = new ModifierDefinition(defNode);
@@ -1673,17 +1700,11 @@ function extractParameterNamesFromDef(defNode: any): string[] {
       if (paramsDecl === undefined) {
         return [];
       }
-      return paramsDecl.parameters.items
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((p: any) => p.name?.unparse())
-        .filter((n: string | undefined): n is string => n !== undefined);
+      return paramsDecl.parameters.items.map(unparseOptionalName).filter(isString);
     }
     case "EventDefinition": {
       const event = new EventDefinition(defNode);
-      return event.parameters.parameters.items
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .map((p: any) => p.name?.unparse())
-        .filter((n: string | undefined): n is string => n !== undefined);
+      return event.parameters.parameters.items.map(unparseOptionalName).filter(isString);
     }
     default:
       return [];
@@ -1693,8 +1714,7 @@ function extractParameterNamesFromDef(defNode: any): string[] {
 /**
  * Extract return parameter names from a function definition using AST wrappers.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function extractReturnParameterNamesFromDef(defNode: any): string[] {
+function extractReturnParameterNamesFromDef(defNode: NonterminalNode): string[] {
   const { FunctionDefinition } = slangAst;
 
   if (defNode.kind !== "FunctionDefinition") {
@@ -1708,7 +1728,7 @@ function extractReturnParameterNamesFromDef(defNode: any): string[] {
     return [];
   }
 
-  return returnsDecl.variables.parameters.items
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .map((p: any) => p.name?.unparse() ?? "")
+  return returnsDecl.variables.parameters.items.map(
+    (p: NamedParamItem) => p.name?.unparse() ?? ""
+  );
 }

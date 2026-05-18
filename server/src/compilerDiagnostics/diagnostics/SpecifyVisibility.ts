@@ -44,12 +44,13 @@ export class SpecifyVisibility {
     }
 
     const { cursors, functionSourceLocation } = parseResult;
+    const { TerminalKind } = await import("@nomicfoundation/slang/cst");
 
     const lookupResult = lookupCursor(
       cursors,
       document,
       functionSourceLocation,
-      (c) => c.node.isTerminalNode() && c.node.kind === "CloseParen"
+      (c) => c.node.isTerminalNode() && c.node.kind === TerminalKind.CloseParen
     );
 
     if (lookupResult === null) {

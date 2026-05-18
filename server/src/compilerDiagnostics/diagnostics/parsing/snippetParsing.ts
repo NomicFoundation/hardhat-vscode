@@ -11,7 +11,6 @@ import type {
   NonterminalKind as NonterminalKindType,
   TerminalKind as TerminalKindType,
 } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
-import type { FunctionDefinition as FunctionDefinitionAst } from "@nomicfoundation/slang/ast" with { "resolution-mode": "import" };
 import { Diagnostic, Range } from "vscode-languageserver/node";
 import { TextDocument } from "@common/types";
 import { ResolveActionsContext } from "@compilerDiagnostics/types";
@@ -54,58 +53,52 @@ function collectTerminalCursors(cursor: Cursor): Cursor[] {
 }
 
 /**
- * Extract function attributes (visibility, mutability, virtual) using the
- * AST API rather than scanning the CST for keyword terminals. The AST
- * exposes a typed `attributes.items` list whose variants are exactly the
- * tokens we care about.
+ * Walk the snippet for the visibility / mutability / virtual keyword cursors.
+ * Returns each as a Cursor (or undefined if absent). Callers branch on the
+ * cursor's TerminalKind directly and use its textRange for insertion offsets,
+ * so there's no string↔kind round-trip elsewhere in the pipeline.
+ *
+ * Safe because a FunctionDefinition snippet's keywords of these kinds can
+ * only appear in `FunctionAttributes`; they don't appear inside the body
+ * (where identifiers, not keyword TerminalKinds, are present).
  */
-function extractFunctionDefinitionProps(
-  funcDef: FunctionDefinitionAst,
+function extractFunctionKeywordCursors(
+  cursor: Cursor,
   TerminalKind: typeof TerminalKindType
-) {
-  let isVirtual = false;
-  let visibility: "private" | "public" | "external" | "internal" | "default" =
-    "default";
-  let stateMutability: string | null = null;
+): {
+  virtualKeyword: Cursor | undefined;
+  visibilityKeyword: Cursor | undefined;
+  mutabilityKeyword: Cursor | undefined;
+} {
+  let virtualKeyword: Cursor | undefined;
+  let visibilityKeyword: Cursor | undefined;
+  let mutabilityKeyword: Cursor | undefined;
 
-  for (const attr of funcDef.attributes.items) {
-    const v = attr.variant;
-
-    // Only keyword variants matter here (ModifierInvocation / OverrideSpecifier
-    // are valid attributes too, but irrelevant to visibility/mutability/virtual).
-    if (!("isTerminalNode" in v) || !v.isTerminalNode()) {
+  const c = cursor.spawn();
+  while (c.goToNext()) {
+    if (!c.node.isTerminalNode()) {
       continue;
     }
 
-    switch (v.kind) {
+    switch (c.node.kind) {
       case TerminalKind.VirtualKeyword:
-        isVirtual = true;
+        virtualKeyword = c.clone();
         break;
       case TerminalKind.PublicKeyword:
-        visibility = "public";
-        break;
       case TerminalKind.PrivateKeyword:
-        visibility = "private";
-        break;
       case TerminalKind.InternalKeyword:
-        visibility = "internal";
-        break;
       case TerminalKind.ExternalKeyword:
-        visibility = "external";
+        visibilityKeyword = c.clone();
         break;
       case TerminalKind.ViewKeyword:
-        stateMutability = "view";
-        break;
       case TerminalKind.PureKeyword:
-        stateMutability = "pure";
-        break;
       case TerminalKind.PayableKeyword:
-        stateMutability = "payable";
+        mutabilityKeyword = c.clone();
         break;
     }
   }
 
-  return { isVirtual, visibility, stateMutability };
+  return { virtualKeyword, visibilityKeyword, mutabilityKeyword };
 }
 
 /**
@@ -164,20 +157,11 @@ export async function parseFunctionDefinition(
     }
 
     const { TerminalKind } = await getKinds();
-    const { FunctionDefinition } = await import("@nomicfoundation/slang/ast");
-    const funcDef = new FunctionDefinition(rootNode);
-
-    const props = extractFunctionDefinitionProps(funcDef, TerminalKind);
-
-    if (props === undefined) {
-      return null;
-    }
+    const keywords = extractFunctionKeywordCursors(cursor.clone(), TerminalKind);
 
     const functionDefinition = {
       type: "FunctionDefinition",
-      isVirtual: props.isVirtual ?? false,
-      visibility: props.visibility ?? "default",
-      stateMutability: props.stateMutability ?? null,
+      ...keywords,
     };
 
     return { functionDefinition, cursors, functionSourceLocation };

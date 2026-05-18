@@ -40,6 +40,8 @@ export class MarkContractAbstract {
       return [];
     }
 
+    const { TerminalKind } = await import("@nomicfoundation/slang/cst");
+
     const implementInterfaceQuickFix = await buildImplementInterfaceQuickFix(
       serverState,
       parseResult,
@@ -48,7 +50,8 @@ export class MarkContractAbstract {
 
     const addAbstrackQuickFix = this._buildAddAbstractQuickFix(
       parseResult,
-      context
+      context,
+      TerminalKind
     );
 
     return [implementInterfaceQuickFix, addAbstrackQuickFix].filter(
@@ -58,10 +61,13 @@ export class MarkContractAbstract {
 
   private _buildAddAbstractQuickFix(
     { cursors, functionSourceLocation }: ParseContractDefinitionResult,
-    { document, uri }: ResolveActionsContext
+    { document, uri }: ResolveActionsContext,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    TerminalKind: any
   ): CodeAction | null {
     const contractKeyword = cursors.find(
-      (c) => c.node.isTerminalNode() && c.node.kind === "ContractKeyword"
+      (c) =>
+        c.node.isTerminalNode() && c.node.kind === TerminalKind.ContractKeyword
     );
 
     if (contractKeyword === undefined) {

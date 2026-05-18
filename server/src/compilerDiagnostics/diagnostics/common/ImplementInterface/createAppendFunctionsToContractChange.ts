@@ -40,18 +40,17 @@ export function createAppendFunctionsToContractChange(
 
 /**
  * Generate a function stub from FunctionInfo + override specifiers.
- * Builds the signature from individual fields (which may have been widened)
- * rather than the original CST signatureText.
+ * Uses the parameter list as carried verbatim from the source AST, so
+ * the stub always reflects the original parameters exactly — no
+ * string-round-trip parsing of a reconstructed signature.
  */
 function generateFunctionStub(
   fn: FunctionInfo,
   overrides: OverrideEntry[]
 ): string {
-  // Extract params text from signatureText
-  const paramsText = extractParamsFromSignature(fn.signatureText);
   const overrideText = buildOverrideText(overrides);
 
-  let sig = `function ${fn.name ?? ""}${paramsText}`;
+  let sig = `function ${fn.name ?? ""}${fn.paramListText}`;
 
   if (fn.visibility !== null) {
     sig += ` ${fn.visibility}`;
@@ -70,35 +69,6 @@ function generateFunctionStub(
   sig += " {}";
 
   return sig;
-}
-
-/**
- * Extract the parameters portion "(params)" from a signatureText.
- * The signatureText format is: "function name(params) visibility mutability returns(...)"
- */
-function extractParamsFromSignature(signatureText: string): string {
-  const openParen = signatureText.indexOf("(");
-
-  if (openParen === -1) {
-    return "()";
-  }
-
-  // Find matching close paren
-  let depth = 0;
-
-  for (let i = openParen; i < signatureText.length; i++) {
-    if (signatureText[i] === "(") {
-      depth++;
-    } else if (signatureText[i] === ")") {
-      depth--;
-
-      if (depth === 0) {
-        return signatureText.slice(openParen, i + 1);
-      }
-    }
-  }
-
-  return "()";
 }
 
 function buildOverrideText(overrides: OverrideEntry[]): string {
