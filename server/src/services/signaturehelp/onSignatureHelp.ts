@@ -4,46 +4,26 @@ import {
   ParameterInformation,
 } from "@common/types";
 import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with { "resolution-mode": "import" };
-import type { Cursor, Node } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import type { BaseRewriter, Cursor, Node } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
 import { ServerState } from "../../types";
 import { onCommand } from "../../utils/onCommand";
 import {
+  findConstructorInContract,
+  findFirstDescendant,
   getCursorAtPosition,
   resolveIdentifierFromCursor,
   resolveToDefinition,
 } from "../../parser/slangHelpers";
-import { findConstructorInContract } from "../../parser/cstHelpers";
 
-// Cached singleton; constructed once because BaseRewriter lives in the
-// ESM-only Slang package and must be loaded via dynamic import.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let commentStripRewriter: any | undefined;
+import { createCommentStripRewriter } from "./rewriters/CommentStripRewriter";
 
-async function getCommentStripRewriter(): Promise<{
-  rewriteNode: (node: Node) => Node | undefined;
-}> {
-  if (commentStripRewriter !== undefined) {
-    return commentStripRewriter;
+// Cached singleton; constructed on first use.
+let commentStripRewriter: BaseRewriter | undefined;
+
+async function getCommentStripRewriter(): Promise<BaseRewriter> {
+  if (commentStripRewriter === undefined) {
+    commentStripRewriter = await createCommentStripRewriter();
   }
-
-  const { BaseRewriter } = await import("@nomicfoundation/slang/cst");
-
-  class CommentStripRewriter extends BaseRewriter {
-    rewriteSingleLineComment() {
-      return undefined;
-    }
-    rewriteMultiLineComment() {
-      return undefined;
-    }
-    rewriteSingleLineNatSpecComment() {
-      return undefined;
-    }
-    rewriteMultiLineNatSpecComment() {
-      return undefined;
-    }
-  }
-
-  commentStripRewriter = new CommentStripRewriter();
   return commentStripRewriter;
 }
 
@@ -224,9 +204,9 @@ function countArgumentSeparatorsBefore(
   // Descend to ArgumentsDeclaration -> PositionalArgumentsDeclaration ->
   // PositionalArguments. The Commas we want are direct children of the
   // PositionalArguments node (separators of its items).
-  const positional = findFirstDescendantOfKind(
+  const positional = findFirstDescendant(
     callCursor,
-    "PositionalArguments"
+    (c) => c.node.isNonterminalNode() && c.node.kind === "PositionalArguments"
   );
 
   if (positional === undefined) {
@@ -251,21 +231,6 @@ function countArgumentSeparatorsBefore(
   } while (child.goToNextSibling());
 
   return count;
-}
-
-function findFirstDescendantOfKind(
-  cursor: Cursor,
-  kind: string
-): Cursor | undefined {
-  const c = cursor.spawn();
-
-  while (c.goToNext()) {
-    if (c.node.isNonterminalNode() && c.node.kind === kind) {
-      return c.clone();
-    }
-  }
-
-  return undefined;
 }
 
 /**
@@ -366,9 +331,7 @@ function splitTopLevelCommas(paramString: string): string[] {
   let depth = 0;
   let current = "";
 
-  for (let i = 0; i < paramString.length; i++) {
-    const c = paramString[i];
-
+  for (const c of paramString) {
     if (c === "(") {
       depth++;
     } else if (c === ")") {

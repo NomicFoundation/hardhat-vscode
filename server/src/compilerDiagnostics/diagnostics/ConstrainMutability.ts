@@ -8,6 +8,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { CompilerDiagnostic, ResolveActionsContext } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
 import { SolcError, ServerState } from "../../types";
+import { getSlangCst } from "../../parser/slangHelpers";
 import {
   parseFunctionDefinitionAuto,
   ParseFunctionDefinitionResult,
@@ -44,7 +45,7 @@ export class ConstrainMutability implements CompilerDiagnostic {
       return [];
     }
 
-    const { TerminalKind } = await import("@nomicfoundation/slang/cst");
+    const { TerminalKind } = await getSlangCst();
     const { mutabilityKeyword } = parseResult.functionDefinition;
 
     if (
