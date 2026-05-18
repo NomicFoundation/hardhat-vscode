@@ -4,6 +4,7 @@ import { ServerState } from "../../types";
 import { onCommand } from "../../utils/onCommand";
 import {
   getCursorAtPosition,
+  getSlangCst,
   resolveIdentifierFromCursor,
   resolveImportPathNavigation,
   userFileLocationToLSPLocation,
@@ -24,7 +25,7 @@ async function findDefinition(
   internalUri: string,
   params: DefinitionParams
 ): Promise<Location | Location[] | undefined> {
-  const { TerminalKind } = await import("@nomicfoundation/slang/cst");
+  const { TerminalKind } = await getSlangCst();
 
   const cursor = getCursorAtPosition(
     unit,

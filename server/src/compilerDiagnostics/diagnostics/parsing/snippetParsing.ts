@@ -15,23 +15,20 @@ import { Diagnostic, Range } from "vscode-languageserver/node";
 import { TextDocument } from "@common/types";
 import { ResolveActionsContext } from "@compilerDiagnostics/types";
 import { Logger } from "@utils/Logger";
+import {
+  getSlangCst,
+  getSlangParser,
+  getSlangUtils,
+} from "../../../parser/slangHelpers";
 import { ParseFunctionDefinitionResult } from "./parseFunctionDefinition";
 import { ParseContractDefinitionResult } from "./parseContractDefinition";
-
-// Cached kind enums (loaded once via dynamic import; reused per call).
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let _kinds: { TerminalKind: any; NonterminalKind: any } | undefined;
 
 async function getKinds(): Promise<{
   TerminalKind: typeof TerminalKindType;
   NonterminalKind: typeof NonterminalKindType;
 }> {
-  if (_kinds !== undefined) {
-    return _kinds;
-  }
-  const m = await import("@nomicfoundation/slang/cst");
-  _kinds = { TerminalKind: m.TerminalKind, NonterminalKind: m.NonterminalKind };
-  return _kinds;
+  const m = await getSlangCst();
+  return { TerminalKind: m.TerminalKind, NonterminalKind: m.NonterminalKind };
 }
 
 /**
@@ -64,7 +61,8 @@ function collectTerminalCursors(cursor: Cursor): Cursor[] {
  */
 function extractFunctionKeywordCursors(
   cursor: Cursor,
-  TerminalKind: typeof TerminalKindType
+  TerminalKind: typeof TerminalKindType,
+  NonterminalKind: typeof NonterminalKindType
 ): {
   virtualKeyword: Cursor | undefined;
   visibilityKeyword: Cursor | undefined;
@@ -74,28 +72,45 @@ function extractFunctionKeywordCursors(
   let visibilityKeyword: Cursor | undefined;
   let mutabilityKeyword: Cursor | undefined;
 
-  const c = cursor.spawn();
-  while (c.goToNext()) {
-    if (!c.node.isTerminalNode()) {
+  // Descend into the FunctionAttributes node and walk only its direct
+  // descendants. The keywords we care about can only appear there in the
+  // current grammar; restricting the walk avoids picking up similarly-named
+  // terminals if the grammar ever evolves.
+  const outer = cursor.spawn();
+
+  while (outer.goToNext()) {
+    if (
+      !outer.node.isNonterminalNode() ||
+      outer.node.kind !== NonterminalKind.FunctionAttributes
+    ) {
       continue;
     }
 
-    switch (c.node.kind) {
-      case TerminalKind.VirtualKeyword:
-        virtualKeyword = c.clone();
-        break;
-      case TerminalKind.PublicKeyword:
-      case TerminalKind.PrivateKeyword:
-      case TerminalKind.InternalKeyword:
-      case TerminalKind.ExternalKeyword:
-        visibilityKeyword = c.clone();
-        break;
-      case TerminalKind.ViewKeyword:
-      case TerminalKind.PureKeyword:
-      case TerminalKind.PayableKeyword:
-        mutabilityKeyword = c.clone();
-        break;
+    const inner = outer.spawn();
+    while (inner.goToNext()) {
+      if (!inner.node.isTerminalNode()) {
+        continue;
+      }
+
+      switch (inner.node.kind) {
+        case TerminalKind.VirtualKeyword:
+          virtualKeyword = inner.clone();
+          break;
+        case TerminalKind.PublicKeyword:
+        case TerminalKind.PrivateKeyword:
+        case TerminalKind.InternalKeyword:
+        case TerminalKind.ExternalKeyword:
+          visibilityKeyword = inner.clone();
+          break;
+        case TerminalKind.ViewKeyword:
+        case TerminalKind.PureKeyword:
+        case TerminalKind.PayableKeyword:
+          mutabilityKeyword = inner.clone();
+          break;
+      }
     }
+
+    break; // FunctionAttributes occurs once per FunctionDefinition.
   }
 
   return { virtualKeyword, visibilityKeyword, mutabilityKeyword };
@@ -125,9 +140,9 @@ export async function parseFunctionDefinition(
       )
     );
 
-    const { Parser } = await import("@nomicfoundation/slang/parser");
-    const { NonterminalKind } = await import("@nomicfoundation/slang/cst");
-    const { LanguageFacts } = await import("@nomicfoundation/slang/utils");
+    const { Parser } = await getSlangParser();
+    const { NonterminalKind } = await getSlangCst();
+    const { LanguageFacts } = await getSlangUtils();
 
     // Use latest version for snippet parsing (the snippet is small and syntax is stable)
     const versions = LanguageFacts.allVersions();
@@ -157,10 +172,14 @@ export async function parseFunctionDefinition(
     }
 
     const { TerminalKind } = await getKinds();
-    const keywords = extractFunctionKeywordCursors(cursor.clone(), TerminalKind);
+    const keywords = extractFunctionKeywordCursors(
+      cursor.clone(),
+      TerminalKind,
+      NonterminalKind
+    );
 
     const functionDefinition = {
-      type: "FunctionDefinition",
+      type: "FunctionDefinition" as const,
       ...keywords,
     };
 
@@ -195,9 +214,9 @@ export async function parseContractDefinition(
       )
     );
 
-    const { Parser } = await import("@nomicfoundation/slang/parser");
-    const { NonterminalKind } = await import("@nomicfoundation/slang/cst");
-    const { LanguageFacts } = await import("@nomicfoundation/slang/utils");
+    const { Parser } = await getSlangParser();
+    const { NonterminalKind } = await getSlangCst();
+    const { LanguageFacts } = await getSlangUtils();
 
     const versions = LanguageFacts.allVersions();
     const version = versions[versions.length - 1];

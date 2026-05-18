@@ -8,6 +8,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { attemptConstrainToContractName } from "@compilerDiagnostics/conversions/attemptConstrainToContractName";
 import { ResolveActionsContext } from "../types";
 import { SolcError, ServerState } from "../../types";
+import { getSlangCst } from "../../parser/slangHelpers";
 import {
   parseContractDefinitionAuto,
   ParseContractDefinitionResult,
@@ -40,7 +41,7 @@ export class MarkContractAbstract {
       return [];
     }
 
-    const { TerminalKind } = await import("@nomicfoundation/slang/cst");
+    const { TerminalKind } = await getSlangCst();
 
     const implementInterfaceQuickFix = await buildImplementInterfaceQuickFix(
       serverState,

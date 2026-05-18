@@ -99,4 +99,38 @@ describe('[hardhat] rename', () => {
       },
     })
   })
+
+  test('[multi-file][from defining file] - rename', async function () {
+    // Rename from the file that *defines* the symbol — references in
+    // files that import it must also be updated. Without project-wide
+    // compilation, the per-file unit for Foo.sol only sees Foo.sol's
+    // imports, not the files that import Foo, and cross-file references
+    // are silently missed.
+    //
+    // Foo.sol line 6 (0-indexed): `    string public name = "Foo";`
+    // `name` starts at character 18.
+    const fooPath = getProjectPath('hardhat/contracts/rename/Foo.sol')
+    const workspaceEdit = await client.rename(toUri(fooPath), makePosition(6, 18), 'newName')
+
+    expect(workspaceEdit).to.deep.equal({
+      changes: {
+        [toUri(fooPath)]: [
+          {
+            range: makeRange(6, 18, 6, 22),
+            newText: 'newName',
+          },
+        ],
+        [toUri(multiImportPath)]: [
+          {
+            range: makeRange(13, 19, 13, 23),
+            newText: 'newName',
+          },
+          {
+            range: makeRange(17, 40, 17, 44),
+            newText: 'newName',
+          },
+        ],
+      },
+    })
+  })
 })

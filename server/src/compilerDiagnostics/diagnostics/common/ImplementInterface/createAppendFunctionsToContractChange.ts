@@ -28,7 +28,10 @@ export function createAppendFunctionsToContractChange(
     .map((stub) => `    ${stub}`)
     .join("\n\n");
 
-  // Remove trailing } and whitespace, append functions, add closing }
+  // Strip the trailing close brace + whitespace from the contract text so we
+  // can append our new stubs and re-close. Anchored to end-of-string and
+  // operating on text that came directly from `document.getText(range)`, so
+  // the only `}` it can match is the contract's own closing brace.
   const trimmed = originalText.replace(/\s*\}\s*$/, "");
   const combined = `${trimmed}\n${functionsAppendText}\n}`;
 

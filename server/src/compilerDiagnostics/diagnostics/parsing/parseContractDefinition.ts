@@ -4,8 +4,8 @@ import type { Cursor } from "@nomicfoundation/slang/cst" with { "resolution-mode
 import type { ServerState } from "../../../types";
 import { parseContractDefinition } from "./snippetParsing";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ParseContractDefinitionResult {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   contractDefinition: any;
   cursors: Cursor[];
   functionSourceLocation: { start: number; end: number };
