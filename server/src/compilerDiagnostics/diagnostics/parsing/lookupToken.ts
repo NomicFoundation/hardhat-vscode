@@ -1,13 +1,19 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
 import type { Cursor } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
 
-export interface LookupResult {
-  cursor: Cursor;
+export interface HeaderShape {
   isSameLine: boolean;
   offset: number;
 }
 
-const HEADER_KEYWORDS = new Set([
+export interface LookupResult extends HeaderShape {
+  cursor: Cursor;
+}
+
+// TerminalKind names of attribute keywords that, if they appear on a line
+// other than the `function` keyword, indicate the header has been wrapped
+// onto multiple lines.
+const HEADER_KEYWORD_KINDS = new Set([
   "PublicKeyword",
   "PrivateKeyword",
   "InternalKeyword",
@@ -19,22 +25,20 @@ const HEADER_KEYWORDS = new Set([
 ]);
 
 /**
- * Find a terminal cursor in a snippet that satisfies `match`, plus contextual
- * information about whether the function header sits on a single line and at
- * what column the header started.
+ * Compute header shape (isSameLine, indent offset) for a function snippet
+ * from its terminal cursors. Returns null only if no FunctionKeyword is
+ * present, which shouldn't happen for a parsed FunctionDefinition.
  */
-export function lookupCursor(
+export function getFunctionHeaderShape(
   cursors: Cursor[],
   document: TextDocument,
-  functionSourceLocation: { start: number; end: number },
-  match: (cursor: Cursor) => boolean
-): LookupResult | null {
+  functionSourceLocation: { start: number; end: number }
+): HeaderShape | null {
   const fn = cursors.find(
     (c) => c.node.isTerminalNode() && c.node.kind === "FunctionKeyword"
   );
-  const cursor = cursors.find(match);
 
-  if (fn === undefined || cursor === undefined) {
+  if (fn === undefined) {
     return null;
   }
 
@@ -48,9 +52,33 @@ export function lookupCursor(
   const functionStartPos = document.positionAt(
     functionSourceLocation.start + fn.textRange.start.utf8 + 1
   );
-  const offset = functionStartPos.character + 1;
 
-  return { cursor, isSameLine, offset };
+  return { isSameLine, offset: functionStartPos.character + 1 };
+}
+
+/**
+ * Find a terminal cursor in the snippet that satisfies `match`, and return
+ * it together with the function header shape.
+ */
+export function lookupCursor(
+  cursors: Cursor[],
+  document: TextDocument,
+  functionSourceLocation: { start: number; end: number },
+  match: (cursor: Cursor) => boolean
+): LookupResult | null {
+  const cursor = cursors.find(match);
+
+  if (cursor === undefined) {
+    return null;
+  }
+
+  const shape = getFunctionHeaderShape(cursors, document, functionSourceLocation);
+
+  if (shape === null) {
+    return null;
+  }
+
+  return { cursor, ...shape };
 }
 
 function determineIsFunctionHeaderOnSameLine(
@@ -80,11 +108,14 @@ function determineIsFunctionHeaderOnSameLine(
   }
 
   const keywordLines = cursors
-    .filter((c) => c.node.isTerminalNode() && HEADER_KEYWORDS.has(c.node.kind))
-    .map((c) =>
-      document.positionAt(
-        functionSourceLocation.start + c.textRange.start.utf8 + 1
-      ).line
+    .filter(
+      (c) => c.node.isTerminalNode() && HEADER_KEYWORD_KINDS.has(c.node.kind)
+    )
+    .map(
+      (c) =>
+        document.positionAt(
+          functionSourceLocation.start + c.textRange.start.utf8 + 1
+        ).line
     );
 
   return keywordLines.every((l) => l === fnLine);

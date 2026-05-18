@@ -24,14 +24,19 @@ export interface FunctionInfo {
   name: string | null;
   /** Normalized type text per param (for matching) */
   paramTypeTexts: string[];
+  /**
+   * Parameter list text, including the surrounding parentheses — e.g.
+   * `(uint256 a, mapping(uint => uint) m)`. Pulled directly from the
+   * parameters AST node's CST; consumers don't have to round-trip through
+   * a larger signature string.
+   */
+  paramListText: string;
   /** "public" | "external" | "internal" | "private" | null */
   visibility: string | null;
   /** "pure" | "view" | "payable" | null */
   mutability: string | null;
   /** false = abstract (semicolon body) */
   hasBody: boolean;
-  /** Full signature text from CST for code generation */
-  signatureText: string;
   /** Return type text (for code generation) */
   returnsText: string | null;
   /** Whether function is marked virtual */
