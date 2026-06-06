@@ -13,13 +13,21 @@ export class OutputConverter {
         status: "VALIDATION_FAIL",
         projectBasePath,
         version: compilationDetails.solcVersion,
-        errors: solcOutput.errors.map((solcError: any) => ({
-          ...solcError,
-          sourceLocation: {
-            ...solcError.sourceLocation,
-            file: normalizeSourceName(solcError.sourceLocation.file),
-          },
-        })),
+        errors: solcOutput.errors.map((solcError: any) => {
+          if (!solcError.sourceLocation) {
+            return solcError;
+          }
+
+          return {
+            ...solcError,
+            sourceLocation: {
+              ...solcError.sourceLocation,
+              file: solcError.sourceLocation.file
+                ? normalizeSourceName(solcError.sourceLocation.file)
+                : undefined,
+            },
+          };
+        }),
       };
 
       return validationFailMessage;
