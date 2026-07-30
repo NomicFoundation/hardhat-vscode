@@ -12,16 +12,18 @@ const END_MARKER = "/*]*/";
 
 /**
  * Builds the error the way solc reports 2658: the source location spans the
- * whole contract definition, delimited in the fixtures below by the markers.
+ * contract definition the compiler is complaining about, delimited in the
+ * fixtures below by the markers. `start` lands on the `contract` keyword and
+ * `end` one past the closing brace, matching what solc emits.
  *
  * The markers are swapped for equal-length whitespace, so every offset, line
  * and column in the fixture stays exactly where it was written.
  */
 function buildError(text: string): { error: SolcError; source: string } {
-  const start = text.indexOf(START_MARKER);
-  const end = text.indexOf(END_MARKER);
+  const markerStart = text.indexOf(START_MARKER);
+  const markerEnd = text.indexOf(END_MARKER);
 
-  if (start === -1 || end === -1) {
+  if (markerStart === -1 || markerEnd === -1) {
     throw new Error("fixture is missing its contract markers");
   }
 
@@ -37,7 +39,15 @@ function buildError(text: string): { error: SolcError; source: string } {
       formattedMessage: MESSAGE,
       message: MESSAGE,
       severity: "error",
-      sourceLocation: { file: "test.sol", start, end: end + END_MARKER.length },
+      sourceLocation: {
+        file: "test.sol",
+        // solc counts UTF-8 bytes, not UTF-16 code units.
+        start: Buffer.byteLength(
+          source.slice(0, markerStart + START_MARKER.length),
+          "utf8"
+        ),
+        end: Buffer.byteLength(source.slice(0, markerEnd), "utf8"),
+      },
       type: "DeclarationError",
     } as SolcError,
   };
@@ -204,10 +214,32 @@ pragma solidity ^0.8.0;
     });
   });
 
-  describe("unparseable source", () => {
+  describe("a local shadowing an immutable", () => {
+    it("falls back rather than guessing", () => {
+      const { diagnostics } = run(`
+pragma solidity ^0.8.0;
+/*[*/contract Test {
+  uint256 public immutable myVar;
+
+  constructor() {
+    uint256 myVar;
+    myVar = 1;
+  }
+}/*]*/
+`);
+
+      // The local makes the immutable look initialized. Reporting nothing would
+      // hide a real compiler error, so the whole-contract diagnostic stands.
+      expect(diagnostics).to.have.length(1);
+      expect(diagnostics[0].message).to.equal(MESSAGE);
+    });
+  });
+
+  describe("source the parser recovers from", () => {
     it("falls back to the single whole-contract diagnostic", () => {
-      // An unterminated string literal is one of the few things that still
-      // throws with `tolerant: true`, so it exercises the catch branch.
+      // Error recovery keeps going here rather than throwing, and hands back an
+      // AST whose flags cannot be trusted. Nothing is identified as
+      // uninitialized, so the original error is reported unchanged.
       const { diagnostics } = run(`
 pragma solidity ^0.8.0;
 /*[*/contract Test {
@@ -220,6 +252,76 @@ pragma solidity ^0.8.0;
 
       expect(diagnostics).to.have.length(1);
       expect(diagnostics[0].message).to.equal(MESSAGE);
+    });
+  });
+
+  describe("source the parser throws on", () => {
+    it("falls back to the single whole-contract diagnostic", () => {
+      const { diagnostics } = run(`
+pragma solidity ^0.8.0;
+/*[*/contract Test {
+  uint256 public immutable myVar;
+  string s = "abc;
+}/*]*/
+`);
+
+      expect(diagnostics).to.have.length(1);
+      expect(diagnostics[0].message).to.equal(MESSAGE);
+    });
+  });
+
+  describe("an error reported against a different file", () => {
+    it("is left alone rather than mapped onto this document", () => {
+      const { source, error } = buildError(`
+pragma solidity ^0.8.0;
+/*[*/contract Test {
+  uint256 public immutable myVar;
+
+  constructor() {}
+}/*]*/
+`);
+
+      const document = TextDocument.create(
+        "/project/src/Open.sol",
+        "solidity",
+        1,
+        source
+      );
+
+      const result = new UninitializedImmutable().fromHardhatCompilerError(
+        document,
+        {
+          ...error,
+          sourceLocation: { ...error.sourceLocation!, file: "src/Other.sol" },
+        }
+      );
+
+      expect(Array.isArray(result)).to.equal(false);
+    });
+  });
+
+  describe("a file with multi-byte characters", () => {
+    it("still picks the contract solc pointed at", () => {
+      // solc counts UTF-8 bytes, everything else here counts UTF-16 code
+      // units. The comment is long enough that the 132 byte drift pushes the
+      // unconverted offset past `First` and into `Second`, so this fails if
+      // the conversion is dropped.
+      const { covered } = run(`
+pragma solidity ^0.8.0;
+/// 这个合约包含中文注释，偏移量会因此产生差异，需要足够长才能跨过第一个合约的范围。
+/// 第二行中文注释继续增加字节偏移与字符偏移之间的差值。
+/*[*/contract First {
+  uint256 public immutable missing;
+}/*]*/
+
+contract Second {
+  uint256 public immutable alsoMissing;
+
+  constructor() {}
+}
+`);
+
+      expect(covered).to.deep.equal(["uint256 public immutable missing;"]);
     });
   });
 

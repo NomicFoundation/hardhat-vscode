@@ -56,9 +56,11 @@ describe('[foundry] publishDiagnostics', () => {
         source: 'solidity',
         severity: DiagnosticSeverity.Error,
         message,
+        // The whole declaration, terminating semicolon included - that is where
+        // the declaration node ends.
         range: {
           start: { line: 6, character: 2 },
-          end: { line: 6, character: 33 },
+          end: { line: 6, character: 34 },
         },
       })
     })
@@ -86,12 +88,16 @@ describe('[foundry] publishDiagnostics', () => {
       const diagnostics = client.documents[toUri(documentPath)].diagnostics ?? []
       const startLines = diagnostics.filter((d) => d.message === message).map((d) => d.range.start.line)
 
-      // line 7  -> `assignedInConstructor`, assigned in Bad's constructor
-      // line 16 -> `Good.ok`, a contract with no error at all
-      // line 19 -> Good's constructor
+      // Lines are 0-based here.
+      // 7  -> `assignedInConstructor`, assigned in Bad's constructor
+      // 16 -> `Good.ok`, a contract with no error at all
+      // 18 -> Good's constructor
       expect(startLines).to.not.include(7)
       expect(startLines).to.not.include(16)
-      expect(startLines).to.not.include(19)
+      expect(startLines).to.not.include(18)
+
+      // And nothing beyond the two that belong to Bad.
+      expect(startLines).to.deep.equal([6, 9])
     })
   })
 })
