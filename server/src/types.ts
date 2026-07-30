@@ -26,6 +26,9 @@ export interface ServerState {
   telemetry: Telemetry;
   logger: Logger;
   solcVersions: string[];
+  // Editor-provided directory for extension data. Used to remember solc
+  // versions across restarts. Undefined for clients that don't provide one.
+  globalStoragePath?: string;
 
   // Associate validation request ids to files to solve parallel validation jobs on the same file
   validationCount: number;

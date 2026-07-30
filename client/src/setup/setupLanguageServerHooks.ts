@@ -67,6 +67,7 @@ const startLanguageServer = async (
       telemetryEnabled: extensionState.telemetryEnabled,
       machineId: extensionState.machineId,
       extensionConfig: workspace.getConfiguration("solidity"),
+      globalStoragePath: extensionState.context.globalStorageUri.fsPath,
     },
   };
 

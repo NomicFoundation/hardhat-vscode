@@ -151,6 +151,9 @@ function updateServerStateFromParams(
 
   serverState.extensionConfig =
     params.initializationOptions?.extensionConfig ?? {};
+
+  serverState.globalStoragePath =
+    params.initializationOptions?.globalStoragePath;
 }
 
 function logInitializationInfo(

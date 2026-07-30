@@ -35,13 +35,18 @@ export async function buildBasicCompilation(
   let solcVersion = explicitSolcVersion;
 
   if (solcVersion === undefined) {
+    // every pragma in the dependency tree has to be satisfied at once
+    const combinedRange = pragmas.join(" ");
+
     const resolvedSolcVersion = semver.maxSatisfying(
       project.serverState.solcVersions,
-      pragmas.join(" ")
+      combinedRange
     );
 
     if (resolvedSolcVersion === null) {
-      throw new Error(`No available solc version satisfying ${pragmas}`);
+      throw new Error(
+        buildNoVersionError(pragmas, project.serverState.solcVersions)
+      );
     }
 
     solcVersion = resolvedSolcVersion;
@@ -83,4 +88,36 @@ export async function buildBasicCompilation(
     },
     solcVersion,
   };
+}
+
+/**
+ * The pragmas are ANDed together, so the useful thing to report is the distinct
+ * set and what was actually available to satisfy it - not a comma-joined dump
+ * of every pragma in the dependency tree, most of which are duplicates.
+ */
+export function buildNoVersionError(
+  pragmas: string[],
+  availableVersions: string[]
+) {
+  const distinctPragmas = _.uniq(pragmas);
+
+  const requirement = distinctPragmas.join(" ");
+  const pragmaCount =
+    distinctPragmas.length === 1
+      ? "1 pragma"
+      : `${distinctPragmas.length} distinct pragmas`;
+
+  // Only the bounds - the full list is ~100 entries and tells the reader
+  // nothing the range doesn't. Computed rather than taken from the ends of the
+  // array so the message stays correct if the list is ever unsorted.
+  const sorted = [...availableVersions].sort(semver.compare);
+
+  const available =
+    sorted.length === 0
+      ? "none"
+      : sorted.length === 1
+        ? sorted[0]
+        : `${sorted[0]} - ${sorted[sorted.length - 1]}`;
+
+  return `No available solc version satisfying ${requirement} (${pragmaCount} across the dependency tree). Available versions: ${available}`;
 }

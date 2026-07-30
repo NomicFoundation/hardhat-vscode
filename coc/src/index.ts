@@ -40,6 +40,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
         telemetryEnabled,
         machineId: await machineId(),
         extensionConfig: getExtensionConfig(),
+        globalStoragePath: context.storagePath,
       },
     }
   );
