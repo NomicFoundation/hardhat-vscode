@@ -1,8 +1,9 @@
+import { expect } from 'chai'
 import { DiagnosticSeverity } from 'vscode-languageserver-protocol'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
 import { getProjectPath } from '../../../helpers'
-import { shouldSkipFoundryTests } from '../../../../src/helpers'
+import { shouldSkipFoundryTests, toUri } from '../../../../src/helpers'
 
 let client!: TestLanguageClient
 
@@ -41,6 +42,56 @@ describe('[foundry] publishDiagnostics', () => {
           },
         },
       })
+    })
+  })
+
+  describe('uninitialized immutable', function () {
+    const documentPath = getProjectPath('foundry/src/diagnostics/UninitializedImmutable.sol')
+    const message = 'Construction control flow ends without initializing all immutable state variables.'
+
+    it('should point at the uninitialized variable', async () => {
+      await client.openDocument(documentPath)
+
+      await client.getDiagnostic(documentPath, {
+        source: 'solidity',
+        severity: DiagnosticSeverity.Error,
+        message,
+        range: {
+          start: { line: 6, character: 2 },
+          end: { line: 6, character: 33 },
+        },
+      })
+    })
+
+    it('should point at the constructor of the offending contract', async () => {
+      await client.openDocument(documentPath)
+
+      await client.getDiagnostic(documentPath, {
+        source: 'solidity',
+        severity: DiagnosticSeverity.Error,
+        message,
+        range: {
+          start: { line: 9, character: 2 },
+          end: { line: 11, character: 3 },
+        },
+      })
+    })
+
+    it('should not touch initialized immutables or unrelated contracts', async () => {
+      await client.openDocument(documentPath)
+
+      // Wait for the diagnostics to land before inspecting the whole set.
+      await client.getDiagnostic(documentPath, { message })
+
+      const diagnostics = client.documents[toUri(documentPath)].diagnostics ?? []
+      const startLines = diagnostics.filter((d) => d.message === message).map((d) => d.range.start.line)
+
+      // line 7  -> `assignedInConstructor`, assigned in Bad's constructor
+      // line 16 -> `Good.ok`, a contract with no error at all
+      // line 19 -> Good's constructor
+      expect(startLines).to.not.include(7)
+      expect(startLines).to.not.include(16)
+      expect(startLines).to.not.include(19)
     })
   })
 })
