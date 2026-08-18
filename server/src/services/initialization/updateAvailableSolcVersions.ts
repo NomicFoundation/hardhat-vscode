@@ -1,5 +1,6 @@
 import _ from "lodash";
 import got from "got";
+import semver from "semver";
 import { ServerState } from "../../types";
 import { isTestMode } from "../../utils";
 
@@ -113,6 +114,7 @@ export async function updateAvailableSolcVersions(state: ServerState) {
   if (isTestMode()) {
     return;
   }
+
   state.logger.info("Fetching latest solidity versions");
 
   const latestVersions = await fetchLatestVersions(state);
@@ -121,8 +123,14 @@ export async function updateAvailableSolcVersions(state: ServerState) {
 }
 
 interface VersionsResponse {
-  builds: Array<{ version: string }>;
+  // Every build, including pre-releases. A pre-release build carries the
+  // version it is a pre-release *of*, so mapping over this yields versions that
+  // have not been released yet.
+  builds?: Array<{ version?: string; prerelease?: unknown }>;
+  // Released versions only, keyed by version.
+  releases?: Record<string, string>;
 }
+
 async function fetchLatestVersions(state: ServerState) {
   try {
     const data: VersionsResponse = await got
@@ -131,9 +139,38 @@ async function fetchLatestVersions(state: ServerState) {
       })
       .json();
 
-    return _.map(data.builds, "version");
+    return releasedVersionsFrom(data);
   } catch (error) {
     state.telemetry.captureException(error);
+
     return [];
   }
+}
+
+/**
+ * Filter to released versions only (ignore pre-released versions).
+ *
+ * Exported for testing only.
+ */
+export function releasedVersionsFrom(data: VersionsResponse): string[] {
+  if (data?.releases !== undefined && !Array.isArray(data.releases)) {
+    return onlyValidVersions(Object.keys(data.releases));
+  }
+
+  // Older/alternative payloads without a `releases` map.
+  const builds = Array.isArray(data?.builds) ? data.builds : [];
+
+  // Truthiness rather than `!== undefined`: the field is absent on releases,
+  // but null or "" would otherwise read as "not a pre-release".
+  return onlyValidVersions(
+    builds.filter((build) => !build?.prerelease).map((build) => build?.version)
+  );
+}
+
+function onlyValidVersions(versions: Array<string | undefined>): string[] {
+  return versions.flatMap((version) => {
+    const normalized = version === undefined ? null : semver.valid(version);
+
+    return normalized === null ? [] : [normalized];
+  });
 }
