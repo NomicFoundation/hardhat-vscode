@@ -1,13 +1,7 @@
 {
   "name": "solidity-language-server-monorepo",
   "private": true,
-  "workspaces": [
-    "client",
-    "server",
-    "coc",
-    "test/e2e",
-    "test/protocol"
-  ],
+  "packageManager": "pnpm@11.22.0",
   "homepage": "https://hardhat.org/hardhat-vscode/",
   "repository": {
     "type": "git",
@@ -20,22 +14,22 @@
   "scripts": {
     "build": "tsc -b ./client/tsconfig.json && tsc -b ./server/tsconfig.build.json && tsc -b ./coc/tsconfig.json",
     "watch": "concurrently -n client,server \"tsc -b -w ./client/tsconfig.json\" \"tsc -b -w ./server/tsconfig.build.json\"",
-    "test:unit": "npm -w server run test",
-    "test:protocol": "npm -w test/protocol run test",
-    "test:e2e": "npm -w test/e2e run test",
-    "test": "npm run test:unit && npm run test:protocol && npm run test:e2e",
-    "test:coverage": "npm -w server run test:coverage",
-    "test:codecov": "npm -w server run test:codecov",
-    "lint": "npm run prettier -- --check && npm run eslint && npm -w client run lint && npm -w server run lint && npm -w coc run lint && npm -w test/protocol run lint",
-    "lint:fix": "npm run prettier -- --write && npm run eslint -- --fix && npm run -w client lint:fix && npm run -w server lint:fix && npm run -w coc lint:fix && npm run -w test/protocol lint:fix",
+    "test:unit": "pnpm --filter ./server run test",
+    "test:protocol": "pnpm --filter ./test/protocol run test",
+    "test:e2e": "pnpm --filter ./test/e2e run test",
+    "test": "pnpm run test:unit && pnpm run test:protocol && pnpm run test:e2e",
+    "test:coverage": "pnpm --filter ./server run test:coverage",
+    "test:codecov": "pnpm --filter ./server run test:codecov",
+    "lint": "pnpm run prettier --check && pnpm run eslint && pnpm --filter ./client run lint && pnpm --filter ./server run lint && pnpm --filter ./coc run lint && pnpm --filter ./test/protocol run lint",
+    "lint:fix": "pnpm run prettier --write && pnpm run eslint --fix && pnpm --filter ./client run lint:fix && pnpm --filter ./server run lint:fix && pnpm --filter ./coc run lint:fix && pnpm --filter ./test/protocol run lint:fix",
     "prettier": "prettier *.md *.json \"{docs,syntaxes,.github,.vscode}/**/*.{md,yml,json}\"",
     "eslint": "eslint ./test/**/*.ts",
-    "clean": "rimraf ./dist ./out && npm -w client run clean && npm -w server run clean",
+    "clean": "rimraf ./dist ./out && pnpm --filter ./client run clean && pnpm --filter ./server run clean",
     "generate-readmes": "ts-node scripts/interpolateReadmes.ts",
-    "prepackage": "npm run generate-readmes",
-    "package": "npm -w client run package",
-    "prefullcheck": "npm run clean",
-    "fullcheck": "npm run lint && npm run build && npm run test && npm run package"
+    "prepackage": "pnpm run generate-readmes",
+    "package": "pnpm --filter ./client run package",
+    "prefullcheck": "pnpm run clean",
+    "fullcheck": "pnpm run lint && pnpm run build && pnpm run test && pnpm run package"
   },
   "devDependencies": {
     "@changesets/cli": "2.21.1",
@@ -58,7 +52,6 @@
     "prettier": "2.5.1",
     "rimraf": "3.0.2",
     "ts-node": "^10.9.1",
-    "typescript": "5.8.2",
-    "wsrun": "5.2.4"
+    "typescript": "5.8.2"
   }
 }
