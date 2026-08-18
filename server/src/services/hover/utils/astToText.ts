@@ -112,13 +112,14 @@ export function eventDefinitionToText(
 export function functionDefinitionToText(
   astFunctionDef: FunctionDefinition
 ): string | null {
-  const introKeyword = astFunctionDef.isConstructor
-    ? "constructor"
-    : "function";
-
-  const functionName = astFunctionDef.name;
   const params = parameterListToText(astFunctionDef.parameters);
-  const paramsList = `${functionName}${params ?? "()"}`;
+
+  // A constructor has no name, so interpolating it would render the literal
+  // "null". The keyword and the parameter list are built as one token because
+  // joining them below would leave a gap before the parameters.
+  const signature = astFunctionDef.isConstructor
+    ? `constructor${params ?? "()"}`
+    : `function ${astFunctionDef.name}${params ?? "()"}`;
 
   const visibility =
     astFunctionDef.visibility === "default" ? null : astFunctionDef.visibility;
@@ -137,8 +138,7 @@ export function functionDefinitionToText(
   const returnsList = returns === null ? null : `returns ${returns}`;
 
   const hoverText = [
-    introKeyword, // what about constructor
-    paramsList,
+    signature,
     visibility,
     mutability,
     virtual,
