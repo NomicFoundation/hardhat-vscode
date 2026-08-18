@@ -41,7 +41,9 @@ export async function buildBasicCompilation(
     );
 
     if (resolvedSolcVersion === null) {
-      throw new Error(`No available solc version satisfying ${pragmas}`);
+      throw new Error(
+        buildNoVersionError(pragmas, project.serverState.solcVersions)
+      );
     }
 
     solcVersion = resolvedSolcVersion;
@@ -83,4 +85,34 @@ export async function buildBasicCompilation(
     },
     solcVersion,
   };
+}
+
+/**
+ * Build the message shown to the user verbatim when no solc version
+ * is available. This could be a pragma issue or a network issue (blocking
+ * the fetch of the list of available versions).
+ */
+export function buildNoVersionError(
+  pragmas: string[],
+  availableVersions: string[]
+) {
+  const requirement = _.uniq(pragmas).join(" ");
+
+  const sortedValidVersions = availableVersions
+    .filter(isValidVersion)
+    .sort(semver.compare);
+
+  const available =
+    sortedValidVersions.length === 0
+      ? "none"
+      : _.uniq([
+          sortedValidVersions[0],
+          sortedValidVersions[sortedValidVersions.length - 1],
+        ]).join(" - ");
+
+  return `No available solc version satisfying ${requirement}. Available versions: ${available}`;
+}
+
+function isValidVersion(version: string) {
+  return semver.valid(version) !== null;
 }
