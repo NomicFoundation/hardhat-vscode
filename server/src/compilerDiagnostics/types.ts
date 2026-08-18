@@ -20,5 +20,5 @@ export interface CompilerDiagnostic {
   fromHardhatCompilerError: (
     document: TextDocument,
     error: SolcError
-  ) => Diagnostic;
+  ) => Diagnostic | Diagnostic[];
 }

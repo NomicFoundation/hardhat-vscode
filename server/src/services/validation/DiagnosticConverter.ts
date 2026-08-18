@@ -31,13 +31,20 @@ export class DiagnosticConverter {
 
       const diagnostic = this.convert(document, error);
 
-      diagnostics[diagnosticPath].push(diagnostic);
+      if (Array.isArray(diagnostic)) {
+        diagnostics[diagnosticPath].push(...diagnostic);
+      } else {
+        diagnostics[diagnosticPath].push(diagnostic);
+      }
     }
 
     return diagnostics;
   }
 
-  public convert(document: TextDocument, error: SolcError): Diagnostic {
+  public convert(
+    document: TextDocument,
+    error: SolcError
+  ): Diagnostic | Diagnostic[] {
     if (error.errorCode in compilerDiagnostics) {
       return compilerDiagnostics[error.errorCode].fromHardhatCompilerError(
         document,
