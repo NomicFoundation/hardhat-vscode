@@ -223,6 +223,11 @@ async function main() {
     })
   );
 
+  // Deliberately npm, not pnpm: this throwaway package outside the workspace
+  // exists to produce a flat `node_modules` holding every platform build of
+  // solidity-analyzer, which `.vscodeignore` then allow-lists into the vsix.
+  // `--force` is what makes npm install optional dependencies for platforms
+  // other than this one, and vsce packages real files, not symlinks.
   await new Promise((resolve) => {
     exec(
       "npm install --force",
