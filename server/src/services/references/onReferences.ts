@@ -40,17 +40,7 @@ function findReferences(
     documentAnalyzer.analyzerTree.tree
   );
 
-  let references: Node[] = findReferencesFor(definitionNode);
-
-  if (references.length === 0 && definitionNode !== undefined) {
-    const nodeName = definitionNode.getName();
-    if (nodeName !== undefined) {
-      references = searchReferencesByName(
-        nodeName,
-        documentAnalyzer.analyzerTree.tree
-      );
-    }
-  }
+  const references: Node[] = findReferencesFor(definitionNode);
 
   return references
     .filter(
@@ -61,26 +51,4 @@ function findReferences(
       uri: toUri(refNode.uri),
       range: getRange(refNode.nameLoc),
     }));
-}
-
-function searchReferencesByName(name: string, rootNode: Node): Node[] {
-  const results: Node[] = [];
-  const visited = new Set<Node>();
-
-  function walk(node: Node): void {
-    if (visited.has(node)) return;
-    visited.add(node);
-
-    if (node.getName() === name || node.getAliasName() === name) {
-      results.push(node);
-    }
-
-    for (const child of node.children) {
-      walk(child);
-    }
-  }
-
-  walk(rootNode);
-
-  return results;
 }
