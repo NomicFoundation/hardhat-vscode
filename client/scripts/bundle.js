@@ -7,7 +7,19 @@ const path = require("path");
 const { exec } = require("child_process");
 const esbuild = require("esbuild");
 
-const ANTLR_MODULE_PATH = "../node_modules/@solidity-parser/parser/src/antlr";
+// Resolve the parser package rather than pointing at a path in the root
+// `node_modules`: only npm's flat layout puts it there, and the parser is a
+// dependency of the server package, not of the client.
+const SERVER_DIR = path.join(__dirname, "..", "..", "server");
+const ANTLR_MODULE_PATH = path.join(
+  path.dirname(
+    require.resolve("@solidity-parser/parser/package.json", {
+      paths: [SERVER_DIR],
+    })
+  ),
+  "src",
+  "antlr"
+);
 
 const SOLIDITY_TOKENS = "Solidity.tokens";
 const SOLIDITY_LEXER_TOKENS = "SolidityLexer.tokens";
@@ -119,13 +131,13 @@ async function main() {
     entryPoints: {
       "./tmp/out/extension": "./src/extension.ts",
       "./tmp/server/out/index":
-        "../node_modules/@nomicfoundation/solidity-language-server/src/index.ts",
+        "../server/src/index.ts",
       "./tmp/server/out/hardhat.config":
-        "../node_modules/@nomicfoundation/solidity-language-server/src/hardhat.config.ts",
+        "../server/src/hardhat.config.ts",
       "./tmp/server/out/worker/WorkerProcess":
-        "../node_modules/@nomicfoundation/solidity-language-server/src/frameworks/Hardhat/Hardhat2/worker/WorkerProcess.ts",
+        "../server/src/frameworks/Hardhat/Hardhat2/worker/WorkerProcess.ts",
       "./tmp/server/out/ConfigLoader":
-        "../node_modules/@nomicfoundation/solidity-language-server/src/frameworks/Truffle/ConfigLoader.ts",
+        "../server/src/frameworks/Truffle/ConfigLoader.ts",
     },
     bundle: true,
     minifyWhitespace: false,
