@@ -10,6 +10,7 @@ import { SpecifyCompilerVersion } from "./diagnostics/SpecifyCompilerVersion";
 import { CompilerDiagnostic } from "./types";
 import { SpecifyDataLocation } from "./diagnostics/SpecifyDataLocation";
 import { InvalidChecksum } from "./diagnostics/InvalidChecksum";
+import { UninitializedImmutable } from "./diagnostics/UninitializedImmutable";
 
 export const compilerDiagnostics: { [key: string]: CompilerDiagnostic } = [
   new AddOverrideSpecifier(),
@@ -23,4 +24,5 @@ export const compilerDiagnostics: { [key: string]: CompilerDiagnostic } = [
   new SpecifyVisibility(),
   new SpecifyCompilerVersion(),
   new SpecifyDataLocation(),
+  new UninitializedImmutable(),
 ].reduce((acc, item) => ({ ...acc, [item.code]: item }), {});

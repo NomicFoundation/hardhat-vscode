@@ -18,6 +18,7 @@ import {
   EventDefinition,
   UserDefinedTypeName,
   VariableDeclaration,
+  StateVariableDeclaration,
   StructDefinition,
   EnumDefinition,
 } from "@solidity-parser/parser/dist/src/ast-types";
@@ -82,6 +83,12 @@ export function isVariableDeclaration(
   node: BaseASTNode | EmptyNodeType
 ): node is VariableDeclaration {
   return node.type === "VariableDeclaration";
+}
+
+export function isStateVariableDeclaration(
+  node: BaseASTNode | EmptyNodeType
+): node is StateVariableDeclaration {
+  return node.type === "StateVariableDeclaration";
 }
 
 export function isEventDefinition(
