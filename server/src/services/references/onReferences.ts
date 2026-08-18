@@ -40,10 +40,8 @@ function findReferences(
     documentAnalyzer.analyzerTree.tree
   );
 
-  // 先用原逻辑从 children 收集
   let references: Node[] = findReferencesFor(definitionNode);
 
-  // fallback: children 不完整时, 从整个 analyzerTree 按名字搜索
   if (references.length === 0 && definitionNode !== undefined) {
     const nodeName = definitionNode.getName();
     if (nodeName !== undefined) {
@@ -65,11 +63,7 @@ function findReferences(
     }));
 }
 
-// 从整个分析树按名字递归搜索所有同名节点
-function searchReferencesByName(
-  name: string,
-  rootNode: Node
-): Node[] {
+function searchReferencesByName(name: string, rootNode: Node): Node[] {
   const results: Node[] = [];
   const visited = new Set<Node>();
 
@@ -87,5 +81,6 @@ function searchReferencesByName(
   }
 
   walk(rootNode);
+
   return results;
 }

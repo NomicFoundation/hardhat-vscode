@@ -43,7 +43,6 @@ function findHoverForNodeAtPosition(
 ) {
   const position = getParserPositionFromVSCodePosition(params.position);
 
-  // 完全复用 goToDefinition 的方式查找定义节点
   const definitionNode = documentAnalyzer.searcher.findDefinitionNodeByPosition(
     documentAnalyzer.uri,
     position,
@@ -57,7 +56,6 @@ function findHoverForNodeAtPosition(
     }
   }
 
-  // fallback: 原始 typeNodes 逻辑 (仅对声明位置有效)
   const node = documentAnalyzer.searcher.findNodeByPosition(
     documentAnalyzer.uri,
     position,
@@ -79,7 +77,6 @@ function findHoverForNodeAtPosition(
     }
   }
 
-  // fallback: orphanNodes 搜索
   const orphanNode = findNodeInOrphans(documentAnalyzer.orphanNodes, position);
   if (orphanNode !== undefined) {
     const defNode = orphanNode.getDefinitionNode() ?? orphanNode;
@@ -87,7 +84,6 @@ function findHoverForNodeAtPosition(
     return textToHover(hoverText);
   }
 
-  // fallback: 从源文本提取标识符, 按名字搜索定义节点
   const word = extractIdentifierAtPosition(document, params.position);
   if (word !== null) {
     const foundNode = searchDefinitionByName(
@@ -106,7 +102,6 @@ function findHoverForNodeAtPosition(
   return null;
 }
 
-// 从 orphanNodes 中按位置查找节点
 function findNodeInOrphans(
   orphanNodes: Node[],
   position: Position
@@ -122,10 +117,10 @@ function findNodeInOrphans(
       return node;
     }
   }
+
   return undefined;
 }
 
-// 从整个分析树按名字搜索定义节点
 function searchDefinitionByName(
   name: string,
   rootNode: Node,
@@ -150,7 +145,6 @@ function searchDefinitionByName(
 
   walk(rootNode);
 
-  // 也搜索 orphanNodes
   for (const orphan of orphanNodes) {
     if (orphan.getName() === name) {
       candidates.push(orphan.getDefinitionNode() ?? orphan);
@@ -159,11 +153,9 @@ function searchDefinitionByName(
 
   if (candidates.length === 0) return undefined;
 
-  // 多个引用可能指向同一个定义, 直接返回第一个
   return candidates[0];
 }
 
-// 从源文本中提取光标位置的标识符
 function extractIdentifierAtPosition(
   document: TextDocument,
   position: { line: number; character: number }
@@ -175,13 +167,11 @@ function extractIdentifierAtPosition(
 
   const char = Math.min(position.character, lineText.length);
 
-  // 向左扫描找到标识符起始位置
   let start = char;
   while (start > 0 && /[a-zA-Z0-9_]/.test(lineText[start - 1])) {
     start--;
   }
 
-  // 向右扫描找到标识符结束位置
   let end = char;
   while (end < lineText.length && /[a-zA-Z0-9_]/.test(lineText[end])) {
     end++;
