@@ -1,4 +1,4 @@
-const { execSync } = require("child_process");
+const { execSync, spawnSync } = require("child_process");
 const path = require("path");
 
 try {
@@ -21,10 +21,17 @@ try {
     "test/**/*.{ts,js,md,json,yml}",
   ];
 
-  // Execute the prettier3 binary
-  require("child_process").spawn("node", spawnArgs, {
+  // Execute the prettier3 binary, and exit with its status so that a
+  // failing `--check` fails the lint run
+  const { error, status } = spawnSync("node", spawnArgs, {
     stdio: "inherit",
   });
+
+  if (error) {
+    throw error;
+  }
+
+  process.exit(status === null ? 1 : status);
 } catch (error) {
   console.error("Error running prettier:", error.message);
   process.exit(1);
