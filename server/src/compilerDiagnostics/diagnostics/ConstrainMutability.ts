@@ -8,6 +8,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { CompilerDiagnostic, ResolveActionsContext } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
 import { SolcError, ServerState } from "../../types";
+import { readMessageFromDiagnostic } from "../../utils/readMessageFromDiagnostic";
 import {
   parseFunctionDefinition,
   ParseFunctionDefinitionResult,
@@ -100,7 +101,9 @@ export class ConstrainMutability implements CompilerDiagnostic {
       functionDefinition,
     }: ParseFunctionDefinitionResult
   ): CodeAction[] {
-    const modifier = diagnostic.message.includes("pure") ? "pure" : "view";
+    const modifier = readMessageFromDiagnostic(diagnostic).includes("pure")
+      ? "pure"
+      : "view";
     const visibility = functionDefinition.visibility;
 
     const lookupResult = lookupToken(

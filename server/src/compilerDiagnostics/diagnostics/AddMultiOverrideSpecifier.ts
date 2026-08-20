@@ -7,6 +7,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { CompilerDiagnostic, ResolveActionsContext } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
 import { SolcError, ServerState } from "../../types";
+import { readMessageFromDiagnostic } from "../../utils/readMessageFromDiagnostic";
 import {
   Multioverride,
   resolveInsertSpecifierQuickFix,
@@ -31,7 +32,7 @@ export class AddMultiOverrideSpecifier implements CompilerDiagnostic {
     context: ResolveActionsContext
   ): CodeAction[] {
     const missingContractIdentifiers = this.parseContractIdentifiersFromMessage(
-      diagnostic.message
+      readMessageFromDiagnostic(diagnostic)
     );
 
     const multiOverride = new Multioverride(missingContractIdentifiers);
