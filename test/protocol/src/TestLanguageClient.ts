@@ -54,7 +54,10 @@ class Document {
   public diagnostics: Diagnostic[] = []
   public version = 1
 
-  constructor(public uri: string, public text: string) {
+  constructor(
+    public uri: string,
+    public text: string
+  ) {
     this.resetAnalysisStatus()
     this.resetValidationStatus()
   }
@@ -88,7 +91,11 @@ export class TestLanguageClient {
   public documents: Record<string, Document> = {}
   public receivedNotifications: Record<string, any[]> = {}
 
-  constructor(protected serverModulePath: string, protected workspaceFolderPaths: string[], protected logger: Logger) {}
+  constructor(
+    protected serverModulePath: string,
+    protected workspaceFolderPaths: string[],
+    protected logger: Logger
+  ) {}
 
   public start() {
     this._spawnServerProcess()

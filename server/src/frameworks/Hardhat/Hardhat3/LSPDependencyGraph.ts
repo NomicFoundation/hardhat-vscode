@@ -1,5 +1,9 @@
-import type { ResolvedFile } from "hardhat3/types/solidity" with { "resolution-mode": "import" };
-import type { Resolver } from "hardhat3/internal/lsp-helpers" with { "resolution-mode": "import" };
+import type { ResolvedFile } from "hardhat3/types/solidity" with {
+  "resolution-mode": "import",
+};
+import type { Resolver } from "hardhat3/internal/lsp-helpers" with {
+  "resolution-mode": "import",
+};
 import { AsyncMutex } from "./AsyncMutex";
 
 interface Dependency {

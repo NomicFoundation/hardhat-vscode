@@ -1,10 +1,9 @@
 import _ from "lodash";
 import { Range, Position } from "vscode-languageserver-types";
 import semver from "semver";
-import type {
-  TextIndex,
-  TextRange,
-} from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import type { TextIndex, TextRange } from "@nomicfoundation/slang/cst" with {
+  "resolution-mode": "import",
+};
 import { Logger } from "../utils/Logger";
 
 export function slangToVSCodeRange(range: TextRange): Range {

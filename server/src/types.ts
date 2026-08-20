@@ -120,7 +120,6 @@ export interface ValidationJobFailureNotification {
 }
 
 export type ValidationJobStatusNotification =
-  | ValidationJobFailureNotification
-  | ValidationJobSuccessNotification;
+  ValidationJobFailureNotification | ValidationJobSuccessNotification;
 
 export type OpenDocuments = Array<{ uri: string; documentText: string }>;

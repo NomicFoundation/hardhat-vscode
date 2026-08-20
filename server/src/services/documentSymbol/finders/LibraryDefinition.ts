@@ -1,5 +1,7 @@
 import { SymbolKind } from "vscode-languageserver-types";
-import type { Query } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import type { Query } from "@nomicfoundation/slang/cst" with {
+  "resolution-mode": "import",
+};
 import { SymbolFinder } from "../SymbolFinder";
 
 export class LibraryDefinition extends SymbolFinder {
