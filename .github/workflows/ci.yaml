@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        node: [20.18.0, 20.19.0, 22.15.0]
+        node: [22.15.1, 24.x]
 
     steps:
       - name: Clone repository
@@ -71,7 +71,7 @@ jobs:
           cache-name: cache-vscode
         with:
           path: .vscode-test
-          key: ${{ runner.os }}-vscode-1.90.0
+          key: ${{ runner.os }}-vscode-1.101.0
 
       - name: Run E2E tests
         uses: coactions/setup-xvfb@v1.0.1
