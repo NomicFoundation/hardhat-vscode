@@ -34,8 +34,8 @@ describe('[hardhat3] custom/validation-job-status', () => {
 
     const expectedData = {
       validationRun: false,
-      reason: `HHE902: There was an error while resolving the import "./nonexistent.sol" from "${importerSubpath}":\n\nThe file contracts/custom/validation-job-status/nonexistent.sol doesn't exist within the project.`,
-      displayText: `HHE902: There was an error while resolving the import "./nonexistent.sol" from "${importerSubpath}":\n\nThe file contracts/custom/validation-job-status/nonexistent.sol doesn't exist within the project.`,
+      reason: `HHE902: There was an error while resolving the import "./nonexistent.sol" from "${importerSubpath}":\n\nThe file "contracts/custom/validation-job-status/nonexistent.sol" doesn't exist within the project.`,
+      displayText: `HHE902: There was an error while resolving the import "./nonexistent.sol" from "${importerSubpath}":\n\nThe file "contracts/custom/validation-job-status/nonexistent.sol" doesn't exist within the project.`,
       errorFile: toUri(invalidImportPath),
     }
 
