@@ -20,17 +20,17 @@
     "out/index.js"
   ],
   "scripts": {
-    "prebundle": "npm run clean",
+    "prebundle": "pnpm run clean",
     "bundle": "esbuild src/index.ts --platform=node --bundle --external:coc.nvim --external:@nomicfoundation/solidity-language-server --outdir=out",
-    "prepack": "npm run bundle",
-    "lint": "npm run prettier -- --check && npm run eslint",
-    "lint:fix": "npm run prettier --write && npm run eslint --fix",
+    "prepack": "pnpm run bundle",
+    "lint": "pnpm run prettier --check && pnpm run eslint",
+    "lint:fix": "pnpm run prettier --write && pnpm run eslint --fix",
     "eslint": "eslint --max-warnings 0 \"./src/**/*.ts\"",
     "prettier": "prettier \"*.json\" \"src/**/*.{ts,js,md,json,yml}\"",
     "clean": "rimraf out .nyc_output coverage *.tsbuildinfo *.log"
   },
   "dependencies": {
-    "@nomicfoundation/solidity-language-server": "0.8.29"
+    "@nomicfoundation/solidity-language-server": "workspace:*"
   },
   "devDependencies": {
     "coc.nvim": "^0.0.80"

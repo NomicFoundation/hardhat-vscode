@@ -46,12 +46,12 @@
   ],
   "scripts": {
     "build": "tsc -b",
-    "lint": "npm run prettier -- --check && npm run eslint",
-    "lint:fix": "npm run prettier -- --write && npm run lint -- --fix",
+    "lint": "pnpm run prettier --check && pnpm run eslint",
+    "lint:fix": "pnpm run prettier --write && pnpm run eslint --fix",
     "eslint": "eslint ./src/**/*.ts",
     "prettier": "prettier *.json \"src/**/*.{ts,js,md,json,yml}\"",
     "clean": "rimraf out tmp tsconfig.tsbuildinfo",
-    "prepackage": "npm run clean && node scripts/bundle.js",
+    "prepackage": "pnpm run clean && node scripts/bundle.js",
     "package": "cd ./tmp && vsce package --no-dependencies --no-yarn -o ..",
     "postpackage": "rimraf ./tmp"
   },
@@ -62,7 +62,8 @@
     "prettier": "2.5.1"
   },
   "dependencies": {
-    "@nomicfoundation/solidity-language-server": "0.8.29",
+    "@nomicfoundation/solidity-language-server": "workspace:*",
+    "@sentry/core": "9.6.1",
     "@sentry/node": "9.6.1",
     "vscode-languageclient": "9.0.1"
   },

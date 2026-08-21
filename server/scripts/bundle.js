@@ -6,7 +6,13 @@ const fs = require("fs");
 const path = require("path");
 const esbuild = require("esbuild");
 
-const ANTLR_MODULE_PATH = "../node_modules/@solidity-parser/parser/src/antlr";
+// Resolve the parser package rather than pointing at a path in the root
+// `node_modules`: only npm's flat layout puts it there.
+const ANTLR_MODULE_PATH = path.join(
+  path.dirname(require.resolve("@solidity-parser/parser/package.json")),
+  "src",
+  "antlr"
+);
 
 const SOLIDITY_TOKENS = "Solidity.tokens";
 const SOLIDITY_LEXER_TOKENS = "SolidityLexer.tokens";
