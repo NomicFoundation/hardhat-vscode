@@ -6,6 +6,7 @@ packages:
   - "test/protocol"
 
 allowBuilds:
+  "@vscode/vsce-sign": false
   esbuild: false
   keccak: false
   keytar: false
