@@ -145,7 +145,7 @@ pnpm run test:e2e
 ```
 
 To run the End-to-End tests within VSCode, open the Run view (`Ctrl+Shift+D`), select `Language Server E2E Test`, and click the Play button (`F5`). \
- ![image](docs/images/run_e2e_test.png?raw=true)
+![image](docs/images/run_e2e_test.png?raw=true)
 
 ## Code Formatting
 

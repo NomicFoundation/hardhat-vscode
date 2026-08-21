@@ -930,11 +930,7 @@ function isNodeEqual(
 
 export type AstMutability = "pure" | "constant" | "payable" | "view" | null;
 export type AstVisibility =
-  | "default"
-  | "external"
-  | "internal"
-  | "public"
-  | "private";
+  "default" | "external" | "internal" | "public" | "private";
 
 export const mutabliltyPrecedence: AstMutability[] = [
   null,

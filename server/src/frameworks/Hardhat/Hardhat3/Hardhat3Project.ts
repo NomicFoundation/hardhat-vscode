@@ -11,9 +11,15 @@ import {
 } from "vscode-languageserver-protocol";
 import { TextDocument } from "vscode-languageserver-textdocument";
 import { createRequire } from "module";
-import type { HardhatRuntimeEnvironment } from "hardhat3/types/hre" with { "resolution-mode": "import" };
-import type { HardhatUserConfig } from "hardhat3/types/config" with { "resolution-mode": "import" };
-import type { HookContext } from "hardhat3/types/hooks" with { "resolution-mode": "import" };
+import type { HardhatRuntimeEnvironment } from "hardhat3/types/hre" with {
+  "resolution-mode": "import",
+};
+import type { HardhatUserConfig } from "hardhat3/types/config" with {
+  "resolution-mode": "import",
+};
+import type { HookContext } from "hardhat3/types/hooks" with {
+  "resolution-mode": "import",
+};
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import { cpSync } from "fs";
 import { removeSync } from "fs-extra";
