@@ -12,6 +12,9 @@ allowBuilds:
   keytar: false
   secp256k1: false
 
+hoistPattern:
+  - "!@types/*"
+
 minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
   - hardhat
