@@ -10,6 +10,7 @@ import _ from "lodash";
 import { ResolveActionsContext } from "../types";
 import { SolcError, ServerState } from "../../types";
 import { passThroughConversion } from "../conversions/passThroughConversion";
+import { readMessageFromDiagnostic } from "../../utils/readMessageFromDiagnostic";
 
 const MUST_SPECIFY_LOCATION_REGEX = /must be(.*)for/;
 const CANNOT_SPECIFY_REGEX = /can only be specified for/;
@@ -34,11 +35,13 @@ export class SpecifyDataLocation {
   ): CodeAction[] {
     const { document, uri } = context;
 
-    if (MUST_SPECIFY_LOCATION_REGEX.test(diagnostic.message)) {
+    if (
+      MUST_SPECIFY_LOCATION_REGEX.test(readMessageFromDiagnostic(diagnostic))
+    ) {
       // A variable declaration didn't specify data location and it should (e.g. arrays)
       // Build a list of valid locations and sort by custom criteria (most frequent first)
       const allowedLocations = this._getAllowedLocationsFromMessage(
-        diagnostic.message
+        readMessageFromDiagnostic(diagnostic)
       ).sort(
         (a, b) =>
           this._getLocationSortWeight(a) - this._getLocationSortWeight(b)
@@ -47,12 +50,16 @@ export class SpecifyDataLocation {
       return allowedLocations.map((location) =>
         this._buildAddLocationAction(location, document, uri, diagnostic.range)
       );
-    } else if (CANNOT_SPECIFY_REGEX.test(diagnostic.message)) {
+    } else if (
+      CANNOT_SPECIFY_REGEX.test(readMessageFromDiagnostic(diagnostic))
+    ) {
       // A variable declaration specified data location and it shouldn't (e.g. an integer)
       return [this._buildRemoveLocationAction(document, uri, diagnostic.range)];
     } else {
       throw new Error(
-        `Unexpected ${this.code} error message: ${diagnostic.message}`
+        `Unexpected ${this.code} error message: ${readMessageFromDiagnostic(
+          diagnostic
+        )}`
       );
     }
   }

@@ -8,6 +8,7 @@ import {
 import { CompilerDiagnostic, ResolveActionsContext } from "../types";
 import { SolcError, ServerState } from "../../types";
 import { passThroughConversion } from "../conversions/passThroughConversion";
+import { readMessageFromDiagnostic } from "../../utils/readMessageFromDiagnostic";
 
 /**
  * This diagnostic is shown when no compiler version is specified
@@ -34,7 +35,7 @@ export class SpecifyCompilerVersion implements CompilerDiagnostic {
   ): CodeAction[] {
     // Get the compiler specification code from hardhat warning
     const regex = /pragma solidity .*;/;
-    const match = _diagnostic.message.match(regex);
+    const match = readMessageFromDiagnostic(_diagnostic).match(regex);
     const pragmaLine = match && match[0];
 
     if (pragmaLine === null) {

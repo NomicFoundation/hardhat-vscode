@@ -1,4 +1,9 @@
-import { ExtensionContext, LanguageStatusItem, OutputChannel } from "vscode";
+import {
+  ExtensionContext,
+  LanguageStatusItem,
+  LogOutputChannel,
+  OutputChannel,
+} from "vscode";
 import { Disposable, LanguageClient } from "vscode-languageclient/node";
 import { Telemetry } from "./telemetry/types";
 import { Logger } from "./utils/Logger";
@@ -21,7 +26,7 @@ export interface ExtensionState {
   telemetryEnabled: boolean;
 
   telemetry: Telemetry;
-  outputChannel: OutputChannel;
+  outputChannel: LogOutputChannel;
   commandsOutputChannel: OutputChannel;
   logger: Logger;
 

@@ -81,9 +81,9 @@ function attachLanguageServerLifeCycleHooks(
   connection.onInitialize(onInitialize(serverState));
   connection.onInitialized(onInitialized(serverState, workspaceFileRetriever));
 
-  connection.onExit(() => {
+  connection.onExit(async () => {
     serverState.logger.info("Server closing down");
-    return serverState.telemetry.close();
+    await serverState.telemetry.close();
   });
 }
 

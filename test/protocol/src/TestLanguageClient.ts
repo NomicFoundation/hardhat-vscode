@@ -13,6 +13,7 @@ import {
   DefinitionParams,
   DefinitionRequest,
   Diagnostic,
+  MarkupContent,
   DidChangeTextDocumentParams,
   DidChangeWatchedFilesParams,
   DidCloseTextDocumentNotification,
@@ -78,6 +79,8 @@ class Document {
     })
   }
 }
+
+const messageText = (message: string | MarkupContent): string => (typeof message === 'string' ? message : message.value)
 
 export class TestLanguageClient {
   protected serverProcess?: cp.ChildProcess
@@ -193,7 +196,7 @@ export class TestLanguageClient {
       if (filter.code !== undefined && filter.code !== diag.code) {
         return false
       }
-      if (filter.message !== undefined && !diag.message.includes(filter.message)) {
+      if (filter.message !== undefined && !messageText(diag.message).includes(messageText(filter.message))) {
         return false
       }
       if (filter.range && !_.isEqual(diag.range, filter.range)) {
