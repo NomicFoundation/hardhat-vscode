@@ -42,7 +42,7 @@
     "@types/glob": "^7.1.3",
     "@types/mocha": "^8.2.2",
     "@types/module-alias": "2.0.1",
-    "@types/vscode": "^1.90",
+    "@types/vscode": "~1.101.0",
     "@typescript-eslint/eslint-plugin": "^7.7.1",
     "@typescript-eslint/parser": "^7.7.1",
     "@vscode/test-electron": "2.3.8",
