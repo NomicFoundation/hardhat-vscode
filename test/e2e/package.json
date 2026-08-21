@@ -18,6 +18,6 @@
     "mocha": "^9.1.1",
     "rimraf": "3.0.2",
     "typescript": "5.8.2",
-    "vscode-languageclient": "9.0.1"
+    "vscode-languageclient": "10.1.0"
   }
 }

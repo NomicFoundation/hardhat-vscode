@@ -1,5 +1,11 @@
 import * as path from "path";
-import { window, env, ExtensionContext, OutputChannel } from "vscode";
+import {
+  window,
+  env,
+  ExtensionContext,
+  LogOutputChannel,
+  OutputChannel,
+} from "vscode";
 import { SentryClientTelemetry } from "../telemetry/SentryClientTelemetry";
 
 import { ExtensionState } from "../types";
@@ -21,7 +27,14 @@ export function setupExtensionState(
       : path.join("./server/out/index.js")
   );
 
-  const outputChannel: OutputChannel = window.createOutputChannel("Solidity");
+  // `vscode-languageclient` requires a `LogOutputChannel`, which is also what
+  // gives the channel its log level filtering in the Output panel.
+  const outputChannel: LogOutputChannel = window.createOutputChannel(
+    "Solidity",
+    {
+      log: true,
+    }
+  );
   const commandsOutputChannel: OutputChannel =
     window.createOutputChannel("Solidity Commands");
   const telemetry = new SentryClientTelemetry(sentryDsn);

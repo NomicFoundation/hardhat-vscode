@@ -16,8 +16,8 @@
   "license": "ISC",
   "dependencies": {
     "lodash": "^4.17.21",
-    "vscode-jsonrpc": "8.2.0",
-    "vscode-languageserver-protocol": "3.17.5",
+    "vscode-jsonrpc": "9.0.1",
+    "vscode-languageserver-protocol": "3.18.2",
     "vscode-uri": "3.1.0"
   },
   "devDependencies": {

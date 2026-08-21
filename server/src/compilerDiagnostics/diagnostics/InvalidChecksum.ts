@@ -7,6 +7,7 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { ResolveActionsContext } from "../types";
 import { SolcError, ServerState } from "../../types";
 import { passThroughConversion } from "../conversions/passThroughConversion";
+import { readMessageFromDiagnostic } from "../../utils/readMessageFromDiagnostic";
 
 export class InvalidChecksum {
   public code = "9429";
@@ -27,7 +28,7 @@ export class InvalidChecksum {
 
     const checksummedRegex = /checksummed address: "(\w*)"/;
 
-    const match = diagnostic.message.match(checksummedRegex);
+    const match = readMessageFromDiagnostic(diagnostic).match(checksummedRegex);
 
     if (match === null || match[1] === undefined) {
       return [];

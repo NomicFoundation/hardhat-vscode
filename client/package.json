@@ -65,7 +65,7 @@
     "@nomicfoundation/solidity-language-server": "workspace:*",
     "@sentry/core": "9.6.1",
     "@sentry/node": "9.6.1",
-    "vscode-languageclient": "9.0.1"
+    "vscode-languageclient": "10.1.0"
   },
   "contributes": {
     "configuration": {
