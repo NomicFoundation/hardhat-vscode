@@ -21,31 +21,16 @@ jobs:
       - name: Clone repository
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - name: Set up the environment
+        uses: ./.github/actions/setup-env
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Cache Node Modules
-        id: cache-node-modules
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: "**/node_modules"
-          key: ${{ runner.os }}-${{matrix.node}}-node-modules-${{ hashFiles('**/package.json', '**/package-lock.json') }}
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
       - name: Install dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Lint
-        run: npm run lint
+        run: pnpm run lint
 
       - name: Download foundryup
         if: runner.os != 'Windows'
@@ -56,13 +41,13 @@ jobs:
         run: ${XDG_CONFIG_HOME:-$HOME}/.foundry/bin/foundryup
 
       - name: Build project
-        run: npm run build
+        run: pnpm run build
 
       - name: Run server tests
-        run: npm run test:codecov
+        run: pnpm run test:codecov
 
       - name: Run protocol tests
-        run: npm run test:protocol
+        run: pnpm run test:protocol
 
       - name: Cache VS Code client
         id: cache-vscode
@@ -76,14 +61,14 @@ jobs:
       - name: Run E2E tests
         uses: coactions/setup-xvfb@v1.0.1
         with:
-          run: npm run test:e2e
+          run: pnpm run test:e2e
 
       - name: Package the extension
         env:
           SOLIDITY_GA_SECRET: "dummy-value"
           SOLIDITY_GOOGLE_TRACKING_ID: "dummy-value"
           SOLIDITY_SENTRY_DSN: "dummy-value"
-        run: npm run package
+        run: pnpm run package
 
       - name: Publish code coverage
         uses: codecov/codecov-action@v4.2.0

@@ -40,7 +40,7 @@ export async function execWithInput(
       if (error) {
         reject(error);
       } else {
-        resolve({ stdout, stderr });
+        resolve({ stdout: stdout.toString(), stderr: stderr.toString() });
       }
     });
 

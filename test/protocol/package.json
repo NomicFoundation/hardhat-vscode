@@ -7,8 +7,8 @@
     "postinstall": "cd ./projects/hardhat && npm i && cd ../hardhat3 && npm i",
     "start": "tsc && node out/index.js",
     "test": "cross-env VSCODE_NODE_ENV=development mocha",
-    "lint": "npm run prettier -- --check && npm run eslint",
-    "lint:fix": "npm run prettier -- --write && npm run lint -- --fix",
+    "lint": "pnpm run prettier --check && pnpm run eslint",
+    "lint:fix": "pnpm run prettier --write && pnpm run eslint --fix",
     "eslint": "eslint --max-warnings 0 \"./src/**/*.ts\" \"./test/**/*.ts\"",
     "prettier": "prettier \"*.json\" \"src/**/*.{ts,js,md,json,yml}\" \"test/**/*.{ts,js,md,json,yml}\""
   },
@@ -16,6 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "lodash": "^4.17.21",
+    "vscode-jsonrpc": "8.2.0",
     "vscode-languageserver-protocol": "3.17.5",
     "vscode-uri": "3.1.0"
   },

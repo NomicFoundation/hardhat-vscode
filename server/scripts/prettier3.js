@@ -1,4 +1,4 @@
-const { execSync, spawnSync } = require("child_process");
+const { spawnSync } = require("child_process");
 const path = require("path");
 
 try {
@@ -6,8 +6,7 @@ try {
   const prettierFlags = process.argv.slice(2);
 
   // Find prettier3 (aliased) package path
-  const lsOutput = execSync("npm ls prettier3 --parseable").toString().trim();
-  const packageRoot = lsOutput.split("\n")[0];
+  const packageRoot = path.dirname(require.resolve("prettier3/package.json"));
 
   console.log(`Found prettier at ${packageRoot}`);
 

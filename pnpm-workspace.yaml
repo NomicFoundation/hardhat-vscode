@@ -1,0 +1,17 @@
+packages:
+  - "client"
+  - "server"
+  - "coc"
+  - "test/e2e"
+  - "test/protocol"
+
+allowBuilds:
+  esbuild: false
+  keccak: false
+  keytar: false
+  secp256k1: false
+
+minimumReleaseAge: 10080
+minimumReleaseAgeExclude:
+  - hardhat
+  - "@nomicfoundation/*"

@@ -35,7 +35,7 @@ The vscode extension and language server are written in TypeScript. The code is 
 
 [node](https://nodejs.org/en/) is required for development.
 
-The repo is organised as a monorepo using `npm`. To install the dependencies of all packages in the repo, run `npm install` in the root directory of the repository. This will install node dependencies at the top level, which are shared among all of the packages.
+The repo is organised as a monorepo using [pnpm](https://pnpm.io). To install the dependencies of all packages in the repo, run `pnpm install` in the root directory of the repository. The version of pnpm to use is pinned in the `packageManager` field of the root `package.json`, and [corepack](https://nodejs.org/api/corepack.html) will honour it.
 
 ## Running Locally
 
@@ -44,7 +44,7 @@ The repo is organised as a monorepo using `npm`. To install the dependencies of 
 From the root directory run a build:
 
 ```shell
-npm install && npm run build
+pnpm install && pnpm run build
 ```
 
 If you intend to develop against our analytics you should setup a `.env` file in the root of the repository:
@@ -101,7 +101,7 @@ The project has unit, protocol and e2e tests. Components of the server should be
 A complete test run involves both test suites and can be run, from repo root, with:
 
 ```shell
-npm test
+pnpm test
 ```
 
 ### Unit
@@ -109,19 +109,19 @@ npm test
 A **mocha** unit/component test suite covers the `./server`. The tests are kept separate from the src files in [./server/test](./server/test/). The tests can be run from the repo root with:
 
 ```shell
-npm run test:unit
+pnpm run test:unit
 ```
 
 Or within the `./server` folder with:
 
 ```shell
-npm test
+pnpm test
 ```
 
 Code coverage is available with:
 
 ```shell
-npm run test:coverage
+pnpm run test:coverage
 ```
 
 ### Protocol
@@ -131,7 +131,7 @@ Protocol tests boot up only the LSP and interact with it using a custom test lan
 To run the protocol tests from the command line, in the repo root run:
 
 ```shell
-npm run test:protocol
+pnpm run test:protocol
 ```
 
 ### End-to-End (E2E)
@@ -141,7 +141,7 @@ End to end tests that run a VSCode instance and exercise its workspace, files, H
 To run the End-to-End tests from the command line, in the repo root run:
 
 ```shell
-npm run test:e2e
+pnpm run test:e2e
 ```
 
 To run the End-to-End tests within VSCode, open the Run view (`Ctrl+Shift+D`), select `Language Server E2E Test`, and click the Play button (`F5`). \
@@ -149,13 +149,13 @@ To run the End-to-End tests within VSCode, open the Run view (`Ctrl+Shift+D`), s
 
 ## Code Formatting
 
-We use Prettier to format all the code (and supporting json config, markdown files) without any special configuration. Whatever Prettier does is considered The Right Thing. Prettier is run in the CI, so run `npm run lint:fix` before pushing to auto-magically get into compliance.
+We use Prettier to format all the code (and supporting json config, markdown files) without any special configuration. Whatever Prettier does is considered The Right Thing. Prettier is run in the CI, so run `pnpm run lint:fix` before pushing to auto-magically get into compliance.
 
 ## Linting
 
 We also have ESLint running on `./server`, `./client` and `./test`. It forbids some dangerous patterns.
 
-The linter is always run in the CI, so make sure it passes before pushing code. You can use `npm run lint` and `npm run lint:fix` both at the root of the repository and within `./server` and `./client`.
+The linter is always run in the CI, so make sure it passes before pushing code. You can use `pnpm run lint` and `pnpm run lint:fix` both at the root of the repository and within `./server` and `./client`.
 
 ## Changeset
 
@@ -166,7 +166,7 @@ Each PR should include a changeset to aid putting together a changelog during re
 To add a changeset to your PR, run:
 
 ```shell
-npm run changeset add
+pnpm changeset add
 ```
 
 ## GIF recording
@@ -178,7 +178,7 @@ When adding a new feature or changing an existing one, we encourage the recordin
 VSCode extensions are distributed through a file format called `vsix` (really a zip file with a defined internal struture and metadata files). To build a `vsix` file for local testing or to upload to the [VSCode Marketplace](https://marketplace.visualstudio.com/vscode), run:
 
 ```shell
-npm run package
+pnpm run package
 ```
 
 This will clean the `/out` directories, then create bundled, minified versions of the client, and server files (index.js and helper.js) using [esbuild](https://esbuild.github.io/), and pull them together in the vsix file using `vsce`. The output vsix file will be in the `client` directory.
