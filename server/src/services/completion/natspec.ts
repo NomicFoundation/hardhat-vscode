@@ -19,8 +19,8 @@ import {
 } from "../../parser/common/types";
 
 enum NatspecStyle {
-  "SINGLE_LINE",
-  "MULTI_LINE",
+  SINGLE_LINE,
+  MULTI_LINE,
 }
 
 export const getNatspecCompletion = (

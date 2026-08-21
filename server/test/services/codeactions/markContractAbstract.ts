@@ -268,7 +268,7 @@ describe("Code Actions", () => {
                 edits: [
                   {
                     newText:
-                      "contract DiamondCounter is IDiamondIncrement, IDiamondDecrement {\n    uint120 public balance = 0;\n\n    function getBalance()\n        external\n        view\n        override(IDiamondCounter, IDiamondIncrement)\n        returns (uint120)\n    {}\n\n    function increment()\n        external\n        view\n        override(IDiamondDecrement, IDiamondIncrement)\n    {}\n\n    function decrement() external override {}\n}",
+                      "contract DiamondCounter is IDiamondIncrement, IDiamondDecrement {\n    uint120 public balance = 0;\n    function getBalance()\n        external\n        view\n        override(IDiamondCounter, IDiamondIncrement)\n        returns (uint120)\n    {}\n\n    function increment()\n        external\n        view\n        override(IDiamondDecrement, IDiamondIncrement)\n    {}\n\n    function decrement() external override {}\n}",
                     range: {
                       start: {
                         line: 19,

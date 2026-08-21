@@ -1,5 +1,7 @@
 import { SemanticTokenTypes } from "vscode-languageserver-protocol";
-import type { Query } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import type { Query } from "@nomicfoundation/slang/cst" with {
+  "resolution-mode": "import",
+};
 import { Highlighter } from "../Highlighter";
 
 export class FunctionCallHighlighter extends Highlighter {

@@ -23,8 +23,7 @@ export interface ValidationJobFailureNotification {
 }
 
 export type ValidationJobStatusNotification =
-  | ValidationJobFailureNotification
-  | ValidationJobSuccessNotification;
+  ValidationJobFailureNotification | ValidationJobSuccessNotification;
 
 export function setupValidationJobHooks(
   extensionState: ExtensionState,

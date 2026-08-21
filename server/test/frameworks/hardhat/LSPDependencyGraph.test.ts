@@ -9,9 +9,8 @@ describe("LSPDependencyGraph", () => {
   let dg: LSPDependencyGraph;
 
   beforeEach(async () => {
-    const { ResolverImplementation } = await import(
-      "hardhat3/internal/lsp-helpers"
-    );
+    const { ResolverImplementation } =
+      await import("hardhat3/internal/lsp-helpers");
     const resolverFactory = () => {
       return ResolverImplementation.create(
         projectPath,
