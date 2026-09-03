@@ -29,6 +29,7 @@
     "generate-readmes": "ts-node scripts/interpolateReadmes.ts",
     "prepackage": "pnpm run generate-readmes",
     "package": "pnpm --filter ./client run package",
+    "release:validate": "node scripts/release/main.ts prepare-release-pr:validate",
     "release:version": "node scripts/release/main.ts prepare-release-pr:update-versions-for-release",
     "release": "node scripts/release/main.ts",
     "prettier:scripts": "prettier \"scripts/release/**/*.{ts,json}\"",

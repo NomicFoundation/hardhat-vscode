@@ -12,7 +12,7 @@ Every PR that changes one of those packages carries a changeset:
 pnpm changeset add
 ```
 
-Pick the packages, pick the bump, and write the entry for the person reading the changelog. CI fails a PR that needs one and does not have it; label the PR `no changeset needed` for the ones that genuinely do not, like a CI or docs change.
+Name **all three** packages with the same bump, `patch` or `minor` — they are a `fixed` group in `.changeset/config.json`, so one changeset releases all of them, and a changeset that names only the server leaves the other two with a changelog entry saying nothing but "Updated dependencies". `major` is rejected: taking the extension to its next major is a decision to make deliberately rather than one to fall out of a changeset. `pnpm release:validate` checks this, and CI runs it on every PR. Write the entry for the person reading the changelog. CI fails a PR that needs one and does not have it; label the PR `no changeset needed` for the ones that genuinely do not, like a CI or docs change.
 
 ## Cutting a release
 
@@ -33,7 +33,7 @@ pnpm release publish    # npm, the Visual Studio Marketplace, Open VSX
 pnpm release tag        # tag it, and create the GitHub release
 ```
 
-The other two keep the Version Packages PR up to date and never run in the same job as a release: `prepare-release-pr:update-versions-for-release` applies the changesets — that is `pnpm release:version`, which is what `changesets/action` runs — and `prepare-release-pr:set-as-draft` converts the PR to a draft.
+The other three keep the Version Packages PR up to date and never run in the same job as a release: `prepare-release-pr:update-versions-for-release` applies the changesets — that is `pnpm release:version`, which is what `changesets/action` runs — `prepare-release-pr:set-as-draft` converts the PR to a draft, and `prepare-release-pr:validate` — `pnpm release:validate` — checks the changesets.
 
 `pnpm release all --dry-run` runs the four stages locally against the current working tree. `--dry-run` is not optional and `all` refuses to run in Actions: it walks past the approval gate by design, and that gate is the point of the workflow. npm is genuinely dry-run; neither marketplace has one, and a tag and a GitHub release are not things to rehearse, so those four say what they would have done and do nothing.
 

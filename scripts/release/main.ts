@@ -3,6 +3,7 @@ import { all } from "./subcommands/all.ts";
 import { pack } from "./subcommands/pack.ts";
 import { setAsDraft } from "./subcommands/prepare-release-pr/set-as-draft.ts";
 import { updateVersionsForRelease } from "./subcommands/prepare-release-pr/update-versions-for-release.ts";
+import { validate } from "./subcommands/prepare-release-pr/validate.ts";
 import { publish } from "./subcommands/publish.ts";
 import { tag } from "./subcommands/tag.ts";
 import { review } from "./subcommands/review.ts";
@@ -20,6 +21,8 @@ Keeping the Version Packages PR up to date, the other half of the workflow,
 which never runs in the same job as a release:
   prepare-release-pr:update-versions-for-release
              Apply the changesets: bump the versions, write the changelogs
+  prepare-release-pr:validate
+             Check every changeset names all three released packages
   prepare-release-pr:set-as-draft
              Convert the PR to a draft, so that a person has to mark it ready
              — which is what triggers its checks
@@ -75,6 +78,8 @@ async function main(argv: string[]): Promise<void> {
   switch (command) {
     case "prepare-release-pr:update-versions-for-release":
       return updateVersionsForRelease();
+    case "prepare-release-pr:validate":
+      return validate();
     case "prepare-release-pr:set-as-draft":
       return setAsDraft();
     case "pack":
