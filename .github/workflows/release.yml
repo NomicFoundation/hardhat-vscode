@@ -202,9 +202,6 @@ jobs:
         with:
           node-version: 24
 
-      - name: Update npm to make sure it supports Trusted Publishing
-        run: npm install -g npm@latest
-
       - name: Publish to npm and both marketplaces
         env:
           NPM_CONFIG_PROVENANCE: true # explicitly enable NPM provenance
