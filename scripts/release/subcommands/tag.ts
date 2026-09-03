@@ -14,7 +14,7 @@ export function tag({ dryRun }: { dryRun: boolean }): void {
 
   writeFileSync(
     "release-notes.md",
-    releaseNotes(readFileSync("client/CHANGELOG.md", "utf8"), version)
+    releaseBody(readFileSync("client/CHANGELOG.md", "utf8"), version)
   );
 
   // Git tags are a side effect that outlives the run, and a release created on
@@ -64,6 +64,21 @@ export function tag({ dryRun }: { dryRun: boolean }): void {
     "release-notes.md",
     vsix,
   ]);
+}
+
+/**
+ * The footer every past release carries, below the changelog section. Kept
+ * byte for byte so the automated releases read like the hand-written ones.
+ */
+export const HIRING_FOOTER = [
+  "---",
+  "> 💡 **The Nomic Foundation is hiring! Check [our open positions](https://www.nomic.foundation/jobs).**",
+  "---",
+].join("\n");
+
+/** The body of the GitHub release: the version's changelog, then the footer. */
+export function releaseBody(changelog: string, version: string): string {
+  return `${releaseNotes(changelog, version)}\n${HIRING_FOOTER}\n`;
 }
 
 /**

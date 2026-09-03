@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { releaseNotes } from "./tag.ts";
+import { HIRING_FOOTER, releaseBody, releaseNotes } from "./tag.ts";
 
 const CHANGELOG = [
   "# Changelog",
@@ -42,6 +42,26 @@ describe("releaseNotes", () => {
     assert.throws(
       () => releaseNotes(CHANGELOG, "9.9.9"),
       /no section for 9.9.9/
+    );
+  });
+});
+
+describe("releaseBody", () => {
+  it("is the changelog section followed by the hiring footer", () => {
+    assert.equal(
+      releaseBody(CHANGELOG, "0.9.0"),
+      `### Minor Changes\n\n- abc1234: Drop Node 20 support.\n\n${HIRING_FOOTER}\n`
+    );
+  });
+
+  it("keeps the footer the shape past releases used", () => {
+    assert.equal(
+      HIRING_FOOTER,
+      [
+        "---",
+        "> 💡 **The Nomic Foundation is hiring! Check [our open positions](https://www.nomic.foundation/jobs).**",
+        "---",
+      ].join("\n")
     );
   });
 });
