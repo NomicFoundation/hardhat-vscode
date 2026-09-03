@@ -32,8 +32,6 @@ jobs:
       - name: Set up the environment
         uses: ./.github/actions/setup-env
         with:
-          # The release scripts are TypeScript, run directly; type stripping
-          # needs a newer Node than the extension's own floor.
           node-version: 24
 
       - name: Install Dependencies
@@ -83,8 +81,6 @@ jobs:
       - name: Set up the environment
         uses: ./.github/actions/setup-env
         with:
-          # The release scripts are TypeScript, run directly; type stripping
-          # needs a newer Node than the extension's own floor.
           node-version: 24
 
       - name: Install Dependencies
@@ -93,8 +89,6 @@ jobs:
       - name: Build
         run: pnpm run build
 
-      # The language server's `prepack` bundles the server, which inlines the
-      # analytics values, so packing needs them just as packaging the vsix does.
       - name: Pack the tarballs and the vsix
         id: pack
         env:
@@ -139,15 +133,12 @@ jobs:
       actions: read # To download the artifacts to review
       contents: read # To read the previous release's vsix
     steps:
-      # For the scripts these steps run; the artifacts are what is reviewed
       - name: Checkout Repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up the environment
         uses: ./.github/actions/setup-env
         with:
-          # The release scripts are TypeScript, run directly; type stripping
-          # needs a newer Node than the extension's own floor.
           node-version: 24
 
       - name: Download pnpm list json
@@ -179,9 +170,6 @@ jobs:
     if: needs.pack.outputs.hasPackages == 'true'
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    # The gate. Its reviewers establish that a release was triggered
-    # deliberately by one of us; smoke testing the vsix from the run first is
-    # optional.
     environment: publish
     permissions:
       actions: read # To download the artifacts to publish
@@ -209,8 +197,6 @@ jobs:
           name: vsix
           path: vsix
 
-      # 24 for two reasons: npm new enough for Trusted Publishing, and type
-      # stripping for the release scripts.
       - name: Setup node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
@@ -219,10 +205,6 @@ jobs:
       - name: Update npm to make sure it supports Trusted Publishing
         run: npm install -g npm@latest
 
-      # npm goes through Trusted Publishing. Both marketplaces are token based
-      # for now: Microsoft's supported path is Entra ID workload identity
-      # federation with `vsce publish --azure-credential`, which needs a
-      # managed identity and publisher membership set up outside this repo.
       - name: Publish to npm and both marketplaces
         env:
           NPM_CONFIG_PROVENANCE: true # explicitly enable NPM provenance
@@ -248,8 +230,6 @@ jobs:
       - name: Set up the environment
         uses: ./.github/actions/setup-env
         with:
-          # The release scripts are TypeScript, run directly; type stripping
-          # needs a newer Node than the extension's own floor.
           node-version: 24
 
       - name: Install Dependencies
@@ -261,14 +241,10 @@ jobs:
           name: vsix
           path: vsix
 
-      # This step is needed otherwise tag creation fails
       - run: |
           git config user.name  "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
 
-      # `changeset tag` covers the npm packages. The extension is private, so it
-      # produces nothing for that; `vX.Y.Z` is the tag every release in this
-      # repo has been cut against, and the one the GitHub release hangs off.
       - name: Tag the release and create it on GitHub
         env:
           GH_TOKEN: ${{ github.token }}
