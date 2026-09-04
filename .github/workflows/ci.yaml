@@ -80,3 +80,22 @@ jobs:
         with:
           files: ./server/coverage/lcov.info # __LCOV_RESULTS_INFO_FILE__ (keep in sync)
           disable_search: true
+
+  ci-aggregate:
+    name: ci
+    needs: build
+    if: ${{ !cancelled() }}
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      # `needs` alone would skip this job when build fails, and a skipped
+      # required check counts as passing.
+      - name: Check the build matrix succeeded
+        env:
+          build_result: ${{ needs.build.result }}
+        run: |
+          if [[ "$build_result" != "success" ]]; then
+            echo "build was $build_result"
+            exit 1
+          fi
