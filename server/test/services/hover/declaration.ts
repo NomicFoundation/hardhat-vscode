@@ -106,10 +106,11 @@ describe("Parser", () => {
         it("should display details for a constructor parameter", () =>
           assertHover({ line: 21, character: 25 }, "uint256 initialTotal"));
 
-        // The parent constructor's arguments are dropped, in common with every
-        // other modifier invocation - see modifierInvocationToText.
+        // The parent constructor's arguments are kept. The AST renderer this
+        // replaces dropped them, in common with every other modifier
+        // invocation - see the deleted modifierInvocationToText.
         it("should display details for a constructor invoking its parent", () =>
-          assertHover({ line: 35, character: 5 }, "constructor() Ledger"));
+          assertHover({ line: 35, character: 5 }, "constructor() Ledger(0)"));
 
         it("should display the constructor at a `new` call site", () =>
           assertHover(
