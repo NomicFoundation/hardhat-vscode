@@ -58,7 +58,7 @@ describe("Parser", () => {
         it("should display details for an event", () =>
           assertHover(
             { line: 14, character: 11 },
-            "event Recorded(address who, uint256 amount)"
+            "event Recorded(address indexed who, uint256 amount)"
           ));
 
         it("should display details for an error", () =>
