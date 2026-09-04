@@ -1,4 +1,6 @@
-import type { BaseRewriter } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import type { BaseRewriter } from "@nomicfoundation/slang/cst" with {
+  "resolution-mode": "import",
+};
 import { getSlangCst } from "../../../parser/slangHelpers";
 
 /**

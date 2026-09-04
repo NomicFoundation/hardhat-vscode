@@ -1,11 +1,15 @@
 /* eslint-disable no-template-curly-in-string */
-import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with { "resolution-mode": "import" };
+import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with {
+  "resolution-mode": "import",
+};
 import type {
   Cursor,
   NonterminalNode,
   TerminalKindExtensions as TerminalKindExtensionsType,
 } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
-import type { Definition } from "@nomicfoundation/slang/bindings" with { "resolution-mode": "import" };
+import type { Definition } from "@nomicfoundation/slang/bindings" with {
+  "resolution-mode": "import",
+};
 import {
   CompletionItem,
   CompletionItemKind,
@@ -36,8 +40,7 @@ let slangAst: SlangAstModule | undefined;
 export const onCompletion = (serverState: ServerState) => {
   return onCommand<CompletionParams, CompletionList | null>(
     serverState,
-    (unit, uri, params) =>
-      doComplete(serverState, unit, uri, params),
+    (unit, uri, params) => doComplete(serverState, unit, uri, params),
     null
   );
 };
@@ -250,9 +253,10 @@ function getImportCompletion(
   }
 
   const fileDir = path.dirname(fileUri);
-  const importPath = currentImport === ""
-    ? fileDir
-    : toUnixStyle(path.join(fileDir, currentImport));
+  const importPath =
+    currentImport === ""
+      ? fileDir
+      : toUnixStyle(path.join(fileDir, currentImport));
 
   let importDir: string;
   let partial: string;
@@ -551,7 +555,12 @@ async function getThisSuperCompletion(
 
   if (keyword === "this") {
     // Enumerate the contract's own members + inherited
-    collectContractMemberCompletions(contractCursor.node.asNonterminalNode()!, seenNames, items, false);
+    collectContractMemberCompletions(
+      contractCursor.node.asNonterminalNode()!,
+      seenNames,
+      items,
+      false
+    );
   }
 
   // Inherited members (for both this and super)
@@ -614,11 +623,19 @@ async function getMemberAccessCompletion(
   }
 
   // Resolve root identifier via BindingGraph
-  let definition: Definition | undefined = resolveIdentifierDefinition(unit, identCursor);
+  let definition: Definition | undefined = resolveIdentifierDefinition(
+    unit,
+    identCursor
+  );
 
   // Fallback: scan file for a definition with the same name
   if (definition === undefined) {
-    definition = scanForDefinition(unit, fileId, rootIdent, TerminalKindExtensions);
+    definition = scanForDefinition(
+      unit,
+      fileId,
+      rootIdent,
+      TerminalKindExtensions
+    );
   }
 
   if (definition === undefined) {
@@ -1003,11 +1020,8 @@ function collectContractMemberCompletions(
   items: CompletionItem[],
   skipPrivate: boolean
 ): void {
-  const {
-    ContractDefinition,
-    InterfaceDefinition,
-    LibraryDefinition,
-  } = slangAst!;
+  const { ContractDefinition, InterfaceDefinition, LibraryDefinition } =
+    slangAst!;
 
   // Members are typed as readonly arrays of distinct member-variant unions
   // per container kind (Contract / Interface / Library); we only need each
@@ -1019,11 +1033,14 @@ function collectContractMemberCompletions(
   let memberItems: readonly MemberLike[];
 
   if (contractNode.kind === "ContractDefinition") {
-    memberItems = new ContractDefinition(contractNode).members.items as readonly MemberLike[];
+    memberItems = new ContractDefinition(contractNode).members
+      .items as readonly MemberLike[];
   } else if (contractNode.kind === "InterfaceDefinition") {
-    memberItems = new InterfaceDefinition(contractNode).members.items as readonly MemberLike[];
+    memberItems = new InterfaceDefinition(contractNode).members
+      .items as readonly MemberLike[];
   } else if (contractNode.kind === "LibraryDefinition") {
-    memberItems = new LibraryDefinition(contractNode).members.items as readonly MemberLike[];
+    memberItems = new LibraryDefinition(contractNode).members
+      .items as readonly MemberLike[];
   } else {
     return;
   }
@@ -1593,7 +1610,11 @@ function findNextDefinition(
 
           if (effectiveLine > afterLine) {
             if (closest === undefined || effectiveLine < closest.startLine) {
-              closest = { kind: node.kind, startLine: effectiveLine, cursor: c.clone() };
+              closest = {
+                kind: node.kind,
+                startLine: effectiveLine,
+                cursor: c.clone(),
+              };
             }
             // Don't descend into this definition (we found it)
             continue;
@@ -1672,9 +1693,8 @@ interface NamedParamItem {
   name?: { unparse: () => string };
 }
 
-const unparseOptionalName = (
-  p: NamedParamItem
-): string | undefined => p.name?.unparse();
+const unparseOptionalName = (p: NamedParamItem): string | undefined =>
+  p.name?.unparse();
 const isString = (n: string | undefined): n is string => n !== undefined;
 
 /**
@@ -1698,11 +1718,15 @@ function extractParameterNamesFromDef(defNode: NonterminalNode): string[] {
   switch (defNode.kind) {
     case "FunctionDefinition": {
       const func = new FunctionDefinition(defNode);
-      return func.parameters.parameters.items.map(unparseOptionalName).filter(isString);
+      return func.parameters.parameters.items
+        .map(unparseOptionalName)
+        .filter(isString);
     }
     case "ConstructorDefinition": {
       const ctor = new ConstructorDefinition(defNode);
-      return ctor.parameters.parameters.items.map(unparseOptionalName).filter(isString);
+      return ctor.parameters.parameters.items
+        .map(unparseOptionalName)
+        .filter(isString);
     }
     case "ModifierDefinition": {
       const mod = new ModifierDefinition(defNode);
@@ -1710,11 +1734,15 @@ function extractParameterNamesFromDef(defNode: NonterminalNode): string[] {
       if (paramsDecl === undefined) {
         return [];
       }
-      return paramsDecl.parameters.items.map(unparseOptionalName).filter(isString);
+      return paramsDecl.parameters.items
+        .map(unparseOptionalName)
+        .filter(isString);
     }
     case "EventDefinition": {
       const event = new EventDefinition(defNode);
-      return event.parameters.parameters.items.map(unparseOptionalName).filter(isString);
+      return event.parameters.parameters.items
+        .map(unparseOptionalName)
+        .filter(isString);
     }
     default:
       return [];
@@ -1724,7 +1752,9 @@ function extractParameterNamesFromDef(defNode: NonterminalNode): string[] {
 /**
  * Extract return parameter names from a function definition using AST wrappers.
  */
-function extractReturnParameterNamesFromDef(defNode: NonterminalNode): string[] {
+function extractReturnParameterNamesFromDef(
+  defNode: NonterminalNode
+): string[] {
   const { FunctionDefinition } = slangAst!;
 
   if (defNode.kind !== "FunctionDefinition") {

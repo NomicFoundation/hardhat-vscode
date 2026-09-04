@@ -6,8 +6,19 @@ import {
 } from "../types";
 import { toContractId } from "./toContractId";
 
-const visibilityPrecedence: Array<string | null> = [null, "private", "internal", "external", "public"];
-const mutabilityPrecedence: Array<string | null> = [null, "payable", "view", "pure"];
+const visibilityPrecedence: Array<string | null> = [
+  null,
+  "private",
+  "internal",
+  "external",
+  "public",
+];
+const mutabilityPrecedence: Array<string | null> = [
+  null,
+  "payable",
+  "view",
+  "pure",
+];
 
 /**
  * Build a combined view of all of a contracts functions, both those

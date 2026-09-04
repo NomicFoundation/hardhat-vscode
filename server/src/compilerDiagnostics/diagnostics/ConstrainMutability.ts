@@ -63,7 +63,10 @@ export class ConstrainMutability implements CompilerDiagnostic {
   private _modifyViewToPureAction(
     document: TextDocument,
     uri: string,
-    { functionSourceLocation, functionDefinition }: ParseFunctionDefinitionResult
+    {
+      functionSourceLocation,
+      functionDefinition,
+    }: ParseFunctionDefinitionResult
   ): CodeAction[] {
     const viewKeyword = functionDefinition.mutabilityKeyword;
 
@@ -81,7 +84,8 @@ export class ConstrainMutability implements CompilerDiagnostic {
             {
               range: Range.create(
                 document.positionAt(
-                  functionSourceLocation.start + viewKeyword.textRange.start.utf8
+                  functionSourceLocation.start +
+                    viewKeyword.textRange.start.utf8
                 ),
                 document.positionAt(
                   functionSourceLocation.start + viewKeyword.textRange.end.utf8
@@ -116,7 +120,11 @@ export class ConstrainMutability implements CompilerDiagnostic {
       return [];
     }
 
-    const shape = getFunctionHeaderShape(cursors, document, functionSourceLocation);
+    const shape = getFunctionHeaderShape(
+      cursors,
+      document,
+      functionSourceLocation
+    );
 
     if (shape === null) {
       return [];

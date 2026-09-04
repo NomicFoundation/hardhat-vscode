@@ -125,7 +125,10 @@ export async function indexWorkspaceFolders(
 
         if (solFileEntry?.text !== undefined) {
           const absolutePath = normalizeAbsolutePath(documentUri);
-          await solFileEntry.project.preAnalyze(absolutePath, solFileEntry.text);
+          await solFileEntry.project.preAnalyze(
+            absolutePath,
+            solFileEntry.text
+          );
         }
       } catch (err) {
         logger.error(err);
@@ -156,9 +159,7 @@ export async function indexWorkspaceFolders(
           try {
             await getCompilationForFile(serverState, representativeFileId);
           } catch (err) {
-            logger.trace(
-              `warm-up failed for ${representativeFileId}: ${err}`
-            );
+            logger.trace(`warm-up failed for ${representativeFileId}: ${err}`);
           }
         }
       }

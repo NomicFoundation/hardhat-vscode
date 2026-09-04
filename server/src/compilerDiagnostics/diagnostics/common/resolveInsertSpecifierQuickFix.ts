@@ -5,7 +5,9 @@ import {
   Range,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import type { Cursor } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import type { Cursor } from "@nomicfoundation/slang/cst" with {
+  "resolution-mode": "import",
+};
 import { ResolveActionsContext } from "@compilerDiagnostics/types";
 import {
   getFunctionHeaderShape,
@@ -75,13 +77,24 @@ export async function resolveInsertSpecifierQuickFix(
   }
 
   if (targetCursor !== undefined) {
-    const shape = getFunctionHeaderShape(cursors, document, functionSourceLocation);
+    const shape = getFunctionHeaderShape(
+      cursors,
+      document,
+      functionSourceLocation
+    );
 
     if (shape === null) {
       return [];
     }
 
-    return buildAction(specifier, document, uri, parseResult, targetCursor, shape);
+    return buildAction(
+      specifier,
+      document,
+      uri,
+      parseResult,
+      targetCursor,
+      shape
+    );
   }
 
   // No virtual/visibility/mutability — insert after the parameters' `)`.

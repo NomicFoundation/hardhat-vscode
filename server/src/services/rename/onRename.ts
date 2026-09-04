@@ -1,6 +1,8 @@
 import { RenameParams } from "vscode-languageserver/node";
 import { WorkspaceEdit, TextEdit } from "@common/types";
-import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with { "resolution-mode": "import" };
+import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with {
+  "resolution-mode": "import",
+};
 import { ServerState } from "../../types";
 import { toUri } from "../../utils";
 import { onCommand } from "../../utils/onCommand";

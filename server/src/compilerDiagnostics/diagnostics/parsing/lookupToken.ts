@@ -1,5 +1,7 @@
 import { TextDocument } from "vscode-languageserver-textdocument";
-import type { Cursor } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import type { Cursor } from "@nomicfoundation/slang/cst" with {
+  "resolution-mode": "import",
+};
 
 export interface HeaderShape {
   isSameLine: boolean;
@@ -72,7 +74,11 @@ export function lookupCursor(
     return null;
   }
 
-  const shape = getFunctionHeaderShape(cursors, document, functionSourceLocation);
+  const shape = getFunctionHeaderShape(
+    cursors,
+    document,
+    functionSourceLocation
+  );
 
   if (shape === null) {
     return null;

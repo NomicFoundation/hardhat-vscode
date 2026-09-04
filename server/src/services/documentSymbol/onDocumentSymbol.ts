@@ -7,10 +7,7 @@ import { DocumentSymbol, SymbolInformation } from "vscode-languageserver-types";
 import _ from "lodash";
 import * as Sentry from "@sentry/node";
 import { ServerState } from "../../types";
-import {
-  getOrParseFileCursor,
-  toVSCodeRange,
-} from "../../parser/slangHelpers";
+import { getOrParseFileCursor, toVSCodeRange } from "../../parser/slangHelpers";
 import { INTERNAL_ERROR, OK } from "../../telemetry/TelemetryStatus";
 import { SymbolTreeBuilder } from "./SymbolTreeBuilder";
 import { SymbolFinder } from "./SymbolFinder";

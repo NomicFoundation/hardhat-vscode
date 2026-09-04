@@ -1,6 +1,8 @@
 import { Diagnostic } from "vscode-languageserver/node";
 import { ResolveActionsContext } from "@compilerDiagnostics/types";
-import type { Cursor } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import type { Cursor } from "@nomicfoundation/slang/cst" with {
+  "resolution-mode": "import",
+};
 import type { ServerState } from "../../../types";
 import { parseContractDefinition } from "./snippetParsing";
 
@@ -20,9 +22,5 @@ export function parseContractDefinitionAuto(
   diagnostic: Diagnostic,
   context: ResolveActionsContext
 ): Promise<ParseContractDefinitionResult | null> {
-  return parseContractDefinition(
-    diagnostic,
-    context,
-    serverState.logger
-  );
+  return parseContractDefinition(diagnostic, context, serverState.logger);
 }

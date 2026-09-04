@@ -2,7 +2,6 @@ import { assert } from "chai";
 import * as fs from "fs";
 import * as path from "path";
 import {
-  CompletionItem,
   CompletionList,
   CompletionParams,
   Definition,

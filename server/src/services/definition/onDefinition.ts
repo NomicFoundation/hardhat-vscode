@@ -1,4 +1,6 @@
-import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with { "resolution-mode": "import" };
+import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with {
+  "resolution-mode": "import",
+};
 import { DefinitionParams, Location } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
 import { onCommand } from "../../utils/onCommand";
@@ -13,8 +15,7 @@ import {
 export const onDefinition = (serverState: ServerState) => {
   return onCommand<DefinitionParams, Location | Location[] | undefined>(
     serverState,
-    (unit, uri, params) =>
-      findDefinition(serverState, unit, uri, params),
+    (unit, uri, params) => findDefinition(serverState, unit, uri, params),
     undefined
   );
 };

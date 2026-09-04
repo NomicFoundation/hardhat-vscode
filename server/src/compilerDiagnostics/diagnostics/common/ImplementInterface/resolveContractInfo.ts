@@ -2,8 +2,12 @@
  * Build a ContractInfo tree from CST + BindingGraph.
  * Uses Slang AST typed wrappers for structured traversal.
  */
-import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with { "resolution-mode": "import" };
-import type { Cursor, NonterminalNode } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with {
+  "resolution-mode": "import",
+};
+import type { Cursor, NonterminalNode } from "@nomicfoundation/slang/cst" with {
+  "resolution-mode": "import",
+};
 import { ParseContractDefinitionResult } from "../../parsing/parseContractDefinition";
 import { ResolveActionsContext } from "../../../types";
 import { ServerState } from "../../../../types";
@@ -128,7 +132,12 @@ function buildContractInfo(
       continue;
     }
 
-    const parentInfo = buildContractInfo(unit, parent.cursor, parent.fileId, seen);
+    const parentInfo = buildContractInfo(
+      unit,
+      parent.cursor,
+      parent.fileId,
+      seen
+    );
 
     if (parentInfo !== null) {
       info.parents.push(parentInfo);
@@ -167,16 +176,24 @@ function extractFunctions(contractNode: NonterminalNode): FunctionInfo[] {
     const kind = variant.cst.kind;
 
     if (kind === "FunctionDefinition") {
-      const funcDef = new FunctionDefinition(variant.cst) as unknown as FunctionDefAst;
+      const funcDef = new FunctionDefinition(
+        variant.cst
+      ) as unknown as FunctionDefAst;
       functions.push(extractFunctionDefInfo(funcDef));
     } else if (kind === "ReceiveFunctionDefinition") {
-      const recvDef = new ReceiveFunctionDefinition(variant.cst) as unknown as SpecialFunctionAst;
+      const recvDef = new ReceiveFunctionDefinition(
+        variant.cst
+      ) as unknown as SpecialFunctionAst;
       functions.push(extractSpecialFunctionInfo(recvDef, "receive"));
     } else if (kind === "FallbackFunctionDefinition") {
-      const fbDef = new FallbackFunctionDefinition(variant.cst) as unknown as SpecialFunctionAst;
+      const fbDef = new FallbackFunctionDefinition(
+        variant.cst
+      ) as unknown as SpecialFunctionAst;
       functions.push(extractSpecialFunctionInfo(fbDef, "fallback"));
     } else if (kind === "UnnamedFunctionDefinition") {
-      const unDef = new UnnamedFunctionDefinition(variant.cst) as unknown as SpecialFunctionAst;
+      const unDef = new UnnamedFunctionDefinition(
+        variant.cst
+      ) as unknown as SpecialFunctionAst;
       functions.push(extractSpecialFunctionInfo(unDef, "fallback"));
     }
   }
@@ -217,8 +234,8 @@ interface FunctionDefAst {
 function extractFunctionDefInfo(funcDef: FunctionDefAst): FunctionInfo {
   const name = funcDef.name.variant.unparse();
 
-  const paramTypeTexts = funcDef.parameters.parameters.items.map(
-    (p) => p.typeName.cst.unparse().replace(/\s+/g, " ").trim()
+  const paramTypeTexts = funcDef.parameters.parameters.items.map((p) =>
+    p.typeName.cst.unparse().replace(/\s+/g, " ").trim()
   );
 
   const attrs = extractFunctionAttributes(funcDef.attributes.items);
@@ -258,7 +275,10 @@ interface SpecialFunctionAst {
   body?: { variant: AstFunctionBodyVariant };
 }
 
-function extractSpecialFunctionInfo(funcDef: SpecialFunctionAst, _type: "receive" | "fallback"): FunctionInfo {
+function extractSpecialFunctionInfo(
+  funcDef: SpecialFunctionAst,
+  _type: "receive" | "fallback"
+): FunctionInfo {
   let visibility: string | null = null;
   let mutability: string | null = null;
   let isVirtual = false;
@@ -293,9 +313,11 @@ function extractSpecialFunctionInfo(funcDef: SpecialFunctionAst, _type: "receive
 /**
  * Extract visibility, mutability, virtual from FunctionAttribute items.
  */
-function extractFunctionAttributes(
-  attrItems: readonly AttributeItem[]
-): { visibility: string | null; mutability: string | null; isVirtual: boolean } {
+function extractFunctionAttributes(attrItems: readonly AttributeItem[]): {
+  visibility: string | null;
+  mutability: string | null;
+  isVirtual: boolean;
+} {
   let visibility: string | null = null;
   let mutability: string | null = null;
   let isVirtual = false;
@@ -304,7 +326,10 @@ function extractFunctionAttributes(
     // variant is TerminalNode directly for keywords, or a wrapper (ModifierInvocation/OverrideSpecifier) with .cst
     const variant = attr.variant;
 
-    if (typeof variant.isTerminalNode === "function" && variant.isTerminalNode()) {
+    if (
+      typeof variant.isTerminalNode === "function" &&
+      variant.isTerminalNode()
+    ) {
       switch (variant.kind) {
         case "PublicKeyword":
           visibility = "public";

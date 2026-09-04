@@ -1,18 +1,13 @@
-import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with { "resolution-mode": "import" };
+import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with {
+  "resolution-mode": "import",
+};
 import { ServerState } from "../types";
 import { decodeUriAndRemoveFilePrefix, isTestMode } from "../utils";
 import { getCompilationForFile } from "../parser/compilation";
 
-export function onCommand<
-  P extends { textDocument: { uri: string } },
-  R,
->(
+export function onCommand<P extends { textDocument: { uri: string } }, R>(
   serverState: ServerState,
-  handler: (
-    unit: CompilationUnit,
-    uri: string,
-    params: P
-  ) => Promise<R>,
+  handler: (unit: CompilationUnit, uri: string, params: P) => Promise<R>,
   fallback: R
 ): (params: P) => Promise<R> {
   return async (params: P): Promise<R> => {

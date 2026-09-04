@@ -1,7 +1,11 @@
 import fs from "fs";
 import semver from "semver";
-import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with { "resolution-mode": "import" };
-import type { Cursor } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with {
+  "resolution-mode": "import",
+};
+import type { Cursor } from "@nomicfoundation/slang/cst" with {
+  "resolution-mode": "import",
+};
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import type { ServerState } from "../types";
 import { decodeUriAndRemoveFilePrefix, toUri } from "../utils";
@@ -151,9 +155,8 @@ async function buildUnit(
   additionalFileIds: string[],
   languageVersion: string
 ): Promise<CompilationUnit | undefined> {
-  const { CompilationBuilder } = await import(
-    "@nomicfoundation/slang/compilation"
-  );
+  const { CompilationBuilder } =
+    await import("@nomicfoundation/slang/compilation");
 
   if (getFileText(serverState, primaryFileId) === undefined) {
     serverState.logger.trace(

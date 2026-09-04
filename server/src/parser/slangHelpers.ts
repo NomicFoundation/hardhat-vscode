@@ -14,7 +14,26 @@ import type {
   Reference,
   UserFileLocation,
 } from "@nomicfoundation/slang/bindings" with { "resolution-mode": "import" };
-import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with { "resolution-mode": "import" };
+import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with {
+  "resolution-mode": "import",
+};
+// These four go through `import type * as` rather than `typeof import(...)`,
+// which reads more directly but cannot be formatted: over the print width
+// prettier splits the attributes clause and adds a trailing comma, and
+// TypeScript rejects a trailing comma there (TS1005). They are type-only, so
+// nothing survives to runtime — the modules are still loaded lazily below.
+import type * as slangCst from "@nomicfoundation/slang/cst" with {
+  "resolution-mode": "import",
+};
+import type * as slangAst from "@nomicfoundation/slang/ast" with {
+  "resolution-mode": "import",
+};
+import type * as slangParser from "@nomicfoundation/slang/parser" with {
+  "resolution-mode": "import",
+};
+import type * as slangUtils from "@nomicfoundation/slang/utils" with {
+  "resolution-mode": "import",
+};
 import { Logger } from "../utils/Logger";
 import { decodeUriAndRemoveFilePrefix, toUri } from "../utils";
 import { ServerState } from "../types";
@@ -28,10 +47,10 @@ import { getOrInitialiseSolFileEntry } from "../utils/getOrInitialiseSolFileEntr
 // submodule and a single place to evolve the loading strategy later.
 // ---------------------------------------------------------------------------
 
-type SlangCstModule = typeof import("@nomicfoundation/slang/cst", { with: { "resolution-mode": "import" } });
-type SlangAstModule = typeof import("@nomicfoundation/slang/ast", { with: { "resolution-mode": "import" } });
-type SlangParserModule = typeof import("@nomicfoundation/slang/parser", { with: { "resolution-mode": "import" } });
-type SlangUtilsModule = typeof import("@nomicfoundation/slang/utils", { with: { "resolution-mode": "import" } });
+type SlangCstModule = typeof slangCst;
+type SlangAstModule = typeof slangAst;
+type SlangParserModule = typeof slangParser;
+type SlangUtilsModule = typeof slangUtils;
 
 let _slangCst: SlangCstModule | undefined;
 let _slangAst: SlangAstModule | undefined;
@@ -87,7 +106,10 @@ export async function resolveVersion(
   const { LanguageFacts } = await getSlangUtils();
   const versions = LanguageFacts.allVersions();
 
-  const resolvedVersion = semver.maxSatisfying(versions, versionPragmas.join(" "));
+  const resolvedVersion = semver.maxSatisfying(
+    versions,
+    versionPragmas.join(" ")
+  );
 
   if (resolvedVersion !== null) {
     return resolvedVersion;
@@ -374,10 +396,7 @@ export async function resolveImportPathNavigation(
   const project = solFileEntry.project;
 
   try {
-    const resolved = await project.resolveImportPath(
-      sourceFileId,
-      importPath
-    );
+    const resolved = await project.resolveImportPath(sourceFileId, importPath);
 
     if (resolved === undefined) {
       return undefined;
@@ -716,10 +735,7 @@ export function isAbstractFunction(definiensNode: Node): boolean {
   const children = definiensNode.children();
 
   for (const child of children) {
-    if (
-      child.node.isNonterminalNode() &&
-      child.node.kind === "FunctionBody"
-    ) {
+    if (child.node.isNonterminalNode() && child.node.kind === "FunctionBody") {
       const bodyChildren = child.node.children();
 
       for (const bodyChild of bodyChildren) {
@@ -831,9 +847,7 @@ export function findEnclosingContractCursor(
  * Only the keyword counts. A position inside the parameters or the body is
  * asking about whatever is under it, not about the constructor.
  */
-export function findConstructorFromKeyword(
-  cursor: Cursor
-): Cursor | undefined {
+export function findConstructorFromKeyword(cursor: Cursor): Cursor | undefined {
   if (
     !cursor.node.isTerminalNode() ||
     cursor.node.kind !== "ConstructorKeyword"
