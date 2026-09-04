@@ -1,10 +1,13 @@
 import { SignatureHelpParams } from "vscode-languageserver/node";
-import {
-  SignatureHelp,
-  ParameterInformation,
-} from "@common/types";
-import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with { "resolution-mode": "import" };
-import type { BaseRewriter, Cursor, Node } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import { SignatureHelp, ParameterInformation } from "@common/types";
+import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with {
+  "resolution-mode": "import",
+};
+import type {
+  BaseRewriter,
+  Cursor,
+  Node,
+} from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
 import { ServerState } from "../../types";
 import { onCommand } from "../../utils/onCommand";
 import {
@@ -54,11 +57,7 @@ async function signatureHelp(
   internalUri: string,
   params: SignatureHelpParams
 ): Promise<SignatureHelp | null> {
-  const callContext = await findCallContext(
-    unit,
-    internalUri,
-    params.position
-  );
+  const callContext = await findCallContext(unit, internalUri, params.position);
 
   if (callContext === null) {
     return null;
@@ -180,10 +179,7 @@ function findCalleeCursor(callCursor: Cursor): Cursor | undefined {
     // Walk the child subtree for Identifier terminals.
     const sub = callCursor.spawn();
     while (sub.goToNext()) {
-      if (
-        sub.node.isTerminalNode() &&
-        sub.node.kind === "Identifier"
-      ) {
+      if (sub.node.isTerminalNode() && sub.node.kind === "Identifier") {
         lastIdentifier = sub.clone();
       }
     }
@@ -365,7 +361,12 @@ function extractLeadingNatspec(text: string): string | undefined {
   if (multiLineMatch !== null) {
     const commentText = multiLineMatch[1]
       .split("\n")
-      .map((l) => l.trim().replace(/^\*\s?/, "").trim())
+      .map((l) =>
+        l
+          .trim()
+          .replace(/^\*\s?/, "")
+          .trim()
+      )
       .filter((l) => l.length > 0 && !l.startsWith("@"))
       .join(" ")
       .trim();

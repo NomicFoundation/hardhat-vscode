@@ -1,6 +1,10 @@
 import { Location, TypeDefinitionParams } from "vscode-languageserver/node";
-import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with { "resolution-mode": "import" };
-import type { Cursor } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with {
+  "resolution-mode": "import",
+};
+import type { Cursor } from "@nomicfoundation/slang/cst" with {
+  "resolution-mode": "import",
+};
 import { ServerState } from "../../types";
 import { onCommand } from "../../utils/onCommand";
 import {
@@ -22,9 +26,8 @@ async function findTypeDefinition(
   internalUri: string,
   params: TypeDefinitionParams
 ): Promise<Location[] | null> {
-  const { NonterminalKind, TerminalKindExtensions } = await import(
-    "@nomicfoundation/slang/cst"
-  );
+  const { NonterminalKind, TerminalKindExtensions } =
+    await import("@nomicfoundation/slang/cst");
 
   const resolution = await resolveIdentifierAtPosition(
     unit,

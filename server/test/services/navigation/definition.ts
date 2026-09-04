@@ -327,7 +327,10 @@ const assertMultiDefinitionNavigation = async (
     assert.fail("Expected definition responses but got null/undefined");
   }
 
-  assert(Array.isArray(response), "Expected an array of locations for overloaded function");
+  assert(
+    Array.isArray(response),
+    "Expected an array of locations for overloaded function"
+  );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const locations = response as any[];

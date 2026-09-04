@@ -59,7 +59,9 @@ export class SpecifyVisibility {
     }
 
     const startChar =
-      functionSourceLocation.start + lookupResult.cursor.textRange.start.utf8 + 1;
+      functionSourceLocation.start +
+      lookupResult.cursor.textRange.start.utf8 +
+      1;
 
     return QUICK_FIX_VISIBILITIES.map((visibility) =>
       this._constructVisibilityCodeActionFor(

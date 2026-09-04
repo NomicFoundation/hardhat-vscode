@@ -1,4 +1,9 @@
-import { ContractInfo, FunctionInfo, FunctionRecord, LinearizationContext } from "../types";
+import {
+  ContractInfo,
+  FunctionInfo,
+  FunctionRecord,
+  LinearizationContext,
+} from "../types";
 import {
   resolveImplementationOverrides,
   OverrideEntry,

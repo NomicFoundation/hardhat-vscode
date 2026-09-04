@@ -167,7 +167,10 @@ export async function parseFunctionDefinition(
     // Check that the root is a FunctionDefinition
     const rootNode = tree.asNonterminalNode();
 
-    if (rootNode === undefined || rootNode.kind !== NonterminalKind.FunctionDefinition) {
+    if (
+      rootNode === undefined ||
+      rootNode.kind !== NonterminalKind.FunctionDefinition
+    ) {
       return null;
     }
 
@@ -238,7 +241,10 @@ export async function parseContractDefinition(
 
     const rootNode = tree.asNonterminalNode();
 
-    if (rootNode === undefined || rootNode.kind !== NonterminalKind.ContractDefinition) {
+    if (
+      rootNode === undefined ||
+      rootNode.kind !== NonterminalKind.ContractDefinition
+    ) {
       return null;
     }
 

@@ -1,5 +1,7 @@
 import { VSCodeLocation } from "@common/types";
-import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with { "resolution-mode": "import" };
+import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with {
+  "resolution-mode": "import",
+};
 import { ReferenceParams } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
 import { toUri } from "../../utils";
@@ -57,10 +59,7 @@ async function findReferences(
     }
   }
 
-  const resolution = await resolveIdentifierFromCursor(
-    unit,
-    resolvedCursor
-  );
+  const resolution = await resolveIdentifierFromCursor(unit, resolvedCursor);
 
   if (resolution === undefined) {
     return [];

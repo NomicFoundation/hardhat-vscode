@@ -1,13 +1,14 @@
-import {
-  ImplementationParams,
-  Location,
-} from "vscode-languageserver/node";
-import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with { "resolution-mode": "import" };
+import { ImplementationParams, Location } from "vscode-languageserver/node";
+import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with {
+  "resolution-mode": "import",
+};
 import type {
   Cursor,
   TerminalKindExtensions as TerminalKindExtensionsType,
 } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
-import type { Definition } from "@nomicfoundation/slang/bindings" with { "resolution-mode": "import" };
+import type { Definition } from "@nomicfoundation/slang/bindings" with {
+  "resolution-mode": "import",
+};
 import { ServerState } from "../../types";
 import { onCommand } from "../../utils/onCommand";
 import {
@@ -220,7 +221,11 @@ function findConcreteImplementations(
 
       if (
         candidateContractCursor === undefined ||
-        !isContractInheritingFrom(unit, candidateContractCursor, parentContractDefId)
+        !isContractInheritingFrom(
+          unit,
+          candidateContractCursor,
+          parentContractDefId
+        )
       ) {
         continue;
       }

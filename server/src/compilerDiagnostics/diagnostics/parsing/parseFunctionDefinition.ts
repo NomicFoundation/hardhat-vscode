@@ -1,6 +1,8 @@
 import { Diagnostic } from "vscode-languageserver/node";
 import { TextDocument } from "@common/types";
-import type { Cursor } from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
+import type { Cursor } from "@nomicfoundation/slang/cst" with {
+  "resolution-mode": "import",
+};
 import type { ServerState } from "../../../types";
 import { parseFunctionDefinition } from "./snippetParsing";
 
