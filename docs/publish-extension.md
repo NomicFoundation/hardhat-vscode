@@ -17,7 +17,7 @@ Name **all three** packages with the same bump, `patch` or `minor` — they are 
 ## Cutting a release
 
 1. **Merge the Version Packages PR.** The release workflow keeps it open and up to date while changesets accumulate on `main`. It applies them, moves all three packages to the next version, and writes the changelogs. Merging it is the decision to release.
-2. **Approve the deployment.** Merging that PR starts a run that builds the tarballs and the vsix, diffs them against what is already published, and then waits on the `publish` environment. Approving is what says a release was intended — you can download the vsix from the run and try it first, but that is optional.
+2. **Approve the deployment.** Merging that PR starts a run that builds the tarballs and the vsix, diffs them against what is already published, posts to Slack that a review is waiting, and then waits on the `publish` environment. Approving is what says a release was intended — you can download the vsix from the run and try it first, but that is optional.
 3. **Announce it** in the Discord announcements channel, linking the release and saying what is worth knowing about it.
 
 That is the whole flow. The run then publishes both npm packages, uploads the vsix to the Visual Studio Marketplace and Open VSX, tags `vX.Y.Z`, and creates the GitHub release with the vsix attached.
@@ -52,6 +52,7 @@ Held by the repository, not by people:
 
 - `SOLIDITY_GA_SECRET`, `SOLIDITY_GOOGLE_TRACKING_ID`, `SOLIDITY_SENTRY_DSN` — inlined into the bundle when the artifacts are built.
 - `VSCE_TOKEN`, `OVSX_TOKEN` — on the `publish` environment, so they are only reachable after the approval.
+- `PUBLISHING_NOTIFICATIONS_SLACK_WEBHOOK_URL` — the channel that is told a release is waiting for review, and that it was approved.
 - `RELEASE_GITHUB_TOKEN` — lets the Version Packages PR trigger its own checks.
 
 npm needs no token: publishing uses Trusted Publishing, which authenticates the workflow itself.
