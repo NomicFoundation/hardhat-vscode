@@ -819,6 +819,67 @@ export function findEnclosingContractCursor(
 }
 
 /**
+ * The ConstructorDefinition a cursor names, when the cursor is on the
+ * `constructor` keyword itself.
+ *
+ * A constructor has no name in the grammar — `ConstructorDefinition` is
+ * `CONSTRUCTOR_KEYWORD ParametersDeclaration ConstructorAttributes Block` — so
+ * there is no identifier terminal for the binding graph to bind, and
+ * `definitionAt`/`referenceAt` can never resolve a cursor on the keyword.
+ * Anything that wants the constructor has to walk the CST.
+ *
+ * Only the keyword counts. A position inside the parameters or the body is
+ * asking about whatever is under it, not about the constructor.
+ */
+export function findConstructorFromKeyword(
+  cursor: Cursor
+): Cursor | undefined {
+  if (
+    !cursor.node.isTerminalNode() ||
+    cursor.node.kind !== "ConstructorKeyword"
+  ) {
+    return undefined;
+  }
+
+  const c = cursor.clone();
+
+  while (c.goToParent()) {
+    if (c.node.isNonterminalNode() && c.node.kind === "ConstructorDefinition") {
+      return c.clone();
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * Whether a cursor sits inside the type name of a `new X(...)` expression.
+ *
+ * The binding graph resolves that `X` to the contract, which is right for the
+ * name but not for a hover: what the reader is asking about is the thing being
+ * called, which is the constructor.
+ */
+export function isInsideNewExpression(cursor: Cursor): boolean {
+  const c = cursor.clone();
+
+  while (c.goToParent()) {
+    if (c.node.isNonterminalNode()) {
+      if (c.node.kind === "NewExpression") {
+        return true;
+      }
+
+      // `new` applies directly to the type name, so a statement boundary means
+      // we have walked out past any new expression.
+      if (c.node.kind === "Statement") {
+        return false;
+      }
+    }
+  }
+
+  return false;
+}
+
+/**
  * Walk up from a cursor to the enclosing contract-like definition and
  * return the cursor at its name Identifier.
  */

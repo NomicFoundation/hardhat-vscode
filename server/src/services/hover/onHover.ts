@@ -11,8 +11,12 @@ import type {
 import { ServerState } from "../../types";
 import { onCommand } from "../../utils/onCommand";
 import {
+  findConstructorInContract,
+  findConstructorFromKeyword,
+  getCursorAtPosition,
   getSlangAst,
   getSlangCst,
+  isInsideNewExpression,
   resolveIdentifierAtPosition,
   resolveToDefinition,
 } from "../../parser/slangHelpers";
@@ -48,30 +52,75 @@ async function findHover(
 ): Promise<Hover | null> {
   const { NonterminalKind } = await getSlangCst();
 
-  const resolution = await resolveIdentifierAtPosition(
+  const positionCursor = getCursorAtPosition(
     unit,
     internalUri,
     params.position.line,
     params.position.character
   );
 
-  if (resolution === undefined) {
-    return null;
+  // A constructor has no name, so the binding graph has nothing to resolve.
+  // Hovering the `constructor` keyword is answered from the CST instead.
+  const constructorCursor =
+    positionCursor === undefined
+      ? undefined
+      : findConstructorFromKeyword(positionCursor);
+
+  let definiensNode: Node;
+
+  if (constructorCursor !== undefined) {
+    definiensNode = constructorCursor.node;
+  } else {
+    const resolution = await resolveIdentifierAtPosition(
+      unit,
+      internalUri,
+      params.position.line,
+      params.position.character
+    );
+
+    if (resolution === undefined) {
+      return null;
+    }
+
+    const definition = resolveToDefinition(resolution);
+
+    if (definition === undefined) {
+      return null;
+    }
+
+    const definiensLocation = definition.definiensLocation;
+
+    if (!definiensLocation.isUserFileLocation()) {
+      return null;
+    }
+
+    definiensNode = definiensLocation.cursor.node;
+
+    // `new X(...)` resolves to the contract X. What the reader is asking about
+    // is the thing being called, so prefer its constructor when it has one —
+    // matching what signature help already does for the same expression.
+    const nameLocation = definition.nameLocation;
+
+    if (
+      positionCursor !== undefined &&
+      isInsideNewExpression(positionCursor) &&
+      nameLocation.isUserFileLocation()
+    ) {
+      const contractCursor = nameLocation.cursor.clone();
+
+      if (
+        contractCursor.goToParent() &&
+        contractCursor.node.isNonterminalNode() &&
+        contractCursor.node.kind === "ContractDefinition"
+      ) {
+        const ctorCursor = await findConstructorInContract(contractCursor);
+
+        if (ctorCursor !== undefined) {
+          definiensNode = ctorCursor.node;
+        }
+      }
+    }
   }
-
-  const definition = resolveToDefinition(resolution);
-
-  if (definition === undefined) {
-    return null;
-  }
-
-  const definiensLocation = definition.definiensLocation;
-
-  if (!definiensLocation.isUserFileLocation()) {
-    return null;
-  }
-
-  const definiensNode = definiensLocation.cursor.node;
 
   // Contract/interface/library hovers: read the header children via the AST.
   // This avoids any need to walk braces or strip member blocks.
