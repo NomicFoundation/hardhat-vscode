@@ -1,5 +1,5 @@
 import * as prettier from "prettier";
-import * as prettierPluginSolidity from "prettier-plugin-solidity";
+import prettierPluginSolidity from "prettier-plugin-solidity";
 import { ASTNode, TextDocument } from "@common/types";
 import { URI } from "vscode-uri";
 
