@@ -42,6 +42,14 @@ dist/
 # VS Code extension packages
 *.vsix
 
+# Release artifacts, when the release scripts are run locally
+tarballs/
+vsix/
+released-vsix/
+*-vsix.txt
+pnpm-publish-summary.json
+release-notes.md
+
 # vscode test
 .vscode-test
 .user-data-dir-test

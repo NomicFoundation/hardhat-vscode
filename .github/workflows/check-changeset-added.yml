@@ -1,0 +1,59 @@
+# Fails if a PR does not add a changeset, or if the changesets on it are not
+# shaped the way a release needs. Exempt from the first check: the Version
+# Packages PR, which removes the changesets rather than adding one, and any PR
+# labeled "no changeset needed".
+
+name: Check the PR's changesets
+
+on:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+      - unlabeled
+      - ready_for_review
+
+jobs:
+  check-if-changeset:
+    name: Check that PR has a changeset
+    if: >-
+      ${{ !contains(github.event.pull_request.labels.*.name, 'no changeset needed') && !startsWith(github.head_ref, 'changeset-release/') }}
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set up the environment
+        uses: ./.github/actions/setup-env
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      # `changeset status` compares against the base branch and exits non-zero
+      # when a package has changed without a changeset to describe it
+      - name: Check if PR has a changeset
+        run: pnpm changeset status --since=origin/${{ github.base_ref }}
+
+  validate-changesets:
+    name: Check the changesets name all three packages
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up the environment
+        uses: ./.github/actions/setup-env
+        with:
+          node-version: 24
+
+      # No install: the validator reads `.changeset/` with node builtins alone.
+      - name: Validate the changesets
+        run: node scripts/release/main.ts prepare-release-pr:validate
