@@ -161,13 +161,15 @@ The linter is always run in the CI, so make sure it passes before pushing code. 
 
 We use [changeset](https://github.com/changesets/changesets) to include text that explains to users (via the changelog) what features/fixes/changes have occurred.
 
-Each PR should include a changeset to aid putting together a changelog during release.
+Each PR that changes the extension, the language server or the coc extension needs one, and CI fails the PR if it is missing. Label a PR `no changeset needed` for the ones that genuinely do not need it — a CI or docs change, say.
 
 To add a changeset to your PR, run:
 
 ```shell
 pnpm changeset add
 ```
+
+The changesets accumulate on `main` until a release goes out, at which point they become the changelog entries. [Releasing](./docs/publish-extension.md) describes what happens then.
 
 ## GIF recording
 
@@ -193,7 +195,7 @@ To separate out the repo readme from the extension readme, we have two of them: 
 
 ## Publishing
 
-The extension is published via the [VSCode Marketplace](https://marketplace.visualstudio.com/vscode), see [publish-extension.md](./docs/publish-extension.md) for detailed instructions in making a release.
+The extension is published to the [VSCode Marketplace](https://marketplace.visualstudio.com/vscode) and [Open VSX](https://open-vsx.org), and the language server and coc extension to npm, by the release workflow. See [Releasing](./docs/publish-extension.md).
 
 ## Codebase Overview
 

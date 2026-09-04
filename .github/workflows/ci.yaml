@@ -49,13 +49,16 @@ jobs:
       - name: Run protocol tests
         run: pnpm run test:protocol
 
+      # `runTests` puts its download in `.vscode-test` relative to the cwd, and
+      # the suite runs from `test/e2e`. Caching `.vscode-test` at the root
+      # matched nothing, so every job re-downloaded VS Code.
       - name: Cache VS Code client
         id: cache-vscode
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         env:
           cache-name: cache-vscode
         with:
-          path: .vscode-test
+          path: test/e2e/.vscode-test
           key: ${{ runner.os }}-vscode-1.101.0
 
       - name: Run E2E tests
