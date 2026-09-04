@@ -1,5 +1,6 @@
 import { expect } from 'chai'
 import { test } from 'mocha'
+import { Location } from 'vscode-languageserver-protocol'
 import { toUri } from '../../../../src/helpers'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
@@ -51,7 +52,7 @@ describe('[hardhat] advancedDefinition', () => {
 
     // BindingGraph returns all overloads (no type-based disambiguation)
     expect(location).to.be.an('array').with.lengthOf(2)
-    const locations = location as any[]
+    const locations = location as Location[]
     expect(locations[0]).to.deep.equal({
       uri: toUri(advancedDocPath),
       range: makeRange(38, 13, 38, 22),
@@ -69,7 +70,7 @@ describe('[hardhat] advancedDefinition', () => {
 
     // BindingGraph returns all overloads (no type-based disambiguation)
     expect(location).to.be.an('array').with.lengthOf(2)
-    const locations = location as any[]
+    const locations = location as Location[]
     expect(locations[0]).to.deep.equal({
       uri: toUri(advancedDocPath),
       range: makeRange(38, 13, 38, 22),

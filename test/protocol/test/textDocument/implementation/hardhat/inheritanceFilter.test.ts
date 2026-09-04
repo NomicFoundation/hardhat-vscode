@@ -1,10 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { expect } from 'chai'
 import { toUri } from '../../../../src/helpers'
 import { TestLanguageClient } from '../../../../src/TestLanguageClient'
 import { getInitializedClient } from '../../../client'
 import { getProjectPath, makePosition, makeRange } from '../../../helpers'
 
-type Location = { uri: string; range: { start: { line: number; character: number }; end: { line: number; character: number } } }
+interface Location {
+  uri: string
+  range: { start: { line: number; character: number }; end: { line: number; character: number } }
+}
 
 let client!: TestLanguageClient
 
@@ -33,8 +37,18 @@ describe('[hardhat] implementation — inheritance filter', () => {
     const inheritorRange = makeRange(8, 13, 8, 16) // Inheritor.foo
     const grandInheritorRange = makeRange(12, 13, 12, 16) // GrandInheritor.foo
 
-    const hasInheritor = locations.some((l) => l.uri === documentUri && l.range.start.line === inheritorRange.start.line && l.range.start.character === inheritorRange.start.character)
-    const hasGrandInheritor = locations.some((l) => l.uri === documentUri && l.range.start.line === grandInheritorRange.start.line && l.range.start.character === grandInheritorRange.start.character)
+    const hasInheritor = locations.some(
+      (l) =>
+        l.uri === documentUri &&
+        l.range.start.line === inheritorRange.start.line &&
+        l.range.start.character === inheritorRange.start.character
+    )
+    const hasGrandInheritor = locations.some(
+      (l) =>
+        l.uri === documentUri &&
+        l.range.start.line === grandInheritorRange.start.line &&
+        l.range.start.character === grandInheritorRange.start.character
+    )
 
     expect(hasInheritor, 'should include Inheritor.foo (direct inheritor)').to.be.true
     expect(hasGrandInheritor, 'should include GrandInheritor.foo (transitive inheritor)').to.be.true
@@ -52,7 +66,8 @@ describe('[hardhat] implementation — inheritance filter', () => {
     const nonInheritorFooLine = 22
     const hasNonInheritor = locations.some((l) => l.uri === documentUri && l.range.start.line === nonInheritorFooLine)
 
-    expect(hasNonInheritor, 'NonInheritor uses Parent as a type but does not inherit — must not be reported').to.be.false
+    expect(hasNonInheritor, 'NonInheritor uses Parent as a type but does not inherit — must not be reported').to.be
+      .false
   })
 
   it('does NOT include contracts that use Parent via `using ... for ...`', async () => {
@@ -67,6 +82,7 @@ describe('[hardhat] implementation — inheritance filter', () => {
     const usingForUserFooLine = 32
     const hasUsingForUser = locations.some((l) => l.uri === documentUri && l.range.start.line === usingForUserFooLine)
 
-    expect(hasUsingForUser, 'UsingForUser uses ParentLib for Parent but does not inherit — must not be reported').to.be.false
+    expect(hasUsingForUser, 'UsingForUser uses ParentLib for Parent but does not inherit — must not be reported').to.be
+      .false
   })
 })
