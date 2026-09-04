@@ -1,22 +1,14 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import assert from "assert";
-import { spawnSync } from "child_process";
-import * as path from "path";
 import * as vscode from "vscode";
 import { getTestContractUri } from "../../helpers/getTestContract";
 import { openFileInEditor, waitForUI } from "../../helpers/editor";
+import { sleep } from "../../helpers/sleep";
 
-const FLATTEN_COMMAND = "solidity.hardhat.flattenCurrentFile";
+const FLATTENED_MARKER = "Sources flattened with hardhat";
 const OPEN_TIMEOUT = 20_000;
+const TEXT_TIMEOUT = 20_000;
 
 suite("commands - flatten", function () {
-  // The probe below needs longer than mocha's default, so that a hang reports
-  // what it found rather than being killed at 30s with nothing to say.
-  this.timeout(120_000);
-
-  // `index.ts` sets `retries: 5` for every test. Mocha prints only the last
-  // attempt's error, so retrying here would run the probe six times and show
-  // one report — and the failure it is chasing repeats on every attempt anyway.
   this.retries(0);
 
   test("flatten via command palette", async () => {
@@ -33,113 +25,70 @@ suite("commands - flatten", function () {
       "workbench.action.acceptSelectedQuickOpenItem"
     );
 
-    // Wait for new tab to be opened, then a bit extra for the contract text to
-    // be populated.
-    if (!(await documentOpens(OPEN_TIMEOUT))) {
-      assert.fail(await diagnose(uri));
+    const flattened = await documentOpens(isFlattenOutput, OPEN_TIMEOUT);
+
+    if (flattened === undefined) {
+      assert.fail("flatten did not open an untitled Solidity document");
     }
 
-    await waitForUI();
-
-    const editor = vscode.window.activeTextEditor!;
-    assert.ok(
-      editor.document.getText().includes("Sources flattened with hardhat")
-    );
+    if (!(await textArrives(flattened, FLATTENED_MARKER, TEXT_TIMEOUT))) {
+      assert.fail(
+        `${FLATTENED_MARKER} never appeared in the opened document. ` +
+          `After ${TEXT_TIMEOUT}ms it held ${flattened.getText().length} ` +
+          `characters:\n${flattened.getText().slice(0, 800)}`
+      );
+    }
   });
 });
 
-/** Resolves true when a document opens, false if none does in time. */
-async function documentOpens(timeout: number): Promise<boolean> {
+/**
+ * What `openNewDocument` creates for the flattened source: an untitled
+ * Solidity document, as opposed to a file the editor happened to open.
+ */
+function isFlattenOutput(document: vscode.TextDocument): boolean {
+  return (
+    document.uri.scheme === "untitled" && document.languageId === "solidity"
+  );
+}
+
+/** The next matching document to open, or undefined if none does in time. */
+async function documentOpens(
+  matches: (document: vscode.TextDocument) => boolean,
+  timeout: number
+): Promise<vscode.TextDocument | undefined> {
   return new Promise((resolve) => {
-    const subscription = vscode.workspace.onDidOpenTextDocument(() => {
+    const subscription = vscode.workspace.onDidOpenTextDocument((document) => {
+      if (!matches(document)) {
+        return;
+      }
+
       clearTimeout(timer);
       subscription.dispose();
-      resolve(true);
+      resolve(document);
     });
 
     const timer = setTimeout(() => {
       subscription.dispose();
-      resolve(false);
+      resolve(undefined);
     }, timeout);
   });
 }
 
-/**
- * Why no document opened. The command hangs identically whether the palette
- * picked the wrong entry or `hardhat flatten` produced nothing —
- * `FlattenCurrentFileCommand.onClose` returns without opening a document when
- * stdout is empty — so this separates the two, in one CI run:
- *
- * - runs `hardhat flatten` the way the command does, and reports its exit
- *   status and output;
- * - invokes the command by id, skipping the palette, and says whether that
- *   opened a document.
- */
-async function diagnose(uri: vscode.Uri): Promise<string> {
-  const lines = ["flatten did not open a document.", ""];
+/** Polls a document until it holds `marker`, or the timeout expires. */
+async function textArrives(
+  document: vscode.TextDocument,
+  marker: string,
+  timeout: number
+): Promise<boolean> {
+  const deadline = Date.now() + timeout;
 
-  const projectDir = path.dirname(path.dirname(path.dirname(uri.fsPath)));
-  lines.push(`Project: ${projectDir}`);
-  lines.push(`Node: ${process.version} on ${process.platform}`);
-  lines.push(
-    `Command registered: ${(await vscode.commands.getCommands()).includes(
-      FLATTEN_COMMAND
-    )}`
-  );
-  lines.push("", "Open documents:");
+  while (Date.now() < deadline) {
+    if (document.getText().includes(marker)) {
+      return true;
+    }
 
-  for (const document of vscode.workspace.textDocuments) {
-    lines.push(`  ${document.languageId}  ${document.uri.toString()}`);
+    await sleep(100);
   }
 
-  lines.push("", "Running hardhat flatten directly:");
-  lines.push(indent(runFlatten(projectDir, uri.fsPath)));
-
-  lines.push("", "Invoking the command by id, without the palette:");
-  const byId = vscode.commands.executeCommand(FLATTEN_COMMAND);
-  const openedById = await documentOpens(OPEN_TIMEOUT);
-  await byId;
-  lines.push(`  opened a document: ${openedById}`);
-
-  return lines.join("\n");
-}
-
-function runFlatten(projectDir: string, file: string): string {
-  let cliPath: string;
-
-  try {
-    cliPath = require.resolve("hardhat/internal/cli/cli", {
-      paths: [projectDir],
-    });
-  } catch (resolveError) {
-    return `could not resolve the hardhat CLI: ${resolveError}`;
-  }
-
-  const { status, stdout, stderr, error } = spawnSync(
-    "node",
-    [cliPath, "flatten", file],
-    { cwd: projectDir, encoding: "utf8", timeout: 60_000 }
-  );
-
-  return [
-    `cli: ${cliPath}`,
-    `exit: ${status}${error === undefined ? "" : ` (${error.message})`}`,
-    `stdout (${stdout?.length ?? 0} bytes): ${truncate(stdout)}`,
-    `stderr (${stderr?.length ?? 0} bytes): ${truncate(stderr)}`,
-  ].join("\n");
-}
-
-function truncate(text: string | null): string {
-  if (text === null || text === "") {
-    return "<empty>";
-  }
-
-  return text.length > 800 ? `${text.slice(0, 800)}…` : text;
-}
-
-function indent(text: string): string {
-  return text
-    .split("\n")
-    .map((line) => `  ${line}`)
-    .join("\n");
+  return false;
 }
