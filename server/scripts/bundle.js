@@ -14,6 +14,8 @@ const ANTLR_MODULE_PATH = path.join(
   "antlr"
 );
 
+const MODULE_ALIAS_CJS = require.resolve("module-alias");
+
 const SOLIDITY_TOKENS = "Solidity.tokens";
 const SOLIDITY_LEXER_TOKENS = "SolidityLexer.tokens";
 
@@ -74,6 +76,9 @@ async function main() {
     minifyWhitespace: false,
     minifyIdentifiers: false,
     minifySyntax: false,
+    alias: {
+      "module-alias": MODULE_ALIAS_CJS,
+    },
     external: [
       "@nomicfoundation/solidity-analyzer",
       "@nomicfoundation/slang",
