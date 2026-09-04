@@ -1,22 +1,25 @@
 import { WorkspaceFolder } from "vscode-languageserver-protocol";
 import { WorkspaceFileRetriever } from "@utils/WorkspaceFileRetriever";
-import { SolFileEntry } from "@analyzer/SolFileEntry";
 import _ from "lodash";
 import path from "path";
 import { startSpan } from "@sentry/core";
+import { SolFileEntry } from "../../parser/SolFileEntry";
 import { decodeUriAndRemoveFilePrefix, toUnixStyle } from "../../utils/index";
 import { ServerState } from "../../types";
 import { HardhatIndexer } from "../../frameworks/Hardhat/HardhatIndexer";
 import { Project } from "../../frameworks/base/Project";
 import { ProjectlessProject } from "../../frameworks/Projectless/ProjectlessProject";
 import { Logger } from "../../utils/Logger";
-import { analyzeSolFile } from "../../parser/analyzer/analyzeSolFile";
-import { getOrInitialiseSolFileEntry } from "../../utils/getOrInitialiseSolFileEntry";
+import { normalizeAbsolutePath } from "../../utils/paths";
 import { FoundryIndexer } from "../../frameworks/Foundry/FoundryIndexer";
 import { frameworkTag } from "../../telemetry/tags";
 import { TruffleIndexer } from "../../frameworks/Truffle/TruffleIndexer";
 import { ApeIndexer } from "../../frameworks/Ape/ApeIndexer";
-import { normalizeAbsolutePath } from "../../utils/paths";
+import { isTestMode } from "../../utils";
+import {
+  getCompilationForFile,
+  resolvePragmaGroupsForProject,
+} from "../../parser/compilation";
 import { resolveTopLevelWorkspaceFolders } from "./resolveTopLevelWorkspaceFolders";
 
 export async function indexWorkspaceFolders(
@@ -109,17 +112,59 @@ export async function indexWorkspaceFolders(
     serverState.indexedWorkspaceFolders.push(workspaceFolder);
   }
 
-  // Analyze local files
-  await logger.trackTime("Analyzing solidity files", async () => {
-    await startSpan({ name: "analyzeSolidityFiles" }, async () => {
-      const localSolFileUris = solFileUris.filter(
-        (uri) => serverState.solFileIndex[uri]?.isLocal === true
-      );
-      logger.info(`Analyzing ${localSolFileUris.length} solidity files`);
-      await analyzeSolFiles(serverState, logger, localSolFileUris);
-      logger.info(`Finished analyzing`);
-    });
+  // Pre-analyze local files to populate framework dependency graphs
+  // (needed for import resolution in multi-file compilations)
+  const localSolFileUris = solFileUris!.filter(
+    (uri) => serverState.solFileIndex[uri]?.isLocal === true
+  );
+
+  await logger.trackTime("Pre-analyzing solidity files", async () => {
+    for (const documentUri of localSolFileUris) {
+      try {
+        const solFileEntry = serverState.solFileIndex[documentUri];
+
+        if (solFileEntry?.text !== undefined) {
+          const absolutePath = normalizeAbsolutePath(documentUri);
+          await solFileEntry.project.preAnalyze(
+            absolutePath,
+            solFileEntry.text
+          );
+        }
+      } catch (err) {
+        logger.error(err);
+      }
+    }
   });
+
+  // Warm the Slang compilation cache so the user's first interaction with a
+  // file doesn't pay the full project parse cost. Cache entries are keyed
+  // by (project, resolved-solc-version), so warm one entry per distinct
+  // pragma group in each project. Skipped in tests (per-test scopes).
+  if (!isTestMode()) {
+    await logger.trackTime("Warming compilation cache", async () => {
+      const seenProjects = new Set<string>();
+      for (const documentUri of localSolFileUris) {
+        const solFileEntry = serverState.solFileIndex[documentUri];
+        if (solFileEntry === undefined) continue;
+        const projectBase = solFileEntry.project.basePath;
+        if (seenProjects.has(projectBase)) continue;
+        seenProjects.add(projectBase);
+
+        const groupReps = await resolvePragmaGroupsForProject(
+          serverState,
+          projectBase
+        );
+
+        for (const representativeFileId of groupReps) {
+          try {
+            await getCompilationForFile(serverState, representativeFileId);
+          } catch (err) {
+            logger.trace(`warm-up failed for ${representativeFileId}: ${err}`);
+          }
+        }
+      }
+    });
+  }
 }
 
 async function scanForSolFiles(
@@ -190,46 +235,6 @@ export async function indexSolidityFile(
   serverState.solFileIndex[fileUri] = solFileEntry;
 
   return solFileEntry;
-}
-
-async function analyzeSolFiles(
-  serverState: ServerState,
-  logger: Logger,
-  solFileUris: string[]
-) {
-  const { solFileIndex } = serverState;
-
-  try {
-    // We will initialize all DocumentAnalizers first, because when we analyze documents we enter to their imports and
-    // if they are not analyzed we analyze them, in order to be able to analyze imports we need to have DocumentAnalizer and
-    // therefore we initiate everything first. The isAnalyzed serves to check if the document was analyzed so we don't analyze the document twice.
-    for (let i = 0; i < solFileUris.length; i++) {
-      const documentUri = solFileUris[i];
-      const absolutePath = normalizeAbsolutePath(documentUri);
-
-      try {
-        logger.trace(`Analyzing file ${i}/${solFileUris.length}`);
-
-        const solFileEntry = getOrInitialiseSolFileEntry(
-          serverState,
-          documentUri
-        );
-
-        if (!solFileEntry.isAnalyzed()) {
-          await solFileEntry.project.preAnalyze(
-            absolutePath,
-            solFileEntry.text!
-          );
-          await analyzeSolFile({ solFileIndex }, solFileEntry);
-        }
-      } catch (err) {
-        logger.error(err);
-        logger.trace("Analysis of file failed", { documentUri });
-      }
-    }
-  } catch (err) {
-    logger.error(err);
-  }
 }
 
 async function findProjectForFile(serverState: ServerState, fileUri: string) {

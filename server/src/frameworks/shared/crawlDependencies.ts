@@ -1,6 +1,5 @@
 import { analyze } from "@nomicfoundation/solidity-analyzer";
 import _ from "lodash";
-import { analyzeSolFile } from "../../parser/analyzer/analyzeSolFile";
 import { getOrInitialiseSolFileEntry } from "../../utils/getOrInitialiseSolFileEntry";
 import { Project } from "../base/Project";
 
@@ -25,14 +24,8 @@ export async function getDependenciesAndPragmas(
   let text = project.serverState.solFileIndex[sourcePath]?.text;
 
   if (text === undefined) {
-    // TODO: inject this
-    const solFileEntry = getOrInitialiseSolFileEntry(
-      project.serverState,
-      sourcePath
-    );
-    if (!solFileEntry.isAnalyzed()) {
-      await analyzeSolFile(project.serverState, solFileEntry);
-    }
+    // Ensure the file is indexed so its text is available
+    getOrInitialiseSolFileEntry(project.serverState, sourcePath);
   }
 
   text = project.serverState.solFileIndex[sourcePath]?.text;

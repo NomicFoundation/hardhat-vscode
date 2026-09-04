@@ -1,348 +1,399 @@
 import { SignatureHelpParams } from "vscode-languageserver/node";
-import { onCommand } from "@utils/onCommand";
-import {
-  VSCodePosition,
-  ISolFileEntry,
-  Position,
+import { SignatureHelp, ParameterInformation } from "@common/types";
+import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with {
+  "resolution-mode": "import",
+};
+import type {
+  BaseRewriter,
+  Cursor,
   Node,
-  TextDocument,
-  SignatureHelp,
-  SignatureInformation,
-  ParameterInformation,
-  FunctionDefinitionNode,
-} from "@common/types";
-import { Logger } from "@utils/Logger";
-import { isCharacterALetter, isCharacterANumber } from "../../utils";
+} from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
 import { ServerState } from "../../types";
+import { onCommand } from "../../utils/onCommand";
+import {
+  findConstructorInContract,
+  findFirstDescendant,
+  getCursorAtPosition,
+  resolveIdentifierFromCursor,
+  resolveToDefinition,
+} from "../../parser/slangHelpers";
 
-interface DeclarationSignature {
-  declarationNodePosition: Position;
+import { createCommentStripRewriter } from "./rewriters/CommentStripRewriter";
+
+// Cached singleton; constructed on first use.
+let commentStripRewriter: BaseRewriter | undefined;
+
+async function getCommentStripRewriter(): Promise<BaseRewriter> {
+  if (commentStripRewriter === undefined) {
+    commentStripRewriter = await createCommentStripRewriter();
+  }
+  return commentStripRewriter;
+}
+
+// Nonterminal kinds whose CST nodes represent a callable site whose arguments
+// list we may sit inside (we walk ancestors for any of these).
+const CALL_LIKE_KINDS = new Set([
+  "FunctionCallExpression",
+  "EmitStatement",
+  "RevertStatement",
+  "NewExpression",
+]);
+
+interface CallContext {
+  calleeCursor: Cursor;
   activeParameter: number;
 }
 
 export const onSignatureHelp = (serverState: ServerState) => {
-  return (params: SignatureHelpParams): SignatureHelp | null | undefined => {
-    try {
-      return onCommand(
-        serverState,
-        "onSignatureHelp",
-        params.textDocument.uri,
-        (documentAnalyzer, document) =>
-          signatureHelp(
-            document,
-            params.position,
-            documentAnalyzer,
-            serverState.logger
-          )
-      );
-    } catch (err) {
-      serverState.logger.error(err);
-
-      return null;
-    }
-  };
+  return onCommand<SignatureHelpParams, SignatureHelp | null>(
+    serverState,
+    signatureHelp,
+    null
+  );
 };
 
-function signatureHelp(
-  document: TextDocument,
-  vsCodePosition: VSCodePosition,
-  documentAnalyzer: ISolFileEntry,
-  logger: Logger
-): SignatureHelp | undefined {
-  if (documentAnalyzer.text === undefined) {
-    return undefined;
+async function signatureHelp(
+  unit: CompilationUnit,
+  internalUri: string,
+  params: SignatureHelpParams
+): Promise<SignatureHelp | null> {
+  const callContext = await findCallContext(unit, internalUri, params.position);
+
+  if (callContext === null) {
+    return null;
   }
 
-  const analyzerTree = documentAnalyzer.analyzerTree.tree;
+  const { calleeCursor, activeParameter } = callContext;
 
-  const declarationSignature = getDeclarationSignature(
-    vsCodePosition,
-    document
-  );
+  const resolution = await resolveIdentifierFromCursor(unit, calleeCursor);
 
-  if (!declarationSignature) {
-    return undefined;
+  if (resolution === undefined) {
+    return null;
   }
 
-  const definitionNode = documentAnalyzer.searcher.findDefinitionNodeByPosition(
-    documentAnalyzer.uri,
-    declarationSignature.declarationNodePosition,
-    analyzerTree
-  );
+  const definition = resolveToDefinition(resolution);
 
-  if (!definitionNode) {
-    return undefined;
+  if (definition === undefined) {
+    return null;
   }
 
-  const definitionSignature = getDefinitionSignature(definitionNode, logger);
-
-  if (!definitionSignature) {
-    return undefined;
+  // For constructor calls (`new Foo()`), the definition resolves to the
+  // contract; find the constructor within it.
+  const nameLocation = definition.nameLocation;
+  if (nameLocation.isUserFileLocation()) {
+    const parentCursor = nameLocation.cursor.clone();
+    if (
+      parentCursor.goToParent() &&
+      parentCursor.node.isNonterminalNode() &&
+      parentCursor.node.kind === "ContractDefinition"
+    ) {
+      const ctorCursor = await findConstructorInContract(parentCursor);
+      if (ctorCursor !== undefined) {
+        return parseSignatureFromNode(ctorCursor.node, activeParameter);
+      }
+    }
   }
 
-  return {
-    signatures: [definitionSignature],
-    activeSignature: undefined,
-    activeParameter: declarationSignature.activeParameter,
-  };
+  const definiensLocation = definition.definiensLocation;
+
+  if (!definiensLocation.isUserFileLocation()) {
+    return null;
+  }
+
+  return parseSignatureFromNode(definiensLocation.cursor.node, activeParameter);
 }
 
-function getDeclarationSignature(
-  vsCodePosition: VSCodePosition,
-  document: TextDocument
-): DeclarationSignature | undefined {
-  let activeParameter = 0;
-  let declarationNodePosition!: Position;
+/**
+ * Walk the CST around the user position to find the enclosing call-like
+ * expression. Returns the callee cursor (rightmost identifier inside the
+ * call's operand) plus which argument the user is currently editing.
+ *
+ * CST-based — correctly handles strings, comments, nested calls, and
+ * complex type expressions in parameter positions.
+ */
+async function findCallContext(
+  unit: CompilationUnit,
+  internalUri: string,
+  position: { line: number; character: number }
+): Promise<CallContext | null> {
+  const cursor = getCursorAtPosition(
+    unit,
+    internalUri,
+    position.line,
+    position.character
+  );
 
-  const offsetDocument = document
-    .getText()
-    .substring(0, document.offsetAt(vsCodePosition));
+  if (cursor === undefined) {
+    return null;
+  }
 
-  for (let i = offsetDocument.length - 1; i >= 0; i--) {
-    const char = offsetDocument.charAt(i);
+  const userOffset = cursor.textRange.start.utf8;
 
-    if (char === ";" || char === "}") {
-      return undefined;
-    }
+  const ancestor = cursor.clone();
 
-    if (char === ",") {
-      activeParameter++;
+  while (ancestor.goToParent()) {
+    if (
+      !ancestor.node.isNonterminalNode() ||
+      !CALL_LIKE_KINDS.has(ancestor.node.kind)
+    ) {
       continue;
     }
 
-    if (char === "(") {
-      declarationNodePosition = findDeclarationNodePosition(i, offsetDocument);
+    const calleeCursor = findCalleeCursor(ancestor.spawn());
+
+    if (calleeCursor === undefined) {
+      return null;
+    }
+
+    const activeParameter = countArgumentSeparatorsBefore(
+      ancestor.spawn(),
+      userOffset
+    );
+
+    return { calleeCursor, activeParameter };
+  }
+
+  return null;
+}
+
+/**
+ * Find the rightmost Identifier terminal inside the call's operand — i.e.
+ * the callable's name. Walks the call expression's direct children skipping
+ * the ArgumentsDeclaration child; collects identifiers along the way.
+ */
+function findCalleeCursor(callCursor: Cursor): Cursor | undefined {
+  let lastIdentifier: Cursor | undefined;
+
+  if (!callCursor.goToFirstChild()) {
+    return undefined;
+  }
+
+  do {
+    if (
+      callCursor.node.isNonterminalNode() &&
+      callCursor.node.kind === "ArgumentsDeclaration"
+    ) {
       break;
+    }
+
+    // Walk the child subtree for Identifier terminals.
+    const sub = callCursor.spawn();
+    while (sub.goToNext()) {
+      if (sub.node.isTerminalNode() && sub.node.kind === "Identifier") {
+        lastIdentifier = sub.clone();
+      }
+    }
+  } while (callCursor.goToNextSibling());
+
+  return lastIdentifier;
+}
+
+/**
+ * Within a call expression's ArgumentsDeclaration, count the number of
+ * top-level argument separators (Commas) whose end is at or before the
+ * given offset. That's the active parameter index.
+ */
+function countArgumentSeparatorsBefore(
+  callCursor: Cursor,
+  userOffset: number
+): number {
+  // Descend to ArgumentsDeclaration -> PositionalArgumentsDeclaration ->
+  // PositionalArguments. The Commas we want are direct children of the
+  // PositionalArguments node (separators of its items).
+  const positional = findFirstDescendant(
+    callCursor,
+    (c) => c.node.isNonterminalNode() && c.node.kind === "PositionalArguments"
+  );
+
+  if (positional === undefined) {
+    return 0;
+  }
+
+  let count = 0;
+  const child = positional.spawn();
+
+  if (!child.goToFirstChild()) {
+    return 0;
+  }
+
+  do {
+    if (
+      child.node.isTerminalNode() &&
+      child.node.kind === "Comma" &&
+      child.textRange.end.utf8 <= userOffset
+    ) {
+      count++;
+    }
+  } while (child.goToNextSibling());
+
+  return count;
+}
+
+/**
+ * Parse a callable CST node (function / constructor / modifier / event /
+ * error / etc.) into a SignatureHelp. Strips comments via Rewriter then
+ * uses a paren-aware splitter so types like `mapping(K => V)`, tuple
+ * `(a, b)`, and function types in parameter positions don't split wrong.
+ */
+async function parseSignatureFromNode(
+  node: Node,
+  activeParameter: number
+): Promise<SignatureHelp | null> {
+  const rawText = node.unparse();
+  const documentation = extractLeadingNatspec(rawText);
+
+  const stripper = await getCommentStripRewriter();
+  const stripped = stripper.rewriteNode(node);
+  const text = (stripped ?? node).unparse().trim();
+
+  const braceIndex = text.indexOf("{");
+  let signatureText =
+    braceIndex > 0 ? text.substring(0, braceIndex).trim() : text.trim();
+
+  signatureText = signatureText.replace(/;$/, "").trim();
+  signatureText = `${signatureText.replace(/\s+/g, " ")} `;
+
+  if (signatureText.trim().length === 0) {
+    return null;
+  }
+
+  const parenOpen = signatureText.indexOf("(");
+  if (parenOpen < 0) {
+    return null;
+  }
+
+  // Find the matching ')' for parenOpen, tracking nested depth so that types
+  // like `mapping(uint => uint)` and `(uint a, uint b)` tuple params don't
+  // confuse the matcher.
+  const parenClose = findMatchingCloseParen(signatureText, parenOpen);
+  if (parenClose < 0) {
+    return null;
+  }
+
+  const paramString = signatureText.substring(parenOpen + 1, parenClose);
+  const parameters: ParameterInformation[] = [];
+
+  if (paramString.trim().length > 0) {
+    let argumentOffset = parenOpen + 1;
+
+    for (const param of splitTopLevelCommas(paramString)) {
+      parameters.push({
+        label: [argumentOffset, argumentOffset + param.length],
+      });
+      argumentOffset += param.length + 1;
     }
   }
 
   return {
-    declarationNodePosition,
+    signatures: [
+      {
+        label: signatureText,
+        parameters,
+        ...(documentation !== undefined ? { documentation } : {}),
+      },
+    ],
+    activeSignature: undefined,
     activeParameter,
   };
 }
 
-function getDefinitionSignature(
-  definitionNode: Node,
-  logger: Logger
-): SignatureInformation | undefined {
-  if (definitionNode.type === "ContractDefinition") {
-    const constructorNode =
-      getContractDefinitionConstructorNode(definitionNode);
+/**
+ * Find the index of the `)` that matches the `(` at `openIndex`, tracking
+ * nested paren depth so e.g. `mapping(K => V)` doesn't close prematurely.
+ */
+function findMatchingCloseParen(text: string, openIndex: number): number {
+  let depth = 1;
 
-    if (!constructorNode) {
-      return undefined;
-    }
-
-    definitionNode = constructorNode;
-  }
-
-  if (
-    definitionNode.type === "FunctionDefinition" ||
-    definitionNode.type === "EventDefinition" ||
-    definitionNode.type === "ModifierDefinition" ||
-    definitionNode.type === "CustomErrorDefinition"
-  ) {
-    return getNodeDefinitionSignature(definitionNode, logger);
-  }
-
-  return undefined;
-}
-
-function getNodeDefinitionSignature(
-  definitionNode: Node,
-  logger: Logger
-): SignatureInformation | undefined {
-  const documentAnalyzer = definitionNode.solFileIndex[definitionNode.uri];
-  const document = documentAnalyzer?.text;
-  const nameLoc = definitionNode.nameLoc;
-
-  if (document === undefined) {
-    return undefined;
-  }
-
-  let offset: number;
-  if (nameLoc) {
-    offset = getOffsetFromPosition(nameLoc.start, document);
-  } else if (definitionNode.astNode.loc) {
-    offset = getOffsetFromPosition(
-      {
-        line: definitionNode.astNode.loc.start.line,
-        column: definitionNode.astNode.loc.start.column,
-      },
-      document
-    );
-  } else {
-    return undefined;
-  }
-
-  const documentation = getDefinitionNodeDocumentation(document, offset);
-
-  let signature = document.substring(offset).split("{")[0];
-  if (definitionNode.type === "FunctionDefinition") {
-    if ((definitionNode as FunctionDefinitionNode).isConstructor) {
-      // Get contract name
-      signature =
-        (definitionNode.parent?.getName() ?? "") +
-        signature.slice("constructor".length);
-    } else {
-      signature = `function ${signature}`;
-    }
-  } else if (definitionNode.type === "EventDefinition") {
-    signature = `event ${signature}`;
-  } else if (definitionNode.type === "ModifierDefinition") {
-    signature = `modifier ${signature}`;
-  } else if (definitionNode.type === "CustomErrorDefinition") {
-    signature = `error ${signature}`;
-  }
-
-  if (!signature) {
-    logger.error(`Unable to parse signature for ${definitionNode.type}`);
-
-    return undefined;
-  }
-
-  signature = signature.split(";")[0];
-  const signatureSplited = signature.split("(");
-  const stringParameters = signatureSplited[1].split(")")[0];
-
-  let argumentOffset = signatureSplited[0].length + 1;
-
-  const parameters: ParameterInformation[] = [];
-  for (const stringParameter of stringParameters.split(",")) {
-    if (stringParameter === "") {
-      break;
-    }
-
-    parameters.push({
-      label: [argumentOffset, argumentOffset + stringParameter.length],
-    });
-
-    argumentOffset += stringParameter.length + 1;
-  }
-
-  return {
-    label: signature,
-    documentation: documentation?.trim(),
-    parameters,
-  };
-}
-
-function getContractDefinitionConstructorNode(
-  definitionNode: Node
-): Node | undefined {
-  for (const child of definitionNode.children) {
-    if (
-      child.type === "FunctionDefinition" &&
-      (child as FunctionDefinitionNode).isConstructor
-    ) {
-      return child;
-    }
-  }
-
-  return undefined;
-}
-
-function getDefinitionNodeDocumentation(
-  document: string,
-  limit: number
-): string | undefined {
-  const newDocument = document.substring(0, limit);
-  const documentLines = newDocument.split("\n");
-  let documentation = "";
-  let isMultiLineComments = false;
-
-  // documentLines.length - 2. Because last element in the documentLines is the node definition,
-  // and we are looking one line above for the documentation.
-  for (let i = documentLines.length - 2; i >= 0; i--) {
-    const documentLine = documentLines[i];
-
-    const trimmedLine = documentLine.trim();
-    if (
-      !isMultiLineComments &&
-      trimmedLine[0] === "/" &&
-      trimmedLine[1] === "/"
-    ) {
-      let singleComment = "//";
-      if (trimmedLine[2] === "/") {
-        singleComment = "///";
+  for (let i = openIndex + 1; i < text.length; i++) {
+    if (text[i] === "(") {
+      depth++;
+    } else if (text[i] === ")") {
+      depth--;
+      if (depth === 0) {
+        return i;
       }
-
-      // Remove comment prefix
-      const prettyDocumentLine = documentLine.split(singleComment, 2)[1];
-      documentation = `${prettyDocumentLine}\n${documentation}`;
-      continue;
     }
-    if (trimmedLine[0] === "*" && trimmedLine[1] === "/") {
-      isMultiLineComments = true;
-      continue;
-    }
-    if (isMultiLineComments && trimmedLine[0] === "*") {
-      // Remove comment prefix
-      const prettyDocumentLine = documentLine.split("*", 2)[1];
-      documentation = `${prettyDocumentLine}\n${documentation}`;
-      continue;
-    }
-
-    break;
   }
 
-  // Remove last new line
-  return documentation.slice(0, -1);
+  return -1;
 }
 
-function findDeclarationNodePosition(
-  offset: number,
-  document: string
-): Position {
-  let i;
-  for (i = offset - 1; i >= 0; i--) {
-    const char = document.charAt(i);
+/**
+ * Split a parameter list on top-level commas only. Commas nested inside
+ * parentheses (mapping, function-type, tuple) are not separators.
+ */
+function splitTopLevelCommas(paramString: string): string[] {
+  const parts: string[] = [];
+  let depth = 0;
+  let current = "";
 
-    if (isCharacterALetter(char) || isCharacterANumber(char)) {
-      break;
+  for (const c of paramString) {
+    if (c === "(") {
+      depth++;
+    } else if (c === ")") {
+      depth--;
+    } else if (c === "," && depth === 0) {
+      parts.push(current);
+      current = "";
+      continue;
     }
+
+    current += c;
   }
 
-  return getPositionFromOffset(i + 1, document);
+  if (current.length > 0) {
+    parts.push(current);
+  }
+
+  return parts;
 }
 
-function getOffsetFromPosition(position: Position, document: string): number {
-  let offset = 0;
-  const documentLines = document.split("\n");
+/**
+ * Extract natspec documentation that appears at the START of the unparsed
+ * text — i.e. as leading trivia of the callable. Anchored to `^` so a block
+ * comment in the function body that happens to look like natspec doesn't
+ * get picked up.
+ */
+function extractLeadingNatspec(text: string): string | undefined {
+  // Multi-line natspec (anchored to start, optional leading whitespace)
+  const multiLineMatch = text.match(/^\s*\/\*\*([\s\S]*?)\*\//);
 
-  for (let i = 0; i < documentLines.length; i++) {
-    const documentLine = documentLines[i];
+  if (multiLineMatch !== null) {
+    const commentText = multiLineMatch[1]
+      .split("\n")
+      .map((l) =>
+        l
+          .trim()
+          .replace(/^\*\s?/, "")
+          .trim()
+      )
+      .filter((l) => l.length > 0 && !l.startsWith("@"))
+      .join(" ")
+      .trim();
 
-    if (position.line - 1 === i) {
-      return offset + position.column;
+    if (commentText.length > 0) {
+      return commentText;
     }
-
-    offset += documentLine.length + 1;
   }
 
-  return offset;
-}
+  // Triple-slash natspec lines, consecutively from start
+  const singleLineMatch = text.match(/^\s*((?:\/\/\/[^\n]*\n\s*)+)/);
 
-function getPositionFromOffset(offset: number, document: string): Position {
-  const documentLines = document.split("\n");
+  if (singleLineMatch !== null) {
+    const lines = singleLineMatch[1].match(/\/\/\/[^\n]*/g);
 
-  let line = 1;
-  let column = offset;
-  // eslint-disable-next-line @typescript-eslint/prefer-for-of
-  for (let i = 0; i < documentLines.length; i++) {
-    const documentLineLength = documentLines[i].length + 1;
+    if (lines !== null) {
+      const commentText = lines
+        .map((l) => l.replace(/^\/\/\/\s?/, "").trim())
+        .filter((l) => l.length > 0 && !l.startsWith("@"))
+        .join(" ")
+        .trim();
 
-    if (column <= documentLineLength) {
-      break;
+      if (commentText.length > 0) {
+        return commentText;
+      }
     }
-
-    column -= documentLineLength;
-    line++;
   }
 
-  return {
-    line,
-    column,
-  };
+  return undefined;
 }

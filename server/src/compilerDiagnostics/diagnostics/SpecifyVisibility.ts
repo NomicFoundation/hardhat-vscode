@@ -8,8 +8,9 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { ResolveActionsContext } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
 import { SolcError, ServerState } from "../../types";
-import { parseFunctionDefinition } from "./parsing/parseFunctionDefinition";
-import { lookupToken } from "./parsing/lookupToken";
+import { getSlangCst } from "../../parser/slangHelpers";
+import { parseFunctionDefinitionAuto } from "./parsing/parseFunctionDefinition";
+import { lookupCursor } from "./parsing/lookupToken";
 
 type Visibility = "public" | "private" | "external" | "internal";
 
@@ -26,44 +27,41 @@ export class SpecifyVisibility {
     return attemptConstrainToFunctionName(document, error);
   }
 
-  public resolveActions(
+  public async resolveActions(
     serverState: ServerState,
     diagnostic: Diagnostic,
     context: ResolveActionsContext
-  ): CodeAction[] {
+  ): Promise<CodeAction[]> {
     const { document, uri } = context;
 
-    const parseResult = parseFunctionDefinition(
+    const parseResult = await parseFunctionDefinitionAuto(
+      serverState,
       diagnostic,
-      document,
-      serverState.logger
+      document
     );
 
     if (parseResult === null) {
       return [];
     }
 
-    const { tokens, functionSourceLocation } = parseResult;
+    const { cursors, functionSourceLocation } = parseResult;
+    const { TerminalKind } = await getSlangCst();
 
-    const lookupResult = lookupToken(
-      tokens,
+    const lookupResult = lookupCursor(
+      cursors,
       document,
       functionSourceLocation,
-      (t) => t.type === "Punctuator" && t.value === ")"
+      (c) => c.node.isTerminalNode() && c.node.kind === TerminalKind.CloseParen
     );
 
     if (lookupResult === null) {
       return [];
     }
 
-    const { token: closingParamListToken } = lookupResult;
-
-    if (closingParamListToken.range === undefined) {
-      return [];
-    }
-
     const startChar =
-      functionSourceLocation.start + closingParamListToken.range[0] + 1;
+      functionSourceLocation.start +
+      lookupResult.cursor.textRange.start.utf8 +
+      1;
 
     return QUICK_FIX_VISIBILITIES.map((visibility) =>
       this._constructVisibilityCodeActionFor(

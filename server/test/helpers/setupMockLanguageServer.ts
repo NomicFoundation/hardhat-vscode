@@ -2,7 +2,6 @@ import { assert } from "chai";
 import * as fs from "fs";
 import * as path from "path";
 import {
-  CompletionItem,
   CompletionList,
   CompletionParams,
   Definition,
@@ -33,26 +32,31 @@ import { forceToUnixStyle } from "./forceToUnixStyle";
 
 export type OnSignatureHelp = (
   params: SignatureHelpParams
-) => SignatureHelp | undefined | null;
+) => Promise<SignatureHelp | undefined | null>;
 export type OnCompletion = (
   params: CompletionParams
-) => CompletionItem[] | CompletionList | undefined | null;
+) => Promise<CompletionList | null>;
 export type OnDefinition = (
   params: DefinitionParams
-) => Definition | DefinitionLink[] | undefined | null;
+) =>
+  | Definition
+  | DefinitionLink[]
+  | undefined
+  | null
+  | Promise<Definition | DefinitionLink[] | undefined | null>;
 export type OnTypeDefinition = (
   params: TypeDefinitionParams
-) => Definition | DefinitionLink[] | null;
+) => Promise<Location[] | null>;
 export type OnReferences = (
   params: ReferenceParams
-) => Location[] | undefined | null;
+) => Promise<Location[] | undefined>;
 export type OnImplementation = (
   params: ImplementationParams
-) => Location[] | undefined | null;
+) => Promise<Location[] | null>;
 export type OnRenameRequest = (
   params: RenameParams
-) => WorkspaceEdit | undefined | null;
-export type OnHover = (params: HoverParams) => Hover | null;
+) => Promise<WorkspaceEdit | undefined>;
+export type OnHover = (params: HoverParams) => Promise<Hover | null>;
 
 export async function setupMockLanguageServer({
   projects,

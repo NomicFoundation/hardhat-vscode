@@ -1,37 +1,38 @@
-import { ISolFileEntry } from "@common/types";
-import { TextDocument } from "vscode-languageserver-textdocument";
-import { addFrameworkTag } from "../telemetry/tags";
+import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with {
+  "resolution-mode": "import",
+};
 import { ServerState } from "../types";
-import { FAILED_PRECONDITION, OK } from "../telemetry/TelemetryStatus";
-import { lookupEntryForUri } from "./lookupEntryForUri";
+import { decodeUriAndRemoveFilePrefix, isTestMode } from "../utils";
+import { getCompilationForFile } from "../parser/compilation";
 
-export function onCommand<T>(
+export function onCommand<P extends { textDocument: { uri: string } }, R>(
   serverState: ServerState,
-  commandName: string,
-  uri: string,
-  action: (documentAnalyzer: ISolFileEntry, document: TextDocument) => T
-) {
-  const { logger, telemetry } = serverState;
+  handler: (unit: CompilationUnit, uri: string, params: P) => Promise<R>,
+  fallback: R
+): (params: P) => Promise<R> {
+  return async (params: P): Promise<R> => {
+    try {
+      const uri = decodeUriAndRemoveFilePrefix(params.textDocument.uri);
 
-  logger.trace(commandName);
+      const unit = await getCompilationForFile(
+        serverState,
+        params.textDocument.uri
+      );
 
-  return telemetry.trackTimingSync(commandName, () => {
-    const { found, errorMessage, documentAnalyzer, document } =
-      lookupEntryForUri(serverState, uri);
-
-    if (!found || !documentAnalyzer || !document) {
-      if (errorMessage !== undefined) {
-        logger.trace(errorMessage);
+      if (unit === undefined) {
+        return fallback;
       }
 
-      return { status: FAILED_PRECONDITION, result: null };
+      return await handler(unit, uri, params);
+    } catch (err) {
+      serverState.logger.error(err);
+
+      // Re-throw in tests so silent fallbacks don't mask real bugs.
+      if (isTestMode()) {
+        throw err;
+      }
+
+      return fallback;
     }
-
-    addFrameworkTag(documentAnalyzer.project);
-
-    return {
-      status: OK,
-      result: action(documentAnalyzer, document),
-    };
-  });
+  };
 }

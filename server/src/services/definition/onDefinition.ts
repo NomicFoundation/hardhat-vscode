@@ -1,57 +1,93 @@
-import { ISolFileEntry, VSCodePosition, Node, Location } from "@common/types";
-import { getParserPositionFromVSCodePosition, getRange } from "@common/utils";
-import { onCommand } from "@utils/onCommand";
-import { DefinitionParams } from "vscode-languageserver/node";
+import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with {
+  "resolution-mode": "import",
+};
+import { DefinitionParams, Location } from "vscode-languageserver/node";
 import { ServerState } from "../../types";
-import { toUri } from "../../utils";
+import { onCommand } from "../../utils/onCommand";
+import {
+  getCursorAtPosition,
+  getSlangCst,
+  resolveIdentifierFromCursor,
+  resolveImportPathNavigation,
+  userFileLocationToLSPLocation,
+} from "../../parser/slangHelpers";
 
 export const onDefinition = (serverState: ServerState) => {
-  return (params: DefinitionParams) => {
-    try {
-      return onCommand(
-        serverState,
-        "onDefinition",
-        params.textDocument.uri,
-        (documentAnalyzer) =>
-          findDefinition(serverState, documentAnalyzer, params.position)
-      );
-    } catch (err) {
-      serverState.logger.error(err);
-    }
-  };
+  return onCommand<DefinitionParams, Location | Location[] | undefined>(
+    serverState,
+    (unit, uri, params) => findDefinition(serverState, unit, uri, params),
+    undefined
+  );
 };
 
-function findDefinition(
+async function findDefinition(
   serverState: ServerState,
-  documentAnalyzer: ISolFileEntry,
-  position: VSCodePosition
-) {
-  const definitionNode = documentAnalyzer.searcher.findDefinitionNodeByPosition(
-    documentAnalyzer.uri,
-    getParserPositionFromVSCodePosition(position),
-    documentAnalyzer.analyzerTree.tree
+  unit: CompilationUnit,
+  internalUri: string,
+  params: DefinitionParams
+): Promise<Location | Location[] | undefined> {
+  const { TerminalKind } = await getSlangCst();
+
+  const cursor = getCursorAtPosition(
+    unit,
+    internalUri,
+    params.position.line,
+    params.position.character
   );
 
-  if (!definitionNode) {
+  if (cursor === undefined || !cursor.node.isTerminalNode()) {
     return undefined;
   }
 
-  const location = resolveLocationFrom(definitionNode);
+  // Handle import path string navigation
+  if (
+    cursor.node.kind === TerminalKind.SingleQuotedStringLiteral ||
+    cursor.node.kind === TerminalKind.DoubleQuotedStringLiteral
+  ) {
+    return resolveImportPathNavigation(serverState, unit, cursor, internalUri);
+  }
 
-  if (!location) {
+  const resolution = await resolveIdentifierFromCursor(unit, cursor);
+
+  if (resolution === undefined) {
     return undefined;
   }
 
-  return {
-    uri: toUri(definitionNode.uri),
-    range: getRange(location),
-  };
-}
+  // Try as a reference first (most common case: cursor on a usage)
+  if (resolution.reference !== undefined) {
+    const definitions = resolution.reference.definitions();
 
-function resolveLocationFrom(definitionNode: Node): Location | undefined {
-  if (definitionNode.type === "ImportDirective") {
-    return definitionNode.astNode.loc;
+    if (definitions.length > 0) {
+      const locations: Location[] = [];
+
+      for (const def of definitions) {
+        const nameLocation = def.nameLocation;
+
+        if (nameLocation.isUserFileLocation()) {
+          locations.push(userFileLocationToLSPLocation(nameLocation));
+        }
+      }
+
+      if (locations.length === 1) {
+        return locations[0];
+      }
+
+      if (locations.length > 1) {
+        return locations;
+      }
+
+      return undefined;
+    }
   }
 
-  return definitionNode.nameLoc ?? definitionNode.astNode.loc;
+  // Try as a definition (cursor already on the definition)
+  if (resolution.definition !== undefined) {
+    const nameLocation = resolution.definition.nameLocation;
+
+    if (nameLocation.isUserFileLocation()) {
+      return userFileLocationToLSPLocation(nameLocation);
+    }
+  }
+
+  return undefined;
 }

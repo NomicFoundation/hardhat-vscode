@@ -1,94 +1,273 @@
-import {
-  isIdentifierNode,
-  isMemberAccessNode,
-  isUserDefinedTypeNameNode,
-} from "@analyzer/utils/typeGuards";
-import { getParserPositionFromVSCodePosition } from "@common/utils";
-import { HoverParams, Hover } from "vscode-languageserver/node";
-import {
-  ISolFileEntry,
-  IdentifierNode,
-  MemberAccessNode,
+import { HoverParams, Hover, MarkupKind } from "vscode-languageserver/node";
+import type { CompilationUnit } from "@nomicfoundation/slang/compilation" with {
+  "resolution-mode": "import",
+};
+import type {
+  BaseRewriter,
   Node,
-} from "@common/types";
-import { onCommand } from "@utils/onCommand";
+  NonterminalKind as NonterminalKindType,
+  NonterminalNode,
+} from "@nomicfoundation/slang/cst" with { "resolution-mode": "import" };
 import { ServerState } from "../../types";
-import { astToText } from "./utils/astToText";
-import { textToHover } from "./utils/textTohover";
+import { onCommand } from "../../utils/onCommand";
+import {
+  findConstructorInContract,
+  findConstructorFromKeyword,
+  getCursorAtPosition,
+  getSlangAst,
+  getSlangCst,
+  isInsideNewExpression,
+  resolveIdentifierAtPosition,
+  resolveToDefinition,
+} from "../../parser/slangHelpers";
+
+import { createSignatureRewriter } from "./rewriters/SignatureRewriter";
+import { createBodyKeepRewriter } from "./rewriters/BodyKeepRewriter";
+
+// Cached singletons; constructed on first use.
+let signatureRewriter: BaseRewriter | undefined;
+let bodyKeepRewriter: BaseRewriter | undefined;
+
+async function getRewriters(): Promise<{
+  signature: BaseRewriter;
+  bodyKeep: BaseRewriter;
+}> {
+  if (signatureRewriter === undefined) {
+    signatureRewriter = await createSignatureRewriter();
+  }
+  if (bodyKeepRewriter === undefined) {
+    bodyKeepRewriter = await createBodyKeepRewriter();
+  }
+  return { signature: signatureRewriter, bodyKeep: bodyKeepRewriter };
+}
 
 export function onHover(serverState: ServerState) {
-  return (params: HoverParams): Hover | null => {
-    try {
-      return onCommand(
-        serverState,
-        "onHover",
-        params.textDocument.uri,
-        (documentAnalyzer) =>
-          findHoverForNodeAtPosition(documentAnalyzer, params)
-      );
-    } catch (err) {
-      serverState.logger.error(err);
+  return onCommand<HoverParams, Hover | null>(serverState, findHover, null);
+}
 
+async function findHover(
+  unit: CompilationUnit,
+  internalUri: string,
+  params: HoverParams
+): Promise<Hover | null> {
+  const { NonterminalKind } = await getSlangCst();
+
+  const positionCursor = getCursorAtPosition(
+    unit,
+    internalUri,
+    params.position.line,
+    params.position.character
+  );
+
+  // A constructor has no name, so the binding graph has nothing to resolve.
+  // Hovering the `constructor` keyword is answered from the CST instead.
+  const constructorCursor =
+    positionCursor === undefined
+      ? undefined
+      : findConstructorFromKeyword(positionCursor);
+
+  let definiensNode: Node;
+
+  if (constructorCursor !== undefined) {
+    definiensNode = constructorCursor.node;
+  } else {
+    const resolution = await resolveIdentifierAtPosition(
+      unit,
+      internalUri,
+      params.position.line,
+      params.position.character
+    );
+
+    if (resolution === undefined) {
       return null;
     }
+
+    const definition = resolveToDefinition(resolution);
+
+    if (definition === undefined) {
+      return null;
+    }
+
+    const definiensLocation = definition.definiensLocation;
+
+    if (!definiensLocation.isUserFileLocation()) {
+      return null;
+    }
+
+    definiensNode = definiensLocation.cursor.node;
+
+    // `new X(...)` resolves to the contract X. What the reader is asking about
+    // is the thing being called, so prefer its constructor when it has one —
+    // matching what signature help already does for the same expression.
+    const nameLocation = definition.nameLocation;
+
+    if (
+      positionCursor !== undefined &&
+      isInsideNewExpression(positionCursor) &&
+      nameLocation.isUserFileLocation()
+    ) {
+      const contractCursor = nameLocation.cursor.clone();
+
+      if (
+        contractCursor.goToParent() &&
+        contractCursor.node.isNonterminalNode() &&
+        contractCursor.node.kind === "ContractDefinition"
+      ) {
+        const ctorCursor = await findConstructorInContract(contractCursor);
+
+        if (ctorCursor !== undefined) {
+          definiensNode = ctorCursor.node;
+        }
+      }
+    }
+  }
+
+  // Contract/interface/library hovers: read the header children via the AST.
+  // This avoids any need to walk braces or strip member blocks.
+  const headerText = await tryBuildContractLikeHeader(
+    definiensNode,
+    NonterminalKind
+  );
+  let hoverText: string;
+
+  if (headerText !== undefined) {
+    hoverText = headerText;
+  } else {
+    // Type definitions (struct, enum) — show full body, just strip leading comments.
+    // Everything else (function/modifier/constructor/state var/local var) — strip body
+    // and initializer via the signature rewriter.
+    const isEnum =
+      definiensNode.isNonterminalNode() &&
+      definiensNode.kind === NonterminalKind.EnumDefinition;
+    const isStruct =
+      definiensNode.isNonterminalNode() &&
+      definiensNode.kind === NonterminalKind.StructDefinition;
+    const isTypeDefinition = isEnum || isStruct;
+
+    const rewriters = await getRewriters();
+    const rewriter = isTypeDefinition
+      ? rewriters.bodyKeep
+      : rewriters.signature;
+    const rewritten: Node | undefined = rewriter.rewriteNode(definiensNode);
+
+    hoverText = (rewritten ?? definiensNode).unparse();
+
+    if (isEnum) {
+      // An enum is short enough to read on one line, and a hover is not the
+      // place to reproduce how the source happened to wrap it.
+      hoverText = hoverText
+        .replace(/;+\s*$/, "")
+        .replace(/\s+/g, " ")
+        .trim();
+    } else if (isStruct) {
+      // Keep the body over several lines, but not the indentation it inherited
+      // from wherever the struct sits in the file — a nested declaration would
+      // otherwise arrive in the popup pushed several levels to the right.
+      hoverText = dedent(hoverText.replace(/;+\s*$/, "").trim());
+    } else {
+      // These regexes operate on text that the rewriter has already stripped
+      // of comments and bodies/initializers — so any whitespace and
+      // parentheses we see here are structural (signature shape), never
+      // inside user-controlled strings or comments.
+      hoverText = hoverText.replace(/;+\s*$/, "");
+      // Collapse residual multi-line whitespace from where bodies/initializers used to be
+      hoverText = hoverText.replace(/\s+/g, " ").trim();
+      // Normalize spaces around parentheses: `( x, y )` → `(x, y)`
+      hoverText = hoverText.replace(/\(\s+/g, "(").replace(/\s+\)/g, ")");
+    }
+  }
+
+  if (hoverText.length === 0) {
+    return null;
+  }
+
+  return {
+    contents: {
+      kind: MarkupKind.Markdown,
+      value: ["```solidity", hoverText, "```"].join("\n"),
+    },
   };
 }
 
-function findHoverForNodeAtPosition(
-  documentAnalyzer: ISolFileEntry,
-  params: HoverParams
-) {
-  const position = getParserPositionFromVSCodePosition(params.position);
+/**
+ * Removes the indentation a multi-line declaration inherited from its position
+ * in the file, by stripping the smallest indent any of its later lines has.
+ * The first line is already flush, since unparsing starts at the declaration.
+ */
+function dedent(text: string): string {
+  const [first, ...rest] = text.split("\n");
 
-  // Resolve through the parent chain, the same lookup goToDefinition uses.
-  // Unlike `typeNodes`, it is populated on declarations, so hovering a
-  // declaration describes the declaration itself rather than returning nothing.
-  const definitionNode = documentAnalyzer.searcher.findDefinitionNodeByPosition(
-    documentAnalyzer.uri,
-    position,
-    documentAnalyzer.analyzerTree.tree
-  );
+  const indents = rest
+    .filter((line) => line.trim() !== "")
+    .map((line) => (line.match(/^[ \t]*/) ?? [""])[0].length);
 
-  if (definitionNode !== undefined) {
-    const hoverText = astToText(definitionNode.astNode);
-
-    if (hoverText !== null) {
-      return textToHover(hoverText);
-    }
+  if (indents.length === 0) {
+    return text;
   }
 
-  // Fall back to the type nodes recorded by `usedef`.
-  const node = documentAnalyzer.searcher.findNodeByPosition(
-    documentAnalyzer.uri,
-    position,
-    documentAnalyzer.analyzerTree.tree
-  );
+  const common = Math.min(...indents);
 
-  if (node === undefined) {
-    return null;
-  }
-
-  if (
-    !isIdentifierNode(node) &&
-    !isMemberAccessNode(node) &&
-    !isUserDefinedTypeNameNode(node)
-  ) {
-    return null;
-  }
-
-  return convertNodeToHover(node);
+  return [first, ...rest.map((line) => line.slice(common))].join("\n");
 }
 
-export function convertNodeToHover(
-  node: IdentifierNode | MemberAccessNode | Node
-): Hover | null {
-  const typeNode = node.typeNodes[0];
-
-  if (typeNode === undefined) {
-    return null;
+/**
+ * For a ContractDefinition/InterfaceDefinition/LibraryDefinition definiens,
+ * build the header text directly from the AST: keyword(s), name, and
+ * inheritance/specifiers. Returns undefined for any other node kind, so the
+ * caller can fall back to the rewriter-based path.
+ */
+async function tryBuildContractLikeHeader(
+  definiensNode: Node,
+  NonterminalKind: typeof NonterminalKindType
+): Promise<string | undefined> {
+  if (!definiensNode.isNonterminalNode()) {
+    return undefined;
   }
 
-  const hoverText = astToText(typeNode.astNode);
+  const node: NonterminalNode = definiensNode;
+  const kind = node.kind;
 
-  return textToHover(hoverText);
+  if (
+    kind !== NonterminalKind.ContractDefinition &&
+    kind !== NonterminalKind.InterfaceDefinition &&
+    kind !== NonterminalKind.LibraryDefinition
+  ) {
+    return undefined;
+  }
+
+  const ast = await getSlangAst();
+
+  if (kind === NonterminalKind.ContractDefinition) {
+    const c = new ast.ContractDefinition(node);
+    const parts: string[] = [];
+    if (c.abstractKeyword !== undefined) {
+      parts.push(c.abstractKeyword.unparse().trim());
+    }
+    parts.push(c.contractKeyword.unparse().trim());
+    parts.push(c.name.unparse().trim());
+    const specifiers = c.specifiers.cst.unparse().trim();
+    if (specifiers.length > 0) {
+      parts.push(specifiers);
+    }
+    return parts.join(" ");
+  }
+
+  if (kind === NonterminalKind.InterfaceDefinition) {
+    const i = new ast.InterfaceDefinition(node);
+    const parts: string[] = [
+      i.interfaceKeyword.unparse().trim(),
+      i.name.unparse().trim(),
+    ];
+    if (i.inheritance !== undefined) {
+      const inh = i.inheritance.cst.unparse().trim();
+      if (inh.length > 0) {
+        parts.push(inh);
+      }
+    }
+    return parts.join(" ");
+  }
+
+  // LibraryDefinition
+  const l = new ast.LibraryDefinition(node);
+  return `${l.libraryKeyword.unparse().trim()} ${l.name.unparse().trim()}`;
 }

@@ -1,6 +1,5 @@
 import { TextDocumentChangeEvent } from "vscode-languageserver";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { analyzeSolFile } from "@analyzer/analyzeSolFile";
 import { decodeUriAndRemoveFilePrefix, isTestMode } from "../../utils/index";
 import { ServerState } from "../../types";
 import { addFrameworkTag } from "../../telemetry/tags";
@@ -36,8 +35,6 @@ export async function analyse(
         return { status: FAILED_PRECONDITION, result: false };
       }
       await solFileEntry.project.preAnalyze(absolutePath, document.getText());
-
-      await analyzeSolFile(serverState, solFileEntry, document.getText());
 
       // Notify that a file was successfully
       if (isTestMode()) {
