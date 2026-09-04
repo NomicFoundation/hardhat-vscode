@@ -164,18 +164,120 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: node scripts/release/main.ts review
 
+  notify-deploy:
+    name: Notify pre-deploy to Slack
+    needs: [pack, review]
+    if: needs.pack.outputs.hasPackages == 'true'
+    timeout-minutes: 5
+    runs-on: ubuntu-latest
+    permissions: {} # Slack webhook only, no GitHub API calls
+    steps:
+      - name: Notify pre-deploy
+        continue-on-error: true
+        timeout-minutes: 1
+        uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
+        with:
+          webhook: ${{ secrets.PUBLISHING_NOTIFICATIONS_SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": "Deployment review requested by ${{ github.actor }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Deployment review requested by ${{ github.actor }}*"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} #${{ github.run_number }}> / Publish packages"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "`publish` waiting for review — v${{ needs.pack.outputs.version }}"
+                  }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "${{ github.repository }}"
+                    }
+                  ]
+                }
+              ]
+            }
+
   publish:
     name: Publish packages
-    needs: [pack, review]
+    needs: [pack, review, notify-deploy]
     if: needs.pack.outputs.hasPackages == 'true'
     timeout-minutes: 60
     runs-on: ubuntu-latest
     environment: publish
     permissions:
-      actions: read # To download the artifacts to publish
+      actions: read # To download the artifacts, and to read who approved the deployment
       id-token: write # Needed for npm Trusted Publishing (OIDC)
       contents: read # For the scripts these steps run
     steps:
+      - name: Get approver
+        id: approver
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          approver=$(gh api "/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/approvals" --jq '.[0].user.login // empty') || true
+
+          if [[ -z "$approver" ]]; then
+            echo "::warning::No approver from the approvals API; using github.actor"
+          fi
+
+          echo "login=${approver:-$GITHUB_ACTOR}" >> "$GITHUB_OUTPUT"
+
+      - name: Notify deployment approved
+        continue-on-error: true
+        timeout-minutes: 1
+        uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
+        with:
+          webhook: ${{ secrets.PUBLISHING_NOTIFICATIONS_SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": "Deployment review approved by ${{ steps.approver.outputs.login }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Deployment review approved by ${{ steps.approver.outputs.login }}*\n:rocket: Publishing v${{ needs.pack.outputs.version }} now"
+                  }
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} #${{ github.run_number }}>"
+                  }
+                },
+                {
+                  "type": "context",
+                  "elements": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "${{ github.repository }}"
+                    }
+                  ]
+                }
+              ]
+            }
+
       - name: Checkout Repo
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
