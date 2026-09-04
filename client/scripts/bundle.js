@@ -156,6 +156,12 @@ async function main() {
       "@nomicfoundation/slang",
       "fsevents",
       "mocha",
+      // ts-node reaches its optional swc transpiler through
+      // `require.resolve`, which esbuild cannot rewrite. The path is only
+      // taken by a project that sets `swc` in its ts-node options, and it
+      // would not resolve inside the bundle either way, so mark it external -
+      // esbuild's own suggestion - rather than let it warn on every build.
+      "./transpilers/swc.js",
     ],
     platform: "node",
     outdir: ".",
@@ -168,7 +174,7 @@ async function main() {
     define: definedConstants,
   });
 
-  if (warnings.length > 1 || errors.length > 1) {
+  if (warnings.length > 0 || errors.length > 0) {
     console.error("Warning/Errors found");
     for (const message of warnings.concat(errors)) {
       console.error(message);

@@ -84,6 +84,7 @@ async function main() {
       "@nomicfoundation/slang",
       "fsevents",
       "mocha",
+      "./transpilers/swc.js",
     ],
     platform: "node",
     outdir: ".",
@@ -93,7 +94,7 @@ async function main() {
     define: definedConstants,
   });
 
-  if (warnings.length > 1 || errors.length > 1) {
+  if (warnings.length > 0 || errors.length > 0) {
     console.error("Warning/Errors found");
     for (const message of warnings.concat(errors)) {
       console.error(message);
