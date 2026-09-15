@@ -51,7 +51,7 @@
     "eslint": "eslint ./src/**/*.ts",
     "prettier": "prettier *.json \"src/**/*.{ts,js,md,json,yml}\"",
     "clean": "rimraf out tmp tsconfig.tsbuildinfo",
-    "prepackage": "pnpm run clean && node scripts/bundle.js",
+    "prepackage": "pnpm run clean && node --experimental-strip-types ../scripts/bundle/main.ts client",
     "package": "cd ./tmp && vsce package --no-dependencies --no-yarn -o ..",
     "postpackage": "rimraf ./tmp"
   },
