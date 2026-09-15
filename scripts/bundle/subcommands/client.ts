@@ -6,6 +6,11 @@ import { copyAntlrTokens } from "../utils/antlr.ts";
 import { definedConstants, loadEnvFile } from "../utils/env.ts";
 import { build, commonOptions } from "../utils/esbuild.ts";
 import { CLIENT_DIR, ROOT_DIR, SERVER_DIR } from "../utils/paths.ts";
+import {
+  injectDebugIds,
+  removeSourcemaps,
+  uploadSourcemaps,
+} from "../utils/sourcemaps.ts";
 
 const execAsync = promisify(exec);
 
@@ -85,7 +90,14 @@ export async function bundleClient(): Promise<void> {
     loader: {
       ".md": "text",
     },
+    sourcemap: true,
   });
+
+  // Before the native dependencies are installed, so that neither the debug
+  // ids nor the upload reach anything under `tmp/server/node_modules`.
+  injectDebugIds(tmpDir);
+  uploadSourcemaps(tmpDir);
+  removeSourcemaps(tmpDir);
 
   await fetchExternalServerDependencies(serverDir);
 }
