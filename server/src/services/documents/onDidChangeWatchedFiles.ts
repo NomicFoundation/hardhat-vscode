@@ -26,7 +26,10 @@ export function onDidChangeWatchedFiles(serverState: ServerState) {
         await project.onWatchedFilesChanges(params);
       } catch (error) {
         serverState.logger.error(
-          `onWatchedFilesChanges error on ${project.id()}: ${error}`
+          new Error(
+            `onWatchedFilesChanges error in a ${project.frameworkName()} project`,
+            { cause: error }
+          )
         );
       }
     }
