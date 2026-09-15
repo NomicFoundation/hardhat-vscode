@@ -96,6 +96,7 @@ export class Hardhat2Project extends Project {
           cwd: this.basePath,
           detached: true,
           execArgv: [],
+          serialization: "advanced",
         }
       );
       this.workerStatus = WorkerStatus.INITIALIZING;
