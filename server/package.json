@@ -29,7 +29,7 @@
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
     "prebundle": "pnpm run clean",
-    "bundle": "node scripts/bundle.js",
+    "bundle": "node --experimental-strip-types ../scripts/bundle/main.ts server",
     "prepack": "pnpm run bundle",
     "test": "cross-env TS_NODE_FILES=true mocha",
     "test:coverage": "cross-env TS_NODE_FILES=true nyc mocha",

@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable no-console */
-import path from "path";
-import fs from "fs";
+import fs from "node:fs";
+import path from "node:path";
 
 // whitelist templates to process
 const relativeTemplatePaths = [
@@ -12,7 +10,7 @@ const relativeTemplatePaths = [
 
 // get templates' absolute paths
 const templatePaths = relativeTemplatePaths.map((p) =>
-  path.resolve(__dirname, p)
+  path.resolve(import.meta.dirname, p)
 );
 
 // generate interpolated file for each template
