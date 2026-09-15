@@ -197,7 +197,7 @@ function getNodeDefinitionSignature(
   }
 
   if (!signature) {
-    logger.error(`Unable to parse signature for ${definitionNode.type}`);
+    logger.errorMessage(`Unable to parse signature for ${definitionNode.type}`);
 
     return undefined;
   }

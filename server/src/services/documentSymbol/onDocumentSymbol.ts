@@ -168,7 +168,7 @@ export function onDocumentSymbol(serverState: ServerState) {
 
         return { status: OK, result: builder.getSymbols() };
       } catch (error) {
-        logger.error(`Document Symbol Error: ${error}`);
+        logger.error(new Error("Document Symbol Error", { cause: error }));
         return { status: INTERNAL_ERROR, result: null };
       }
     });

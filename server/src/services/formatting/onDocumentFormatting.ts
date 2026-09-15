@@ -31,7 +31,7 @@ export function onDocumentFormatting(serverState: ServerState) {
         const document = serverState.documents.get(uri);
 
         if (document === undefined) {
-          logger.error(`Failed to format, uri ${uri} not indexed`);
+          logger.errorMessage(`Failed to format, uri ${uri} not indexed`);
 
           return { status: INTERNAL_ERROR, result: null };
         }

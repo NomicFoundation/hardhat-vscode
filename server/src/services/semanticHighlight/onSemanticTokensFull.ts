@@ -61,7 +61,7 @@ export function onSemanticTokensFull(serverState: ServerState) {
         const document = serverState.documents.get(uri);
 
         if (document === undefined) {
-          logger.error("document not found in collection");
+          logger.errorMessage("document not found in collection");
           return {
             status: INTERNAL_ERROR,
             result: emptyResponse,
