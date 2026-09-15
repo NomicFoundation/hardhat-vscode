@@ -1,4 +1,5 @@
 import { ExtensionContext } from "vscode";
+import { SOLIDITY_SENTRY_DSN } from "./constants";
 import { showSoliditySurveyPopup } from "./popups/showSoliditySurveyPopup";
 import { warnOnOtherSolidityExtensions } from "./popups/warnOnOtherSolidityExtensions";
 import { indexHardhatProjects } from "./setup/indexHardhatProjects";
@@ -11,11 +12,10 @@ import { ExtensionState } from "./types";
 
 let extensionState: ExtensionState | null = null;
 
-const SENTRY_DSN =
-  "https://9d1e887190db400791c77d9bb5a154fd@o385026.ingest.sentry.io/5469451";
-
 export async function activate(context: ExtensionContext) {
-  extensionState = setupExtensionState(context, { sentryDsn: SENTRY_DSN });
+  extensionState = setupExtensionState(context, {
+    sentryDsn: SOLIDITY_SENTRY_DSN,
+  });
 
   try {
     const { logger } = extensionState;

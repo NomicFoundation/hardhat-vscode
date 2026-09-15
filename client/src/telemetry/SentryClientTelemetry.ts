@@ -21,6 +21,10 @@ export class SentryClientTelemetry implements Telemetry {
   public init(extensionState: ExtensionState) {
     this.extensionState = extensionState;
 
+    if (this.dsn === "") {
+      return;
+    }
+
     const integrations = getDefaultIntegrations({}).filter(
       (defaultIntegration) => {
         return !["BrowserApiErrors", "Breadcrumbs", "GlobalHandlers"].includes(
