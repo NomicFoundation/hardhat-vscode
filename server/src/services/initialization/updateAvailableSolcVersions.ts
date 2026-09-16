@@ -108,6 +108,7 @@ export const availableVersions = [
   "0.8.34",
   "0.8.35",
   "0.8.36",
+  "0.8.37",
 ];
 
 export async function updateAvailableSolcVersions(state: ServerState) {
