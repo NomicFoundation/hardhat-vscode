@@ -1,5 +1,12 @@
 # @nomicfoundation/coc-solidity
 
+## 0.9.1
+
+### Patch Changes
+
+- 2a4f640: Updated Slang to 1.3.9, so that document symbols and semantic highlighting parse Solidity up to 0.8.37.
+- 13c0d68: Added 0.8.37 to the bundled list of solc versions.
+
 ## 0.9.0
 
 ### Minor Changes
