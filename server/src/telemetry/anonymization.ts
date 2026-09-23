@@ -29,7 +29,7 @@ function anonymizeString(str?: string) {
 
   return str.replace(pathRegex, (match) => {
     if (internalRegex.test(match) && match.endsWith(".js")) {
-      return `<extension-root>${match.replace(internalRegex, "")}`;
+      return `app://${match.replace(internalRegex, "")}`;
     } else {
       return ANONYMIZED_FILE;
     }

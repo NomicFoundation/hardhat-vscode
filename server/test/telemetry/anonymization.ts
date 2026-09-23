@@ -46,7 +46,7 @@ describe("anonymization", () => {
 
         assert.strictEqual(
           anonymizedEvent.message,
-          "<extension-root>/internal_path/file.js <extension-root>/internal_path/file2.js <extension-root>\\internal_path\\file3.js <extension-root>/internal_path/file4.js "
+          "app:///internal_path/file.js app:///internal_path/file2.js app://\\internal_path\\file3.js app:///internal_path/file4.js "
         );
       });
     });
@@ -235,7 +235,7 @@ describe("anonymization", () => {
               type: "sourcemap",
               // The same rewrite a stack frame gets, so that the frame and the
               // image still name the same file and Sentry can pair them.
-              code_file: "<extension-root>/server/out/index.js",
+              code_file: "app:///server/out/index.js",
               debug_id: "729f57a4-ba27-5d46-bcde-1534a4e33a53",
             },
             {
