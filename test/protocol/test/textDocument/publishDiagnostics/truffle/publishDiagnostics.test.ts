@@ -45,8 +45,9 @@ describe('[truffle] publishDiagnostics', () => {
 
     await client.getDiagnostic(documentPath, {
       source: 'solidity',
+      code: '6275',
       severity: DiagnosticSeverity.Error,
-      message: 'File not found',
+      message: 'NonExistent.sol" not found',
       range: {
         start: {
           line: 4,
