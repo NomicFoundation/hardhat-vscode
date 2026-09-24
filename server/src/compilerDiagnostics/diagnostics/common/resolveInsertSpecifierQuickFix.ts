@@ -5,14 +5,21 @@ import {
   Range,
 } from "vscode-languageserver/node";
 import { TextDocument } from "vscode-languageserver-textdocument";
-import { Token } from "@solidity-parser/parser/dist/src/types";
+import type { Cursor } from "@nomicfoundation/slang/cst" with {
+  "resolution-mode": "import",
+};
 import { ResolveActionsContext } from "@compilerDiagnostics/types";
-import { Logger } from "@utils/Logger";
-import { LookupResult, lookupToken } from "../parsing/lookupToken";
 import {
-  parseFunctionDefinition,
+  getFunctionHeaderShape,
+  HeaderShape,
+  lookupCursor,
+} from "../parsing/lookupToken";
+import {
+  parseFunctionDefinitionAuto,
   ParseFunctionDefinitionResult,
 } from "../parsing/parseFunctionDefinition";
+import type { ServerState } from "../../../types";
+import { getSlangCst } from "../../../parser/slangHelpers";
 
 export class Multioverride {
   public contractIdentifiers: string[];
@@ -32,110 +39,108 @@ export class Multioverride {
 
 type Specifier = "virtual" | "override" | Multioverride;
 
-export function resolveInsertSpecifierQuickFix(
+export async function resolveInsertSpecifierQuickFix(
   specifier: Specifier,
   diagnostic: Diagnostic,
   { document, uri }: ResolveActionsContext,
-  logger: Logger
+  serverState: ServerState
 ) {
   if (!diagnostic.data) {
     return [];
   }
 
-  const parseResult = parseFunctionDefinition(diagnostic, document, logger);
+  const parseResult = await parseFunctionDefinitionAuto(
+    serverState,
+    diagnostic,
+    document
+  );
 
   if (parseResult === null) {
     return [];
   }
 
-  const { functionDefinition } = parseResult;
+  const { functionDefinition, cursors, functionSourceLocation } = parseResult;
+  const { virtualKeyword, visibilityKeyword, mutabilityKeyword } =
+    functionDefinition;
 
-  if (functionDefinition.isVirtual) {
-    return buildActionFrom(
+  // Pick the keyword to insert *after*. Order matters: an existing virtual
+  // overrides everything (insert after it); then mutability if present;
+  // then visibility; finally fall back to the close-paren of the params.
+  let targetCursor: Cursor | undefined;
+
+  if (virtualKeyword !== undefined) {
+    targetCursor = virtualKeyword;
+  } else if (mutabilityKeyword !== undefined) {
+    targetCursor = mutabilityKeyword;
+  } else if (visibilityKeyword !== undefined) {
+    targetCursor = visibilityKeyword;
+  }
+
+  if (targetCursor !== undefined) {
+    const shape = getFunctionHeaderShape(
+      cursors,
+      document,
+      functionSourceLocation
+    );
+
+    if (shape === null) {
+      return [];
+    }
+
+    return buildAction(
       specifier,
       document,
       uri,
       parseResult,
-      (t) => t.type === "Keyword" && t.value === "virtual"
+      targetCursor,
+      shape
     );
   }
 
-  if (
-    functionDefinition.visibility === "default" &&
-    functionDefinition.stateMutability === null
-  ) {
-    return buildActionFrom(
-      specifier,
-      document,
-      uri,
-      parseResult,
-      (t) => t.type === "Punctuator" && t.value === ")"
-    );
-  }
-
-  if (
-    functionDefinition.visibility !== "default" &&
-    functionDefinition.stateMutability === null
-  ) {
-    return buildActionFrom(
-      specifier,
-      document,
-      uri,
-      parseResult,
-      (t) => t.type === "Keyword" && t.value === functionDefinition.visibility
-    );
-  }
-
-  if (
-    functionDefinition.visibility !== "default" &&
-    functionDefinition.stateMutability !== null
-  ) {
-    return buildActionFrom(
-      specifier,
-      document,
-      uri,
-      parseResult,
-      (t) =>
-        t.type === "Keyword" && t.value === functionDefinition.stateMutability
-    );
-  }
-
-  return [];
-}
-
-function buildActionFrom(
-  specifier: Specifier,
-  document: TextDocument,
-  uri: string,
-  parseFnDef: ParseFunctionDefinitionResult,
-  tokenSelector: (token: Token) => boolean
-) {
-  const { tokens, functionSourceLocation } = parseFnDef;
-
-  const lookupResult = lookupToken(
-    tokens,
+  // No virtual/visibility/mutability — insert after the parameters' `)`.
+  const { TerminalKind } = await getSlangCst();
+  const lookupResult = lookupCursor(
+    cursors,
     document,
     functionSourceLocation,
-    tokenSelector
+    (c) => c.node.isTerminalNode() && c.node.kind === TerminalKind.CloseParen
   );
 
   if (lookupResult === null) {
     return [];
   }
 
-  const { token } = lookupResult;
-
-  if (token.range === undefined) {
-    return [];
-  }
-
-  const change = buildChangeFrom(
+  return buildAction(
     specifier,
     document,
-    token,
-    parseFnDef,
+    uri,
+    parseResult,
+    lookupResult.cursor,
     lookupResult
   );
+}
+
+function buildAction(
+  specifier: Specifier,
+  document: TextDocument,
+  uri: string,
+  parseFnDef: ParseFunctionDefinitionResult,
+  targetCursor: Cursor,
+  shape: HeaderShape
+): CodeAction[] {
+  const { functionSourceLocation } = parseFnDef;
+  const end = targetCursor.textRange.end.utf8;
+
+  const position = document.positionAt(
+    functionSourceLocation.start + end + (shape.isSameLine ? 0 : 1)
+  );
+
+  const change = {
+    newText: shape.isSameLine
+      ? ` ${specifier}`
+      : `${"".padStart(shape.offset)}${specifier}\n`,
+    range: Range.create(position, position),
+  };
 
   const action: CodeAction = {
     title: buildTitle(specifier),
@@ -149,27 +154,6 @@ function buildActionFrom(
   };
 
   return [action];
-}
-
-function buildChangeFrom(
-  specifier: Specifier,
-  document: TextDocument,
-  token: Token,
-  { functionSourceLocation }: ParseFunctionDefinitionResult,
-  { isSameLine, offset }: LookupResult
-) {
-  const end = token?.range ? token.range[1] : 0;
-
-  const position = document.positionAt(
-    functionSourceLocation.start + end + (isSameLine ? 0 : 1)
-  );
-
-  return {
-    newText: isSameLine
-      ? ` ${specifier}`
-      : `${"".padStart(offset)}${specifier}\n`,
-    range: Range.create(position, position),
-  };
 }
 
 function buildTitle(specifier: Specifier | Multioverride) {

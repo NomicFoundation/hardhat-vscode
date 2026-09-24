@@ -8,12 +8,13 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { CompilerDiagnostic, ResolveActionsContext } from "../types";
 import { attemptConstrainToFunctionName } from "../conversions/attemptConstrainToFunctionName";
 import { SolcError, ServerState } from "../../types";
+import { getSlangCst } from "../../parser/slangHelpers";
 import { readMessageFromDiagnostic } from "../../utils/readMessageFromDiagnostic";
 import {
-  parseFunctionDefinition,
+  parseFunctionDefinitionAuto,
   ParseFunctionDefinitionResult,
 } from "./parsing/parseFunctionDefinition";
-import { lookupToken } from "./parsing/lookupToken";
+import { getFunctionHeaderShape } from "./parsing/lookupToken";
 
 export class ConstrainMutability implements CompilerDiagnostic {
   public code = "2018";
@@ -26,42 +27,50 @@ export class ConstrainMutability implements CompilerDiagnostic {
     return attemptConstrainToFunctionName(document, error);
   }
 
-  public resolveActions(
+  public async resolveActions(
     serverState: ServerState,
     diagnostic: Diagnostic,
     { document, uri }: ResolveActionsContext
-  ): CodeAction[] {
+  ): Promise<CodeAction[]> {
     if (!diagnostic.data) {
       return [];
     }
 
-    const parseResult = parseFunctionDefinition(
+    const parseResult = await parseFunctionDefinitionAuto(
+      serverState,
       diagnostic,
-      document,
-      serverState.logger
+      document
     );
 
     if (parseResult === null) {
       return [];
     }
 
-    if (parseResult.functionDefinition.stateMutability === "view") {
+    const { TerminalKind } = await getSlangCst();
+    const { mutabilityKeyword } = parseResult.functionDefinition;
+
+    if (
+      mutabilityKeyword !== undefined &&
+      mutabilityKeyword.node.isTerminalNode() &&
+      mutabilityKeyword.node.kind === TerminalKind.ViewKeyword
+    ) {
       return this._modifyViewToPureAction(document, uri, parseResult);
-    } else {
-      return this._addMutabilityAction(diagnostic, document, uri, parseResult);
     }
+
+    return this._addMutabilityAction(diagnostic, document, uri, parseResult);
   }
 
   private _modifyViewToPureAction(
     document: TextDocument,
     uri: string,
-    { functionSourceLocation, tokens }: ParseFunctionDefinitionResult
+    {
+      functionSourceLocation,
+      functionDefinition,
+    }: ParseFunctionDefinitionResult
   ): CodeAction[] {
-    const viewKeyword = tokens.find(
-      (t) => t.type === "Keyword" && t.value === "view"
-    );
+    const viewKeyword = functionDefinition.mutabilityKeyword;
 
-    if (!viewKeyword || !viewKeyword.range) {
+    if (viewKeyword === undefined) {
       return [];
     }
 
@@ -75,10 +84,11 @@ export class ConstrainMutability implements CompilerDiagnostic {
             {
               range: Range.create(
                 document.positionAt(
-                  functionSourceLocation.start + viewKeyword.range[0]
+                  functionSourceLocation.start +
+                    viewKeyword.textRange.start.utf8
                 ),
                 document.positionAt(
-                  functionSourceLocation.start + viewKeyword.range[1]
+                  functionSourceLocation.start + viewKeyword.textRange.end.utf8
                 )
               ),
               newText: "pure",
@@ -97,42 +107,39 @@ export class ConstrainMutability implements CompilerDiagnostic {
     uri: string,
     {
       functionSourceLocation,
-      tokens,
+      cursors,
       functionDefinition,
     }: ParseFunctionDefinitionResult
   ): CodeAction[] {
     const modifier = readMessageFromDiagnostic(diagnostic).includes("pure")
       ? "pure"
       : "view";
-    const visibility = functionDefinition.visibility;
+    const visibilityKeyword = functionDefinition.visibilityKeyword;
 
-    const lookupResult = lookupToken(
-      tokens,
-      document,
-      functionSourceLocation,
-      (t) => t.type === "Keyword" && t.value === visibility
-    );
-
-    if (lookupResult === null) {
+    if (visibilityKeyword === undefined) {
       return [];
     }
 
-    const { token: visibilityKeyword, isSameLine } = lookupResult;
+    const shape = getFunctionHeaderShape(
+      cursors,
+      document,
+      functionSourceLocation
+    );
 
-    if (visibilityKeyword.range === undefined) {
+    if (shape === null) {
       return [];
     }
 
     const visibilityKeywordPosition = document.positionAt(
-      functionSourceLocation.start + visibilityKeyword.range[0] + 1
+      functionSourceLocation.start + visibilityKeyword.textRange.start.utf8 + 1
     );
 
-    const newText = isSameLine
+    const newText = shape.isSameLine
       ? `${modifier} `
       : `${"".padStart(visibilityKeywordPosition.character - 1)}${modifier}\n`;
 
     const endOfVisibilityChar =
-      functionSourceLocation.start + visibilityKeyword.range[1] + 1;
+      functionSourceLocation.start + visibilityKeyword.textRange.end.utf8 + 1;
 
     const addMutabilityAction: CodeAction = {
       title: `Add ${modifier} modifier to function declaration`,

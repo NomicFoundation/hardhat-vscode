@@ -8,8 +8,9 @@ import { TextDocument } from "vscode-languageserver-textdocument";
 import { attemptConstrainToContractName } from "@compilerDiagnostics/conversions/attemptConstrainToContractName";
 import { ResolveActionsContext } from "../types";
 import { SolcError, ServerState } from "../../types";
+import { getSlangCst } from "../../parser/slangHelpers";
 import {
-  parseContractDefinition,
+  parseContractDefinitionAuto,
   ParseContractDefinitionResult,
 } from "./parsing/parseContractDefinition";
 import { buildImplementInterfaceQuickFix } from "./common/ImplementInterface/buildImplementInterfaceQuickFix";
@@ -25,22 +26,24 @@ export class MarkContractAbstract {
     return attemptConstrainToContractName(document, error);
   }
 
-  public resolveActions(
+  public async resolveActions(
     serverState: ServerState,
     diagnostic: Diagnostic,
     context: ResolveActionsContext
-  ): CodeAction[] {
-    const parseResult = parseContractDefinition(
+  ): Promise<CodeAction[]> {
+    const parseResult = await parseContractDefinitionAuto(
+      serverState,
       diagnostic,
-      context,
-      serverState.logger
+      context
     );
 
     if (parseResult === null) {
       return [];
     }
 
-    const implementInterfaceQuickFix = buildImplementInterfaceQuickFix(
+    const { TerminalKind } = await getSlangCst();
+
+    const implementInterfaceQuickFix = await buildImplementInterfaceQuickFix(
       serverState,
       parseResult,
       context
@@ -48,7 +51,8 @@ export class MarkContractAbstract {
 
     const addAbstrackQuickFix = this._buildAddAbstractQuickFix(
       parseResult,
-      context
+      context,
+      TerminalKind
     );
 
     return [implementInterfaceQuickFix, addAbstrackQuickFix].filter(
@@ -57,19 +61,22 @@ export class MarkContractAbstract {
   }
 
   private _buildAddAbstractQuickFix(
-    { tokens, functionSourceLocation }: ParseContractDefinitionResult,
-    { document, uri }: ResolveActionsContext
+    { cursors, functionSourceLocation }: ParseContractDefinitionResult,
+    { document, uri }: ResolveActionsContext,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    TerminalKind: any
   ): CodeAction | null {
-    const contractToken = tokens.find(
-      (t) => t.type === "Keyword" && t.value === "contract"
+    const contractKeyword = cursors.find(
+      (c) =>
+        c.node.isTerminalNode() && c.node.kind === TerminalKind.ContractKeyword
     );
 
-    if (contractToken === undefined || contractToken.range === undefined) {
+    if (contractKeyword === undefined) {
       return null;
     }
 
     const startChar =
-      functionSourceLocation.start + (contractToken.range?.[0] ?? 0);
+      functionSourceLocation.start + contractKeyword.textRange.start.utf8;
 
     const quickfix = {
       title: `Add abstract to contract declaration`,

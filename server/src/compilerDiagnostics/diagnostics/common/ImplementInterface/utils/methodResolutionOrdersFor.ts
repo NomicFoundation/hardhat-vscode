@@ -1,17 +1,17 @@
 import { linearize } from "c3-linearization";
-import { ContractDefinitionNode } from "@common/types";
 import {
-  ContractIdToNodeMapping,
+  ContractInfo,
+  ContractIdToInfoMapping,
   InheritanceLookupTable,
   LinearizationContext,
 } from "../types";
 import { toContractId } from "./toContractId";
 
 export function methodResoltionOrdersFor(
-  contractNode: ContractDefinitionNode
+  contractNode: ContractInfo
 ): LinearizationContext {
-  const { lookupTable, contractIdToNodeMapping } =
-    convertContractAstToLookups(contractNode);
+  const { lookupTable, contractIdToInfoMapping } =
+    convertContractToLookups(contractNode);
 
   const linearizations = linearize(lookupTable, {
     reverse: true,
@@ -19,37 +19,37 @@ export function methodResoltionOrdersFor(
 
   return {
     linearizations,
-    contracts: contractIdToNodeMapping,
+    contracts: contractIdToInfoMapping,
   };
 }
 
-function convertContractAstToLookups(contractNode: ContractDefinitionNode) {
+function convertContractToLookups(contractNode: ContractInfo) {
   const lookupTable: InheritanceLookupTable = {};
-  const contractIdToNodeMapping: ContractIdToNodeMapping = {};
+  const contractIdToInfoMapping: ContractIdToInfoMapping = {};
 
   recursivelyAppendInheritanceInfo(
     contractNode,
     lookupTable,
-    contractIdToNodeMapping
+    contractIdToInfoMapping
   );
 
-  return { lookupTable, contractIdToNodeMapping };
+  return { lookupTable, contractIdToInfoMapping };
 }
 
 function recursivelyAppendInheritanceInfo(
-  node: ContractDefinitionNode,
+  node: ContractInfo,
   lookupTable: InheritanceLookupTable,
-  contractIdToNodeMapping: ContractIdToNodeMapping
+  contractIdToInfoMapping: ContractIdToInfoMapping
 ) {
-  for (const inheritanceNode of node.inheritanceNodes) {
+  for (const parent of node.parents) {
     recursivelyAppendInheritanceInfo(
-      inheritanceNode,
+      parent,
       lookupTable,
-      contractIdToNodeMapping
+      contractIdToInfoMapping
     );
   }
 
   const contractId = toContractId(node);
-  contractIdToNodeMapping[contractId] = node;
-  lookupTable[contractId] = node.inheritanceNodes.map(toContractId);
+  contractIdToInfoMapping[contractId] = node;
+  lookupTable[contractId] = node.parents.map(toContractId);
 }

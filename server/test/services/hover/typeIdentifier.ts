@@ -38,13 +38,13 @@ describe("Parser", () => {
         it("should display struct definition when hovering over struct type name in variable declaration", () =>
           assertHover(
             { line: 19, character: 4 },
-            "struct ComplexData {\n    UserInfo info;\n    mapping(uint256 => bool) flags;\n    uint256[] scores;\n}"
+            "struct ComplexData {\n  UserInfo info;\n  mapping(uint256 => bool) flags;\n  uint256[] scores;\n}"
           ));
 
         it("should display struct definition when hovering over struct type name in parameter", () =>
           assertHover(
             { line: 21, character: 27 },
-            "struct ComplexData {\n    UserInfo info;\n    mapping(uint256 => bool) flags;\n    uint256[] scores;\n}"
+            "struct ComplexData {\n  UserInfo info;\n  mapping(uint256 => bool) flags;\n  uint256[] scores;\n}"
           ));
       });
 
@@ -65,7 +65,7 @@ describe("Parser", () => {
         it("should display nested struct definition when hovering over nested struct type name", () =>
           assertHover(
             { line: 14, character: 8 },
-            "struct UserInfo {\n    address addr;\n    string name;\n}"
+            "struct UserInfo {\n  address addr;\n  string name;\n}"
           ));
       });
     });

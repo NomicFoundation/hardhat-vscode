@@ -1,60 +1,36 @@
-import { Diagnostic, Range } from "vscode-languageserver/node";
-import * as parser from "@solidity-parser/parser";
-import { FunctionDefinition, TextDocument } from "@common/types";
-import { Token } from "@solidity-parser/parser/dist/src/types";
-import { Logger } from "@utils/Logger";
+import { Diagnostic } from "vscode-languageserver/node";
+import { TextDocument } from "@common/types";
+import type { Cursor } from "@nomicfoundation/slang/cst" with {
+  "resolution-mode": "import",
+};
+import type { ServerState } from "../../../types";
+import { parseFunctionDefinition } from "./snippetParsing";
+
+/**
+ * Structured view of a function definition snippet extracted by Slang.
+ * Cursors point at the relevant attribute keywords in the snippet's CST;
+ * any may be `undefined` if the corresponding modifier isn't present.
+ */
+export interface FunctionDefinitionShape {
+  type: "FunctionDefinition";
+  virtualKeyword: Cursor | undefined;
+  visibilityKeyword: Cursor | undefined;
+  mutabilityKeyword: Cursor | undefined;
+}
 
 export interface ParseFunctionDefinitionResult {
-  functionDefinition: FunctionDefinition;
-  tokens: Token[];
+  functionDefinition: FunctionDefinitionShape;
+  cursors: Cursor[];
   functionSourceLocation: { start: number; end: number };
 }
 
-export function parseFunctionDefinition(
+/**
+ * Parse a function definition from diagnostic data.
+ */
+export function parseFunctionDefinitionAuto(
+  serverState: ServerState,
   diagnostic: Diagnostic,
-  document: TextDocument,
-  logger: Logger
-): ParseFunctionDefinitionResult | null {
-  if (!diagnostic.data) {
-    return null;
-  }
-
-  try {
-    const { functionSourceLocation } = diagnostic.data as {
-      functionSourceLocation: { start: number; end: number };
-    };
-
-    const functionText = document.getText(
-      Range.create(
-        document.positionAt(functionSourceLocation.start),
-        document.positionAt(functionSourceLocation.end)
-      )
-    );
-
-    let ast: ReturnType<typeof parser.parse>;
-    try {
-      ast = parser.parse(functionText, {
-        range: true,
-        tolerant: true,
-        tokens: true,
-      });
-    } catch {
-      return null;
-    }
-
-    if (
-      ast.tokens === undefined ||
-      ast.children.length === 0 ||
-      ast.children[0].type !== "FunctionDefinition"
-    ) {
-      return null;
-    }
-
-    const functionDefinition = ast.children[0];
-
-    return { functionDefinition, tokens: ast.tokens, functionSourceLocation };
-  } catch (err) {
-    logger.error(err);
-    return null;
-  }
+  document: TextDocument
+): Promise<ParseFunctionDefinitionResult | null> {
+  return parseFunctionDefinition(diagnostic, document, serverState.logger);
 }

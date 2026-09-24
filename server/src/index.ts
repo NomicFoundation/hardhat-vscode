@@ -5,7 +5,6 @@
 import { addAliases } from "module-alias";
 addAliases({
   "@compilerDiagnostics": `${__dirname}/compilerDiagnostics/`,
-  "@analyzer": `${__dirname}/parser/analyzer/`,
   "@common": `${__dirname}/parser/common/`,
   "@services": `${__dirname}/services/`,
   "@utils": `${__dirname}/utils/`,
