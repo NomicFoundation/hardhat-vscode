@@ -8,18 +8,32 @@ import { getProjectPath, makePosition, makeRange } from '../../../../helpers'
 
 let client!: TestLanguageClient
 
-// Edits within a file come in no particular order: compare them as sets.
+// A WorkspaceEdit can carry its edits in `changes` or in `documentChanges`, and
+// the edits within a file come in no particular order. Normalise both to sorted
+// `changes` of plain `{ range, newText }` edits, leaving out files with no edits.
+// File operations (create, rename, delete) are kept apart under `operations`, so
+// an answer that includes any never compares equal to an edit or a refusal.
 function sorted(edit: WorkspaceEdit | null) {
-  if (edit === null) {
-    return null
-  }
   const changes: Record<string, TextEdit[]> = {}
-  for (const [uri, edits] of Object.entries(edit.changes ?? {})) {
-    changes[uri] = [...edits].sort(
-      (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
-    )
+  const operations: unknown[] = []
+  const add = (uri: string, edits: TextEdit[]) => {
+    if (edits.length > 0) {
+      changes[uri] = [...(changes[uri] ?? []), ...edits.map(({ range, newText }) => ({ range, newText }))].sort(
+        (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
+      )
+    }
   }
-  return { changes }
+  for (const [uri, edits] of Object.entries(edit?.changes ?? {})) {
+    add(uri, edits)
+  }
+  for (const change of edit?.documentChanges ?? []) {
+    if ('edits' in change) {
+      add(change.textDocument.uri, change.edits as TextEdit[])
+    } else {
+      operations.push(change)
+    }
+  }
+  return operations.length > 0 ? { changes, operations } : { changes }
 }
 
 describe('[hardhat3] rename bug - names in an import brace list are never bound', () => {
@@ -72,7 +86,7 @@ describe('[hardhat3] rename bug - names in an import brace list are never bound'
   })
 
   // Bug: returns only the three edits in the declaring file; the brace entry and both calls in the importing file are missing.
-  test.skip('free function imported by name, from its declaration', async () => {
+  test('free function imported by name, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(refDefsPath), makePosition(6, 10), 'flRescale')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -94,7 +108,7 @@ describe('[hardhat3] rename bug - names in an import brace list are never bound'
   })
 
   // Bug: returns only the declaration; the brace entries and the call in the importing files are missing.
-  test.skip('free function imported by name and under an alias, from its declaration', async () => {
+  test('free function imported by name and under an alias, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(ifBasePath), makePosition(7, 9), 'IfRnDouble')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -112,7 +126,7 @@ describe('[hardhat3] rename bug - names in an import brace list are never bound'
   })
 
   // Bug: returns an empty edit; the aliased free function in the braces is never bound.
-  test.skip('alias of an imported free function, from a call', async () => {
+  test('alias of an imported free function, from a call', async () => {
     const workspaceEdit = await client.rename(toUri(ifUserBPath), makePosition(10, 21), 'IfRnTwice')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -129,7 +143,7 @@ describe('[hardhat3] rename bug - names in an import brace list are never bound'
   })
 
   // Bug: returns an empty edit; the struct named in the import braces is never bound.
-  test.skip('file-level struct imported by name, from a struct constructor', async () => {
+  test('file-level struct imported by name, from a struct constructor', async () => {
     const workspaceEdit = await client.rename(toUri(dtBuilderPath), makePosition(14, 23), 'Crate')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -151,7 +165,7 @@ describe('[hardhat3] rename bug - names in an import brace list are never bound'
   })
 
   // Bug: returns an empty edit; the imported struct is never bound, so neither is its member.
-  test.skip('member of a struct imported by name, from a named field', async () => {
+  test('member of a struct imported by name, from a named field', async () => {
     const workspaceEdit = await client.rename(toUri(dtBuilderPath), makePosition(14, 28), 'span')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -171,7 +185,7 @@ describe('[hardhat3] rename bug - names in an import brace list are never bound'
   })
 
   // Bug: returns only the two edits in the declaring file; the Pair in the import braces is missing.
-  test.skip('file-level struct shadowed in the importing contract, from its declaration', async () => {
+  test('file-level struct shadowed in the importing contract, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(dtShapesPath), makePosition(8, 7), 'Duo')
 
     expect(sorted(workspaceEdit)).to.deep.equal(

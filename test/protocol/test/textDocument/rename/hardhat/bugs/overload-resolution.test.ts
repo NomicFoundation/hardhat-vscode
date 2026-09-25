@@ -8,18 +8,32 @@ import { getProjectPath, makePosition, makeRange } from '../../../../helpers'
 
 let client!: TestLanguageClient
 
-// Edits within a file come in no particular order: compare them as sets.
+// A WorkspaceEdit can carry its edits in `changes` or in `documentChanges`, and
+// the edits within a file come in no particular order. Normalise both to sorted
+// `changes` of plain `{ range, newText }` edits, leaving out files with no edits.
+// File operations (create, rename, delete) are kept apart under `operations`, so
+// an answer that includes any never compares equal to an edit or a refusal.
 function sorted(edit: WorkspaceEdit | null) {
-  if (edit === null) {
-    return null
-  }
   const changes: Record<string, TextEdit[]> = {}
-  for (const [uri, edits] of Object.entries(edit.changes ?? {})) {
-    changes[uri] = [...edits].sort(
-      (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
-    )
+  const operations: unknown[] = []
+  const add = (uri: string, edits: TextEdit[]) => {
+    if (edits.length > 0) {
+      changes[uri] = [...(changes[uri] ?? []), ...edits.map(({ range, newText }) => ({ range, newText }))].sort(
+        (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
+      )
+    }
   }
-  return { changes }
+  for (const [uri, edits] of Object.entries(edit?.changes ?? {})) {
+    add(uri, edits)
+  }
+  for (const change of edit?.documentChanges ?? []) {
+    if ('edits' in change) {
+      add(change.textDocument.uri, change.edits as TextEdit[])
+    } else {
+      operations.push(change)
+    }
+  }
+  return operations.length > 0 ? { changes, operations } : { changes }
 }
 
 describe('[hardhat] rename bug - overloads matched by argument count or by name', () => {
@@ -60,7 +74,7 @@ describe('[hardhat] rename bug - overloads matched by argument count or by name'
   })
 
   // Bug: also renames add(1) (29:22), which calls the one-parameter overload.
-  test.skip('two-parameter overload, from a call', async () => {
+  test('two-parameter overload, from a call', async () => {
     const workspaceEdit = await client.rename(toUri(functionsPath), makePosition(30, 22), 'renamedFn')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -78,7 +92,7 @@ describe('[hardhat] rename bug - overloads matched by argument count or by name'
   })
 
   // Bug: renames the two-parameter add and its calls (8:13, 29:22, 30:22, 31:24, 53:20) instead.
-  test.skip('one-parameter overload, from a call', async () => {
+  test('one-parameter overload, from a call', async () => {
     const workspaceEdit = await client.rename(toUri(functionsPath), makePosition(29, 22), 'renamedFn')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -94,7 +108,7 @@ describe('[hardhat] rename bug - overloads matched by argument count or by name'
   })
 
   // Bug: renames record(msg.sender) (22:8) and misses the call inside record(address) (13:15).
-  test.skip('same-arity overload told apart by type, from a member call', async () => {
+  test('same-arity overload told apart by type, from a member call', async () => {
     const workspaceEdit = await client.rename(toUri(refsPath), makePosition(34, 22), 'renamedFn')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -112,7 +126,7 @@ describe('[hardhat] rename bug - overloads matched by argument count or by name'
   })
 
   // Bug: renames the record(uint256) call in its own body (13:15) and misses record(msg.sender) (22:8).
-  test.skip('same-arity overload told apart by type, from the other declaration', async () => {
+  test('same-arity overload told apart by type, from the other declaration', async () => {
     const workspaceEdit = await client.rename(toUri(refsPath), makePosition(12, 13), 'renamedFn')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -128,7 +142,7 @@ describe('[hardhat] rename bug - overloads matched by argument count or by name'
   })
 
   // Bug: returns an empty edit; the inherited overloaded emit is not found.
-  test.skip('inherited overloaded event, from an emit', async () => {
+  test('inherited overloaded event, from an emit', async () => {
     const workspaceEdit = await client.rename(toUri(userPath), makePosition(11, 13), 'EERNLoggedValue')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -148,7 +162,7 @@ describe('[hardhat] rename bug - overloads matched by argument count or by name'
   })
 
   // Bug: renames only the declaration (Log.sol 5:10) and misses emit Logged(msg.sender).
-  test.skip('second event overload, from its declaration', async () => {
+  test('second event overload, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(logPath), makePosition(5, 11), 'EERNLoggedWho')
 
     expect(sorted(workspaceEdit)).to.deep.equal(

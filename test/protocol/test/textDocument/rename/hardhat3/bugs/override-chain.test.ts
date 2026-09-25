@@ -8,18 +8,32 @@ import { getProjectPath, makePosition, makeRange } from '../../../../helpers'
 
 let client!: TestLanguageClient
 
-// Edits within a file come in no particular order: compare them as sets.
+// A WorkspaceEdit can carry its edits in `changes` or in `documentChanges`, and
+// the edits within a file come in no particular order. Normalise both to sorted
+// `changes` of plain `{ range, newText }` edits, leaving out files with no edits.
+// File operations (create, rename, delete) are kept apart under `operations`, so
+// an answer that includes any never compares equal to an edit or a refusal.
 function sorted(edit: WorkspaceEdit | null) {
-  if (edit === null) {
-    return null
-  }
   const changes: Record<string, TextEdit[]> = {}
-  for (const [uri, edits] of Object.entries(edit.changes ?? {})) {
-    changes[uri] = [...edits].sort(
-      (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
-    )
+  const operations: unknown[] = []
+  const add = (uri: string, edits: TextEdit[]) => {
+    if (edits.length > 0) {
+      changes[uri] = [...(changes[uri] ?? []), ...edits.map(({ range, newText }) => ({ range, newText }))].sort(
+        (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
+      )
+    }
   }
-  return { changes }
+  for (const [uri, edits] of Object.entries(edit?.changes ?? {})) {
+    add(uri, edits)
+  }
+  for (const change of edit?.documentChanges ?? []) {
+    if ('edits' in change) {
+      add(change.textDocument.uri, change.edits as TextEdit[])
+    } else {
+      operations.push(change)
+    }
+  }
+  return operations.length > 0 ? { changes, operations } : { changes }
 }
 
 describe('[hardhat3] rename bug - override chains linked by name alone and only to direct bases', () => {
@@ -56,7 +70,7 @@ describe('[hardhat3] rename bug - override chains linked by name alone and only 
   })
 
   // Bug: returns 7 edits; the chain stops at direct bases, so IBase.value (4:13) and the call through IExtended (45:33) are missing.
-  test.skip('override chain, from a base function', async () => {
+  test('override chain, from a base function', async () => {
     const workspaceEdit = await client.rename(toUri(basePath), makePosition(18, 13), 'valueRenamed')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -81,7 +95,7 @@ describe('[hardhat3] rename bug - override chains linked by name alone and only 
   })
 
   // Bug: also renames the overload tag(bytes32) (18:13) and its call (35:46), linked to the chain by name alone.
-  test.skip('diamond override chain, from the overriding function', async () => {
+  test('diamond override chain, from the overriding function', async () => {
     const workspaceEdit = await client.rename(toUri(overridesPath), makePosition(34, 13), 'tagRenamed')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -101,7 +115,7 @@ describe('[hardhat3] rename bug - override chains linked by name alone and only 
   })
 
   // Bug: returns 8 edits, the whole tag() chain as well, linked to the overload by name alone.
-  test.skip('overload beside an override chain, from a call', async () => {
+  test('overload beside an override chain, from a call', async () => {
     const workspaceEdit = await client.rename(toUri(overridesPath), makePosition(35, 46), 'tagSaltRenamed')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -117,7 +131,7 @@ describe('[hardhat3] rename bug - override chains linked by name alone and only 
   })
 
   // Bug: returns 9 edits, adding the one-parameter overload's chain (6:13, 14:13, 25:41), linked by name alone.
-  test.skip('overloaded override chain, from a call', async () => {
+  test('overloaded override chain, from a call', async () => {
     const workspaceEdit = await client.rename(toUri(functionsPath), makePosition(25, 54), 'renamedFn')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -137,7 +151,7 @@ describe('[hardhat3] rename bug - override chains linked by name alone and only 
   })
 
   // Bug: returns 9 edits, adding the zero-parameter overload's chain (4:13, 10:13, 20:13, 21:21, 25:22, 25:54), linked by name alone.
-  test.skip('overloaded override chain, from the interface overload', async () => {
+  test('overloaded override chain, from the interface overload', async () => {
     const workspaceEdit = await client.rename(toUri(functionsPath), makePosition(6, 13), 'renamedFn')
 
     expect(sorted(workspaceEdit)).to.deep.equal(

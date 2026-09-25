@@ -8,18 +8,32 @@ import { getProjectPath, makePosition, makeRange } from '../../../helpers'
 
 let client!: TestLanguageClient
 
-// Edits within a file come in no particular order: compare them as sets.
+// A WorkspaceEdit can carry its edits in `changes` or in `documentChanges`, and
+// the edits within a file come in no particular order. Normalise both to sorted
+// `changes` of plain `{ range, newText }` edits, leaving out files with no edits.
+// File operations (create, rename, delete) are kept apart under `operations`, so
+// an answer that includes any never compares equal to an edit or a refusal.
 function sorted(edit: WorkspaceEdit | null) {
-  if (edit === null) {
-    return null
-  }
   const changes: Record<string, TextEdit[]> = {}
-  for (const [uri, edits] of Object.entries(edit.changes ?? {})) {
-    changes[uri] = [...edits].sort(
-      (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
-    )
+  const operations: unknown[] = []
+  const add = (uri: string, edits: TextEdit[]) => {
+    if (edits.length > 0) {
+      changes[uri] = [...(changes[uri] ?? []), ...edits.map(({ range, newText }) => ({ range, newText }))].sort(
+        (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
+      )
+    }
   }
-  return { changes }
+  for (const [uri, edits] of Object.entries(edit?.changes ?? {})) {
+    add(uri, edits)
+  }
+  for (const change of edit?.documentChanges ?? []) {
+    if ('edits' in change) {
+      add(change.textDocument.uri, change.edits as TextEdit[])
+    } else {
+      operations.push(change)
+    }
+  }
+  return operations.length > 0 ? { changes, operations } : { changes }
 }
 
 describe('[foundry] rename - import-paths (not implemented)', () => {
@@ -56,7 +70,7 @@ describe('[foundry] rename - import-paths (not implemented)', () => {
   })
 
   // Not implemented: also renames the alias RnIpRemote and its uses; rename has no alias handling.
-  test.skip('contract imported under an alias, from its declaration, leaving the alias alone', async () => {
+  test('contract imported under an alias, from its declaration, leaving the alias alone', async () => {
     const workspaceEdit = await client.rename(toUri(sharedPath), makePosition(3, 9), 'RnIpRenamedShared')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -75,7 +89,7 @@ describe('[foundry] rename - import-paths (not implemented)', () => {
   })
 
   // Not implemented: also renames the alias RnIpRemote and its uses; rename has no alias handling.
-  test.skip('contract from the name before as in an aliased import', async () => {
+  test('contract from the name before as in an aliased import', async () => {
     const workspaceEdit = await client.rename(toUri(rnRemapPath), makePosition(3, 8), 'RnIpRenamedShared')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -94,7 +108,7 @@ describe('[foundry] rename - import-paths (not implemented)', () => {
   })
 
   // Not implemented: renames RnIpShared, its declaration and every use in other files, along with the alias.
-  test.skip('import alias from a use, leaving the aliased contract alone', async () => {
+  test('import alias from a use, leaving the aliased contract alone', async () => {
     const workspaceEdit = await client.rename(toUri(rnRemapPath), makePosition(6, 4), 'RnIpFarShared')
 
     expect(sorted(workspaceEdit)).to.deep.equal(

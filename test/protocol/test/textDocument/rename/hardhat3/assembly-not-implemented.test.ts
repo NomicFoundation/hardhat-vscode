@@ -8,18 +8,32 @@ import { getProjectPath, makePosition, makeRange } from '../../../helpers'
 
 let client!: TestLanguageClient
 
-// Edits within a file come in no particular order: compare them as sets.
+// A WorkspaceEdit can carry its edits in `changes` or in `documentChanges`, and
+// the edits within a file come in no particular order. Normalise both to sorted
+// `changes` of plain `{ range, newText }` edits, leaving out files with no edits.
+// File operations (create, rename, delete) are kept apart under `operations`, so
+// an answer that includes any never compares equal to an edit or a refusal.
 function sorted(edit: WorkspaceEdit | null) {
-  if (edit === null) {
-    return null
-  }
   const changes: Record<string, TextEdit[]> = {}
-  for (const [uri, edits] of Object.entries(edit.changes ?? {})) {
-    changes[uri] = [...edits].sort(
-      (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
-    )
+  const operations: unknown[] = []
+  const add = (uri: string, edits: TextEdit[]) => {
+    if (edits.length > 0) {
+      changes[uri] = [...(changes[uri] ?? []), ...edits.map(({ range, newText }) => ({ range, newText }))].sort(
+        (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
+      )
+    }
   }
-  return { changes }
+  for (const [uri, edits] of Object.entries(edit?.changes ?? {})) {
+    add(uri, edits)
+  }
+  for (const change of edit?.documentChanges ?? []) {
+    if ('edits' in change) {
+      add(change.textDocument.uri, change.edits as TextEdit[])
+    } else {
+      operations.push(change)
+    }
+  }
+  return operations.length > 0 ? { changes, operations } : { changes }
 }
 
 describe('[hardhat3] rename - assembly (not implemented)', () => {
@@ -48,7 +62,7 @@ describe('[hardhat3] rename - assembly (not implemented)', () => {
   })
 
   // Not implemented: returns only the edits outside assembly; the base of x.slot is not linked.
-  test.skip('state variable used as x.slot, from its declaration', async () => {
+  test('state variable used as x.slot, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(refsPath), makePosition(5, 20), 'asmRenamedStored')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -66,7 +80,7 @@ describe('[hardhat3] rename - assembly (not implemented)', () => {
   })
 
   // Not implemented: returns an empty edit; the base of x.slot is not linked.
-  test.skip('state variable from its use in x.slot', async () => {
+  test('state variable from its use in x.slot', async () => {
     const workspaceEdit = await client.rename(toUri(refsPath), makePosition(23, 42), 'asmRenamedStored')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -84,7 +98,7 @@ describe('[hardhat3] rename - assembly (not implemented)', () => {
   })
 
   // Not implemented: returns only the declaration; the base of xs.offset and xs.length is not linked.
-  test.skip('calldata parameter used as xs.offset and xs.length, from its declaration', async () => {
+  test('calldata parameter used as xs.offset and xs.length, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(defsPath), makePosition(24, 46), 'asmRenamedXs')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -101,7 +115,7 @@ describe('[hardhat3] rename - assembly (not implemented)', () => {
   })
 
   // Not implemented: returns an empty edit; yul function parameters are not declarations.
-  test.skip('yul function parameter from its declaration', async () => {
+  test('yul function parameter from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(refsPath), makePosition(29, 28), 'asmRenamedP')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -117,7 +131,7 @@ describe('[hardhat3] rename - assembly (not implemented)', () => {
   })
 
   // Not implemented: returns an empty edit; yul function return variables are not declarations.
-  test.skip('yul function return variable from its use', async () => {
+  test('yul function return variable from its use', async () => {
     const workspaceEdit = await client.rename(toUri(refsPath), makePosition(30, 16), 'asmRenamedQ')
 
     expect(sorted(workspaceEdit)).to.deep.equal(

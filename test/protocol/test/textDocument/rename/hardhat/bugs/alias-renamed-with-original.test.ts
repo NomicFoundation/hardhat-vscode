@@ -8,18 +8,32 @@ import { getProjectPath, makePosition, makeRange } from '../../../../helpers'
 
 let client!: TestLanguageClient
 
-// Edits within a file come in no particular order: compare them as sets.
+// A WorkspaceEdit can carry its edits in `changes` or in `documentChanges`, and
+// the edits within a file come in no particular order. Normalise both to sorted
+// `changes` of plain `{ range, newText }` edits, leaving out files with no edits.
+// File operations (create, rename, delete) are kept apart under `operations`, so
+// an answer that includes any never compares equal to an edit or a refusal.
 function sorted(edit: WorkspaceEdit | null) {
-  if (edit === null) {
-    return null
-  }
   const changes: Record<string, TextEdit[]> = {}
-  for (const [uri, edits] of Object.entries(edit.changes ?? {})) {
-    changes[uri] = [...edits].sort(
-      (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
-    )
+  const operations: unknown[] = []
+  const add = (uri: string, edits: TextEdit[]) => {
+    if (edits.length > 0) {
+      changes[uri] = [...(changes[uri] ?? []), ...edits.map(({ range, newText }) => ({ range, newText }))].sort(
+        (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
+      )
+    }
   }
-  return { changes }
+  for (const [uri, edits] of Object.entries(edit?.changes ?? {})) {
+    add(uri, edits)
+  }
+  for (const change of edit?.documentChanges ?? []) {
+    if ('edits' in change) {
+      add(change.textDocument.uri, change.edits as TextEdit[])
+    } else {
+      operations.push(change)
+    }
+  }
+  return operations.length > 0 ? { changes, operations } : { changes }
 }
 
 describe('[hardhat] rename bug - an alias and its original are renamed together', () => {
@@ -88,7 +102,7 @@ describe('[hardhat] rename bug - an alias and its original are renamed together'
   })
 
   // Bug: also renames the alias OtherToken and its use (4:17-4:27, 11:4-11:14).
-  test.skip('contract imported as an alias, from its declaration', async () => {
+  test('contract imported as an alias, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(otherPath), makePosition(3, 9), 'IfRnOtherToken')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -102,7 +116,7 @@ describe('[hardhat] rename bug - an alias and its original are renamed together'
   })
 
   // Bug: also renames the alias OtherToken and its use (4:17-4:27, 11:4-11:14).
-  test.skip('contract imported as an alias, from the name before as', async () => {
+  test('contract imported as an alias, from the name before as', async () => {
     const workspaceEdit = await client.rename(toUri(importerPath), makePosition(4, 8), 'IfRnOtherToken')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -116,7 +130,7 @@ describe('[hardhat] rename bug - an alias and its original are renamed together'
   })
 
   // Bug: also renames the aliased contract in Other.sol (3:9-3:14) and the name before as (4:8-4:13).
-  test.skip('import alias of a contract, from a use', async () => {
+  test('import alias of a contract, from a use', async () => {
     const workspaceEdit = await client.rename(toUri(importerPath), makePosition(11, 4), 'IfRnAlias')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -132,7 +146,7 @@ describe('[hardhat] rename bug - an alias and its original are renamed together'
   })
 
   // Bug: also renames the aliased contract in Other.sol (3:9-3:14) and the name before as (4:8-4:13).
-  test.skip('import alias of a contract, from the import braces', async () => {
+  test('import alias of a contract, from the import braces', async () => {
     const workspaceEdit = await client.rename(toUri(importerPath), makePosition(4, 17), 'IfRnAlias')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -148,7 +162,7 @@ describe('[hardhat] rename bug - an alias and its original are renamed together'
   })
 
   // Bug: also renames the alias Vault and its uses in IfUserB.sol and IfUserC.sol, except the Vault in IfUserC.sol's import braces.
-  test.skip('contract whose alias is imported again, from its declaration', async () => {
+  test('contract whose alias is imported again, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(ifBasePath), makePosition(11, 9), 'IfRnVault')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -166,7 +180,7 @@ describe('[hardhat] rename bug - an alias and its original are renamed together'
   })
 
   // Bug: renames IfVault and all its uses as well, and misses the Vault in IfUserC.sol's import braces (3:8-3:13).
-  test.skip('alias imported again from the file that made it, from a use', async () => {
+  test('alias imported again from the file that made it, from a use', async () => {
     const workspaceEdit = await client.rename(toUri(ifUserCPath), makePosition(6, 4), 'IfRnVaultAlias')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -187,7 +201,7 @@ describe('[hardhat] rename bug - an alias and its original are renamed together'
   })
 
   // Bug: also renames the alias FL_CAP and its three uses.
-  test.skip('constant imported as an alias, from its declaration', async () => {
+  test('constant imported as an alias, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(flRefDefsPath), makePosition(3, 17), 'FL_BOUND')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -204,7 +218,7 @@ describe('[hardhat] rename bug - an alias and its original are renamed together'
   })
 
   // Bug: also renames the constant FL_LIMIT in FlRefDefs.sol and the name before as.
-  test.skip('import alias of a constant, from a use', async () => {
+  test('import alias of a constant, from a use', async () => {
     const workspaceEdit = await client.rename(toUri(flRefUserPath), makePosition(11, 37), 'FL_CEILING')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -222,7 +236,7 @@ describe('[hardhat] rename bug - an alias and its original are renamed together'
   })
 
   // Bug: also renames the constant FL_LIMIT in FlRefDefs.sol and the name before as.
-  test.skip('import alias of a constant, from the import braces', async () => {
+  test('import alias of a constant, from the import braces', async () => {
     const workspaceEdit = await client.rename(toUri(flRefUserPath), makePosition(3, 20), 'FL_CEILING')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -240,7 +254,7 @@ describe('[hardhat] rename bug - an alias and its original are renamed together'
   })
 
   // Bug: also renames the alias Amt and its four uses.
-  test.skip('user-defined value type imported as an alias, from its declaration', async () => {
+  test('user-defined value type imported as an alias, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(uuAmountPath), makePosition(3, 5), 'UuQty')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -264,7 +278,7 @@ describe('[hardhat] rename bug - an alias and its original are renamed together'
   })
 
   // Bug: also renames type UuAmount and all its uses in UuAmount.sol, and the name before as.
-  test.skip('import alias of a user-defined value type, from a use', async () => {
+  test('import alias of a user-defined value type, from a use', async () => {
     const workspaceEdit = await client.rename(toUri(uuUseAmountPath), makePosition(12, 21), 'Qty')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -283,7 +297,7 @@ describe('[hardhat] rename bug - an alias and its original are renamed together'
   })
 
   // Bug: also renames the contract EERGGuard in Guard.sol (3:9-3:18) and the name before as (3:8-3:17).
-  test.skip('import alias of a contract, from an error qualifier', async () => {
+  test('import alias of a contract, from an error qualifier', async () => {
     const workspaceEdit = await client.rename(toUri(clientPath), makePosition(19, 15), 'EERNGate')
 
     expect(sorted(workspaceEdit)).to.deep.equal(

@@ -8,18 +8,32 @@ import { getProjectPath, makePosition, makeRange } from '../../../helpers'
 
 let client!: TestLanguageClient
 
-// Edits within a file come in no particular order: compare them as sets.
+// A WorkspaceEdit can carry its edits in `changes` or in `documentChanges`, and
+// the edits within a file come in no particular order. Normalise both to sorted
+// `changes` of plain `{ range, newText }` edits, leaving out files with no edits.
+// File operations (create, rename, delete) are kept apart under `operations`, so
+// an answer that includes any never compares equal to an edit or a refusal.
 function sorted(edit: WorkspaceEdit | null) {
-  if (edit === null) {
-    return null
-  }
   const changes: Record<string, TextEdit[]> = {}
-  for (const [uri, edits] of Object.entries(edit.changes ?? {})) {
-    changes[uri] = [...edits].sort(
-      (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
-    )
+  const operations: unknown[] = []
+  const add = (uri: string, edits: TextEdit[]) => {
+    if (edits.length > 0) {
+      changes[uri] = [...(changes[uri] ?? []), ...edits.map(({ range, newText }) => ({ range, newText }))].sort(
+        (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
+      )
+    }
   }
-  return { changes }
+  for (const [uri, edits] of Object.entries(edit?.changes ?? {})) {
+    add(uri, edits)
+  }
+  for (const change of edit?.documentChanges ?? []) {
+    if ('edits' in change) {
+      add(change.textDocument.uri, change.edits as TextEdit[])
+    } else {
+      operations.push(change)
+    }
+  }
+  return operations.length > 0 ? { changes, operations } : { changes }
 }
 
 describe('[hardhat3] rename - udvt-using (not implemented)', () => {
@@ -64,7 +78,7 @@ describe('[hardhat3] rename - udvt-using (not implemented)', () => {
   })
 
   // Not implemented: returns an empty edit; identifiers in a using list are not linked.
-  test.skip('operator function, from its name in a using list', async () => {
+  test('operator function, from its name in a using list', async () => {
     const workspaceEdit = await client.rename(toUri(pricePath), makePosition(5, 7), 'plusCost')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -80,7 +94,7 @@ describe('[hardhat3] rename - udvt-using (not implemented)', () => {
   })
 
   // Not implemented: returns an empty edit; attached calls through using are not linked.
-  test.skip('global using function, from an attached call in another file', async () => {
+  test('global using function, from an attached call in another file', async () => {
     const workspaceEdit = await client.rename(toUri(usePricePath), makePosition(18, 21), 'rawCost')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -97,7 +111,7 @@ describe('[hardhat3] rename - udvt-using (not implemented)', () => {
   })
 
   // Not implemented: returns an empty edit; attached calls through using are not linked.
-  test.skip('one-parameter library overload, from an attached call', async () => {
+  test('one-parameter library overload, from an attached call', async () => {
     const workspaceEdit = await client.rename(toUri(vaultPath), makePosition(29, 40), 'scaleOnce')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -113,7 +127,7 @@ describe('[hardhat3] rename - udvt-using (not implemented)', () => {
   })
 
   // Not implemented: returns only the declaration; attached calls through using are not linked.
-  test.skip('two-parameter library overload, from its declaration', async () => {
+  test('two-parameter library overload, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(vaultPath), makePosition(4, 13), 'scaleTwice')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -129,7 +143,7 @@ describe('[hardhat3] rename - udvt-using (not implemented)', () => {
   })
 
   // Not implemented: returns an empty edit; attached calls through using are not linked.
-  test.skip('library function called directly and attached, from the attached call', async () => {
+  test('library function called directly and attached, from the attached call', async () => {
     const workspaceEdit = await client.rename(toUri(useAmountPath), makePosition(17, 53), 'qtyToUint')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -146,7 +160,7 @@ describe('[hardhat3] rename - udvt-using (not implemented)', () => {
   })
 
   // Not implemented: returns the declaration and the direct call, not the name in the using list.
-  test.skip('operator function, from a direct call', async () => {
+  test('operator function, from a direct call', async () => {
     const workspaceEdit = await client.rename(toUri(rnMoneyPath), makePosition(20, 15), 'rnSum')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -163,7 +177,7 @@ describe('[hardhat3] rename - udvt-using (not implemented)', () => {
   })
 
   // Not implemented: returns only the declaration; identifiers in a using list are not linked.
-  test.skip('unary operator function, from its declaration', async () => {
+  test('unary operator function, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(rnMoneyPath), makePosition(11, 9), 'rnFlip')
 
     expect(sorted(workspaceEdit)).to.deep.equal(

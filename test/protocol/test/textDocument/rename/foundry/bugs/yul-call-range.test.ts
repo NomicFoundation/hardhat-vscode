@@ -8,18 +8,32 @@ import { getProjectPath, makePosition, makeRange } from '../../../../helpers'
 
 let client!: TestLanguageClient
 
-// Edits within a file come in no particular order: compare them as sets.
+// A WorkspaceEdit can carry its edits in `changes` or in `documentChanges`, and
+// the edits within a file come in no particular order. Normalise both to sorted
+// `changes` of plain `{ range, newText }` edits, leaving out files with no edits.
+// File operations (create, rename, delete) are kept apart under `operations`, so
+// an answer that includes any never compares equal to an edit or a refusal.
 function sorted(edit: WorkspaceEdit | null) {
-  if (edit === null) {
-    return null
-  }
   const changes: Record<string, TextEdit[]> = {}
-  for (const [uri, edits] of Object.entries(edit.changes ?? {})) {
-    changes[uri] = [...edits].sort(
-      (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
-    )
+  const operations: unknown[] = []
+  const add = (uri: string, edits: TextEdit[]) => {
+    if (edits.length > 0) {
+      changes[uri] = [...(changes[uri] ?? []), ...edits.map(({ range, newText }) => ({ range, newText }))].sort(
+        (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
+      )
+    }
   }
-  return { changes }
+  for (const [uri, edits] of Object.entries(edit?.changes ?? {})) {
+    add(uri, edits)
+  }
+  for (const change of edit?.documentChanges ?? []) {
+    if ('edits' in change) {
+      add(change.textDocument.uri, change.edits as TextEdit[])
+    } else {
+      operations.push(change)
+    }
+  }
+  return operations.length > 0 ? { changes, operations } : { changes }
 }
 
 describe('[foundry] rename bug - yul call range covers the whole call', () => {
@@ -56,7 +70,7 @@ describe('[foundry] rename bug - yul call range covers the whole call', () => {
   })
 
   // Bug: returns each call edit as the whole call and past the line end (32:23-32:37, 33:17-33:33), deleting the arguments.
-  test.skip('yul function from a call', async () => {
+  test('yul function from a call', async () => {
     const workspaceEdit = await client.rename(toUri(refsPath), makePosition(33, 17), 'asmRenamedHelper')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -73,7 +87,7 @@ describe('[foundry] rename bug - yul call range covers the whole call', () => {
   })
 
   // Bug: returns the call edit as the whole call and past the line end (42:23-42:37), deleting the argument.
-  test.skip('yul function with the same name as one in another assembly block, from its declaration', async () => {
+  test('yul function with the same name as one in another assembly block, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(refsPath), makePosition(39, 21), 'asmRenamedHelper')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -89,7 +103,7 @@ describe('[foundry] rename bug - yul call range covers the whole call', () => {
   })
 
   // Bug: returns each call edit as the whole call and past the line end (33:23-33:37, 39:28-39:42), deleting the arguments.
-  test.skip('yul function called before its definition', async () => {
+  test('yul function called before its definition', async () => {
     const workspaceEdit = await client.rename(toUri(defsPath), makePosition(33, 23), 'asmRenamedTriple')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -106,7 +120,7 @@ describe('[foundry] rename bug - yul call range covers the whole call', () => {
   })
 
   // Bug: returns overlapping edits for the nested calls (9:19-9:38, 9:24-9:37) and one edit over the whole split call (10:19-12:16).
-  test.skip('yul function in a nested call and a call split over lines', async () => {
+  test('yul function in a nested call and a call split over lines', async () => {
     const workspaceEdit = await client.rename(toUri(nestedPath), makePosition(9, 24), 'asmRenamedBump')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -124,7 +138,7 @@ describe('[foundry] rename bug - yul call range covers the whole call', () => {
   })
 
   // Bug: renames the called function triple instead (34:21-34:27, 33:23-33:37, 39:28-39:42), since the call's range contains the argument.
-  test.skip('yul variable from a yul call argument', async () => {
+  test('yul variable from a yul call argument', async () => {
     const workspaceEdit = await client.rename(toUri(defsPath), makePosition(39, 35), 'asmRenamedI')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
