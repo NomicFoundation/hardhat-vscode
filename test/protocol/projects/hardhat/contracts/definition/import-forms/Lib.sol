@@ -8,7 +8,7 @@ struct Point {
 
 error Oops();
 
-// file-level events need 0.8.22
+event Ev(uint256 value);
 
 function helper() pure returns (uint256) {
     return 1;
@@ -16,6 +16,6 @@ function helper() pure returns (uint256) {
 
 contract Token {
     function ping() external {
-        payable(msg.sender).transfer(0);
+        emit Ev(1);
     }
 }
