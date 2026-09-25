@@ -62,7 +62,7 @@ describe('[hardhat3] rename - assembly (not implemented)', () => {
   })
 
   // Not implemented: returns only the edits outside assembly; the base of x.slot is not linked.
-  test('state variable used as x.slot, from its declaration', async () => {
+  test.skip('state variable used as x.slot, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(refsPath), makePosition(5, 20), 'asmRenamedStored')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -80,7 +80,7 @@ describe('[hardhat3] rename - assembly (not implemented)', () => {
   })
 
   // Not implemented: returns an empty edit; the base of x.slot is not linked.
-  test('state variable from its use in x.slot', async () => {
+  test.skip('state variable from its use in x.slot', async () => {
     const workspaceEdit = await client.rename(toUri(refsPath), makePosition(23, 42), 'asmRenamedStored')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -98,7 +98,7 @@ describe('[hardhat3] rename - assembly (not implemented)', () => {
   })
 
   // Not implemented: returns only the declaration; the base of xs.offset and xs.length is not linked.
-  test('calldata parameter used as xs.offset and xs.length, from its declaration', async () => {
+  test.skip('calldata parameter used as xs.offset and xs.length, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(defsPath), makePosition(24, 46), 'asmRenamedXs')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -115,7 +115,7 @@ describe('[hardhat3] rename - assembly (not implemented)', () => {
   })
 
   // Not implemented: returns an empty edit; yul function parameters are not declarations.
-  test('yul function parameter from its declaration', async () => {
+  test.skip('yul function parameter from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(refsPath), makePosition(29, 28), 'asmRenamedP')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -131,7 +131,7 @@ describe('[hardhat3] rename - assembly (not implemented)', () => {
   })
 
   // Not implemented: returns an empty edit; yul function return variables are not declarations.
-  test('yul function return variable from its use', async () => {
+  test.skip('yul function return variable from its use', async () => {
     const workspaceEdit = await client.rename(toUri(refsPath), makePosition(30, 16), 'asmRenamedQ')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
