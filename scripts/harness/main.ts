@@ -1,6 +1,10 @@
 import { parseArgs } from "node:util";
 import { init } from "./subcommands/init.ts";
-import { lspMessage } from "./subcommands/lsp-message.ts";
+import {
+  diagnostics,
+  lspMessage,
+  notifications,
+} from "./subcommands/lsp-message.ts";
 import { reset } from "./subcommands/reset.ts";
 import { start } from "./subcommands/start.ts";
 import { status } from "./subcommands/status.ts";
@@ -25,14 +29,33 @@ Commands:
   lsp-message
              Send to the running daemon's language server, and print the
              answer as JSON. Exits 1 if the server answers with an error.
+             Exactly one of:
                --message <json>    One JSON-RPC message, passed through as
                                    given: a request if it has an "id", else
                                    a notification.
+               --method <method> [--file <path> [--line <n> --character <n>]]
+                                 [--params <json>] [--notification]
+                                   Build one. --file fills textDocument;
+                                   --line and --character fill position,
+                                   counting from 1 as editors do (results
+                                   are printed as sent, counting from 0).
+                                   --params is merged over what is built.
+                                   A request unless --notification.
                --sync-from-disk --file <path> [--file <path>...]
                                    Bring the server's copy of each file up to
                                    date with the disk. Sends only didOpen, or
                                    a full-text didChange, and nothing else.
-                                   Paths are relative to the workspace.
+             Paths are relative to the workspace. With any of them:
+               --wait-for <method> [--wait-timeout <ms>]
+                                   Also wait for that notification about the
+                                   same document, such as custom/validated.
+  diagnostics
+             Print the latest diagnostics the server published, for
+             --file <path>, or for every document.
+  notifications
+             Print what the server has sent, numbered, after --since <n>, and
+             only --method <method> if given. Pass the printed "latest" as
+             the next --since.
   validate   Build the current workspace and run its tests.
   reset      Put a workspace back to the commit checked out, discarding
              edits. Gitignored files, such as installs, are kept. Refused
@@ -53,9 +76,11 @@ Examples:
   pnpm harness start --workspace hardhat3              # foreground; Ctrl+C to stop
   pnpm harness start --workspace hardhat3 --background
   pnpm harness status
-  pnpm harness lsp-message --sync-from-disk --file contracts/Greeter.sol
-  pnpm harness lsp-message --message '{"id": 1, "method": "textDocument/documentSymbol",
-    "params": {"textDocument": {"uri": "file:///.../contracts/Greeter.sol"}}}'
+  pnpm harness lsp-message --method textDocument/definition \\
+    --file contracts/Greeter.sol --line 9 --character 5
+  pnpm harness lsp-message --sync-from-disk --file contracts/Greeter.sol \\
+    --wait-for custom/validated
+  pnpm harness diagnostics --file contracts/Greeter.sol
   pnpm harness stop
 `;
 
@@ -69,6 +94,14 @@ async function main(argv: string[]): Promise<void> {
       message: { type: "string" },
       "sync-from-disk": { type: "boolean", default: false },
       file: { type: "string", multiple: true, default: [] },
+      method: { type: "string" },
+      params: { type: "string" },
+      notification: { type: "boolean", default: false },
+      line: { type: "string" },
+      character: { type: "string" },
+      "wait-for": { type: "string" },
+      "wait-timeout": { type: "string" },
+      since: { type: "string" },
     },
   });
 
@@ -100,9 +133,28 @@ async function main(argv: string[]): Promise<void> {
 
       return lspMessage({
         message: values.message,
+        method: values.method,
+        params: values.params,
+        notification: values.notification,
         syncFromDisk: values["sync-from-disk"],
         files: values.file,
+        line: values.line,
+        character: values.character,
+        waitFor: values["wait-for"],
+        waitTimeout: values["wait-timeout"],
       });
+    case "diagnostics":
+      rejectWorkspaceOption(command, values.workspace);
+
+      if (values.file.length > 1) {
+        throw new Error("diagnostics takes at most one --file");
+      }
+
+      return diagnostics(values.file[0]);
+    case "notifications":
+      rejectWorkspaceOption(command, values.workspace);
+
+      return notifications(values.since, values.method);
     case "validate":
       rejectWorkspaceOption(command, values.workspace);
 

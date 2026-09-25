@@ -367,3 +367,73 @@ describe("LanguageServerSession.syncFromDisk", () => {
     assert.deepEqual(await sentSince(), []);
   });
 });
+
+describe("LanguageServerSession.notifications", () => {
+  it("numbers everything the server sends, in order", async () => {
+    const { session } = startSession("ready");
+    await session.initialize();
+
+    const { notifications, latest } = session.notifications();
+    const methods = notifications.map(({ method }) => method);
+
+    assert.deepEqual(methods.slice(0, 5), Array(5).fill("custom/file-indexed"));
+    assert.deepEqual(methods.slice(5), [
+      "textDocument/publishDiagnostics",
+      "custom/validated",
+      "textDocument/publishDiagnostics",
+      "custom/validated",
+    ]);
+    assert.deepEqual(
+      notifications.map(({ seq }) => seq),
+      [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    );
+    assert.equal(latest, 9);
+  });
+
+  it("filters by what came after `since`, and by method", async () => {
+    const { session } = startSession("ready");
+    await session.initialize();
+
+    assert.deepEqual(
+      session.notifications(7).notifications.map(({ seq }) => seq),
+      [8, 9]
+    );
+    assert.deepEqual(
+      session
+        .notifications(0, "custom/validated")
+        .notifications.map(({ seq }) => seq),
+      [7, 9]
+    );
+  });
+});
+
+describe("LanguageServerSession.waitFor", () => {
+  it("resolves with the notification about the document", async () => {
+    const { session, files, uri } = startSession("ready");
+    await session.initialize();
+
+    const validated = session.waitFor("custom/validated", uri(files.greeter));
+    await session.syncFromDisk(files.greeter);
+
+    const notification = await validated.received;
+
+    assert.equal(notification.method, "custom/validated");
+    assert.deepEqual(notification.params, { uri: uri(files.greeter) });
+  });
+
+  it("does not resolve for another document", async () => {
+    const { session, files, uri } = startSession("ready");
+    await session.initialize();
+
+    const validated = session.waitFor("custom/validated", uri(files.counter));
+    await session.syncFromDisk(files.greeter);
+
+    const outcome = await Promise.race([
+      validated.received.then(() => "received"),
+      new Promise((resolve) => setTimeout(() => resolve("waiting"), 300)),
+    ]);
+
+    validated.cancel();
+    assert.equal(outcome, "waiting");
+  });
+});

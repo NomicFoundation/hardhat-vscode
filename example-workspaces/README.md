@@ -28,12 +28,26 @@ pnpm harness stop
 
 `start` returns, or reports `ready` in the foreground, once the server has indexed the workspace and validated one file in each project, so the first request made afterwards gets a full answer. It runs the tsc build at `server/out/index.js`, so run `pnpm build` first. State lives in `.harness/` at the repository root, including `daemon.log` in background mode.
 
-Talk to the running server with `lsp-message`. It passes one JSON-RPC message through exactly as given, a request if it has an `id`, and prints the answer. After editing a file on disk, `--sync-from-disk` brings the server's copy up to date, sending only `didOpen` or a full-text `didChange`:
+Talk to the running server with `lsp-message`. It sends exactly what you ask for and nothing else, and prints the server's answer as JSON:
 
 ```shell
-pnpm harness lsp-message --sync-from-disk --file contracts/Greeter.sol
-pnpm harness lsp-message --message '{"id": 1, "method": "textDocument/documentSymbol", "params": {"textDocument": {"uri": "file:///<repo>/example-workspaces/hardhat3/contracts/Greeter.sol"}}}'
+# Build a request. --line and --character count from 1, as in an editor;
+# the positions the server returns are printed as sent, counting from 0.
+pnpm harness lsp-message --method textDocument/definition --file contracts/Greeter.sol --line 9 --character 5
+
+# After editing a file on disk, bring the server's copy up to date (only
+# didOpen or a full-text didChange is sent) and wait for it to be validated.
+pnpm harness lsp-message --sync-from-disk --file contracts/Greeter.sol --wait-for custom/validated
+pnpm harness diagnostics --file contracts/Greeter.sol
+
+# Pass a JSON-RPC message through as given: a request if it has an "id".
+pnpm harness lsp-message --message '{"id": 1, "method": "textDocument/hover", "params": {...}}'
+
+# Everything the server has sent, numbered; pass "latest" as the next --since.
+pnpm harness notifications --since 0 --method custom/validated
 ```
+
+The server runs in test mode (`VSCODE_NODE_ENV=development`), as in the protocol suite. That is what makes it send `custom/validated`, which readiness and `--wait-for` rely on. It also removes the typing debounce and uses the built-in list of solc versions, so its timing is not quite what a user sees.
 
 Each must build and pass its tests as committed. After editing the current workspace (the one recorded in `.harness/workspace`), check it and put it back:
 

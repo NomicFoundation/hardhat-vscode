@@ -45,6 +45,29 @@ export interface IndexedFile {
   project: { configPath?: string; frameworkName: string };
 }
 
+/** A notification the server sent, numbered in the order it arrived. */
+export interface ServerNotification {
+  seq: number;
+  at: string;
+  method: string;
+  params: unknown;
+}
+
+/** A wait for a notification, registered before the message that causes it. */
+export interface NotificationWait {
+  received: Promise<ServerNotification>;
+  cancel(): void;
+}
+
+interface Waiter {
+  method: string;
+  uri: string | undefined;
+  resolve(notification: ServerNotification): void;
+}
+
+/** How many notifications the session keeps for `notifications()`. */
+const NOTIFICATION_LOG_SIZE = 5_000;
+
 /** What `syncFromDisk` sent for one file. */
 export interface SyncResult {
   uri: string;
@@ -79,8 +102,10 @@ export class LanguageServerSession {
 
   readonly #indexed: IndexedFile[] = [];
   #lastIndexedAt = 0;
-  readonly #validated = new Map<string, () => void>();
   readonly #open = new Map<string, OpenDocument>();
+  readonly #notifications: ServerNotification[] = [];
+  #seq = 0;
+  readonly #waiters = new Set<Waiter>();
 
   /** The latest diagnostics the server has published, by document URI. */
   readonly diagnostics = new Map<string, unknown[]>();
@@ -133,32 +158,10 @@ export class LanguageServerSession {
       new IPCMessageWriter(this.#server)
     );
 
-    this.#connection.onNotification(
-      "window/logMessage",
-      ({ message }: { message: string }) => this.#log(`server > ${message}`)
-    );
-
-    this.#connection.onNotification(
-      "custom/file-indexed",
-      (file: IndexedFile) => {
-        this.#indexed.push(file);
-        this.#lastIndexedAt = Date.now();
-      }
-    );
-
-    this.#connection.onNotification(
-      "textDocument/publishDiagnostics",
-      ({ uri, diagnostics }: { uri: string; diagnostics: unknown[] }) => {
-        this.diagnostics.set(uri, diagnostics);
-      }
-    );
-
-    this.#connection.onNotification(
-      "custom/validated",
-      ({ uri }: { uri: string }) => {
-        this.#validated.get(uri)?.();
-        this.#validated.delete(uri);
-      }
+    // One handler for every notification, so each is logged and numbered
+    // before anything reacts to it.
+    this.#connection.onNotification((method, params) =>
+      this.#received(method, params)
     );
 
     this.#connection.listen();
@@ -228,9 +231,49 @@ export class LanguageServerSession {
       : this.#connection.sendNotification(method, params));
   }
 
+  /**
+   * The notifications received after `since`, oldest first, optionally only
+   * one method. `latest` is the newest number, to pass as the next `since`.
+   * Only the last few thousand are kept.
+   */
+  notifications(
+    since = 0,
+    method?: string
+  ): { notifications: ServerNotification[]; latest: number } {
+    return {
+      notifications: this.#notifications.filter(
+        (notification) =>
+          notification.seq > since &&
+          (method === undefined || notification.method === method)
+      ),
+      latest: this.#seq,
+    };
+  }
+
+  /**
+   * Wait for the next notification of `method`, about `uri` if given. Call it
+   * before sending whatever causes the notification, so it cannot be missed.
+   */
+  waitFor(method: string, uri?: string): NotificationWait {
+    let waiter!: Waiter;
+
+    const received = new Promise<ServerNotification>((resolve) => {
+      waiter = { method, uri, resolve };
+    });
+
+    this.#waiters.add(waiter);
+
+    return { received, cancel: () => this.#waiters.delete(waiter) };
+  }
+
   /** A path, relative to the workspace or absolute, as `syncFromDisk` takes it. */
   resolve(file: string): string {
     return path.resolve(this.#workspace.dir, file);
+  }
+
+  /** The URI `syncFromDisk` would use for a file. */
+  uriFor(file: string): string {
+    return pathToFileURL(this.resolve(file)).href;
   }
 
   /** True if `syncFromDisk` could read the file. */
@@ -249,7 +292,7 @@ export class LanguageServerSession {
    */
   async syncFromDisk(file: string): Promise<SyncResult> {
     const absolutePath = this.resolve(file);
-    const uri = pathToFileURL(absolutePath).href;
+    const uri = this.uriFor(file);
 
     let text: string;
 
@@ -307,6 +350,51 @@ export class LanguageServerSession {
     }
 
     this.#connection.dispose();
+  }
+
+  #received(method: string, params: unknown): void {
+    const notification: ServerNotification = {
+      seq: ++this.#seq,
+      at: new Date().toISOString(),
+      method,
+      params,
+    };
+
+    this.#notifications.push(notification);
+
+    if (this.#notifications.length > NOTIFICATION_LOG_SIZE) {
+      this.#notifications.shift();
+    }
+
+    switch (method) {
+      case "window/logMessage":
+        this.#log(`server > ${(params as { message: string }).message}`);
+        break;
+      case "custom/file-indexed":
+        this.#indexed.push(params as IndexedFile);
+        this.#lastIndexedAt = Date.now();
+        break;
+      case "textDocument/publishDiagnostics": {
+        const { uri, diagnostics } = params as {
+          uri: string;
+          diagnostics: unknown[];
+        };
+        this.diagnostics.set(uri, diagnostics);
+        break;
+      }
+    }
+
+    const about = notificationUri(params);
+
+    for (const waiter of this.#waiters) {
+      if (
+        waiter.method === method &&
+        (waiter.uri === undefined || waiter.uri === about)
+      ) {
+        this.#waiters.delete(waiter);
+        waiter.resolve(notification);
+      }
+    }
   }
 
   #track(method: string, params: unknown): void {
@@ -383,9 +471,7 @@ export class LanguageServerSession {
 
     this.#log(`validating ${file}`);
 
-    const validated = new Promise<void>((resolve) =>
-      this.#validated.set(uri, resolve)
-    );
+    const validated = this.waitFor("custom/validated", uri);
 
     await this.notify("textDocument/didOpen", {
       textDocument: { uri, languageId: "solidity", version: 1, text },
@@ -393,10 +479,12 @@ export class LanguageServerSession {
 
     const inTime = await this.#untilExit(
       Promise.race([
-        validated.then(() => true),
+        validated.received.then(() => true),
         sleep(this.#validationTimeoutMs).then(() => false),
       ])
     );
+
+    validated.cancel();
 
     await this.notify("textDocument/didClose", { textDocument: { uri } });
 
@@ -410,6 +498,18 @@ export class LanguageServerSession {
       `validated ${file}: ${this.diagnostics.get(uri)?.length ?? 0} diagnostic(s)`
     );
   }
+}
+
+/** The document a notification is about: its `uri`, or its `textDocument.uri`. */
+export function notificationUri(params: unknown): string | undefined {
+  const { uri, textDocument } = (params ?? {}) as {
+    uri?: unknown;
+    textDocument?: { uri?: unknown };
+  };
+
+  const found = uri ?? textDocument?.uri;
+
+  return typeof found === "string" ? found : undefined;
 }
 
 /**
