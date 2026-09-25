@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.2
+
+### Patch Changes
+
+- e0f1712: Prevent a language server crash on Node 24.20 when fetching the latest solc versions fails, by not retrying the request.
+
 ## 0.9.1
 
 ### Patch Changes
