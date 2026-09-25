@@ -19,7 +19,10 @@ pnpm harness init --workspace hardhat3  # one
 
 ## Exploring in VS Code
 
-Open this checkout in VS Code, then run the **Client + Server in Example Workspace** launch configuration (F5 in the Run and Debug view) and pick a workspace. A new window opens on that workspace, running the extension and the language server from this checkout, with `pnpm watch` rebuilding both as you edit. Breakpoints in `client/src` and `server/src` are hit in the window you launched from, and this works the same inside a devcontainer, where the new window connects to the same container. Reload the new window (**Developer: Reload Window**) to pick up a rebuild.
+Open this checkout in VS Code, select the **Launch Client in Example Workspace** launch configuration in the Run and Debug view, and pick a workspace. A new window opens on that workspace, running the extension and the language server from this checkout, with `pnpm watch` rebuilding both as you edit. Reload the new window (**Developer: Reload Window**) to pick up a rebuild.
+
+- **Run Without Debugging** (Ctrl+F5) works anywhere, including in a devcontainer.
+- **Start Debugging** (F5), or the **Client + Server in Example Workspace** compound, attaches the debugger as well, so breakpoints in `client/src` and `server/src` are hit in the window you launched from. In a devcontainer, that attach can fail. The new window then opens, but no extension in it ever runs, because VS Code starts its extension host paused until the debugger attaches. If that happens, close the window and use Run Without Debugging.
 
 Run `pnpm harness init --workspace <name>` once first, so the workspace has its dependencies. The launch sets `VSCODE_NODE_ENV=development`, so the server runs in test mode, as it does under the harness (see below). It reads no `.env`, so the telemetry keys are empty and nothing is sent to Sentry or Google Analytics. Hardhat's worker processes run as children of the server, and the debugger is not attached to them.
 
