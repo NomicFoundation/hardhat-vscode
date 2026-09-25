@@ -1,4 +1,4 @@
-import http from "node:http";
+import { CONTROL_HOST } from "./control.ts";
 import {
   type DaemonState,
   HARNESS_DIR,
@@ -6,8 +6,6 @@ import {
   removeDaemonFiles,
   runningDaemonPid,
 } from "./state.ts";
-
-export const CONTROL_HOST = "127.0.0.1";
 
 /**
  * Stop the running daemon, if there is one: SIGTERM, which it handles by
@@ -90,25 +88,6 @@ export async function ping(
   } catch {
     return undefined;
   }
-}
-
-/** Serve `GET /ping` with the daemon's current state. */
-export function createControlServer(
-  currentState: () => DaemonState
-): http.Server {
-  return http.createServer((request, response) => {
-    if (request.method === "GET" && request.url === "/ping") {
-      response.writeHead(200, { "content-type": "application/json" });
-      response.end(JSON.stringify(currentState()));
-
-      return;
-    }
-
-    response.writeHead(404, { "content-type": "application/json" });
-    response.end(
-      JSON.stringify({ error: `No route ${request.method} ${request.url}` })
-    );
-  });
 }
 
 export function sleep(ms: number): Promise<void> {

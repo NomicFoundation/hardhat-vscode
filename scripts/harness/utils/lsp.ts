@@ -28,16 +28,39 @@ const INITIALIZE_PARAMS = path.join(
   "initializeParams.json"
 );
 
-/** How long to wait for the burst of `custom/file-indexed` to stop. */
-const INDEXING_QUIET_MS = 1_000;
+export interface SessionOptions {
+  /** The server to fork. Tests point this at the fake server. */
+  serverModule?: string;
+  /** Extra environment for the server, over this process's own. */
+  env?: Record<string, string>;
+  /** How long to wait for the burst of `custom/file-indexed` to stop. */
+  indexingQuietMs?: number;
+  /** How long one file's first validation may take, compiler download included. */
+  validationTimeoutMs?: number;
+}
 
-/** How long one file's first validation may take, compiler download included. */
-const VALIDATION_TIMEOUT_MS = 180_000;
-
-interface IndexedFile {
+export interface IndexedFile {
   /** Despite the name, a file system path: the server's index key. */
   uri: string;
   project: { configPath?: string; frameworkName: string };
+}
+
+/** What `syncFromDisk` sent for one file. */
+export interface SyncResult {
+  uri: string;
+  /** The notification sent, or null when the server already had this text. */
+  sent: "textDocument/didOpen" | "textDocument/didChange" | null;
+  version: number;
+}
+
+/**
+ * A document the server has open, as far as this client has told it. `text`
+ * is undefined once an incremental change has gone through the pipe
+ * unapplied, which makes the next sync send the whole text again.
+ */
+interface OpenDocument {
+  version: number;
+  text: string | undefined;
 }
 
 type Log = (message: string) => void;
@@ -51,10 +74,13 @@ export class LanguageServerSession {
   readonly #log: Log;
   readonly #server: ChildProcess;
   readonly #connection: MessageConnection;
+  readonly #indexingQuietMs: number;
+  readonly #validationTimeoutMs: number;
 
   readonly #indexed: IndexedFile[] = [];
   #lastIndexedAt = 0;
   readonly #validated = new Map<string, () => void>();
+  readonly #open = new Map<string, OpenDocument>();
 
   /** The latest diagnostics the server has published, by document URI. */
   readonly diagnostics = new Map<string, unknown[]>();
@@ -62,22 +88,30 @@ export class LanguageServerSession {
   /** Resolves with the exit code when the server process ends. */
   readonly exited: Promise<number | null>;
 
-  constructor(workspace: Workspace, log: Log) {
-    if (!fs.existsSync(SERVER_MODULE)) {
+  constructor(workspace: Workspace, log: Log, options: SessionOptions = {}) {
+    const serverModule = options.serverModule ?? SERVER_MODULE;
+
+    if (!fs.existsSync(serverModule)) {
       throw new Error(
-        `No language server build at ${path.relative(ROOT_DIR, SERVER_MODULE)}. Run \`pnpm build\` first.`
+        `No language server build at ${path.relative(ROOT_DIR, serverModule)}. Run \`pnpm build\` first.`
       );
     }
 
     this.#workspace = workspace;
     this.#log = log;
+    this.#indexingQuietMs = options.indexingQuietMs ?? 1_000;
+    this.#validationTimeoutMs = options.validationTimeoutMs ?? 180_000;
 
-    this.#server = fork(SERVER_MODULE, ["--node-ipc"], {
+    this.#server = fork(serverModule, ["--node-ipc"], {
       cwd: workspace.dir,
       // Test mode is what makes the server send custom/validated and
       // custom/projectInitialized, which readiness waits on. It also drops
       // the change debounce and skips fetching the solc version list.
-      env: { ...process.env, VSCODE_NODE_ENV: "development" },
+      env: {
+        ...process.env,
+        VSCODE_NODE_ENV: "development",
+        ...options.env,
+      },
       stdio: ["ignore", "pipe", "pipe", "ipc"],
     });
 
@@ -149,12 +183,14 @@ export class LanguageServerSession {
 
     this.#log("initializing");
 
-    await this.#connection.sendRequest("initialize", {
-      ...base,
-      processId: process.pid,
-      rootUri,
-      workspaceFolders: [{ name: this.#workspace.name, uri: rootUri }],
-    });
+    await this.#untilExit(
+      this.#connection.sendRequest("initialize", {
+        ...base,
+        processId: process.pid,
+        rootUri,
+        workspaceFolders: [{ name: this.#workspace.name, uri: rootUri }],
+      })
+    );
 
     await this.#connection.sendNotification("initialized", {});
 
@@ -171,9 +207,87 @@ export class LanguageServerSession {
     }
   }
 
+  /** Send a request as given, and resolve with the server's result. */
+  request(method: string, params?: unknown): Promise<unknown> {
+    return this.#untilExit(
+      params === undefined
+        ? this.#connection.sendRequest(method)
+        : this.#connection.sendRequest(method, params)
+    );
+  }
+
+  /**
+   * Send a notification as given. Document notifications are also recorded,
+   * so a later `syncFromDisk` knows what the server has open.
+   */
+  async notify(method: string, params?: unknown): Promise<void> {
+    this.#track(method, params);
+
+    await (params === undefined
+      ? this.#connection.sendNotification(method)
+      : this.#connection.sendNotification(method, params));
+  }
+
+  /** A path, relative to the workspace or absolute, as `syncFromDisk` takes it. */
+  resolve(file: string): string {
+    return path.resolve(this.#workspace.dir, file);
+  }
+
+  /** True if `syncFromDisk` could read the file. */
+  canRead(file: string): boolean {
+    try {
+      return fs.statSync(this.resolve(file)).isFile();
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Bring the server's copy of a file up to date with the disk, and send
+   * nothing else: `didOpen` if the server does not have it open, a full-text
+   * `didChange` if it has other text, or nothing if it is already current.
+   */
+  async syncFromDisk(file: string): Promise<SyncResult> {
+    const absolutePath = this.resolve(file);
+    const uri = pathToFileURL(absolutePath).href;
+
+    let text: string;
+
+    try {
+      text = fs.readFileSync(absolutePath, "utf8");
+    } catch {
+      throw new Error(`Cannot read ${absolutePath}`);
+    }
+
+    const open = this.#open.get(uri);
+
+    if (open === undefined) {
+      await this.notify("textDocument/didOpen", {
+        textDocument: { uri, languageId: "solidity", version: 1, text },
+      });
+
+      return { uri, sent: "textDocument/didOpen", version: 1 };
+    }
+
+    if (open.text === text) {
+      return { uri, sent: null, version: open.version };
+    }
+
+    const version = open.version + 1;
+
+    await this.notify("textDocument/didChange", {
+      textDocument: { uri, version },
+      contentChanges: [{ text }],
+    });
+
+    return { uri, sent: "textDocument/didChange", version };
+  }
+
   /** Ask the server to shut down, and kill it if it does not. */
   async shutdown(timeoutMs = 5_000): Promise<void> {
-    if (this.#server.exitCode !== null) {
+    if (this.#server.exitCode !== null || this.#server.signalCode !== null) {
+      this.#connection.dispose();
+
       return;
     }
 
@@ -195,6 +309,56 @@ export class LanguageServerSession {
     this.#connection.dispose();
   }
 
+  #track(method: string, params: unknown): void {
+    const { textDocument, contentChanges } = (params ?? {}) as {
+      textDocument?: { uri?: string; version?: number; text?: string };
+      contentChanges?: Array<{ range?: unknown; text?: string }>;
+    };
+
+    if (textDocument?.uri === undefined) {
+      return;
+    }
+
+    const { uri } = textDocument;
+
+    switch (method) {
+      case "textDocument/didOpen":
+        this.#open.set(uri, {
+          version: textDocument.version ?? 1,
+          text: textDocument.text,
+        });
+        break;
+      case "textDocument/didChange": {
+        const open = this.#open.get(uri);
+        const last = contentChanges?.at(-1);
+
+        // Only a trailing whole-text change says what the text now is.
+        // Incremental ranges are passed through but not applied here.
+        this.#open.set(uri, {
+          version: textDocument.version ?? (open?.version ?? 0) + 1,
+          text:
+            last !== undefined && last.range === undefined
+              ? last.text
+              : undefined,
+        });
+        break;
+      }
+      case "textDocument/didClose":
+        this.#open.delete(uri);
+        break;
+    }
+  }
+
+  /** Reject if the server exits before the promise settles. */
+  #untilExit<T>(promise: Promise<T>): Promise<T> {
+    return Promise.race([
+      promise,
+      this.exited.then((code) => {
+        throw new Error(`The language server exited (code ${code})`);
+      }),
+    ]);
+  }
+
   async #waitForIndexingToSettle(): Promise<void> {
     const start = Date.now();
 
@@ -204,11 +368,11 @@ export class LanguageServerSession {
     while (true) {
       const since = Date.now() - Math.max(this.#lastIndexedAt, start);
 
-      if (since >= INDEXING_QUIET_MS) {
+      if (since >= this.#indexingQuietMs) {
         return;
       }
 
-      await sleep(INDEXING_QUIET_MS - since);
+      await this.#untilExit(sleep(this.#indexingQuietMs - since));
     }
   }
 
@@ -223,22 +387,22 @@ export class LanguageServerSession {
       this.#validated.set(uri, resolve)
     );
 
-    await this.#connection.sendNotification("textDocument/didOpen", {
+    await this.notify("textDocument/didOpen", {
       textDocument: { uri, languageId: "solidity", version: 1, text },
     });
 
-    const inTime = await Promise.race([
-      validated.then(() => true),
-      sleep(VALIDATION_TIMEOUT_MS).then(() => false),
-    ]);
+    const inTime = await this.#untilExit(
+      Promise.race([
+        validated.then(() => true),
+        sleep(this.#validationTimeoutMs).then(() => false),
+      ])
+    );
 
-    await this.#connection.sendNotification("textDocument/didClose", {
-      textDocument: { uri },
-    });
+    await this.notify("textDocument/didClose", { textDocument: { uri } });
 
     if (!inTime) {
       throw new Error(
-        `${file} was not validated within ${VALIDATION_TIMEOUT_MS / 1000}s`
+        `${file} was not validated within ${this.#validationTimeoutMs / 1000}s`
       );
     }
 

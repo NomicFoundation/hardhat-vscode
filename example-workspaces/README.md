@@ -28,6 +28,13 @@ pnpm harness stop
 
 `start` returns, or reports `ready` in the foreground, once the server has indexed the workspace and validated one file in each project, so the first request made afterwards gets a full answer. It runs the tsc build at `server/out/index.js`, so run `pnpm build` first. State lives in `.harness/` at the repository root, including `daemon.log` in background mode.
 
+Talk to the running server with `lsp-message`. It passes one JSON-RPC message through exactly as given, a request if it has an `id`, and prints the answer. After editing a file on disk, `--sync-from-disk` brings the server's copy up to date, sending only `didOpen` or a full-text `didChange`:
+
+```shell
+pnpm harness lsp-message --sync-from-disk --file contracts/Greeter.sol
+pnpm harness lsp-message --message '{"id": 1, "method": "textDocument/documentSymbol", "params": {"textDocument": {"uri": "file:///<repo>/example-workspaces/hardhat3/contracts/Greeter.sol"}}}'
+```
+
 Each must build and pass its tests as committed. After editing the current workspace (the one recorded in `.harness/workspace`), check it and put it back:
 
 ```shell

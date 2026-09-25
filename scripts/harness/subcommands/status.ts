@@ -1,5 +1,6 @@
 import path from "node:path";
-import { CONTROL_HOST, ping } from "../utils/daemon.ts";
+import { CONTROL_HOST } from "../utils/control.ts";
+import { ping } from "../utils/daemon.ts";
 import { ROOT_DIR } from "../utils/paths.ts";
 import {
   HARNESS_DIR,

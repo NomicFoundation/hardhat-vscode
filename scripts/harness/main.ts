@@ -1,5 +1,6 @@
 import { parseArgs } from "node:util";
 import { init } from "./subcommands/init.ts";
+import { lspMessage } from "./subcommands/lsp-message.ts";
 import { reset } from "./subcommands/reset.ts";
 import { start } from "./subcommands/start.ts";
 import { status } from "./subcommands/status.ts";
@@ -21,6 +22,17 @@ Commands:
   stop       Stop the daemon, which shuts its language server down.
   status     Report the daemon and the current workspace. Exits 0 only when
              a daemon is running and ready.
+  lsp-message
+             Send to the running daemon's language server, and print the
+             answer as JSON. Exits 1 if the server answers with an error.
+               --message <json>    One JSON-RPC message, passed through as
+                                   given: a request if it has an "id", else
+                                   a notification.
+               --sync-from-disk --file <path> [--file <path>...]
+                                   Bring the server's copy of each file up to
+                                   date with the disk. Sends only didOpen, or
+                                   a full-text didChange, and nothing else.
+                                   Paths are relative to the workspace.
   validate   Build the current workspace and run its tests.
   reset      Put a workspace back to the commit checked out, discarding
              edits. Gitignored files, such as installs, are kept. Refused
@@ -41,6 +53,9 @@ Examples:
   pnpm harness start --workspace hardhat3              # foreground; Ctrl+C to stop
   pnpm harness start --workspace hardhat3 --background
   pnpm harness status
+  pnpm harness lsp-message --sync-from-disk --file contracts/Greeter.sol
+  pnpm harness lsp-message --message '{"id": 1, "method": "textDocument/documentSymbol",
+    "params": {"textDocument": {"uri": "file:///.../contracts/Greeter.sol"}}}'
   pnpm harness stop
 `;
 
@@ -51,6 +66,9 @@ async function main(argv: string[]): Promise<void> {
     options: {
       workspace: { type: "string" },
       background: { type: "boolean", default: false },
+      message: { type: "string" },
+      "sync-from-disk": { type: "boolean", default: false },
+      file: { type: "string", multiple: true, default: [] },
     },
   });
 
@@ -77,6 +95,14 @@ async function main(argv: string[]): Promise<void> {
       rejectWorkspaceOption(command, values.workspace);
 
       return status();
+    case "lsp-message":
+      rejectWorkspaceOption(command, values.workspace);
+
+      return lspMessage({
+        message: values.message,
+        syncFromDisk: values["sync-from-disk"],
+        files: values.file,
+      });
     case "validate":
       rejectWorkspaceOption(command, values.workspace);
 

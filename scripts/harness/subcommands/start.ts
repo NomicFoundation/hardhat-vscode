@@ -2,14 +2,8 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import type { AddressInfo } from "node:net";
 import path from "node:path";
-import {
-  CONTROL_HOST,
-  createControlServer,
-  isAlive,
-  ping,
-  sleep,
-  stopDaemon,
-} from "../utils/daemon.ts";
+import { CONTROL_HOST, createControlServer } from "../utils/control.ts";
+import { isAlive, ping, sleep, stopDaemon } from "../utils/daemon.ts";
 import { LanguageServerSession } from "../utils/lsp.ts";
 import { ROOT_DIR } from "../utils/paths.ts";
 import {
@@ -57,6 +51,9 @@ export async function start(
 }
 
 async function runDaemon(workspace: Workspace): Promise<void> {
+  // First, so a missing build fails before any state is written.
+  const session = new LanguageServerSession(workspace, log);
+
   recordWorkspace(workspace);
   writeDaemonPid(process.pid);
 
@@ -68,7 +65,7 @@ async function runDaemon(workspace: Workspace): Promise<void> {
     ready: false,
   };
 
-  const control = createControlServer(() => state);
+  const control = createControlServer(() => state, session);
 
   await new Promise<void>((resolve) =>
     control.listen(0, CONTROL_HOST, resolve)
@@ -81,7 +78,6 @@ async function runDaemon(workspace: Workspace): Promise<void> {
     `daemon ${process.pid}: ${workspace.name}, control on port ${state.port}`
   );
 
-  const session = new LanguageServerSession(workspace, log);
   let shuttingDown = false;
 
   const shutdown = async (exitCode: number) => {
