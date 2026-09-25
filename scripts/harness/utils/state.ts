@@ -9,12 +9,28 @@ import { resolveWorkspace, type Workspace } from "./workspaces.ts";
  *
  *   workspace    the current workspace; written by start, kept after stop
  *   daemon.pid   the running daemon's PID; removed on stop
+ *   state.json   the daemon's control port and readiness; removed on stop
+ *   daemon.log   the daemon's output when started with --background
  */
 export const HARNESS_DIR = path.join(ROOT_DIR, ".harness");
 
 const WORKSPACE_FILE = "workspace";
 
 const PID_FILE = "daemon.pid";
+
+const STATE_FILE = "state.json";
+
+export const LOG_FILE = "daemon.log";
+
+/** What a running daemon publishes about itself in `state.json`. */
+export interface DaemonState {
+  pid: number;
+  workspace: string;
+  /** The port of the HTTP control endpoint on 127.0.0.1. */
+  port: number;
+  startedAt: string;
+  ready: boolean;
+}
 
 export function recordWorkspace(
   workspace: Workspace,
@@ -86,4 +102,55 @@ export function runningDaemonPid(
   } catch {
     return undefined;
   }
+}
+
+export function writeDaemonPid(
+  pid: number,
+  harnessDir: string = HARNESS_DIR
+): void {
+  fs.mkdirSync(harnessDir, { recursive: true });
+  fs.writeFileSync(path.join(harnessDir, PID_FILE), `${pid}\n`);
+}
+
+export function writeDaemonState(
+  state: DaemonState,
+  harnessDir: string = HARNESS_DIR
+): void {
+  fs.mkdirSync(harnessDir, { recursive: true });
+
+  // Written whole and renamed into place, so a reader polling it never sees
+  // half a file.
+  const file = path.join(harnessDir, STATE_FILE);
+  fs.writeFileSync(`${file}.tmp`, `${JSON.stringify(state, null, 2)}\n`);
+  fs.renameSync(`${file}.tmp`, file);
+}
+
+export function readDaemonState(
+  harnessDir: string = HARNESS_DIR
+): DaemonState | undefined {
+  try {
+    return JSON.parse(
+      fs.readFileSync(path.join(harnessDir, STATE_FILE), "utf8")
+    ) as DaemonState;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Remove what only lives as long as a daemon. The workspace file and the log
+ * are kept: the first is the current workspace, the second is how to find out
+ * why a daemon died.
+ */
+export function removeDaemonFiles(harnessDir: string = HARNESS_DIR): void {
+  fs.rmSync(path.join(harnessDir, PID_FILE), { force: true });
+  fs.rmSync(path.join(harnessDir, STATE_FILE), { force: true });
+}
+
+/** True when a PID file is left behind with no process behind it. */
+export function hasStaleDaemonFiles(harnessDir: string = HARNESS_DIR): boolean {
+  return (
+    fs.existsSync(path.join(harnessDir, PID_FILE)) &&
+    runningDaemonPid(harnessDir) === undefined
+  );
 }

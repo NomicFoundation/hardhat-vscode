@@ -1,6 +1,9 @@
 import { parseArgs } from "node:util";
 import { init } from "./subcommands/init.ts";
 import { reset } from "./subcommands/reset.ts";
+import { start } from "./subcommands/start.ts";
+import { status } from "./subcommands/status.ts";
+import { stop } from "./subcommands/stop.ts";
 import { validate } from "./subcommands/validate.ts";
 
 const USAGE = `Usage: node scripts/harness/main.ts <command> [options]
@@ -11,18 +14,34 @@ example-workspaces/.
 Commands:
   init       Install each workspace's dependencies and build it once, so the
              compilers it needs are downloaded. Safe to run again.
+  start      Start a daemon holding a language server against a workspace,
+             replacing any daemon already running, and make it the current
+             workspace. Runs in the foreground until Ctrl+C, or detaches with
+             --background once the workspace is fully initialized.
+  stop       Stop the daemon, which shuts its language server down.
+  status     Report the daemon and the current workspace. Exits 0 only when
+             a daemon is running and ready.
   validate   Build the current workspace and run its tests.
   reset      Put a workspace back to the commit checked out, discarding
              edits. Gitignored files, such as installs, are kept. Refused
              while a daemon is running.
 
-The current workspace is the one recorded in .harness/workspace.
+The current workspace is the one recorded in .harness/workspace. All state
+lives in .harness/ (gitignored); --background logs to .harness/daemon.log.
 
 Options:
   --workspace <name>   The workspace to act on: hardhat3, foundry or hardhat2.
-                       init sets up all of them without it. reset falls back
-                       to the current workspace, and fails without either.
-                       validate always acts on the current workspace.
+                       start requires it. init sets up all of them without
+                       it. reset falls back to the current workspace, and
+                       fails without either. validate always acts on the
+                       current workspace.
+  --background         With start: detach, and return once it is ready.
+
+Examples:
+  pnpm harness start --workspace hardhat3              # foreground; Ctrl+C to stop
+  pnpm harness start --workspace hardhat3 --background
+  pnpm harness status
+  pnpm harness stop
 `;
 
 async function main(argv: string[]): Promise<void> {
@@ -31,6 +50,7 @@ async function main(argv: string[]): Promise<void> {
     allowPositionals: true,
     options: {
       workspace: { type: "string" },
+      background: { type: "boolean", default: false },
     },
   });
 
@@ -47,6 +67,16 @@ async function main(argv: string[]): Promise<void> {
   switch (command) {
     case "init":
       return init(values.workspace);
+    case "start":
+      return start(values.workspace, values.background);
+    case "stop":
+      rejectWorkspaceOption(command, values.workspace);
+
+      return stop();
+    case "status":
+      rejectWorkspaceOption(command, values.workspace);
+
+      return status();
     case "validate":
       rejectWorkspaceOption(command, values.workspace);
 
