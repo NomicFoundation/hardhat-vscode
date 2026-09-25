@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { describe, it } from "node:test";
-import { EXAMPLE_WORKSPACES_DIR } from "./paths.ts";
+import { EXAMPLE_WORKSPACES_DIR, ROOT_DIR } from "./paths.ts";
 import { resolveWorkspace, workspaceNames } from "./workspaces.ts";
 
 describe("resolveWorkspace", () => {
@@ -35,5 +35,20 @@ describe("workspaceNames", () => {
       .sort();
 
     assert.deepEqual([...workspaceNames()].sort(), dirs);
+  });
+});
+
+describe(".vscode/launch.json", () => {
+  it("offers exactly the example workspaces in its picker", () => {
+    // JSONC: drop the whole-line comments, which are the only kind it has.
+    const source = fs
+      .readFileSync(path.join(ROOT_DIR, ".vscode", "launch.json"), "utf8")
+      .replace(/^\s*\/\/.*$/gm, "");
+    const { inputs } = JSON.parse(source) as {
+      inputs: Array<{ id: string; options: string[] }>;
+    };
+    const picker = inputs.find(({ id }) => id === "exampleWorkspace");
+
+    assert.deepEqual([...picker!.options].sort(), [...workspaceNames()].sort());
   });
 });

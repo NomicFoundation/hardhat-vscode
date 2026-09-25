@@ -7,12 +7,36 @@
       "request": "launch",
       "name": "Launch Client",
       "runtimeExecutable": "${execPath}",
-      "args": ["--extensionDevelopmentPath=${workspaceRoot}/client"],
-      "outFiles": ["${workspaceRoot}/client/out/**/*.js"],
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}/client"],
+      "outFiles": ["${workspaceFolder}/client/out/**/*.js"],
       "env": {
         "VSCODE_NODE_ENV": "development"
       },
       "envFile": "${workspaceFolder}/.env",
+      "preLaunchTask": {
+        "type": "npm",
+        "script": "watch"
+      }
+    },
+    {
+      // Opens one of example-workspaces/ in a new window, running the
+      // extension and the language server from this checkout. Run
+      // `pnpm harness init --workspace <name>` once first, so the workspace
+      // has its dependencies. No envFile: without .env the telemetry keys
+      // are empty, which keeps exploration out of Sentry and Google
+      // Analytics.
+      "type": "extensionHost",
+      "request": "launch",
+      "name": "Launch Client in Example Workspace",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/client",
+        "${workspaceFolder}/example-workspaces/${input:exampleWorkspace}"
+      ],
+      "outFiles": ["${workspaceFolder}/client/out/**/*.js"],
+      "env": {
+        "VSCODE_NODE_ENV": "development"
+      },
       "preLaunchTask": {
         "type": "npm",
         "script": "watch"
@@ -24,7 +48,9 @@
       "name": "Attach to Server",
       "port": 6009,
       "restart": true,
-      "outFiles": ["${workspaceRoot}/server/out/**/*.js"]
+      // Long enough for the new window to open and start the server.
+      "timeout": 30000,
+      "outFiles": ["${workspaceFolder}/server/out/**/*.js"]
     },
     {
       "name": "Language Server E2E Test",
@@ -32,11 +58,11 @@
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
-        "--extensionDevelopmentPath=${workspaceRoot}",
-        "--extensionTestsPath=${workspaceRoot}/out/test/e2e/index",
-        "${workspaceRoot}/test/e2e"
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/out/test/e2e/index",
+        "${workspaceFolder}/test/e2e"
       ],
-      "outFiles": ["${workspaceRoot}/out/test/**/*.js"]
+      "outFiles": ["${workspaceFolder}/out/test/**/*.js"]
     },
     {
       "name": "Debug server tests",
@@ -60,6 +86,23 @@
     {
       "name": "Client + Server",
       "configurations": ["Launch Client", "Attach to Server"]
+    },
+    {
+      "name": "Client + Server in Example Workspace",
+      "configurations": [
+        "Launch Client in Example Workspace",
+        "Attach to Server"
+      ],
+      "stopAll": true
+    }
+  ],
+  "inputs": [
+    {
+      "id": "exampleWorkspace",
+      "type": "pickString",
+      "description": "Which example workspace to open",
+      "options": ["hardhat3", "foundry", "hardhat2"],
+      "default": "hardhat3"
     }
   ]
 }

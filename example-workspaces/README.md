@@ -17,6 +17,14 @@ pnpm harness init                       # every workspace
 pnpm harness init --workspace hardhat3  # one
 ```
 
+## Exploring in VS Code
+
+Open this checkout in VS Code, then run the **Client + Server in Example Workspace** launch configuration (F5 in the Run and Debug view) and pick a workspace. A new window opens on that workspace, running the extension and the language server from this checkout, with `pnpm watch` rebuilding both as you edit. Breakpoints in `client/src` and `server/src` are hit in the window you launched from, and this works the same inside a devcontainer, where the new window connects to the same container. Reload the new window (**Developer: Reload Window**) to pick up a rebuild.
+
+Run `pnpm harness init --workspace <name>` once first, so the workspace has its dependencies. The launch sets `VSCODE_NODE_ENV=development`, so the server runs in test mode, as it does under the harness (see below). It reads no `.env`, so the telemetry keys are empty and nothing is sent to Sentry or Google Analytics. Hardhat's worker processes run as children of the server, and the debugger is not attached to them.
+
+## Driving the language server from the command line
+
 Start a language server against one, which also makes it the current workspace. Only one runs at a time; starting another replaces it:
 
 ```shell
