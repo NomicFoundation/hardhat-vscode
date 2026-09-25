@@ -132,11 +132,20 @@ interface VersionsResponse {
   releases?: Record<string, string>;
 }
 
-async function fetchLatestVersions(state: ServerState) {
+const SOLC_LIST_URL = "https://binaries.soliditylang.org/wasm/list.json";
+
+/**
+ * Exported for testing only.
+ */
+export async function fetchLatestVersions(
+  state: ServerState,
+  url = SOLC_LIST_URL
+) {
   try {
     const data: VersionsResponse = await got
-      .get("https://binaries.soliditylang.org/wasm/list.json", {
+      .get(url, {
         timeout: 2000,
+        retry: 0,
       })
       .json();
 

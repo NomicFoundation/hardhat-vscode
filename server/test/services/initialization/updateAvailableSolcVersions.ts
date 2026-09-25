@@ -1,9 +1,14 @@
 import { assert } from "chai";
+import * as net from "net";
 import semver from "semver";
+import * as sinon from "sinon";
 import {
   availableVersions,
+  fetchLatestVersions,
   releasedVersionsFrom,
 } from "@services/initialization/updateAvailableSolcVersions";
+import { ServerState } from "../../../src/types";
+import { setupMockTelemetry } from "../../helpers/setupMockTelemetry";
 
 describe("update available solc versions", () => {
   describe("bundled version list", () => {
@@ -69,6 +74,61 @@ describe("update available solc versions", () => {
       assert.deepStrictEqual(releasedVersionsFrom({ builds: "x" } as any), []);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       assert.deepStrictEqual(releasedVersionsFrom({ releases: [] } as any), []);
+    });
+  });
+
+  describe("fetchLatestVersions", () => {
+    let server: net.Server;
+    let connections: number;
+    let escapedErrors: unknown[];
+    const recordEscapedError = (error: unknown) => escapedErrors.push(error);
+
+    beforeEach(async () => {
+      connections = 0;
+      escapedErrors = [];
+      process.on("unhandledRejection", recordEscapedError);
+      process.on("uncaughtException", recordEscapedError);
+
+      // Reset every connection before a response, the way a flaky network
+      // does.
+      server = net.createServer((socket) => {
+        connections++;
+        socket.resetAndDestroy();
+      });
+
+      await new Promise<void>((resolve) =>
+        server.listen(0, "127.0.0.1", resolve)
+      );
+    });
+
+    afterEach(async () => {
+      process.off("unhandledRejection", recordEscapedError);
+      process.off("uncaughtException", recordEscapedError);
+
+      await new Promise((resolve) => server.close(resolve));
+    });
+
+    it("should fall back to no versions, without retrying, when the request fails", async () => {
+      const telemetry = setupMockTelemetry();
+      const state = { telemetry } as unknown as ServerState;
+      const { port } = server.address() as net.AddressInfo;
+
+      const versions = await fetchLatestVersions(
+        state,
+        `http://127.0.0.1:${port}/wasm/list.json`
+      );
+
+      assert.deepStrictEqual(versions, []);
+      assert.isTrue((telemetry.captureException as sinon.SinonSpy).calledOnce);
+
+      // Outlast got's first retry delay (about a second). On Node 24.20 a
+      // retry can fire after the request has already rejected, which throws
+      // from got's `onCancel` and leaves an orphaned request whose own error
+      // is uncaught, taking the language server down.
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      assert.strictEqual(connections, 1);
+      assert.deepStrictEqual(escapedErrors, []);
     });
   });
 });
