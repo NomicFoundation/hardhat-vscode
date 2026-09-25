@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
-pragma solidity ^0.8.3;
+pragma solidity 0.8.20;
 
-// solc error 2658. Note it was removed in solc 0.8.21 - this project pins
-// 0.8.8 in foundry.toml, so the error is still emitted here.
+// solc error 2658. Note it was removed in solc 0.8.21 - this file pins 0.8.20,
+// which hardhat.config.ts configures, so the error is still emitted here.
 contract Bad {
   uint256 public immutable broken;
   uint256 public immutable assignedInConstructor;

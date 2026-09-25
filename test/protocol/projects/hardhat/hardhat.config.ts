@@ -2,7 +2,7 @@ import { HardhatUserConfig } from 'hardhat/config'
 
 const config: HardhatUserConfig = {
   solidity: {
-    version: '0.8.8',
+    version: '0.8.37',
     settings: {
       optimizer: {
         enabled: false,
