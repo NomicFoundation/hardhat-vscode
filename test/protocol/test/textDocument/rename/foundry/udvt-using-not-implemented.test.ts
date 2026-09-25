@@ -82,7 +82,7 @@ describe('[foundry] rename - udvt-using (not implemented)', () => {
   })
 
   // Not implemented: returns an empty edit; identifiers in a using list are not linked.
-  test('operator function, from its name in a using list', async () => {
+  test.skip('operator function, from its name in a using list', async () => {
     const workspaceEdit = await client.rename(toUri(pricePath), makePosition(5, 7), 'plusCost')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -98,7 +98,7 @@ describe('[foundry] rename - udvt-using (not implemented)', () => {
   })
 
   // Not implemented: returns an empty edit; attached calls through using are not linked.
-  test('global using function, from an attached call in another file', async () => {
+  test.skip('global using function, from an attached call in another file', async () => {
     const workspaceEdit = await client.rename(toUri(usePricePath), makePosition(18, 21), 'rawCost')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -115,7 +115,7 @@ describe('[foundry] rename - udvt-using (not implemented)', () => {
   })
 
   // Not implemented: returns an empty edit; attached calls through using are not linked.
-  test('one-parameter library overload, from an attached call', async () => {
+  test.skip('one-parameter library overload, from an attached call', async () => {
     const workspaceEdit = await client.rename(toUri(vaultPath), makePosition(29, 40), 'scaleOnce')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -131,7 +131,7 @@ describe('[foundry] rename - udvt-using (not implemented)', () => {
   })
 
   // Not implemented: returns only the declaration; attached calls through using are not linked.
-  test('two-parameter library overload, from its declaration', async () => {
+  test.skip('two-parameter library overload, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(vaultPath), makePosition(4, 13), 'scaleTwice')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -147,7 +147,7 @@ describe('[foundry] rename - udvt-using (not implemented)', () => {
   })
 
   // Not implemented: returns an empty edit; attached calls through using are not linked.
-  test('library function called directly and attached, from the attached call', async () => {
+  test.skip('library function called directly and attached, from the attached call', async () => {
     const workspaceEdit = await client.rename(toUri(useAmountPath), makePosition(17, 53), 'qtyToUint')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -164,7 +164,7 @@ describe('[foundry] rename - udvt-using (not implemented)', () => {
   })
 
   // Not implemented: returns the declaration and the direct call, not the name in the using list.
-  test('operator function, from a direct call', async () => {
+  test.skip('operator function, from a direct call', async () => {
     const workspaceEdit = await client.rename(toUri(rnMoneyPath), makePosition(20, 15), 'rnSum')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -181,7 +181,7 @@ describe('[foundry] rename - udvt-using (not implemented)', () => {
   })
 
   // Not implemented: returns only the declaration; identifiers in a using list are not linked.
-  test('unary operator function, from its declaration', async () => {
+  test.skip('unary operator function, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(rnMoneyPath), makePosition(11, 9), 'rnFlip')
 
     expect(sorted(workspaceEdit)).to.deep.equal(

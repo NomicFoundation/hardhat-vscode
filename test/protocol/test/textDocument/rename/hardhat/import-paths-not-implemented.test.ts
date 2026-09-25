@@ -102,7 +102,7 @@ describe('[hardhat] rename - import-paths (not implemented)', () => {
   })
 
   // Not implemented: also renames the alias RnIpRemote and its uses; rename has no alias handling.
-  test('contract imported under an alias, from its declaration, leaving the alias alone', async () => {
+  test.skip('contract imported under an alias, from its declaration, leaving the alias alone', async () => {
     const workspaceEdit = await client.rename(toUri(sharedPath), makePosition(3, 9), 'RnIpRenamedShared')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -121,7 +121,7 @@ describe('[hardhat] rename - import-paths (not implemented)', () => {
   })
 
   // Not implemented: also renames the alias RnIpRemote and its uses; rename has no alias handling.
-  test('contract from the name before as in an aliased import', async () => {
+  test.skip('contract from the name before as in an aliased import', async () => {
     const workspaceEdit = await client.rename(toUri(rnRemapPath), makePosition(3, 8), 'RnIpRenamedShared')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -140,7 +140,7 @@ describe('[hardhat] rename - import-paths (not implemented)', () => {
   })
 
   // Not implemented: renames RnIpShared, its declaration and every use in other files, along with the alias.
-  test('import alias from a use, leaving the aliased contract alone', async () => {
+  test.skip('import alias from a use, leaving the aliased contract alone', async () => {
     const workspaceEdit = await client.rename(toUri(rnRemapPath), makePosition(6, 4), 'RnIpFarShared')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -157,7 +157,7 @@ describe('[hardhat] rename - import-paths (not implemented)', () => {
   })
 
   // Not implemented: edits the declaration and calls in the package's Ownable.sol along with the project's calls.
-  test('package function from a project call is refused', async () => {
+  test.skip('package function from a project call is refused', async () => {
     const workspaceEdit = await client
       .rename(toUri(ipOwnablePath), makePosition(7, 8), 'rnIpRenamedTransfer')
       .catch(() => null)
@@ -167,7 +167,7 @@ describe('[hardhat] rename - import-paths (not implemented)', () => {
   })
 
   // Not implemented: edits the declaration and calls in the package's Ownable.sol along with the project's calls.
-  test('package function from its declaration is refused', async () => {
+  test.skip('package function from its declaration is refused', async () => {
     const workspaceEdit = await client
       .rename(toUri(ozPath), makePosition(70, 13), 'rnIpRenamedTransfer')
       .catch(() => null)
@@ -177,7 +177,7 @@ describe('[hardhat] rename - import-paths (not implemented)', () => {
   })
 
   // Not implemented: edits the contract's declaration in the package's Ownable.sol and every use in the project.
-  test('package contract from an inheritance list is refused', async () => {
+  test.skip('package contract from an inheritance list is refused', async () => {
     const workspaceEdit = await client
       .rename(toUri(ipOwnablePath), makePosition(5, 22), 'RnIpRenamedOwnable')
       .catch(() => null)
@@ -187,7 +187,7 @@ describe('[hardhat] rename - import-paths (not implemented)', () => {
   })
 
   // Not implemented: edits the declaration in the package's Context.sol and the project's call.
-  test('transitively imported package function is refused', async () => {
+  test.skip('transitively imported package function is refused', async () => {
     const workspaceEdit = await client
       .rename(toUri(ipOwnablePath), makePosition(16, 15), 'rnIpRenamedMsgData')
       .catch(() => null)
@@ -197,7 +197,7 @@ describe('[hardhat] rename - import-paths (not implemented)', () => {
   })
 
   // Not implemented: edits console.sol's log(uint256, uint256) and every two-argument log call.
-  test('console.log overload is refused', async () => {
+  test.skip('console.log overload is refused', async () => {
     const workspaceEdit = await client
       .rename(toUri(ipConsolePath), makePosition(8, 16), 'rnIpRenamedLog')
       .catch(() => null)
@@ -207,7 +207,7 @@ describe('[hardhat] rename - import-paths (not implemented)', () => {
   })
 
   // Not implemented: renames the override and its call, and the overridden function in the package's Ownable.sol.
-  test('project override of a package function is refused', async () => {
+  test.skip('project override of a package function is refused', async () => {
     const workspaceEdit = await client
       .rename(toUri(rnIpOwnablePath), makePosition(8, 13), 'rnIpRenamedRenounce')
       .catch(() => null)

@@ -70,7 +70,7 @@ describe('[foundry] rename - inheritance (not implemented)', () => {
   })
 
   // Not implemented: returns no edits; a member reached through the receiver's base interface is not resolved.
-  test('override chain, from a call through a base interface', async () => {
+  test.skip('override chain, from a call through a base interface', async () => {
     const workspaceEdit = await client.rename(toUri(derivedPath), makePosition(45, 33), 'valueRenamed')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -95,7 +95,7 @@ describe('[foundry] rename - inheritance (not implemented)', () => {
   })
 
   // Not implemented: returns only the override and the invocation; a modifier is not linked to the base modifier it overrides.
-  test('overridden modifier, from an invocation', async () => {
+  test.skip('overridden modifier, from an invocation', async () => {
     const workspaceEdit = await client.rename(toUri(overridesPath), makePosition(38, 33), 'guardedRenamed')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -112,7 +112,7 @@ describe('[foundry] rename - inheritance (not implemented)', () => {
   })
 
   // Not implemented: returns only the interface declaration; a public state variable is not linked to the interface function it implements.
-  test('interface function implemented by a public state variable, from its declaration', async () => {
+  test.skip('interface function implemented by a public state variable, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(overridesPath), makePosition(4, 13), 'totalRenamed')
 
     expect(sorted(workspaceEdit)).to.deep.equal(

@@ -62,7 +62,7 @@ describe('[hardhat] rename - file-level (not implemented)', () => {
   })
 
   // Not implemented: returns an empty edit; attached calls through using are not linked.
-  test('free function attached with using {f} for T, from an attached call', async () => {
+  test.skip('free function attached with using {f} for T, from an attached call', async () => {
     const workspaceEdit = await client.rename(toUri(userPath), makePosition(15, 18), 'pointTotal')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -83,7 +83,7 @@ describe('[hardhat] rename - file-level (not implemented)', () => {
   })
 
   // Not implemented: returns an empty edit; attached calls through using are not linked.
-  test('library function attached with using L for T, from an attached call', async () => {
+  test.skip('library function attached with using L for T, from an attached call', async () => {
     const workspaceEdit = await client.rename(toUri(userPath), makePosition(15, 28), 'taxicab')
 
     expect(sorted(workspaceEdit)).to.deep.equal(

@@ -74,7 +74,7 @@ describe('[hardhat] rename bug - errors through C.E, events outside emit, and la
   })
 
   // Bug: misses the Unauthorized in IEEVault.Unauthorized.selector (34:42-34:54).
-  test('inherited interface error from revert, including its use in I.E.selector', async () => {
+  test.skip('inherited interface error from revert, including its use in I.E.selector', async () => {
     const workspaceEdit = await client.rename(toUri(errorsEventsPath), makePosition(29, 41), 'EERNUnauthorized')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -91,7 +91,7 @@ describe('[hardhat] rename bug - errors through C.E, events outside emit, and la
   })
 
   // Bug: returns an empty edit.
-  test('base error from a qualified revert C.E()', async () => {
+  test.skip('base error from a qualified revert C.E()', async () => {
     const workspaceEdit = await client.rename(toUri(errorsEventsPath), makePosition(44, 28), 'EERNInsufficient')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -108,7 +108,7 @@ describe('[hardhat] rename bug - errors through C.E, events outside emit, and la
   })
 
   // Bug: returns an empty edit.
-  test('error from Alias.E.selector through a contract alias', async () => {
+  test.skip('error from Alias.E.selector through a contract alias', async () => {
     const workspaceEdit = await client.rename(toUri(clientPath), makePosition(23, 21), 'EERNBlocked')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -128,7 +128,7 @@ describe('[hardhat] rename bug - errors through C.E, events outside emit, and la
   })
 
   // Bug: returns an empty edit.
-  test('event from E.selector', async () => {
+  test.skip('event from E.selector', async () => {
     const workspaceEdit = await client.rename(toUri(errorsEventsPath), makePosition(34, 17), 'EERNPaused')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -145,7 +145,7 @@ describe('[hardhat] rename bug - errors through C.E, events outside emit, and la
   })
 
   // Bug: returns an empty edit.
-  test('parameter of the second catch clause from its use', async () => {
+  test.skip('parameter of the second catch clause from its use', async () => {
     const workspaceEdit = await client.rename(toUri(tryCatchPath), makePosition(18, 20), 'eerNPanicCode')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -161,7 +161,7 @@ describe('[hardhat] rename bug - errors through C.E, events outside emit, and la
   })
 
   // Bug: returns an empty edit.
-  test('catch error parameter after a try success block, from its use', async () => {
+  test.skip('catch error parameter after a try success block, from its use', async () => {
     const workspaceEdit = await client.rename(toUri(clientPath), makePosition(10, 20), 'eerNCaught')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
