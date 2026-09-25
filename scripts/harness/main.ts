@@ -1,5 +1,7 @@
 import { parseArgs } from "node:util";
 import { init } from "./subcommands/init.ts";
+import { reset } from "./subcommands/reset.ts";
+import { validate } from "./subcommands/validate.ts";
 
 const USAGE = `Usage: node scripts/harness/main.ts <command> [options]
 
@@ -9,10 +11,18 @@ example-workspaces/.
 Commands:
   init       Install each workspace's dependencies and build it once, so the
              compilers it needs are downloaded. Safe to run again.
+  validate   Build the current workspace and run its tests.
+  reset      Put a workspace back to the commit checked out, discarding
+             edits. Gitignored files, such as installs, are kept. Refused
+             while a daemon is running.
+
+The current workspace is the one recorded in .harness/workspace.
 
 Options:
-  --workspace <name>   Act on one workspace: hardhat3, foundry or hardhat2.
-                       init sets up all of them without it.
+  --workspace <name>   The workspace to act on: hardhat3, foundry or hardhat2.
+                       init sets up all of them without it. reset falls back
+                       to the current workspace, and fails without either.
+                       validate always acts on the current workspace.
 `;
 
 async function main(argv: string[]): Promise<void> {
@@ -37,11 +47,28 @@ async function main(argv: string[]): Promise<void> {
   switch (command) {
     case "init":
       return init(values.workspace);
+    case "validate":
+      rejectWorkspaceOption(command, values.workspace);
+
+      return validate();
+    case "reset":
+      return reset(values.workspace);
     default:
       console.log(`Unknown command: ${command}\n`);
       console.log(USAGE);
 
       process.exitCode = 1;
+  }
+}
+
+function rejectWorkspaceOption(
+  command: string,
+  workspace: string | undefined
+): void {
+  if (workspace !== undefined) {
+    throw new Error(
+      `${command} acts on the current workspace and takes no --workspace`
+    );
   }
 }
 

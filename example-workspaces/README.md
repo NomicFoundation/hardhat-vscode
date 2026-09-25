@@ -17,4 +17,10 @@ pnpm harness init                       # every workspace
 pnpm harness init --workspace hardhat3  # one
 ```
 
-Each must build and pass its tests as committed: `pnpm hardhat compile && pnpm hardhat test` for the Hardhat workspaces, `forge build && forge test` for Foundry.
+Each must build and pass its tests as committed. After editing the current workspace (the one recorded in `.harness/workspace`), check it and put it back:
+
+```shell
+pnpm harness validate                    # build it and run its tests
+pnpm harness reset                       # discard edits; installs and build output are kept
+pnpm harness reset --workspace foundry   # a workspace other than the current one
+```
