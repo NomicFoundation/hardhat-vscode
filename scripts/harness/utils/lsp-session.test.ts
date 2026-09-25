@@ -172,7 +172,7 @@ describe("LanguageServerSession.initialize", () => {
 
     await assert.rejects(
       session.initialize(),
-      /contracts\/Aaa\.sol was not validated within 0\.2s/
+      /contracts[\\/]Aaa\.sol was not validated within 0\.2s/
     );
   });
 
