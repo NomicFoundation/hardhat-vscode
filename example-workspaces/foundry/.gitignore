@@ -1,0 +1,12 @@
+# Compiler files
+cache/
+out/
+
+# Installed by `node scripts/harness/main.ts init`
+lib/
+
+# Broadcast logs
+broadcast/
+
+# Dotenv file
+.env

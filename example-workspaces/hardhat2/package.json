@@ -1,0 +1,18 @@
+{
+  "name": "example-workspace-hardhat2",
+  "private": true,
+  "packageManager": "pnpm@11.22.0",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.1.3",
+    "@openzeppelin/contracts": "4.5.0",
+    "chai": "^4.5.0",
+    "ethers": "^6.17.0",
+    "hardhat": "^2.29.1",
+    "prettier": "^3.9.6",
+    "prettier-plugin-solidity": "^2.4.1"
+  }
+}
