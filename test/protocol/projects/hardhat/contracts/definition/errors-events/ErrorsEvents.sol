@@ -21,7 +21,7 @@ contract EEVault is IEEVault, EEVaultBase {
     }
 
     function withdraw(uint256 amount) external {
-        if (balances[msg.sender] < amount) revert InsufficientBalance(balances[msg.sender], amount);
+        require(balances[msg.sender] >= amount, InsufficientBalance(balances[msg.sender], amount));
         balances[msg.sender] -= amount;
         emit Withdrawn(msg.sender, amount);
     }
@@ -32,13 +32,13 @@ contract EEVault is IEEVault, EEVaultBase {
     }
 
     function selectors() external pure returns (bytes32, bytes4) {
-        return (bytes32(0), IEEVault.Unauthorized.selector);
+        return (Paused.selector, IEEVault.Unauthorized.selector);
     }
 }
 
 contract EEOutsider {
     function notify() external {
-        payable(msg.sender).transfer(0);
+        emit IEEVault.Deposited(msg.sender, 0);
     }
 
     function fail() external pure {
