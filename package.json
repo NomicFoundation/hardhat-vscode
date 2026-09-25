@@ -32,6 +32,7 @@
     "release:validate": "node scripts/release/main.ts prepare-release-pr:validate",
     "release:version": "node scripts/release/main.ts prepare-release-pr:update-versions-for-release",
     "release": "node scripts/release/main.ts",
+    "harness": "node scripts/harness/main.ts",
     "prettier:scripts": "prettier \"scripts/**/*.{ts,json}\"",
     "tsc:scripts": "tsc --noEmit -p scripts/tsconfig.json",
     "lint:scripts": "pnpm run prettier:scripts --check && pnpm run tsc:scripts",

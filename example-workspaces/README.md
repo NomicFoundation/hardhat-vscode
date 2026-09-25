@@ -10,12 +10,11 @@ A curated set of Solidity projects for exploring the language server's behaviour
 
 Each one is a standalone project with its own lockfile, not part of the hardhat-vscode pnpm workspace. A user's project is standalone, and the language server resolves `hardhat` from the project's own `node_modules`, so a shared workspace would test a layout no user has. The Hardhat workspaces each carry a `pnpm-workspace.yaml` for that reason.
 
-Set them up by hand until the harness's `init` exists:
+Set them up with the harness. It installs each workspace's dependencies (forge-std for Foundry) and builds it once, so the compilers are downloaded before a language server is pointed at it:
 
 ```shell
-(cd example-workspaces/hardhat3 && pnpm install)
-(cd example-workspaces/hardhat2 && pnpm install)
-(cd example-workspaces/foundry && forge install --no-git foundry-rs/forge-std@v1.16.2)
+pnpm harness init                       # every workspace
+pnpm harness init --workspace hardhat3  # one
 ```
 
 Each must build and pass its tests as committed: `pnpm hardhat compile && pnpm hardhat test` for the Hardhat workspaces, `forge build && forge test` for Foundry.
