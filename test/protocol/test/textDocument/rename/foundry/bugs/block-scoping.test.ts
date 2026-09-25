@@ -8,18 +8,32 @@ import { getProjectPath, makePosition, makeRange } from '../../../../helpers'
 
 let client!: TestLanguageClient
 
-// Edits within a file come in no particular order: compare them as sets.
+// A WorkspaceEdit can carry its edits in `changes` or in `documentChanges`, and
+// the edits within a file come in no particular order. Normalise both to sorted
+// `changes` of plain `{ range, newText }` edits, leaving out files with no edits.
+// File operations (create, rename, delete) are kept apart under `operations`, so
+// an answer that includes any never compares equal to an edit or a refusal.
 function sorted(edit: WorkspaceEdit | null) {
-  if (edit === null) {
-    return null
-  }
   const changes: Record<string, TextEdit[]> = {}
-  for (const [uri, edits] of Object.entries(edit.changes ?? {})) {
-    changes[uri] = [...edits].sort(
-      (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
-    )
+  const operations: unknown[] = []
+  const add = (uri: string, edits: TextEdit[]) => {
+    if (edits.length > 0) {
+      changes[uri] = [...(changes[uri] ?? []), ...edits.map(({ range, newText }) => ({ range, newText }))].sort(
+        (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
+      )
+    }
   }
-  return { changes }
+  for (const [uri, edits] of Object.entries(edit?.changes ?? {})) {
+    add(uri, edits)
+  }
+  for (const change of edit?.documentChanges ?? []) {
+    if ('edits' in change) {
+      add(change.textDocument.uri, change.edits as TextEdit[])
+    } else {
+      operations.push(change)
+    }
+  }
+  return operations.length > 0 ? { changes, operations } : { changes }
 }
 
 describe('[foundry] rename bug - blocks do not open a scope', () => {
@@ -52,7 +66,7 @@ describe('[foundry] rename bug - blocks do not open a scope', () => {
   })
 
   // Bug: also renames the else block's use of its own k2 (39:16-39:18).
-  test.skip('local in an if block, leaving the same-named local in the else block alone', async () => {
+  test('local in an if block, leaving the same-named local in the else block alone', async () => {
     const workspaceEdit = await client.rename(toUri(localsPath), makePosition(35, 20), 'bumped')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -69,7 +83,7 @@ describe('[foundry] rename bug - blocks do not open a scope', () => {
   })
 
   // Bug: returns only the declaration; its use is linked to the outer y.
-  test.skip('local in a nested block that shadows an outer local, with its use', async () => {
+  test('local in a nested block that shadows an outer local, with its use', async () => {
     const workspaceEdit = await client.rename(toUri(scopingPath), makePosition(21, 20), 'nestedY')
 
     expect(sorted(workspaceEdit)).to.deep.equal(

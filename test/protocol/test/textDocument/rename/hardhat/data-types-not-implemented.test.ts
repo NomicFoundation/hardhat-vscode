@@ -8,18 +8,32 @@ import { getProjectPath, makePosition, makeRange } from '../../../helpers'
 
 let client!: TestLanguageClient
 
-// Edits within a file come in no particular order: compare them as sets.
+// A WorkspaceEdit can carry its edits in `changes` or in `documentChanges`, and
+// the edits within a file come in no particular order. Normalise both to sorted
+// `changes` of plain `{ range, newText }` edits, leaving out files with no edits.
+// File operations (create, rename, delete) are kept apart under `operations`, so
+// an answer that includes any never compares equal to an edit or a refusal.
 function sorted(edit: WorkspaceEdit | null) {
-  if (edit === null) {
-    return null
-  }
   const changes: Record<string, TextEdit[]> = {}
-  for (const [uri, edits] of Object.entries(edit.changes ?? {})) {
-    changes[uri] = [...edits].sort(
-      (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
-    )
+  const operations: unknown[] = []
+  const add = (uri: string, edits: TextEdit[]) => {
+    if (edits.length > 0) {
+      changes[uri] = [...(changes[uri] ?? []), ...edits.map(({ range, newText }) => ({ range, newText }))].sort(
+        (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
+      )
+    }
   }
-  return { changes }
+  for (const [uri, edits] of Object.entries(edit?.changes ?? {})) {
+    add(uri, edits)
+  }
+  for (const change of edit?.documentChanges ?? []) {
+    if ('edits' in change) {
+      add(change.textDocument.uri, change.edits as TextEdit[])
+    } else {
+      operations.push(change)
+    }
+  }
+  return operations.length > 0 ? { changes, operations } : { changes }
 }
 
 describe('[hardhat] rename - data-types (not implemented)', () => {
@@ -48,7 +62,7 @@ describe('[hardhat] rename - data-types (not implemented)', () => {
   })
 
   // Not implemented: returns 5 of the 8 edits; nested[..][..].a, outers.push().a and build().a are not linked.
-  test.skip('struct member from a use, through nested mappings, push() and a return', async () => {
+  test('struct member from a use, through nested mappings, push() and a return', async () => {
     const workspaceEdit = await client.rename(toUri(dataTypesPath), makePosition(25, 17), 'quantity')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -70,7 +84,7 @@ describe('[hardhat] rename - data-types (not implemented)', () => {
   })
 
   // Not implemented: returns 5 of the 8 edits; nested[..][..].a, outers.push().a and build().a are not linked.
-  test.skip('struct member from a named constructor field', async () => {
+  test('struct member from a named constructor field', async () => {
     const workspaceEdit = await client.rename(toUri(dataTypesPath), makePosition(38, 32), 'quantity')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -92,7 +106,7 @@ describe('[hardhat] rename - data-types (not implemented)', () => {
   })
 
   // Not implemented: misses Entry in the qualified type name Registry.Entry memory e.
-  test.skip('struct of another contract from a qualified expression', async () => {
+  test('struct of another contract from a qualified expression', async () => {
     const workspaceEdit = await client.rename(toUri(dataTypesPath), makePosition(55, 43), 'Swatch')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -109,7 +123,7 @@ describe('[hardhat] rename - data-types (not implemented)', () => {
   })
 
   // Not implemented: returns no edits; e's qualified type Registry.Entry is not resolved.
-  test.skip("member of another contract's struct through a qualified type", async () => {
+  test("member of another contract's struct through a qualified type", async () => {
     const workspaceEdit = await client.rename(toUri(dataTypesPath), makePosition(56, 17), 'mode')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -123,7 +137,7 @@ describe('[hardhat] rename - data-types (not implemented)', () => {
   })
 
   // Not implemented: returns only the Registry.sol edits; Registry.Kind in a return type and in Registry.Kind.Big are not linked.
-  test.skip('enum of another contract used through qualified names', async () => {
+  test('enum of another contract used through qualified names', async () => {
     const workspaceEdit = await client.rename(toUri(registryPath), makePosition(4, 9), 'Mode')
 
     expect(sorted(workspaceEdit)).to.deep.equal(

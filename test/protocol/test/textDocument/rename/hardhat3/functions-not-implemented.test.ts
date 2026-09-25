@@ -8,18 +8,32 @@ import { getProjectPath, makePosition, makeRange } from '../../../helpers'
 
 let client!: TestLanguageClient
 
-// Edits within a file come in no particular order: compare them as sets.
+// A WorkspaceEdit can carry its edits in `changes` or in `documentChanges`, and
+// the edits within a file come in no particular order. Normalise both to sorted
+// `changes` of plain `{ range, newText }` edits, leaving out files with no edits.
+// File operations (create, rename, delete) are kept apart under `operations`, so
+// an answer that includes any never compares equal to an edit or a refusal.
 function sorted(edit: WorkspaceEdit | null) {
-  if (edit === null) {
-    return null
-  }
   const changes: Record<string, TextEdit[]> = {}
-  for (const [uri, edits] of Object.entries(edit.changes ?? {})) {
-    changes[uri] = [...edits].sort(
-      (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
-    )
+  const operations: unknown[] = []
+  const add = (uri: string, edits: TextEdit[]) => {
+    if (edits.length > 0) {
+      changes[uri] = [...(changes[uri] ?? []), ...edits.map(({ range, newText }) => ({ range, newText }))].sort(
+        (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
+      )
+    }
   }
-  return { changes }
+  for (const [uri, edits] of Object.entries(edit?.changes ?? {})) {
+    add(uri, edits)
+  }
+  for (const change of edit?.documentChanges ?? []) {
+    if ('edits' in change) {
+      add(change.textDocument.uri, change.edits as TextEdit[])
+    } else {
+      operations.push(change)
+    }
+  }
+  return operations.length > 0 ? { changes, operations } : { changes }
 }
 
 describe('[hardhat3] rename - functions (not implemented)', () => {
@@ -52,7 +66,7 @@ describe('[hardhat3] rename - functions (not implemented)', () => {
   })
 
   // Not implemented: returns only the declaration; a function named as a value is not linked.
-  test.skip('internal function used as a value, from its declaration', async () => {
+  test('internal function used as a value, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(functionsPath), makePosition(16, 13), 'renamedFn')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -69,7 +83,7 @@ describe('[hardhat3] rename - functions (not implemented)', () => {
   })
 
   // Not implemented: leaves out the named argument; named arguments are not bound to parameters.
-  test.skip('parameter bound by a named argument, from its use', async () => {
+  test('parameter bound by a named argument, from its use', async () => {
     const workspaceEdit = await client.rename(toUri(libPath), makePosition(14, 13), 'renamedParam')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -86,7 +100,7 @@ describe('[hardhat3] rename - functions (not implemented)', () => {
   })
 
   // Not implemented: leaves out the state variable and its use; a state variable does not join the override chain.
-  test.skip('interface function implemented by a public state variable, from a call', async () => {
+  test('interface function implemented by a public state variable, from a call', async () => {
     const workspaceEdit = await client.rename(toUri(renamePath), makePosition(51, 36), 'renamedGetter')
 
     expect(sorted(workspaceEdit)).to.deep.equal(

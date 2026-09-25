@@ -8,18 +8,32 @@ import { getProjectPath, makePosition, makeRange } from '../../../helpers'
 
 let client!: TestLanguageClient
 
-// Edits within a file come in no particular order: compare them as sets.
+// A WorkspaceEdit can carry its edits in `changes` or in `documentChanges`, and
+// the edits within a file come in no particular order. Normalise both to sorted
+// `changes` of plain `{ range, newText }` edits, leaving out files with no edits.
+// File operations (create, rename, delete) are kept apart under `operations`, so
+// an answer that includes any never compares equal to an edit or a refusal.
 function sorted(edit: WorkspaceEdit | null) {
-  if (edit === null) {
-    return null
-  }
   const changes: Record<string, TextEdit[]> = {}
-  for (const [uri, edits] of Object.entries(edit.changes ?? {})) {
-    changes[uri] = [...edits].sort(
-      (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
-    )
+  const operations: unknown[] = []
+  const add = (uri: string, edits: TextEdit[]) => {
+    if (edits.length > 0) {
+      changes[uri] = [...(changes[uri] ?? []), ...edits.map(({ range, newText }) => ({ range, newText }))].sort(
+        (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
+      )
+    }
   }
-  return { changes }
+  for (const [uri, edits] of Object.entries(edit?.changes ?? {})) {
+    add(uri, edits)
+  }
+  for (const change of edit?.documentChanges ?? []) {
+    if ('edits' in change) {
+      add(change.textDocument.uri, change.edits as TextEdit[])
+    } else {
+      operations.push(change)
+    }
+  }
+  return operations.length > 0 ? { changes, operations } : { changes }
 }
 
 describe('[hardhat3] rename - inheritance (not implemented)', () => {
@@ -52,7 +66,7 @@ describe('[hardhat3] rename - inheritance (not implemented)', () => {
   })
 
   // Not implemented: returns no edits; a member reached through the receiver's base interface is not resolved.
-  test.skip('override chain, from a call through a base interface', async () => {
+  test('override chain, from a call through a base interface', async () => {
     const workspaceEdit = await client.rename(toUri(derivedPath), makePosition(45, 33), 'valueRenamed')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -77,7 +91,7 @@ describe('[hardhat3] rename - inheritance (not implemented)', () => {
   })
 
   // Not implemented: returns only the override and the invocation; a modifier is not linked to the base modifier it overrides.
-  test.skip('overridden modifier, from an invocation', async () => {
+  test('overridden modifier, from an invocation', async () => {
     const workspaceEdit = await client.rename(toUri(overridesPath), makePosition(38, 33), 'guardedRenamed')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -94,7 +108,7 @@ describe('[hardhat3] rename - inheritance (not implemented)', () => {
   })
 
   // Not implemented: returns only the interface declaration; a public state variable is not linked to the interface function it implements.
-  test.skip('interface function implemented by a public state variable, from its declaration', async () => {
+  test('interface function implemented by a public state variable, from its declaration', async () => {
     const workspaceEdit = await client.rename(toUri(overridesPath), makePosition(4, 13), 'totalRenamed')
 
     expect(sorted(workspaceEdit)).to.deep.equal(

@@ -8,18 +8,32 @@ import { getProjectPath, makePosition, makeRange } from '../../../helpers'
 
 let client!: TestLanguageClient
 
-// Edits within a file come in no particular order: compare them as sets.
+// A WorkspaceEdit can carry its edits in `changes` or in `documentChanges`, and
+// the edits within a file come in no particular order. Normalise both to sorted
+// `changes` of plain `{ range, newText }` edits, leaving out files with no edits.
+// File operations (create, rename, delete) are kept apart under `operations`, so
+// an answer that includes any never compares equal to an edit or a refusal.
 function sorted(edit: WorkspaceEdit | null) {
-  if (edit === null) {
-    return null
-  }
   const changes: Record<string, TextEdit[]> = {}
-  for (const [uri, edits] of Object.entries(edit.changes ?? {})) {
-    changes[uri] = [...edits].sort(
-      (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
-    )
+  const operations: unknown[] = []
+  const add = (uri: string, edits: TextEdit[]) => {
+    if (edits.length > 0) {
+      changes[uri] = [...(changes[uri] ?? []), ...edits.map(({ range, newText }) => ({ range, newText }))].sort(
+        (a, b) => a.range.start.line - b.range.start.line || a.range.start.character - b.range.start.character
+      )
+    }
   }
-  return { changes }
+  for (const [uri, edits] of Object.entries(edit?.changes ?? {})) {
+    add(uri, edits)
+  }
+  for (const change of edit?.documentChanges ?? []) {
+    if ('edits' in change) {
+      add(change.textDocument.uri, change.edits as TextEdit[])
+    } else {
+      operations.push(change)
+    }
+  }
+  return operations.length > 0 ? { changes, operations } : { changes }
 }
 
 describe('[hardhat3] rename - import-forms (not implemented)', () => {
@@ -52,7 +66,7 @@ describe('[hardhat3] rename - import-forms (not implemented)', () => {
   })
 
   // Not implemented: misses the two uses through the module alias M.
-  test.skip('contract named in braces, including its uses through a module alias', async () => {
+  test('contract named in braces, including its uses through a module alias', async () => {
     const workspaceEdit = await client.rename(toUri(libPath), makePosition(16, 9), 'IfRnLibToken')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -71,7 +85,7 @@ describe('[hardhat3] rename - import-forms (not implemented)', () => {
   })
 
   // Not implemented: returns no edits; module aliases are not bound.
-  test.skip('module alias from import * as M', async () => {
+  test('module alias from import * as M', async () => {
     const workspaceEdit = await client.rename(toUri(importerPath), makePosition(12, 4), 'IfRnModule')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -92,7 +106,7 @@ describe('[hardhat3] rename - import-forms (not implemented)', () => {
   })
 
   // Not implemented: returns no edits; module aliases are not bound.
-  test.skip('module alias from import "x" as N', async () => {
+  test('module alias from import "x" as N', async () => {
     const workspaceEdit = await client.rename(toUri(importerPath), makePosition(24, 15), 'IfRnModuleN')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
@@ -108,7 +122,7 @@ describe('[hardhat3] rename - import-forms (not implemented)', () => {
   })
 
   // Not implemented: returns no edits; members of a module alias are not linked.
-  test.skip('free function reached through a module alias', async () => {
+  test('free function reached through a module alias', async () => {
     const workspaceEdit = await client.rename(toUri(importerPath), makePosition(24, 17), 'IfRnHelper')
 
     expect(sorted(workspaceEdit)).to.deep.equal(
