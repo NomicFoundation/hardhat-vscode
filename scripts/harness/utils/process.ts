@@ -11,6 +11,8 @@ export function run(command: string, args: string[], cwd: string): void {
   const { status, error } = spawnSync(command, args, {
     cwd,
     stdio: "inherit",
+    // pnpm is a .cmd shim on Windows, which Node only runs through a shell.
+    shell: process.platform === "win32",
   });
 
   if (error !== undefined) {
@@ -27,6 +29,7 @@ export function capture(command: string, args: string[], cwd: string): string {
   const { status, stdout, stderr, error } = spawnSync(command, args, {
     cwd,
     encoding: "utf8",
+    shell: process.platform === "win32",
   });
 
   if (error !== undefined) {

@@ -132,7 +132,8 @@ async function startInBackground(workspace: Workspace): Promise<void> {
 
   const child = spawn(
     process.execPath,
-    [MAIN, "start", "--workspace", workspace.name],
+    // execArgv carries --experimental-strip-types, which Node 22 needs.
+    [...process.execArgv, MAIN, "start", "--workspace", workspace.name],
     { cwd: ROOT_DIR, detached: true, stdio: ["ignore", logFd, logFd] }
   );
 
