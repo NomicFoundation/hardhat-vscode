@@ -280,7 +280,7 @@ describe('[hardhat][codeAction]', () => {
                     line: 1,
                   },
                 },
-                newText: 'pragma solidity ^0.8.8;\n',
+                newText: 'pragma solidity ^0.8.37;\n',
               },
             ],
           },
