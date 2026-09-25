@@ -15,7 +15,7 @@ enum Color {
 
 error TooMany(uint256 count);
 
-interface IMoved { event Moved(uint256 x, uint256 y); }
+event Moved(uint256 x, uint256 y);
 
 function twice(uint256 a) pure returns (uint256) {
     return a * 2;
@@ -39,7 +39,7 @@ library PointLib {
     }
 }
 
-// using {sum} for Point; needs 0.8.13
+using {sum} for Point;
 
 contract FileLevelLocal {
     function capped(uint256 n) external pure returns (uint256) {
@@ -48,6 +48,6 @@ contract FileLevelLocal {
     }
 
     function total(Point memory p) external pure returns (uint256) {
-        return sum(p);
+        return p.sum();
     }
 }

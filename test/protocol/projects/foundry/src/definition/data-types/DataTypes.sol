@@ -20,7 +20,7 @@ contract DataTypes {
 
     Outer[] public outers;
     mapping(address => mapping(uint256 => Outer)) public nested;
-    mapping(address => uint256) public balances;
+    mapping(address user => uint256 balance) public balances;
 
     function chained(Outer memory s) external pure returns (uint256) {
         return s.a + s.inner.b;

@@ -23,7 +23,7 @@ contract AssemblyDefs {
     }
 
     function calldataArray(uint256[] calldata xs) external pure returns (uint256 o, uint256 l) {
-        assembly {
+        assembly ("memory-safe") {
             o := xs.offset
             l := xs.length
         }
@@ -50,10 +50,10 @@ contract AssemblyDefs {
     function target() external pure {}
 
     function pointer() external view returns (address a, uint256 s) {
-        address fp = address(this);
+        function() external pure fp = this.target;
         assembly {
-            a := fp
-            s := 0x1
+            a := fp.address
+            s := fp.selector
         }
     }
 }
