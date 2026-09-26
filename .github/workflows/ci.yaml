@@ -46,6 +46,17 @@ jobs:
       - name: Build project
         run: pnpm run build
 
+      - name: Cache solc compilers
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/hardhat-nodejs
+            ~/Library/Caches/hardhat-nodejs
+            ~/AppData/Local/hardhat-nodejs/Cache
+          key: ${{ runner.os }}-solc-${{ hashFiles('test/protocol/projects/**/hardhat.config.*', 'test/protocol/projects/**/foundry.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-solc-
+
       - name: Run server tests
         run: pnpm run test:codecov
 
