@@ -13,6 +13,7 @@ export function anonymizeEvent<TEvent extends Event>(event: TEvent): TEvent {
     breadcrumbs: anonymizeBreadcrumbs(event.breadcrumbs), // Anonimized breadcrumbs
     exception: anonymizeExceptions(event.exception), // Anonimized exception
     user: anonymizeUser(event.user), // Anonimized user
+    debug_meta: anonymizeDebugMeta(event.debug_meta), // Anonimized debug images
   };
 
   return scrubbedEvent;
@@ -28,7 +29,7 @@ function anonymizeString(str?: string) {
 
   return str.replace(pathRegex, (match) => {
     if (internalRegex.test(match) && match.endsWith(".js")) {
-      return `<extension-root>${match.replace(internalRegex, "")}`;
+      return `app://${match.replace(internalRegex, "")}`;
     } else {
       return ANONYMIZED_FILE;
     }
@@ -64,6 +65,36 @@ function anonymizeExceptions(
         value: anonymizeString(exceptionValue.value),
         module: anonymizeString(exceptionValue.module),
         stacktrace: anonymizeStackTrace(exceptionValue.stacktrace),
+      };
+    }),
+  };
+}
+
+/**
+ * Debug images carry the path of the file a debug id was found in, which the
+ * SDK fills in with the frame's absolute path - a user's install directory.
+ * This runs before `beforeSend`, so without this the debug ids added to the
+ * bundles would start leaking `/home/<user>/.vscode/extensions/...` on every
+ * event. Rewriting it with the same rules as a frame path also keeps the two
+ * matching, which is what associates a frame with its sourcemap.
+ */
+function anonymizeDebugMeta(
+  debugMeta?: Event["debug_meta"]
+): Event["debug_meta"] {
+  if (debugMeta?.images === undefined) {
+    return debugMeta;
+  }
+
+  return {
+    ...debugMeta,
+    images: debugMeta.images.map((image) => {
+      if (image.code_file === undefined) {
+        return image;
+      }
+
+      return {
+        ...image,
+        code_file: anonymizeString(image.code_file) ?? ANONYMIZED_FILE,
       };
     }),
   };

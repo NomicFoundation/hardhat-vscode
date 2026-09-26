@@ -2,12 +2,14 @@ import * as path from "path";
 import { serializeError } from "serialize-error";
 import { Connection } from "vscode-languageserver/node";
 import type { Telemetry } from "../telemetry/types";
+import { asError, hasErrorDescriptor } from "./errors";
 
 export interface Logger {
   setWorkspace(rootUri: string): void;
   log(arg: string): void;
   info(arg: string): void;
   error(err: unknown): void;
+  errorMessage(msg: string): void;
   trace(message: string, verbose?: {} | undefined): void;
   trackTime<T>(description: string, callback: () => Promise<T>): Promise<T>;
   tag?: string;
@@ -40,12 +42,12 @@ export class ConnectionLogger implements Logger {
   }
 
   public error(err: unknown): void {
-    this.telemetry.captureException(err);
+    this.telemetry.captureException(asError(err));
 
     if (err instanceof Error) {
       this.connection.console.error(this._tryPrepend(err.message));
       this.connection.console.error(this._tryPrepend(err.stack ?? ""));
-    } else if (this._hasErrorDescriptor(err)) {
+    } else if (hasErrorDescriptor(err)) {
       this.connection.console.error(
         this._tryPrepend(
           `${err.errorDescriptor.title}: ${err.errorDescriptor.description}`
@@ -56,6 +58,10 @@ export class ConnectionLogger implements Logger {
         this._tryPrepend(JSON.stringify(serializeError(err)))
       );
     }
+  }
+
+  public errorMessage(msg: string): void {
+    this.connection.console.error(this._tryPrepend(msg));
   }
 
   public trace(
@@ -75,16 +81,6 @@ export class ConnectionLogger implements Logger {
     } else {
       return `[LS: ${this.workspaceName}] ${text}`;
     }
-  }
-
-  private _hasErrorDescriptor(
-    err: unknown
-  ): err is { errorDescriptor: { title: string; description: string } } {
-    if (typeof err !== "object" || err === null) {
-      return false;
-    }
-
-    return "errorDescriptor" in err;
   }
 
   public async trackTime<T>(

@@ -29,8 +29,8 @@ export async function analyse(
       const absolutePath = toPath(document.uri);
 
       if (solFileEntry === undefined) {
-        serverState.logger.error(
-          new Error(`Could not analyze, uri is not indexed: ${internalUri}`)
+        serverState.logger.errorMessage(
+          `Could not analyze, uri is not indexed: ${internalUri}`
         );
 
         return { status: FAILED_PRECONDITION, result: false };
