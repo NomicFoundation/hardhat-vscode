@@ -1,2 +1,2 @@
 [profile.default]
-solc_version = '0.8.8'
+solc_version = '0.8.37'

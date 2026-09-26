@@ -4,7 +4,7 @@ const config: HardhatUserConfig = {
   solidity: {
     profiles: {
       default: {
-        compilers: [{ version: '0.8.28' }, { version: '0.7.0' }],
+        compilers: [{ version: '0.8.37' }, { version: '0.8.20' }, { version: '0.7.0' }],
       },
     },
   },

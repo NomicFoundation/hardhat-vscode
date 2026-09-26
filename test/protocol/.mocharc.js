@@ -7,8 +7,9 @@ const stripsTypesByDefault =
   nodeMajor > 22 || (nodeMajor === 22 && nodeMinor >= 18);
 
 module.exports = {
-  require: 'ts-node/register',
+  require: ['ts-node/register', './test/rootHooks.ts'],
   spec: 'test/**/*.ts',
+  ignore: 'test/rootHooks.ts',
   timeout: 30000,
   exit: true,
   ...(stripsTypesByDefault
