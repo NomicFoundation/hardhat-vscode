@@ -9,13 +9,14 @@ import { setupTaskProvider } from "./setup/setupTaskProvider";
 import { setupWorkspaceHooks } from "./setup/setupWorkspaceHooks";
 import { ExtensionState } from "./types";
 
+const SOLIDITY_SENTRY_DSN = process.env.SOLIDITY_SENTRY_DSN ?? "";
+
 let extensionState: ExtensionState | null = null;
 
-const SENTRY_DSN =
-  "https://9d1e887190db400791c77d9bb5a154fd@o385026.ingest.sentry.io/5469451";
-
 export async function activate(context: ExtensionContext) {
-  extensionState = setupExtensionState(context, { sentryDsn: SENTRY_DSN });
+  extensionState = setupExtensionState(context, {
+    sentryDsn: SOLIDITY_SENTRY_DSN,
+  });
 
   try {
     const { logger } = extensionState;

@@ -46,7 +46,7 @@ describe("anonymization", () => {
 
         assert.strictEqual(
           anonymizedEvent.message,
-          "<extension-root>/internal_path/file.js <extension-root>/internal_path/file2.js <extension-root>\\internal_path\\file3.js <extension-root>/internal_path/file4.js "
+          "app:///internal_path/file.js app:///internal_path/file2.js app://\\internal_path\\file3.js app:///internal_path/file4.js "
         );
       });
     });
@@ -203,6 +203,56 @@ describe("anonymization", () => {
             },
           },
         ]);
+      });
+    });
+
+    describe("debug_meta anonymization", () => {
+      it("anonymizes the paths of debug images", () => {
+        const event: ErrorEvent = {
+          type: undefined,
+          debug_meta: {
+            images: [
+              {
+                type: "sourcemap",
+                code_file:
+                  "/home/user/.vscode/extensions/nomicfoundation.hardhat-solidity-0.9.0/server/out/index.js",
+                debug_id: "729f57a4-ba27-5d46-bcde-1534a4e33a53",
+              },
+              {
+                type: "sourcemap",
+                code_file: "/home/user/some-project/scripts/deploy.js",
+                debug_id: "5bb53372-ea9a-5c52-a924-2fdee8a884ad",
+              },
+            ],
+          },
+        };
+
+        const anonymizedEvent = anonymizeEvent(event);
+
+        assert.deepEqual(anonymizedEvent.debug_meta, {
+          images: [
+            {
+              type: "sourcemap",
+              // The same rewrite a stack frame gets, so that the frame and the
+              // image still name the same file and Sentry can pair them.
+              code_file: "app:///server/out/index.js",
+              debug_id: "729f57a4-ba27-5d46-bcde-1534a4e33a53",
+            },
+            {
+              type: "sourcemap",
+              code_file: "<user-file>",
+              debug_id: "5bb53372-ea9a-5c52-a924-2fdee8a884ad",
+            },
+          ],
+        });
+      });
+
+      it("leaves an event without debug_meta alone", () => {
+        const event: ErrorEvent = { type: undefined };
+
+        const anonymizedEvent = anonymizeEvent(event);
+
+        assert.strictEqual(anonymizedEvent.debug_meta, undefined);
       });
     });
 

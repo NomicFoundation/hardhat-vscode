@@ -81,10 +81,8 @@ export class DiagnosticConverter {
 
   private _resolveErrorFileKey(error: SolcError) {
     if (!error.sourceLocation) {
-      this.logger.error(
-        new Error(
-          `Unattached error found: ${error.message} (${error.errorCode})`
-        )
+      this.logger.errorMessage(
+        `Unattached error found: ${error.message} (${error.errorCode})`
       );
 
       return "unattached";

@@ -96,6 +96,7 @@ export class Hardhat2Project extends Project {
           cwd: this.basePath,
           detached: true,
           execArgv: [],
+          serialization: "advanced",
         }
       );
       this.workerStatus = WorkerStatus.INITIALIZING;
@@ -105,9 +106,12 @@ export class Hardhat2Project extends Project {
           await this._handleMessage(message);
         } catch (error) {
           this.logger.error(
-            `Error while handling worker message: ${error}. Full Message: ${JSON.stringify(
-              message
-            )}`
+            new Error(
+              `Error while handling worker message: ${
+                MessageType[message.type]
+              }`,
+              { cause: error }
+            )
           );
         }
       });
@@ -254,7 +258,9 @@ export class Hardhat2Project extends Project {
     this.workerProcess.send(message, (error) => {
       if (error) {
         this.workerStatus = WorkerStatus.ERRORED;
-        this.logger.error(`Error sending message to hardhat worker: ${error}`);
+        this.logger.error(
+          new Error("Error sending message to hardhat worker", { cause: error })
+        );
 
         if ("requestId" in message) {
           const messageWithId: { requestId: number } = message as any;
@@ -320,7 +326,7 @@ export class Hardhat2Project extends Project {
         break;
 
       default:
-        this.logger.error(
+        this.logger.errorMessage(
           `Unknown message received from worker: ${JSON.stringify(message)}`
         );
         break;
@@ -336,7 +342,7 @@ export class Hardhat2Project extends Project {
         this.logger.info(message.logMessage);
         break;
       case LogLevel.ERROR:
-        this.logger.error(message.logMessage);
+        this.logger.errorMessage(message.logMessage);
         break;
     }
   }
@@ -379,7 +385,7 @@ export class Hardhat2Project extends Project {
     const resolveFunction = this._onResponse[requestId];
     if (resolveFunction === undefined) {
       this.logger.error(
-        `Resolve function not found for request id ${requestId}`
+        new Error("Resolve function not found for a worker request")
       );
     } else {
       delete this._onResponse[requestId];
@@ -437,7 +443,9 @@ export class Hardhat2Project extends Project {
     const errorFunction = this._onError[requestId];
 
     if (errorFunction === undefined) {
-      this.logger.error(`Error function not found for request id ${requestId}`);
+      this.logger.error(
+        new Error("Error function not found for a worker request")
+      );
     } else {
       delete this._onError[requestId];
       delete this._onResponse[requestId];

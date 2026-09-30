@@ -8,6 +8,22 @@ import { anonymizeEvent } from "./anonymization";
 
 const SENTRY_CLOSE_TIMEOUT = 2000;
 
+/**
+ * Default `@sentry/node` integrations the extension does not want.
+ *
+ * `OnUncaughtException` and `OnUnhandledRejection` install Sentry's own
+ * process-level handlers, which report everything the extension host throws,
+ * ours or not, and can call `logAndExitProcess`. `_processUnhandledError`
+ * below is the deliberate version of the same thing, filtered to this
+ * extension. `Console` turns every `console` call in the extension host into
+ * a breadcrumb, again regardless of whose it is.
+ */
+const DISABLED_INTEGRATIONS = [
+  "OnUncaughtException",
+  "OnUnhandledRejection",
+  "Console",
+];
+
 export class SentryClientTelemetry implements Telemetry {
   private dsn: string;
   private extensionState: ExtensionState | null;
@@ -21,12 +37,13 @@ export class SentryClientTelemetry implements Telemetry {
   public init(extensionState: ExtensionState) {
     this.extensionState = extensionState;
 
+    if (this.dsn === "") {
+      return;
+    }
+
     const integrations = getDefaultIntegrations({}).filter(
-      (defaultIntegration) => {
-        return !["BrowserApiErrors", "Breadcrumbs", "GlobalHandlers"].includes(
-          defaultIntegration.name
-        );
-      }
+      (defaultIntegration) =>
+        !DISABLED_INTEGRATIONS.includes(defaultIntegration.name)
     );
 
     const client = new Sentry.NodeClient({

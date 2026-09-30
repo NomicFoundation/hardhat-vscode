@@ -62,10 +62,8 @@ export class WorkerProcess {
       try {
         await this._handleMessage(msg);
       } catch (error: any) {
-        const errorData = error instanceof Error ? error.message : error;
-
         if (msg.requestId) {
-          await this.send(new ErrorResponseMessage(msg.requestId, errorData));
+          await this._sendError(msg.requestId, error);
         }
       }
     });
@@ -430,6 +428,27 @@ export class WorkerProcess {
       } else {
         throw error;
       }
+    }
+  }
+
+  /**
+   * Send the error itself, rather than the message it was carrying, so that
+   * the parent gets something with a stack.
+   *
+   * Structured clone refuses a few values that the old JSON serialisation
+   * would silently have emptied - anything holding a function, say. Falling
+   * back to the message keeps the request from hanging until it times out.
+   */
+  private async _sendError(requestId: number, error: any) {
+    try {
+      await this.send(new ErrorResponseMessage(requestId, error));
+    } catch {
+      await this.send(
+        new ErrorResponseMessage(
+          requestId,
+          error instanceof Error ? error.message : String(error)
+        )
+      );
     }
   }
 
