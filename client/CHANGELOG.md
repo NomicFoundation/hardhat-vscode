@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.3
+
+### Patch Changes
+
+- 11a17fa: Update Sentry to v10 and improve exception telemetry.
+
 ## 0.9.2
 
 ### Patch Changes
