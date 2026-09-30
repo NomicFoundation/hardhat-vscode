@@ -1,5 +1,4 @@
 import { ExtensionContext } from "vscode";
-import { SOLIDITY_SENTRY_DSN } from "./constants";
 import { showSoliditySurveyPopup } from "./popups/showSoliditySurveyPopup";
 import { warnOnOtherSolidityExtensions } from "./popups/warnOnOtherSolidityExtensions";
 import { indexHardhatProjects } from "./setup/indexHardhatProjects";
@@ -9,6 +8,8 @@ import { setupLanguageServerHooks } from "./setup/setupLanguageServerHooks";
 import { setupTaskProvider } from "./setup/setupTaskProvider";
 import { setupWorkspaceHooks } from "./setup/setupWorkspaceHooks";
 import { ExtensionState } from "./types";
+
+const SOLIDITY_SENTRY_DSN = process.env.SOLIDITY_SENTRY_DSN ?? "";
 
 let extensionState: ExtensionState | null = null;
 
