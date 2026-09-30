@@ -96,6 +96,8 @@ jobs:
           SOLIDITY_GOOGLE_TRACKING_ID: ${{ secrets.SOLIDITY_GOOGLE_TRACKING_ID }}
           SOLIDITY_SENTRY_DSN: ${{ secrets.SOLIDITY_SENTRY_DSN }}
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
         run: node scripts/release/main.ts pack
 
       - name: Store the package list to be published

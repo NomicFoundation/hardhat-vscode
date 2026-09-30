@@ -14,10 +14,6 @@ const { SentryCli } = require("@sentry/cli") as {
 
 const SOURCE_MAPPING_URL_COMMENT = "//# sourceMappingURL=";
 
-// DELETE: smoke test - normally "vscode-extension".
-const SENTRY_ORG = "nomic-labs";
-const SENTRY_PROJECT = "vscode-extension-testing";
-
 function sentryCli(args: string[]): void {
   console.log(`$ sentry-cli ${args.join(" ")}`);
 
@@ -50,22 +46,33 @@ export function injectDebugIds(dir: string): void {
  * Upload the sourcemaps, if there is a token to do it with.
  *
  * Only the release workflow has one, so a local build injects debug ids and
- * uploads nothing - the vsix is identical either way. The token is the only
- * thing that has to come from the environment; the organisation and project
- * are named here.
+ * uploads nothing - the vsix is identical either way. With a token, the
+ * organisation and project have to come from the environment too, the same
+ * way `SOLIDITY_SENTRY_DSN` does, so that the sourcemaps go to the project the
+ * DSN sends events to.
  *
  * Note that esbuild emits `sourcesContent`, so this uploads our TypeScript
  * source to our own Sentry project. That is deliberate: without it the issue
  * view has line numbers but no code.
  */
 export function uploadSourcemaps(dir: string): void {
-  if (
-    process.env.SENTRY_AUTH_TOKEN === undefined ||
-    process.env.SENTRY_AUTH_TOKEN === ""
-  ) {
+  const { SENTRY_AUTH_TOKEN, SENTRY_ORG, SENTRY_PROJECT } = process.env;
+
+  if (SENTRY_AUTH_TOKEN === undefined || SENTRY_AUTH_TOKEN === "") {
     console.log("> SENTRY_AUTH_TOKEN not set, skipping the sourcemap upload.");
 
     return;
+  }
+
+  if (
+    SENTRY_ORG === undefined ||
+    SENTRY_ORG === "" ||
+    SENTRY_PROJECT === undefined ||
+    SENTRY_PROJECT === ""
+  ) {
+    throw new Error(
+      "SENTRY_AUTH_TOKEN is set, so SENTRY_ORG and SENTRY_PROJECT must be too"
+    );
   }
 
   sentryCli([
