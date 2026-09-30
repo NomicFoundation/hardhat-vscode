@@ -61,3 +61,6 @@ release-notes.md
 test/e2e/artifacts
 test/e2e/cache
 test/e2e/contracts
+
+# Language server harness state (scripts/harness)
+.harness/

@@ -74,6 +74,9 @@ importers:
       typescript:
         specifier: 5.8.2
         version: 5.8.2
+      vscode-jsonrpc:
+        specifier: 9.0.1
+        version: 9.0.1
 
   client:
     dependencies:
