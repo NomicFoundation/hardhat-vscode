@@ -444,6 +444,7 @@ export class Searcher implements ISearcher {
    * @param node For which we are trying to find a node that can be connected.
    * @param from From which Node do we start searching.
    * @param searchInInheritanceNodes If it is true, we will look for the parent in the inheritance nodes as well.
+   * @param isInherited If it is true, from is a base contract, so its private members are skipped.
    * @returns Node that can connect to the forwarded node.
    */
   private _search(
@@ -451,7 +452,8 @@ export class Searcher implements ISearcher {
     from?: Node | undefined,
     searchInInheritanceNodes?: boolean,
     visitedNodes?: Node[],
-    visitedFiles?: string[]
+    visitedFiles?: string[],
+    isInherited = false
   ): Node | undefined {
     if (!visitedNodes) {
       visitedNodes = [];
@@ -485,7 +487,10 @@ export class Searcher implements ISearcher {
         child.type !== "ImportDirective" &&
         !utils.isNodeShadowedByNode(node, child)
       ) {
-        if (utils.isNodeConnectable(child, node)) {
+        if (
+          utils.isNodeConnectable(child, node) &&
+          !(isInherited && this.getNodeVisibility(child) === "private")
+        ) {
           return child;
         }
 
@@ -496,7 +501,9 @@ export class Searcher implements ISearcher {
         node,
         child,
         searchInInheritanceNodes,
-        visitedNodes
+        visitedNodes,
+        undefined,
+        isInherited
       );
 
       if (parent) {
@@ -520,11 +527,14 @@ export class Searcher implements ISearcher {
           return inheritanceNode;
         }
 
+        // Private members are not inherited
         parent = this._search(
           node,
           inheritanceNode,
           searchInInheritanceNodes,
-          visitedNodes
+          visitedNodes,
+          undefined,
+          true
         );
 
         if (parent) {
@@ -543,7 +553,9 @@ export class Searcher implements ISearcher {
       node,
       from.parent,
       searchInInheritanceNodes,
-      visitedNodes
+      visitedNodes,
+      undefined,
+      isInherited
     );
   }
 
