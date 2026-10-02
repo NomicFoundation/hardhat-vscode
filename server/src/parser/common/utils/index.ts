@@ -96,7 +96,8 @@ export function isNodePosition(node: Node, position: Position): boolean {
 }
 
 /**
- * Checks if the child's range is within the parent range.
+ * Checks if the child's range is within the parent range. Ranges are
+ * character offsets into a file, so nodes in different files never shadow.
  *
  * @returns true if the child is shadowed by a parent, otherwise false.
  */
@@ -107,6 +108,7 @@ export function isNodeShadowedByNode(
   if (
     child &&
     parent &&
+    child.uri === parent.uri &&
     parent.astNode.range &&
     child.astNode.range &&
     parent.astNode.range[0] <= child.astNode.range[0] &&
