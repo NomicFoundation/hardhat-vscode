@@ -10,6 +10,7 @@ import {
   VSCodePosition,
 } from "@common/types";
 import {
+  isContractDefinitionNode,
   isFunctionCallNode,
   isFunctionDefinitionNode,
   isMemberAccessNode,
@@ -139,6 +140,38 @@ export function isPositionShadowedByNode(
   }
 
   return false;
+}
+
+/**
+ * Adds the contracts and interfaces each definition type inherits from, so
+ * member access can find inherited members.
+ *
+ * @returns Each type followed by its bases, right to left, without duplicates.
+ */
+export function withBaseContracts(definitionTypes: Node[]): Node[] {
+  const types: Node[] = [];
+
+  const add = (definitionType: Node) => {
+    if (types.includes(definitionType)) {
+      return;
+    }
+
+    types.push(definitionType);
+
+    if (isContractDefinitionNode(definitionType)) {
+      const inheritanceNodes = definitionType.getInheritanceNodes();
+
+      for (let i = inheritanceNodes.length - 1; i >= 0; i--) {
+        add(inheritanceNodes[i]);
+      }
+    }
+  };
+
+  for (const definitionType of definitionTypes) {
+    add(definitionType);
+  }
+
+  return types;
 }
 
 /**

@@ -112,7 +112,7 @@ export class IdentifierNode extends AbstractIdentifierNode {
     expressionNode: Node,
     definitionTypes: Node[]
   ): void {
-    for (const definitionType of definitionTypes) {
+    for (const definitionType of utils.withBaseContracts(definitionTypes)) {
       for (const definitionChild of definitionType.children) {
         if (utils.isNodeConnectable(definitionChild, expressionNode)) {
           expressionNode.addTypeNode(definitionChild);
