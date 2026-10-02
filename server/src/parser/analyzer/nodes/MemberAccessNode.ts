@@ -1,4 +1,8 @@
-import { isNodeConnectable, findSourceUnitNode } from "@common/utils";
+import {
+  isNodeConnectable,
+  findSourceUnitNode,
+  withBaseContracts,
+} from "@common/utils";
 import {
   MemberAccess,
   FinderType,
@@ -168,7 +172,7 @@ export class MemberAccessNode extends IMemberAccessNode {
     expressionNode: Node,
     definitionTypes: Node[]
   ): Node | undefined {
-    for (const definitionType of definitionTypes) {
+    for (const definitionType of withBaseContracts(definitionTypes)) {
       for (const definitionChild of definitionType.children) {
         if (isNodeConnectable(definitionChild, expressionNode)) {
           expressionNode.addTypeNode(definitionChild);

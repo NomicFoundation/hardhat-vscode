@@ -1,4 +1,8 @@
-import { isNodeConnectable, findSourceUnitNode } from "@common/utils";
+import {
+  isNodeConnectable,
+  findSourceUnitNode,
+  withBaseContracts,
+} from "@common/utils";
 import {
   UserDefinedTypeName,
   FinderType,
@@ -116,7 +120,7 @@ export class UserDefinedTypeNameNode extends Node {
     expressionNode: Node,
     definitionTypes: Node[]
   ): void {
-    for (const definitionType of definitionTypes) {
+    for (const definitionType of withBaseContracts(definitionTypes)) {
       for (const definitionChild of definitionType.children) {
         if (isNodeConnectable(definitionChild, expressionNode)) {
           expressionNode.addTypeNode(definitionChild);

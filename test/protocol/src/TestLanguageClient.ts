@@ -24,6 +24,8 @@ import {
   DocumentFormattingRequest,
   DocumentSymbolParams,
   DocumentSymbolRequest,
+  HoverParams,
+  HoverRequest,
   ImplementationParams,
   ImplementationRequest,
   InitializedNotification,
@@ -352,6 +354,17 @@ export class TestLanguageClient {
     }
 
     return this.connection!.sendRequest(DefinitionRequest.type, params)
+  }
+
+  public async getHover(uri: string, position: Position) {
+    const params: HoverParams = {
+      textDocument: {
+        uri,
+      },
+      position,
+    }
+
+    return this.connection!.sendRequest(HoverRequest.type, params)
   }
 
   public async findTypeDefinition(uri: string, position: Position) {

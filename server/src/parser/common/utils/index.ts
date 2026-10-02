@@ -10,6 +10,7 @@ import {
   VSCodePosition,
 } from "@common/types";
 import {
+  isContractDefinitionNode,
   isFunctionCallNode,
   isFunctionDefinitionNode,
   isMemberAccessNode,
@@ -95,7 +96,8 @@ export function isNodePosition(node: Node, position: Position): boolean {
 }
 
 /**
- * Checks if the child's range is within the parent range.
+ * Checks if the child's range is within the parent range. Ranges are
+ * character offsets into a file, so nodes in different files never shadow.
  *
  * @returns true if the child is shadowed by a parent, otherwise false.
  */
@@ -106,6 +108,7 @@ export function isNodeShadowedByNode(
   if (
     child &&
     parent &&
+    child.uri === parent.uri &&
     parent.astNode.range &&
     child.astNode.range &&
     parent.astNode.range[0] <= child.astNode.range[0] &&
@@ -139,6 +142,38 @@ export function isPositionShadowedByNode(
   }
 
   return false;
+}
+
+/**
+ * Adds the contracts and interfaces each definition type inherits from, so
+ * member access can find inherited members.
+ *
+ * @returns Each type followed by its bases, right to left, without duplicates.
+ */
+export function withBaseContracts(definitionTypes: Node[]): Node[] {
+  const types: Node[] = [];
+
+  const add = (definitionType: Node) => {
+    if (types.includes(definitionType)) {
+      return;
+    }
+
+    types.push(definitionType);
+
+    if (isContractDefinitionNode(definitionType)) {
+      const inheritanceNodes = definitionType.getInheritanceNodes();
+
+      for (let i = inheritanceNodes.length - 1; i >= 0; i--) {
+        add(inheritanceNodes[i]);
+      }
+    }
+  };
+
+  for (const definitionType of definitionTypes) {
+    add(definitionType);
+  }
+
+  return types;
 }
 
 /**
