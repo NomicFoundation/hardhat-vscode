@@ -1,0 +1,5 @@
+[profile.default]
+solc_version = "0.8.8"
+libs = ["dependencies", "vendor"]
+auto_detect_remappings = false
+remappings = ["@hooks/=dependencies/hooks/src/", "@token/=vendor/token/"]

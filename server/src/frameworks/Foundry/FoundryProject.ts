@@ -24,7 +24,7 @@ export class FoundryProject extends Project {
   public priority = 2;
   public sourcesPath!: string;
   public testsPath!: string;
-  public libPath!: string;
+  public libPaths: string[] = [];
   public scriptPath!: string;
   public remappings: Remapping[] = [];
   public initializeError?: string;
@@ -56,7 +56,9 @@ export class FoundryProject extends Project {
       );
       this.sourcesPath = path.join(this.basePath, config.src);
       this.testsPath = path.join(this.basePath, config.test);
-      this.libPath = path.join(this.basePath, "lib");
+      this.libPaths = (config.libs ?? ["lib"]).map((lib: string) =>
+        path.resolve(this.basePath, lib)
+      );
       this.scriptPath = path.join(this.basePath, config.script);
       this.configSolcVersion = config.solc || undefined; // may come as null otherwise
 
@@ -89,7 +91,7 @@ export class FoundryProject extends Project {
       const belongs = [
         this.sourcesPath,
         this.testsPath,
-        this.libPath,
+        ...this.libPaths,
         this.scriptPath,
       ].some((dir) => directoryContains(dir, uri));
       const isLocal = directoryContains(this.sourcesPath, uri);

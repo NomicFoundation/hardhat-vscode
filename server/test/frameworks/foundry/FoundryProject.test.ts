@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { expect } from "chai";
 import path from "path";
-import { stub } from "sinon";
+import { createSandbox, stub } from "sinon";
+import * as operatingSystem from "../../../src/utils/operatingSystem";
+import * as forgeCommand from "../../../src/frameworks/Foundry/resolveForgeCommand";
+import { setupMockLogger } from "../../helpers/setupMockLogger";
 import * as basicCompilation from "../../../src/frameworks/shared/buildBasicCompilation";
 import { FoundryProject } from "../../../src/frameworks/Foundry/FoundryProject";
 import { ServerState } from "../../../src/types";
@@ -10,7 +13,7 @@ import { toUnixStyle } from "../../../src/utils";
 describe("FoundryProject", function () {
   let project: FoundryProject;
   const serverStateMock = {
-    logger: {},
+    logger: setupMockLogger(),
   } as ServerState;
 
   beforeEach(async () => {
@@ -19,6 +22,98 @@ describe("FoundryProject", function () {
       path.join(__dirname, "test_project"),
       path.join(__dirname, "test_project", "foundry.toml")
     );
+  });
+
+  describe("configured library directories", function () {
+    const sandbox = createSandbox();
+    let libs: string[] | undefined;
+
+    beforeEach(() => {
+      sandbox.stub(forgeCommand, "resolveForgeCommand").resolves("forge");
+      sandbox.stub(operatingSystem, "runCmd").callsFake(async (cmd) => {
+        if (cmd === "forge config --json") {
+          return JSON.stringify({
+            src: "src",
+            test: "test",
+            script: "script",
+            libs,
+          });
+        }
+        if (cmd === "forge remappings") return "";
+        throw new Error(`Unexpected command: ${cmd}`);
+      });
+    });
+
+    afterEach(() => sandbox.restore());
+
+    for (const directory of ["lib", "dependencies", "vendor"]) {
+      it(`assigns files in configured ${directory} to the project`, async () => {
+        libs = [directory];
+        await project.initialize();
+        expect(project.initializeError).to.equal(undefined);
+        expect(
+          await project.fileBelongs(
+            path.join(project.basePath, directory, "package", "A.sol")
+          )
+        ).to.deep.equal({ belongs: true, isLocal: false });
+        expect(
+          await project.fileBelongs(
+            path.join(project.basePath, `${directory}-other`, "A.sol")
+          )
+        ).to.deep.equal({ belongs: false, isLocal: false });
+      });
+    }
+
+    it("supports multiple and absolute library directories", async () => {
+      const absoluteLib = path.resolve(project.basePath, "..", "shared");
+      libs = ["dependencies", absoluteLib];
+      await project.initialize();
+      for (const directory of [
+        path.join(project.basePath, "dependencies"),
+        absoluteLib,
+      ]) {
+        expect(
+          await project.fileBelongs(path.join(directory, "A.sol"))
+        ).to.deep.equal({ belongs: true, isLocal: false });
+      }
+    });
+
+    it("does not claim lib when libs is explicitly empty", async () => {
+      libs = [];
+      await project.initialize();
+      expect(
+        await project.fileBelongs(path.join(project.basePath, "lib", "A.sol"))
+      ).to.deep.equal({ belongs: false, isLocal: false });
+    });
+
+    it("defaults to lib when the configuration omits libs", async () => {
+      libs = undefined;
+      await project.initialize();
+      expect(
+        await project.fileBelongs(path.join(project.basePath, "lib", "A.sol"))
+      ).to.deep.equal({ belongs: true, isLocal: false });
+    });
+
+    it("replaces library directories on reinitialization", async () => {
+      libs = ["dependencies"];
+      await project.initialize();
+      libs = ["vendor"];
+      await project.initialize();
+      expect(
+        (
+          await project.fileBelongs(
+            path.join(project.basePath, "dependencies", "A.sol")
+          )
+        ).belongs
+      ).to.equal(false);
+      expect(
+        (
+          await project.fileBelongs(
+            path.join(project.basePath, "vendor", "A.sol")
+          )
+        ).belongs
+      ).to.equal(true);
+    });
   });
 
   describe("resolveImportPath", function () {

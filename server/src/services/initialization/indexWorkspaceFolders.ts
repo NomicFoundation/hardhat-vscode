@@ -17,6 +17,8 @@ import { frameworkTag } from "../../telemetry/tags";
 import { TruffleIndexer } from "../../frameworks/Truffle/TruffleIndexer";
 import { ApeIndexer } from "../../frameworks/Ape/ApeIndexer";
 import { normalizeAbsolutePath } from "../../utils/paths";
+import { directoryContains } from "../../utils/directoryContains";
+import { FoundryProject } from "../../frameworks/Foundry/FoundryProject";
 import { resolveTopLevelWorkspaceFolders } from "./resolveTopLevelWorkspaceFolders";
 
 export async function indexWorkspaceFolders(
@@ -67,11 +69,27 @@ export async function indexWorkspaceFolders(
     logger.info(`   Config file: ${project.configPath}`);
   }
 
+  // Read outer Foundry configs first so their library directories can exclude
+  // dependency projects before those projects are initialized.
+  const foundryProjects = foundProjects
+    .filter((project) => project instanceof FoundryProject)
+    .sort((a, b) => a.basePath.length - b.basePath.length);
+  const orderedProjects = [
+    ...foundryProjects,
+    ...foundProjects.filter((project) => !(project instanceof FoundryProject)),
+  ];
+
   // Append to global project map if they are not already indexed
   await logger.trackTime("Initializing projects", async () => {
-    for (const foundProject of foundProjects) {
+    for (const foundProject of orderedProjects) {
       if (foundProject.id() in serverState.projects) {
-        return;
+        continue;
+      }
+
+      if (
+        isFoundryDependency(foundProject, Object.values(serverState.projects))
+      ) {
+        continue;
       }
 
       serverState.projects[foundProject.id()] = foundProject;
@@ -232,6 +250,24 @@ async function analyzeSolFiles(
   }
 }
 
+function isFoundryDependency(candidate: Project, projects: Project[]): boolean {
+  const configPath = candidate.configPath;
+  if (configPath === undefined) {
+    return false;
+  }
+
+  return projects.some(
+    (project) =>
+      project instanceof FoundryProject &&
+      project.initializeError === undefined &&
+      // A Hardhat 3 project's basePath can come from an ancestor package.json.
+      // Compare config locations to preserve only genuinely co-located configs.
+      path.dirname(configPath) !== project.basePath &&
+      directoryContains(project.basePath, configPath) &&
+      project.libPaths.some((libPath) => directoryContains(libPath, configPath))
+  );
+}
+
 async function findProjectForFile(serverState: ServerState, fileUri: string) {
   let project: Project = new ProjectlessProject(
     serverState,
@@ -239,10 +275,28 @@ async function findProjectForFile(serverState: ServerState, fileUri: string) {
   );
   let isLocal = false;
 
-  for (const indexedProject of Object.values(serverState.projects)) {
+  const projects = Object.values(serverState.projects);
+  for (const indexedProject of projects) {
+    // A dependency may already be indexed when its consuming workspace is added.
+    if (isFoundryDependency(indexedProject, projects)) {
+      continue;
+    }
     try {
       const result = await indexedProject.fileBelongs(fileUri);
-      if (result.belongs && indexedProject.priority > project.priority) {
+      // An independently configured shared library owns its own files, even if
+      // another Foundry project lists that directory as an external library.
+      const isCloserFoundryProject =
+        indexedProject instanceof FoundryProject &&
+        project instanceof FoundryProject &&
+        directoryContains(indexedProject.basePath, fileUri) &&
+        (!directoryContains(project.basePath, fileUri) ||
+          indexedProject.basePath.length > project.basePath.length);
+      if (
+        result.belongs &&
+        (indexedProject.priority > project.priority ||
+          (indexedProject.priority === project.priority &&
+            isCloserFoundryProject))
+      ) {
         project = indexedProject;
         isLocal = result.isLocal;
       }
