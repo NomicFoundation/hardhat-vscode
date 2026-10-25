@@ -46,10 +46,11 @@
   ],
   "scripts": {
     "build": "tsc -b",
+    "test": "node --test \"test/**/*.test.mts\"",
     "lint": "pnpm run prettier --check && pnpm run eslint",
     "lint:fix": "pnpm run prettier --write && pnpm run eslint --fix",
     "eslint": "eslint ./src/**/*.ts",
-    "prettier": "prettier *.json \"src/**/*.{ts,js,md,json,yml}\"",
+    "prettier": "prettier *.json \"src/**/*.{ts,js,md,json,yml}\" \"test/**/*.mts\"",
     "clean": "rimraf out tmp tsconfig.tsbuildinfo",
     "prepackage": "pnpm run clean && node --experimental-strip-types ../scripts/bundle/main.ts client",
     "package": "cd ./tmp && vsce package --no-dependencies --no-yarn -o ..",
