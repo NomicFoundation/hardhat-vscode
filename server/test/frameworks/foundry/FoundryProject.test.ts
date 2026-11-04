@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { expect } from "chai";
 import path from "path";
-import { stub } from "sinon";
+import { restore, stub } from "sinon";
 import * as basicCompilation from "../../../src/frameworks/shared/buildBasicCompilation";
 import { FoundryProject } from "../../../src/frameworks/Foundry/FoundryProject";
 import { ServerState } from "../../../src/types";
@@ -19,6 +19,10 @@ describe("FoundryProject", function () {
       path.join(__dirname, "test_project"),
       path.join(__dirname, "test_project", "foundry.toml")
     );
+  });
+
+  afterEach(() => {
+    restore();
   });
 
   describe("resolveImportPath", function () {
@@ -85,6 +89,44 @@ describe("FoundryProject", function () {
       expect(compilation.input.sources).to.deep.eq({
         [path.join("src", "A.sol")]: { content: "" },
       });
+    });
+
+    it("points remappings from buildBasicCompilation at the root-relative source keys", async () => {
+      const sourceUri = path.join(project.basePath, "src", "A.sol");
+      const libUri = path.join(project.basePath, "lib", "C.sol");
+      const outsideUri = path.join(
+        path.dirname(project.basePath),
+        "outside",
+        "D.sol"
+      );
+
+      project.remappings = [{ from: "lib/", to: "lib/" }];
+
+      stub(basicCompilation, "buildBasicCompilation").resolves({
+        input: {
+          sources: {
+            [sourceUri]: { content: "" },
+            [libUri]: { content: "" },
+            [outsideUri]: { content: "" },
+          },
+          settings: {
+            remappings: [`dep/C.sol=${libUri}`, `outside/D.sol=${outsideUri}`],
+          },
+        },
+      } as any);
+
+      const compilation = await project.buildCompilation(sourceUri, []);
+
+      expect(Object.keys(compilation.input.sources)).to.have.members([
+        path.join("src", "A.sol"),
+        path.join("lib", "C.sol"),
+        outsideUri,
+      ]);
+      expect((compilation.input.settings as any).remappings).to.deep.eq([
+        "lib/=lib/",
+        `dep/C.sol=${path.join("lib", "C.sol")}`,
+        `outside/D.sol=${outsideUri}`,
+      ]);
     });
   });
 });
