@@ -175,7 +175,24 @@ export class FoundryProject extends Project {
       (remapping) => `${remapping.from}=${remapping.to}`
     );
 
-    const inputRemappings = basicCompilation.input.settings.remappings ?? [];
+    // buildBasicCompilation remaps each non-relative import to the file's
+    // absolute path. Point those remappings at the same root-relative keys the
+    // sources use above, so solc resolves the import to an existing source
+    const inputRemappings = (
+      basicCompilation.input.settings.remappings ?? []
+    ).map((remapping: string) => {
+      const separatorIndex = remapping.indexOf("=");
+      const target = remapping.slice(separatorIndex + 1);
+
+      if (!directoryContains(this.basePath, target)) {
+        return remapping;
+      }
+
+      return `${remapping.slice(0, separatorIndex + 1)}${path.relative(
+        this.basePath,
+        target
+      )}`;
+    });
 
     (basicCompilation.input.settings as any).remappings = [
       ...remappings,
