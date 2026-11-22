@@ -104,17 +104,19 @@ export class FoundryProject extends Project {
   public async resolveImportPath(file: string, importPath: string) {
     let transformedPath = importPath;
 
-    // Apply remappings to importPath if it's not a relative import
+    // Apply remappings to importPath if it's not a relative import.
+    // Like solc, use the remapping with the longest matching prefix
     if (!importPath.startsWith(".")) {
-      for (const { from, to } of this.remappings) {
-        const toAbsolutePath = path.resolve(this.basePath, to);
+      const remapping = _.maxBy(
+        this.remappings.filter(({ from }) => importPath.startsWith(from)),
+        ({ from }) => from.length
+      );
 
-        if (importPath.startsWith(from)) {
-          transformedPath = path.join(
-            toAbsolutePath,
-            importPath.slice(from.length)
-          );
-        }
+      if (remapping !== undefined) {
+        transformedPath = path.join(
+          path.resolve(this.basePath, remapping.to),
+          importPath.slice(remapping.from.length)
+        );
       }
     }
 
