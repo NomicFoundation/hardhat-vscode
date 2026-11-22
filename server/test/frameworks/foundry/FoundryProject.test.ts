@@ -66,6 +66,29 @@ describe("FoundryProject", function () {
       );
       expect(illegalImport).to.eq(undefined);
     });
+
+    it("uses the longest matching remapping, regardless of order", async () => {
+      project.remappings = [
+        { from: "@dep/lib/", to: "lib/" },
+        { from: "@dep/", to: "src/" },
+      ];
+
+      const specificImport = await project.resolveImportPath(
+        path.join(project.basePath, "src", "A.sol"),
+        "@dep/lib/C.sol"
+      );
+      const broadImport = await project.resolveImportPath(
+        path.join(project.basePath, "src", "A.sol"),
+        "@dep/B.sol"
+      );
+
+      expect(specificImport).to.eq(
+        toUnixStyle(path.join(project.basePath, "lib", "C.sol"))
+      );
+      expect(broadImport).to.eq(
+        toUnixStyle(path.join(project.basePath, "src", "B.sol"))
+      );
+    });
   });
 
   describe("buildCompilation", function () {
